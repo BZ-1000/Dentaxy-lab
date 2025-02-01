@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const HistoriaClinica = () => {
   const { toast } = useToast();
@@ -17,7 +19,23 @@ const HistoriaClinica = () => {
     alumno: '',
     
     // A. General
-    padecimientoActual: '',
+    padecimientoActual: {
+      sinSintomas: false,
+      fechaAparicion: '',
+      evolucion: '',
+      estadoActual: '',
+      dolor: {
+        fechaInicio: '',
+        condicionAparicion: '', // 'provocado' | 'espontaneo'
+        frecuencia: '', // 'intermitente' | 'continuo'
+        caracter: '', // 'pulsatil' | 'sordo' | 'quemante' | 'opresivo'
+        localizacion: {
+          tipo: '', // 'localizado' | 'irradiado'
+          descripcion: ''
+        },
+        atenuacion: ''
+      }
+    },
     
     // Antecedentes Heredo Familiares
     padre: '',
@@ -147,12 +165,35 @@ const HistoriaClinica = () => {
     }));
   };
 
-  const handleNestedInputChange = (category: string, field: string, value: string) => {
+  const handlePadecimientoChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
-      [category]: {
-        ...prev[category as keyof typeof prev],
+      padecimientoActual: {
+        ...prev.padecimientoActual,
         [field]: value
+      }
+    }));
+  };
+
+  const handleDolorChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      padecimientoActual: {
+        ...prev.padecimientoActual,
+        dolor: {
+          ...prev.padecimientoActual.dolor,
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  const handleSinSintomasChange = (checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      padecimientoActual: {
+        ...prev.padecimientoActual,
+        sinSintomas: checked
       }
     }));
   };
@@ -167,7 +208,18 @@ const HistoriaClinica = () => {
       Alumno: ${formData.alumno}
       
       PADECIMIENTO ACTUAL:
-      ${formData.padecimientoActual}
+      ${formData.padecimientoActual.sinSintomas ? "Actualmente no refiere sintomatología" : `
+      Fecha de aparición: ${formData.padecimientoActual.fechaAparicion}
+      Evolución: ${formData.padecimientoActual.evolucion}
+      Estado Actual: ${formData.padecimientoActual.estadoActual}
+      Dolor: 
+        Fecha de inicio: ${formData.padecimientoActual.dolor.fechaInicio}
+        Condición de aparición: ${formData.padecimientoActual.dolor.condicionAparicion}
+        Frecuencia: ${formData.padecimientoActual.dolor.frecuencia}
+        Carácter: ${formData.padecimientoActual.dolor.caracter}
+        Localización: ${formData.padecimientoActual.dolor.localizacion.tipo} - ${formData.padecimientoActual.dolor.localizacion.descripcion}
+        Atenuación: ${formData.padecimientoActual.dolor.atenuacion}
+      `}
       
       ANTECEDENTES HEREDO FAMILIARES:
       Padre: ${formData.padre}
@@ -248,16 +300,184 @@ const HistoriaClinica = () => {
           </div>
         </Card>
 
-        {/* Padecimiento Actual */}
+        {/* Padecimiento Actual - Updated Section */}
         <Card className="p-6">
           <h3 className="text-xl font-semibold mb-4">Padecimiento Actual</h3>
-          <Textarea
-            name="padecimientoActual"
-            value={formData.padecimientoActual}
-            onChange={handleInputChange}
-            placeholder="Describa el padecimiento actual"
-            className="h-32"
-          />
+          
+          <div className="mb-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="sinSintomas"
+                checked={formData.padecimientoActual.sinSintomas}
+                onCheckedChange={handleSinSintomasChange}
+              />
+              <Label htmlFor="sinSintomas">Actualmente no refiere sintomatología</Label>
+            </div>
+          </div>
+
+          {!formData.padecimientoActual.sinSintomas && (
+            <div className="space-y-4">
+              <div>
+                <Label>Fecha de aparición del síntoma principal</Label>
+                <Input
+                  type="date"
+                  value={formData.padecimientoActual.fechaAparicion}
+                  onChange={(e) => handlePadecimientoChange('fechaAparicion', e.target.value)}
+                />
+              </div>
+
+              <div>
+                <Label>Evolución</Label>
+                <Textarea
+                  value={formData.padecimientoActual.evolucion}
+                  onChange={(e) => handlePadecimientoChange('evolucion', e.target.value)}
+                  placeholder="Describa la evolución de los síntomas"
+                />
+              </div>
+
+              <div>
+                <Label>Estado Actual</Label>
+                <Textarea
+                  value={formData.padecimientoActual.estadoActual}
+                  onChange={(e) => handlePadecimientoChange('estadoActual', e.target.value)}
+                  placeholder="Describa el estado actual de los síntomas"
+                />
+              </div>
+
+              {/* Sección de Dolor */}
+              <div className="space-y-4 border-t pt-4">
+                <h4 className="text-lg font-semibold">Características del Dolor</h4>
+                
+                <div>
+                  <Label>Fecha de inicio del dolor</Label>
+                  <Input
+                    type="date"
+                    value={formData.padecimientoActual.dolor.fechaInicio}
+                    onChange={(e) => handleDolorChange('fechaInicio', e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <Label>Condición de aparición</Label>
+                  <RadioGroup
+                    value={formData.padecimientoActual.dolor.condicionAparicion}
+                    onValueChange={(value) => handleDolorChange('condicionAparicion', value)}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="provocado" id="provocado" />
+                      <Label htmlFor="provocado">Provocado</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="espontaneo" id="espontaneo" />
+                      <Label htmlFor="espontaneo">Espontáneo</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <div>
+                  <Label>Frecuencia</Label>
+                  <RadioGroup
+                    value={formData.padecimientoActual.dolor.frecuencia}
+                    onValueChange={(value) => handleDolorChange('frecuencia', value)}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="intermitente" id="intermitente" />
+                      <Label htmlFor="intermitente">Intermitente</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="continuo" id="continuo" />
+                      <Label htmlFor="continuo">Continuo</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <div>
+                  <Label>Carácter del dolor</Label>
+                  <RadioGroup
+                    value={formData.padecimientoActual.dolor.caracter}
+                    onValueChange={(value) => handleDolorChange('caracter', value)}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="pulsatil" id="pulsatil" />
+                      <Label htmlFor="pulsatil">Pulsátil</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="sordo" id="sordo" />
+                      <Label htmlFor="sordo">Sordo</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="quemante" id="quemante" />
+                      <Label htmlFor="quemante">Quemante</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="opresivo" id="opresivo" />
+                      <Label htmlFor="opresivo">Opresivo</Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+
+                <div>
+                  <Label>Localización del dolor</Label>
+                  <RadioGroup
+                    value={formData.padecimientoActual.dolor.localizacion.tipo}
+                    onValueChange={(value) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        padecimientoActual: {
+                          ...prev.padecimientoActual,
+                          dolor: {
+                            ...prev.padecimientoActual.dolor,
+                            localizacion: {
+                              ...prev.padecimientoActual.dolor.localizacion,
+                              tipo: value
+                            }
+                          }
+                        }
+                      }));
+                    }}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="localizado" id="localizado" />
+                      <Label htmlFor="localizado">Localizado</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="irradiado" id="irradiado" />
+                      <Label htmlFor="irradiado">Irradiado</Label>
+                    </div>
+                  </RadioGroup>
+                  <Input
+                    className="mt-2"
+                    placeholder="Descripción de la localización"
+                    value={formData.padecimientoActual.dolor.localizacion.descripcion}
+                    onChange={(e) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        padecimientoActual: {
+                          ...prev.padecimientoActual,
+                          dolor: {
+                            ...prev.padecimientoActual.dolor,
+                            localizacion: {
+                              ...prev.padecimientoActual.dolor.localizacion,
+                              descripcion: e.target.value
+                            }
+                          }
+                        }
+                      }));
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <Label>Atenuación</Label>
+                  <Textarea
+                    value={formData.padecimientoActual.dolor.atenuacion}
+                    onChange={(e) => handleDolorChange('atenuacion', e.target.value)}
+                    placeholder="Condiciones que exacerban o disminuyen el dolor"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* Antecedentes Heredo Familiares */}
