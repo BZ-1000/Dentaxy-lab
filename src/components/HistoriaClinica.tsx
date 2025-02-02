@@ -38,15 +38,104 @@ const HistoriaClinica = () => {
     },
     
     // Antecedentes Heredo Familiares
-    padre: '',
-    madre: '',
-    abueloPaterno: '',
-    abuelaPaterna: '',
-    abueloMaterno: '',
-    abuelaMaterna: '',
-    tios: '',
-    hermanos: '',
-    enfermedadesCronicasFamiliares: '',
+    antecedentesHeredoFamiliares: {
+      padre: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      },
+      madre: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      },
+      abueloPaterno: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      },
+      abuelaPaterna: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      },
+      abueloMaterno: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      },
+      abuelaMaterna: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      }
+    },
     
     // A.1 Antecedentes Personales No Patológicos
     serviciosDomiciliarios: '',
@@ -198,6 +287,35 @@ const HistoriaClinica = () => {
     }));
   };
 
+  const handleFamiliarChange = (familiar: string, field: string, value: boolean | string) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesHeredoFamiliares: {
+        ...prev.antecedentesHeredoFamiliares,
+        [familiar]: {
+          ...prev.antecedentesHeredoFamiliares[familiar],
+          [field]: value
+        }
+      }
+    }));
+  };
+
+  const handleCondicionChange = (familiar: string, condicion: string, value: boolean | string) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesHeredoFamiliares: {
+        ...prev.antecedentesHeredoFamiliares,
+        [familiar]: {
+          ...prev.antecedentesHeredoFamiliares[familiar],
+          condiciones: {
+            ...prev.antecedentesHeredoFamiliares[familiar].condiciones,
+            [condicion]: value
+          }
+        }
+      }
+    }));
+  };
+
   const generarResumen = async () => {
     const resumenGenerado = `
       HISTORIA CLÍNICA ODONTOLÓGICA
@@ -222,8 +340,8 @@ const HistoriaClinica = () => {
       `}
       
       ANTECEDENTES HEREDO FAMILIARES:
-      Padre: ${formData.padre}
-      Madre: ${formData.madre}
+      Padre: ${formData.antecedentesHeredoFamiliares.padre.finado ? `Finado por: ${formData.antecedentesHeredoFamiliares.padre.causaMuerte}` : `Condiciones: ${Object.entries(formData.antecedentesHeredoFamiliares.padre.condiciones).filter(([key, value]) => value).map(([key]) => key).join(', ')}`}
+      Madre: ${formData.antecedentesHeredoFamiliares.madre.finado ? `Finado por: ${formData.antecedentesHeredoFamiliares.madre.causaMuerte}` : `Condiciones: ${Object.entries(formData.antecedentesHeredoFamiliares.madre.condiciones).filter(([key, value]) => value).map(([key]) => key).join(', ')}`}
       
       SIGNOS VITALES:
       Peso: ${formData.peso} kg
@@ -483,28 +601,77 @@ const HistoriaClinica = () => {
         {/* Antecedentes Heredo Familiares */}
         <Card className="p-6">
           <h3 className="text-xl font-semibold mb-4">Antecedentes Heredo Familiares</h3>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <Label htmlFor="padre">Padre</Label>
-              <Input
-                id="padre"
-                name="padre"
-                value={formData.padre}
-                onChange={handleInputChange}
-                placeholder="Estado de salud del padre"
-              />
+          
+          {Object.entries({
+            padre: 'Padre',
+            madre: 'Madre',
+            abueloPaterno: 'Abuelo Paterno',
+            abuelaPaterna: 'Abuela Paterna',
+            abueloMaterno: 'Abuelo Materno',
+            abuelaMaterna: 'Abuela Materna'
+          }).map(([key, label]) => (
+            <div key={key} className="mb-6 border-b pb-4">
+              <h4 className="text-lg font-medium mb-3">{label}</h4>
+              
+              <div className="mb-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`${key}-finado`}
+                    checked={formData.antecedentesHeredoFamiliares[key].finado}
+                    onCheckedChange={(checked) => handleFamiliarChange(key, 'finado', checked)}
+                  />
+                  <Label htmlFor={`${key}-finado`}>Finado</Label>
+                </div>
+                
+                {formData.antecedentesHeredoFamiliares[key].finado && (
+                  <div className="mt-2">
+                    <Label htmlFor={`${key}-causa-muerte`}>Causa de muerte</Label>
+                    <Input
+                      id={`${key}-causa-muerte`}
+                      value={formData.antecedentesHeredoFamiliares[key].causaMuerte}
+                      onChange={(e) => handleFamiliarChange(key, 'causaMuerte', e.target.value)}
+                      placeholder="Especifique la causa"
+                    />
+                  </div>
+                )}
+
+                {!formData.antecedentesHeredoFamiliares[key].finado && (
+                  <div className="grid gap-2 mt-2">
+                    {Object.entries({
+                      diabetesMellitus: 'Diabetes Mellitus',
+                      hipertensionArterial: 'Hipertensión Arterial',
+                      osteoporosis: 'Osteoporosis',
+                      artritisReumatoide: 'Artritis Reumatoide',
+                      parkinson: 'Parkinson',
+                      alzheimer: 'Alzheimer',
+                      asma: 'Asma',
+                      cancer: 'Cáncer',
+                      anemia: 'Anemia'
+                    }).map(([condition, label]) => (
+                      <div key={condition} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`${key}-${condition}`}
+                          checked={formData.antecedentesHeredoFamiliares[key].condiciones[condition]}
+                          onCheckedChange={(checked) => handleCondicionChange(key, condition, checked)}
+                        />
+                        <Label htmlFor={`${key}-${condition}`}>{label}</Label>
+                      </div>
+                    ))}
+                    
+                    <div className="mt-2">
+                      <Label htmlFor={`${key}-otras`}>Otras condiciones</Label>
+                      <Input
+                        id={`${key}-otras`}
+                        value={formData.antecedentesHeredoFamiliares[key].condiciones.otras}
+                        onChange={(e) => handleCondicionChange(key, 'otras', e.target.value)}
+                        placeholder="Especifique otras condiciones"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-            <div>
-              <Label htmlFor="madre">Madre</Label>
-              <Input
-                id="madre"
-                name="madre"
-                value={formData.madre}
-                onChange={handleInputChange}
-                placeholder="Estado de salud de la madre"
-              />
-            </div>
-          </div>
+          ))}
         </Card>
 
         {/* Signos Vitales */}
