@@ -139,6 +139,20 @@ const AntecedentesPersonalesNoPatologicos = ({
         <h4 className="text-lg font-medium">Higiene Bucal</h4>
         <div className="grid gap-4">
           <div>
+            <Label>Frecuencia de Cepillado</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccione frecuencia" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1 vez al día</SelectItem>
+                <SelectItem value="2">2 veces al día</SelectItem>
+                <SelectItem value="3">3 veces al día</SelectItem>
+                <SelectItem value="mas">Más de 3 veces al día</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
             <Label>Auxiliares de Higiene</Label>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
@@ -150,6 +164,41 @@ const AntecedentesPersonalesNoPatologicos = ({
                 <Label htmlFor="enjuague">Enjuague Bucal</Label>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Grupo Sanguíneo y Factor RH */}
+      <div className="space-y-4 mb-6">
+        <h4 className="text-lg font-medium">Grupo Sanguíneo y Factor RH</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>Grupo Sanguíneo</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccione grupo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="O">O</SelectItem>
+                <SelectItem value="A">A</SelectItem>
+                <SelectItem value="B">B</SelectItem>
+                <SelectItem value="AB">AB</SelectItem>
+                <SelectItem value="desconoce">Desconoce</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Factor RH</Label>
+            <RadioGroup defaultValue="positivo" className="flex gap-4">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="positivo" id="rh-positivo" />
+                <Label htmlFor="rh-positivo">Positivo</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="negativo" id="rh-negativo" />
+                <Label htmlFor="rh-negativo">Negativo</Label>
+              </div>
+            </RadioGroup>
           </div>
         </div>
       </div>
