@@ -3,6 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface AntecedentesPersonalesNoPatologicosProps {
   formData: {
@@ -40,163 +43,184 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
   handleInputChange,
 }) => {
   return (
-    <Card className="p-6">
+    <Card className="p-6 space-y-8">
       <h3 className="text-xl font-semibold mb-6">III. Antecedentes Personales No Patológicos</h3>
       
-      <div className="space-y-6">
-        {/* Servicios Domiciliarios */}
-        <div>
-          <h4 className="text-lg font-medium mb-3">Servicios Domiciliarios</h4>
-          <div className="grid gap-4">
-            <div>
-              <Label htmlFor="serviciosDomiciliarios">Servicios (agua, luz, drenaje, transporte)</Label>
-              <Input
-                id="serviciosDomiciliarios"
-                name="serviciosDomiciliarios"
-                value={formData.serviciosDomiciliarios}
-                onChange={handleInputChange}
-                placeholder="Especifique los servicios disponibles"
-              />
+      {/* Servicios Domiciliarios */}
+      <div className="space-y-4">
+        <h4 className="text-lg font-medium">Servicios Domiciliarios</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label>Tipo de Vivienda</Label>
+            <RadioGroup defaultValue="urbana" className="flex gap-4">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="urbana" id="urbana" />
+                <Label htmlFor="urbana">Urbana</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="rural" id="rural" />
+                <Label htmlFor="rural">Rural</Label>
+              </div>
+            </RadioGroup>
+          </div>
+          <div className="space-y-2">
+            <Label>Servicios</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="agua" />
+                <Label htmlFor="agua">Agua</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="luz" />
+                <Label htmlFor="luz">Luz</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="drenaje" />
+                <Label htmlFor="drenaje">Drenaje</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="transporte" />
+                <Label htmlFor="transporte">Transporte</Label>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Higiene de la Vivienda */}
-        <div>
-          <h4 className="text-lg font-medium mb-3">Higiene de la Vivienda</h4>
-          <div className="grid gap-4">
-            <div>
-              <Label htmlFor="frecuenciaLimpieza">Frecuencia de Limpieza</Label>
-              <Input
-                id="frecuenciaLimpieza"
-                name="frecuenciaLimpieza"
-                value={formData.frecuenciaLimpieza}
-                onChange={handleInputChange}
-                placeholder="¿Cada cuánto se realiza la limpieza?"
-              />
-            </div>
-            <div>
-              <Label htmlFor="hacinamiento">Hacinamiento</Label>
-              <Input
-                id="hacinamiento"
-                name="hacinamiento"
-                value={formData.hacinamiento}
-                onChange={handleInputChange}
-                placeholder="¿Existe hacinamiento?"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Higiene Personal */}
-        <div>
-          <h4 className="text-lg font-medium mb-3">Higiene Personal</h4>
+      {/* Higiene de la Vivienda */}
+      <div className="space-y-4">
+        <h4 className="text-lg font-medium">Higiene de la Vivienda</h4>
+        <div className="grid gap-4">
           <div>
-            <Label htmlFor="frecuenciaBano">Frecuencia de Baño</Label>
-            <Input
-              id="frecuenciaBano"
-              name="frecuenciaBano"
-              value={formData.frecuenciaBano}
-              onChange={handleInputChange}
-              placeholder="¿Con qué frecuencia se baña?"
-            />
+            <Label>Frecuencia de Limpieza</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccione frecuencia" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="diaria">Diaria</SelectItem>
+                <SelectItem value="semanal">Semanal</SelectItem>
+                <SelectItem value="quincenal">Quincenal</SelectItem>
+                <SelectItem value="mensual">Mensual</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-        </div>
-
-        {/* Higiene Bucal */}
-        <div>
-          <h4 className="text-lg font-medium mb-3">Higiene Bucal</h4>
-          <div className="grid gap-4">
-            <div>
-              <Label htmlFor="higieneBucal.frecuenciaCepillado">Frecuencia de Cepillado</Label>
-              <Input
-                id="higieneBucal.frecuenciaCepillado"
-                name="higieneBucal.frecuenciaCepillado"
-                value={formData.higieneBucal.frecuenciaCepillado}
-                onChange={handleInputChange}
-                placeholder="¿Cuántas veces al día?"
-              />
-            </div>
-            <div>
-              <Label htmlFor="higieneBucal.usoHiloDental">Uso de Hilo Dental</Label>
-              <Input
-                id="higieneBucal.usoHiloDental"
-                name="higieneBucal.usoHiloDental"
-                value={formData.higieneBucal.usoHiloDental}
-                onChange={handleInputChange}
-                placeholder="¿Usa hilo dental?"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Alimentación */}
-        <div>
-          <h4 className="text-lg font-medium mb-3">Alimentación</h4>
-          <div className="grid gap-4">
-            <div>
-              <Label htmlFor="alimentacion.tipoDieta">Tipo de Dieta</Label>
-              <Input
-                id="alimentacion.tipoDieta"
-                name="alimentacion.tipoDieta"
-                value={formData.alimentacion.tipoDieta}
-                onChange={handleInputChange}
-                placeholder="Describa el tipo de dieta"
-              />
-            </div>
-            <div>
-              <Label htmlFor="alimentacion.frecuenciaComidas">Frecuencia de Comidas</Label>
-              <Input
-                id="alimentacion.frecuenciaComidas"
-                name="alimentacion.frecuenciaComidas"
-                value={formData.alimentacion.frecuenciaComidas}
-                onChange={handleInputChange}
-                placeholder="Número de comidas al día"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Grupo Sanguíneo y Factor RH */}
-        <div>
-          <h4 className="text-lg font-medium mb-3">Grupo Sanguíneo y Factor RH</h4>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="grupoSanguineo">Grupo Sanguíneo</Label>
-              <Input
-                id="grupoSanguineo"
-                name="grupoSanguineo"
-                value={formData.grupoSanguineo}
-                onChange={handleInputChange}
-                placeholder="O, A, B, AB"
-              />
-            </div>
-            <div>
-              <Label htmlFor="factorRh">Factor RH</Label>
-              <Input
-                id="factorRh"
-                name="factorRh"
-                value={formData.factorRh}
-                onChange={handleInputChange}
-                placeholder="Positivo/Negativo"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Inmunizaciones */}
-        <div>
-          <h4 className="text-lg font-medium mb-3">Inmunizaciones</h4>
           <div>
-            <Label htmlFor="inmunizaciones">Esquema de Vacunación</Label>
-            <Textarea
-              id="inmunizaciones"
-              name="inmunizaciones"
-              value={formData.inmunizaciones}
-              onChange={handleInputChange}
-              placeholder="Detalle el esquema de vacunación"
-              className="min-h-[100px]"
-            />
+            <Label>Hacinamiento</Label>
+            <RadioGroup defaultValue="no" className="flex gap-4">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="si" id="hacinamiento-si" />
+                <Label htmlFor="hacinamiento-si">Sí</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="no" id="hacinamiento-no" />
+                <Label htmlFor="hacinamiento-no">No</Label>
+              </div>
+            </RadioGroup>
+          </div>
+        </div>
+      </div>
+
+      {/* Higiene Personal */}
+      <div className="space-y-4">
+        <h4 className="text-lg font-medium">Higiene Personal</h4>
+        <div className="grid gap-4">
+          <div>
+            <Label>Frecuencia de Baño</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccione frecuencia" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="diario">Diario</SelectItem>
+                <SelectItem value="cada-tercer-dia">Cada tercer día</SelectItem>
+                <SelectItem value="semanal">Semanal</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      {/* Higiene Bucal */}
+      <div className="space-y-4">
+        <h4 className="text-lg font-medium">Higiene Bucal</h4>
+        <div className="grid gap-4">
+          <div>
+            <Label>Frecuencia de Cepillado</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccione frecuencia" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1">1 vez al día</SelectItem>
+                <SelectItem value="2">2 veces al día</SelectItem>
+                <SelectItem value="3">3 veces al día</SelectItem>
+                <SelectItem value="mas">Más de 3 veces al día</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Auxiliares de Higiene</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="hilo-dental" />
+                <Label htmlFor="hilo-dental">Hilo Dental</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox id="enjuague" />
+                <Label htmlFor="enjuague">Enjuague Bucal</Label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Grupo Sanguíneo y Factor RH */}
+      <div className="space-y-4">
+        <h4 className="text-lg font-medium">Grupo Sanguíneo y Factor RH</h4>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>Grupo Sanguíneo</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccione grupo" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="O">O</SelectItem>
+                <SelectItem value="A">A</SelectItem>
+                <SelectItem value="B">B</SelectItem>
+                <SelectItem value="AB">AB</SelectItem>
+                <SelectItem value="desconoce">Desconoce</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Factor RH</Label>
+            <RadioGroup defaultValue="positivo" className="flex gap-4">
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="positivo" id="rh-positivo" />
+                <Label htmlFor="rh-positivo">Positivo</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="negativo" id="rh-negativo" />
+                <Label htmlFor="rh-negativo">Negativo</Label>
+              </div>
+            </RadioGroup>
+          </div>
+        </div>
+      </div>
+
+      {/* Inmunizaciones */}
+      <div className="space-y-4">
+        <h4 className="text-lg font-medium">Inmunizaciones</h4>
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            <Checkbox id="esquema-completo" />
+            <Label htmlFor="esquema-completo">Esquema de vacunación completo</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox id="cartilla" />
+            <Label htmlFor="cartilla">Cuenta con cartilla nacional de vacunación</Label>
           </div>
         </div>
       </div>
