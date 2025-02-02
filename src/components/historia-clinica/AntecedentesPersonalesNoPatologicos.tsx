@@ -2,10 +2,9 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 
 interface AntecedentesPersonalesNoPatologicosProps {
   formData: {
@@ -38,19 +37,19 @@ interface AntecedentesPersonalesNoPatologicosProps {
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
-const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPatologicosProps> = ({
+const AntecedentesPersonalesNoPatologicos = ({
   formData,
   handleInputChange,
-}) => {
+}: AntecedentesPersonalesNoPatologicosProps) => {
   return (
-    <Card className="p-6 space-y-8">
-      <h3 className="text-xl font-semibold mb-6">III. Antecedentes Personales No Patológicos</h3>
+    <Card className="p-6">
+      <h3 className="text-xl font-semibold mb-4">III. Antecedentes Personales No Patológicos</h3>
       
       {/* Servicios Domiciliarios */}
-      <div className="space-y-4">
+      <div className="space-y-4 mb-6">
         <h4 className="text-lg font-medium">Servicios Domiciliarios</h4>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
+        <div className="grid gap-4">
+          <div>
             <Label>Tipo de Vivienda</Label>
             <RadioGroup defaultValue="urbana" className="flex gap-4">
               <div className="flex items-center space-x-2">
@@ -63,23 +62,23 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
               </div>
             </RadioGroup>
           </div>
-          <div className="space-y-2">
+          <div>
             <Label>Servicios</Label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
-                <Checkbox id="agua" />
+                <CustomCheckbox id="agua" />
                 <Label htmlFor="agua">Agua</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox id="luz" />
+                <CustomCheckbox id="luz" />
                 <Label htmlFor="luz">Luz</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox id="drenaje" />
+                <CustomCheckbox id="drenaje" />
                 <Label htmlFor="drenaje">Drenaje</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox id="transporte" />
+                <CustomCheckbox id="transporte" />
                 <Label htmlFor="transporte">Transporte</Label>
               </div>
             </div>
@@ -88,7 +87,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
       </div>
 
       {/* Higiene de la Vivienda */}
-      <div className="space-y-4">
+      <div className="space-y-4 mb-6">
         <h4 className="text-lg font-medium">Higiene de la Vivienda</h4>
         <div className="grid gap-4">
           <div>
@@ -107,22 +106,16 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           </div>
           <div>
             <Label>Hacinamiento</Label>
-            <RadioGroup defaultValue="no" className="flex gap-4">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="si" id="hacinamiento-si" />
-                <Label htmlFor="hacinamiento-si">Sí</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="no" id="hacinamiento-no" />
-                <Label htmlFor="hacinamiento-no">No</Label>
-              </div>
-            </RadioGroup>
+            <div className="flex items-center space-x-2">
+              <CustomCheckbox id="hacinamiento" />
+              <Label htmlFor="hacinamiento">Presente</Label>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Higiene Personal */}
-      <div className="space-y-4">
+      <div className="space-y-4 mb-6">
         <h4 className="text-lg font-medium">Higiene Personal</h4>
         <div className="grid gap-4">
           <div>
@@ -142,7 +135,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
       </div>
 
       {/* Higiene Bucal */}
-      <div className="space-y-4">
+      <div className="space-y-4 mb-6">
         <h4 className="text-lg font-medium">Higiene Bucal</h4>
         <div className="grid gap-4">
           <div>
@@ -159,15 +152,15 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-2">
+          <div>
             <Label>Auxiliares de Higiene</Label>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
-                <Checkbox id="hilo-dental" />
+                <CustomCheckbox id="hilo-dental" />
                 <Label htmlFor="hilo-dental">Hilo Dental</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox id="enjuague" />
+                <CustomCheckbox id="enjuague" />
                 <Label htmlFor="enjuague">Enjuague Bucal</Label>
               </div>
             </div>
@@ -176,7 +169,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
       </div>
 
       {/* Grupo Sanguíneo y Factor RH */}
-      <div className="space-y-4">
+      <div className="space-y-4 mb-6">
         <h4 className="text-lg font-medium">Grupo Sanguíneo y Factor RH</h4>
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -215,11 +208,11 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
         <h4 className="text-lg font-medium">Inmunizaciones</h4>
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
-            <Checkbox id="esquema-completo" />
+            <CustomCheckbox id="esquema-completo" />
             <Label htmlFor="esquema-completo">Esquema de vacunación completo</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <Checkbox id="cartilla" />
+            <CustomCheckbox id="cartilla" />
             <Label htmlFor="cartilla">Cuenta con cartilla nacional de vacunación</Label>
           </div>
         </div>
