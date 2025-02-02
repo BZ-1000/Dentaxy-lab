@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface PadecimientoActualProps {
@@ -43,7 +43,7 @@ const PadecimientoActual = ({
       
       <div className="mb-4">
         <div className="flex items-center space-x-2">
-          <Checkbox 
+          <CustomCheckbox 
             id="sinSintomas"
             checked={formData.padecimientoActual.sinSintomas}
             onCheckedChange={handleSinSintomasChange}

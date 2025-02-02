@@ -2,7 +2,7 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 
 interface Familiar {
   finado: boolean;
@@ -72,14 +72,14 @@ const AntecedentesHeredoFamiliares = ({
                 <tr className="border-t border-gray-100">
                   <td className="py-3 font-medium">{label}</td>
                   <td className="py-3 text-center">
-                    <Checkbox
+                    <CustomCheckbox
                       checked={formData.antecedentesHeredoFamiliares[key].finado}
                       onCheckedChange={(checked) => handleFamiliarChange(key, 'finado', checked)}
                     />
                   </td>
                   {condiciones.map(condicion => (
                     <td key={condicion.id} className="py-3 text-center">
-                      <Checkbox
+                      <CustomCheckbox
                         checked={formData.antecedentesHeredoFamiliares[key].condiciones[condicion.id]}
                         onCheckedChange={(checked) => handleCondicionChange(key, condicion.id, checked)}
                         disabled={formData.antecedentesHeredoFamiliares[key].finado}
