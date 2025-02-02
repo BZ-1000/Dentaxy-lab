@@ -1,11 +1,9 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface AntecedentesPersonalesNoPatologicosProps {
   formData: {
@@ -49,7 +47,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
       {/* Servicios Domiciliarios */}
       <div className="space-y-4">
         <h4 className="text-lg font-medium">Servicios Domiciliarios</h4>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid gap-4">
           <div className="space-y-2">
             <Label>Tipo de Vivienda</Label>
             <RadioGroup defaultValue="urbana" className="flex gap-4">
@@ -63,9 +61,10 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
               </div>
             </RadioGroup>
           </div>
+          
           <div className="space-y-2">
-            <Label>Servicios</Label>
-            <div className="grid grid-cols-2 gap-2">
+            <Label>Servicios Disponibles</Label>
+            <div className="grid grid-cols-2 gap-4">
               <div className="flex items-center space-x-2">
                 <Checkbox id="agua" />
                 <Label htmlFor="agua">Agua</Label>
@@ -99,9 +98,9 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="diaria">Diaria</SelectItem>
+                <SelectItem value="cada-tercer-dia">Cada tercer día</SelectItem>
                 <SelectItem value="semanal">Semanal</SelectItem>
                 <SelectItem value="quincenal">Quincenal</SelectItem>
-                <SelectItem value="mensual">Mensual</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -171,6 +170,20 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                 <Label htmlFor="enjuague">Enjuague Bucal</Label>
               </div>
             </div>
+          </div>
+          <div>
+            <Label>Visitas al Odontólogo por Año</Label>
+            <Select>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccione frecuencia" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="0">Ninguna</SelectItem>
+                <SelectItem value="1">1 vez al año</SelectItem>
+                <SelectItem value="2">2 veces al año</SelectItem>
+                <SelectItem value="mas">Más de 2 veces al año</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
