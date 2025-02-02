@@ -18,10 +18,6 @@ export default {
       },
     },
     extend: {
-      fontFamily: {
-        playfair: ['Playfair Display', 'serif'],
-        lora: ['Lora', 'serif'],
-      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
