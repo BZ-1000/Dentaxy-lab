@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import InformacionGeneral from './historia-clinica/InformacionGeneral';
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
+import AntecedentesPersonalesNoPatologicos from './historia-clinica/AntecedentesPersonalesNoPatologicos';
 import SignosVitales from './historia-clinica/SignosVitales';
 import DiagnosticoPronostico from './historia-clinica/DiagnosticoPronostico';
 
@@ -356,6 +357,15 @@ const HistoriaClinica = () => {
       Padre: ${formData.antecedentesHeredoFamiliares.padre.finado ? `Finado por: ${formData.antecedentesHeredoFamiliares.padre.causaMuerte}` : `Condiciones: ${Object.entries(formData.antecedentesHeredoFamiliares.padre.condiciones).filter(([key, value]) => value).map(([key]) => key).join(', ')}`}
       Madre: ${formData.antecedentesHeredoFamiliares.madre.finado ? `Finado por: ${formData.antecedentesHeredoFamiliares.madre.causaMuerte}` : `Condiciones: ${Object.entries(formData.antecedentesHeredoFamiliares.madre.condiciones).filter(([key, value]) => value).map(([key]) => key).join(', ')}`}
       
+      ANTECEDENTES PERSONALES NO PATOLÓGICOS:
+      Servicios Domiciliarios: ${formData.serviciosDomiciliarios}
+      Higiene de la Vivienda: ${formData.frecuenciaLimpieza}, Hacinamiento: ${formData.hacinamiento}
+      Higiene Personal: ${formData.frecuenciaBano}
+      Higiene Bucal: Frecuencia de Cepillado: ${formData.higieneBucal.frecuenciaCepillado}, Uso de Hilo Dental: ${formData.higieneBucal.usoHiloDental}
+      Alimentación: Tipo de Dieta: ${formData.alimentacion.tipoDieta}, Frecuencia de Comidas: ${formData.alimentacion.frecuenciaComidas}
+      Grupo Sanguíneo: ${formData.grupoSanguineo}, Factor Rh: ${formData.factorRh}
+      Inmunizaciones: ${formData.inmunizaciones}
+      
       SIGNOS VITALES:
       Peso: ${formData.peso} kg
       Talla: ${formData.talla} m
@@ -400,6 +410,11 @@ const HistoriaClinica = () => {
           formData={formData}
           handleFamiliarChange={handleFamiliarChange}
           handleCondicionChange={handleCondicionChange}
+        />
+
+        <AntecedentesPersonalesNoPatologicos
+          formData={formData}
+          handleInputChange={handleInputChange}
         />
         
         <SignosVitales 
