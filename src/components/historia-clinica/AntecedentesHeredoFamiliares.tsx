@@ -52,47 +52,53 @@ const AntecedentesHeredoFamiliares = ({
 
   return (
     <Card className="p-6">
-      <h3 className="text-xl font-semibold mb-4">Antecedentes Heredo Familiares</h3>
+      <h3 className="text-xl font-playfair font-semibold mb-6 text-center">Antecedentes Heredo Familiares</h3>
       
-      <div className="space-y-4">
+      <div className="space-y-6">
         <table className="w-full">
           <thead>
             <tr className="text-left">
-              <th className="py-2">Familiar</th>
-              <th className="py-2 text-center">Finado</th>
+              <th className="py-3 font-playfair font-medium text-lg">Familiar</th>
+              <th className="py-3 text-center font-playfair font-medium text-lg">Finado</th>
               {condiciones.map(condicion => (
-                <th key={condicion.id} className="py-2 text-center">{condicion.label}</th>
+                <th key={condicion.id} className="py-3 text-center font-playfair font-medium text-lg">
+                  {condicion.label}
+                </th>
               ))}
-              <th className="py-2">Otras</th>
+              <th className="py-3 font-playfair font-medium text-lg">Otras</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="font-lora">
             {Object.entries(familiares).map(([key, label]) => (
               <React.Fragment key={key}>
-                <tr className="border-t border-gray-100">
-                  <td className="py-3 font-medium">{label}</td>
-                  <td className="py-3 text-center">
-                    <Checkbox
-                      checked={formData.antecedentesHeredoFamiliares[key].finado}
-                      onCheckedChange={(checked) => handleFamiliarChange(key, 'finado', checked)}
-                    />
+                <tr className="border-b border-gray-100">
+                  <td className="py-4 font-medium">{label}</td>
+                  <td className="py-4 text-center">
+                    <div className="flex justify-center items-center">
+                      <Checkbox
+                        checked={formData.antecedentesHeredoFamiliares[key].finado}
+                        onCheckedChange={(checked) => handleFamiliarChange(key, 'finado', checked)}
+                      />
+                    </div>
                   </td>
                   {condiciones.map(condicion => (
-                    <td key={condicion.id} className="py-3 text-center">
-                      <Checkbox
-                        checked={formData.antecedentesHeredoFamiliares[key].condiciones[condicion.id]}
-                        onCheckedChange={(checked) => handleCondicionChange(key, condicion.id, checked)}
-                        disabled={formData.antecedentesHeredoFamiliares[key].finado}
-                      />
+                    <td key={condicion.id} className="py-4 text-center">
+                      <div className="flex justify-center items-center">
+                        <Checkbox
+                          checked={formData.antecedentesHeredoFamiliares[key].condiciones[condicion.id]}
+                          onCheckedChange={(checked) => handleCondicionChange(key, condicion.id, checked)}
+                          disabled={formData.antecedentesHeredoFamiliares[key].finado}
+                        />
+                      </div>
                     </td>
                   ))}
-                  <td className="py-3">
+                  <td className="py-4">
                     <Input
                       value={formData.antecedentesHeredoFamiliares[key].condiciones.otras}
                       onChange={(e) => handleCondicionChange(key, 'otras', e.target.value)}
                       placeholder="Especifique otras condiciones"
                       disabled={formData.antecedentesHeredoFamiliares[key].finado}
-                      className="w-full"
+                      className="w-full rounded-md"
                     />
                   </td>
                 </tr>
@@ -103,7 +109,7 @@ const AntecedentesHeredoFamiliares = ({
                         value={formData.antecedentesHeredoFamiliares[key].causaMuerte}
                         onChange={(e) => handleFamiliarChange(key, 'causaMuerte', e.target.value)}
                         placeholder="Causa de muerte"
-                        className="w-full"
+                        className="w-full rounded-md"
                       />
                     </td>
                   </tr>
