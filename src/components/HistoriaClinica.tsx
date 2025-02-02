@@ -602,76 +602,125 @@ const HistoriaClinica = () => {
         <Card className="p-6">
           <h3 className="text-xl font-semibold mb-4">Antecedentes Heredo Familiares</h3>
           
-          {Object.entries({
-            padre: 'Padre',
-            madre: 'Madre',
-            abueloPaterno: 'Abuelo Paterno',
-            abuelaPaterna: 'Abuela Paterna',
-            abueloMaterno: 'Abuelo Materno',
-            abuelaMaterna: 'Abuela Materna'
-          }).map(([key, label]) => (
-            <div key={key} className="mb-6 border-b pb-4">
-              <h4 className="text-lg font-medium mb-3">{label}</h4>
-              
-              <div className="mb-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`${key}-finado`}
-                    checked={formData.antecedentesHeredoFamiliares[key].finado}
-                    onCheckedChange={(checked) => handleFamiliarChange(key, 'finado', checked)}
-                  />
-                  <Label htmlFor={`${key}-finado`}>Finado</Label>
-                </div>
-                
-                {formData.antecedentesHeredoFamiliares[key].finado && (
-                  <div className="mt-2">
-                    <Label htmlFor={`${key}-causa-muerte`}>Causa de muerte</Label>
-                    <Input
-                      id={`${key}-causa-muerte`}
-                      value={formData.antecedentesHeredoFamiliares[key].causaMuerte}
-                      onChange={(e) => handleFamiliarChange(key, 'causaMuerte', e.target.value)}
-                      placeholder="Especifique la causa"
-                    />
-                  </div>
-                )}
-
-                {!formData.antecedentesHeredoFamiliares[key].finado && (
-                  <div className="grid gap-2 mt-2">
-                    {Object.entries({
-                      diabetesMellitus: 'Diabetes Mellitus',
-                      hipertensionArterial: 'Hipertensión Arterial',
-                      osteoporosis: 'Osteoporosis',
-                      artritisReumatoide: 'Artritis Reumatoide',
-                      parkinson: 'Parkinson',
-                      alzheimer: 'Alzheimer',
-                      asma: 'Asma',
-                      cancer: 'Cáncer',
-                      anemia: 'Anemia'
-                    }).map(([condition, label]) => (
-                      <div key={condition} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`${key}-${condition}`}
-                          checked={formData.antecedentesHeredoFamiliares[key].condiciones[condition]}
-                          onCheckedChange={(checked) => handleCondicionChange(key, condition, checked)}
-                        />
-                        <Label htmlFor={`${key}-${condition}`}>{label}</Label>
-                      </div>
-                    ))}
-                    
-                    <div className="mt-2">
-                      <Label htmlFor={`${key}-otras`}>Otras condiciones</Label>
-                      <Input
-                        id={`${key}-otras`}
-                        value={formData.antecedentesHeredoFamiliares[key].condiciones.otras}
-                        onChange={(e) => handleCondicionChange(key, 'otras', e.target.value)}
-                        placeholder="Especifique otras condiciones"
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="border p-2 text-left">Familiar</th>
+                  <th className="border p-2 text-center">Finado</th>
+                  <th className="border p-2">Causa de Muerte</th>
+                  {!Object.values(formData.antecedentesHeredoFamiliares).some(f => f.finado) && (
+                    <>
+                      <th className="border p-2">Diabetes Mellitus</th>
+                      <th className="border p-2">Hipertensión Arterial</th>
+                      <th className="border p-2">Osteoporosis</th>
+                      <th className="border p-2">Artritis Reumatoide</th>
+                      <th className="border p-2">Parkinson</th>
+                      <th className="border p-2">Alzheimer</th>
+                      <th className="border p-2">Asma</th>
+                      <th className="border p-2">Cáncer</th>
+                      <th className="border p-2">Anemia</th>
+                      <th className="border p-2">Otras</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries({
+                  padre: 'Padre',
+                  madre: 'Madre',
+                  abueloPaterno: 'Abuelo Paterno',
+                  abuelaPaterna: 'Abuela Paterna',
+                  abueloMaterno: 'Abuelo Materno',
+                  abuelaMaterna: 'Abuela Materna'
+                }).map(([key, label]) => (
+                  <tr key={key} className="border-b">
+                    <td className="border p-2 font-medium">{label}</td>
+                    <td className="border p-2 text-center">
+                      <Checkbox
+                        checked={formData.antecedentesHeredoFamiliares[key].finado}
+                        onCheckedChange={(checked) => handleFamiliarChange(key, 'finado', checked)}
                       />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+                    </td>
+                    <td className="border p-2">
+                      {formData.antecedentesHeredoFamiliares[key].finado && (
+                        <Input
+                          value={formData.antecedentesHeredoFamiliares[key].causaMuerte}
+                          onChange={(e) => handleFamiliarChange(key, 'causaMuerte', e.target.value)}
+                          placeholder="Causa de muerte"
+                        />
+                      )}
+                    </td>
+                    {!formData.antecedentesHeredoFamiliares[key].finado && (
+                      <>
+                        <td className="border p-2 text-center">
+                          <Checkbox
+                            checked={formData.antecedentesHeredoFamiliares[key].condiciones.diabetesMellitus}
+                            onCheckedChange={(checked) => handleCondicionChange(key, 'diabetesMellitus', checked)}
+                          />
+                        </td>
+                        <td className="border p-2 text-center">
+                          <Checkbox
+                            checked={formData.antecedentesHeredoFamiliares[key].condiciones.hipertensionArterial}
+                            onCheckedChange={(checked) => handleCondicionChange(key, 'hipertensionArterial', checked)}
+                          />
+                        </td>
+                        <td className="border p-2 text-center">
+                          <Checkbox
+                            checked={formData.antecedentesHeredoFamiliares[key].condiciones.osteoporosis}
+                            onCheckedChange={(checked) => handleCondicionChange(key, 'osteoporosis', checked)}
+                          />
+                        </td>
+                        <td className="border p-2 text-center">
+                          <Checkbox
+                            checked={formData.antecedentesHeredoFamiliares[key].condiciones.artritisReumatoide}
+                            onCheckedChange={(checked) => handleCondicionChange(key, 'artritisReumatoide', checked)}
+                          />
+                        </td>
+                        <td className="border p-2 text-center">
+                          <Checkbox
+                            checked={formData.antecedentesHeredoFamiliares[key].condiciones.parkinson}
+                            onCheckedChange={(checked) => handleCondicionChange(key, 'parkinson', checked)}
+                          />
+                        </td>
+                        <td className="border p-2 text-center">
+                          <Checkbox
+                            checked={formData.antecedentesHeredoFamiliares[key].condiciones.alzheimer}
+                            onCheckedChange={(checked) => handleCondicionChange(key, 'alzheimer', checked)}
+                          />
+                        </td>
+                        <td className="border p-2 text-center">
+                          <Checkbox
+                            checked={formData.antecedentesHeredoFamiliares[key].condiciones.asma}
+                            onCheckedChange={(checked) => handleCondicionChange(key, 'asma', checked)}
+                          />
+                        </td>
+                        <td className="border p-2 text-center">
+                          <Checkbox
+                            checked={formData.antecedentesHeredoFamiliares[key].condiciones.cancer}
+                            onCheckedChange={(checked) => handleCondicionChange(key, 'cancer', checked)}
+                          />
+                        </td>
+                        <td className="border p-2 text-center">
+                          <Checkbox
+                            checked={formData.antecedentesHeredoFamiliares[key].condiciones.anemia}
+                            onCheckedChange={(checked) => handleCondicionChange(key, 'anemia', checked)}
+                          />
+                        </td>
+                        <td className="border p-2">
+                          <Input
+                            value={formData.antecedentesHeredoFamiliares[key].condiciones.otras}
+                            onChange={(e) => handleCondicionChange(key, 'otras', e.target.value)}
+                            placeholder="Especifique otras condiciones"
+                          />
+                        </td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Card>
 
         {/* Signos Vitales */}
