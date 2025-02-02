@@ -10,13 +10,7 @@ interface Familiar {
   condiciones: {
     diabetesMellitus: boolean;
     hipertensionArterial: boolean;
-    osteoporosis: boolean;
-    artritisReumatoide: boolean;
-    parkinson: boolean;
-    alzheimer: boolean;
-    asma: boolean;
     cancer: boolean;
-    anemia: boolean;
     otras: string;
   };
 }
@@ -53,13 +47,7 @@ const AntecedentesHeredoFamiliares = ({
   const condiciones = [
     { id: 'diabetesMellitus', label: 'Diabetes Mellitus' },
     { id: 'hipertensionArterial', label: 'Hipertensión Arterial' },
-    { id: 'osteoporosis', label: 'Osteoporosis' },
-    { id: 'artritisReumatoide', label: 'Artritis Reumatoide' },
-    { id: 'parkinson', label: 'Parkinson' },
-    { id: 'alzheimer', label: 'Alzheimer' },
-    { id: 'asma', label: 'Asma' },
-    { id: 'cancer', label: 'Cáncer' },
-    { id: 'anemia', label: 'Anemia' }
+    { id: 'cancer', label: 'Cáncer' }
   ];
 
   return (
