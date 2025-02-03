@@ -18,13 +18,18 @@ const Index = () => {
         
         <div className="relative z-10 container mx-auto px-4 py-16">
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
-            {/* Logo */}
-            <div className="w-40 h-40 mb-8">
-              <img 
-                src="/lovable-uploads/5636450b-9d56-40a0-b095-dd830e161077.png" 
-                alt="Dental Logo" 
-                className="w-full h-full object-contain"
-              />
+            {/* Logo and Title */}
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-20 h-20">
+                <img 
+                  src="/lovable-uploads/5636450b-9d56-40a0-b095-dd830e161077.png" 
+                  alt="Dental Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-white">
+                Dental Basics Academy
+              </h2>
             </div>
 
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
