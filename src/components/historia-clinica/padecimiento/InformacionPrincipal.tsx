@@ -44,7 +44,7 @@ const InformacionPrincipal = ({
               className="min-h-[100px] max-h-[100px]"
             />
           </div>
-          <div className="h-[100px] flex-shrink-0">
+          <div className="h-[90px] flex-shrink-0">
             <VoiceInput onTranscriptionComplete={onVoiceTranscription} />
           </div>
         </div>
