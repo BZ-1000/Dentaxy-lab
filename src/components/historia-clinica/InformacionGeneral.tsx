@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface InformacionGeneralProps {
   formData: {
@@ -18,7 +19,10 @@ const InformacionGeneral = ({ formData, handleInputChange }: InformacionGeneralP
     <Card className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0">
       <h3 className="text-2xl font-mplus font-normal mb-6 text-gray-800 dark:text-gray-100">Información General</h3>
       <div className="grid gap-6 md:grid-cols-2">
-        <div>
+        <div className="flex items-center justify-end gap-3">
+          <Label htmlFor="fechaCreacion" className="text-muted-foreground text-sm">
+            Fecha de realización
+          </Label>
           <Input
             id="fechaCreacion"
             name="fechaCreacion"
