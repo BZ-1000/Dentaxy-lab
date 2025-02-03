@@ -394,7 +394,7 @@ const HistoriaClinica = () => {
       <AnimatedText 
         text="Historia Clínica"
         className="mb-8"
-        textClassName="text-4xl text-primary font-mplus font-normal"
+        textClassName="text-6xl text-primary font-rock3d font-normal"
         underlineClassName="text-primary"
       />
       
