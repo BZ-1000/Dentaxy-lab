@@ -18,7 +18,7 @@ const Index = () => {
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
             {/* Logo and Title */}
             <div className="flex items-center gap-2 mb-12">
-              <div className="w-12 h-12">
+              <div className="w-8 h-8"> {/* Reduced from w-12 h-12 */}
                 <img 
                   src="/lovable-uploads/5636450b-9d56-40a0-b095-dd830e161077.png" 
                   alt="Dental Logo" 
@@ -26,8 +26,8 @@ const Index = () => {
                 />
               </div>
               <div className="text-white font-mplus text-left">
-                <div className="text-lg font-semibold leading-tight">DENTAL BASICS</div>
-                <div className="text-lg font-semibold leading-tight">ACADEMY</div>
+                <div className="text-base font-semibold leading-tight">DENTAL BASICS</div> {/* Reduced from text-lg */}
+                <div className="text-base font-semibold leading-tight">ACADEMY</div> {/* Reduced from text-lg */}
               </div>
             </div>
 
