@@ -1,17 +1,10 @@
-import { Home, Menu, Settings, User } from "lucide-react";
+import { Home, Settings, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 
 const BottomMenu = () => {
   const { toast } = useToast();
   const location = useLocation();
-
-  const handleMenuClick = () => {
-    toast({
-      title: "Menú",
-      description: "Esta función estará disponible próximamente",
-    });
-  };
 
   const handleSettingsClick = () => {
     toast({
@@ -42,14 +35,6 @@ const BottomMenu = () => {
             <Home className="h-5 w-5" />
             <span className="text-xs">Inicio</span>
           </Link>
-          
-          <button 
-            onClick={handleMenuClick}
-            className="flex flex-col items-center gap-1 text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary transition-colors duration-200"
-          >
-            <Menu className="h-5 w-5" />
-            <span className="text-xs">Menú</span>
-          </button>
           
           <button 
             onClick={handleSettingsClick}
