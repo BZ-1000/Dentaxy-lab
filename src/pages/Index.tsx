@@ -6,7 +6,7 @@ const Index = () => {
   return (
     <div className="min-h-screen w-full">
       {/* Hero Section - Theme independent */}
-      <div className="min-h-screen relative overflow-hidden bg-white">
+      <div className="min-h-screen relative overflow-hidden">
         {/* Background gradient */}
         <div className="fixed inset-0 bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20" />
         
