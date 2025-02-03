@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/components/ui/use-toast";
 import { GradualSpacing } from "@/components/ui/gradual-spacing";
 import InformacionGeneral from './historia-clinica/InformacionGeneral';
@@ -8,6 +7,8 @@ import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoF
 import AntecedentesPersonalesNoPatologicos from './historia-clinica/AntecedentesPersonalesNoPatologicos';
 import SignosVitales from './historia-clinica/SignosVitales';
 import DiagnosticoPronostico from './historia-clinica/DiagnosticoPronostico';
+import { useState } from 'react';
+import { Button } from "@/components/ui/button";
 
 const HistoriaClinica = () => {
   const { toast } = useToast();
@@ -390,66 +391,72 @@ const HistoriaClinica = () => {
   const [resumen, setResumen] = useState('');
 
   return (
-    <div className="container mx-auto py-8">
-      <GradualSpacing 
-        text="Historia Clínica"
-        className="text-[87px] text-primary font-knewave font-normal mb-8"
-        duration={0.5}
-        delayMultiple={0.04}
-      />
-      
-      <div className="grid gap-8">
-        <InformacionGeneral 
-          formData={formData} 
-          handleInputChange={handleInputChange} 
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto space-y-8">
+        <GradualSpacing 
+          text="Historia Clínica"
+          className="text-[87px] bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary font-knewave font-normal mb-8"
+          duration={0.5}
+          delayMultiple={0.04}
         />
         
-        <PadecimientoActual 
-          formData={formData}
-          handlePadecimientoChange={handlePadecimientoChange}
-          handleDolorChange={handleDolorChange}
-          handleSinSintomasChange={handleSinSintomasChange}
-        />
-        
-        <AntecedentesHeredoFamiliares 
-          formData={formData}
-          handleFamiliarChange={handleFamiliarChange}
-          handleCondicionChange={handleCondicionChange}
-        />
+        <div className="space-y-6">
+          <InformacionGeneral 
+            formData={formData} 
+            handleInputChange={handleInputChange} 
+          />
+          
+          <PadecimientoActual 
+            formData={formData}
+            handlePadecimientoChange={handlePadecimientoChange}
+            handleDolorChange={handleDolorChange}
+            handleSinSintomasChange={handleSinSintomasChange}
+          />
+          
+          <AntecedentesHeredoFamiliares 
+            formData={formData}
+            handleFamiliarChange={handleFamiliarChange}
+            handleCondicionChange={handleCondicionChange}
+          />
 
-        <AntecedentesPersonalesNoPatologicos
-          formData={formData}
-          handleInputChange={handleInputChange}
-        />
-        
-        <SignosVitales 
-          formData={formData} 
-          handleInputChange={handleInputChange} 
-        />
-        
-        <DiagnosticoPronostico 
-          formData={formData} 
-          handleInputChange={handleInputChange} 
-        />
-      </div>
+          <AntecedentesPersonalesNoPatologicos
+            formData={formData}
+            handleInputChange={handleInputChange}
+          />
+          
+          <SignosVitales 
+            formData={formData} 
+            handleInputChange={handleInputChange} 
+          />
+          
+          <DiagnosticoPronostico 
+            formData={formData} 
+            handleInputChange={handleInputChange} 
+          />
 
-      <div className="mt-8 flex justify-center">
-        <Button 
-          onClick={generarResumen}
-          className="bg-primary hover:bg-primary/90"
-        >
-          Generar Historia Clínica
-        </Button>
-      </div>
-
-      {resumen && (
-        <div className="mt-8 p-6 bg-white rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">Historia Clínica Generada</h2>
-          <div className="whitespace-pre-line bg-gray-50 p-4 rounded-lg">
-            {resumen}
+          <div className="flex justify-center pt-6">
+            <Button 
+              onClick={generarResumen}
+              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all duration-200 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl"
+            >
+              Generar Historia Clínica
+            </Button>
           </div>
         </div>
-      )}
+
+        {resumen && (
+          <div className="mt-8 animate-fade-in">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 backdrop-blur-sm bg-opacity-90">
+              <h2 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100">Historia Clínica Generada</h2>
+              <div className="prose dark:prose-invert max-w-none">
+                <pre className="whitespace-pre-line bg-gray-50 dark:bg-gray-900 p-6 rounded-lg text-sm">
+                  {resumen}
+                </pre>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
