@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { AnimatedText } from "@/components/ui/animated-text";
+import { AnimatedText } from "@/components/ui/animated-underline-text-one";
 import InformacionGeneral from './historia-clinica/InformacionGeneral';
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -333,7 +333,7 @@ const HistoriaClinica = () => {
 
   const generarResumen = async () => {
     const resumenGenerado = `
-      HISTORIA CLÍNICA ODONTOLÓGICA
+      HISTORIA CLÍNICA
       
       Fecha de creación: ${formData.fechaCreacion}
       Autorizó: ${formData.autorizo}
@@ -392,12 +392,10 @@ const HistoriaClinica = () => {
   return (
     <div className="container mx-auto py-8">
       <AnimatedText 
-        text="Historia Clínica Odontológica"
+        text="Historia Clínica"
         className="mb-8"
         textClassName="text-4xl text-primary"
-        underlineGradient="from-primary via-secondary to-primary"
-        underlineHeight="h-1.5"
-        underlineOffset="-bottom-3"
+        underlineClassName="text-primary"
       />
       
       <div className="grid gap-8">
