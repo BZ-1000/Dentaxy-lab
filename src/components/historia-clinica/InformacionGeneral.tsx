@@ -19,7 +19,7 @@ const InformacionGeneral = ({ formData, handleInputChange }: InformacionGeneralP
     <Card className="p-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0">
       <h3 className="text-2xl font-mplus font-normal mb-6 text-gray-800 dark:text-gray-100">Información General</h3>
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="flex items-center justify-end gap-3 h-[38px]">
+        <div className="flex items-center justify-start gap-3 h-[38px]">
           <Label htmlFor="fechaCreacion" className="text-muted-foreground text-sm">
             Fecha de realización
           </Label>
