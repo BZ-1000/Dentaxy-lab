@@ -16,8 +16,19 @@ function GradualSpacing({
   duration = 0.5,
   delayMultiple = 0.04,
   framerProps = {
-    hidden: { opacity: 0, x: -20 },
-    visible: { opacity: 1, x: 0 },
+    hidden: { opacity: 0, x: -20, scale: 1 },
+    visible: { 
+      opacity: 1, 
+      x: 0,
+      scale: [1, 1.1, 1],
+      transition: {
+        scale: {
+          repeat: Infinity,
+          repeatDelay: 5,
+          duration: 1,
+        }
+      }
+    },
   },
   className,
 }: GradualSpacingProps) {
@@ -31,8 +42,11 @@ function GradualSpacing({
             animate="visible"
             exit="hidden"
             variants={framerProps}
-            transition={{ duration, delay: i * delayMultiple }}
-            className={cn("drop-shadow-sm ", className)}
+            transition={{ 
+              duration, 
+              delay: i * delayMultiple,
+            }}
+            className={cn("drop-shadow-sm", className)}
           >
             {char === " " ? <span>&nbsp;</span> : char}
           </motion.h1>
