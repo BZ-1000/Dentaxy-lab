@@ -394,7 +394,7 @@ const HistoriaClinica = () => {
       <AnimatedText 
         text="Historia Clínica"
         className="mb-8"
-        textClassName="text-6xl text-primary font-rock3d font-normal"
+        textClassName="text-[87px] text-primary font-knewave font-normal"
         underlineClassName="text-primary"
       />
       
@@ -455,3 +455,4 @@ const HistoriaClinica = () => {
 };
 
 export default HistoriaClinica;
+

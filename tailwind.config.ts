@@ -20,7 +20,7 @@ export default {
     extend: {
       fontFamily: {
         'mplus': ['"M PLUS 1p"', 'serif'],
-        'rock3d': ['"Rock 3D"', 'serif'],
+        'knewave': ['"Knewave"', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
