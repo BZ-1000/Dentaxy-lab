@@ -7,14 +7,14 @@ const Index = () => {
     <div className="min-h-screen w-full">
       {/* Hero Section */}
       <div className="min-h-screen relative overflow-hidden">
-        {/* Background gradient */}
-        <div className="fixed inset-0 bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 dark:from-blue-900/40 dark:via-purple-900/40 dark:to-pink-900/40" />
+        {/* Background gradient - removed dark mode variants */}
+        <div className="fixed inset-0 bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20" />
         
-        {/* Background image with overlay */}
+        {/* Background image with overlay - removed dark mode variants */}
         <img 
           src="/lovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png"
           alt="Background"
-          className="fixed inset-0 w-full h-full object-cover opacity-50 dark:opacity-30"
+          className="fixed inset-0 w-full h-full object-cover opacity-50"
         />
         
         <div className="relative z-10 w-full">
@@ -54,7 +54,7 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Form Section */}
+      {/* Form Section - This section will respond to theme changes */}
       <div className="relative z-10 bg-gray-50/95 dark:bg-gray-900/95 py-16">
         <div className="container mx-auto px-4">
           <HistoriaClinica />
