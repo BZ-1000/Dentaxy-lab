@@ -19,7 +19,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        margarine: ['Margarine', 'serif'],
+        courgette: ['Courgette', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
