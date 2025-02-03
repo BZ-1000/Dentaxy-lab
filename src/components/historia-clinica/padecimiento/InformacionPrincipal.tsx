@@ -40,7 +40,7 @@ const InformacionPrincipal = ({
             value={evolucion}
             onChange={(e) => onEvolucionChange(e.target.value)}
             placeholder="Describa la evolución de los síntomas"
-            className="min-h-[115px] max-h-[115px] pr-16 w-full"
+            className="min-h-[125px] max-h-[125px] pr-16 w-[95%]"
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2 h-[40px]">
             <VoiceInput onTranscriptionComplete={onVoiceTranscription} />
