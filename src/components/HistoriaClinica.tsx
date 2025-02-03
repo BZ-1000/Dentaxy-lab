@@ -8,8 +8,10 @@ import SignosVitales from './historia-clinica/SignosVitales';
 import DiagnosticoPronostico from './historia-clinica/DiagnosticoPronostico';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { useTheme } from '@/hooks/use-theme';
 
 const HistoriaClinica = () => {
+  const { theme } = useTheme();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     // Información General
@@ -390,65 +392,70 @@ const HistoriaClinica = () => {
   const [resumen, setResumen] = useState('');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-5xl mx-auto space-y-8">
-        <div className="space-y-6">
-          <InformacionGeneral 
-            formData={formData} 
-            handleInputChange={handleInputChange} 
-          />
-          
-          <PadecimientoActual 
-            formData={formData}
-            handlePadecimientoChange={handlePadecimientoChange}
-            handleDolorChange={handleDolorChange}
-            handleSinSintomasChange={handleSinSintomasChange}
-          />
-          
-          <AntecedentesHeredoFamiliares 
-            formData={formData}
-            handleFamiliarChange={handleFamiliarChange}
-            handleCondicionChange={handleCondicionChange}
-          />
+    <div className={`${theme} min-h-screen`}>
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
+        <div className="max-w-5xl mx-auto space-y-8">
+          <div className="space-y-6">
+            <InformacionGeneral 
+              formData={formData} 
+              handleInputChange={handleInputChange} 
+            />
+            
+            <PadecimientoActual 
+              formData={formData}
+              handlePadecimientoChange={handlePadecimientoChange}
+              handleDolorChange={handleDolorChange}
+              handleSinSintomasChange={handleSinSintomasChange}
+            />
+            
+            <AntecedentesHeredoFamiliares 
+              formData={formData}
+              handleFamiliarChange={handleFamiliarChange}
+              handleCondicionChange={handleCondicionChange}
+            />
 
-          <AntecedentesPersonalesNoPatologicos
-            formData={formData}
-            handleInputChange={handleInputChange}
-          />
-          
-          <SignosVitales 
-            formData={formData} 
-            handleInputChange={handleInputChange} 
-          />
-          
-          <DiagnosticoPronostico 
-            formData={formData} 
-            handleInputChange={handleInputChange} 
-          />
+            <AntecedentesPersonalesNoPatologicos
+              formData={formData}
+              handleInputChange={handleInputChange}
+            />
+            
+            <SignosVitales 
+              formData={formData} 
+              handleInputChange={handleInputChange} 
+            />
+            
+            <DiagnosticoPronostico 
+              formData={formData} 
+              handleInputChange={handleInputChange} 
+            />
 
-          <div className="flex justify-center pt-6">
-            <Button 
-              onClick={generarResumen}
-              className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all duration-200 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl"
-            >
-              Generar Historia Clínica
-            </Button>
-          </div>
-        </div>
-
-        {resumen && (
-          <div className="mt-8 animate-fade-in">
-            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 backdrop-blur-sm bg-opacity-90">
-              <h2 className="text-2xl font-semibold mb-6 text-gray-800 dark:text-gray-100">Historia Clínica Generada</h2>
-              <div className="prose dark:prose-invert max-w-none">
-                <pre className="whitespace-pre-line bg-gray-50 dark:bg-gray-900 p-6 rounded-lg text-sm">
-                  {resumen}
-                </pre>
-              </div>
+            <div className="flex justify-center pt-6">
+              <Button 
+                onClick={generarResumen}
+                className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all duration-200 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl"
+              >
+                Generar Historia Clínica
+              </Button>
             </div>
           </div>
-        )}
+
+          {resumen && (
+            <div className="mt-8 animate-fade-in">
+              <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-xl p-8 backdrop-blur-sm bg-opacity-90 transition-colors duration-200`}>
+                <h2 className={`text-2xl font-semibold mb-6 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
+                  Historia Clínica Generada
+                </h2>
+                <div className="prose dark:prose-invert max-w-none">
+                  <pre className={`whitespace-pre-line ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} p-6 rounded-lg text-sm transition-colors duration-200`}>
+                    {resumen}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+      <Toaster />
     </div>
   );
 };
