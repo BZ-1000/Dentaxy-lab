@@ -42,7 +42,7 @@ const InformacionPrincipal = ({
             placeholder="Describa la evolución de los síntomas"
             className="min-h-[135px] max-h-[135px] pr-16 w-[75%]"
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 h-[40px]">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 h-[40px]">
             <VoiceInput onTranscriptionComplete={onVoiceTranscription} />
           </div>
         </div>
@@ -57,7 +57,7 @@ const InformacionPrincipal = ({
             placeholder="Describa el estado actual de los síntomas"
             className="min-h-[135px] max-h-[135px] pr-16 w-[75%]"
           />
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 h-[40px]">
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 h-[40px]">
             <VoiceInput onTranscriptionComplete={(text) => onEstadoChange(text)} />
           </div>
         </div>
