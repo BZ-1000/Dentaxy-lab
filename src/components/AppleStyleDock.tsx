@@ -7,7 +7,7 @@ import {
   ScrollText,
   SunMoon,
 } from 'lucide-react';
-import { useTheme } from 'next-themes';
+
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
 
 const data = [
@@ -53,15 +53,16 @@ const data = [
     ),
     href: '#',
   },
+  {
+    title: 'Theme',
+    icon: (
+      <SunMoon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+    ),
+    href: '#',
+  },
 ];
 
 export function AppleStyleDock() {
-  const { theme, setTheme } = useTheme();
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
   return (
     <div className='fixed bottom-2 left-1/2 max-w-full -translate-x-1/2 z-50'>
       <Dock className='items-end pb-3'>
@@ -74,15 +75,6 @@ export function AppleStyleDock() {
             <DockIcon>{item.icon}</DockIcon>
           </DockItem>
         ))}
-        <DockItem
-          className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer'
-          onClick={toggleTheme}
-        >
-          <DockLabel>Theme</DockLabel>
-          <DockIcon>
-            <SunMoon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
-          </DockIcon>
-        </DockItem>
       </Dock>
     </div>
   );
