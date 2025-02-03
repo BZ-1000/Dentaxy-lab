@@ -1,17 +1,36 @@
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
+import { useEffect, useState } from "react";
 
 const Index = () => {
+  const [offset, setOffset] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setOffset(window.pageYOffset);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
       <div className="min-h-screen relative overflow-hidden">
-        {/* Background image */}
+        {/* Background image with parallax effect */}
         <img 
           src="/lovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png"
           alt="Background"
           className="absolute inset-0 w-full h-full object-cover"
+          style={{
+            transform: `translateY(${offset * 0.5}px)`,
+            transition: 'transform 0.1s ease-out'
+          }}
         />
         
         <div className="relative z-10 container mx-auto px-4 py-16">
