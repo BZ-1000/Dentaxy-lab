@@ -19,7 +19,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        courgette: ['Courgette', 'serif'],
+        'londrina-shadow': ['"Londrina Shadow"', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
