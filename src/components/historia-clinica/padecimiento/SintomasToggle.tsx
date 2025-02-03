@@ -1,4 +1,5 @@
 import { Label } from "@/components/ui/label";
+import { RainbowButton } from "@/components/ui/rainbow-button";
 import { cn } from "@/lib/utils";
 
 interface SintomasToggleProps {
@@ -9,29 +10,15 @@ interface SintomasToggleProps {
 const SintomasToggle = ({ checked, onChange }: SintomasToggleProps) => {
   return (
     <div className="mb-4">
-      <div 
+      <RainbowButton
         onClick={() => onChange(!checked)}
         className={cn(
-          "inline-block cursor-pointer transition-all duration-300",
-          "p-2 bg-gradient-to-r rounded-lg border shadow-sm",
-          checked ? 
-            "from-primary/20 to-secondary/20 border-primary/30 scale-105" : 
-            "from-primary/10 to-secondary/10 border-primary/20 hover:scale-105"
+          "text-sm text-black dark:text-white font-normal",
+          checked && "scale-105"
         )}
       >
-        <Label 
-          htmlFor="sinSintomas" 
-          className={cn(
-            "text-lg font-mplus font-medium bg-clip-text text-transparent bg-gradient-to-r cursor-pointer",
-            "transition-all duration-300",
-            checked ? 
-              "from-primary via-secondary to-primary" : 
-              "from-primary to-secondary"
-          )}
-        >
-          Actualmente no refiere sintomatología
-        </Label>
-      </div>
+        Actualmente no refiere sintomatología
+      </RainbowButton>
     </div>
   );
 };
