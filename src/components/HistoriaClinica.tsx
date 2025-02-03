@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { AnimatedText } from "@/components/ui/animated-text";
 import InformacionGeneral from './historia-clinica/InformacionGeneral';
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -390,8 +391,14 @@ const HistoriaClinica = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold text-primary mb-8 text-center">Historia Clínica Odontológica</h1>
-      <h2 className="text-2xl font-semibold mb-4 text-center">Universidad Autónoma de Zacatecas</h2>
+      <AnimatedText 
+        text="Historia Clínica Odontológica"
+        className="mb-8"
+        textClassName="text-4xl text-primary"
+        underlineGradient="from-primary via-secondary to-primary"
+        underlineHeight="h-1.5"
+        underlineOffset="-bottom-3"
+      />
       
       <div className="grid gap-8">
         <InformacionGeneral 
