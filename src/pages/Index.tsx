@@ -25,7 +25,7 @@ const Index = () => {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <div className="text-white font-mplus">
+              <div className="text-white font-mplus text-left">
                 <div className="text-lg font-semibold leading-tight">DENTAL BASICS</div>
                 <div className="text-lg font-semibold leading-tight">ACADEMY</div>
               </div>
