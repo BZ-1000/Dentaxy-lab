@@ -1,5 +1,6 @@
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
+import { Typewriter } from "@/components/ui/typewriter-text";
 
 const Index = () => {
   return (
@@ -36,9 +37,12 @@ const Index = () => {
               <span className="text-blue-300">IA</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-blue-100 mb-12">
-              REGISTRA MÁS, ESCRIBE MENOS
-            </p>
+            <Typewriter
+              text={["REGISTRA MÁS, ESCRIBE MENOS"]}
+              speed={100}
+              loop={true}
+              className="text-xl md:text-2xl text-blue-100 mb-12"
+            />
           </div>
         </div>
       </div>
