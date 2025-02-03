@@ -13,7 +13,7 @@ const SintomasToggle = ({ checked, onChange }: SintomasToggleProps) => {
       <RainbowButton
         onClick={() => onChange(!checked)}
         className={cn(
-          "text-sm text-black dark:text-white font-normal",
+          "text-sm text-white dark:text-white font-normal",
           checked && "scale-105"
         )}
       >
