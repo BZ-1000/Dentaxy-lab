@@ -12,6 +12,27 @@ const Index = () => {
   const scale = useTransform(scrollY, [0, 500], [1, 1.2]);
   const titleY = useTransform(scrollY, [0, 500], [0, -100]);
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: {
+        duration: 0.8,
+        when: "beforeChildren",
+        staggerChildren: 0
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.4 }
+    }
+  };
+
   return (
     <div className="min-h-screen w-full">
       {/* Hero Section - Theme independent */}
@@ -24,12 +45,18 @@ const Index = () => {
             y: backgroundY,
             scale: scale
           }} 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
         />
         
         {/* Geometric shapes overlay */}
         <motion.div 
           className="absolute inset-0" 
           style={{ opacity, y: backgroundY }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          transition={{ duration: 0.6 }}
         >
           <img 
             src="/lovable-uploads/3a220d7e-3577-4b59-97fb-69bed16a40b0.png"
@@ -38,14 +65,18 @@ const Index = () => {
           />
         </motion.div>
         
-        <motion.div className="relative z-10 w-full" style={{ y: titleY }}>
+        <motion.div 
+          className="relative z-10 w-full" 
+          style={{ y: titleY }}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
             {/* Logo and Title */}
             <motion.div 
               className="flex items-center gap-2 mb-12"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              variants={itemVariants}
             >
               <div className="w-16 h-16">
                 <img 
@@ -62,9 +93,7 @@ const Index = () => {
 
             <motion.h1 
               className="text-5xl md:text-7xl font-bold text-white mb-6"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              variants={itemVariants}
             >
               Generador de<br />
               Historias Clínicas<br />
@@ -72,9 +101,7 @@ const Index = () => {
             </motion.h1>
             
             <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.4 }}
+              variants={itemVariants}
             >
               <Typewriter
                 text={[
