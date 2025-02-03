@@ -20,7 +20,7 @@ interface SignosVitalesProps {
 const SignosVitales = ({ formData, handleInputChange }: SignosVitalesProps) => {
   return (
     <Card className="p-6">
-      <h3 className="text-xl font-semibold mb-4">Signos Vitales</h3>
+      <h3 className="text-xl font-mplus font-normal mb-4">Signos Vitales</h3>
       <div className="grid gap-4 md:grid-cols-3">
         <div>
           <Label htmlFor="peso">Peso (kg)</Label>

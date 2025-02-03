@@ -19,7 +19,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        'londrina-shadow': ['"Londrina Shadow"', 'serif'],
+        'mplus': ['"M PLUS 1p"', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -17,7 +17,7 @@ interface InformacionGeneralProps {
 const InformacionGeneral = ({ formData, handleInputChange }: InformacionGeneralProps) => {
   return (
     <Card className="p-6">
-      <h3 className="text-xl font-semibold mb-4">Información General</h3>
+      <h3 className="text-xl font-mplus font-normal mb-4">Información General</h3>
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <Label htmlFor="fechaCreacion">Fecha de Creación</Label>

@@ -43,11 +43,10 @@ const AntecedentesPersonalesNoPatologicos = ({
 }: AntecedentesPersonalesNoPatologicosProps) => {
   return (
     <Card className="p-6">
-      <h3 className="text-xl font-semibold mb-4">III. Antecedentes Personales No Patológicos</h3>
+      <h3 className="text-xl font-mplus font-normal mb-4">III. Antecedentes Personales No Patológicos</h3>
       
-      {/* Servicios Domiciliarios */}
       <div className="space-y-4 mb-6">
-        <h4 className="text-lg font-medium">Servicios Domiciliarios</h4>
+        <h4 className="text-lg font-mplus font-normal">Servicios Domiciliarios</h4>
         <div className="grid gap-4">
           <div>
             <Label>Tipo de Vivienda</Label>
@@ -86,9 +85,8 @@ const AntecedentesPersonalesNoPatologicos = ({
         </div>
       </div>
 
-      {/* Higiene de la Vivienda */}
       <div className="space-y-4 mb-6">
-        <h4 className="text-lg font-medium">Higiene de la Vivienda</h4>
+        <h4 className="text-lg font-mplus font-normal">Higiene de la Vivienda</h4>
         <div className="grid gap-4">
           <div>
             <Label>Frecuencia de Limpieza</Label>
@@ -114,9 +112,8 @@ const AntecedentesPersonalesNoPatologicos = ({
         </div>
       </div>
 
-      {/* Higiene Personal */}
       <div className="space-y-4 mb-6">
-        <h4 className="text-lg font-medium">Higiene Personal</h4>
+        <h4 className="text-lg font-mplus font-normal">Higiene Personal</h4>
         <div className="grid gap-4">
           <div>
             <Label>Frecuencia de Baño</Label>
@@ -134,9 +131,8 @@ const AntecedentesPersonalesNoPatologicos = ({
         </div>
       </div>
 
-      {/* Higiene Bucal */}
       <div className="space-y-4 mb-6">
-        <h4 className="text-lg font-medium">Higiene Bucal</h4>
+        <h4 className="text-lg font-mplus font-normal">Higiene Bucal</h4>
         <div className="grid gap-4">
           <div>
             <Label>Frecuencia de Cepillado</Label>
@@ -168,9 +164,8 @@ const AntecedentesPersonalesNoPatologicos = ({
         </div>
       </div>
 
-      {/* Grupo Sanguíneo y Factor RH */}
       <div className="space-y-4 mb-6">
-        <h4 className="text-lg font-medium">Grupo Sanguíneo y Factor RH</h4>
+        <h4 className="text-lg font-mplus font-normal">Grupo Sanguíneo y Factor RH</h4>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label>Grupo Sanguíneo</Label>
@@ -203,9 +198,8 @@ const AntecedentesPersonalesNoPatologicos = ({
         </div>
       </div>
 
-      {/* Inmunizaciones */}
       <div className="space-y-4">
-        <h4 className="text-lg font-medium">Inmunizaciones</h4>
+        <h4 className="text-lg font-mplus font-normal">Inmunizaciones</h4>
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <CustomCheckbox id="esquema-completo" />

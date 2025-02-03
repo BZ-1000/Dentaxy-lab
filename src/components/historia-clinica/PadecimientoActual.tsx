@@ -39,8 +39,7 @@ const PadecimientoActual = ({
 }: PadecimientoActualProps) => {
   return (
     <Card className="p-6">
-      <h3 className="text-xl font-semibold mb-4">Padecimiento Actual</h3>
-      
+      <h3 className="text-xl font-mplus font-normal mb-4">Padecimiento Actual</h3>
       <div className="mb-4">
         <div className="flex items-center space-x-2">
           <AnimatedCheckbox 

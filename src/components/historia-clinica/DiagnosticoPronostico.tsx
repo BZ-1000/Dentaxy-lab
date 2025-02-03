@@ -14,7 +14,7 @@ interface DiagnosticoPronosticoProps {
 const DiagnosticoPronostico = ({ formData, handleInputChange }: DiagnosticoPronosticoProps) => {
   return (
     <Card className="p-6">
-      <h3 className="text-xl font-semibold mb-4">Diagnóstico y Pronóstico</h3>
+      <h3 className="text-xl font-mplus font-normal mb-4">Diagnóstico y Pronóstico</h3>
       <div className="space-y-4">
         <div>
           <Label htmlFor="diagnosticos">Diagnósticos</Label>

@@ -52,8 +52,7 @@ const AntecedentesHeredoFamiliares = ({
 
   return (
     <Card className="p-6">
-      <h3 className="text-xl font-semibold mb-4">Antecedentes Heredo Familiares</h3>
-      
+      <h3 className="text-xl font-mplus font-normal mb-4">Antecedentes Heredo Familiares</h3>
       <div className="space-y-4">
         <table className="w-full">
           <thead>
