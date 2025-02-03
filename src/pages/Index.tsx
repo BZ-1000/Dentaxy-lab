@@ -25,17 +25,9 @@ const Index = () => {
                   className="w-full h-full object-contain"
                 />
               </div>
-              <div className="text-white font-mplus flex flex-col">
-                <Typewriter
-                  text="DENTAL BASICS"
-                  speed={100}
-                  className="text-lg font-semibold leading-tight"
-                />
-                <Typewriter
-                  text="ACADEMY"
-                  speed={100}
-                  className="text-lg font-semibold leading-tight"
-                />
+              <div className="text-white font-mplus">
+                <div className="text-lg font-semibold leading-tight">DENTAL BASICS</div>
+                <div className="text-lg font-semibold leading-tight">ACADEMY</div>
               </div>
             </div>
 
