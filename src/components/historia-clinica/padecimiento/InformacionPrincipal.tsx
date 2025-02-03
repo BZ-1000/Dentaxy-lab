@@ -23,7 +23,7 @@ const InformacionPrincipal = ({
   onVoiceTranscription
 }: InformacionPrincipalProps) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <Label>Fecha de aparición del síntoma principal</Label>
         <Input
