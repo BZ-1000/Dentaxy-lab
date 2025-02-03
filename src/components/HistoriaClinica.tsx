@@ -15,6 +15,7 @@ import { Loader2 } from "lucide-react";
 const HistoriaClinica = () => {
   const { theme } = useTheme();
   const { toast } = useToast();
+  const [resumen, setResumen] = useState<string>('');
   const [formData, setFormData] = useState({
     // Información General
     fechaCreacion: '',
