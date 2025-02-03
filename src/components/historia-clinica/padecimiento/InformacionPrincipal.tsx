@@ -35,7 +35,7 @@ const InformacionPrincipal = ({
 
       <div>
         <Label>Evolución</Label>
-        <div className="flex gap-2">
+        <div className="flex items-start gap-4">
           <div className="w-3/4">
             <Textarea
               value={evolucion}
@@ -44,7 +44,7 @@ const InformacionPrincipal = ({
               className="min-h-[100px] max-h-[100px]"
             />
           </div>
-          <div className="flex-shrink-0 w-20">
+          <div className="h-[100px] flex-shrink-0">
             <VoiceInput onTranscriptionComplete={onVoiceTranscription} />
           </div>
         </div>
