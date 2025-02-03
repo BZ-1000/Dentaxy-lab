@@ -37,6 +37,7 @@ type DockProps = {
 type DockItemProps = {
   className?: string;
   children: React.ReactNode;
+  onClick?: () => void;  // Added this line to fix the error
 };
 type DockLabelProps = {
   className?: string;
@@ -123,11 +124,9 @@ function Dock({
   );
 }
 
-function DockItem({ children, className }: DockItemProps) {
+function DockItem({ children, className, onClick }: DockItemProps) {
   const ref = useRef<HTMLDivElement>(null);
-
   const { distance, magnification, mouseX, spring } = useDock();
-
   const isHovered = useMotionValue(0);
 
   const mouseDistance = useTransform(mouseX, (val) => {
@@ -151,6 +150,7 @@ function DockItem({ children, className }: DockItemProps) {
       onHoverEnd={() => isHovered.set(0)}
       onFocus={() => isHovered.set(1)}
       onBlur={() => isHovered.set(0)}
+      onClick={onClick}  // Added this line to handle the onClick prop
       className={cn(
         'relative inline-flex items-center justify-center',
         className
