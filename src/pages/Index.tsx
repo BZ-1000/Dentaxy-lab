@@ -38,7 +38,11 @@ const Index = () => {
             </h1>
             
             <Typewriter
-              text={["REGISTRA MÁS, ESCRIBE MENOS"]}
+              text={[
+                "Bienvenido a la Historia clínica inteligente",
+                "Registra Más...",
+                "Escribe Menos..."
+              ]}
               speed={100}
               loop={true}
               className="text-xl md:text-2xl text-blue-100 mb-12"
