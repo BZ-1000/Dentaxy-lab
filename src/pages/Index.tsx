@@ -1,3 +1,4 @@
+import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 
 const Index = () => {
@@ -48,6 +49,9 @@ const Index = () => {
           <HistoriaClinica />
         </div>
       </div>
+
+      <AppleStyleDock />
+      <div className="h-24" /> {/* Spacer for dock */}
     </div>
   );
 };
