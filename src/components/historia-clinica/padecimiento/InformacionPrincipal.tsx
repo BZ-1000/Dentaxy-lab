@@ -35,14 +35,18 @@ const InformacionPrincipal = ({
 
       <div>
         <Label>Evolución</Label>
-        <div className="flex items-start">
-          <Textarea
-            value={evolucion}
-            onChange={(e) => onEvolucionChange(e.target.value)}
-            placeholder="Describa la evolución de los síntomas"
-            className="flex-1"
-          />
-          <VoiceInput onTranscriptionComplete={onVoiceTranscription} />
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <Textarea
+              value={evolucion}
+              onChange={(e) => onEvolucionChange(e.target.value)}
+              placeholder="Describa la evolución de los síntomas"
+              className="min-h-[120px]"
+            />
+          </div>
+          <div className="flex-shrink-0 w-20">
+            <VoiceInput onTranscriptionComplete={onVoiceTranscription} />
+          </div>
         </div>
       </div>
 

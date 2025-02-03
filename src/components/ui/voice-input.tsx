@@ -31,11 +31,12 @@ export const VoiceInput = ({ onTranscriptionComplete }: VoiceInputProps) => {
   };
 
   return (
-    <div className="ml-2">
+    <div className="h-full flex items-center justify-center">
       <AIVoiceInput
         onStart={handleStart}
         onStop={handleStop}
         onTranscriptionComplete={onTranscriptionComplete}
+        className="p-0"
       />
     </div>
   );
