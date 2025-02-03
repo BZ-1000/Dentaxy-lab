@@ -26,8 +26,12 @@ const Index = () => {
                 />
               </div>
               <div className="text-white font-mplus">
-                <div className="text-lg font-semibold leading-tight">DENTAL BASICS</div>
-                <div className="text-lg font-semibold leading-tight">ACADEMY</div>
+                <Typewriter
+                  text={["DENTAL BASICS", "ACADEMY"]}
+                  speed={100}
+                  delay={3000}
+                  className="text-lg font-semibold leading-tight"
+                />
               </div>
             </div>
 
