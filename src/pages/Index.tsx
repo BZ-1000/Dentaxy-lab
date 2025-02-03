@@ -5,12 +5,12 @@ import { Typewriter } from "@/components/ui/typewriter-text";
 const Index = () => {
   return (
     <div className="min-h-screen w-full">
-      {/* Hero Section */}
-      <div className="min-h-screen relative overflow-hidden">
-        {/* Background gradient - removed dark mode variants */}
+      {/* Hero Section - Theme independent */}
+      <div className="min-h-screen relative overflow-hidden bg-white">
+        {/* Background gradient */}
         <div className="fixed inset-0 bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20" />
         
-        {/* Background image with overlay - removed dark mode variants */}
+        {/* Background image with overlay */}
         <img 
           src="/lovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png"
           alt="Background"
