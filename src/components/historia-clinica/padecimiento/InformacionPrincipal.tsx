@@ -36,12 +36,12 @@ const InformacionPrincipal = ({
       <div>
         <Label>Evolución</Label>
         <div className="flex gap-2">
-          <div className="flex-1">
+          <div className="w-3/4">
             <Textarea
               value={evolucion}
               onChange={(e) => onEvolucionChange(e.target.value)}
               placeholder="Describa la evolución de los síntomas"
-              className="min-h-[40px] max-h-[40px]"
+              className="min-h-[100px] max-h-[100px]"
             />
           </div>
           <div className="flex-shrink-0 w-20">
