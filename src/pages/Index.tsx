@@ -1,7 +1,6 @@
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
-import { GradualSpacing } from "@/components/ui/gradual-spacing";
 
 const Index = () => {
   return (
@@ -27,48 +26,8 @@ const Index = () => {
                 />
               </div>
               <div className="text-white font-mplus">
-                <GradualSpacing 
-                  text="DENTAL BASICS"
-                  className="text-lg font-semibold leading-tight"
-                  delayMultiple={0.04}
-                  framerProps={{
-                    hidden: { opacity: 0, x: -20, scale: 1 },
-                    visible: { 
-                      opacity: 1, 
-                      x: 0,
-                      scale: [1, 1.2, 1],
-                      transition: {
-                        scale: {
-                          repeat: Infinity,
-                          repeatDelay: 10,
-                          duration: 1.5,
-                          ease: "easeInOut"
-                        }
-                      }
-                    },
-                  }}
-                />
-                <GradualSpacing 
-                  text="ACADEMY"
-                  className="text-lg font-semibold leading-tight"
-                  delayMultiple={0.04}
-                  framerProps={{
-                    hidden: { opacity: 0, x: -20, scale: 1 },
-                    visible: { 
-                      opacity: 1, 
-                      x: 0,
-                      scale: [1, 1.2, 1],
-                      transition: {
-                        scale: {
-                          repeat: Infinity,
-                          repeatDelay: 10,
-                          duration: 1.5,
-                          ease: "easeInOut"
-                        }
-                      }
-                    },
-                  }}
-                />
+                <div className="text-lg font-semibold leading-tight">DENTAL BASICS</div>
+                <div className="text-lg font-semibold leading-tight">ACADEMY</div>
               </div>
             </div>
 
