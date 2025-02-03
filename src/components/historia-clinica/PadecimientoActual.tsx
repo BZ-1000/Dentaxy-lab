@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { AnimatedCheckbox } from "@/components/ui/custom-checkbox";
+import { VoiceInput } from "@/components/ui/voice-input";
 
 interface PadecimientoActualProps {
   formData: {
@@ -37,6 +38,10 @@ const PadecimientoActual = ({
   handleDolorChange,
   handleSinSintomasChange
 }: PadecimientoActualProps) => {
+  const handleVoiceTranscription = (transcribedText: string) => {
+    handlePadecimientoChange('evolucion', transcribedText);
+  };
+
   return (
     <Card className="p-6">
       <h3 className="text-xl font-mplus font-normal mb-4">Padecimiento Actual</h3>
@@ -64,11 +69,15 @@ const PadecimientoActual = ({
 
           <div>
             <Label>Evolución</Label>
-            <Textarea
-              value={formData.padecimientoActual.evolucion}
-              onChange={(e) => handlePadecimientoChange('evolucion', e.target.value)}
-              placeholder="Describa la evolución de los síntomas"
-            />
+            <div className="flex items-start">
+              <Textarea
+                value={formData.padecimientoActual.evolucion}
+                onChange={(e) => handlePadecimientoChange('evolucion', e.target.value)}
+                placeholder="Describa la evolución de los síntomas"
+                className="flex-1"
+              />
+              <VoiceInput onTranscriptionComplete={handleVoiceTranscription} />
+            </div>
           </div>
 
           <div>
