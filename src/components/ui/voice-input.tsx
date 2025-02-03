@@ -1,5 +1,6 @@
 import { AIVoiceInput } from "./ai-voice-input";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
 
 interface VoiceInputProps {
   onTranscriptionComplete?: (text: string) => void;
@@ -7,19 +8,26 @@ interface VoiceInputProps {
 
 export const VoiceInput = ({ onTranscriptionComplete }: VoiceInputProps) => {
   const { toast } = useToast();
+  const [isRecording, setIsRecording] = useState(false);
 
   const handleStart = () => {
-    toast({
-      title: "Grabación iniciada",
-      description: "Comienza a hablar...",
-    });
+    if (!isRecording) {
+      setIsRecording(true);
+      toast({
+        title: "Grabación iniciada",
+        description: "Comienza a hablar...",
+      });
+    }
   };
 
   const handleStop = () => {
-    toast({
-      title: "Grabación finalizada",
-      description: "Procesando el audio...",
-    });
+    if (isRecording) {
+      setIsRecording(false);
+      toast({
+        title: "Grabación finalizada",
+        description: "Procesando el audio...",
+      });
+    }
   };
 
   return (
