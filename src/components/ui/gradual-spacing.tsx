@@ -20,12 +20,13 @@ function GradualSpacing({
     visible: { 
       opacity: 1, 
       x: 0,
-      scale: [1, 1.1, 1],
+      scale: [1, 1.2, 1],
       transition: {
         scale: {
           repeat: Infinity,
           repeatDelay: 5,
-          duration: 1,
+          duration: 1.5,
+          ease: "easeInOut"
         }
       }
     },
@@ -46,7 +47,7 @@ function GradualSpacing({
               duration, 
               delay: i * delayMultiple,
             }}
-            className={cn("drop-shadow-sm", className)}
+            className={cn("drop-shadow-sm transform-gpu", className)}
           >
             {char === " " ? <span>&nbsp;</span> : char}
           </motion.h1>
