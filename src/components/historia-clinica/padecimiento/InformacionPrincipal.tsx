@@ -41,7 +41,7 @@ const InformacionPrincipal = ({
               value={evolucion}
               onChange={(e) => onEvolucionChange(e.target.value)}
               placeholder="Describa la evolución de los síntomas"
-              className="min-h-[80px] max-h-[80px]"
+              className="min-h-[40px] max-h-[40px]"
             />
           </div>
           <div className="flex-shrink-0 w-20">
