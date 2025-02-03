@@ -9,6 +9,8 @@ import DiagnosticoPronostico from './historia-clinica/DiagnosticoPronostico';
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useTheme } from '@/hooks/use-theme';
+import { generateMedicalReport } from '@/services/geminiService';
+import { Loader2 } from "lucide-react";
 
 const HistoriaClinica = () => {
   const { theme } = useTheme();
@@ -333,63 +335,27 @@ const HistoriaClinica = () => {
     }));
   };
 
-  const generarResumen = async () => {
-    const resumenGenerado = `
-      HISTORIA CLÍNICA
-      
-      Fecha de creación: ${formData.fechaCreacion}
-      Autorizó: ${formData.autorizo}
-      Paciente: ${formData.pacienteId} - ${formData.pacienteNombre}
-      Alumno: ${formData.alumno}
-      
-      PADECIMIENTO ACTUAL:
-      ${formData.padecimientoActual.sinSintomas ? "Actualmente no refiere sintomatología" : `
-      Fecha de aparición: ${formData.padecimientoActual.fechaAparicion}
-      Evolución: ${formData.padecimientoActual.evolucion}
-      Estado Actual: ${formData.padecimientoActual.estadoActual}
-      Dolor: 
-        Fecha de inicio: ${formData.padecimientoActual.dolor.fechaInicio}
-        Condición de aparición: ${formData.padecimientoActual.dolor.condicionAparicion}
-        Frecuencia: ${formData.padecimientoActual.dolor.frecuencia}
-        Carácter: ${formData.padecimientoActual.dolor.caracter}
-        Localización: ${formData.padecimientoActual.dolor.localizacion.tipo} - ${formData.padecimientoActual.dolor.localizacion.descripcion}
-        Atenuación: ${formData.padecimientoActual.dolor.atenuacion}
-      `}
-      
-      ANTECEDENTES HEREDO FAMILIARES:
-      Padre: ${formData.antecedentesHeredoFamiliares.padre.finado ? `Finado por: ${formData.antecedentesHeredoFamiliares.padre.causaMuerte}` : `Condiciones: ${Object.entries(formData.antecedentesHeredoFamiliares.padre.condiciones).filter(([key, value]) => value).map(([key]) => key).join(', ')}`}
-      Madre: ${formData.antecedentesHeredoFamiliares.madre.finado ? `Finado por: ${formData.antecedentesHeredoFamiliares.madre.causaMuerte}` : `Condiciones: ${Object.entries(formData.antecedentesHeredoFamiliares.madre.condiciones).filter(([key, value]) => value).map(([key]) => key).join(', ')}`}
-      
-      ANTECEDENTES PERSONALES NO PATOLÓGICOS:
-      Servicios Domiciliarios: ${formData.serviciosDomiciliarios}
-      Higiene de la Vivienda: ${formData.frecuenciaLimpieza}, Hacinamiento: ${formData.hacinamiento}
-      Higiene Personal: ${formData.frecuenciaBano}
-      Higiene Bucal: Frecuencia de Cepillado: ${formData.higieneBucal.frecuenciaCepillado}, Uso de Hilo Dental: ${formData.higieneBucal.usoHiloDental}
-      Alimentación: Tipo de Dieta: ${formData.alimentacion.tipoDieta}, Frecuencia de Comidas: ${formData.alimentacion.frecuenciaComidas}
-      Grupo Sanguíneo: ${formData.grupoSanguineo}, Factor Rh: ${formData.factorRh}
-      Inmunizaciones: ${formData.inmunizaciones}
-      
-      SIGNOS VITALES:
-      Peso: ${formData.peso} kg
-      Talla: ${formData.talla} m
-      IMC: ${formData.imc}
-      Presión Arterial: ${formData.presionArterial}
-      
-      DIAGNÓSTICOS:
-      ${formData.diagnosticos}
-      
-      PRONÓSTICOS:
-      ${formData.pronosticos}
-    `;
-    
-    setResumen(resumenGenerado);
-    toast({
-      title: "Historia Clínica Generada",
-      description: "El resumen de la historia clínica ha sido generado exitosamente.",
-    });
-  };
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const [resumen, setResumen] = useState('');
+  const generarResumen = async () => {
+    try {
+      setIsGenerating(true);
+      const resumenGenerado = await generateMedicalReport(formData);
+      setResumen(resumenGenerado);
+      toast({
+        title: "Historia Clínica Generada",
+        description: "El resumen de la historia clínica ha sido generado exitosamente con IA.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo generar la historia clínica. Por favor, intente nuevamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className={`${theme} min-h-screen`}>
@@ -432,9 +398,17 @@ const HistoriaClinica = () => {
             <div className="flex justify-center pt-6">
               <Button 
                 onClick={generarResumen}
+                disabled={isGenerating}
                 className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all duration-200 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl"
               >
-                Generar Historia Clínica
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Generando Historia Clínica...
+                  </>
+                ) : (
+                  'Generar Historia Clínica con IA'
+                )}
               </Button>
             </div>
           </div>
@@ -443,7 +417,7 @@ const HistoriaClinica = () => {
             <div className="mt-8 animate-fade-in">
               <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-xl p-8 backdrop-blur-sm bg-opacity-90 transition-colors duration-200`}>
                 <h2 className={`text-2xl font-semibold mb-6 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
-                  Historia Clínica Generada
+                  Historia Clínica Generada con IA
                 </h2>
                 <div className="prose dark:prose-invert max-w-none">
                   <pre className={`whitespace-pre-line ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} p-6 rounded-lg text-sm transition-colors duration-200`}>
