@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { AnimatedText } from "@/components/ui/animated-underline-text-one";
+import { GradualSpacing } from "@/components/ui/gradual-spacing";
 import InformacionGeneral from './historia-clinica/InformacionGeneral';
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -391,11 +391,11 @@ const HistoriaClinica = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <AnimatedText 
+      <GradualSpacing 
         text="Historia Clínica"
-        className="mb-8"
-        textClassName="text-[87px] text-primary font-knewave font-normal"
-        underlineClassName="text-primary"
+        className="text-[87px] text-primary font-knewave font-normal mb-8"
+        duration={0.5}
+        delayMultiple={0.04}
       />
       
       <div className="grid gap-8">
@@ -455,4 +455,3 @@ const HistoriaClinica = () => {
 };
 
 export default HistoriaClinica;
-
