@@ -39,7 +39,7 @@ const HigieneVivienda = ({
             <CustomCheckbox 
               id="hacinamiento"
               checked={hacinamiento}
-              onCheckedChange={(checked) => onHacinamientoChange(checked as boolean)}
+              onChange={(e) => onHacinamientoChange(e.target.checked)}
             />
             <Label htmlFor="hacinamiento">Presente</Label>
           </div>

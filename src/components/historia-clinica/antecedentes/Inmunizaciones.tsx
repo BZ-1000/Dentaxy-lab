@@ -22,7 +22,7 @@ const Inmunizaciones = ({
           <CustomCheckbox 
             id="esquema-completo"
             checked={esquemaCompleto}
-            onCheckedChange={(checked) => onEsquemaChange(checked as boolean)}
+            onChange={(e) => onEsquemaChange(e.target.checked)}
           />
           <Label htmlFor="esquema-completo">Esquema de vacunación completo</Label>
         </div>
@@ -30,7 +30,7 @@ const Inmunizaciones = ({
           <CustomCheckbox 
             id="cartilla"
             checked={tieneCartilla}
-            onCheckedChange={(checked) => onCartillaChange(checked as boolean)}
+            onChange={(e) => onCartillaChange(e.target.checked)}
           />
           <Label htmlFor="cartilla">Cuenta con cartilla nacional de vacunación</Label>
         </div>

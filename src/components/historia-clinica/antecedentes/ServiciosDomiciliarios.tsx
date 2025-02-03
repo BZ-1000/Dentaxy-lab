@@ -44,7 +44,7 @@ const ServiciosDomiciliarios = ({
               <CustomCheckbox 
                 id="agua" 
                 checked={servicios.agua}
-                onCheckedChange={(checked) => onServicioChange('agua', checked as boolean)}
+                onChange={(e) => onServicioChange('agua', e.target.checked)}
               />
               <Label htmlFor="agua">Agua</Label>
             </div>
@@ -52,7 +52,7 @@ const ServiciosDomiciliarios = ({
               <CustomCheckbox 
                 id="luz"
                 checked={servicios.luz}
-                onCheckedChange={(checked) => onServicioChange('luz', checked as boolean)}
+                onChange={(e) => onServicioChange('luz', e.target.checked)}
               />
               <Label htmlFor="luz">Luz</Label>
             </div>
@@ -60,7 +60,7 @@ const ServiciosDomiciliarios = ({
               <CustomCheckbox 
                 id="drenaje"
                 checked={servicios.drenaje}
-                onCheckedChange={(checked) => onServicioChange('drenaje', checked as boolean)}
+                onChange={(e) => onServicioChange('drenaje', e.target.checked)}
               />
               <Label htmlFor="drenaje">Drenaje</Label>
             </div>
@@ -68,7 +68,7 @@ const ServiciosDomiciliarios = ({
               <CustomCheckbox 
                 id="transporte"
                 checked={servicios.transporte}
-                onCheckedChange={(checked) => onServicioChange('transporte', checked as boolean)}
+                onChange={(e) => onServicioChange('transporte', e.target.checked)}
               />
               <Label htmlFor="transporte">Transporte</Label>
             </div>

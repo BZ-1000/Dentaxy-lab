@@ -43,7 +43,7 @@ const HigieneBucal = ({
               <CustomCheckbox 
                 id="hilo-dental"
                 checked={auxiliares.hiloDental}
-                onCheckedChange={(checked) => onAuxiliarChange('hiloDental', checked as boolean)}
+                onChange={(e) => onAuxiliarChange('hiloDental', e.target.checked)}
               />
               <Label htmlFor="hilo-dental">Hilo Dental</Label>
             </div>
@@ -51,7 +51,7 @@ const HigieneBucal = ({
               <CustomCheckbox 
                 id="enjuague"
                 checked={auxiliares.enjuague}
-                onCheckedChange={(checked) => onAuxiliarChange('enjuague', checked as boolean)}
+                onChange={(e) => onAuxiliarChange('enjuague', e.target.checked)}
               />
               <Label htmlFor="enjuague">Enjuague Bucal</Label>
             </div>
