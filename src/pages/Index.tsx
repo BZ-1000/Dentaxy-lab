@@ -6,12 +6,20 @@ const Index = () => {
   return (
     <div className="min-h-screen w-full">
       {/* Hero Section - Theme independent */}
-      <div className="min-h-screen relative overflow-hidden bg-[#1a1464]">
-        {/* Background shapes */}
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Background base color and gradient */}
         <div className="absolute inset-0" style={{
-          background: 'linear-gradient(45deg, #1a1464 0%, #3b2b8f 100%)',
-          zIndex: 1
+          background: 'linear-gradient(135deg, #1a1464 0%, #3b2b8f 100%)',
         }} />
+        
+        {/* Geometric shapes overlay */}
+        <div className="absolute inset-0 opacity-50">
+          <img 
+            src="/lovable-uploads/3a220d7e-3577-4b59-97fb-69bed16a40b0.png"
+            alt="Background Pattern"
+            className="w-full h-full object-cover"
+          />
+        </div>
         
         <div className="relative z-10 w-full">
           <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
