@@ -4,21 +4,24 @@ import { Typewriter } from "@/components/ui/typewriter-text";
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full">
       {/* Hero Section */}
       <div className="min-h-screen relative overflow-hidden">
-        {/* Background image */}
+        {/* Background gradient */}
+        <div className="fixed inset-0 bg-gradient-to-br from-blue-500/20 via-purple-500/20 to-pink-500/20 dark:from-blue-900/40 dark:via-purple-900/40 dark:to-pink-900/40" />
+        
+        {/* Background image with overlay */}
         <img 
           src="/lovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png"
           alt="Background"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="fixed inset-0 w-full h-full object-cover opacity-50 dark:opacity-30"
         />
         
-        <div className="relative z-10 container mx-auto px-4 py-16">
-          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
+        <div className="relative z-10 w-full">
+          <div className="flex flex-col items-center justify-center min-h-screen text-center px-4">
             {/* Logo and Title */}
             <div className="flex items-center gap-2 mb-12">
-              <div className="w-8 h-8"> {/* Reduced from w-12 h-12 */}
+              <div className="w-8 h-8">
                 <img 
                   src="/lovable-uploads/5636450b-9d56-40a0-b095-dd830e161077.png" 
                   alt="Dental Logo" 
@@ -26,8 +29,8 @@ const Index = () => {
                 />
               </div>
               <div className="text-white font-mplus text-left">
-                <div className="text-base font-semibold leading-tight">DENTAL BASICS</div> {/* Reduced from text-lg */}
-                <div className="text-base font-semibold leading-tight">ACADEMY</div> {/* Reduced from text-lg */}
+                <div className="text-base font-semibold leading-tight">DENTAL BASICS</div>
+                <div className="text-base font-semibold leading-tight">ACADEMY</div>
               </div>
             </div>
 
@@ -52,7 +55,7 @@ const Index = () => {
       </div>
 
       {/* Form Section */}
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-16">
+      <div className="relative z-10 bg-gray-50/95 dark:bg-gray-900/95 py-16">
         <div className="container mx-auto px-4">
           <HistoriaClinica />
         </div>
