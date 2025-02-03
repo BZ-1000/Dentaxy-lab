@@ -50,11 +50,17 @@ const InformacionPrincipal = ({
 
       <div>
         <Label>Estado Actual</Label>
-        <Textarea
-          value={estadoActual}
-          onChange={(e) => onEstadoChange(e.target.value)}
-          placeholder="Describa el estado actual de los síntomas"
-        />
+        <div className="relative w-full">
+          <Textarea
+            value={estadoActual}
+            onChange={(e) => onEstadoChange(e.target.value)}
+            placeholder="Describa el estado actual de los síntomas"
+            className="min-h-[135px] max-h-[135px] pr-16 w-[75%]"
+          />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 h-[40px]">
+            <VoiceInput onTranscriptionComplete={(text) => onEstadoChange(text)} />
+          </div>
+        </div>
       </div>
     </div>
   );
