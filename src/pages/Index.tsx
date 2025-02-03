@@ -39,7 +39,7 @@ const Index = () => {
             
             <Typewriter
               text={[
-                "Bienvenido a la Historia clínica inteligente",
+                "Bienvenido a nuestra Historia clínica inteligente",
                 "Registra Más...",
                 "Escribe Menos..."
               ]}
