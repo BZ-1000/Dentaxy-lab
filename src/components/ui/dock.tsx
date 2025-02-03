@@ -37,6 +37,7 @@ type DockProps = {
 type DockItemProps = {
   className?: string;
   children: React.ReactNode;
+  onClick?: () => void;  // Añadimos la propiedad onClick como opcional
 };
 type DockLabelProps = {
   className?: string;
@@ -123,7 +124,7 @@ function Dock({
   );
 }
 
-function DockItem({ children, className }: DockItemProps) {
+function DockItem({ children, className, onClick }: DockItemProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   const { distance, magnification, mouseX, spring } = useDock();
@@ -151,6 +152,7 @@ function DockItem({ children, className }: DockItemProps) {
       onHoverEnd={() => isHovered.set(0)}
       onFocus={() => isHovered.set(1)}
       onBlur={() => isHovered.set(0)}
+      onClick={onClick}
       className={cn(
         'relative inline-flex items-center justify-center',
         className
