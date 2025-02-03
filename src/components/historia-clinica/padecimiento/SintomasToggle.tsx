@@ -9,7 +9,6 @@ interface SintomasToggleProps {
 const SintomasToggle = ({ checked, onChange }: SintomasToggleProps) => {
   return (
     <div className="mb-4">
-      <h3 className="text-xl font-mplus font-normal mb-4">Actualmente no refiere sintomatología</h3>
       <div 
         onClick={() => onChange(!checked)}
         className={cn(
@@ -30,7 +29,7 @@ const SintomasToggle = ({ checked, onChange }: SintomasToggleProps) => {
               "from-primary to-secondary"
           )}
         >
-          Seleccionar
+          Actualmente no refiere sintomatología
         </Label>
       </div>
     </div>
