@@ -1,6 +1,5 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 interface DiagnosticoPronosticoProps {
@@ -16,28 +15,22 @@ const DiagnosticoPronostico = ({ formData, handleInputChange }: DiagnosticoProno
     <Card className="p-6">
       <h3 className="text-xl font-mplus font-normal mb-4">Diagnóstico y Pronóstico</h3>
       <div className="space-y-4">
-        <div>
-          <Label htmlFor="diagnosticos">Diagnósticos</Label>
-          <Textarea
-            id="diagnosticos"
-            name="diagnosticos"
-            value={formData.diagnosticos}
-            onChange={handleInputChange}
-            placeholder="Diagnósticos"
-            className="h-32"
-          />
-        </div>
-        <div>
-          <Label htmlFor="pronosticos">Pronósticos</Label>
-          <Textarea
-            id="pronosticos"
-            name="pronosticos"
-            value={formData.pronosticos}
-            onChange={handleInputChange}
-            placeholder="Pronósticos"
-            className="h-32"
-          />
-        </div>
+        <Textarea
+          id="diagnosticos"
+          name="diagnosticos"
+          value={formData.diagnosticos}
+          onChange={handleInputChange}
+          placeholder="Ingrese los diagnósticos del paciente"
+          className="h-32 shadow-sm"
+        />
+        <Textarea
+          id="pronosticos"
+          name="pronosticos"
+          value={formData.pronosticos}
+          onChange={handleInputChange}
+          placeholder="Ingrese los pronósticos del paciente"
+          className="h-32 shadow-sm"
+        />
       </div>
     </Card>
   );
