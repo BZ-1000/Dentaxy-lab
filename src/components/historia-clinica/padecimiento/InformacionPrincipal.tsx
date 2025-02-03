@@ -30,7 +30,7 @@ const InformacionPrincipal = ({
           type="date"
           value={fechaAparicion}
           onChange={(e) => onFechaChange(e.target.value)}
-          className="w-auto"
+          className="w-48"
         />
       </div>
 

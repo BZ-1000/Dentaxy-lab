@@ -1,7 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CaracteristicasDolorProps {
   dolor: {
@@ -20,116 +19,102 @@ interface CaracteristicasDolorProps {
 
 const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProps) => {
   return (
-    <div className="space-y-4 border-t pt-4">
-      <h4 className="text-lg font-semibold">Características del Dolor</h4>
+    <div className="space-y-4">
+      <h4 className="font-medium text-lg">Características del Dolor</h4>
       
       <div>
-        <Label>Fecha de inicio del dolor</Label>
+        <Label>Fecha de inicio</Label>
         <Input
           type="date"
           value={dolor.fechaInicio}
           onChange={(e) => onDolorChange('fechaInicio', e.target.value)}
+          className="w-48"
         />
       </div>
 
-      <div>
-        <Label>Condición de aparición</Label>
-        <RadioGroup
-          value={dolor.condicionAparicion}
-          onValueChange={(value) => onDolorChange('condicionAparicion', value)}
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="provocado" id="provocado" />
-            <Label htmlFor="provocado">Provocado</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="espontaneo" id="espontaneo" />
-            <Label htmlFor="espontaneo">Espontáneo</Label>
-          </div>
-        </RadioGroup>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label>Condición de aparición</Label>
+          <Select
+            value={dolor.condicionAparicion}
+            onValueChange={(value) => onDolorChange('condicionAparicion', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Seleccione condición" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="provocado">Provocado</SelectItem>
+              <SelectItem value="espontaneo">Espontáneo</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Frecuencia</Label>
+          <Select
+            value={dolor.frecuencia}
+            onValueChange={(value) => onDolorChange('frecuencia', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Seleccione frecuencia" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="intermitente">Intermitente</SelectItem>
+              <SelectItem value="continuo">Continuo</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Carácter</Label>
+          <Select
+            value={dolor.caracter}
+            onValueChange={(value) => onDolorChange('caracter', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Seleccione carácter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pulsatil">Pulsátil</SelectItem>
+              <SelectItem value="sordo">Sordo</SelectItem>
+              <SelectItem value="quemante">Quemante</SelectItem>
+              <SelectItem value="opresivo">Opresivo</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Tipo de localización</Label>
+          <Select
+            value={dolor.localizacion.tipo}
+            onValueChange={(value) => onDolorChange('localizacion', JSON.stringify({ ...dolor.localizacion, tipo: value }))}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Seleccione tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="localizado">Localizado</SelectItem>
+              <SelectItem value="irradiado">Irradiado</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div>
-        <Label>Frecuencia</Label>
-        <RadioGroup
-          value={dolor.frecuencia}
-          onValueChange={(value) => onDolorChange('frecuencia', value)}
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="intermitente" id="intermitente" />
-            <Label htmlFor="intermitente">Intermitente</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="continuo" id="continuo" />
-            <Label htmlFor="continuo">Continuo</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div>
-        <Label>Carácter del dolor</Label>
-        <RadioGroup
-          value={dolor.caracter}
-          onValueChange={(value) => onDolorChange('caracter', value)}
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="pulsatil" id="pulsatil" />
-            <Label htmlFor="pulsatil">Pulsátil</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="sordo" id="sordo" />
-            <Label htmlFor="sordo">Sordo</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="quemante" id="quemante" />
-            <Label htmlFor="quemante">Quemante</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="opresivo" id="opresivo" />
-            <Label htmlFor="opresivo">Opresivo</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div>
-        <Label>Localización del dolor</Label>
-        <RadioGroup
-          value={dolor.localizacion.tipo}
-          onValueChange={(value) => {
-            onDolorChange('localizacion', JSON.stringify({
-              ...dolor.localizacion,
-              tipo: value
-            }))
-          }}
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="localizado" id="localizado" />
-            <Label htmlFor="localizado">Localizado</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="irradiado" id="irradiado" />
-            <Label htmlFor="irradiado">Irradiado</Label>
-          </div>
-        </RadioGroup>
+        <Label>Descripción de la localización</Label>
         <Input
-          className="mt-2"
-          placeholder="Descripción de la localización"
           value={dolor.localizacion.descripcion}
-          onChange={(e) => {
-            onDolorChange('localizacion', JSON.stringify({
-              ...dolor.localizacion,
-              descripcion: e.target.value
-            }))
-          }}
+          onChange={(e) => onDolorChange('localizacion', JSON.stringify({ ...dolor.localizacion, descripcion: e.target.value }))}
+          placeholder="Describa la localización del dolor"
         />
       </div>
 
       <div>
         <Label>Atenuación</Label>
-        <Textarea
+        <Input
           value={dolor.atenuacion}
           onChange={(e) => onDolorChange('atenuacion', e.target.value)}
-          placeholder="Condiciones que exacerban o disminuyen el dolor"
+          placeholder="¿Qué atenúa el dolor?"
         />
       </div>
     </div>
