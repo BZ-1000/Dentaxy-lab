@@ -1,7 +1,7 @@
 "use client";
 
 import { Mic } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,178 +24,159 @@ export function AIVoiceInput({
   className,
   onTranscriptionComplete
 }: AIVoiceInputProps) {
-  const [submitted, setSubmitted] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const [time, setTime] = useState(0);
   const [isClient, setIsClient] = useState(false);
-  const [isDemo, setIsDemo] = useState(demoMode);
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
+
+  const stopRecording = useCallback(() => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (error) {
+        console.error('Error al detener el reconocimiento:', error);
+      }
+    }
+    
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    setIsRecording(false);
+    onStop?.(time);
+    setTime(0);
+  }, [onStop, time]);
+
+  const initializeRecognition = useCallback(() => {
+    if (typeof window === 'undefined') return null;
+
+    try {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        toast({
+          title: "Navegador no compatible",
+          description: "Tu navegador no soporta el reconocimiento de voz. Por favor, usa un navegador más reciente.",
+          variant: "destructive",
+        });
+        return null;
+      }
+
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.lang = 'es-ES';
+      recognition.interimResults = false;
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[event.results.length - 1][0].transcript;
+        if (onTranscriptionComplete) {
+          onTranscriptionComplete(transcript);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Error en reconocimiento de voz:', event.error);
+        if (event.error === 'not-allowed') {
+          toast({
+            title: "Error de permisos",
+            description: "No se ha permitido el acceso al micrófono. Por favor, habilita los permisos en tu navegador.",
+            variant: "destructive",
+          });
+          stopRecording();
+        } else if (event.error === 'no-speech') {
+          toast({
+            title: "No se detectó audio",
+            description: "No se detectó ninguna voz. Por favor, intenta hablar más fuerte o verifica tu micrófono.",
+            variant: "destructive",
+          });
+          stopRecording();
+        }
+      };
+
+      recognition.onend = () => {
+        if (isRecording) {
+          try {
+            recognition.start();
+          } catch (error) {
+            console.error('Error al reiniciar el reconocimiento:', error);
+            stopRecording();
+          }
+        }
+      };
+
+      return recognition;
+    } catch (error) {
+      console.error('Error al inicializar el reconocimiento de voz:', error);
+      toast({
+        title: "Error de inicialización",
+        description: "No se pudo inicializar el reconocimiento de voz. Por favor, recarga la página.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  }, [isRecording, onTranscriptionComplete, stopRecording, toast]);
 
   useEffect(() => {
     setIsClient(true);
-    if (typeof window !== 'undefined') {
-      try {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-          const recognitionInstance = new SpeechRecognition();
-          recognitionInstance.continuous = true;
-          recognitionInstance.lang = 'es-ES';
-          recognitionInstance.interimResults = false;
-          
-          recognitionInstance.onresult = (event) => {
-            const transcript = event.results[event.results.length - 1][0].transcript;
-            if (onTranscriptionComplete) {
-              onTranscriptionComplete(transcript);
-            }
-          };
+    recognitionRef.current = initializeRecognition();
 
-          recognitionInstance.onerror = (event) => {
-            console.error('Error en reconocimiento de voz:', event.error);
-            setSubmitted(false);
-            
-            if (event.error === 'not-allowed') {
-              toast({
-                title: "Error de permisos",
-                description: "No se ha permitido el acceso al micrófono. Por favor, habilita los permisos en tu navegador.",
-                variant: "destructive",
-              });
-            } else {
-              toast({
-                title: "Error",
-                description: "Hubo un error al iniciar el reconocimiento de voz. Por favor, intenta de nuevo.",
-                variant: "destructive",
-              });
-            }
-          };
-
-          recognitionInstance.onend = () => {
-            if (submitted) {
-              try {
-                recognitionInstance.start();
-              } catch (error) {
-                console.error('Error al reiniciar el reconocimiento:', error);
-                setSubmitted(false);
-              }
-            }
-          };
-
-          setRecognition(recognitionInstance);
-        } else {
-          toast({
-            title: "Navegador no compatible",
-            description: "Tu navegador no soporta el reconocimiento de voz. Por favor, usa un navegador más reciente.",
-            variant: "destructive",
-          });
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (error) {
+          console.error('Error al limpiar el reconocimiento:', error);
         }
-      } catch (error) {
-        console.error('Error al inicializar el reconocimiento de voz:', error);
-        toast({
-          title: "Error de inicialización",
-          description: "No se pudo inicializar el reconocimiento de voz. Por favor, recarga la página.",
-          variant: "destructive",
-        });
       }
-    }
-  }, [onTranscriptionComplete, toast]);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [initializeRecognition]);
 
-  useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop());
 
-    if (submitted) {
-      try {
+      if (recognitionRef.current) {
+        recognitionRef.current.start();
+        setIsRecording(true);
         onStart?.();
-        if (recognition) {
-          recognition.start();
-          intervalId = setInterval(() => {
-            setTime((t) => t + 1);
-          }, 1000);
-        }
-      } catch (error) {
-        console.error('Error al iniciar reconocimiento:', error);
-        setSubmitted(false);
+        
+        timerRef.current = setInterval(() => {
+          setTime(prev => prev + 1);
+        }, 1000);
+
         toast({
-          title: "Error",
-          description: "No se pudo iniciar el reconocimiento de voz. Por favor, intenta de nuevo.",
-          variant: "destructive",
+          title: "Grabación iniciada",
+          description: "Puedes comenzar a hablar...",
         });
       }
-    } else {
-      if (recognition) {
-        try {
-          recognition.stop();
-        } catch (error) {
-          console.error('Error al detener reconocimiento:', error);
-        }
-      }
-      onStop?.(time);
-      setTime(0);
+    } catch (error) {
+      console.error('Error al solicitar permisos:', error);
+      toast({
+        title: "Error de permisos",
+        description: "No se pudo acceder al micrófono. Por favor, verifica los permisos en tu navegador.",
+        variant: "destructive",
+      });
     }
+  };
 
-    return () => {
-      clearInterval(intervalId);
-      if (recognition) {
-        try {
-          recognition.stop();
-        } catch (error) {
-          console.error('Error al limpiar reconocimiento:', error);
-        }
-      }
-    };
-  }, [submitted, time, onStart, onStop, recognition, toast]);
-
-  useEffect(() => {
-    if (!isDemo) return;
-
-    let timeoutId: NodeJS.Timeout;
-    const runAnimation = () => {
-      setSubmitted(true);
-      timeoutId = setTimeout(() => {
-        setSubmitted(false);
-        timeoutId = setTimeout(runAnimation, 1000);
-      }, demoInterval);
-    };
-
-    const initialTimeout = setTimeout(runAnimation, 100);
-    return () => {
-      clearTimeout(timeoutId);
-      clearTimeout(initialTimeout);
-    };
-  }, [isDemo, demoInterval]);
+  const handleClick = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const handleClick = async () => {
-    if (isDemo) {
-      setIsDemo(false);
-      setSubmitted(false);
-    } else {
-      try {
-        if (!recognition) {
-          toast({
-            title: "Error",
-            description: "El reconocimiento de voz no está disponible en este navegador.",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach(track => track.stop());
-        
-        setSubmitted((prev) => !prev);
-      } catch (error) {
-        console.error('Error al solicitar permisos:', error);
-        toast({
-          title: "Error de permisos",
-          description: "No se pudo acceder al micrófono. Por favor, verifica los permisos en tu navegador.",
-          variant: "destructive",
-        });
-      }
-    }
   };
 
   return (
@@ -204,14 +185,14 @@ export function AIVoiceInput({
         <button
           className={cn(
             "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors",
-            submitted
+            isRecording
               ? "bg-none"
               : "bg-none hover:bg-black/10 dark:hover:bg-white/10"
           )}
           type="button"
           onClick={handleClick}
         >
-          {submitted ? (
+          {isRecording ? (
             <div
               className="w-6 h-6 rounded-sm animate-spin bg-black dark:bg-white cursor-pointer pointer-events-auto"
               style={{ animationDuration: "3s" }}
@@ -224,7 +205,7 @@ export function AIVoiceInput({
         <span
           className={cn(
             "font-mono text-sm transition-opacity duration-300",
-            submitted
+            isRecording
               ? "text-black/70 dark:text-white/70"
               : "text-black/30 dark:text-white/30"
           )}
@@ -238,12 +219,12 @@ export function AIVoiceInput({
               key={i}
               className={cn(
                 "w-0.5 rounded-full transition-all duration-300",
-                submitted
+                isRecording
                   ? "bg-black/50 dark:bg-white/50 animate-pulse"
                   : "bg-black/10 dark:bg-white/10 h-1"
               )}
               style={
-                submitted && isClient
+                isRecording && isClient
                   ? {
                       height: `${20 + Math.random() * 80}%`,
                       animationDelay: `${i * 0.05}s`,
@@ -255,7 +236,7 @@ export function AIVoiceInput({
         </div>
 
         <p className="h-4 text-xs text-black/70 dark:text-white/70">
-          {submitted ? "Escuchando..." : "Audio a Texto"}
+          {isRecording ? "Escuchando..." : "Audio a Texto"}
         </p>
       </div>
     </div>
