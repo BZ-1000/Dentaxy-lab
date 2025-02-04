@@ -29,7 +29,6 @@ export function AIVoiceInput({
   const [isClient, setIsClient] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const startTimeRef = useRef<number>(0);
   const { toast } = useToast();
 
   const stopRecording = useCallback(() => {
@@ -49,7 +48,6 @@ export function AIVoiceInput({
     setIsRecording(false);
     onStop?.(time);
     setTime(0);
-    startTimeRef.current = 0;
   }, [onStop, time]);
 
   const initializeRecognition = useCallback(() => {
@@ -148,15 +146,9 @@ export function AIVoiceInput({
         setIsRecording(true);
         onStart?.();
         
-        // Iniciar el cronómetro
-        startTimeRef.current = Date.now();
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-        }
         timerRef.current = setInterval(() => {
-          const elapsedTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-          setTime(elapsedTime);
-        }, 100);
+          setTime(prev => prev + 1);
+        }, 1000);
 
         toast({
           title: "Grabación iniciada",
