@@ -148,11 +148,15 @@ export function AIVoiceInput({
         setIsRecording(true);
         onStart?.();
         
+        // Iniciar el cronómetro
         startTimeRef.current = Date.now();
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
         timerRef.current = setInterval(() => {
-          const currentTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
-          setTime(currentTime);
-        }, 1000);
+          const elapsedTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+          setTime(elapsedTime);
+        }, 100);
 
         toast({
           title: "Grabación iniciada",
