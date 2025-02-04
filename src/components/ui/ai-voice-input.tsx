@@ -3,6 +3,7 @@
 import { Mic } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface AIVoiceInputProps {
   onStart?: () => void;
@@ -28,44 +29,96 @@ export function AIVoiceInput({
   const [isClient, setIsClient] = useState(false);
   const [isDemo, setIsDemo] = useState(demoMode);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsClient(true);
     if (typeof window !== 'undefined') {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.lang = 'es-ES';
-        recognition.onresult = (event) => {
+        const recognitionInstance = new SpeechRecognition();
+        recognitionInstance.continuous = true;
+        recognitionInstance.lang = 'es-ES';
+        
+        recognitionInstance.onresult = (event) => {
           const transcript = event.results[event.results.length - 1][0].transcript;
           onTranscriptionComplete?.(transcript);
         };
-        setRecognition(recognition);
+
+        recognitionInstance.onerror = (event) => {
+          console.error('Error en reconocimiento de voz:', event.error);
+          setSubmitted(false);
+          
+          if (event.error === 'not-allowed') {
+            toast({
+              title: "Error de permisos",
+              description: "No se ha permitido el acceso al micrófono. Por favor, habilita los permisos en tu navegador.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Error",
+              description: "Hubo un error al iniciar el reconocimiento de voz. Por favor, intenta de nuevo.",
+              variant: "destructive",
+            });
+          }
+        };
+
+        recognitionInstance.onend = () => {
+          if (submitted) {
+            recognitionInstance.start();
+          }
+        };
+
+        setRecognition(recognitionInstance);
+      } else {
+        toast({
+          title: "Navegador no compatible",
+          description: "Tu navegador no soporta el reconocimiento de voz. Por favor, usa un navegador más reciente.",
+          variant: "destructive",
+        });
       }
     }
-  }, [onTranscriptionComplete]);
+  }, [onTranscriptionComplete, toast]);
 
   useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
     if (submitted) {
-      onStart?.();
-      recognition?.start();
-      intervalId = setInterval(() => {
-        setTime((t) => t + 1);
-      }, 1000);
+      try {
+        onStart?.();
+        recognition?.start();
+        intervalId = setInterval(() => {
+          setTime((t) => t + 1);
+        }, 1000);
+      } catch (error) {
+        console.error('Error al iniciar reconocimiento:', error);
+        setSubmitted(false);
+        toast({
+          title: "Error",
+          description: "No se pudo iniciar el reconocimiento de voz. Por favor, intenta de nuevo.",
+          variant: "destructive",
+        });
+      }
     } else {
-      recognition?.stop();
+      try {
+        recognition?.stop();
+      } catch (error) {
+        console.error('Error al detener reconocimiento:', error);
+      }
       onStop?.(time);
       setTime(0);
     }
 
     return () => {
       clearInterval(intervalId);
-      recognition?.stop();
+      try {
+        recognition?.stop();
+      } catch (error) {
+        console.error('Error al limpiar reconocimiento:', error);
+      }
     };
-  }, [submitted, time, onStart, onStop, recognition]);
+  }, [submitted, time, onStart, onStop, recognition, toast]);
 
   useEffect(() => {
     if (!isDemo) return;
@@ -92,12 +145,34 @@ export function AIVoiceInput({
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (isDemo) {
       setIsDemo(false);
       setSubmitted(false);
     } else {
-      setSubmitted((prev) => !prev);
+      try {
+        if (!recognition) {
+          toast({
+            title: "Error",
+            description: "El reconocimiento de voz no está disponible en este navegador.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Solicitar permisos antes de iniciar
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop()); // Liberamos el stream después de obtener el permiso
+        
+        setSubmitted((prev) => !prev);
+      } catch (error) {
+        console.error('Error al solicitar permisos:', error);
+        toast({
+          title: "Error de permisos",
+          description: "No se pudo acceder al micrófono. Por favor, verifica los permisos en tu navegador.",
+          variant: "destructive",
+        });
+      }
     }
   };
 
