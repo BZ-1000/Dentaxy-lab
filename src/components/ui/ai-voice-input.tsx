@@ -35,6 +35,10 @@ export function AIVoiceInput({
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
+        recognitionRef.current.onresult = null;
+        recognitionRef.current.onerror = null;
+        recognitionRef.current.onend = null;
+        recognitionRef.current = null;
       } catch (error) {
         console.error('Error al detener el reconocimiento:', error);
       }
@@ -70,6 +74,7 @@ export function AIVoiceInput({
       recognition.interimResults = false;
 
       recognition.onresult = (event) => {
+        if (!isRecording) return; // Ignore results if not recording
         const transcript = event.results[event.results.length - 1][0].transcript;
         if (onTranscriptionComplete) {
           onTranscriptionComplete(transcript);
@@ -120,12 +125,13 @@ export function AIVoiceInput({
 
   useEffect(() => {
     setIsClient(true);
-    recognitionRef.current = initializeRecognition();
-
     return () => {
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
+          recognitionRef.current.onresult = null;
+          recognitionRef.current.onerror = null;
+          recognitionRef.current.onend = null;
         } catch (error) {
           console.error('Error al limpiar el reconocimiento:', error);
         }
@@ -134,13 +140,15 @@ export function AIVoiceInput({
         clearInterval(timerRef.current);
       }
     };
-  }, [initializeRecognition]);
+  }, []);
 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(track => track.stop());
 
+      recognitionRef.current = initializeRecognition();
+      
       if (recognitionRef.current) {
         recognitionRef.current.start();
         setIsRecording(true);
