@@ -29,6 +29,7 @@ export function AIVoiceInput({
   const [isClient, setIsClient] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number>(0);
   const { toast } = useToast();
 
   const stopRecording = useCallback(() => {
@@ -48,6 +49,7 @@ export function AIVoiceInput({
     setIsRecording(false);
     onStop?.(time);
     setTime(0);
+    startTimeRef.current = 0;
   }, [onStop, time]);
 
   const initializeRecognition = useCallback(() => {
@@ -96,14 +98,7 @@ export function AIVoiceInput({
       };
 
       recognition.onend = () => {
-        if (isRecording) {
-          try {
-            recognition.start();
-          } catch (error) {
-            console.error('Error al reiniciar el reconocimiento:', error);
-            stopRecording();
-          }
-        }
+        stopRecording();
       };
 
       return recognition;
@@ -116,7 +111,7 @@ export function AIVoiceInput({
       });
       return null;
     }
-  }, [isRecording, onTranscriptionComplete, stopRecording, toast]);
+  }, [onTranscriptionComplete, stopRecording, toast]);
 
   useEffect(() => {
     setIsClient(true);
@@ -146,9 +141,11 @@ export function AIVoiceInput({
         setIsRecording(true);
         onStart?.();
         
+        startTimeRef.current = Date.now();
         timerRef.current = setInterval(() => {
-          setTime(prev => prev + 1);
-        }, 1000);
+          const elapsedTime = Math.floor((Date.now() - startTimeRef.current) / 1000);
+          setTime(elapsedTime);
+        }, 100);
 
         toast({
           title: "Grabación iniciada",
