@@ -44,7 +44,7 @@ const InformacionPrincipal = ({
             className="min-h-[135px] max-h-[135px] w-[75%]"
           />
           <div className="h-[40px]">
-            <VoiceInput onTranscriptionComplete={onVoiceTranscription} />
+            <VoiceInput onTranscriptionComplete={(text) => onEstadoChange(text)} />
           </div>
         </div>
       </div>
@@ -59,7 +59,7 @@ const InformacionPrincipal = ({
             className="min-h-[135px] max-h-[135px] w-[75%]"
           />
           <div className="h-[40px]">
-            <VoiceInput onTranscriptionComplete={onVoiceTranscription} />
+            <VoiceInput onTranscriptionComplete={(text) => onEvolucionChange(text)} />
           </div>
         </div>
       </div>
