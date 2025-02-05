@@ -71,12 +71,15 @@ export function AIVoiceInput({
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.lang = 'es-ES';
-      recognition.interimResults = false;
+      recognition.interimResults = true;
 
       recognition.onresult = (event) => {
-        if (!isRecording) return; // Ignore results if not recording
-        const transcript = event.results[event.results.length - 1][0].transcript;
-        if (onTranscriptionComplete) {
+        const transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join('');
+
+        if (onTranscriptionComplete && isRecording) {
+          console.log('Transcripción:', transcript);
           onTranscriptionComplete(transcript);
         }
       };
