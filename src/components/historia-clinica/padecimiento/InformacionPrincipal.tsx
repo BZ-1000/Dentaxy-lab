@@ -20,7 +20,6 @@ const InformacionPrincipal = ({
   onFechaChange,
   onEvolucionChange,
   onEstadoChange,
-  onVoiceTranscription
 }: InformacionPrincipalProps) => {
   return (
     <div className="space-y-6">
