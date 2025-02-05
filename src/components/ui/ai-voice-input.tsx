@@ -30,14 +30,17 @@ export function AIVoiceInput({
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
+  const transcriptRef = useRef<string>('');
 
   const stopRecording = useCallback(() => {
     if (recognitionRef.current) {
       try {
         recognitionRef.current.stop();
-        recognitionRef.current.onresult = null;
-        recognitionRef.current.onerror = null;
-        recognitionRef.current.onend = null;
+        if (onTranscriptionComplete && transcriptRef.current) {
+          console.log('Transcripción final:', transcriptRef.current);
+          onTranscriptionComplete(transcriptRef.current);
+        }
+        transcriptRef.current = '';
         recognitionRef.current = null;
       } catch (error) {
         console.error('Error al detener el reconocimiento:', error);
@@ -52,7 +55,7 @@ export function AIVoiceInput({
     setIsRecording(false);
     onStop?.(time);
     setTime(0);
-  }, [onStop, time]);
+  }, [onStop, time, onTranscriptionComplete]);
 
   const initializeRecognition = useCallback(() => {
     if (typeof window === 'undefined') return null;
@@ -74,13 +77,15 @@ export function AIVoiceInput({
       recognition.interimResults = true;
 
       recognition.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map(result => result[0].transcript)
-          .join('');
-
-        if (onTranscriptionComplete && isRecording) {
-          console.log('Transcripción:', transcript);
-          onTranscriptionComplete(transcript);
+        const lastResult = event.results[event.results.length - 1];
+        if (lastResult.isFinal) {
+          const transcript = lastResult[0].transcript;
+          console.log('Transcripción parcial:', transcript);
+          transcriptRef.current += transcript + ' ';
+          
+          if (onTranscriptionComplete) {
+            onTranscriptionComplete(transcriptRef.current.trim());
+          }
         }
       };
 
@@ -124,7 +129,7 @@ export function AIVoiceInput({
       });
       return null;
     }
-  }, [isRecording, onTranscriptionComplete, stopRecording, toast]);
+  }, [isRecording, stopRecording, toast]);
 
   useEffect(() => {
     setIsClient(true);
@@ -132,9 +137,6 @@ export function AIVoiceInput({
       if (recognitionRef.current) {
         try {
           recognitionRef.current.stop();
-          recognitionRef.current.onresult = null;
-          recognitionRef.current.onerror = null;
-          recognitionRef.current.onend = null;
         } catch (error) {
           console.error('Error al limpiar el reconocimiento:', error);
         }
@@ -150,6 +152,7 @@ export function AIVoiceInput({
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       stream.getTracks().forEach(track => track.stop());
 
+      transcriptRef.current = '';
       recognitionRef.current = initializeRecognition();
       
       if (recognitionRef.current) {
