@@ -20,6 +20,7 @@ const InformacionPrincipal = ({
   onFechaChange,
   onEvolucionChange,
   onEstadoChange,
+  onVoiceTranscription
 }: InformacionPrincipalProps) => {
   return (
     <div className="space-y-6">
@@ -34,6 +35,21 @@ const InformacionPrincipal = ({
       </div>
 
       <div>
+        <Label>Evolución</Label>
+        <div className="flex items-center gap-4">
+          <Textarea
+            value={evolucion}
+            onChange={(e) => onEvolucionChange(e.target.value)}
+            placeholder="Describa la evolución de los síntomas"
+            className="min-h-[135px] max-h-[135px] w-[75%]"
+          />
+          <div className="h-[40px]">
+            <VoiceInput onTranscriptionComplete={onVoiceTranscription} />
+          </div>
+        </div>
+      </div>
+
+      <div>
         <Label>Estado Actual</Label>
         <div className="flex items-center gap-4">
           <Textarea
@@ -44,21 +60,6 @@ const InformacionPrincipal = ({
           />
           <div className="h-[40px]">
             <VoiceInput onTranscriptionComplete={(text) => onEstadoChange(text)} />
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <Label>Evolución</Label>
-        <div className="flex items-center gap-4">
-          <Textarea
-            value={evolucion}
-            onChange={(e) => onEvolucionChange(e.target.value)}
-            placeholder="Describa la evolución de los síntomas"
-            className="min-h-[135px] max-h-[135px] w-[75%]"
-          />
-          <div className="h-[40px]">
-            <VoiceInput onTranscriptionComplete={(text) => onEvolucionChange(text)} />
           </div>
         </div>
       </div>
