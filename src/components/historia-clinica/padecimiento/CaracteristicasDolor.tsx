@@ -1,6 +1,8 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { VoiceInput } from "@/components/ui/voice-input";
 
 interface CaracteristicasDolorProps {
   dolor: {
@@ -102,20 +104,41 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
 
       <div>
         <Label>Descripción de la localización</Label>
-        <Input
-          value={dolor.localizacion.descripcion}
-          onChange={(e) => onDolorChange('localizacion', JSON.stringify({ ...dolor.localizacion, descripcion: e.target.value }))}
-          placeholder="Describa la localización del dolor"
-        />
+        <div className="flex items-center gap-4">
+          <Textarea
+            value={dolor.localizacion.descripcion}
+            onChange={(e) => onDolorChange('localizacion', JSON.stringify({ ...dolor.localizacion, descripcion: e.target.value }))}
+            placeholder="Describa la localización del dolor"
+            className="min-h-[135px] max-h-[135px] w-[75%]"
+          />
+          <div className="h-[40px]">
+            <VoiceInput 
+              onTranscriptionComplete={(text) => 
+                onDolorChange('localizacion', JSON.stringify({ 
+                  ...dolor.localizacion, 
+                  descripcion: text 
+                }))
+              } 
+            />
+          </div>
+        </div>
       </div>
 
       <div>
         <Label>Atenuación</Label>
-        <Input
-          value={dolor.atenuacion}
-          onChange={(e) => onDolorChange('atenuacion', e.target.value)}
-          placeholder="¿Qué atenúa el dolor?"
-        />
+        <div className="flex items-center gap-4">
+          <Textarea
+            value={dolor.atenuacion}
+            onChange={(e) => onDolorChange('atenuacion', e.target.value)}
+            placeholder="¿Qué atenúa el dolor?"
+            className="min-h-[135px] max-h-[135px] w-[75%]"
+          />
+          <div className="h-[40px]">
+            <VoiceInput 
+              onTranscriptionComplete={(text) => onDolorChange('atenuacion', text)} 
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
