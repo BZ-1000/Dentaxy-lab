@@ -1,4 +1,4 @@
-import { Input } from "@/components/ui/input";
+
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,6 +10,7 @@ interface CaracteristicasDolorProps {
     condicionAparicion: string;
     frecuencia: string;
     caracter: string;
+    intensidad: string;
     localizacion: {
       tipo: string;
       descripcion: string;
@@ -24,16 +25,6 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
     <div className="space-y-4">
       <h4 className="font-medium text-lg">Características del Dolor</h4>
       
-      <div>
-        <Label>Fecha de inicio</Label>
-        <Input
-          type="date"
-          value={dolor.fechaInicio}
-          onChange={(e) => onDolorChange('fechaInicio', e.target.value)}
-          className="w-48"
-        />
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label>Condición de aparición</Label>
@@ -86,24 +77,25 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
         </div>
 
         <div>
-          <Label>Tipo de localización</Label>
+          <Label>Intensidad</Label>
           <Select
-            value={dolor.localizacion.tipo}
-            onValueChange={(value) => onDolorChange('localizacion', JSON.stringify({ ...dolor.localizacion, tipo: value }))}
+            value={dolor.intensidad}
+            onValueChange={(value) => onDolorChange('intensidad', value)}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Seleccione tipo" />
+              <SelectValue placeholder="Seleccione intensidad" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="localizado">Localizado</SelectItem>
-              <SelectItem value="irradiado">Irradiado</SelectItem>
+              <SelectItem value="leve">Leve</SelectItem>
+              <SelectItem value="moderado">Moderado</SelectItem>
+              <SelectItem value="severo">Severo</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <div>
-        <Label>Descripción de la localización</Label>
+        <Label>Localización</Label>
         <div className="flex items-center gap-4">
           <Textarea
             value={dolor.localizacion.descripcion}

@@ -1,5 +1,5 @@
+
 import { Toaster } from "@/components/ui/toaster";
-import InformacionGeneral from './historia-clinica/InformacionGeneral';
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
 import AntecedentesPersonalesNoPatologicos from './historia-clinica/AntecedentesPersonalesNoPatologicos';
@@ -30,12 +30,7 @@ const HistoriaClinica = () => {
     <div className={`${theme} min-h-screen`}>
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
         <div className="max-w-5xl mx-auto space-y-8">
-          <div className="space-y-6">
-            <InformacionGeneral 
-              formData={formData} 
-              handleInputChange={handleInputChange} 
-            />
-            
+          <div className="space-y-6">            
             <PadecimientoActual 
               formData={formData}
               handlePadecimientoChange={handlePadecimientoChange}
