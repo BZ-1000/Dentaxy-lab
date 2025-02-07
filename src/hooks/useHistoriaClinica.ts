@@ -1,7 +1,23 @@
-
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
+
+export interface Familiar {
+  finado: boolean;
+  causaMuerte: string;
+  condiciones: {
+    diabetesMellitus: boolean;
+    hipertensionArterial: boolean;
+    osteoporosis: boolean;
+    artritisReumatoide: boolean;
+    parkinson: boolean;
+    alzheimer: boolean;
+    asma: boolean;
+    cancer: boolean;
+    anemia: boolean;
+    otras: string;
+  };
+}
 
 export interface FormDataState {
   padecimientoActual: {
@@ -22,22 +38,12 @@ export interface FormDataState {
     };
   };
   antecedentesHeredoFamiliares: {
-    [key: string]: {
-      finado: boolean;
-      causaMuerte: string;
-      condiciones: {
-        diabetesMellitus: boolean;
-        hipertensionArterial: boolean;
-        osteoporosis: boolean;
-        artritisReumatoide: boolean;
-        parkinson: boolean;
-        alzheimer: boolean;
-        asma: boolean;
-        cancer: boolean;
-        anemia: boolean;
-        otras: string;
-      };
-    };
+    padre: Familiar;
+    madre: Familiar;
+    abueloPaterno: Familiar;
+    abuelaPaterna: Familiar;
+    abueloMaterno: Familiar;
+    abuelaMaterna: Familiar;
   };
   serviciosDomiciliarios: string;
   pisosVivienda: string;
