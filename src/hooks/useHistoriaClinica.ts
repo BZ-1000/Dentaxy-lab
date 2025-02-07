@@ -1,12 +1,86 @@
+
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
+
+export interface FormDataState {
+  padecimientoActual: {
+    sinSintomas: boolean;
+    motivoConsulta: string;
+    historiaPadecimiento: string;
+    dolor: {
+      fechaInicio: string;
+      condicionAparicion: string;
+      frecuencia: string;
+      caracter: string;
+      intensidad: string;
+      localizacion: {
+        tipo: string;
+        descripcion: string;
+      };
+      atenuacion: string;
+    };
+  };
+  antecedentesHeredoFamiliares: {
+    [key: string]: {
+      finado: boolean;
+      causaMuerte: string;
+      condiciones: {
+        diabetesMellitus: boolean;
+        hipertensionArterial: boolean;
+        osteoporosis: boolean;
+        artritisReumatoide: boolean;
+        parkinson: boolean;
+        alzheimer: boolean;
+        asma: boolean;
+        cancer: boolean;
+        anemia: boolean;
+        otras: string;
+      };
+    };
+  };
+  serviciosDomiciliarios: string;
+  pisosVivienda: string;
+  materialVivienda: string;
+  materialPiso: string;
+  ventilacion: string;
+  frecuenciaLimpieza: string;
+  hacinamiento: string;
+  frecuenciaBano: string;
+  higieneBucal: {
+    frecuenciaCepillado: string;
+    usoHiloDental: string;
+    tipoCerdas: string;
+    cantidadPasta: string;
+    marcaPasta: string;
+  };
+  alimentacion: {
+    tipoDieta: string;
+    frecuenciaComidas: string;
+    tiposAlimentos: string;
+    saltaComidas: string;
+    consumoNutritivo: string;
+  };
+  grupoSanguineo: string;
+  factorRh: string;
+  inmunizaciones: string;
+  peso: string;
+  imc: string;
+  talla: string;
+  presionArterial: string;
+  pulso: string;
+  frecuenciaCardiaca: string;
+  frecuenciaRespiratoria: string;
+  temperatura: string;
+  diagnosticos: string;
+  pronosticos: string;
+}
 
 export const useHistoriaClinica = () => {
   const { toast } = useToast();
   const [resumen, setResumen] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormDataState>({
     padecimientoActual: {
       sinSintomas: false,
       motivoConsulta: '',
@@ -24,8 +98,6 @@ export const useHistoriaClinica = () => {
         atenuacion: ''
       }
     },
-    
-    // Antecedentes Heredo Familiares
     antecedentesHeredoFamiliares: {
       padre: {
         finado: false,
@@ -124,8 +196,6 @@ export const useHistoriaClinica = () => {
         }
       }
     },
-    
-    // A.1 Antecedentes Personales No Patológicos
     serviciosDomiciliarios: '',
     pisosVivienda: '',
     materialVivienda: '',
@@ -151,7 +221,6 @@ export const useHistoriaClinica = () => {
     grupoSanguineo: '',
     factorRh: '',
     inmunizaciones: '',
-    
     peso: '',
     imc: '',
     talla: '',
@@ -160,7 +229,6 @@ export const useHistoriaClinica = () => {
     frecuenciaCardiaca: '',
     frecuenciaRespiratoria: '',
     temperatura: '',
-    
     diagnosticos: '',
     pronosticos: '',
   });

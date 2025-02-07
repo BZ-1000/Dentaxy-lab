@@ -1,3 +1,4 @@
+
 import { useTheme } from "@/hooks/use-theme";
 
 interface ResumenHistoriaClinicaProps {
