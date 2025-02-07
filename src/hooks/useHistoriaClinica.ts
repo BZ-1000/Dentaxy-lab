@@ -7,26 +7,18 @@ export const useHistoriaClinica = () => {
   const [resumen, setResumen] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState({
-    // Información General
-    fechaCreacion: '',
-    autorizo: '',
-    pacienteId: '',
-    pacienteNombre: '',
-    alumno: '',
-    
-    // A. General
     padecimientoActual: {
       sinSintomas: false,
-      fechaAparicion: '',
-      evolucion: '',
-      estadoActual: '',
+      motivoConsulta: '',
+      historiaPadecimiento: '',
       dolor: {
         fechaInicio: '',
-        condicionAparicion: '', // 'provocado' | 'espontaneo'
-        frecuencia: '', // 'intermitente' | 'continuo'
-        caracter: '', // 'pulsatil' | 'sordo' | 'quemante' | 'opresivo'
+        condicionAparicion: '',
+        frecuencia: '',
+        caracter: '',
+        intensidad: '',
         localizacion: {
-          tipo: '', // 'localizado' | 'irradiado'
+          tipo: '',
           descripcion: ''
         },
         atenuacion: ''
@@ -160,55 +152,6 @@ export const useHistoriaClinica = () => {
     factorRh: '',
     inmunizaciones: '',
     
-    // A.2 Antecedentes Personales Patológicos
-    nutricionales: '',
-    cardiacos: '',
-    hepaticos: '',
-    enfermedadesTransmisionSexual: '',
-    
-    // A.3 Antecedentes Alérgicos
-    alergias: '',
-    anestesia: '',
-    reaccionesAdversas: '',
-    adicciones: '',
-    
-    // A.4 Antecedentes Médicos y Quirúrgicos
-    tratamientoReciente: '',
-    hospitalizacionReciente: '',
-    medicamentosActuales: '',
-    
-    // A.5 Antecedentes Hemorrágicos
-    transfusiones: '',
-    
-    // A.6 Antecedentes Gineco-Obstétricos
-    embarazos: '',
-    partos: '',
-    cesareas: '',
-    abortos: '',
-    complicaciones: '',
-    
-    // B. Interrogatorio por Aparatos y Sistemas
-    digestivo: {
-      dieta: '',
-      masticacion: '',
-      alteracionesGusto: '',
-      dificultadesDeglutir: '',
-      problemasGastricos: '',
-      evacuaciones: '',
-    },
-    respiratorio: {
-      tipoRespiracion: '',
-      problemaRespiratorio: '',
-      dolorToracico: '',
-    },
-    cardiovascular: {
-      dolorPrecordial: '',
-      lipotimia: '',
-      taquicardia: '',
-      observaciones: '',
-    },
-    
-    // C. Exploración Física
     peso: '',
     imc: '',
     talla: '',
@@ -218,26 +161,6 @@ export const useHistoriaClinica = () => {
     frecuenciaRespiratoria: '',
     temperatura: '',
     
-    // D. Articulación Craneomandibular
-    dolorMasticar: '',
-    dificultadHablar: '',
-    ruidoArticular: '',
-    patronAbertura: '',
-    observacionesArticulacion: '',
-    
-    // E. Examen Intrabucal
-    mucosas: {
-      mejillas: '',
-      lengua: '',
-      pisoBoca: '',
-      regionRetromolar: '',
-      paladar: '',
-      orofaringe: '',
-      encias: '',
-      istmoFauces: '',
-    },
-    
-    // Diagnóstico y Pronóstico
     diagnosticos: '',
     pronosticos: '',
   });
