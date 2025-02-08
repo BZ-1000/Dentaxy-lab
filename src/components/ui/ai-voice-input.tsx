@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Mic } from "lucide-react";
@@ -207,11 +206,7 @@ export function AIVoiceInput({
           type="button"
           onClick={handleClick}
         >
-          <img 
-            src="/lovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png" 
-            alt="Voice input"
-            className="w-6 h-6"
-          />
+          <Mic className="w-6 h-6 text-white" />
           {isRecording && (
             <span className="absolute -top-2 -right-2 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
           )}

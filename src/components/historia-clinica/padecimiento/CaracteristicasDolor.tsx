@@ -3,6 +3,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
+import { Book } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 interface CaracteristicasDolorProps {
   dolor: {
@@ -20,10 +23,48 @@ interface CaracteristicasDolorProps {
   onDolorChange: (field: string, value: string) => void;
 }
 
+const definicionesDolor = [
+  {
+    titulo: "Dolor Pulsátil",
+    descripcion: "Sensación de latido o pulsación rítmica, similar al pulso. Común en migrañas."
+  },
+  {
+    titulo: "Dolor Sordo",
+    descripcion: "Dolor constante y profundo, sin punzadas agudas. Típico en dolores musculares crónicos."
+  },
+  {
+    titulo: "Dolor Quemante",
+    descripcion: "Sensación de ardor o quemazón. Frecuente en neuropatías o problemas nerviosos."
+  },
+  {
+    titulo: "Dolor Opresivo",
+    descripcion: "Sensación de presión o peso. Característico en dolores torácicos o tensionales."
+  }
+];
+
 const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProps) => {
   return (
     <div className="space-y-4">
-      <h4 className="font-medium text-lg">Características del Dolor</h4>
+      <div className="flex items-center gap-2">
+        <h4 className="font-medium text-lg">Características del Dolor</h4>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <Book className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80">
+            <div className="space-y-4">
+              {definicionesDolor.map((def, index) => (
+                <div key={index} className="space-y-1">
+                  <h5 className="font-medium text-sm">{def.titulo}</h5>
+                  <p className="text-xs text-muted-foreground">{def.descripcion}</p>
+                </div>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
