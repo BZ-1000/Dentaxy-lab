@@ -25,20 +25,20 @@ interface CaracteristicasDolorProps {
 
 const definicionesDolor = [
   {
-    titulo: "Dolor Pulsátil",
-    descripcion: "Sensación de latido o pulsación rítmica, similar al pulso. Común en migrañas."
+    titulo: "Dolor Sordo",
+    descripcion: "Constante y moderado, sin punzadas. Puede indicar inflamaciones crónicas como pulpitis o periodontitis."
   },
   {
-    titulo: "Dolor Sordo",
-    descripcion: "Dolor constante y profundo, sin punzadas agudas. Típico en dolores musculares crónicos."
+    titulo: "Dolor Pulsátil",
+    descripcion: "En forma de latidos intensos. Suele deberse a pulpitis aguda o abscesos."
   },
   {
     titulo: "Dolor Quemante",
-    descripcion: "Sensación de ardor o quemazón. Frecuente en neuropatías o problemas nerviosos."
+    descripcion: "Sensación de ardor. Relacionado con neuropatías, boca ardiente o infecciones virales."
   },
   {
     titulo: "Dolor Opresivo",
-    descripcion: "Sensación de presión o peso. Característico en dolores torácicos o tensionales."
+    descripcion: "Sensación de presión. Se asocia con problemas de ATM, bruxismo o sinusitis."
   }
 ];
 
