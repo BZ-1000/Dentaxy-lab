@@ -77,6 +77,23 @@ const PadecimientoActual = ({
             </h2>
           </div>
 
+          <div>
+            <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
+            <div className="flex items-start gap-4">
+              <Textarea
+                value={formData.padecimientoActual.motivoConsulta}
+                onChange={(e) => handlePadecimientoChange('motivoConsulta', e.target.value)}
+                placeholder="Describa el motivo fundamental por el que acude el paciente"
+                className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
+              />
+              <div className="mt-2">
+                <VoiceInput 
+                  onTranscriptionComplete={(text) => handlePadecimientoChange('motivoConsulta', text)} 
+                />
+              </div>
+            </div>
+          </div>
+
           <SintomasToggle 
             checked={formData.padecimientoActual.sinSintomas}
             onChange={handleSinSintomasChange}
@@ -85,30 +102,13 @@ const PadecimientoActual = ({
           {!formData.padecimientoActual.sinSintomas && (
             <div className="space-y-6">
               <div>
-                <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
-                <div className="flex items-start gap-4">
-                  <Textarea
-                    value={formData.padecimientoActual.motivoConsulta}
-                    onChange={(e) => handlePadecimientoChange('motivoConsulta', e.target.value)}
-                    placeholder="Describa el motivo fundamental por el que acude el paciente"
-                    className="min-h-[100px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
-                  />
-                  <div className="mt-2">
-                    <VoiceInput 
-                      onTranscriptionComplete={(text) => handlePadecimientoChange('motivoConsulta', text)} 
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div>
                 <Label className="text-gray-700 dark:text-gray-300">2. Historia del padecimiento:</Label>
                 <div className="flex items-start gap-4">
                   <Textarea
                     value={formData.padecimientoActual.historiaPadecimiento}
                     onChange={(e) => handlePadecimientoChange('historiaPadecimiento', e.target.value)}
                     placeholder="Anotar el principio, evolución y estado actual de la enfermedad y/o síntoma principal"
-                    className="min-h-[100px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700"
+                    className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
                   />
                   <div className="mt-2">
                     <VoiceInput 
