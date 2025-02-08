@@ -58,6 +58,18 @@ const PadecimientoActual = ({
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? 'fixed inset-4 z-50' : ''}`}>
+      <div className="flex justify-center items-center gap-4 p-4 bg-gray-100 rounded-lg shadow-md mb-4">
+        <div className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer">Formulario</div>
+        <div className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer">Redacción IA</div>
+      </div>
+
+      <div className="mb-4">
+        <h2 className="text-xl font-semibold flex items-center gap-2">
+          <span className="text-gray-400">I.</span>
+          PADECIMIENTO ACTUAL
+        </h2>
+      </div>
+
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0
         ${isMaximized ? 'h-[calc(100vh-2rem)] overflow-y-auto' : ''}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -92,13 +104,6 @@ const PadecimientoActual = ({
 
         {!isMinimized && (
           <div className="p-6 space-y-8">
-            <div className="space-y-1">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <span className="text-gray-400">I.</span>
-                PADECIMIENTO ACTUAL
-              </h2>
-            </div>
-
             <SintomasToggle
               checked={formData.padecimientoActual.sinSintomas}
               onChange={handleSinSintomasChange}
