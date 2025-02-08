@@ -98,7 +98,7 @@ const PadecimientoActual = ({
           </div>
         </div>
 
-        <div className="flex justify-center mb-2">
+        <div className="mb-4 pl-4">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">I.</span>
             PADECIMIENTO ACTUAL
