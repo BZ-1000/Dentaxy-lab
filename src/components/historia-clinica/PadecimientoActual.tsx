@@ -98,8 +98,8 @@ const PadecimientoActual = ({
           </div>
         </div>
 
-        <div className="flex justify-center py-4">
-          <h2 className="text-xl font-semibold flex items-center gap-2 text-justify py-4">
+        <div className="flex justify-start py-4 px-6">
+          <h2 className="text-xl font-semibold flex items-center gap-2 py-4">
             <span className="text-gray-400">I.</span>
             PADECIMIENTO ACTUAL
           </h2>
