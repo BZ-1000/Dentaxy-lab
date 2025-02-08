@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -58,24 +60,18 @@ const PadecimientoActual = ({
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? 'fixed inset-4 z-50' : ''}`}>
-      <div className="flex justify-center items-center gap-4 p-4 bg-gray-100 rounded-lg shadow-md mb-4">
-        <div className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer">Formulario</div>
-        <div className="px-4 py-2 bg-blue-500 text-white rounded-lg cursor-pointer">Redacción IA</div>
-      </div>
-
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <span className="text-gray-400">I.</span>
-          PADECIMIENTO ACTUAL
-        </h2>
-      </div>
-
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0
         ${isMaximized ? 'h-[calc(100vh-2rem)] overflow-y-auto' : ''}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-4">
-            <span className="text-gray-500">Formulario</span>
-            <span className="text-gray-500">Redacción IA</span>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <div className="px-3 py-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full">
+                Formulario
+              </div>
+              <div className="px-3 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full">
+                Redacción IA
+              </div>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -100,6 +96,13 @@ const PadecimientoActual = ({
               <X className="w-4 h-4" />
             </button>
           </div>
+        </div>
+
+        <div className="mb-4 pl-4">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <span className="text-gray-400">I.</span>
+            PADECIMIENTO ACTUAL
+          </h2>
         </div>
 
         {!isMinimized && (
