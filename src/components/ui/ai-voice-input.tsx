@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Mic } from "lucide-react";
@@ -198,60 +199,29 @@ export function AIVoiceInput({
       <div className="relative max-w-xl w-full mx-auto flex items-center flex-col gap-2">
         <button
           className={cn(
-            "group w-16 h-16 rounded-xl flex items-center justify-center transition-colors",
+            "group relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
             isRecording
-              ? "bg-none"
-              : "bg-none hover:bg-black/10 dark:hover:bg-white/10"
+              ? "bg-red-500 hover:bg-red-600"
+              : "bg-blue-500 hover:bg-blue-600"
           )}
           type="button"
           onClick={handleClick}
         >
-          {isRecording ? (
-            <div
-              className="w-6 h-6 rounded-sm animate-spin bg-black dark:bg-white cursor-pointer pointer-events-auto"
-              style={{ animationDuration: "3s" }}
-            />
-          ) : (
-            <Mic className="w-6 h-6 text-black/70 dark:text-white/70" />
+          <img 
+            src="/lovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png" 
+            alt="Voice input"
+            className="w-6 h-6"
+          />
+          {isRecording && (
+            <span className="absolute -top-2 -right-2 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
           )}
         </button>
 
-        <span
-          className={cn(
-            "font-mono text-sm transition-opacity duration-300",
-            isRecording
-              ? "text-black/70 dark:text-white/70"
-              : "text-black/30 dark:text-white/30"
-          )}
-        >
-          {formatTime(time)}
-        </span>
-
-        <div className="h-4 w-64 flex items-center justify-center gap-0.5">
-          {[...Array(visualizerBars)].map((_, i) => (
-            <div
-              key={i}
-              className={cn(
-                "w-0.5 rounded-full transition-all duration-300",
-                isRecording
-                  ? "bg-black/50 dark:bg-white/50 animate-pulse"
-                  : "bg-black/10 dark:bg-white/10 h-1"
-              )}
-              style={
-                isRecording && isClient
-                  ? {
-                      height: `${20 + Math.random() * 80}%`,
-                      animationDelay: `${i * 0.05}s`,
-                    }
-                  : undefined
-              }
-            />
-          ))}
-        </div>
-
-        <p className="h-4 text-xs text-black/70 dark:text-white/70">
-          {isRecording ? "Escuchando..." : "Audio a Texto"}
-        </p>
+        {isRecording && (
+          <span className="text-sm text-gray-500 dark:text-gray-400">
+            {formatTime(time)}
+          </span>
+        )}
       </div>
     </div>
   );
