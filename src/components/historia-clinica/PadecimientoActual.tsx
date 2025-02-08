@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -61,16 +60,7 @@ const PadecimientoActual = ({
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? 'fixed inset-4 z-50' : ''}`}>
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-transparent bg-clip-text">
-          Formulario IA
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-          Complete el formulario y deje que nuestra inteligencia artificial transforme sus respuestas en un informe clínico detallado.
-        </p>
-      </div>
-
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 
+      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0
         ${isMaximized ? 'h-[calc(100vh-2rem)] overflow-y-auto' : ''}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-4">
@@ -78,21 +68,21 @@ const PadecimientoActual = ({
             <span className="text-gray-500">Redacción IA</span>
           </div>
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={handleMinimize}
               className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
               aria-label={isMinimized ? "Expandir" : "Minimizar"}
             >
               <Minus className="w-4 h-4" />
             </button>
-            <button 
+            <button
               onClick={handleMaximize}
               className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors"
               aria-label={isMaximized ? "Restaurar" : "Maximizar"}
             >
               <Maximize2 className="w-4 h-4" />
             </button>
-            <button 
+            <button
               onClick={handleClose}
               className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
               aria-label="Cerrar"
@@ -111,30 +101,30 @@ const PadecimientoActual = ({
               </h2>
             </div>
 
-            <div>
-              <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
-              <div className="flex items-start gap-4">
-                <Textarea
-                  value={formData.padecimientoActual.motivoConsulta}
-                  onChange={(e) => handlePadecimientoChange('motivoConsulta', e.target.value)}
-                  placeholder="Describa el motivo fundamental por el que acude el paciente"
-                  className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
-                />
-                <div className="mt-2">
-                  <VoiceInput 
-                    onTranscriptionComplete={(text) => handlePadecimientoChange('motivoConsulta', text)} 
-                  />
-                </div>
-              </div>
-            </div>
-
-            <SintomasToggle 
+            <SintomasToggle
               checked={formData.padecimientoActual.sinSintomas}
               onChange={handleSinSintomasChange}
             />
 
             {!formData.padecimientoActual.sinSintomas && (
               <div className="space-y-6">
+                <div>
+                  <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
+                  <div className="flex items-start gap-4">
+                    <Textarea
+                      value={formData.padecimientoActual.motivoConsulta}
+                      onChange={(e) => handlePadecimientoChange('motivoConsulta', e.target.value)}
+                      placeholder="Describa el motivo fundamental por el que acude el paciente"
+                      className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
+                    />
+                    <div className="mt-2">
+                      <VoiceInput
+                        onTranscriptionComplete={(text) => handlePadecimientoChange('motivoConsulta', text)}
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <Label className="text-gray-700 dark:text-gray-300">2. Historia del padecimiento:</Label>
                   <div className="flex items-start gap-4">
@@ -145,8 +135,8 @@ const PadecimientoActual = ({
                       className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
                     />
                     <div className="mt-2">
-                      <VoiceInput 
-                        onTranscriptionComplete={(text) => handlePadecimientoChange('historiaPadecimiento', text)} 
+                      <VoiceInput
+                        onTranscriptionComplete={(text) => handlePadecimientoChange('historiaPadecimiento', text)}
                       />
                     </div>
                   </div>
@@ -154,7 +144,7 @@ const PadecimientoActual = ({
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
                   <h3 className="text-lg font-medium mb-6">En caso de dolor</h3>
-                  <CaracteristicasDolor 
+                  <CaracteristicasDolor
                     dolor={formData.padecimientoActual.dolor}
                     onDolorChange={handleDolorChange}
                   />

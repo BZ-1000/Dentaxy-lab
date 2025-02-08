@@ -163,7 +163,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
           <Textarea
             value={dolor.atenuacion}
             onChange={(e) => onDolorChange('atenuacion', e.target.value)}
-            placeholder="¿Qué atenúa el dolor?"
+            placeholder="Describe que empeora el dolor (frío,caliente,) o que lo disminuye (analgésicos)"
             className="min-h-[135px] max-h-[135px] w-[75%]"
           />
           <div className="h-[40px]">
