@@ -40,7 +40,6 @@ const PadecimientoActual = ({
 }: PadecimientoActualProps) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -53,10 +52,9 @@ const PadecimientoActual = ({
   };
 
   const handleClose = () => {
-    setIsVisible(false);
+    setIsMinimized(false);
+    setIsMaximized(false);
   };
-
-  if (!isVisible) return null;
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? 'fixed inset-4 z-50' : ''}`}>
