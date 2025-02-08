@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
 import CaracteristicasDolor from './padecimiento/CaracteristicasDolor';
 import SintomasToggle from './padecimiento/SintomasToggle';
+import { Tab } from "@/components/ui/pricing-tab";
 
 interface PadecimientoActualProps {
   formData: {
@@ -42,6 +43,7 @@ const PadecimientoActual = ({
 }: PadecimientoActualProps) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("Formulario");
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -64,13 +66,9 @@ const PadecimientoActual = ({
         ${isMaximized ? 'h-[calc(100vh-2rem)] overflow-y-auto' : ''}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <div className="px-3 py-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full">
-                Formulario
-              </div>
-              <div className="px-3 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full">
-                Redacción IA
-              </div>
+            <div className="flex space-x-2 bg-muted p-1 rounded-full">
+              <Tab text="Formulario" selected={selectedTab === "Formulario"} setSelected={setSelectedTab} />
+              <Tab text="Redacción IA" selected={selectedTab === "Redacción IA"} setSelected={setSelectedTab} />
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -98,7 +96,7 @@ const PadecimientoActual = ({
           </div>
         </div>
 
-        <div className="flex justify-start px-6 py-2">
+        <div className="flex justify-start px-6 py-1">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">I.</span>
             PADECIMIENTO ACTUAL
