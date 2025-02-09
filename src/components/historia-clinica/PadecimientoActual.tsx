@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X } from "lucide-react";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
@@ -43,6 +44,7 @@ const PadecimientoActual = ({
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
+  const [redaccionIA, setRedaccionIA] = useState("");
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -57,6 +59,15 @@ const PadecimientoActual = ({
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
+  };
+
+  const generarRedaccionIA = () => {
+    // Simulación de generación de texto IA
+    const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}. 
+      Historia del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}.
+      Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
+    setRedaccionIA(textoGenerado);
+    setShowRedaccion(true);
   };
 
   return (
@@ -100,17 +111,29 @@ const PadecimientoActual = ({
           </h2>
         </div>
 
-        <div className="p-6">
-          <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
-          <div className="flex items-start gap-4">
-            <Textarea value={formData.padecimientoActual.motivoConsulta} onChange={(e) => handlePadecimientoChange("motivoConsulta", e.target.value)} placeholder="Describa el motivo fundamental por el que acude el paciente" className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y" />
-            <div className="mt-2">
-              <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", text)} />
+        {/* Formulario o Redacción IA */}
+        {showRedaccion ? (
+          <div className="p-6">
+            <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
+            <Textarea 
+              value={redaccionIA} 
+              readOnly 
+              className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y" 
+            />
+          </div>
+        ) : (
+          <div className="p-6">
+            <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
+            <div className="flex items-start gap-4">
+              <Textarea value={formData.padecimientoActual.motivoConsulta} onChange={(e) => handlePadecimientoChange("motivoConsulta", e.target.value)} placeholder="Describa el motivo fundamental por el que acude el paciente" className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y" />
+              <div className="mt-2">
+                <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", text)} />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {!isMinimized && (
+        {!isMinimized && !showRedaccion && (
           <div className="p-6 space-y-8">
             <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={handleSinSintomasChange} />
             {!formData.padecimientoActual.sinSintomas && (
@@ -121,6 +144,15 @@ const PadecimientoActual = ({
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Botón Generar Redacción IA */}
+        {!showRedaccion && (
+          <div className="p-6 flex justify-end">
+            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+              Generar Redacción IA
+            </Button>
           </div>
         )}
       </Card>
