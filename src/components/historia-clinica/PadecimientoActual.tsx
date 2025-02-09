@@ -69,10 +69,10 @@ const PadecimientoActual = ({
       Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
     setRedaccionIA(textoGenerado);
     setShowRedaccion(true);
-
+  
     // Desplazamiento automático a la sección de Redacción IA
     setTimeout(() => {
-      redaccionRef.current.scrollIntoView({ behavior: 'smooth' });
+      redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   };
 
