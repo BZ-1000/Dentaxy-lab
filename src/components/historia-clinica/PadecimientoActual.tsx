@@ -61,17 +61,42 @@ const PadecimientoActual = ({
   };
 
   return (
-    <div className={`max-w-5xl mx-auto transition-all duration-300 ${isMaximized ? 'fixed inset-4 z-50' : ''}`}>
+    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? 'fixed inset-4 z-50' : ''}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0
         ${isMaximized ? 'h-[calc(100vh-2rem)] overflow-y-auto' : ''}`}>
-        <div className="flex flex-col items-center p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex space-x-2 bg-muted p-1 rounded-full justify-center w-full max-w-md mx-auto">
-            <Tab text="Formulario" selected={selectedTab === "Formulario"} setSelected={setSelectedTab} />
-            <Tab text="Redacción IA" selected={selectedTab === "Redacción IA"} setSelected={setSelectedTab} />
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-2">
+            <div className="flex space-x-2 bg-muted p-1 rounded-full">
+              <Tab text="Formulario" selected={selectedTab === "Formulario"} setSelected={setSelectedTab} />
+              <Tab text="Redacción IA" selected={selectedTab === "Redacción IA"} setSelected={setSelectedTab} />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleMinimize}
+              className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+              aria-label={isMinimized ? "Expandir" : "Minimizar"}
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleMaximize}
+              className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors"
+              aria-label={isMaximized ? "Restaurar" : "Maximizar"}
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleClose}
+              className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+              aria-label="Cerrar"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
-        <div className="flex justify-center px-6 py-1">
+        <div className="flex justify-start px-6 py-1">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">I.</span>
             PADECIMIENTO ACTUAL
@@ -79,48 +104,37 @@ const PadecimientoActual = ({
         </div>
 
         {!isMinimized && (
-          <div className="p-6 space-y-8 text-center">
-            {selectedTab === "Formulario" ? (
-              <>
-                <SintomasToggle
-                  checked={formData.padecimientoActual.sinSintomas}
-                  onChange={handleSinSintomasChange}
-                />
-                {!formData.padecimientoActual.sinSintomas && (
-                  <div className="space-y-6">
-                    <div className="text-center">
-                      <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
-                      <div className="flex flex-col items-center gap-4 w-full max-w-lg mx-auto">
-                        <Textarea
-                          value={formData.padecimientoActual.motivoConsulta}
-                          onChange={(e) => handlePadecimientoChange('motivoConsulta', e.target.value)}
-                          placeholder="Describa el motivo fundamental por el que acude el paciente"
-                          className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
-                        />
-                        <div className="mt-2">
-                          <VoiceInput
-                            onTranscriptionComplete={(text) => handlePadecimientoChange('motivoConsulta', text)}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg text-center w-full max-w-lg mx-auto">
-                      <h3 className="text-lg font-medium mb-6">En caso de dolor</h3>
-                      <CaracteristicasDolor
-                        dolor={formData.padecimientoActual.dolor}
-                        onDolorChange={handleDolorChange}
+          <div className="p-6 space-y-8">
+            <SintomasToggle
+              checked={formData.padecimientoActual.sinSintomas}
+              onChange={handleSinSintomasChange}
+            />
+
+            {!formData.padecimientoActual.sinSintomas && (
+              <div className="space-y-6">
+                <div>
+                  <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
+                  <div className="flex items-start gap-4">
+                    <Textarea
+                      value={formData.padecimientoActual.motivoConsulta}
+                      onChange={(e) => handlePadecimientoChange('motivoConsulta', e.target.value)}
+                      placeholder="Describa el motivo fundamental por el que acude el paciente"
+                      className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
+                    />
+                    <div className="mt-2">
+                      <VoiceInput
+                        onTranscriptionComplete={(text) => handlePadecimientoChange('motivoConsulta', text)}
                       />
                     </div>
                   </div>
-                )}
-              </>
-            ) : (
-              <div className="text-center w-full max-w-lg mx-auto">
-                <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
-                <Textarea
-                  placeholder="Aquí aparecerá la redacción generada por IA"
-                  className="min-h-[150px] max-h-[300px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
-                />
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+                  <h3 className="text-lg font-medium mb-6">En caso de dolor</h3>
+                  <CaracteristicasDolor
+                    dolor={formData.padecimientoActual.dolor}
+                    onDolorChange={handleDolorChange}
+                  />
+                </div>
               </div>
             )}
           </div>
