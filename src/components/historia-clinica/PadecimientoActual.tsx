@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
-import CaracteristicasDolor from './padecimiento/CaracteristicasDolor';
-import SintomasToggle from './padecimiento/SintomasToggle';
+import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
+import SintomasToggle from "./padecimiento/SintomasToggle";
 
 interface PadecimientoActualProps {
   formData: {
@@ -38,10 +38,11 @@ const PadecimientoActual = ({
   formData,
   handlePadecimientoChange,
   handleDolorChange,
-  handleSinSintomasChange
+  handleSinSintomasChange,
 }: PadecimientoActualProps) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [showRedaccion, setShowRedaccion] = useState(false); // Estado para alternar vistas
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -59,19 +60,38 @@ const PadecimientoActual = ({
   };
 
   return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? 'fixed inset-4 z-50' : ''}`}>
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0
-        ${isMaximized ? 'h-[calc(100vh-2rem)] overflow-y-auto' : ''}`}>
+    <div
+      className={`max-w-4xl mx-auto transition-all duration-300 ${
+        isMaximized ? "fixed inset-4 z-50" : ""
+      }`}
+    >
+      <Card
+        className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${
+          isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""
+        }`}
+      >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <div className="px-3 py-1 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full">
-                Formulario
-              </div>
-              <div className="px-3 py-1 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full">
-                Redacción IA
-              </div>
-            </div>
+            <button
+              onClick={() => setShowRedaccion(false)}
+              className={`px-3 py-1 rounded-full ${
+                !showRedaccion
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300"
+              }`}
+            >
+              Formulario
+            </button>
+            <button
+              onClick={() => setShowRedaccion(true)}
+              className={`px-3 py-1 rounded-full ${
+                showRedaccion
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300"
+              }`}
+            >
+              Redacción IA
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -100,44 +120,67 @@ const PadecimientoActual = ({
 
         <div className="flex justify-start px-6 py-2">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">I.</span>
-            PADECIMIENTO ACTUAL
+            <span className="text-gray-400">I.</span> PADECIMIENTO ACTUAL
           </h2>
         </div>
 
         {!isMinimized && (
           <div className="p-6 space-y-8">
-            <SintomasToggle
-              checked={formData.padecimientoActual.sinSintomas}
-              onChange={handleSinSintomasChange}
-            />
-
-            {!formData.padecimientoActual.sinSintomas && (
-              <div className="space-y-6">
-                <div>
-                  <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
-                  <div className="flex items-start gap-4">
-                    <Textarea
-                      value={formData.padecimientoActual.motivoConsulta}
-                      onChange={(e) => handlePadecimientoChange('motivoConsulta', e.target.value)}
-                      placeholder="Describa el motivo fundamental por el que acude el paciente"
-                      className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
-                    />
-                    <div className="mt-2">
-                      <VoiceInput
-                        onTranscriptionComplete={(text) => handlePadecimientoChange('motivoConsulta', text)}
+            {showRedaccion ? (
+              // ✨ Sección de Redacción IA (Espacio en blanco)
+              <div className="p-6 bg-gray-100 dark:bg-gray-900 rounded-lg">
+                <h3 className="text-lg font-medium mb-4">Redacción IA</h3>
+                <Textarea
+                  placeholder="Escribe aquí la redacción generada..."
+                  className="min-h-[200px] w-full bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 resize-y"
+                />
+              </div>
+            ) : (
+              // ✨ Formulario principal
+              <>
+                <SintomasToggle
+                  checked={formData.padecimientoActual.sinSintomas}
+                  onChange={handleSinSintomasChange}
+                />
+                {!formData.padecimientoActual.sinSintomas && (
+                  <div className="space-y-6">
+                    <div>
+                      <Label className="text-gray-700 dark:text-gray-300">
+                        1. Motivo de consulta:
+                      </Label>
+                      <div className="flex items-start gap-4">
+                        <Textarea
+                          value={formData.padecimientoActual.motivoConsulta}
+                          onChange={(e) =>
+                            handlePadecimientoChange(
+                              "motivoConsulta",
+                              e.target.value
+                            )
+                          }
+                          placeholder="Describa el motivo fundamental por el que acude el paciente"
+                          className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
+                        />
+                        <div className="mt-2">
+                          <VoiceInput
+                            onTranscriptionComplete={(text) =>
+                              handlePadecimientoChange("motivoConsulta", text)
+                            }
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+                      <h3 className="text-lg font-medium mb-6">
+                        En caso de dolor
+                      </h3>
+                      <CaracteristicasDolor
+                        dolor={formData.padecimientoActual.dolor}
+                        onDolorChange={handleDolorChange}
                       />
                     </div>
                   </div>
-                </div>
-                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium mb-6">En caso de dolor</h3>
-                  <CaracteristicasDolor
-                    dolor={formData.padecimientoActual.dolor}
-                    onDolorChange={handleDolorChange}
-                  />
-                </div>
-              </div>
+                )}
+              </>
             )}
           </div>
         )}
