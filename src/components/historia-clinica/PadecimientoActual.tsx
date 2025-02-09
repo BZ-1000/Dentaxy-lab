@@ -69,9 +69,7 @@ const PadecimientoActual = ({
   };
 
   const generarRedaccionIA = () => {
-    const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}. 
-      Historia del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}.
-      Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
+    const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}. \nHistoria del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}. \nDolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
     setRedaccionIA(textoGenerado);
     setShowRedaccion(true);
   };
@@ -82,31 +80,15 @@ const PadecimientoActual = ({
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button
-                onClick={() => setShowRedaccion(false)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Formulario
-              </button>
-              <button
-                onClick={() => setShowRedaccion(true)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Redacción IA
-              </button>
+              <button onClick={() => setShowRedaccion(false)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>Formulario</button>
+              <button onClick={() => setShowRedaccion(true)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>Redacción IA</button>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-4 h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-4 h-4" />
-            </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-4 h-4" />
-            </button>
+            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"><Minus className="w-4 h-4" /></button>
+            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors"><Maximize2 className="w-4 h-4" /></button>
+            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"><X className="w-4 h-4" /></button>
           </div>
         </div>
 
@@ -129,9 +111,7 @@ const PadecimientoActual = ({
 
         {!showRedaccion && (
           <div className="p-6 flex justify-center">
-            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-              Generar Redacción IA
-            </Button>
+            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">Generar Redacción IA</Button>
           </div>
         )}
       </Card>
