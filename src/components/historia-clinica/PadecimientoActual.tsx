@@ -66,8 +66,14 @@ const PadecimientoActual = ({
     const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}. 
       Historia del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}.
       Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
+
     setRedaccionIA(textoGenerado);
     setShowRedaccion(true);
+
+    // Hacer scroll hacia arriba para mostrar la redacción
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 100);
   };
 
   return (
@@ -147,9 +153,9 @@ const PadecimientoActual = ({
           </div>
         )}
 
-        {/* Botón Generar Redacción IA */}
+        {/* Botón Generar Redacción IA centrado */}
         {!showRedaccion && (
-          <div className="p-6 flex justify-end">
+          <div className="p-6 flex justify-center">
             <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
               Generar Redacción IA
             </Button>
