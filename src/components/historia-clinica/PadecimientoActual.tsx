@@ -100,21 +100,21 @@ const PadecimientoActual = ({
           </h2>
         </div>
 
+        <div className="p-6">
+          <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
+          <div className="flex items-start gap-4">
+            <Textarea value={formData.padecimientoActual.motivoConsulta} onChange={(e) => handlePadecimientoChange("motivoConsulta", e.target.value)} placeholder="Describa el motivo fundamental por el que acude el paciente" className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y" />
+            <div className="mt-2">
+              <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", text)} />
+            </div>
+          </div>
+        </div>
+
         {!isMinimized && (
           <div className="p-6 space-y-8">
             <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={handleSinSintomasChange} />
-
             {!formData.padecimientoActual.sinSintomas && (
               <div className="space-y-6">
-                <div>
-                  <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
-                  <div className="flex items-start gap-4">
-                    <Textarea value={formData.padecimientoActual.motivoConsulta} onChange={(e) => handlePadecimientoChange("motivoConsulta", e.target.value)} placeholder="Describa el motivo fundamental por el que acude el paciente" className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y" />
-                    <div className="mt-2">
-                      <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", text)} />
-                    </div>
-                  </div>
-                </div>
                 <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
                   <h3 className="text-lg font-medium mb-6">En caso de dolor</h3>
                   <CaracteristicasDolor dolor={formData.padecimientoActual.dolor} onDolorChange={handleDolorChange} />
