@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
@@ -45,7 +45,6 @@ const PadecimientoActual = ({
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
   const [redaccionIA, setRedaccionIA] = useState("");
-  const redaccionRef = useRef<HTMLDivElement>(null); // Referencia al apartado de redacción IA
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -67,14 +66,8 @@ const PadecimientoActual = ({
     const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}. 
       Historia del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}.
       Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
-
     setRedaccionIA(textoGenerado);
     setShowRedaccion(true);
-
-    // Hacer scroll hasta el apartado de redacción IA
-    setTimeout(() => {
-      redaccionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
   };
 
   return (
@@ -120,7 +113,7 @@ const PadecimientoActual = ({
 
         {/* Formulario o Redacción IA */}
         {showRedaccion ? (
-          <div className="p-6" ref={redaccionRef}>
+          <div className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
             <Textarea 
               value={redaccionIA} 
@@ -140,10 +133,24 @@ const PadecimientoActual = ({
           </div>
         )}
 
-        {/* Botón Generar Redacción IA centrado */}
+        {!isMinimized && !showRedaccion && (
+          <div className="p-6 space-y-8">
+            <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={handleSinSintomasChange} />
+            {!formData.padecimientoActual.sinSintomas && (
+              <div className="space-y-6">
+                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+                  <h3 className="text-lg font-medium mb-6">En caso de dolor</h3>
+                  <CaracteristicasDolor dolor={formData.padecimientoActual.dolor} onDolorChange={handleDolorChange} />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Botón Generar Redacción IA */}
         {!showRedaccion && (
-          <div className="p-6 flex justify-center w-full text-center">
-            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
+          <div className="p-6 flex justify-end">
+            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
               Generar Redacción IA
             </Button>
           </div>
