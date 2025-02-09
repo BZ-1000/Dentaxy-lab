@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
@@ -45,6 +45,7 @@ const PadecimientoActual = ({
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
   const [redaccionIA, setRedaccionIA] = useState("");
+  const redaccionRef = useRef(null);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -63,11 +64,16 @@ const PadecimientoActual = ({
 
   const generarRedaccionIA = () => {
     // Simulación de generación de texto IA
-    const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}. 
+    const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}.
       Historia del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}.
       Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
     setRedaccionIA(textoGenerado);
     setShowRedaccion(true);
+
+    // Desplazamiento automático a la sección de Redacción IA
+    setTimeout(() => {
+      redaccionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   return (
@@ -113,12 +119,12 @@ const PadecimientoActual = ({
 
         {/* Formulario o Redacción IA */}
         {showRedaccion ? (
-          <div className="p-6">
+          <div ref={redaccionRef} className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
-            <Textarea 
-              value={redaccionIA} 
-              readOnly 
-              className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y" 
+            <Textarea
+              value={redaccionIA}
+              readOnly
+              className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
             />
           </div>
         ) : (
