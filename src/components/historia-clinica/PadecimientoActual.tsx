@@ -76,7 +76,7 @@ const PadecimientoActual = ({
       // Ajuste adicional hacia arriba
       setTimeout(() => {
         window.scrollBy(0, -200); // Ajusta el valor negativo para desplazarte más hacia arriba
-      }, 200); // Ajusta el tiempo para que coincida con la duración del desplazamiento suave
+      }, 300); // Ajusta el tiempo para que coincida con la duración del desplazamiento suave
     }, 100);
   };
   
