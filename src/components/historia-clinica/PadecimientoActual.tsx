@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -8,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
 import CaracteristicasDolor from './padecimiento/CaracteristicasDolor';
 import SintomasToggle from './padecimiento/SintomasToggle';
-import { Tab } from "@/components/ui/pricing-tab";
+import { Tab } from "@/components/pricing-tab";
 
 interface PadecimientoActualProps {
   formData: {
