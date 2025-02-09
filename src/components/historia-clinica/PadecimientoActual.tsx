@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef } from "react";
@@ -77,10 +76,19 @@ const PadecimientoActual = ({
         .from('secrets')
         .select('value')
         .eq('name', 'HUGGINGFACE_API_KEY')
-        .single();
+        .maybeSingle();
 
-      if (secretError || !secretData) {
-        throw new Error('No se pudo obtener la clave API de HuggingFace');
+      if (secretError) {
+        throw new Error('Error al obtener la clave API de HuggingFace');
+      }
+
+      if (!secretData) {
+        toast({
+          title: "Error de configuración",
+          description: "No se ha configurado la clave API de HuggingFace. Por favor, configure la clave en la configuración del proyecto.",
+          variant: "destructive",
+        });
+        return;
       }
 
       const hf = new HfInference(secretData.value);
