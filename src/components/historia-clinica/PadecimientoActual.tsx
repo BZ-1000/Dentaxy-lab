@@ -12,9 +12,7 @@ import { HfInference } from "@huggingface/inference";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
 import { useToast } from "@/components/ui/use-toast";
-
-// Initialize HuggingFace client
-const hf = new HfInference("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");
+import { supabase } from "@/integrations/supabase/client";
 
 interface PadecimientoActualProps {
   formData: {
@@ -73,6 +71,19 @@ const PadecimientoActual = ({
   const generarRedaccionIA = async () => {
     try {
       setIsGenerating(true);
+
+      // Get the HuggingFace API key from Supabase secrets
+      const { data: secretData, error: secretError } = await supabase
+        .from('secrets')
+        .select('value')
+        .eq('name', 'HUGGINGFACE_API_KEY')
+        .single();
+
+      if (secretError || !secretData) {
+        throw new Error('No se pudo obtener la clave API de HuggingFace');
+      }
+
+      const hf = new HfInference(secretData.value);
 
       // Prepare the prompt with form data
       const prompt = `Actúa como un profesional médico y genera una historia clínica detallada basada en la siguiente información:
