@@ -60,39 +60,35 @@ const PadecimientoActual = ({
   };
 
   return (
-    <div
-      className={`max-w-4xl mx-auto transition-all duration-300 ${
-        isMaximized ? "fixed inset-4 z-50" : ""
-      }`}
-    >
-      <Card
-        className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${
-          isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""
-        }`}
-      >
+    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
+      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
+        
+        {/* Barra superior */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowRedaccion(false)}
-              className={`px-3 py-1 rounded-full ${
-                !showRedaccion
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              Formulario
-            </button>
-            <button
-              onClick={() => setShowRedaccion(true)}
-              className={`px-3 py-1 rounded-full ${
-                showRedaccion
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              Redacción IA
-            </button>
+          
+          {/* 🔹 Toggle deslizable para cambiar entre Formulario y Redacción IA */}
+          <div className="flex justify-center w-full">
+            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
+              <button
+                onClick={() => setShowRedaccion(false)}
+                className={`px-6 py-2 rounded-full transition-all duration-300 ${
+                  !showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                Formulario
+              </button>
+              <button
+                onClick={() => setShowRedaccion(true)}
+                className={`px-6 py-2 rounded-full transition-all duration-300 ${
+                  showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                Redacción IA
+              </button>
+            </div>
           </div>
+
+          {/* Botones de control */}
           <div className="flex items-center gap-2">
             <button
               onClick={handleMinimize}
@@ -118,6 +114,7 @@ const PadecimientoActual = ({
           </div>
         </div>
 
+        {/* Sección de contenido */}
         <div className="flex justify-start px-6 py-2">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">I.</span> PADECIMIENTO ACTUAL
@@ -127,7 +124,7 @@ const PadecimientoActual = ({
         {!isMinimized && (
           <div className="p-6 space-y-8">
             {showRedaccion ? (
-              // ✨ Sección de Redacción IA (Espacio en blanco)
+              // 🔹 Sección de Redacción IA
               <div className="p-6 bg-gray-100 dark:bg-gray-900 rounded-lg">
                 <h3 className="text-lg font-medium mb-4">Redacción IA</h3>
                 <Textarea
@@ -136,7 +133,7 @@ const PadecimientoActual = ({
                 />
               </div>
             ) : (
-              // ✨ Formulario principal
+              // 🔹 Formulario principal
               <>
                 <SintomasToggle
                   checked={formData.padecimientoActual.sinSintomas}
