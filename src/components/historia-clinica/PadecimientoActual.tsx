@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
@@ -45,6 +45,7 @@ const PadecimientoActual = ({
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
   const [redaccionIA, setRedaccionIA] = useState("");
+  const redaccionRef = useRef<HTMLDivElement>(null); // Referencia al apartado de redacción IA
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -70,9 +71,9 @@ const PadecimientoActual = ({
     setRedaccionIA(textoGenerado);
     setShowRedaccion(true);
 
-    // Hacer scroll hacia arriba para mostrar la redacción
+    // Hacer scroll hasta el apartado de redacción IA
     setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      redaccionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 100);
   };
 
@@ -119,7 +120,7 @@ const PadecimientoActual = ({
 
         {/* Formulario o Redacción IA */}
         {showRedaccion ? (
-          <div className="p-6">
+          <div className="p-6" ref={redaccionRef}>
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
             <Textarea 
               value={redaccionIA} 
@@ -139,24 +140,10 @@ const PadecimientoActual = ({
           </div>
         )}
 
-        {!isMinimized && !showRedaccion && (
-          <div className="p-6 space-y-8">
-            <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={handleSinSintomasChange} />
-            {!formData.padecimientoActual.sinSintomas && (
-              <div className="space-y-6">
-                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium mb-6">En caso de dolor</h3>
-                  <CaracteristicasDolor dolor={formData.padecimientoActual.dolor} onDolorChange={handleDolorChange} />
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
         {/* Botón Generar Redacción IA centrado */}
         {!showRedaccion && (
-          <div className="p-6 flex justify-center">
-            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+          <div className="p-6 flex justify-center w-full text-center">
+            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
               Generar Redacción IA
             </Button>
           </div>
