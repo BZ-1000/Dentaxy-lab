@@ -112,9 +112,6 @@ const PadecimientoActual = ({
 
         {!isMinimized && (
           <div className="p-6 space-y-8">
-            <div className="bg-blue-500 text-white px-4 py-2 rounded-md w-fit">
-              <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={handleSinSintomasChange} />
-            </div>
             <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={handleSinSintomasChange} />
             {!formData.padecimientoActual.sinSintomas && (
               <div className="space-y-6">
