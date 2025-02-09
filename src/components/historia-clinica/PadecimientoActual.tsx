@@ -73,8 +73,13 @@ const PadecimientoActual = ({
     // Desplazamiento automático a la sección de Redacción IA
     setTimeout(() => {
       redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Ajuste adicional hacia arriba
+      setTimeout(() => {
+        window.scrollBy(0, -50); // Ajusta el valor negativo para desplazarte más hacia arriba
+      }, 300); // Ajusta el tiempo para que coincida con la duración del desplazamiento suave
     }, 100);
   };
+  
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
