@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { FormDataState } from "@/types/historiaClinica";
@@ -29,8 +29,31 @@ interface FamiliaRowProps {
 }
 
 const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionChange }: FamiliaRowProps) => {
-  const familiarKey = familiar.toLowerCase().replace(/ /g, '') as keyof typeof formData.antecedentesHeredoFamiliares;
+  // Convert familiar string to match the exact property names in FormDataState
+  const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
+    const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
+      "Padre": "padre",
+      "Madre": "madre",
+      "Abuelo Paterno": "abueloPaterno",
+      "Abuela Paterna": "abuelaPaterna",
+      "Abuelo Materno": "abueloMaterno",
+      "Abuela Materna": "abuelaMaterna"
+    };
+    return mapping[familiar];
+  };
+
+  const familiarKey = getFamiliarKey(familiar);
   const familiarData = formData.antecedentesHeredoFamiliares[familiarKey];
+
+  const getCondicionKey = (condicion: string) => {
+    const mapping: { [key: string]: string } = {
+      "Diabetes Mellitus": "diabetesMellitus",
+      "Hipertensión Arterial": "hipertensionArterial",
+      "Cáncer": "cancer",
+      "Otras": "otras"
+    };
+    return mapping[condicion];
+  };
 
   return (
     <div className="flex flex-col gap-2 border-b pb-4">
@@ -46,10 +69,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
         </button>
         {!familiarData.finado &&
           condiciones.map((cond) => {
-            const condKey = cond.toLowerCase().replace(/ /g, '').replace(/[áéíóú]/g, (match) => {
-              return {á: 'a', é: 'e', í: 'i', ó: 'o', ú: 'u'}[match] || match;
-            }) as keyof typeof familiarData.condiciones;
-            
+            const condKey = getCondicionKey(cond);
             return (
               <button
                 key={cond}
