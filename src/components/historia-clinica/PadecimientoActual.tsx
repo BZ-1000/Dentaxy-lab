@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useRef } from "react";
@@ -7,8 +8,13 @@ import { VoiceInput } from "@/components/ui/voice-input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X } from "lucide-react";
+import { HfInference } from "@huggingface/inference";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
+import { useToast } from "@/components/ui/use-toast";
+
+// Initialize HuggingFace client
+const hf = new HfInference("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");
 
 interface PadecimientoActualProps {
   formData: {
@@ -45,7 +51,9 @@ const PadecimientoActual = ({
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
   const [redaccionIA, setRedaccionIA] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
   const redaccionRef = useRef(null);
+  const { toast } = useToast();
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -62,30 +70,70 @@ const PadecimientoActual = ({
     setIsMaximized(false);
   };
 
-  const generarRedaccionIA = () => {
-    // Simulación de generación de texto IA
-    const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}.
-      Historia del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}.
-      Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
-    setRedaccionIA(textoGenerado);
-    setShowRedaccion(true);
-  
-    // Desplazamiento automático a la sección de Redacción IA
-    setTimeout(() => {
-      redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Ajuste adicional hacia arriba
+  const generarRedaccionIA = async () => {
+    try {
+      setIsGenerating(true);
+
+      // Prepare the prompt with form data
+      const prompt = `Actúa como un profesional médico y genera una historia clínica detallada basada en la siguiente información:
+
+      ${formData.padecimientoActual.sinSintomas 
+        ? "El paciente no refiere sintomatología actual."
+        : `Motivo de consulta: ${formData.padecimientoActual.motivoConsulta}
+
+        Características del dolor:
+        - Fecha de inicio: ${formData.padecimientoActual.dolor.fechaInicio}
+        - Condición de aparición: ${formData.padecimientoActual.dolor.condicionAparicion}
+        - Frecuencia: ${formData.padecimientoActual.dolor.frecuencia}
+        - Carácter: ${formData.padecimientoActual.dolor.caracter}
+        - Intensidad: ${formData.padecimientoActual.dolor.intensidad}
+        - Localización: ${formData.padecimientoActual.dolor.localizacion.tipo} - ${formData.padecimientoActual.dolor.localizacion.descripcion}
+        - Factores de atenuación: ${formData.padecimientoActual.dolor.atenuacion}`
+      }
+
+      Por favor, genera una redacción profesional y detallada de la historia clínica.`;
+
+      // Generate text using HuggingFace
+      const response = await hf.textGeneration({
+        model: "google/flan-t5-xxl",
+        inputs: prompt,
+        parameters: {
+          max_new_tokens: 500,
+          temperature: 0.7
+        }
+      });
+
+      setRedaccionIA(response.generated_text);
+      setShowRedaccion(true);
+
+      // Scroll to the generated text
       setTimeout(() => {
-        window.scrollBy(0, -200); // Ajusta el valor negativo para desplazarte más hacia arriba
-      }, 300); // Ajusta el tiempo para que coincida con la duración del desplazamiento suave
-    }, 100);
+        redaccionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => {
+          window.scrollBy(0, -200);
+        }, 300);
+      }, 100);
+
+      toast({
+        title: "Redacción generada",
+        description: "La historia clínica ha sido generada exitosamente con IA.",
+      });
+    } catch (error) {
+      console.error("Error al generar la redacción:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo generar la redacción. Por favor, intente nuevamente.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
-  
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          {/* Botón tipo slider */}
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
               <button
@@ -122,7 +170,6 @@ const PadecimientoActual = ({
           </h2>
         </div>
 
-        {/* Formulario o Redacción IA */}
         {showRedaccion ? (
           <div ref={redaccionRef} className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
@@ -136,7 +183,12 @@ const PadecimientoActual = ({
           <div className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
             <div className="flex items-start gap-4">
-              <Textarea value={formData.padecimientoActual.motivoConsulta} onChange={(e) => handlePadecimientoChange("motivoConsulta", e.target.value)} placeholder="Describa el motivo fundamental por el que acude el paciente" className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y" />
+              <Textarea 
+                value={formData.padecimientoActual.motivoConsulta} 
+                onChange={(e) => handlePadecimientoChange("motivoConsulta", e.target.value)} 
+                placeholder="Describa el motivo fundamental por el que acude el paciente" 
+                className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y" 
+              />
               <div className="mt-2">
                 <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", text)} />
               </div>
@@ -158,11 +210,14 @@ const PadecimientoActual = ({
           </div>
         )}
 
-        {/* Botón Generar Redacción IA */}
         {!showRedaccion && (
           <div className="p-6 flex justify-center">
-            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-              Generar Redacción IA
+            <Button 
+              onClick={generarRedaccionIA} 
+              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+              disabled={isGenerating}
+            >
+              {isGenerating ? "Generando..." : "Generar Redacción IA"}
             </Button>
           </div>
         )}
