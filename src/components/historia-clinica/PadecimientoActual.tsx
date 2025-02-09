@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
@@ -45,13 +45,7 @@ const PadecimientoActual = ({
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
   const [redaccionIA, setRedaccionIA] = useState("");
-  const redaccionRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    if (showRedaccion && redaccionRef.current) {
-      redaccionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [showRedaccion]);
+  const redaccionRef = useRef<HTMLDivElement>(null);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -68,7 +62,15 @@ const PadecimientoActual = ({
     setIsMaximized(false);
   };
 
+  const handleRedaccionClick = () => {
+    setShowRedaccion(true);
+    setTimeout(() => {
+      redaccionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
+
   const generarRedaccionIA = () => {
+    // Simulación de generación de texto IA
     const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}. 
       Historia del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}.
       Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
@@ -90,7 +92,7 @@ const PadecimientoActual = ({
                 Formulario
               </button>
               <button
-                onClick={() => setShowRedaccion(true)}
+                onClick={handleRedaccionClick}
                 className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
                 Redacción IA
@@ -119,7 +121,7 @@ const PadecimientoActual = ({
 
         {/* Formulario o Redacción IA */}
         {showRedaccion ? (
-          <div className="p-6" ref={redaccionRef}>
+          <div ref={redaccionRef} className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
             <Textarea 
               value={redaccionIA} 
@@ -136,20 +138,6 @@ const PadecimientoActual = ({
                 <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", text)} />
               </div>
             </div>
-          </div>
-        )}
-
-        {!isMinimized && !showRedaccion && (
-          <div className="p-6 space-y-8">
-            <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={handleSinSintomasChange} />
-            {!formData.padecimientoActual.sinSintomas && (
-              <div className="space-y-6">
-                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium mb-6">En caso de dolor</h3>
-                  <CaracteristicasDolor dolor={formData.padecimientoActual.dolor} onDolorChange={handleDolorChange} />
-                </div>
-              </div>
-            )}
           </div>
         )}
       </Card>
