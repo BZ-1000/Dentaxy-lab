@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
@@ -45,6 +45,13 @@ const PadecimientoActual = ({
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
   const [redaccionIA, setRedaccionIA] = useState("");
+  const redaccionRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (showRedaccion && redaccionRef.current) {
+      redaccionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [showRedaccion]);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -62,7 +69,6 @@ const PadecimientoActual = ({
   };
 
   const generarRedaccionIA = () => {
-    // Simulación de generación de texto IA
     const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}. 
       Historia del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}.
       Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
@@ -113,7 +119,7 @@ const PadecimientoActual = ({
 
         {/* Formulario o Redacción IA */}
         {showRedaccion ? (
-          <div className="p-6">
+          <div className="p-6" ref={redaccionRef}>
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
             <Textarea 
               value={redaccionIA} 
@@ -144,15 +150,6 @@ const PadecimientoActual = ({
                 </div>
               </div>
             )}
-          </div>
-        )}
-
-        {/* Botón Generar Redacción IA */}
-        {!showRedaccion && (
-          <div className="p-6 flex justify-center">
-            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-              Generar Redacción IA
-            </Button>
           </div>
         )}
       </Card>
