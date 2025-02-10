@@ -103,25 +103,31 @@ const PadecimientoActual = ({
 
       const hf = new HfInference(secretData.value);
 
-      const prompt = `Genera una redacción médica profesional basada en la siguiente información:
-        Motivo de consulta: ${formData.padecimientoActual.motivoConsulta}
-        
-        ${formData.padecimientoActual.sinSintomas ? 'El paciente no presenta síntomas.' : `
-        Características del dolor:
-        - Fecha de inicio: ${formData.padecimientoActual.dolor.fechaInicio}
-        - Condición de aparición: ${formData.padecimientoActual.dolor.condicionAparicion}
-        - Frecuencia: ${formData.padecimientoActual.dolor.frecuencia}
-        - Carácter: ${formData.padecimientoActual.dolor.caracter}
-        - Intensidad: ${formData.padecimientoActual.dolor.intensidad}
-        - Localización: ${formData.padecimientoActual.dolor.localizacion.tipo} - ${formData.padecimientoActual.dolor.localizacion.descripcion}
-        - Factores de atenuación: ${formData.padecimientoActual.dolor.atenuacion}`}`;
+      const prompt = `<s>[INST] Genera una redacción médica profesional detallada sobre el padecimiento actual del paciente. Usa un tono formal y médico. Usa la siguiente información:
+
+${formData.padecimientoActual.sinSintomas ? 
+  'El paciente no refiere sintomatología en el momento de la consulta.' : 
+  `Motivo de consulta: ${formData.padecimientoActual.motivoConsulta}
+
+Características del dolor:
+- Fecha de inicio: ${formData.padecimientoActual.dolor.fechaInicio ? new Date(formData.padecimientoActual.dolor.fechaInicio).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : 'No especificada'}
+- Condición de aparición: ${formData.padecimientoActual.dolor.condicionAparicion}
+- Frecuencia: ${formData.padecimientoActual.dolor.frecuencia}
+- Carácter: ${formData.padecimientoActual.dolor.caracter}
+- Intensidad: ${formData.padecimientoActual.dolor.intensidad}
+- Localización: ${formData.padecimientoActual.dolor.localizacion.descripcion}
+- Factores de atenuación: ${formData.padecimientoActual.dolor.atenuacion}`}
+
+Escribe la redacción en formato de historia clínica, organizando la información de manera clara y coherente. [/INST]</s>`;
 
       const response = await hf.textGeneration({
-        model: 'OpenAssistant/oasst-sft-4-pythia-12b-epoch-3.5',
+        model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
         inputs: prompt,
         parameters: {
-          max_new_tokens: 250,
+          max_new_tokens: 500,
           temperature: 0.7,
+          top_p: 0.95,
+          repetition_penalty: 1.15,
         },
       });
 
