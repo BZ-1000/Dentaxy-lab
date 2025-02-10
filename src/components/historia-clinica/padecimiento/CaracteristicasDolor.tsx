@@ -3,9 +3,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
-import { Book } from "lucide-react";
+import { Book, Calendar as CalendarIcon } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface CaracteristicasDolorProps {
   dolor: {
@@ -67,6 +71,37 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col space-y-2">
+          <Label>Fecha de inicio</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !dolor.fechaInicio && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dolor.fechaInicio ? (
+                  format(new Date(dolor.fechaInicio), "PPP", { locale: es })
+                ) : (
+                  <span>Seleccionar fecha</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={dolor.fechaInicio ? new Date(dolor.fechaInicio) : undefined}
+                onSelect={(date) => onDolorChange('fechaInicio', date ? date.toISOString() : '')}
+                initialFocus
+                locale={es}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
         <div>
           <Label>Condición de aparición</Label>
           <Select
@@ -178,3 +213,4 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
 };
 
 export default CaracteristicasDolor;
+
