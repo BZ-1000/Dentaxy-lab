@@ -6,12 +6,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser } from "lucide-react";
+import { Minus, Maximize2, X } from "lucide-react";
+import { HfInference } from "@huggingface/inference";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
-import { HfInference } from "@huggingface/inference";
+import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
 
 interface PadecimientoActualProps {
   formData: {
@@ -67,29 +67,11 @@ const PadecimientoActual = ({
     setIsMaximized(false);
   };
 
-  const handleClear = () => {
-    handlePadecimientoChange("motivoConsulta", "");
-    handlePadecimientoChange("historiaPadecimiento", "");
-    handleDolorChange("fechaInicio", "");
-    handleDolorChange("condicionAparicion", "");
-    handleDolorChange("frecuencia", "");
-    handleDolorChange("caracter", "");
-    handleDolorChange("intensidad", "");
-    handleDolorChange("localizacion", JSON.stringify({ tipo: "", descripcion: "" }));
-    handleDolorChange("atenuacion", "");
-    handleSinSintomasChange(false);
-    setRedaccionIA("");
-    toast({
-      title: "Formulario limpiado",
-      description: "Se han limpiado todos los campos del formulario.",
-    });
-  };
-
   const generarRedaccionIA = async () => {
     try {
       setIsGenerating(true);
-      
-      console.log('Fetching HuggingFace API key...');
+
+      // Get the HuggingFace API key from Supabase secrets
       const { data: secretData, error: secretError } = await supabase
         .from('secrets')
         .select('value')
@@ -97,52 +79,53 @@ const PadecimientoActual = ({
         .maybeSingle();
 
       if (secretError) {
-        console.error('Error fetching API key:', secretError);
-        throw new Error('Error al obtener la clave API: ' + secretError.message);
+        throw new Error('Error al obtener la clave API de HuggingFace');
       }
 
-      if (!secretData?.value) {
-        console.error('No API key found');
-        throw new Error('No se encontró la clave API de HuggingFace');
+      if (!secretData) {
+        toast({
+          title: "Error de configuración",
+          description: "No se ha configurado la clave API de HuggingFace. Por favor, configure la clave en la configuración del proyecto.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      console.log('Creating HuggingFace inference instance...');
       const hf = new HfInference(secretData.value);
 
-      const prompt = `<s>[INST] Genera una redacción médica profesional detallada sobre el padecimiento actual del paciente. Usa un tono formal y médico. Usa la siguiente información:
+      // Prepare the prompt with form data
+      const prompt = `Actúa como un profesional médico y genera una historia clínica detallada basada en la siguiente información:
 
-${formData.padecimientoActual.sinSintomas ? 
-  'El paciente no refiere sintomatología en el momento de la consulta.' : 
-  `Motivo de consulta: ${formData.padecimientoActual.motivoConsulta}
+      ${formData.padecimientoActual.sinSintomas 
+        ? "El paciente no refiere sintomatología actual."
+        : `Motivo de consulta: ${formData.padecimientoActual.motivoConsulta}
 
-Características del dolor:
-- Fecha de inicio: ${formData.padecimientoActual.dolor.fechaInicio ? new Date(formData.padecimientoActual.dolor.fechaInicio).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : 'No especificada'}
-- Condición de aparición: ${formData.padecimientoActual.dolor.condicionAparicion}
-- Frecuencia: ${formData.padecimientoActual.dolor.frecuencia}
-- Carácter: ${formData.padecimientoActual.dolor.caracter}
-- Intensidad: ${formData.padecimientoActual.dolor.intensidad}
-- Localización: ${formData.padecimientoActual.dolor.localizacion.descripcion}
-- Factores de atenuación: ${formData.padecimientoActual.dolor.atenuacion}`}
+        Características del dolor:
+        - Fecha de inicio: ${formData.padecimientoActual.dolor.fechaInicio}
+        - Condición de aparición: ${formData.padecimientoActual.dolor.condicionAparicion}
+        - Frecuencia: ${formData.padecimientoActual.dolor.frecuencia}
+        - Carácter: ${formData.padecimientoActual.dolor.caracter}
+        - Intensidad: ${formData.padecimientoActual.dolor.intensidad}
+        - Localización: ${formData.padecimientoActual.dolor.localizacion.tipo} - ${formData.padecimientoActual.dolor.localizacion.descripcion}
+        - Factores de atenuación: ${formData.padecimientoActual.dolor.atenuacion}`
+      }
 
-Escribe la redacción en formato de historia clínica, organizando la información de manera clara y coherente. [/INST]</s>`;
+      Por favor, genera una redacción profesional y detallada de la historia clínica.`;
 
-      console.log('Generating text with HuggingFace...');
+      // Generate text using HuggingFace
       const response = await hf.textGeneration({
-        model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
+        model: "google/flan-t5-xxl",
         inputs: prompt,
         parameters: {
           max_new_tokens: 500,
-          temperature: 0.7,
-          top_p: 0.95,
-          repetition_penalty: 1.15,
-        },
+          temperature: 0.7
+        }
       });
 
-      console.log('Text generation successful');
       setRedaccionIA(response.generated_text);
       setShowRedaccion(true);
-      
-      // Scroll to redacción
+
+      // Scroll to the generated text
       setTimeout(() => {
         redaccionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         setTimeout(() => {
@@ -152,13 +135,13 @@ Escribe la redacción en formato de historia clínica, organizando la informaci�
 
       toast({
         title: "Redacción generada",
-        description: "Se ha generado la redacción con IA exitosamente.",
+        description: "La historia clínica ha sido generada exitosamente con IA.",
       });
     } catch (error) {
-      console.error('Error completo:', error);
+      console.error("Error al generar la redacción:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Hubo un error al generar la redacción. Por favor, intente nuevamente.",
+        description: "No se pudo generar la redacción. Por favor, intente nuevamente.",
         variant: "destructive",
       });
     } finally {
@@ -247,21 +230,13 @@ Escribe la redacción en formato de historia clínica, organizando la informaci�
         )}
 
         {!showRedaccion && (
-          <div className="p-6 flex justify-center gap-4">
+          <div className="p-6 flex justify-center">
             <Button 
               onClick={generarRedaccionIA} 
               className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
               disabled={isGenerating}
             >
               {isGenerating ? "Generando..." : "Generar Redacción IA"}
-            </Button>
-            <Button
-              onClick={handleClear}
-              variant="outline"
-              className="px-4 py-2 rounded-lg"
-            >
-              <Eraser className="w-4 h-4 mr-2" />
-              Limpiar formulario
             </Button>
           </div>
         )}
