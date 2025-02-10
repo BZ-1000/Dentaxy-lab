@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useRef } from "react";
@@ -12,7 +11,7 @@ import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
 import { HfInference } from "@huggingface/inference";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface PadecimientoActualProps {
   formData: {
@@ -90,17 +89,24 @@ const PadecimientoActual = ({
     try {
       setIsGenerating(true);
       
-      // Fetch HuggingFace API key from Supabase
+      console.log('Fetching HuggingFace API key...');
       const { data: secretData, error: secretError } = await supabase
         .from('secrets')
         .select('value')
         .eq('name', 'HUGGINGFACE_API_KEY')
         .maybeSingle();
 
-      if (secretError || !secretData) {
-        throw new Error('Error al obtener la clave API');
+      if (secretError) {
+        console.error('Error fetching API key:', secretError);
+        throw new Error('Error al obtener la clave API: ' + secretError.message);
       }
 
+      if (!secretData?.value) {
+        console.error('No API key found');
+        throw new Error('No se encontró la clave API de HuggingFace');
+      }
+
+      console.log('Creating HuggingFace inference instance...');
       const hf = new HfInference(secretData.value);
 
       const prompt = `<s>[INST] Genera una redacción médica profesional detallada sobre el padecimiento actual del paciente. Usa un tono formal y médico. Usa la siguiente información:
@@ -120,6 +126,7 @@ Características del dolor:
 
 Escribe la redacción en formato de historia clínica, organizando la información de manera clara y coherente. [/INST]</s>`;
 
+      console.log('Generating text with HuggingFace...');
       const response = await hf.textGeneration({
         model: 'mistralai/Mixtral-8x7B-Instruct-v0.1',
         inputs: prompt,
@@ -131,6 +138,7 @@ Escribe la redacción en formato de historia clínica, organizando la informaci�
         },
       });
 
+      console.log('Text generation successful');
       setRedaccionIA(response.generated_text);
       setShowRedaccion(true);
       
@@ -147,10 +155,10 @@ Escribe la redacción en formato de historia clínica, organizando la informaci�
         description: "Se ha generado la redacción con IA exitosamente.",
       });
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error completo:', error);
       toast({
         title: "Error",
-        description: "Hubo un error al generar la redacción. Por favor, intente nuevamente.",
+        description: error instanceof Error ? error.message : "Hubo un error al generar la redacción. Por favor, intente nuevamente.",
         variant: "destructive",
       });
     } finally {
