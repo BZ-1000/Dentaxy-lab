@@ -29,9 +29,10 @@ export const useHistoriaClinica = () => {
     }));
   };
 
-  const handleDolorChange = (field: string, value: string) => {
+  const handleDolorChange = (field: string, value: any) => {
     if (field === 'localizacion') {
-      const localizacion = JSON.parse(value);
+      // If value is already an object, use it directly
+      const localizacion = typeof value === 'string' ? JSON.parse(value) : value;
       setFormData(prev => ({
         ...prev,
         padecimientoActual: {
