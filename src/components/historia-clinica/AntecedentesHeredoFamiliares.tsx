@@ -241,10 +241,16 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     .filter(Boolean)
     .join(", ");
 
-    const redaccionFinal = `
-    ${textoGenerado.trim()}
-    \n\n<div class="${styles.redText}">Nota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.</div>
-  `;
+    const [redaccionFinal, setRedaccionFinal] = useState<string>("");
+
+setRedaccionFinal(`
+  ${textoGenerado.trim()}
+  <p style="color: red; font-weight: bold;">
+    Nota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
+  </p>
+`);
+
+return <div dangerouslySetInnerHTML={{ __html: redaccionFinal }} />;
 
 
   setRedaccionIA(redaccionFinal);
