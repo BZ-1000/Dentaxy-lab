@@ -170,17 +170,40 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   };
 
   const generarRedaccionIA = () => {
-    const textoGenerado = `Antecedentes Heredo Familiares:\n` + familiares.map(familiar => {
+    const textoGenerado = familiares.map(familiar => {
       const familiarKey = getFamiliarKey(familiar);
       const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+
+      // Obtener las condiciones en un formato legible
       const condicionesText = Object.entries(familiarData.condiciones)
         .filter(([key, value]) => value)
-        .map(([key, value]) => key)
+        .map(([key, value]) => {
+          switch (key) {
+            case "diabetesMellitus":
+              return "diabetes mellitus";
+            case "hipertensionArterial":
+              return "hipertensión arterial";
+            case "cancer":
+              return "cáncer";
+            case "otras":
+              return value; // Asume que 'otras' contiene texto específico
+            default:
+              return "";
+          }
+        })
         .join(", ");
 
-      return `${familiar}: ${familiarData.finado ? 'Finado' : 'Vivo'} ${familiarData.vivoSano ? 'y Sano' : ''}. Condiciones: ${condicionesText}.`;
-    }).join("\n");
+      // Construir la redacción para cada familiar
+      if (familiarData.vivoSano) {
+        return `${familiar} está vivo y sano.`;
+      } else if (familiarData.finado) {
+        return `${familiar} finado por ${familiarData.causaMuerte}.`;
+      } else {
+        return `${familiar} está vivo con diagnóstico de ${condicionesText}.`;
+      }
+    }).join(" ");
 
+    // Determinar las enfermedades más repetidas en la familia
     const enfermedadesRepetidas = new Set();
     familiares.forEach(familiar => {
       const familiarKey = getFamiliarKey(familiar);
@@ -192,11 +215,25 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       });
     });
 
-    const alertaEnfermedades = Array.from(enfermedadesRepetidas).join(", ");
+    const alertaEnfermedades = Array.from(enfermedadesRepetidas)
+      .map(key => {
+        switch (key) {
+          case "diabetesMellitus":
+            return "diabetes mellitus";
+          case "hipertensionArterial":
+            return "hipertensión arterial";
+          case "cancer":
+            return "cáncer";
+          default:
+            return "";
+        }
+      })
+      .filter(Boolean)
+      .join(", ");
 
     const redaccionFinal = `
       ${textoGenerado}
-      \n\nAlerta: Las enfermedades más repetidas en la familia son: ${alertaEnfermedades}.
+      \n\nAlerta: En la familia predominan los antecedentes de: ${alertaEnfermedades}.
     `;
 
     setRedaccionIA(redaccionFinal);
