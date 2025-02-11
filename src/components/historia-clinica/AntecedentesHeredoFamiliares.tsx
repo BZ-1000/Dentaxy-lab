@@ -242,7 +242,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
     const redaccionFinal = `
       ${textoGenerado.trim()}
-      \n\n<span style="color: #FF5733; font-weight: bold;">Nota:</span> En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
+      \n\nNota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
     `;
 
     setRedaccionIA(redaccionFinal);
@@ -289,7 +289,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       } else {
         clearInterval(interval);
       }
-    }, 50); // Adjust the speed of the typing animation here
+    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
 
     return () => clearInterval(interval);
   }, [redaccionIA]);
