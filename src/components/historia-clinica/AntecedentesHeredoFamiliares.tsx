@@ -90,7 +90,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
   return (
     <div className="flex flex-col gap-4 border-b pb-6">
       <div className="grid grid-cols-7 gap-4 items-center">
-        <span className="font-semibold text-base col-span-1 text-gray-700">{familiar}</span>
+        <span className="font-semibold text-base text-center col-span-1 text-gray-700">{familiar}</span>
         {!familiarData.vivoSano && (
           <button
             className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
