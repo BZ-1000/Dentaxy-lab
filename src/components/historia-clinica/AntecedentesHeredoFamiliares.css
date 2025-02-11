@@ -1,0 +1,19 @@
+.highlight-note {
+    animation: highlightAnimation 1s forwards;
+  }
+  
+  @keyframes highlightAnimation {
+    0% {
+      color: inherit;
+      font-weight: normal;
+    }
+    100% {
+      color: red;
+      font-weight: bold;
+    }
+  }
+  
+  .justify-text {
+    text-align: justify;
+  }
+  
