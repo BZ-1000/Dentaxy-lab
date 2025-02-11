@@ -14,7 +14,7 @@ const ResumenHistoriaClinica = ({ resumen }: ResumenHistoriaClinicaProps) => {
   const formatText = (text: string) => {
     const parts = text.split(/(Nota: En la familia predominan los antecedentes de:.*?\.)/);
     return parts.map((part, index) => {
-      if (part.startsWith('Nota: En la familia predominan los antecedentes de:')) {
+      if (part.includes('Nota: En la familia predominan los antecedentes de:')) {
         return (
           <span key={index} style={{ color: '#ea384c' }} className="font-medium">
             {part}
