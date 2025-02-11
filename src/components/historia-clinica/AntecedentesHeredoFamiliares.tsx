@@ -154,7 +154,6 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   const [redaccionIA, setRedaccionIA] = useState("");
   const [copied, setCopied] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
-  const [nota, setNota] = useState("");
   const redaccionRef = useRef(null);
 
   const handleMinimize = () => {
@@ -241,10 +240,10 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .filter(Boolean)
       .join(", ");
 
-    const notaText = `Nota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.`;
-    setNota(notaText);
-
-    const redaccionFinal = `${textoGenerado.trim()}`;
+      const notaText = `Nota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.`;
+      setNota(notaText);
+  
+      const redaccionFinal = `${textoGenerado.trim()}`;
 
     setRedaccionIA(redaccionFinal);
     setDisplayedText(""); // Reset the displayed text
@@ -270,12 +269,11 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       });
     });
     setRedaccionIA("");
-    setNota("");
     setShowRedaccion(false);
   };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(`${redaccionIA}\n\n${nota}`);
+    await navigator.clipboard.writeText(redaccionIA);
     setCopied(true);
     setTimeout(() => {
       setCopied(false);
@@ -286,7 +284,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     let index = 0;
     const interval = setInterval(() => {
       if (index < redaccionIA.length) {
-        setDisplayedText(prevText => prevText + redaccionIA.charAt(index));
+        setDisplayedText(redaccionIA.substring(0, index + 1));
         index++;
       } else {
         clearInterval(interval);
@@ -362,12 +360,11 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
           <div ref={redaccionRef} className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
             <div
-              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md text-justify"
+              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md"
               style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
             >
               {displayedText}
             </div>
-            {nota && <div className="mt-4 text-red-600 font-bold">{nota}</div>}
             <Button
               onClick={handleCopy}
               className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
