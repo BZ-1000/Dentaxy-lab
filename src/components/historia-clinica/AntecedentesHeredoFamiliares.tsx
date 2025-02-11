@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser, Copy, CheckCircle, Loader2 } from "lucide-react";
+import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
 
 interface AntecedentesHeredoFamiliaresProps {
@@ -242,7 +242,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
     const redaccionFinal = `
       ${textoGenerado.trim()}
-      \n\n<span style="color: red; font-weight: bold;">Nota:</span> En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
+      \n\nNota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
     `;
 
     setRedaccionIA(redaccionFinal);
@@ -289,7 +289,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       } else {
         clearInterval(interval);
       }
-    }, 5); // Ajustar la velocidad de la animación aquí (5ms es más rápido)
+    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
 
     return () => clearInterval(interval);
   }, [redaccionIA]);
@@ -330,9 +330,8 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
               </button>
               <button
                 onClick={() => setShowRedaccion(true)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm flex items-center gap-2 ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
-                <Loader2 className="w-4 h-4 animate-spin" />
                 Redacción IA
               </button>
             </div>
@@ -361,7 +360,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
           <div ref={redaccionRef} className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
             <div
-              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md text-justify"
+              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md"
               style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
             >
               {displayedText}
