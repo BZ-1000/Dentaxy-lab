@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -153,6 +153,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   const [showRedaccion, setShowRedaccion] = useState(false);
   const [redaccionIA, setRedaccionIA] = useState("");
   const [copied, setCopied] = useState(false);
+  const [displayedText, setDisplayedText] = useState("");
   const redaccionRef = useRef(null);
 
   const handleMinimize = () => {
@@ -211,19 +212,20 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     }).join(" ");
 
     // Determinar las enfermedades más repetidas en la familia
-    const enfermedadesRepetidas = new Set();
+    const enfermedadesContador: { [key: string]: number } = {};
     familiares.forEach(familiar => {
       const familiarKey = getFamiliarKey(familiar);
       const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
       Object.entries(familiarData.condiciones).forEach(([key, value]) => {
         if (value) {
-          enfermedadesRepetidas.add(key);
+          enfermedadesContador[key] = (enfermedadesContador[key] || 0) + 1;
         }
       });
     });
 
-    const notaEnfermedades = Array.from(enfermedadesRepetidas)
-      .map(key => {
+    const enfermedadesRepetidas = Object.entries(enfermedadesContador)
+      .filter(([key, value]) => value >= 2)
+      .map(([key]) => {
         switch (key) {
           case "diabetesMellitus":
             return "diabetes mellitus";
@@ -240,10 +242,11 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
     const redaccionFinal = `
       ${textoGenerado.trim()}
-      \n\nNota: En la familia predominan los antecedentes de: ${notaEnfermedades}.
+      \n\n<span style="color: #FF5733; font-weight: bold;">Nota:</span> En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
     `;
 
     setRedaccionIA(redaccionFinal);
+    setDisplayedText(""); // Reset the displayed text
     setShowRedaccion(true);
 
     setTimeout(() => {
@@ -276,6 +279,20 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       setCopied(false);
     }, 2000);
   };
+
+  useEffect(() => {
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < redaccionIA.length) {
+        setDisplayedText(redaccionIA.substring(0, index + 1));
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 50); // Adjust the speed of the typing animation here
+
+    return () => clearInterval(interval);
+  }, [redaccionIA]);
 
   const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
     const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
@@ -342,12 +359,12 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         {showRedaccion ? (
           <div ref={redaccionRef} className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
-            <Textarea
-              value={redaccionIA}
-              readOnly
-              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
-              style={{ height: 'auto', minHeight: '200px' }}
-            />
+            <div
+              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md"
+              style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+            >
+              {displayedText}
+            </div>
             <Button
               onClick={handleCopy}
               className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
