@@ -246,7 +246,6 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
     const redaccionFinal = `
       ${textoGenerado.trim()}
-      \n\nNota: En la familia predominan los antecedentes de: ${enfermedadesRepetidasText}.
     `;
 
     setRedaccionIA(redaccionFinal);
@@ -368,16 +367,12 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
               className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
               style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
             >
-              {displayedText.split('\n\nNota:').map((part, index) => (
-                <span key={index}>
-                  {part}
-                  {index === 0 && (
-                    <span className="highlight-note">
-                      Nota: En la familia predominan los antecedentes de: {enfermedadesRepetidas}.
-                    </span>
-                  )}
+              {displayedText}
+              {displayedText.includes('\n\n') && (
+                <span className="highlight-note">
+                  Nota: En la familia predominan los antecedentes de: {enfermedadesRepetidas}.
                 </span>
-              ))}
+              )}
             </div>
             <Button
               onClick={handleCopy}
