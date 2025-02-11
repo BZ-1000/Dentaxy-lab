@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser } from "lucide-react";
+import { Minus, Maximize2, X, Eraser, Copy } from "lucide-react";
 import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
 
 interface AntecedentesHeredoFamiliaresProps {
@@ -181,7 +181,25 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       return `${familiar}: ${familiarData.finado ? 'Finado' : 'Vivo'} ${familiarData.vivoSano ? 'y Sano' : ''}. Condiciones: ${condicionesText}.`;
     }).join("\n");
 
-    setRedaccionIA(textoGenerado);
+    const enfermedadesRepetidas = new Set();
+    familiares.forEach(familiar => {
+      const familiarKey = getFamiliarKey(familiar);
+      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+      Object.entries(familiarData.condiciones).forEach(([key, value]) => {
+        if (value) {
+          enfermedadesRepetidas.add(key);
+        }
+      });
+    });
+
+    const alertaEnfermedades = Array.from(enfermedadesRepetidas).join(", ");
+
+    const redaccionFinal = `
+      ${textoGenerado}
+      \n\nAlerta: Las enfermedades más repetidas en la familia son: ${alertaEnfermedades}.
+    `;
+
+    setRedaccionIA(redaccionFinal);
     setShowRedaccion(true);
 
     setTimeout(() => {
@@ -277,6 +295,13 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
               readOnly
               className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
             />
+            <Button
+              onClick={() => navigator.clipboard.writeText(redaccionIA)}
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2"
+            >
+              <Copy className="w-4 h-4" />
+              <span>Copiar Redacción</span>
+            </Button>
           </div>
         ) : (
           <div className="p-6 space-y-6">
