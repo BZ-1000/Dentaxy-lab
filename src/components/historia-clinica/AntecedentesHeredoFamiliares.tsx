@@ -58,32 +58,29 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
   };
 
   const handleVivoSano = () => {
-    const newVivoSano = !familiarData.vivoSano;
     handleFamiliarChange(familiarKey, 'finado', false);
-    handleFamiliarChange(familiarKey, 'vivoSano', newVivoSano);
-    if (newVivoSano) {
-      condiciones.forEach((cond) => {
-        const condKey = getCondicionKey(cond);
-        handleCondicionChange(familiarKey, condKey, false);
-      });
-    }
+    handleFamiliarChange(familiarKey, 'vivoSano', true);
+    condiciones.forEach((cond) => {
+      const condKey = getCondicionKey(cond);
+      handleCondicionChange(familiarKey, condKey, false);
+    });
   };
 
   return (
-    <div className="flex flex-col gap-4 border-b pb-6">
-      <div className="grid grid-cols-7 gap-4 items-center">
-        <span className="font-semibold text-base col-span-1 text-gray-700">{familiar}</span>
+    <div className="flex flex-col gap-2 border-b pb-4">
+      <div className="grid grid-cols-6 gap-2">
+        <span className="font-medium text-sm">{familiar}</span>
         <button
-          className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium ${
-            familiarData.finado ? "bg-red-600 text-white" : "bg-white text-gray-700 border-gray-300"
+          className={`px-2 py-1 rounded-md border transition-colors text-xs ${
+            familiarData.finado ? "bg-red-500 text-white" : "bg-white"
           }`}
           onClick={() => handleFamiliarChange(familiarKey, 'finado', !familiarData.finado)}
         >
           Finado
         </button>
         <button
-          className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
-            familiarData.vivoSano ? "bg-green-600 text-white" : "bg-white text-gray-700 border-gray-300"
+          className={`px-2 py-1 rounded-md border transition-colors text-xs ${
+            familiarData.vivoSano ? "bg-green-500 text-white col-span-5" : "bg-white col-span-1"
           }`}
           onClick={handleVivoSano}
         >
@@ -95,8 +92,8 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
             return (
               <button
                 key={cond}
-                className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
-                  familiarData.condiciones[condKey] ? "bg-blue-600 text-white" : "bg-white text-gray-700 border-gray-300"
+                className={`px-2 py-1 rounded-md border transition-colors text-xs ${
+                  familiarData.condiciones[condKey] ? "bg-blue-500 text-white" : "bg-white"
                 }`}
                 onClick={() => handleCondicionChange(familiarKey, condKey, !familiarData.condiciones[condKey])}
               >
@@ -110,7 +107,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
           value={familiarData.causaMuerte}
           onChange={(e) => handleFamiliarChange(familiarKey, 'causaMuerte', e.target.value)}
           placeholder="Causa de fallecimiento"
-          className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
+          className="w-full border rounded-md px-2 py-1.5 text-sm"
         />
       )}
       {familiarData.condiciones.otras && !familiarData.finado && !familiarData.vivoSano && (
@@ -118,7 +115,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
           value={familiarData.condiciones.otras as string}
           onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
           placeholder="Especifique otras condiciones"
-          className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
+          className="w-full border rounded-md px-2 py-1.5 text-sm"
         />
       )}
     </div>
@@ -127,8 +124,8 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
 
 const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCondicionChange }: AntecedentesHeredoFamiliaresProps) => {
   return (
-    <Card className="p-6 space-y-6 shadow-lg rounded-lg">
-      <h3 className="text-2xl font-bold mb-6 text-gray-800">II. Antecedentes Heredo Familiares</h3>
+    <Card className="p-6 space-y-4">
+      <h3 className="text-xl font-mplus font-normal mb-4">II. Antecedentes Heredo Familiares</h3>
       {familiares.map((familiar) => (
         <FamiliaRow
           key={familiar}
