@@ -1,8 +1,7 @@
-
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { FormDataState } from "@/types/historiaClinica";
+import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
 
 interface AntecedentesHeredoFamiliaresProps {
   formData: FormDataState;
@@ -21,6 +20,10 @@ const familiares = [
 
 const condiciones = ["Diabetes Mellitus", "Hipertensión Arterial", "Cáncer", "Otras"];
 
+interface Familiar extends OriginalFamiliar {
+  vivoSano: boolean;
+}
+
 interface FamiliaRowProps {
   familiar: string;
   formData: FormDataState;
@@ -29,7 +32,6 @@ interface FamiliaRowProps {
 }
 
 const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionChange }: FamiliaRowProps) => {
-  // Convert familiar string to match the exact property names in FormDataState
   const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
     const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
       "Padre": "padre",
@@ -43,7 +45,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
   };
 
   const familiarKey = getFamiliarKey(familiar);
-  const familiarData = formData.antecedentesHeredoFamiliares[familiarKey];
+  const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
 
   const getCondicionKey = (condicion: string) => {
     const mapping: { [key: string]: string } = {
@@ -55,25 +57,42 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
     return mapping[condicion];
   };
 
+  const handleVivoSano = () => {
+    handleFamiliarChange(familiarKey, 'finado', false);
+    handleFamiliarChange(familiarKey, 'vivoSano', true);
+    condiciones.forEach((cond) => {
+      const condKey = getCondicionKey(cond);
+      handleCondicionChange(familiarKey, condKey, false);
+    });
+  };
+
   return (
     <div className="flex flex-col gap-2 border-b pb-4">
       <div className="grid grid-cols-6 gap-2">
-        <span className="font-medium">{familiar}</span>
+        <span className="font-medium text-sm">{familiar}</span>
         <button
-          className={`px-2 py-1.5 rounded-md border transition-colors ${
+          className={`px-2 py-1 rounded-md border transition-colors text-xs ${
             familiarData.finado ? "bg-red-500 text-white" : "bg-white"
           }`}
           onClick={() => handleFamiliarChange(familiarKey, 'finado', !familiarData.finado)}
         >
           Finado
         </button>
-        {!familiarData.finado &&
+        <button
+          className={`px-2 py-1 rounded-md border transition-colors text-xs ${
+            familiarData.vivoSano ? "bg-green-500 text-white col-span-5" : "bg-white col-span-1"
+          }`}
+          onClick={handleVivoSano}
+        >
+          Vivo y Sano
+        </button>
+        {!familiarData.finado && !familiarData.vivoSano &&
           condiciones.map((cond) => {
             const condKey = getCondicionKey(cond);
             return (
               <button
                 key={cond}
-                className={`px-2 py-1.5 rounded-md border transition-colors ${
+                className={`px-2 py-1 rounded-md border transition-colors text-xs ${
                   familiarData.condiciones[condKey] ? "bg-blue-500 text-white" : "bg-white"
                 }`}
                 onClick={() => handleCondicionChange(familiarKey, condKey, !familiarData.condiciones[condKey])}
@@ -88,15 +107,15 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
           value={familiarData.causaMuerte}
           onChange={(e) => handleFamiliarChange(familiarKey, 'causaMuerte', e.target.value)}
           placeholder="Causa de fallecimiento"
-          className="w-full border rounded-md px-2 py-1.5"
+          className="w-full border rounded-md px-2 py-1.5 text-sm"
         />
       )}
-      {familiarData.condiciones.otras && !familiarData.finado && (
+      {familiarData.condiciones.otras && !familiarData.finado && !familiarData.vivoSano && (
         <Input
           value={familiarData.condiciones.otras as string}
           onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
           placeholder="Especifique otras condiciones"
-          className="w-full border rounded-md px-2 py-1.5"
+          className="w-full border rounded-md px-2 py-1.5 text-sm"
         />
       )}
     </div>
@@ -106,11 +125,11 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
 const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCondicionChange }: AntecedentesHeredoFamiliaresProps) => {
   return (
     <Card className="p-6 space-y-4">
-      <h3 className="text-xl font-mplus font-normal mb-4">II.Antecedentes Heredo Familiares</h3>
+      <h3 className="text-xl font-mplus font-normal mb-4">II. Antecedentes Heredo Familiares</h3>
       {familiares.map((familiar) => (
-        <FamiliaRow 
-          key={familiar} 
-          familiar={familiar} 
+        <FamiliaRow
+          key={familiar}
+          familiar={familiar}
           formData={formData}
           handleFamiliarChange={handleFamiliarChange}
           handleCondicionChange={handleCondicionChange}
