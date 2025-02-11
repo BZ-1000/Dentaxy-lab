@@ -240,12 +240,10 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .filter(Boolean)
       .join(", ");
 
-  enfermedadesRepetidas = enfermedadesRepetidas.split(", ").map(enf => `<span style="color: red; font-weight: bold;">${enf}</span>`).join(", ");
-
-  const redaccionFinal = `
-    ${textoGenerado.trim()}
-    <br/><br/><strong>Nota:</strong> En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
-  `;
+    const redaccionFinal = `
+      ${textoGenerado.trim()}
+      \n\nNota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
+    `;
 
     setRedaccionIA(redaccionFinal);
     setDisplayedText(""); // Reset the displayed text
