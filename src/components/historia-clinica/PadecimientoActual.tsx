@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X } from "lucide-react";
+import { Minus, Maximize2, X, Eraser } from "lucide-react";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
 
@@ -31,7 +31,7 @@ interface PadecimientoActualProps {
     };
   };
   handlePadecimientoChange: (field: string, value: string) => void;
-  handleDolorChange: (field: string, value: string) => void;
+  handleDolorChange: (field: string, value: any) => void; // Cambio aquí para aceptar cualquier tipo
   handleSinSintomasChange: (checked: boolean) => void;
 }
 
@@ -69,7 +69,7 @@ const PadecimientoActual = ({
       Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
     setRedaccionIA(textoGenerado);
     setShowRedaccion(true);
-  
+
     // Desplazamiento automático a la sección de Redacción IA
     setTimeout(() => {
       redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -79,7 +79,22 @@ const PadecimientoActual = ({
       }, 300); // Ajusta el tiempo para que coincida con la duración del desplazamiento suave
     }, 100);
   };
-  
+
+  const limpiarFormulario = () => {
+    // Reset form fields
+    handlePadecimientoChange("motivoConsulta", "");
+    handlePadecimientoChange("historiaPadecimiento", "");
+    handleDolorChange("fechaInicio", "");
+    handleDolorChange("condicionAparicion", "");
+    handleDolorChange("frecuencia", "");
+    handleDolorChange("caracter", "");
+    handleDolorChange("intensidad", "");
+    handleDolorChange("localizacion", { tipo: "", descripcion: "" }); // Pasar un objeto
+    handleDolorChange("atenuacion", "");
+    handleSinSintomasChange(false);
+    setRedaccionIA("");
+    setShowRedaccion(false);
+  };
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
@@ -158,11 +173,15 @@ const PadecimientoActual = ({
           </div>
         )}
 
-        {/* Botón Generar Redacción IA */}
+        {/* Botón Generar Redacción IA y Limpiar Formulario */}
         {!showRedaccion && (
-          <div className="p-6 flex justify-center">
-            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-              Generar Redacción IA
+          <div className="p-6 flex justify-center gap-4">
+            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
+              <span>Generar Redacción IA</span>
+            </Button>
+            <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
+              <Eraser className="w-4 h-4" />
+              <span>Limpiar Formulario</span>
             </Button>
           </div>
         )}
