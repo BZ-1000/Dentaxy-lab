@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
+import styles from '@/components/historia-clinica/AntecedentesHeredoFamiliares.module.css';
 
 interface AntecedentesHeredoFamiliaresProps {
   formData: FormDataState;
@@ -172,60 +173,14 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   };
 
   const generarRedaccionIA = () => {
-    const textoGenerado = familiares.map(familiar => {
-      const familiarKey = getFamiliarKey(familiar);
-      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+  const textoGenerado = familiares.map(familiar => {
+    const familiarKey = getFamiliarKey(familiar);
+    const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
 
-      // Obtener las condiciones en un formato legible
-      const condicionesText = Object.entries(familiarData.condiciones)
-        .filter(([key, value]) => value)
-        .map(([key, value]) => {
-          switch (key) {
-            case "diabetesMellitus":
-              return "diabetes mellitus";
-            case "hipertensionArterial":
-              return "hipertensión arterial";
-            case "cancer":
-              return "cáncer";
-            case "otras":
-              return value; // Asume que 'otras' contiene texto específico
-            default:
-              return "";
-          }
-        })
-        .join(", ");
-
-      // Construir la redacción para cada familiar
-      const esFemenino = familiar.includes("Madre") || familiar.includes("Abuela");
-      const articuloFemenino = esFemenino ? "La " : "El ";
-      const verboSerFemenino = esFemenino ? "está viva" : "está vivo";
-      const verboEstarFemenino = esFemenino ? "finada" : "finado";
-      const ySanoFemenino = esFemenino ? "y sana" : "y sano";
-
-      if (familiarData.vivoSano) {
-        return `${articuloFemenino}${familiar} ${verboSerFemenino} ${ySanoFemenino}.`;
-      } else if (familiarData.finado) {
-        return `${articuloFemenino}${familiar} ${verboEstarFemenino} por ${familiarData.causaMuerte}.`;
-      } else {
-        return `${articuloFemenino}${familiar} ${verboSerFemenino} con diagnóstico de ${condicionesText}.`;
-      }
-    }).join(" ");
-
-    // Determinar las enfermedades más repetidas en la familia
-    const enfermedadesContador: { [key: string]: number } = {};
-    familiares.forEach(familiar => {
-      const familiarKey = getFamiliarKey(familiar);
-      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
-      Object.entries(familiarData.condiciones).forEach(([key, value]) => {
-        if (value) {
-          enfermedadesContador[key] = (enfermedadesContador[key] || 0) + 1;
-        }
-      });
-    });
-
-    const enfermedadesRepetidas = Object.entries(enfermedadesContador)
-      .filter(([key, value]) => value >= 2)
-      .map(([key]) => {
+    // Obtener las condiciones en un formato legible
+    const condicionesText = Object.entries(familiarData.condiciones)
+      .filter(([key, value]) => value)
+      .map(([key, value]) => {
         switch (key) {
           case "diabetesMellitus":
             return "diabetes mellitus";
@@ -233,29 +188,77 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             return "hipertensión arterial";
           case "cancer":
             return "cáncer";
+          case "otras":
+            return value; // Asume que 'otras' contiene texto específico
           default:
             return "";
         }
       })
-      .filter(Boolean)
       .join(", ");
 
+    // Construir la redacción para cada familiar
+    const esFemenino = familiar.includes("Madre") || familiar.includes("Abuela");
+    const articuloFemenino = esFemenino ? "La " : "El ";
+    const verboSerFemenino = esFemenino ? "está viva" : "está vivo";
+    const verboEstarFemenino = esFemenino ? "finada" : "finado";
+    const ySanoFemenino = esFemenino ? "y sana" : "y sano";
+
+    if (familiarData.vivoSano) {
+      return `${articuloFemenino}${familiar} ${verboSerFemenino} ${ySanoFemenino}.`;
+    } else if (familiarData.finado) {
+      return `${articuloFemenino}${familiar} ${verboEstarFemenino} por ${familiarData.causaMuerte}.`;
+    } else {
+      return `${articuloFemenino}${familiar} ${verboSerFemenino} con diagnóstico de ${condicionesText}.`;
+    }
+  }).join(" ");
+
+  // Determinar las enfermedades más repetidas en la familia
+  const enfermedadesContador: { [key: string]: number } = {};
+  familiares.forEach(familiar => {
+    const familiarKey = getFamiliarKey(familiar);
+    const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+    Object.entries(familiarData.condiciones).forEach(([key, value]) => {
+      if (value) {
+        enfermedadesContador[key] = (enfermedadesContador[key] || 0) + 1;
+      }
+    });
+  });
+
+  const enfermedadesRepetidas = Object.entries(enfermedadesContador)
+    .filter(([key, value]) => value >= 2)
+    .map(([key]) => {
+      switch (key) {
+        case "diabetesMellitus":
+          return "diabetes mellitus";
+        case "hipertensionArterial":
+          return "hipertensión arterial";
+        case "cancer":
+          return "cáncer";
+        default:
+          return "";
+      }
+    })
+    .filter(Boolean)
+    .join(", ");
+
     const redaccionFinal = `
-      ${textoGenerado.trim()}
-      \n\nNota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
-    `;
+    ${textoGenerado.trim()}
+    \n\n<div class="${styles.redText}">Nota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.</div>
+  `;
 
-    setRedaccionIA(redaccionFinal);
-    setDisplayedText(""); // Reset the displayed text
-    setShowRedaccion(true);
 
+  setRedaccionIA(redaccionFinal);
+  setDisplayedText(""); // Reset the displayed text
+  setShowRedaccion(true);
+
+  setTimeout(() => {
+    redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setTimeout(() => {
-      redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => {
-        window.scrollBy(0, -200);
-      }, 300);
-    }, 100);
-  };
+      window.scrollBy(0, -200);
+    }, 300);
+  }, 100);
+};
+
 
   const limpiarFormulario = () => {
     familiares.forEach(familiar => {
@@ -289,7 +292,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       } else {
         clearInterval(interval);
       }
-    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
+    }, 20); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
 
     return () => clearInterval(interval);
   }, [redaccionIA]);
