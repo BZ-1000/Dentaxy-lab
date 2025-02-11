@@ -58,29 +58,32 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
   };
 
   const handleVivoSano = () => {
+    const newVivoSano = !familiarData.vivoSano;
     handleFamiliarChange(familiarKey, 'finado', false);
-    handleFamiliarChange(familiarKey, 'vivoSano', true);
-    condiciones.forEach((cond) => {
-      const condKey = getCondicionKey(cond);
-      handleCondicionChange(familiarKey, condKey, false);
-    });
+    handleFamiliarChange(familiarKey, 'vivoSano', newVivoSano);
+    if (newVivoSano) {
+      condiciones.forEach((cond) => {
+        const condKey = getCondicionKey(cond);
+        handleCondicionChange(familiarKey, condKey, false);
+      });
+    }
   };
 
   return (
     <div className="flex flex-col gap-2 border-b pb-4">
-      <div className="grid grid-cols-6 gap-2">
-        <span className="font-medium text-sm">{familiar}</span>
+      <div className="grid grid-cols-7 gap-2 items-center">
+        <span className="font-medium text-sm col-span-1">{familiar}</span>
         <button
-          className={`px-2 py-1 rounded-md border transition-colors text-xs ${
-            familiarData.finado ? "bg-red-500 text-white" : "bg-white"
+          className={`px-3 py-2 rounded-full border transition-colors text-xs ${
+            familiarData.finado ? "bg-red-500 text-white" : "bg-gray-200"
           }`}
           onClick={() => handleFamiliarChange(familiarKey, 'finado', !familiarData.finado)}
         >
           Finado
         </button>
         <button
-          className={`px-2 py-1 rounded-md border transition-colors text-xs ${
-            familiarData.vivoSano ? "bg-green-500 text-white col-span-5" : "bg-white col-span-1"
+          className={`px-3 py-2 rounded-full border transition-colors text-xs col-span-1 ${
+            familiarData.vivoSano ? "bg-green-500 text-white" : "bg-gray-200"
           }`}
           onClick={handleVivoSano}
         >
@@ -92,8 +95,8 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
             return (
               <button
                 key={cond}
-                className={`px-2 py-1 rounded-md border transition-colors text-xs ${
-                  familiarData.condiciones[condKey] ? "bg-blue-500 text-white" : "bg-white"
+                className={`px-3 py-2 rounded-full border transition-colors text-xs col-span-1 ${
+                  familiarData.condiciones[condKey] ? "bg-blue-500 text-white" : "bg-gray-200"
                 }`}
                 onClick={() => handleCondicionChange(familiarKey, condKey, !familiarData.condiciones[condKey])}
               >
@@ -107,7 +110,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
           value={familiarData.causaMuerte}
           onChange={(e) => handleFamiliarChange(familiarKey, 'causaMuerte', e.target.value)}
           placeholder="Causa de fallecimiento"
-          className="w-full border rounded-md px-2 py-1.5 text-sm"
+          className="w-full border rounded-md px-2 py-1.5 text-sm mt-2"
         />
       )}
       {familiarData.condiciones.otras && !familiarData.finado && !familiarData.vivoSano && (
@@ -115,7 +118,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
           value={familiarData.condiciones.otras as string}
           onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
           placeholder="Especifique otras condiciones"
-          className="w-full border rounded-md px-2 py-1.5 text-sm"
+          className="w-full border rounded-md px-2 py-1.5 text-sm mt-2"
         />
       )}
     </div>
