@@ -246,6 +246,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
     const redaccionFinal = `
       ${textoGenerado.trim()}
+      \n\nNota: En la familia predominan los antecedentes de: ${enfermedadesRepetidasText}.
     `;
 
     setRedaccionIA(redaccionFinal);
