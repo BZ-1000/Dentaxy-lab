@@ -69,35 +69,46 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
     }
   };
 
+  const handleFinado = () => {
+    handleFamiliarChange(familiarKey, 'finado', true);
+    handleFamiliarChange(familiarKey, 'vivoSano', false);
+    condiciones.forEach((cond) => {
+      const condKey = getCondicionKey(cond);
+      handleCondicionChange(familiarKey, condKey, false);
+    });
+  };
+
   return (
     <div className="flex flex-col gap-4 border-b pb-6">
       <div className="grid grid-cols-7 gap-4 items-center">
         <span className="font-semibold text-base col-span-1 text-gray-700">{familiar}</span>
         {!familiarData.vivoSano && (
           <button
-            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
+            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-2 ${
               familiarData.finado ? "bg-red-600 text-white" : "bg-white text-gray-700 border-gray-300"
             }`}
-            onClick={() => handleFamiliarChange(familiarKey, 'finado', !familiarData.finado)}
+            onClick={handleFinado}
           >
             Finado
           </button>
         )}
-        <button
-          className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium ${
-            familiarData.vivoSano ? "bg-green-600 text-white col-span-7" : "bg-white text-gray-700 border-gray-300 col-span-1"
-          }`}
-          onClick={handleVivoSano}
-        >
-          Vivo y Sano
-        </button>
+        {!familiarData.finado && (
+          <button
+            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-2 ${
+              familiarData.vivoSano ? "bg-green-600 text-white" : "bg-white text-gray-700 border-gray-300"
+            }`}
+            onClick={handleVivoSano}
+          >
+            Vivo y Sano
+          </button>
+        )}
         {!familiarData.finado && !familiarData.vivoSano &&
           condiciones.map((cond) => {
             const condKey = getCondicionKey(cond);
             return (
               <button
                 key={cond}
-                className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
+                className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-2 ${
                   familiarData.condiciones[condKey] ? "bg-blue-600 text-white" : "bg-white text-gray-700 border-gray-300"
                 }`}
                 onClick={() => handleCondicionChange(familiarKey, condKey, !familiarData.condiciones[condKey])}
