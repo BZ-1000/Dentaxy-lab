@@ -1,193 +1,100 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { VoiceInput } from "@/components/ui/voice-input";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser } from "lucide-react";
-import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
-import SintomasToggle from "./padecimiento/SintomasToggle";
+import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
 
-interface PadecimientoActualProps {
-  formData: {
-    padecimientoActual: {
-      sinSintomas: boolean;
-      motivoConsulta: string;
-      historiaPadecimiento: string;
-      dolor: {
-        fechaInicio: string;
-        condicionAparicion: string;
-        frecuencia: string;
-        caracter: string;
-        intensidad: string;
-        localizacion: {
-          tipo: string;
-          descripcion: string;
-        };
-        atenuacion: string;
-      };
-    };
-  };
-  handlePadecimientoChange: (field: string, value: string) => void;
-  handleDolorChange: (field: string, value: any) => void; // Cambio aquí para aceptar cualquier tipo
-  handleSinSintomasChange: (checked: boolean) => void;
+interface AntecedentesHeredoFamiliaresProps {
+  formData: FormDataState;
+  handleFamiliarChange: (familiar: string, field: string, value: string | boolean) => void;
+  handleCondicionChange: (familiar: string, condicion: string, value: string | boolean) => void;
 }
 
-const PadecimientoActual = ({
-  formData,
-  handlePadecimientoChange,
-  handleDolorChange,
-  handleSinSintomasChange,
-}: PadecimientoActualProps) => {
+const familiares = ["Padre", "Madre", "Abuelo Paterno", "Abuela Paterna", "Abuelo Materno", "Abuela Materna"];
+const condiciones = ["Diabetes Mellitus", "Hipertensión Arterial", "Cáncer", "Otras"];
+
+interface Familiar extends OriginalFamiliar {
+  vivoSano: boolean;
+}
+
+const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCondicionChange }: AntecedentesHeredoFamiliaresProps) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
-  const [showRedaccion, setShowRedaccion] = useState(false);
   const [redaccionIA, setRedaccionIA] = useState("");
   const redaccionRef = useRef(null);
 
-  const handleMinimize = () => {
-    setIsMinimized(!isMinimized);
-    setIsMaximized(false);
-  };
-
-  const handleMaximize = () => {
-    setIsMaximized(!isMaximized);
-    setIsMinimized(false);
-  };
-
-  const handleClose = () => {
-    setIsMinimized(false);
-    setIsMaximized(false);
-  };
+  const handleMinimize = () => setIsMinimized(!isMinimized);
+  const handleMaximize = () => setIsMaximized(!isMaximized);
+  const handleClose = () => setIsMinimized(false);
 
   const generarRedaccionIA = () => {
-    // Simulación de generación de texto IA
-    const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}.
-      Historia del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}.
-      Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
+    let textoGenerado = "Antecedentes Heredo Familiares: ";
+    familiares.forEach((familiar) => {
+      const familiarKey = familiar.replace(" ", "").toLowerCase();
+      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+      textoGenerado += `${familiar}: ${familiarData.finado ? "Finado" : familiarData.vivoSano ? "Vivo y sano" : "Con condiciones"}. `;
+    });
     setRedaccionIA(textoGenerado);
-    setShowRedaccion(true);
-
-    // Desplazamiento automático a la sección de Redacción IA
-    setTimeout(() => {
-      redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Ajuste adicional hacia arriba
-      setTimeout(() => {
-        window.scrollBy(0, -200); // Ajusta el valor negativo para desplazarte más hacia arriba
-      }, 300); // Ajusta el tiempo para que coincida con la duración del desplazamiento suave
-    }, 100);
   };
 
   const limpiarFormulario = () => {
-    // Reset form fields
-    handlePadecimientoChange("motivoConsulta", "");
-    handlePadecimientoChange("historiaPadecimiento", "");
-    handleDolorChange("fechaInicio", "");
-    handleDolorChange("condicionAparicion", "");
-    handleDolorChange("frecuencia", "");
-    handleDolorChange("caracter", "");
-    handleDolorChange("intensidad", "");
-    handleDolorChange("localizacion", { tipo: "", descripcion: "" }); // Pasar un objeto
-    handleDolorChange("atenuacion", "");
-    handleSinSintomasChange(false);
+    familiares.forEach((familiar) => {
+      const familiarKey = familiar.replace(" ", "").toLowerCase();
+      handleFamiliarChange(familiarKey, "finado", false);
+      handleFamiliarChange(familiarKey, "vivoSano", false);
+      handleFamiliarChange(familiarKey, "causaMuerte", "");
+      condiciones.forEach((condicion) => handleCondicionChange(familiarKey, condicion.replace(" ", "").toLowerCase(), false));
+    });
     setRedaccionIA("");
-    setShowRedaccion(false);
   };
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          {/* Botón tipo slider */}
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button
-                onClick={() => setShowRedaccion(false)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Formulario
-              </button>
-              <button
-                onClick={() => setShowRedaccion(true)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
-
+      <Card className="p-6 space-y-6 shadow-lg rounded-lg">
+        <div className="flex items-center justify-between pb-4 border-b">
+          <h3 className="text-2xl font-bold text-gray-800">II. Antecedentes Heredo Familiares</h3>
           <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
-              <Minus className="w-4 h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" aria-label={isMaximized ? "Restaurar" : "Maximizar"}>
-              <Maximize2 className="w-4 h-4" />
-            </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" aria-label="Cerrar">
-              <X className="w-4 h-4" />
-            </button>
+            <Button onClick={handleMinimize} variant="ghost"><Minus className="w-4 h-4" /></Button>
+            <Button onClick={handleMaximize} variant="ghost"><Maximize2 className="w-4 h-4" /></Button>
+            <Button onClick={handleClose} variant="ghost"><X className="w-4 h-4" /></Button>
           </div>
         </div>
-
-        <div className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">I.</span> PADECIMIENTO ACTUAL
-          </h2>
-        </div>
-
-        {/* Formulario o Redacción IA */}
-        {showRedaccion ? (
-          <div ref={redaccionRef} className="p-6">
-            <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
-            <Textarea
-              value={redaccionIA}
-              readOnly
-              className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
-            />
-          </div>
-        ) : (
-          <div className="p-6">
-            <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
-            <div className="flex items-start gap-4">
-              <Textarea value={formData.padecimientoActual.motivoConsulta} onChange={(e) => handlePadecimientoChange("motivoConsulta", e.target.value)} placeholder="Describa el motivo fundamental por el que acude el paciente" className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y" />
-              <div className="mt-2">
-                <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", text)} />
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!isMinimized && !showRedaccion && (
-          <div className="p-6 space-y-8">
-            <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={handleSinSintomasChange} />
-            {!formData.padecimientoActual.sinSintomas && (
-              <div className="space-y-6">
-                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium mb-6">En caso de dolor</h3>
-                  <CaracteristicasDolor dolor={formData.padecimientoActual.dolor} onDolorChange={handleDolorChange} />
+        {!isMinimized && (
+          <>
+            {familiares.map((familiar) => {
+              const familiarKey = familiar.replace(" ", "").toLowerCase();
+              const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+              return (
+                <div key={familiar} className="flex flex-col gap-4 border-b pb-6">
+                  <span className="font-semibold text-gray-700">{familiar}</span>
+                  <div className="flex gap-4">
+                    <Button onClick={() => handleFamiliarChange(familiarKey, 'finado', !familiarData.finado)}>{familiarData.finado ? "Finado" : "Marcar como Finado"}</Button>
+                    <Button onClick={() => handleFamiliarChange(familiarKey, 'vivoSano', !familiarData.vivoSano)}>{familiarData.vivoSano ? "Vivo y sano" : "Marcar como Vivo y Sano"}</Button>
+                  </div>
+                  {familiarData.finado && (
+                    <Input value={familiarData.causaMuerte} onChange={(e) => handleFamiliarChange(familiarKey, 'causaMuerte', e.target.value)} placeholder="Causa de fallecimiento" />
+                  )}
                 </div>
+              );
+            })}
+            <div className="flex justify-center gap-4 pt-4">
+              <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white">Generar Redacción IA</Button>
+              <Button onClick={limpiarFormulario} className="bg-red-500 text-white"><Eraser className="w-4 h-4" /> Limpiar</Button>
+            </div>
+            {redaccionIA && (
+              <div ref={redaccionRef} className="p-4 mt-4 bg-gray-50 border rounded-md">
+                <h4 className="text-lg font-medium">Redacción IA:</h4>
+                <p>{redaccionIA}</p>
               </div>
             )}
-          </div>
-        )}
-
-        {/* Botón Generar Redacción IA y Limpiar Formulario */}
-        {!showRedaccion && (
-          <div className="p-6 flex justify-center gap-4">
-            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
-              <span>Generar Redacción IA</span>
-            </Button>
-            <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
-              <Eraser className="w-4 h-4" />
-              <span>Limpiar Formulario</span>
-            </Button>
-          </div>
+          </>
         )}
       </Card>
     </div>
   );
 };
 
-export default PadecimientoActual;
+export default AntecedentesHeredoFamiliares;
