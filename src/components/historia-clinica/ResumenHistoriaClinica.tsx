@@ -12,10 +12,14 @@ const ResumenHistoriaClinica = ({ resumen }: ResumenHistoriaClinicaProps) => {
 
   // Function to format the text with red color for the note
   const formatText = (text: string) => {
-    const parts = text.split(/(Nota: En la familia predominan los antecedentes de:.*\.)/);
+    const parts = text.split(/(Nota: En la familia predominan los antecedentes de:.*?\.)/);
     return parts.map((part, index) => {
       if (part.startsWith('Nota: En la familia predominan los antecedentes de:')) {
-        return <span key={index} className="text-[#ea384c]">{part}</span>;
+        return (
+          <span key={index} style={{ color: '#ea384c' }} className="font-medium">
+            {part}
+          </span>
+        );
       }
       return part;
     });
@@ -28,9 +32,11 @@ const ResumenHistoriaClinica = ({ resumen }: ResumenHistoriaClinicaProps) => {
           Historia Clínica Generada con IA
         </h2>
         <div className="prose dark:prose-invert max-w-none">
-          <pre className={`whitespace-pre-line ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} p-6 rounded-lg text-sm transition-colors duration-200 text-justify`}>
-            {formatText(resumen)}
-          </pre>
+          <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} p-6 rounded-lg text-sm transition-colors duration-200`}>
+            <p className="text-justify whitespace-pre-line">
+              {formatText(resumen)}
+            </p>
+          </div>
         </div>
       </div>
     </div>
