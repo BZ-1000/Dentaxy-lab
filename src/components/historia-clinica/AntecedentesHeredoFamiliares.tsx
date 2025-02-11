@@ -240,7 +240,6 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .filter(Boolean)
       .join(", ");
 
-    // 🔴 Agregar color rojo a las enfermedades repetidas en la redacción
   enfermedadesRepetidas = enfermedadesRepetidas.split(", ").map(enf => `<span style="color: red; font-weight: bold;">${enf}</span>`).join(", ");
 
   const redaccionFinal = `
