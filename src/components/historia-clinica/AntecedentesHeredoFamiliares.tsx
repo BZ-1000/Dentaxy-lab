@@ -369,9 +369,9 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
               style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
             >
               {displayedText}
-              {displayedText.includes('\n\n') && (
+              {enfermedadesRepetidas && (
                 <span className="highlight-note">
-                  Nota: En la familia predominan los antecedentes de: {enfermedadesRepetidas}.
+                  \n\nNota: En la familia predominan los antecedentes de: {enfermedadesRepetidas}.
                 </span>
               )}
             </div>
