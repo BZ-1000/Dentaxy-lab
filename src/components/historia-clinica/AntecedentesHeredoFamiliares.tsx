@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser, Copy } from "lucide-react";
+import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
 
 interface AntecedentesHeredoFamiliaresProps {
@@ -152,6 +152,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
   const [redaccionIA, setRedaccionIA] = useState("");
+  const [copied, setCopied] = useState(false);
   const redaccionRef = useRef(null);
 
   const handleMinimize = () => {
@@ -194,12 +195,18 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         .join(", ");
 
       // Construir la redacción para cada familiar
+      const esFemenino = familiar.includes("Madre") || familiar.includes("Abuela");
+      const articuloFemenino = esFemenino ? "La " : "El ";
+      const verboSerFemenino = esFemenino ? "está viva" : "está vivo";
+      const verboEstarFemenino = esFemenino ? "finada" : "finado";
+      const ySanoFemenino = esFemenino ? "y sana" : "y sano";
+
       if (familiarData.vivoSano) {
-        return `${familiar} está vivo y sano.`;
+        return `${articuloFemenino}${familiar} ${verboSerFemenino} ${ySanoFemenino}.`;
       } else if (familiarData.finado) {
-        return `${familiar} finado por ${familiarData.causaMuerte}.`;
+        return `${articuloFemenino}${familiar} ${verboEstarFemenino} por ${familiarData.causaMuerte}.`;
       } else {
-        return `${familiar} está vivo con diagnóstico de ${condicionesText}.`;
+        return `${articuloFemenino}${familiar} ${verboSerFemenino} con diagnóstico de ${condicionesText}.`;
       }
     }).join(" ");
 
@@ -215,7 +222,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       });
     });
 
-    const alertaEnfermedades = Array.from(enfermedadesRepetidas)
+    const notaEnfermedades = Array.from(enfermedadesRepetidas)
       .map(key => {
         switch (key) {
           case "diabetesMellitus":
@@ -232,8 +239,8 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .join(", ");
 
     const redaccionFinal = `
-      ${textoGenerado}
-      \n\nAlerta: En la familia predominan los antecedentes de: ${alertaEnfermedades}.
+      ${textoGenerado.trim()}
+      \n\nNota: En la familia predominan los antecedentes de: ${notaEnfermedades}.
     `;
 
     setRedaccionIA(redaccionFinal);
@@ -260,6 +267,14 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     });
     setRedaccionIA("");
     setShowRedaccion(false);
+  };
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(redaccionIA);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
@@ -330,14 +345,21 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             <Textarea
               value={redaccionIA}
               readOnly
-              className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
+              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
+              style={{ height: 'auto', minHeight: '200px' }}
             />
             <Button
-              onClick={() => navigator.clipboard.writeText(redaccionIA)}
-              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2"
+              onClick={handleCopy}
+              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
             >
               <Copy className="w-4 h-4" />
               <span>Copiar Redacción</span>
+              {copied && (
+                <div className="absolute -top-8 -left-24 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Copiado</span>
+                </div>
+              )}
             </Button>
           </div>
         ) : (
