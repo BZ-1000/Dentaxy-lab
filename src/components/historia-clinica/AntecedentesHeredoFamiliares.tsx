@@ -359,7 +359,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         {showRedaccion ? (
           <div ref={redaccionRef} className="p-6">
             <TextShimmer
-              className='font-mono text-xl font-medium [--base-color:theme(colors.blue.600)] [--base-gradient-color:theme(colors.blue.200)] dark:[--base-color:theme(colors.blue.700)] dark:[--base-gradient-color:theme(colors.blue.400)]'
+              className='font-mono text-sm font-medium text-black [--base-gradient-color:theme(colors.gray.200)] dark:[--base-gradient-color:theme(colors.gray.600)]'
               duration={1.2}
             >
               Redacción IA:
