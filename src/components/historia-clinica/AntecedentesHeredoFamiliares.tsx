@@ -242,7 +242,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .filter(Boolean)
       .join(", ");
 
-    const redaccionFinal = `${textoGenerado.trim()}\n\n<span class="highlight-note">Nota: En la familia predominan los antecedentes de:</span> ${enfermedadesRepetidas}.
+    const redaccionFinal = `${textoGenerado.trim()}\n\n<span class="highlight-note">Nota: En la familia predominan los antecedentes de:${enfermedadesRepetidas}.</span> 
     `;
     setRedaccionIA(redaccionFinal);
     setDisplayedText(""); // Reset the displayed text
@@ -358,12 +358,35 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
         {showRedaccion ? (
           <div ref={redaccionRef} className="p-6">
-            <TextShimmer
-              className='font-mono text-sm font-medium text-gray-800'
-              duration={1.2}
-            >
-              Redacción IA:
-            </TextShimmer>
+            <label
+            className="font-mono text-sm font-medium text-gray-800"
+            style={{
+              fontFamily: "'Courier New', Courier, monospace",
+              fontSize: '14px',
+              fontWeight: 500,
+              color: 'transparent',
+              background: 'linear-gradient(90deg, #fff 0%, #fff 50%, #000 50%, #000 100%)',
+              backgroundSize: '200% 100%',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              animation: 'gradientAnimation 3s linear infinite',
+            }}
+          >
+            Redacción IA...
+            <style>{`
+              @keyframes gradientAnimation {
+                0% {
+                  background-position: 0% 50%;
+                }
+                50% {
+                  background-position: 100% 50%;
+                }
+                100% {
+                  background-position: 0% 50%;
+                }
+              }
+            `}</style>
+          </label>
             <div
               className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
               style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
