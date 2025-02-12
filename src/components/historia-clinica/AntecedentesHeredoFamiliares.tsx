@@ -289,7 +289,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       } else {
         clearInterval(interval);
       }
-    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
+    }, 10); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
 
     return () => clearInterval(interval);
   }, [redaccionIA]);
