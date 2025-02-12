@@ -359,29 +359,9 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
           <div ref={redaccionRef} className="p-6">
             <label
             className="font-mono text-sm font-medium text-gray-800"
-            style={{
-              fontFamily: "'Courier New', Courier, monospace",
-              fontSize: '15px',
-              fontWeight: 500,
-              color: 'transparent',
-              background: 'linear-gradient(90deg, #fff, #000, #fff)',
-              backgroundSize: '200% 100%',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              animation: 'gradientAnimation 5s linear infinite',
-            }}
+          
           >
-            Redacción IA...
-            <style>{`
-              @keyframes gradientAnimation {
-                0% {
-                  background-position: 200% 0;
-                }
-                100% {
-                  background-position: -200% 0;
-                }
-              }
-            `}</style>
+            Redacción IA... 
           </label>
             <div className="progress-bar-container" style={{ width: '100%', backgroundColor: '#e0e0e0', borderRadius: '5px', overflow: 'hidden', marginBottom: '1rem' }}>
               <div className="progress-bar" style={{ height: '8px', backgroundColor: '#00ffff', transition: 'width 0.1s ease-in-out', width: `${progress}%` }}></div>
