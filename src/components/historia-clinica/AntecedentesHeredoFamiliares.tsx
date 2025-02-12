@@ -376,7 +376,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
                 style={{
                   height: '8px',
                   backgroundColor: '#34c759',
-                  transition: 'width 0.3s ease-in-out',
+                  transition: 'width 0.015s ease-in-out',
                   width: `${progress}%`,
                   borderRadius: '12px',
                 }}
