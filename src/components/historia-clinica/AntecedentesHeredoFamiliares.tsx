@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
 import './AntecedentesHeredoFamiliares.css';
+import { TextShimmer } from '@/components/ui/text-shimmer';
 
 interface AntecedentesHeredoFamiliaresProps {
   formData: FormDataState;
@@ -356,30 +357,19 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         </div>
 
         {showRedaccion ? (
-          <div ref={redaccionRef} className="p-6">
-            <Label
-              className="text-gray-700 dark:text-gray-300"
-              style={{
-                fontFamily: "'Orbitron', sans-serif",
-                color: "#00ffff",
-                textShadow: "0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #00ffff",
-                fontSize: "1.5rem",
-                marginBottom: "1rem",
-                textAlign: "center",
-                animation: "glow 1.5s ease-in-out infinite alternate",
-              }}
-            >
-              Redacción IA:
-            </Label>
-            <div className="progress-bar-container" style={{ width: '100%', backgroundColor: '#e0e0e0', borderRadius: '5px', overflow: 'hidden', marginBottom: '1rem' }}>
-              <div className="progress-bar" style={{ height: '8px', backgroundColor: '#00ffff', transition: 'width 0.1s ease-in-out', width: `${progress}%` }}></div>
-            </div>
-            <div
-              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
-              style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-            >
-              {displayedText}
-            </div>
+  <div ref={redaccionRef} className="p-6">
+    <TextShimmer
+      className='font-mono text-xl font-medium [--base-color:theme(colors.blue.600)] [--base-gradient-color:theme(colors.blue.200)] dark:[--base-color:theme(colors.blue.700)] dark:[--base-gradient-color:theme(colors.blue.400)]'
+      duration={1.2}
+    >
+      Redacción IA:
+    </TextShimmer>
+    <div
+      className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
+      style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+    >
+      {displayedText}
+    </div>
 
             <Button
               onClick={handleCopy}
