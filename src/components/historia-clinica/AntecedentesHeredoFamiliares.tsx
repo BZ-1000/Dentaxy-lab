@@ -357,20 +357,19 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         </div>
 
         {showRedaccion ? (
-  <div ref={redaccionRef} className="p-6">
-    <TextShimmer
-      className='font-mono text-xl font-medium [--base-color:theme(colors.blue.600)] [--base-gradient-color:theme(colors.blue.200)] dark:[--base-color:theme(colors.blue.700)] dark:[--base-gradient-color:theme(colors.blue.400)]'
-      duration={1.2}
-    >
-      Redacción IA:
-    </TextShimmer>
-    <div
-      className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
-      style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-    >
-      {displayedText}
-    </div>
-
+          <div ref={redaccionRef} className="p-6">
+            <TextShimmer
+              className='font-mono text-xl font-medium [--base-color:theme(colors.blue.600)] [--base-gradient-color:theme(colors.blue.200)] dark:[--base-color:theme(colors.blue.700)] dark:[--base-gradient-color:theme(colors.blue.400)]'
+              duration={1.2}
+            >
+              Redacción IA:
+            </TextShimmer>
+            <div
+              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
+              style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+            >
+              {displayedText}
+            </div>
             <Button
               onClick={handleCopy}
               className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
