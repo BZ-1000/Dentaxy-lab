@@ -242,8 +242,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .filter(Boolean)
       .join(", ");
 
-    const redaccionFinal = `${textoGenerado.trim()}\n\n<span class="highlight-note">Nota: En la familia predominan los antecedentes de:</span> ${enfermedadesRepetidas}.
-    `;
+    const redaccionFinal = `${textoGenerado.trim()}\n\nNota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.`;
     setRedaccionIA(redaccionFinal);
     setDisplayedText(""); // Reset the displayed text
     setShowRedaccion(true);
@@ -359,7 +358,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         {showRedaccion ? (
           <div ref={redaccionRef} className="p-6">
             <TextShimmer
-              className='font-mono text-sm font-medium text-gray-800'
+              className='font-mono text-sm font-medium [--base-color:theme(colors.gray.800)] [--base-gradient-color:theme(colors.gray.600)]'
               duration={1.2}
             >
               Redacción IA:
@@ -367,8 +366,20 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             <div
               className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
               style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-              dangerouslySetInnerHTML={{ __html: displayedText }}
-            />
+            >
+              {displayedText.split('\n\n').map((paragraph, index) => {
+                if (index === displayedText.split('\n\n').length - 1 && paragraph.startsWith('Nota:')) {
+                  const [nota, enfermedades] = paragraph.split(': ');
+                  return (
+                    <p key={index}>
+                      <span className="highlight-note">Nota: En la familia predominan los antecedentes de:</span>
+                      <span className="highlight-note"> {enfermedades}</span>
+                    </p>
+                  );
+                }
+                return <p key={index}>{paragraph}</p>;
+              })}
+            </div>
             <Button
               onClick={handleCopy}
               className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
