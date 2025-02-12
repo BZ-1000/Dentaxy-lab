@@ -183,11 +183,11 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         .map(([key, value]) => {
           switch (key) {
             case "diabetesMellitus":
-              return "diabetes mellitus";
+              return "Diabetes mellitus";
             case "hipertensionArterial":
-              return "hipertensión arterial";
+              return "Hipertensión arterial";
             case "cancer":
-              return "cáncer";
+              return "Cáncer";
             case "otras":
               return value; // Asume que 'otras' contiene texto específico
             default:
@@ -229,11 +229,11 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .map(([key]) => {
         switch (key) {
           case "diabetesMellitus":
-            return "diabetes mellitus";
+            return "Diabetes mellitus";
           case "hipertensionArterial":
-            return "hipertensión arterial";
+            return "Hipertensión arterial";
           case "cancer":
-            return "cáncer";
+            return "Cáncer";
           default:
             return "";
         }
@@ -357,20 +357,32 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
         {showRedaccion ? (
           <div ref={redaccionRef} className="p-6">
-            <Label
-              className="text-gray-700 dark:text-gray-300"
-              style={{
-                fontFamily: "'Orbitron', sans-serif",
-                color: "#00ffff",
-                textShadow: "0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #00ffff",
-                fontSize: "1.5rem",
-                marginBottom: "1rem",
-                textAlign: "center",
-                animation: "glow 1.5s ease-in-out infinite alternate",
-              }}
-            >
-              Redacción IA:
-            </Label>
+            <label
+            className="font-mono text-sm font-medium text-gray-800"
+            style={{
+              fontFamily: "'Courier New', Courier, monospace",
+              fontSize: '15px',
+              fontWeight: 500,
+              color: 'transparent',
+              background: 'linear-gradient(90deg, #fff, #000, #fff)',
+              backgroundSize: '200% 100%',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              animation: 'gradientAnimation 5s linear infinite',
+            }}
+          >
+            Redacción IA...
+            <style>{`
+              @keyframes gradientAnimation {
+                0% {
+                  background-position: 200% 0;
+                }
+                100% {
+                  background-position: -200% 0;
+                }
+              }
+            `}</style>
+          </label>
             <div className="progress-bar-container" style={{ width: '100%', backgroundColor: '#e0e0e0', borderRadius: '5px', overflow: 'hidden', marginBottom: '1rem' }}>
               <div className="progress-bar" style={{ height: '8px', backgroundColor: '#00ffff', transition: 'width 0.1s ease-in-out', width: `${progress}%` }}></div>
             </div>
