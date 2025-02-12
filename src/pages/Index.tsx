@@ -1,8 +1,6 @@
-
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
-import { TextShimmer } from "@/components/ui/text-shimmer";
 import { useEffect, useState } from "react";
 
 const Index = () => {
@@ -53,12 +51,9 @@ const Index = () => {
             </div>
 
             <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
-              <TextShimmer
-                duration={1.2}
-                className='text-xl font-medium [--base-color:theme(colors.blue.600)] [--base-gradient-color:theme(colors.blue.200)] dark:[--base-color:theme(colors.blue.700)] dark:[--base-gradient-color:theme(colors.blue.400)]'
-              >
-                Generador de Historias Clínicas IA
-              </TextShimmer>
+              Generador de<br />
+              Historias Clínicas<br />
+              <span className="text-blue-300">IA</span>
             </h1>
             
             <Typewriter
