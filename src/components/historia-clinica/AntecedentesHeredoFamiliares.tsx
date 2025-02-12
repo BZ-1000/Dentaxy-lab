@@ -57,9 +57,9 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
 
   const getCondicionKey = (condicion: string) => {
     const mapping: { [key: string]: string } = {
-      "Diabetes Mellitus": "DiabetesMellitus",
-      "Hipertensión Arterial": "HipertensionArterial",
-      "Cáncer": "Cancer",
+      "Diabetes Mellitus": "diabetesMellitus",
+      "Hipertensión Arterial": "hipertensionArterial",
+      "Cáncer": "cancer",
       "Otras": "otras"
     };
     return mapping[condicion];
@@ -183,12 +183,12 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         .filter(([key, value]) => value)
         .map(([key, value]) => {
           switch (key) {
-            case "DiabetesMellitus":
-              return "Diabetes mellitus";
-            case "Hipertensión Arterial":
-              return "Hipertensión arterial";
-            case "Cancer":
-              return "Cáncer";
+            case "diabetesMellitus":
+              return "diabetes mellitus";
+            case "hipertensión Arterial":
+              return "hipertensión arterial";
+            case "cancer":
+              return "cáncer";
             case "otras":
               return value; // Asume que 'otras' contiene texto específico
             default:
@@ -230,11 +230,11 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .map(([key]) => {
         switch (key) {
           case "diabetesMellitus":
-            return "Diabetes mellitus";
+            return "diabetes mellitus";
           case "hipertensión Arterial":
-            return "Hipertensión arterial";
+            return "hipertensión arterial";
           case "cancer":
-            return "Cáncer";
+            return "cáncer";
           default:
             return "";
         }
@@ -242,8 +242,8 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .filter(Boolean)
       .join(", ");
 
-      const redaccionFinal = `${textoGenerado.trim()}\n\nNota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}`; 
-
+    const redaccionFinal = `${textoGenerado.trim()}\n\n<span class="highlight-note">Nota: En la familia predominan los antecedentes de:</span> ${enfermedadesRepetidas}.
+    `;
     setRedaccionIA(redaccionFinal);
     setDisplayedText(""); // Reset the displayed text
     setShowRedaccion(true);
@@ -289,7 +289,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       } else {
         clearInterval(interval);
       }
-    }, 10); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
+    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
 
     return () => clearInterval(interval);
   }, [redaccionIA]);
@@ -308,9 +308,9 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
   const getCondicionKey = (condicion: string) => {
     const mapping: { [key: string]: string } = {
-      "Diabetes Mellitus": "DiabetesMellitus",
-      "Hipertensión Arterial": "HipertensionArterial",
-      "Cáncer": "Cancer",
+      "Diabetes Mellitus": "diabetesMellitus",
+      "Hipertensión Arterial": "hipertensionArterial",
+      "Cáncer": "cancer",
       "Otras": "otras"
     };
     return mapping[condicion];
@@ -358,32 +358,12 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
         {showRedaccion ? (
           <div ref={redaccionRef} className="p-6">
-            <label
-            className="font-mono text-sm font-medium text-gray-800"
-            style={{
-              fontFamily: "'Courier New', Courier, monospace",
-              fontSize: '16px',
-              fontWeight: 500,
-              color: 'transparent',
-              background: 'linear-gradient(90deg, #fff, #000, #fff)',
-              backgroundSize: '200% 100%',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              animation: 'gradientAnimation 5s linear infinite',
-            }}
-          >
-            Redacción IA...
-            <style>{`
-              @keyframes gradientAnimation {
-                0% {
-                  background-position: 200% 0;
-                }
-                100% {
-                  background-position: -200% 0;
-                }
-              }
-            `}</style>
-          </label>
+            <TextShimmer
+              className='font-mono text-sm font-medium text-gray-800'
+              duration={1.2}
+            >
+              Redacción IA:
+            </TextShimmer>
             <div
               className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
               style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
