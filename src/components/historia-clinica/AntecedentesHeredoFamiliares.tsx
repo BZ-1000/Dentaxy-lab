@@ -241,8 +241,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .filter(Boolean)
       .join(", ");
 
-    const redaccionFinal = `
-      ${textoGenerado.trim()}\n\nNota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
+    const redaccionFinal = `${textoGenerado.trim()}\n\nNota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
     `;
     setRedaccionIA(redaccionFinal);
     setDisplayedText(""); // Reset the displayed text
