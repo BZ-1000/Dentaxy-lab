@@ -137,11 +137,11 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
       )}
       {familiarData.condiciones.otras && !familiarData.finado && !familiarData.vivoSano && (
         <Input
-          value={familiarData.condiciones.otras as string}
-          onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
-          placeholder="Especifique otras condiciones"
-          className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
-        />
+        value={typeof familiarData.condiciones.otras === 'string' ? familiarData.condiciones.otras : ''}
+        onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
+        placeholder="Especifique otras condiciones"
+        className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
+      />      
       )}
     </div>
   );
@@ -289,7 +289,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       } else {
         clearInterval(interval);
       }
-    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
+    }, 17); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
 
     return () => clearInterval(interval);
   }, [redaccionIA]);
