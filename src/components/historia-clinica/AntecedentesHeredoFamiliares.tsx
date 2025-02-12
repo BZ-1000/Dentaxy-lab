@@ -360,6 +360,9 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             <label className="font-mono text-sm font-medium text-gray-800">
               Redacción IA...
             </label>
+            <label className="font-mono text-sm font-medium text-gray-800">
+              Redacción IA...
+            </label>
             <div
               className="progress-bar-container"
               style={{
