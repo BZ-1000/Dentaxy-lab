@@ -142,8 +142,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
         onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
         placeholder="Especifique otras condiciones"
         className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
-      />      
-      )}
+      />       )}
     </div>
   );
 };
@@ -155,6 +154,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   const [redaccionIA, setRedaccionIA] = useState("");
   const [copied, setCopied] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
+  const [progress, setProgress] = useState(0);
   const redaccionRef = useRef(null);
 
   const handleMinimize = () => {
@@ -283,6 +283,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     const interval = setInterval(() => {
       if (index < redaccionIA.length) {
         setDisplayedText(redaccionIA.substring(0, index + 1));
+        setProgress((index / redaccionIA.length) * 100);
         index++;
       } else {
         clearInterval(interval);
@@ -356,13 +357,29 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
         {showRedaccion ? (
           <div ref={redaccionRef} className="p-6">
-            <Label className="text-gray-700 dark:text-gray-300">Redacciónes IA:</Label>
+            <Label
+              className="text-gray-700 dark:text-gray-300"
+              style={{
+                fontFamily: "'Orbitron', sans-serif",
+                color: "#00ffff",
+                textShadow: "0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #00ffff",
+                fontSize: "1.5rem",
+                marginBottom: "1rem",
+                textAlign: "center",
+                animation: "glow 1.5s ease-in-out infinite alternate",
+              }}
+            >
+              Redacción IA:
+            </Label>
+            <div className="progress-bar-container" style={{ width: '100%', backgroundColor: '#e0e0e0', borderRadius: '5px', overflow: 'hidden', marginBottom: '1rem' }}>
+              <div className="progress-bar" style={{ height: '8px', backgroundColor: '#00ffff', transition: 'width 0.1s ease-in-out', width: `${progress}%` }}></div>
+            </div>
             <div
-  className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
-  style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
->
-  {displayedText}
-</div>
+              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
+              style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+            >
+              {displayedText}
+            </div>
 
             <Button
               onClick={handleCopy}
