@@ -184,11 +184,11 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         .map(([key, value]) => {
           switch (key) {
             case "diabetesMellitus":
-              return "diabetes mellitus";
+              return "Diabetes mellitus";
             case "hipertensión Arterial":
-              return "hipertensión arterial";
+              return "Hipertensión arterial";
             case "cancer":
-              return "cáncer";
+              return "Cáncer";
             case "otras":
               return value; // Asume que 'otras' contiene texto específico
             default:
@@ -242,7 +242,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .filter(Boolean)
       .join(", ");
 
-    const redaccionFinal = `${textoGenerado.trim()}\n\n<span class="highlight-note">Nota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas} </span> 
+    const redaccionFinal = `${textoGenerado.trim()}\n\n<span class="highlight-note">Nota: En la familia predominan los antecedentes de:</span> ${enfermedadesRepetidas} 
     `;
     setRedaccionIA(redaccionFinal);
     setDisplayedText(""); // Reset the displayed text
@@ -365,7 +365,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
               fontSize: '14px',
               fontWeight: 500,
               color: 'transparent',
-              background: 'linear-gradient(90deg, #fff 20%, #000 40%, #000 60%, #fff 80%)',
+              background: 'linear-gradient(90deg, #fff, #000, #fff)',
               backgroundSize: '200% 100%',
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
@@ -376,10 +376,10 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             <style>{`
               @keyframes gradientAnimation {
                 0% {
-                  background-position: -100% 0;
+                  background-position: 200% 0;
                 }
                 100% {
-                  background-position: 100% 0;
+                  background-position: -200% 0;
                 }
               }
             `}</style>
