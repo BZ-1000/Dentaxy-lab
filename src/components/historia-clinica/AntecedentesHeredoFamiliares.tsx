@@ -8,7 +8,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
-import './AntecedentesHeredoFamiliares.css'; // Importación del archivo CSS
 
 interface AntecedentesHeredoFamiliaresProps {
   formData: FormDataState;
@@ -138,11 +137,11 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
       )}
       {familiarData.condiciones.otras && !familiarData.finado && !familiarData.vivoSano && (
         <Input
-          value={typeof familiarData.condiciones.otras === 'string' ? familiarData.condiciones.otras : ''}
-          onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
-          placeholder="Especifique otras condiciones"
-          className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
-        />
+        value={typeof familiarData.condiciones.otras === 'string' ? familiarData.condiciones.otras : ''}
+        onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
+        placeholder="Especifique otras condiciones"
+        className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
+      />      
       )}
     </div>
   );
@@ -155,7 +154,6 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   const [redaccionIA, setRedaccionIA] = useState("");
   const [copied, setCopied] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
-  const [enfermedadesRepetidas, setEnfermedadesRepetidas] = useState(""); // Estado para almacenar enfermedades repetidas
   const redaccionRef = useRef(null);
 
   const handleMinimize = () => {
@@ -225,7 +223,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       });
     });
 
-    const enfermedadesRepetidasText = Object.entries(enfermedadesContador)
+    const enfermedadesRepetidas = Object.entries(enfermedadesContador)
       .filter(([key, value]) => value >= 2)
       .map(([key]) => {
         switch (key) {
@@ -242,10 +240,9 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .filter(Boolean)
       .join(", ");
 
-    setEnfermedadesRepetidas(enfermedadesRepetidasText); // Actualizar el estado con enfermedades repetidas
-
     const redaccionFinal = `
       ${textoGenerado.trim()}
+      \n\nNota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
     `;
 
     setRedaccionIA(redaccionFinal);
@@ -273,7 +270,6 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     });
     setRedaccionIA("");
     setShowRedaccion(false);
-    setEnfermedadesRepetidas(""); // Resetear el estado de enfermedades repetidas
   };
 
   const handleCopy = async () => {
@@ -293,7 +289,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       } else {
         clearInterval(interval);
       }
-    }, 20); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
+    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
 
     return () => clearInterval(interval);
   }, [redaccionIA]);
@@ -364,16 +360,11 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
           <div ref={redaccionRef} className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
             <div
-              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
-              style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', textAlign: 'justify' }}
+              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md"
+              style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
             >
               {displayedText}
             </div>
-            {enfermedadesRepetidas && (
-              <div className="mt-4 text-red-500 font-bold">
-                Nota: En la familia predominan los antecedentes de: {enfermedadesRepetidas}.
-              </div>
-            )}
             <Button
               onClick={handleCopy}
               className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
