@@ -1,9 +1,9 @@
-
 .justify-text {
-  text-align: justify;
-}
-
-.highlight-note {
-  color: #ea384c;
-  font-weight: bold;
-}
+    text-align: justify;
+  }
+  
+  .highlight-note {
+    color: red;
+    font-weight: bold;
+  }
+  
