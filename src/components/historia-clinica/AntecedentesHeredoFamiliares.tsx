@@ -57,9 +57,9 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
 
   const getCondicionKey = (condicion: string) => {
     const mapping: { [key: string]: string } = {
-      "Diabetes Mellitus": "diabetesMellitus",
-      "Hipertensión Arterial": "hipertensionArterial",
-      "Cáncer": "cancer",
+      "Diabetes Mellitus": "DiabetesMellitus",
+      "Hipertensión Arterial": "HipertensionArterial",
+      "Cáncer": "Cancer",
       "Otras": "otras"
     };
     return mapping[condicion];
@@ -183,11 +183,11 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         .filter(([key, value]) => value)
         .map(([key, value]) => {
           switch (key) {
-            case "diabetesMellitus":
+            case "DiabetesMellitus":
               return "Diabetes mellitus";
-            case "hipertensión Arterial":
+            case "Hipertensión Arterial":
               return "Hipertensión arterial";
-            case "cancer":
+            case "Cancer":
               return "Cáncer";
             case "otras":
               return value; // Asume que 'otras' contiene texto específico
@@ -242,7 +242,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       .filter(Boolean)
       .join(", ");
 
-    const redaccionFinal = `${textoGenerado.trim()}\n\n<span class="highlight-note">Nota: En la familia predominan los antecedentes de:</span> ${enfermedadesRepetidas} 
+    const redaccionFinal = `${textoGenerado.trim()}\n\n<span class="highlight-note">Nota: En la familia predominan los antecedentes de:</span><span class="highlight-note"> ${enfermedadesRepetidas}</span> 
     `;
     setRedaccionIA(redaccionFinal);
     setDisplayedText(""); // Reset the displayed text
@@ -308,9 +308,9 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
   const getCondicionKey = (condicion: string) => {
     const mapping: { [key: string]: string } = {
-      "Diabetes Mellitus": "diabetesMellitus",
-      "Hipertensión Arterial": "hipertensionArterial",
-      "Cáncer": "cancer",
+      "Diabetes Mellitus": "DiabetesMellitus",
+      "Hipertensión Arterial": "HipertensionArterial",
+      "Cáncer": "Cancer",
       "Otras": "otras"
     };
     return mapping[condicion];
@@ -376,10 +376,10 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             <style>{`
               @keyframes gradientAnimation {
                 0% {
-                  background-position: 200% 0;
+                  background-position: -100% 0;
                 }
                 100% {
-                  background-position: -200% 0;
+                  background-position: 100% 0;
                 }
               }
             `}</style>
