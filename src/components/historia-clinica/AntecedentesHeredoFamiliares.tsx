@@ -357,14 +357,30 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
         {showRedaccion ? (
           <div ref={redaccionRef} className="p-6">
-            <label
-            className="font-mono text-sm font-medium text-gray-800"
-          
-          >
-            Redacción IA... 
-          </label>
-            <div className="progress-bar-container" style={{ width: '100%', backgroundColor: '#e0e0e0', borderRadius: '5px', overflow: 'hidden', marginBottom: '1rem' }}>
-              <div className="progress-bar" style={{ height: '8px', backgroundColor: '#00ffff', transition: 'width 0.1s ease-in-out', width: `${progress}%` }}></div>
+            <label className="font-mono text-sm font-medium text-gray-800">
+              Redacción IA...
+            </label>
+            <div
+              className="progress-bar-container"
+              style={{
+                width: '100%',
+                backgroundColor: '#d3d3d3',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                marginBottom: '1rem',
+                boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <div
+                className="progress-bar"
+                style={{
+                  height: '8px',
+                  backgroundColor: '#34c759',
+                  transition: 'width 0.3s ease-in-out',
+                  width: `${progress}%`,
+                  borderRadius: '12px',
+                }}
+              ></div>
             </div>
             <div
               className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
@@ -380,7 +396,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
               <Copy className="w-4 h-4" />
               <span>Copiar Redacción</span>
               {copied && (
-                <div className="absolute -top-8 -left-24 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
+                <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
                   <CheckCircle className="w-4 h-4" />
                   <span>Copiado</span>
                 </div>
