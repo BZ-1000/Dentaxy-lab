@@ -129,7 +129,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
   };
 
   const removeDuplicates = (text) => {
-    // Eliminar duplicados de palabras consecutivas
+    // Eliminar palabras consecutivas repetidas
     return text.replace(/(\b\w+\b)(?=.*\b\1\b)/gi, '');
   };
 
