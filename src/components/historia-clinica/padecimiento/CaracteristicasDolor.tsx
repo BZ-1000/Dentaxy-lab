@@ -1,8 +1,9 @@
+
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
-import { Book, Tooth } from "lucide-react";
+import { Book, HeartPulse } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -43,12 +44,12 @@ const definicionesDolor = [
 ];
 
 const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProps) => {
-  const [showTooth, setShowTooth] = useState(false);
+  const [showIcon, setShowIcon] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setShowTooth(true);
-      setTimeout(() => setShowTooth(false), 2000); // El diente se muestra por 2 segundos
+      setShowIcon(true);
+      setTimeout(() => setShowIcon(false), 2000); // El icono se muestra por 2 segundos
     }, 10000); // Se repite cada 10 segundos
 
     return () => clearInterval(interval);
@@ -67,9 +68,9 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
             >
               <div className="relative">
                 <Book className="h-5 w-5 transition-transform duration-300 hover:scale-110" />
-                {showTooth && (
+                {showIcon && (
                   <div className="absolute -bottom-3 -right-3 animate-bounce">
-                    <Tooth className="h-4 w-4 text-primary" />
+                    <HeartPulse className="h-4 w-4 text-red-500" />
                   </div>
                 )}
               </div>
