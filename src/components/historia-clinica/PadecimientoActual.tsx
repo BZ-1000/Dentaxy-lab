@@ -65,7 +65,7 @@ const PadecimientoActual = ({
     setIsMaximized(false);
   };
 
-  const generarRedaccionIA = async () => {
+  const generarRedaccionIA = () => {
     const motivoConsulta = formData.padecimientoActual.motivoConsulta.trim();
     const sinSintomas = formData.padecimientoActual.sinSintomas;
 
@@ -87,20 +87,8 @@ Historia del padecimiento:
 El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta con una frecuencia ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece en relación con ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} influyen en su intensidad.`;
     }
 
-    // Llamada a la API para corregir el texto
-    const response = await fetch('https://api.apyhub.com/sharpapi/api/v1/content/proofread', {
-      method: 'POST',
-      headers: {
-        'apy-token': 'TU_TOKEN_AQUI', // Reemplaza con tu token
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        content: textoGenerado,
-      }),
-    });
-
-    const data = await response.json();
-    const textoCorregido = data.correctedContent;
+    // Revisar la redacción y corregir errores comunes
+    const textoCorregido = revisarRedaccion(textoGenerado);
 
     setRedaccionIA(textoCorregido);
     setShowRedaccion(true);
@@ -133,11 +121,24 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     return text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
   };
 
-  const removeDuplicatePhrases = (text) => {
-    // Eliminar frases repetidas
-    const sentences = text.split('.');
-    const uniqueSentences = Array.from(new Set(sentences));
-    return uniqueSentences.join('. ').trim();
+  const revisarRedaccion = (text) => {
+    let textoCorregido = removeDuplicates(text);
+
+    // Corregir mayúsculas al inicio de cada oración
+    textoCorregido = textoCorregido.replace(/(^\s*\w|[.!?]\s*\w)/g, (match) => match.toUpperCase());
+
+    // Añadir punto al final si falta
+    if (!/[.!?]$/.test(textoCorregido.trim())) {
+      textoCorregido += '.';
+    }
+
+    // Eliminar espacios extra entre palabras y después de signos de puntuación
+    textoCorregido = textoCorregido.replace(/\s+/g, ' ').replace(/([.!?,])(\S)/g, '$1 $2');
+
+    // Asegurar un espacio después de los signos de puntuación
+    textoCorregido = textoCorregido.replace(/([.!?,])(\S)/g, '$1 $2');
+
+    return textoCorregido;
   };
 
   const handleCopy = async () => {
@@ -253,12 +254,12 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
             <div className="flex items-start gap-4">
               <Textarea
                 value={formData.padecimientoActual.motivoConsulta}
-                onChange={(e) => handlePadecimientoChange("motivoConsulta", removeDuplicates(e.target.value))}
+                onChange={(e) => handlePadecimientoChange("motivoConsulta", revisarRedaccion(e.target.value))}
                 placeholder="Describa el motivo fundamental por el que acude el paciente"
                 className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
               />
               <div className="mt-2">
-                <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", removeDuplicates(text))} />
+                <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", revisarRedaccion(text))} />
               </div>
             </div>
           </div>
