@@ -67,7 +67,8 @@ const PadecimientoActual = ({
     const sinSintomas = formData.padecimientoActual.sinSintomas;
 
     if (sinSintomas) {
-      const textoGenerado = `El paciente acude a consulta principalmente por: ${motivoConsulta}.
+      const textoGenerado = `Motivo de consulta:
+El paciente acude a consulta por ${motivoConsulta}.
 
 Actualmente no refiere sintomatología.`;
       setRedaccionIA(textoGenerado);
@@ -75,19 +76,11 @@ Actualmente no refiere sintomatología.`;
       const historiaPadecimiento = formData.padecimientoActual.historiaPadecimiento.trim();
       const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion } = formData.padecimientoActual.dolor;
 
-      const textoGenerado = `El paciente acude a consulta principalmente por: ${motivoConsulta}.
+      const textoGenerado = `Motivo de consulta:
+El paciente acude a consulta por ${motivoConsulta}.
 
-Historia del padecimiento: ${historiaPadecimiento}.
-
-En cuanto al dolor, se reporta lo siguiente:
-- Fecha de inicio: ${fechaInicio || 'No especificada'}.
-- Condición de aparición: ${condicionAparicion || 'No especificada'}.
-- Frecuencia: ${frecuencia || 'No especificada'}.
-- Carácter del dolor: ${caracter || 'No especificado'}, con una intensidad ${intensidad || 'No especificada'}.
-- Localización: ${localizacion.descripcion || 'No especificada'}.
-- Factores de atenuación o agravamiento: ${atenuacion || 'No especificados'}.
-
-Se recomienda evaluar estos síntomas en el contexto clínico del paciente para determinar el curso de acción adecuado.`;
+Historia del padecimiento:
+El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta con una frecuencia ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece en relación con ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} influyen en su intensidad.`;
       setRedaccionIA(textoGenerado);
     }
 
