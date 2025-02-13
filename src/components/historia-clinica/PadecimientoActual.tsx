@@ -84,7 +84,7 @@ Actualmente no refiere sintomatología.`;
 El paciente acude a consulta por ${motivoConsulta}.
 
 Historia del padecimiento:
-El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece en relación con ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} influyen en su intensidad.`;
+El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece forma ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} `;
     }
 
     // Revisar la redacción y corregir errores comunes
@@ -134,8 +134,9 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     textoCorregido = textoCorregido.replace(/El paciente acude a consulta por porque/gi, 'El paciente acude a consulta por');
     textoCorregido = textoCorregido.replace(/El paciente acude a consulta por ya que/gi, 'El paciente acude a consulta por');
     textoCorregido = textoCorregido.replace(/El paciente acude a consulta por dado que/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por en razón de/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por a consecuencia de/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/Motivo de la consulta del paciente es por/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El motiva de la consulta es/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente ingresa a consulta por/gi, 'El paciente acude a consulta por');
 
     // Eliminar frases redundantes relacionadas a la localización
     textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en localizado en/gi, 'El paciente refiere la presencia de dolor localizado en');
