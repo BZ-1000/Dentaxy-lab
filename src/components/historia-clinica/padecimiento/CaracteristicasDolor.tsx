@@ -1,9 +1,8 @@
-
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
-import { Book, HeartPulse } from "lucide-react";
+import { Book, Lightbulb } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -49,8 +48,8 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
   useEffect(() => {
     const interval = setInterval(() => {
       setShowIcon(true);
-      setTimeout(() => setShowIcon(false), 2000); // El icono se muestra por 2 segundos
-    }, 10000); // Se repite cada 10 segundos
+      setTimeout(() => setShowIcon(false), 2000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, []);
@@ -70,7 +69,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
                 <Book className="h-5 w-5 transition-transform duration-300 hover:scale-110" />
                 {showIcon && (
                   <div className="absolute -bottom-3 -right-3 animate-bounce">
-                    <HeartPulse className="h-4 w-4 text-red-500" />
+                    <Lightbulb className="h-4 w-4 text-yellow-400" />
                   </div>
                 )}
               </div>
@@ -90,6 +89,16 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label>Fecha de inicio del dolor</Label>
+          <input
+            type="date"
+            value={dolor.fechaInicio}
+            onChange={(e) => onDolorChange('fechaInicio', e.target.value)}
+            className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm hover:shadow-md"
+          />
+        </div>
+
         <div>
           <Label>Condición de aparición</Label>
           <Select
