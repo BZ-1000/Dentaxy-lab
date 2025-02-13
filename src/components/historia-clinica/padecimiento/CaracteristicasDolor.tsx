@@ -1,11 +1,11 @@
-
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
-import { Book } from "lucide-react";
+import { Book, Tooth } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 
 interface CaracteristicasDolorProps {
   dolor: {
@@ -43,22 +43,44 @@ const definicionesDolor = [
 ];
 
 const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProps) => {
+  const [showTooth, setShowTooth] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowTooth(true);
+      setTimeout(() => setShowTooth(false), 2000); // El diente se muestra por 2 segundos
+    }, 10000); // Se repite cada 10 segundos
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <h4 className="font-medium text-lg">Características del Dolor</h4>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <Book className="h-4 w-4" />
+            <Button 
+              variant="outline" 
+              size="icon" 
+              className="relative h-10 w-10 rounded-full border-2 border-primary/20 bg-background hover:bg-accent hover:text-accent-foreground transition-all duration-300 shadow-md hover:shadow-lg"
+            >
+              <div className="relative">
+                <Book className="h-5 w-5 transition-transform duration-300 hover:scale-110" />
+                {showTooth && (
+                  <div className="absolute -bottom-3 -right-3 animate-bounce">
+                    <Tooth className="h-4 w-4 text-primary" />
+                  </div>
+                )}
+              </div>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80">
+          <PopoverContent className="w-80 p-4 bg-white/95 backdrop-blur-sm shadow-xl border border-primary/10 rounded-lg">
             <div className="space-y-4">
               {definicionesDolor.map((def, index) => (
-                <div key={index} className="space-y-1">
-                  <h5 className="font-medium text-sm">{def.titulo}</h5>
-                  <p className="text-xs text-muted-foreground">{def.descripcion}</p>
+                <div key={index} className="space-y-2 p-3 rounded-lg hover:bg-accent/10 transition-colors duration-200">
+                  <h5 className="font-medium text-sm text-primary">{def.titulo}</h5>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{def.descripcion}</p>
                 </div>
               ))}
             </div>
