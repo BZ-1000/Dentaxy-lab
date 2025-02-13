@@ -63,25 +63,45 @@ const PadecimientoActual = ({
   };
 
   const generarRedaccionIA = () => {
-    // Simulación de generación de texto IA
-    const textoGenerado = `Paciente acude a consulta por: ${formData.padecimientoActual.motivoConsulta}.
-      Historia del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}.
-      Dolor: ${formData.padecimientoActual.dolor.caracter}, intensidad ${formData.padecimientoActual.dolor.intensidad}.`;
-    setRedaccionIA(textoGenerado);
+    const motivoConsulta = formData.padecimientoActual.motivoConsulta.trim();
+    const sinSintomas = formData.padecimientoActual.sinSintomas;
+
+    if (sinSintomas) {
+      const textoGenerado = `El paciente acude a consulta principalmente por: ${motivoConsulta}.
+
+Actualmente no refiere sintomatología.`;
+      setRedaccionIA(textoGenerado);
+    } else {
+      const historiaPadecimiento = formData.padecimientoActual.historiaPadecimiento.trim();
+      const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion } = formData.padecimientoActual.dolor;
+
+      const textoGenerado = `El paciente acude a consulta principalmente por: ${motivoConsulta}.
+
+Historia del padecimiento: ${historiaPadecimiento}.
+
+En cuanto al dolor, se reporta lo siguiente:
+- Fecha de inicio: ${fechaInicio || 'No especificada'}.
+- Condición de aparición: ${condicionAparicion || 'No especificada'}.
+- Frecuencia: ${frecuencia || 'No especificada'}.
+- Carácter del dolor: ${caracter || 'No especificado'}, con una intensidad ${intensidad || 'No especificada'}.
+- Localización: ${localizacion.descripcion || 'No especificada'}.
+- Factores de atenuación o agravamiento: ${atenuacion || 'No especificados'}.
+
+Se recomienda evaluar estos síntomas en el contexto clínico del paciente para determinar el curso de acción adecuado.`;
+      setRedaccionIA(textoGenerado);
+    }
+
     setShowRedaccion(true);
 
-    // Desplazamiento automático a la sección de Redacción IA
     setTimeout(() => {
       redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      // Ajuste adicional hacia arriba
       setTimeout(() => {
-        window.scrollBy(0, -200); // Ajusta el valor negativo para desplazarte más hacia arriba
-      }, 300); // Ajusta el tiempo para que coincida con la duración del desplazamiento suave
+        window.scrollBy(0, -200);
+      }, 300);
     }, 100);
   };
 
   const limpiarFormulario = () => {
-    // Reset form fields
     handlePadecimientoChange("motivoConsulta", "");
     handlePadecimientoChange("historiaPadecimiento", "");
     handleDolorChange("fechaInicio", "");
@@ -89,18 +109,22 @@ const PadecimientoActual = ({
     handleDolorChange("frecuencia", "");
     handleDolorChange("caracter", "");
     handleDolorChange("intensidad", "");
-    handleDolorChange("localizacion", { tipo: "", descripcion: "" }); // Pasar un objeto
+    handleDolorChange("localizacion", { tipo: "", descripcion: "" });
     handleDolorChange("atenuacion", "");
     handleSinSintomasChange(false);
     setRedaccionIA("");
     setShowRedaccion(false);
   };
 
+  const removeDuplicates = (text) => {
+    // Eliminar duplicados de palabras consecutivas
+    return text.replace(/(\b\w+\b)(?=.*\b\1\b)/gi, '');
+  };
+
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          {/* Botón tipo slider */}
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
               <button
@@ -137,7 +161,6 @@ const PadecimientoActual = ({
           </h2>
         </div>
 
-        {/* Formulario o Redacción IA */}
         {showRedaccion ? (
           <div ref={redaccionRef} className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
@@ -151,9 +174,14 @@ const PadecimientoActual = ({
           <div className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
             <div className="flex items-start gap-4">
-              <Textarea value={formData.padecimientoActual.motivoConsulta} onChange={(e) => handlePadecimientoChange("motivoConsulta", e.target.value)} placeholder="Describa el motivo fundamental por el que acude el paciente" className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y" />
+              <Textarea
+                value={formData.padecimientoActual.motivoConsulta}
+                onChange={(e) => handlePadecimientoChange("motivoConsulta", removeDuplicates(e.target.value))}
+                placeholder="Describa el motivo fundamental por el que acude el paciente"
+                className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
+              />
               <div className="mt-2">
-                <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", text)} />
+                <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", removeDuplicates(text))} />
               </div>
             </div>
           </div>
@@ -173,7 +201,6 @@ const PadecimientoActual = ({
           </div>
         )}
 
-        {/* Botón Generar Redacción IA y Limpiar Formulario */}
         {!showRedaccion && (
           <div className="p-6 flex justify-center gap-4">
             <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
