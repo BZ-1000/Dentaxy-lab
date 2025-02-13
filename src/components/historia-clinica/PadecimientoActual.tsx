@@ -127,11 +127,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     // Corregir mayúsculas al inicio de cada oración
     textoCorregido = textoCorregido.replace(/(^\s*\w|[.!?]\s*\w)/g, (match) => match.toUpperCase());
 
-    // Añadir punto al final si falta
-    if (!/[.!?]$/.test(textoCorregido.trim())) {
-      textoCorregido += '.';
-    }
-
     // Eliminar espacios extra entre palabras y después de signos de puntuación
     textoCorregido = textoCorregido.replace(/\s+/g, ' ').replace(/([.!?,])(\S)/g, '$1 $2');
 
