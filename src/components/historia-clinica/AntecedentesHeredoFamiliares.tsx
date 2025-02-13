@@ -376,7 +376,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
               </button>
             </div>
           </div>
-
+  
           <div className="flex items-center gap-2">
             <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
               <Minus className="w-4 h-4" />
@@ -389,15 +389,15 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             </button>
           </div>
         </div>
-
+  
+        <div className="flex justify-start px-6 py-2">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <span className="text-gray-400">II.</span> Antecedentes Heredo Familiares
+          </h2>
+        </div>
+  
         {!isMinimized && (
           <>
-            <div className="flex justify-start px-6 py-2">
-              <h2 className="text-xl font-semibold flex items-center gap-2">
-                <span className="text-gray-400">II.</span> Antecedentes Heredo Familiares
-              </h2>
-            </div>
-
             {showRedaccion ? (
               <div ref={redaccionRef} className="p-6">
                 <label className="font-mono text-sm font-medium text-gray-800">
@@ -431,7 +431,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
                 >
                   {displayedText}
                 </div>
-
+  
                 <Button
                   onClick={handleCopy}
                   className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
@@ -459,7 +459,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
                 ))}
               </div>
             )}
-
+  
             {!showRedaccion && (
               <div className="p-6 flex justify-center gap-4">
                 <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
@@ -474,7 +474,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
           </>
         )}
       </Card>
-
+  
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
@@ -492,7 +492,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         </div>
       )}
     </div>
-  );
+  );  
 };
 
 export default AntecedentesHeredoFamiliares;
