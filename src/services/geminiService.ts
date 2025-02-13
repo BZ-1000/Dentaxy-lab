@@ -1,6 +1,6 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { pipeline } from "@huggingface/transformers";
+import { pipeline, TextGenerationPipeline } from "@huggingface/transformers";
 
 const GOOGLE_AI_API_KEY = import.meta.env.VITE_GOOGLE_AI_API_KEY;
 const genAI = new GoogleGenerativeAI(GOOGLE_AI_API_KEY);
@@ -9,16 +9,20 @@ async function optimizeText(text: string): Promise<string> {
   try {
     const textGenerator = await pipeline(
       'text2text-generation',
-      'google/flan-t5-small',
-      { quantized: true }
-    );
+      'google/flan-t5-small'
+    ) as TextGenerationPipeline;
 
     const result = await textGenerator(
       `Rewrite this medical text in a professional way, removing redundancies: ${text}`, 
       { max_length: 500 }
     );
 
-    return result[0].generated_text;
+    // El resultado ahora es un array de objetos con la propiedad 'text'
+    if (Array.isArray(result)) {
+      return result[0].text || text;
+    } else {
+      return result.text || text;
+    }
   } catch (error) {
     console.error('Error optimizing text:', error);
     return text;
