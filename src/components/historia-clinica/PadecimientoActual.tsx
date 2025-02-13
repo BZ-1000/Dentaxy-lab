@@ -65,28 +65,44 @@ const PadecimientoActual = ({
     setIsMaximized(false);
   };
 
-  const generarRedaccionIA = () => {
+  const generarRedaccionIA = async () => {
     const motivoConsulta = formData.padecimientoActual.motivoConsulta.trim();
     const sinSintomas = formData.padecimientoActual.sinSintomas;
 
+    let textoGenerado = "";
+
     if (sinSintomas) {
-      const textoGenerado = `Motivo de consulta:
+      textoGenerado = `Motivo de consulta:
 El paciente acude a consulta por ${motivoConsulta}.
 
 Actualmente no refiere sintomatología.`;
-      setRedaccionIA(textoGenerado);
     } else {
       const historiaPadecimiento = formData.padecimientoActual.historiaPadecimiento.trim();
       const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion } = formData.padecimientoActual.dolor;
 
-      const textoGenerado = `Motivo de consulta:
+      textoGenerado = `Motivo de consulta:
 El paciente acude a consulta por ${motivoConsulta}.
 
 Historia del padecimiento:
 El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta con una frecuencia ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece en relación con ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} influyen en su intensidad.`;
-      setRedaccionIA(textoGenerado);
     }
 
+    // Llamada a la API para corregir el texto
+    const response = await fetch('https://api.apyhub.com/sharpapi/api/v1/content/proofread', {
+      method: 'POST',
+      headers: {
+        'apy-token': 'TU_TOKEN_AQUI', // Reemplaza con tu token
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        content: textoGenerado,
+      }),
+    });
+
+    const data = await response.json();
+    const textoCorregido = data.correctedContent;
+
+    setRedaccionIA(textoCorregido);
     setShowRedaccion(true);
 
     setTimeout(() => {
