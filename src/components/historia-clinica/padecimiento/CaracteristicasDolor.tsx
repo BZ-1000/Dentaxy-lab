@@ -1,8 +1,9 @@
+
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
-import { Book, Lightbulb } from "lucide-react";
+import { BookOpen, Lightbulb } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -56,7 +57,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-row-reverse justify-end">
         <h4 className="font-medium text-lg">Características del Dolor</h4>
         <Popover>
           <PopoverTrigger asChild>
@@ -66,7 +67,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
               className="relative h-10 w-10 rounded-full border-2 border-primary/20 bg-background hover:bg-accent hover:text-accent-foreground transition-all duration-300 shadow-md hover:shadow-lg"
             >
               <div className="relative">
-                <Book className="h-5 w-5 transition-transform duration-300 hover:scale-110" />
+                <BookOpen className="h-5 w-5 transition-transform duration-300 hover:scale-110" />
                 {showIcon && (
                   <div className="absolute -bottom-3 -right-3 animate-bounce">
                     <Lightbulb className="h-4 w-4 text-yellow-400" />
