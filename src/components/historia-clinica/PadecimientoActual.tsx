@@ -84,7 +84,7 @@ Actualmente no refiere sintomatología.`;
 El paciente acude a consulta por ${motivoConsulta}.
 
 Historia del padecimiento:
-El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta con una frecuencia ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece en relación con ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} influyen en su intensidad.`;
+El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece en relación con ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} influyen en su intensidad.`;
     }
 
     // Revisar la redacción y corregir errores comunes
@@ -124,9 +124,19 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
   const revisarRedaccion = (text) => {
     let textoCorregido = removeDuplicates(text);
 
+    // Eliminar frases redundantes
+    textoCorregido = textoCorregido.replace(/Motivo de consulta ingresa por/gi, '');
+    textoCorregido = textoCorregido.replace(/Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi, 'Motivo de consulta: El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por El paciente acude a consulta por/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en localizado en/gi, 'El paciente refiere la presencia de dolor localizado en');
+    textoCorregido = textoCorregido.replace(/El síntoma inició el El síntoma inició el/gi, 'El síntoma inició el');
+    textoCorregido = textoCorregido.replace(/Se describe como un dolor Se describe como un dolor/gi, 'Se describe como un dolor');
+    textoCorregido = textoCorregido.replace(/Se ha identificado que el dolor Se ha identificado que el dolor/gi, 'Se ha identificado que el dolor');
+    textoCorregido = textoCorregido.replace(/Se ha observado que Se ha observado que/gi, 'Se ha observado que');
+
     // Corregir mayúsculas al inicio de cada oración
     textoCorregido = textoCorregido.replace(/(^\s*\w|[.!?]\s*\w)/g, (match) => match.toUpperCase());
-    
+
     // Eliminar espacios extra entre palabras y después de signos de puntuación
     textoCorregido = textoCorregido.replace(/\s+/g, ' ').replace(/([.!?,])(\S)/g, '$1 $2');
 
@@ -134,7 +144,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     textoCorregido = textoCorregido.replace(/([.!?,])(\S)/g, '$1 $2');
 
     // Corregir términos específicos
-    textoCorregido = textoCorregido.replace(/localizado en localizado en/gi, 'localizado en');
     textoCorregido = textoCorregido.replace(/frecuencia continuo/gi, 'frecuencia continua');
     textoCorregido = textoCorregido.replace(/intensidad moderado/gi, 'intensidad moderada');
     textoCorregido = textoCorregido.replace(/espontaneo/gi, 'espontáneo');
