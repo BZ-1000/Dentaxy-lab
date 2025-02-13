@@ -1,10 +1,5 @@
-"use client";
-
 import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
@@ -36,9 +31,10 @@ interface FamiliaRowProps {
   formData: FormDataState;
   handleFamiliarChange: (familiar: string, field: string, value: string | boolean) => void;
   handleCondicionChange: (familiar: string, condicion: string, value: string | boolean) => void;
+  isHighlighted: boolean;
 }
 
-const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionChange }: FamiliaRowProps) => {
+const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionChange, isHighlighted }: FamiliaRowProps) => {
   const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
     const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
       "Padre": "padre",
@@ -89,7 +85,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
   };
 
   return (
-    <div className="flex flex-col gap-4 border-b pb-6">
+    <div className={`flex flex-col gap-4 border-b pb-6 ${isHighlighted ? 'border-red-500' : ''}`}>
       <div className="grid grid-cols-7 gap-4 items-center">
         <span className="font-semibold text-base text-center col-span-1 text-gray-700">{familiar}</span>
         {!familiarData.vivoSano && (
@@ -129,7 +125,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
           })}
       </div>
       {familiarData.finado && (
-        <Input
+        <input
           value={familiarData.causaMuerte}
           onChange={(e) => handleFamiliarChange(familiarKey, 'causaMuerte', e.target.value)}
           placeholder="Causa de fallecimiento"
@@ -137,12 +133,13 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
         />
       )}
       {familiarData.condiciones.otras && !familiarData.finado && !familiarData.vivoSano && (
-        <Input
-        value={typeof familiarData.condiciones.otras === 'string' ? familiarData.condiciones.otras : ''}
-        onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
-        placeholder="Especifique otras condiciones"
-        className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
-      />       )}
+        <input
+          value={typeof familiarData.condiciones.otras === 'string' ? familiarData.condiciones.otras : ''}
+          onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
+          placeholder="Especifique otras condiciones"
+          className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
+        />
+      )}
     </div>
   );
 };
@@ -155,7 +152,24 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   const [copied, setCopied] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
   const [progress, setProgress] = useState(0);
+  const [canGenerate, setCanGenerate] = useState(true);
+  const [highlightedFamiliares, setHighlightedFamiliares] = useState<string[]>([]);
   const redaccionRef = useRef(null);
+
+  useEffect(() => {
+    const allFamiliaresSelected = familiares.every(familiar => {
+      const familiarKey = getFamiliarKey(familiar);
+      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+      return familiarData.vivoSano || familiarData.finado || Object.values(familiarData.condiciones).some(value => value);
+    });
+
+    setCanGenerate(allFamiliaresSelected);
+    setHighlightedFamiliares(familiares.filter(familiar => {
+      const familiarKey = getFamiliarKey(familiar);
+      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+      return !(familiarData.vivoSano || familiarData.finado || Object.values(familiarData.condiciones).some(value => value));
+    }));
+  }, [formData]);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -176,7 +190,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     const textoGenerado = familiares.map(familiar => {
       const familiarKey = getFamiliarKey(familiar);
       const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
-  
+
       // Obtener las condiciones en un formato legible
       const condicionesText = Object.entries(familiarData.condiciones)
         .filter(([key, value]) => value)
@@ -194,14 +208,14 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
               return "";
           }
         });
-  
+
       // Construir la redacción para cada familiar
       const esFemenino = familiar.includes("Madre") || familiar.includes("Abuela");
       const articuloFemenino = esFemenino ? "La " : "El ";
       const verboSerFemenino = esFemenino ? "está viva" : "está vivo";
       const verboEstarFemenino = esFemenino ? "finada" : "finado";
       const ySanoFemenino = esFemenino ? "y sana" : "y sano";
-  
+
       let condicionesConectadas = "";
       if (condicionesText.length === 1) {
         condicionesConectadas = condicionesText[0];
@@ -217,7 +231,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         const ultimaCondicion = condicionesText.pop();
         condicionesConectadas = `${condicionesText.join(", ")} y ${ultimaCondicion}`;
       }
-  
+
       if (familiarData.vivoSano) {
         return `${articuloFemenino}${familiar} ${verboSerFemenino} ${ySanoFemenino}.`;
       } else if (familiarData.finado) {
@@ -226,7 +240,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         return `${articuloFemenino}${familiar} ${verboSerFemenino} con diagnóstico de ${condicionesConectadas}.`;
       }
     }).join(" ");
-  
+
     // Determinar las enfermedades más repetidas en la familia
     const enfermedadesContador: { [key: string]: number } = {};
     familiares.forEach(familiar => {
@@ -238,7 +252,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         }
       });
     });
-  
+
     const enfermedadesRepetidas = Object.entries(enfermedadesContador)
       .filter(([key, value]) => value >= 2)
       .map(([key]) => {
@@ -254,7 +268,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         }
       })
       .filter(Boolean);
-  
+
     let enfermedadesConectadas = "";
     if (enfermedadesRepetidas.length === 1) {
       enfermedadesConectadas = enfermedadesRepetidas[0];
@@ -270,12 +284,12 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       const ultimaEnfermedad = enfermedadesRepetidas.pop();
       enfermedadesConectadas = `${enfermedadesRepetidas.join(", ")} y ${ultimaEnfermedad}`;
     }
-  
+
     const redaccionFinal = `${textoGenerado.trim()}\n\n Nota: En la familia predominan los antecedentes de: ${enfermedadesConectadas}.`;
     setRedaccionIA(redaccionFinal);
     setDisplayedText(""); // Reset the displayed text
     setShowRedaccion(true);
-  
+
     setTimeout(() => {
       redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => {
@@ -283,8 +297,6 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       }, 300);
     }, 100);
   };
-  
-  
 
   const limpiarFormulario = () => {
     familiares.forEach(familiar => {
@@ -443,6 +455,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
                 formData={formData}
                 handleFamiliarChange={handleFamiliarChange}
                 handleCondicionChange={handleCondicionChange}
+                isHighlighted={highlightedFamiliares.includes(familiar)}
               />
             ))}
           </div>
@@ -450,7 +463,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
         {!showRedaccion && (
           <div className="p-6 flex justify-center gap-4">
-            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
+            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2" disabled={!canGenerate}>
               <span>Generar Redacción IA</span>
             </Button>
             <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
