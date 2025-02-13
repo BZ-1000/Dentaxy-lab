@@ -176,7 +176,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     const textoGenerado = familiares.map(familiar => {
       const familiarKey = getFamiliarKey(familiar);
       const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
-
+  
       // Obtener las condiciones en un formato legible
       const condicionesText = Object.entries(familiarData.condiciones)
         .filter(([key, value]) => value)
@@ -189,29 +189,44 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             case "cancer":
               return "Cáncer";
             case "otras":
-              return value; // Asume que 'otras' contiene texto específico
+              return typeof value === 'string' ? value : ''; // Asegúrate de que 'otras' sea un string
             default:
               return "";
           }
-        })
-        .join(", ");
-
+        });
+  
       // Construir la redacción para cada familiar
       const esFemenino = familiar.includes("Madre") || familiar.includes("Abuela");
       const articuloFemenino = esFemenino ? "La " : "El ";
       const verboSerFemenino = esFemenino ? "está viva" : "está vivo";
       const verboEstarFemenino = esFemenino ? "finada" : "finado";
       const ySanoFemenino = esFemenino ? "y sana" : "y sano";
-
+  
+      let condicionesConectadas = "";
+      if (condicionesText.length === 1) {
+        condicionesConectadas = condicionesText[0];
+      } else if (condicionesText.length === 2) {
+        const [primera, segunda] = condicionesText;
+        if ((primera === "Diabetes mellitus" && segunda === "Hipertensión arterial") ||
+            (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
+          condicionesConectadas = `${primera} e ${segunda}`;
+        } else {
+          condicionesConectadas = `${primera} y ${segunda}`;
+        }
+      } else if (condicionesText.length > 2) {
+        const ultimaCondicion = condicionesText.pop();
+        condicionesConectadas = `${condicionesText.join(", ")} y ${ultimaCondicion}`;
+      }
+  
       if (familiarData.vivoSano) {
         return `${articuloFemenino}${familiar} ${verboSerFemenino} ${ySanoFemenino}.`;
       } else if (familiarData.finado) {
         return `${articuloFemenino}${familiar} ${verboEstarFemenino} por ${familiarData.causaMuerte}.`;
       } else {
-        return `${articuloFemenino}${familiar} ${verboSerFemenino} con diagnóstico de ${condicionesText}.`;
+        return `${articuloFemenino}${familiar} ${verboSerFemenino} con diagnóstico de ${condicionesConectadas}.`;
       }
     }).join(" ");
-
+  
     // Determinar las enfermedades más repetidas en la familia
     const enfermedadesContador: { [key: string]: number } = {};
     familiares.forEach(familiar => {
@@ -223,7 +238,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         }
       });
     });
-
+  
     const enfermedadesRepetidas = Object.entries(enfermedadesContador)
       .filter(([key, value]) => value >= 2)
       .map(([key]) => {
@@ -238,15 +253,29 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             return "";
         }
       })
-      .filter(Boolean)
-      .join(", ");
-
-    const redaccionFinal = `${textoGenerado.trim()}\n\n Nota: En la familia predominan los antecedentes de: ${enfermedadesRepetidas}.
-    `;
+      .filter(Boolean);
+  
+    let enfermedadesConectadas = "";
+    if (enfermedadesRepetidas.length === 1) {
+      enfermedadesConectadas = enfermedadesRepetidas[0];
+    } else if (enfermedadesRepetidas.length === 2) {
+      const [primera, segunda] = enfermedadesRepetidas;
+      if ((primera === "Diabetes mellitus" && segunda === "Hipertensión arterial") ||
+          (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
+        enfermedadesConectadas = `${primera} e ${segunda}`;
+      } else {
+        enfermedadesConectadas = `${primera} y ${segunda}`;
+      }
+    } else if (enfermedadesRepetidas.length > 2) {
+      const ultimaEnfermedad = enfermedadesRepetidas.pop();
+      enfermedadesConectadas = `${enfermedadesRepetidas.join(", ")} y ${ultimaEnfermedad}`;
+    }
+  
+    const redaccionFinal = `${textoGenerado.trim()}\n\n Nota: En la familia predominan los antecedentes de: ${enfermedadesConectadas}.`;
     setRedaccionIA(redaccionFinal);
     setDisplayedText(""); // Reset the displayed text
     setShowRedaccion(true);
-
+  
     setTimeout(() => {
       redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => {
@@ -254,6 +283,8 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       }, 300);
     }, 100);
   };
+  
+  
 
   const limpiarFormulario = () => {
     familiares.forEach(familiar => {
