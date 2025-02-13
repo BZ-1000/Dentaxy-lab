@@ -390,84 +390,88 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
           </div>
         </div>
 
-        <div className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">II.</span> Antecedentes Heredo Familiares
-          </h2>
-        </div>
-
-        {showRedaccion ? (
-          <div ref={redaccionRef} className="p-6">
-            <label className="font-mono text-sm font-medium text-gray-800">
-              Redacción IA...
-            </label>
-            <div
-              className="progress-bar-container"
-              style={{
-                width: '100%',
-                backgroundColor: '#d3d3d3',
-                borderRadius: '12px',
-                overflow: 'hidden',
-                marginBottom: '1rem',
-                boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)',
-              }}
-            >
-              <div
-                className="progress-bar"
-                style={{
-                  height: '8px',
-                  backgroundColor: '#34c759',
-                  transition: 'width 0.015s ease-in-out',
-                  width: `${progress}%`,
-                  borderRadius: '12px',
-                }}
-              ></div>
-            </div>
-            <div
-              className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
-              style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-            >
-              {displayedText}
+        {!isMinimized && (
+          <>
+            <div className="flex justify-start px-6 py-2">
+              <h2 className="text-xl font-semibold flex items-center gap-2">
+                <span className="text-gray-400">II.</span> Antecedentes Heredo Familiares
+              </h2>
             </div>
 
-            <Button
-              onClick={handleCopy}
-              className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
-            >
-              <Copy className="w-4 h-4" />
-              <span>Copiar Redacción</span>
-              {copied && (
-                <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Copiado</span>
+            {showRedaccion ? (
+              <div ref={redaccionRef} className="p-6">
+                <label className="font-mono text-sm font-medium text-gray-800">
+                  Redacción IA...
+                </label>
+                <div
+                  className="progress-bar-container"
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#d3d3d3',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    marginBottom: '1rem',
+                    boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <div
+                    className="progress-bar"
+                    style={{
+                      height: '8px',
+                      backgroundColor: '#34c759',
+                      transition: 'width 0.015s ease-in-out',
+                      width: `${progress}%`,
+                      borderRadius: '12px',
+                    }}
+                  ></div>
                 </div>
-              )}
-            </Button>
-          </div>
-        ) : (
-          <div className="p-6 space-y-6">
-            {familiares.map((familiar) => (
-              <FamiliaRow
-                key={familiar}
-                familiar={familiar}
-                formData={formData}
-                handleFamiliarChange={handleFamiliarChange}
-                handleCondicionChange={handleCondicionChange}
-              />
-            ))}
-          </div>
-        )}
+                <div
+                  className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
+                  style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                >
+                  {displayedText}
+                </div>
 
-        {!showRedaccion && (
-          <div className="p-6 flex justify-center gap-4">
-            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
-              <span>Generar Redacción IA</span>
-            </Button>
-            <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
-              <Eraser className="w-4 h-4" />
-              <span>Limpiar Formulario</span>
-            </Button>
-          </div>
+                <Button
+                  onClick={handleCopy}
+                  className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
+                >
+                  <Copy className="w-4 h-4" />
+                  <span>Copiar Redacción</span>
+                  {copied && (
+                    <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Copiado</span>
+                    </div>
+                  )}
+                </Button>
+              </div>
+            ) : (
+              <div className="p-6 space-y-6">
+                {familiares.map((familiar) => (
+                  <FamiliaRow
+                    key={familiar}
+                    familiar={familiar}
+                    formData={formData}
+                    handleFamiliarChange={handleFamiliarChange}
+                    handleCondicionChange={handleCondicionChange}
+                  />
+                ))}
+              </div>
+            )}
+
+            {!showRedaccion && (
+              <div className="p-6 flex justify-center gap-4">
+                <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
+                  <span>Generar Redacción IA</span>
+                </Button>
+                <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
+                  <Eraser className="w-4 h-4" />
+                  <span>Limpiar Formulario</span>
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </Card>
 
