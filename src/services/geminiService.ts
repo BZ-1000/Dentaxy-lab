@@ -1,9 +1,50 @@
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { pipeline } from "@huggingface/transformers";
 
 const GOOGLE_AI_API_KEY = import.meta.env.VITE_GOOGLE_AI_API_KEY;
-
 const genAI = new GoogleGenerativeAI(GOOGLE_AI_API_KEY);
+
+async function optimizeText(text: string): Promise<string> {
+  try {
+    const textGenerator = await pipeline(
+      'text2text-generation',
+      'google/flan-t5-small',
+      { quantized: true }
+    );
+
+    const result = await textGenerator(
+      `Rewrite this medical text in a professional way, removing redundancies: ${text}`, 
+      { max_length: 500 }
+    );
+
+    return result[0].generated_text;
+  } catch (error) {
+    console.error('Error optimizing text:', error);
+    return text;
+  }
+}
+
+function removeRedundancies(text: string): string {
+  // Remover frases redundantes comunes
+  let cleanText = text
+    .replace(/motivo de consulta:\s*el paciente acude a consulta por\s*motivo de consulta/gi, 'Motivo de consulta:')
+    .replace(/el paciente acude a consulta por el paciente acude/gi, 'El paciente acude')
+    .replace(/el paciente refiere que refiere/gi, 'El paciente refiere')
+    .replace(/presenta dolor con dolor/gi, 'presenta dolor')
+    .replace(/(\b\w+\b)(\s+\1\b)+/gi, '$1') // Elimina palabras consecutivas repetidas
+    .replace(/\b(el|la|los|las)\b\s+\b\1\b/gi, '$1') // Elimina artículos repetidos
+    .trim();
+
+  // Mejorar las transiciones entre secciones
+  cleanText = cleanText
+    .replace(/dolor dolor/gi, 'dolor')
+    .replace(/presenta presenta/gi, 'presenta')
+    .replace(/refiere refiere/gi, 'refiere')
+    .replace(/padece padece/gi, 'padece');
+
+  return cleanText;
+}
 
 export const generateMedicalReport = async (formData: any) => {
   try {
@@ -17,9 +58,9 @@ export const generateMedicalReport = async (formData: any) => {
 
     Padecimiento Actual:
     ${formData.padecimientoActual.sinSintomas ? 'El paciente no refiere sintomatología actual.' : `
-    - Motivo de consulta: ${formData.padecimientoActual.motivoConsulta}
-    - Historia del padecimiento: ${formData.padecimientoActual.historiaPadecimiento}
-    - Características del dolor:
+    ${formData.padecimientoActual.motivoConsulta}
+    ${formData.padecimientoActual.historiaPadecimiento}
+    Características del dolor:
       * Inicio: ${formData.padecimientoActual.dolor.fechaInicio}
       * Tipo: ${formData.padecimientoActual.dolor.condicionAparicion}
       * Frecuencia: ${formData.padecimientoActual.dolor.frecuencia}
@@ -58,7 +99,15 @@ export const generateMedicalReport = async (formData: any) => {
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    return response.text();
+    let text = response.text();
+
+    // Primero limpiamos redundancias básicas
+    text = removeRedundancies(text);
+
+    // Luego optimizamos el texto con el modelo de Hugging Face
+    text = await optimizeText(text);
+
+    return text;
   } catch (error) {
     console.error('Error generating medical report:', error);
     throw new Error('No se pudo generar el reporte médico. Por favor, intente nuevamente.');
