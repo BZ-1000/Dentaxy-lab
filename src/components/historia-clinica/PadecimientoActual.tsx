@@ -84,7 +84,7 @@ Actualmente no refiere sintomatología.`;
 El paciente acude a consulta por ${motivoConsulta}.
 
 Historia del padecimiento:
-El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece forma ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} `;
+El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece en relación con ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} influyen en su intensidad.`;
     }
 
     // Revisar la redacción y corregir errores comunes
@@ -135,7 +135,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     textoCorregido = textoCorregido.replace(/El paciente acude a consulta por ya que/gi, 'El paciente acude a consulta por');
     textoCorregido = textoCorregido.replace(/El paciente acude a consulta por dado que/gi, 'El paciente acude a consulta por');
     textoCorregido = textoCorregido.replace(/Motivo de la consulta del paciente es por/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El motiva de la consulta es/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El motivo de la consulta es/gi, 'El paciente acude a consulta por');
     textoCorregido = textoCorregido.replace(/El paciente ingresa a consulta por/gi, 'El paciente acude a consulta por');
 
     // Eliminar frases redundantes relacionadas a la localización
@@ -163,6 +163,12 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
 
     // Asegurar un espacio después de los signos de puntuación
     textoCorregido = textoCorregido.replace(/([.!?,])(\S)/g, '$1 $2');
+
+    // Corregir términos específicos
+    textoCorregido = textoCorregido.replace(/frecuencia continuo/gi, 'frecuencia continua');
+    textoCorregido = textoCorregido.replace(/intensidad moderado/gi, 'intensidad moderada');
+    textoCorregido = textoCorregido.replace(/espontaneo/gi, 'espontáneo');
+    textoCorregido = textoCorregido.replace(/Se atenua con ibuprofeno influyen en su intensidad/gi, 'Se atenúa con ibuprofeno, lo cual influye en su intensidad');
 
     return textoCorregido;
   };
