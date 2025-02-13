@@ -1,3 +1,4 @@
+
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { pipeline } from "@huggingface/transformers";
 
@@ -28,29 +29,87 @@ async function optimizeText(text: string): Promise<string> {
 }
 
 function removeRedundancies(text: string): string {
-  // Remover frases redundantes comunes
+  // Remover frases redundantes comunes y preestablecidas
   let cleanText = text
+    // Eliminar redundancias en el motivo de consulta
     .replace(/motivo de consulta:\s*el paciente acude a consulta por\s*motivo de consulta/gi, 'Motivo de consulta:')
     .replace(/el paciente acude a consulta por el paciente acude/gi, 'El paciente acude')
+    .replace(/acude a consulta por consulta/gi, 'acude a consulta por')
+    .replace(/consulta médica por consulta/gi, 'consulta médica por')
+    
+    // Eliminar redundancias en descripciones
     .replace(/el paciente refiere que refiere/gi, 'El paciente refiere')
+    .replace(/refiere que refiere/gi, 'refiere')
     .replace(/presenta dolor con dolor/gi, 'presenta dolor')
+    .replace(/dolor doloroso/gi, 'dolor')
     .replace(/(\b\w+\b)(\s+\1\b)+/gi, '$1') // Elimina palabras consecutivas repetidas
-    .replace(/\b(el|la|los|las)\b\s+\b\1\b/gi, '$1') // Elimina artículos repetidos
-    .trim();
-
-  // Mejorar las transiciones entre secciones
-  cleanText = cleanText
+    
+    // Eliminar artículos duplicados
+    .replace(/\b(el|la|los|las)\b\s+\b\1\b/gi, '$1')
+    
+    // Mejorar transiciones
     .replace(/dolor dolor/gi, 'dolor')
     .replace(/presenta presenta/gi, 'presenta')
     .replace(/refiere refiere/gi, 'refiere')
-    .replace(/padece padece/gi, 'padece');
+    .replace(/padece padece/gi, 'padece')
+    .replace(/manifiesta manifiesta/gi, 'manifiesta')
+    
+    // Eliminar repeticiones en características del dolor
+    .replace(/localizado en la zona de la zona/gi, 'localizado en la zona')
+    .replace(/intensidad de intensidad/gi, 'intensidad')
+    .replace(/frecuencia de frecuencia/gi, 'frecuencia')
+    
+    // Mejorar conectores
+    .replace(/\. El paciente también refiere que también/gi, '. Además')
+    .replace(/\. También además/gi, '. Además')
+    .replace(/\. Y también/gi, '. Además')
+    
+    .trim();
+
+  // Asegurar mayúsculas después de punto
+  cleanText = cleanText.replace(/\. ([a-z])/g, (match, letter) => `. ${letter.toUpperCase()}`);
 
   return cleanText;
+}
+
+function processPadecimientoText(text: string): string {
+  // Eliminar frases preestablecidas comunes en historias clínicas
+  const phrasesToRemove = [
+    "motivo de consulta:",
+    "el paciente acude a",
+    "el paciente refiere",
+    "se observa que",
+    "a la exploración",
+    "a la palpación",
+    "refiere que",
+  ];
+
+  let processedText = text.toLowerCase();
+  phrasesToRemove.forEach(phrase => {
+    const regex = new RegExp(`\\b${phrase}\\b`, 'gi');
+    const count = (processedText.match(regex) || []).length;
+    if (count > 1) {
+      // Mantener solo la primera ocurrencia
+      processedText = processedText.replace(new RegExp(`\\b${phrase}\\b`, 'gi'), (match, index) => {
+        return index === processedText.indexOf(phrase) ? match : '';
+      });
+    }
+  });
+
+  // Eliminar espacios múltiples y ajustar puntuación
+  return processedText
+    .replace(/\s+/g, ' ')
+    .replace(/\s*([.,])\s*/g, '$1 ')
+    .replace(/([.!?])\s*([a-záéíóúñ])/gi, (_, punct, letter) => `${punct} ${letter.toUpperCase()}`)
+    .trim();
 }
 
 export const generateMedicalReport = async (formData: any) => {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
+    // Procesar el texto del motivo de consulta antes de incluirlo en el prompt
+    const motivoConsulta = processPadecimientoText(formData.padecimientoActual.motivoConsulta);
 
     const prompt = `Actúa como un profesional médico y genera una historia clínica detallada y profesional basada en la siguiente información, utilizando terminología médica apropiada y manteniendo un formato claro y estructurado. Solo incluye las secciones que tienen datos:
 
@@ -60,7 +119,7 @@ export const generateMedicalReport = async (formData: any) => {
 
     Padecimiento Actual:
     ${formData.padecimientoActual.sinSintomas ? 'El paciente no refiere sintomatología actual.' : `
-    ${formData.padecimientoActual.motivoConsulta}
+    ${motivoConsulta}
     ${formData.padecimientoActual.historiaPadecimiento}
     Características del dolor:
       * Inicio: ${formData.padecimientoActual.dolor.fechaInicio}
@@ -103,10 +162,14 @@ export const generateMedicalReport = async (formData: any) => {
     const response = await result.response;
     let text = response.text();
 
-    // Primero limpiamos redundancias básicas
+    // Procesamiento mejorado del texto:
+    // 1. Primero limpiamos redundancias básicas
     text = removeRedundancies(text);
-
-    // Luego optimizamos el texto con el modelo de Hugging Face
+    
+    // 2. Procesamos el texto para eliminar frases preestablecidas redundantes
+    text = processPadecimientoText(text);
+    
+    // 3. Finalmente optimizamos con el modelo de Hugging Face
     text = await optimizeText(text);
 
     return text;
