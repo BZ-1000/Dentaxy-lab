@@ -124,15 +124,35 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
   const revisarRedaccion = (text) => {
     let textoCorregido = removeDuplicates(text);
 
-    // Eliminar frases redundantes
-    textoCorregido = textoCorregido.replace(/Motivo de consulta ingresa por/gi, '');
+    // Eliminar frases redundantes relacionadas al motivo de la consulta
     textoCorregido = textoCorregido.replace(/Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi, 'Motivo de consulta: El paciente acude a consulta por');
     textoCorregido = textoCorregido.replace(/El paciente acude a consulta por El paciente acude a consulta por/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por por/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por debido a/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por a causa de/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por debido a que/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por porque/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por ya que/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por dado que/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por en razón de/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por a consecuencia de/gi, 'El paciente acude a consulta por');
+
+    // Eliminar frases redundantes relacionadas a la localización
     textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en localizado en/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El síntoma inició el El síntoma inició el/gi, 'El síntoma inició el');
-    textoCorregido = textoCorregido.replace(/Se describe como un dolor Se describe como un dolor/gi, 'Se describe como un dolor');
-    textoCorregido = textoCorregido.replace(/Se ha identificado que el dolor Se ha identificado que el dolor/gi, 'Se ha identificado que el dolor');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en en/gi, 'El paciente refiere la presencia de dolor localizado en');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en la zona de/gi, 'El paciente refiere la presencia de dolor localizado en');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el área de/gi, 'El paciente refiere la presencia de dolor localizado en');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en la región de/gi, 'El paciente refiere la presencia de dolor localizado en');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el sitio de/gi, 'El paciente refiere la presencia de dolor localizado en');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el lugar de/gi, 'El paciente refiere la presencia de dolor localizado en');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el punto de/gi, 'El paciente refiere la presencia de dolor localizado en');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en la parte de/gi, 'El paciente refiere la presencia de dolor localizado en');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en la ubicación de/gi, 'El paciente refiere la presencia de dolor localizado en');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el sector de/gi, 'El paciente refiere la presencia de dolor localizado en');
+
+    // Eliminar frases redundantes relacionadas a la atenuación
     textoCorregido = textoCorregido.replace(/Se ha observado que Se ha observado que/gi, 'Se ha observado que');
+    textoCorregido = textoCorregido.replace(/Se atenua con ibuprofeno influyen en su intensidad/gi, 'Se atenúa con ibuprofeno, lo cual influye en su intensidad');
 
     // Corregir mayúsculas al inicio de cada oración
     textoCorregido = textoCorregido.replace(/(^\s*\w|[.!?]\s*\w)/g, (match) => match.toUpperCase());
@@ -142,12 +162,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
 
     // Asegurar un espacio después de los signos de puntuación
     textoCorregido = textoCorregido.replace(/([.!?,])(\S)/g, '$1 $2');
-
-    // Corregir términos específicos
-    textoCorregido = textoCorregido.replace(/frecuencia continuo/gi, 'frecuencia continua');
-    textoCorregido = textoCorregido.replace(/intensidad moderado/gi, 'intensidad moderada');
-    textoCorregido = textoCorregido.replace(/espontaneo/gi, 'espontáneo');
-    textoCorregido = textoCorregido.replace(/Se atenua con ibuprofeno influyen en su intensidad/gi, 'Se atenúa con ibuprofeno, lo cual influye en su intensidad');
 
     return textoCorregido;
   };
@@ -266,7 +280,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
               <Textarea
                 value={formData.padecimientoActual.motivoConsulta}
                 onChange={(e) => handlePadecimientoChange("motivoConsulta", revisarRedaccion(e.target.value))}
-                placeholder="Describa el motivo fundamental por el que acude el paciente"
+                placeholder="El paciente acude a consulta por..."
                 className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
               />
               <div className="mt-2">
