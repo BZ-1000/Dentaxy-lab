@@ -31,10 +31,9 @@ interface FamiliaRowProps {
   formData: FormDataState;
   handleFamiliarChange: (familiar: string, field: string, value: string | boolean) => void;
   handleCondicionChange: (familiar: string, condicion: string, value: string | boolean) => void;
-  isHighlighted: boolean;
 }
 
-const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionChange, isHighlighted }: FamiliaRowProps) => {
+const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionChange }: FamiliaRowProps) => {
   const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
     const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
       "Padre": "padre",
@@ -85,7 +84,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
   };
 
   return (
-    <div className={`flex flex-col gap-4 border-b pb-6 ${isHighlighted ? 'border-red-500' : ''}`}>
+    <div className="flex flex-col gap-4 border-b pb-6">
       <div className="grid grid-cols-7 gap-4 items-center">
         <span className="font-semibold text-base text-center col-span-1 text-gray-700">{familiar}</span>
         {!familiarData.vivoSano && (
@@ -152,23 +151,17 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   const [copied, setCopied] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
   const [progress, setProgress] = useState(0);
-  const [canGenerate, setCanGenerate] = useState(true);
-  const [highlightedFamiliares, setHighlightedFamiliares] = useState<string[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [missingFamiliares, setMissingFamiliares] = useState<string[]>([]);
   const redaccionRef = useRef(null);
 
   useEffect(() => {
-    const allFamiliaresSelected = familiares.every(familiar => {
-      const familiarKey = getFamiliarKey(familiar);
-      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
-      return familiarData.vivoSano || familiarData.finado || Object.values(familiarData.condiciones).some(value => value);
-    });
-
-    setCanGenerate(allFamiliaresSelected);
-    setHighlightedFamiliares(familiares.filter(familiar => {
+    const missing = familiares.filter(familiar => {
       const familiarKey = getFamiliarKey(familiar);
       const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
       return !(familiarData.vivoSano || familiarData.finado || Object.values(familiarData.condiciones).some(value => value));
-    }));
+    });
+    setMissingFamiliares(missing);
   }, [formData]);
 
   const handleMinimize = () => {
@@ -187,6 +180,11 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   };
 
   const generarRedaccionIA = () => {
+    if (missingFamiliares.length > 0) {
+      setShowModal(true);
+      return;
+    }
+
     const textoGenerado = familiares.map(familiar => {
       const familiarKey = getFamiliarKey(familiar);
       const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
@@ -455,7 +453,6 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
                 formData={formData}
                 handleFamiliarChange={handleFamiliarChange}
                 handleCondicionChange={handleCondicionChange}
-                isHighlighted={highlightedFamiliares.includes(familiar)}
               />
             ))}
           </div>
@@ -463,7 +460,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
         {!showRedaccion && (
           <div className="p-6 flex justify-center gap-4">
-            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2" disabled={!canGenerate}>
+            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
               <span>Generar Redacción IA</span>
             </Button>
             <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
@@ -473,6 +470,23 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
           </div>
         )}
       </Card>
+
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Faltan datos</h2>
+            <p className="mb-4">Por favor, selecciona al menos una opción para los siguientes familiares:</p>
+            <ul className="list-disc list-inside mb-4">
+              {missingFamiliares.map((familiar, index) => (
+                <li key={index}>{familiar}</li>
+              ))}
+            </ul>
+            <Button onClick={() => setShowModal(false)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full">
+              Cerrar
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
