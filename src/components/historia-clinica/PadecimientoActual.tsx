@@ -126,12 +126,19 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
 
     // Corregir mayúsculas al inicio de cada oración
     textoCorregido = textoCorregido.replace(/(^\s*\w|[.!?]\s*\w)/g, (match) => match.toUpperCase());
-
+    
     // Eliminar espacios extra entre palabras y después de signos de puntuación
     textoCorregido = textoCorregido.replace(/\s+/g, ' ').replace(/([.!?,])(\S)/g, '$1 $2');
 
     // Asegurar un espacio después de los signos de puntuación
     textoCorregido = textoCorregido.replace(/([.!?,])(\S)/g, '$1 $2');
+
+    // Corregir términos específicos
+    textoCorregido = textoCorregido.replace(/localizado en localizado en/gi, 'localizado en');
+    textoCorregido = textoCorregido.replace(/frecuencia continuo/gi, 'frecuencia continua');
+    textoCorregido = textoCorregido.replace(/intensidad moderado/gi, 'intensidad moderada');
+    textoCorregido = textoCorregido.replace(/espontaneo/gi, 'espontáneo');
+    textoCorregido = textoCorregido.replace(/Se atenua con ibuprofeno influyen en su intensidad/gi, 'Se atenúa con ibuprofeno, lo cual influye en su intensidad');
 
     return textoCorregido;
   };
