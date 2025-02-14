@@ -72,17 +72,12 @@ const PadecimientoActual = ({
     let textoGenerado = "";
 
     if (sinSintomas) {
-      textoGenerado = `Motivo de consulta:
-      \nEl paciente acude a consulta por ${motivoConsulta}.
-      \n\nActualmente no refiere sintomatología.`;
+      textoGenerado = `Motivo de consulta:\nEl paciente acude a consulta por ${motivoConsulta}.\n\nActualmente no refiere sintomatología.`;
     } else {
       const historiaPadecimiento = formData.padecimientoActual.historiaPadecimiento.trim();
       const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion } = formData.padecimientoActual.dolor;
 
-      textoGenerado = `Motivo de consulta:
-      \nEl paciente acude a consulta por ${motivoConsulta}.
-      \n\nHistoria del padecimiento:
-      \nEl paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece en relación con ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} influyen en su intensidad.`;
+      textoGenerado = `Motivo de consulta:\nEl paciente acude a consulta por ${motivoConsulta}.\n\nHistoria del padecimiento:\nEl paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece en relación con ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} influyen en su intensidad.`;
     }
 
     // Revisar la redacción y corregir errores comunes
@@ -124,10 +119,10 @@ const PadecimientoActual = ({
 
     // Eliminar frases redundantes relacionadas al motivo de la consulta
     textoCorregido = textoCorregido.replace(/Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi, 'Motivo de consulta: El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El motivo de la consulta del paciente es/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por El paciente acude a consulta por/gi, 'El paciente acude a consulta por');
     textoCorregido = textoCorregido.replace(/El paciente acude a consulta por por/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente ingresa a consulta debido a/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente acude a la consulta por a causa de/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por debido a/gi, 'El paciente acude a consulta por');
+    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por a causa de/gi, 'El paciente acude a consulta por');
     textoCorregido = textoCorregido.replace(/El paciente acude a consulta por debido a que/gi, 'El paciente acude a consulta por');
     textoCorregido = textoCorregido.replace(/El paciente acude a consulta por porque/gi, 'El paciente acude a consulta por');
     textoCorregido = textoCorregido.replace(/El paciente acude a consulta por ya que/gi, 'El paciente acude a consulta por');
@@ -139,7 +134,7 @@ const PadecimientoActual = ({
     // Eliminar frases redundantes relacionadas a la localización
     textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en localizado en/gi, 'El paciente refiere la presencia de dolor localizado en');
     textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en en/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado /gi, 'El paciente refiere la presencia de dolor localizado en');
+    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en la zona de/gi, 'El paciente refiere la presencia de dolor localizado en');
     textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el área de/gi, 'El paciente refiere la presencia de dolor localizado en');
     textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en la región de/gi, 'El paciente refiere la presencia de dolor localizado en');
     textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el sitio de/gi, 'El paciente refiere la presencia de dolor localizado en');
