@@ -1,4 +1,3 @@
-
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { pipeline } from "@huggingface/transformers";
 
@@ -104,6 +103,19 @@ function processPadecimientoText(text: string): string {
     .trim();
 }
 
+function formatText(text: string): string {
+  // Agregar salto de línea después de dos puntos, excepto cuando hay una lista
+  let formattedText = text.replace(/:\s*(?![\s-*])/g, ':\n');
+  
+  // Agregar salto de línea después del punto en el motivo de consulta
+  formattedText = formattedText.replace(/(Motivo de consulta:[^\n]*\.)/g, '$1\n');
+  
+  // Asegurar que no haya múltiples saltos de línea consecutivos
+  formattedText = formattedText.replace(/\n\s*\n/g, '\n');
+  
+  return formattedText;
+}
+
 export const generateMedicalReport = async (formData: any) => {
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
@@ -171,6 +183,9 @@ export const generateMedicalReport = async (formData: any) => {
     
     // 3. Finalmente optimizamos con el modelo de Hugging Face
     text = await optimizeText(text);
+
+    // 4. Aplicamos el formato de saltos de línea
+    text = formatText(text);
 
     return text;
   } catch (error) {
