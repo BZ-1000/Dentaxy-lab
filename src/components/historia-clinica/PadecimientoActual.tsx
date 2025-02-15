@@ -81,6 +81,7 @@ const PadecimientoActual = ({
 
       textoGenerado = `Motivo de consulta:\n
       El paciente acude a consulta por ${motivoConsulta}.\n\n
+      
       Historia del padecimiento:\n
       El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}.`;
     }
