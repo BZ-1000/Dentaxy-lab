@@ -27,6 +27,7 @@ interface PadecimientoActualProps {
           descripcion: string;
         };
         atenuacion: string;
+        causaProvocado?: string; // Nueva propiedad para la causa del dolor
       };
     };
   };
@@ -48,6 +49,7 @@ const PadecimientoActual = ({
   const [displayedText, setDisplayedText] = useState("");
   const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [showCausasProvocado, setShowCausasProvocado] = useState(false);
   const redaccionRef = useRef(null);
 
   const handleMinimize = () => {
@@ -74,9 +76,13 @@ const PadecimientoActual = ({
     if (sinSintomas) {
       textoGenerado = `Motivo de consulta:\nEl paciente acude a consulta por ${motivoConsulta}.\n\nActualmente no refiere sintomatología.`;
     } else {
-      const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion } = formData.padecimientoActual.dolor;
+      const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion, causaProvocado } = formData.padecimientoActual.dolor;
 
-      textoGenerado = `Motivo de consulta:\nEl paciente acude a consulta por ${motivoConsulta}.\n\nHistoria del padecimiento:\nEl paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece de forma ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}.`;
+      textoGenerado = `Motivo de consulta:\nEl paciente acude a consulta por ${motivoConsulta}.\n\nHistoria del padecimiento:\nEl paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} lo atenúan.`;
+
+      if (causaProvocado) {
+        textoGenerado += ` El dolor está provocado por ${causaProvocado}.`;
+      }
     }
 
     // Aplicar las correcciones y formato
@@ -104,9 +110,11 @@ const PadecimientoActual = ({
     handleDolorChange("intensidad", "");
     handleDolorChange("localizacion", { tipo: "", descripcion: "" });
     handleDolorChange("atenuacion", "");
+    handleDolorChange("causaProvocado", "");
     handleSinSintomasChange(false);
     setRedaccionIA("");
     setShowRedaccion(false);
+    setShowCausasProvocado(false);
   };
 
   const removeDuplicates = (text: string): string => {
@@ -135,6 +143,11 @@ const PadecimientoActual = ({
 
     // Corregir mayúsculas después de punto
     textoCorregido = textoCorregido.replace(/\. ([a-z])/g, (_, letra) => `. ${letra.toUpperCase()}`);
+
+    // Mejorar la redacción de algunas frases
+    textoCorregido = textoCorregido.replace(/provocado por/gi, 'provocada por');
+    textoCorregido = textoCorregido.replace(/aparece en/gi, 'aparece en');
+    textoCorregido = textoCorregido.replace(/se ha observado que/gi, 'se ha observado que');
 
     return textoCorregido;
   };
@@ -289,12 +302,39 @@ const PadecimientoActual = ({
 
         {!isMinimized && !showRedaccion && (
           <div className="p-6 space-y-8">
-            <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={handleSinSintomasChange} />
+            <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={(checked) => {
+              handleSinSintomasChange(checked);
+              setShowCausasProvocado(false);
+            }} />
             {!formData.padecimientoActual.sinSintomas && (
               <div className="space-y-6">
                 <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
                   <h3 className="text-lg font-medium mb-6">En caso de dolor</h3>
-                  <CaracteristicasDolor dolor={formData.padecimientoActual.dolor} onDolorChange={handleDolorChange} />
+                  <CaracteristicasDolor dolor={formData.padecimientoActual.dolor} onDolorChange={(field, value) => {
+                    handleDolorChange(field, value);
+                    if (field === 'condicionAparicion' && value === 'provocado') {
+                      setShowCausasProvocado(true);
+                    } else if (field === 'condicionAparicion' && value !== 'provocado') {
+                      setShowCausasProvocado(false);
+                    }
+                  }} />
+                  {showCausasProvocado && (
+                    <div className="mt-4">
+                      <Label className="text-gray-700 dark:text-gray-300">Causa del dolor provocado:</Label>
+                      <select
+                        value={formData.padecimientoActual.dolor.causaProvocado || ''}
+                        onChange={(e) => handleDolorChange('causaProvocado', e.target.value)}
+                        className="mt-2 w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-md p-2"
+                      >
+                        <option value="">Seleccione una causa</option>
+                        <option value="caries">Caries</option>
+                        <option value="infeccion">Infección</option>
+                        <option value="trauma">Trauma</option>
+                        <option value="bruxismo">Bruxismo</option>
+                        <option value="otra">Otra</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
