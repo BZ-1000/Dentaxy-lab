@@ -85,14 +85,15 @@ const PadecimientoActual = ({
       El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}.`;
     }
 
-    // Revisar la redacción y corregir errores comunes
-    const textoCorregido = revisarRedaccion(textoGenerado);
+    // Aplicar las correcciones y formato
+    const textoRevisado = revisarRedaccion(textoGenerado);
+    const textoFinal = formatearTexto(textoRevisado);
 
-    setRedaccionIA(textoCorregido);
+    setRedaccionIA(textoFinal);
     setShowRedaccion(true);
 
     setTimeout(() => {
-      redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      redaccionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => {
         window.scrollBy(0, -200);
       }, 300);
@@ -114,61 +115,48 @@ const PadecimientoActual = ({
     setShowRedaccion(false);
   };
 
-  const removeDuplicates = (text) => {
+  const removeDuplicates = (text: string): string => {
     // Eliminar palabras consecutivas repetidas
     return text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
   };
 
-  const revisarRedaccion = (text) => {
+  const revisarRedaccion = (text: string): string => {
     let textoCorregido = removeDuplicates(text);
 
-    // Eliminar frases redundantes relacionadas al motivo de la consulta
-    textoCorregido = textoCorregido.replace(/Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi, 'Motivo de consulta: El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por El paciente acude a consulta por/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por por/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por debido a/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por a causa de/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por debido a que/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por porque/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por ya que/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente acude a consulta por dado que/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/Motivo de la consulta del paciente es por/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El motivo de la consulta es/gi, 'El paciente acude a consulta por');
-    textoCorregido = textoCorregido.replace(/El paciente ingresa a consulta por/gi, 'El paciente acude a consulta por');
+    // Eliminar frases redundantes comunes en historias clínicas
+    const frasesRedundantes = [
+      { patron: /Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi, reemplazo: 'Motivo de consulta: El paciente acude a consulta por' },
+      { patron: /El paciente acude a consulta por El paciente acude a consulta por/gi, reemplazo: 'El paciente acude a consulta por' },
+      { patron: /El paciente acude a consulta por por/gi, reemplazo: 'El paciente acude a consulta por' },
+      { patron: /El paciente acude a consulta por debido a/gi, reemplazo: 'El paciente acude a consulta por' },
+      { patron: /El paciente refiere la presencia de dolor localizado en localizado en/gi, reemplazo: 'El paciente refiere la presencia de dolor localizado en' },
+      { patron: /El paciente refiere que refiere/gi, reemplazo: 'El paciente refiere' },
+      { patron: /refiere que refiere/gi, reemplazo: 'refiere' },
+      { patron: /presenta dolor con dolor/gi, reemplazo: 'presenta dolor' },
+      { patron: /dolor doloroso/gi, reemplazo: 'dolor' },
+    ];
 
-    // Eliminar frases redundantes relacionadas a la localización
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en localizado en/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en en/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en la zona de/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el área de/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en la región de/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el sitio de/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el lugar de/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el punto de/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en la parte de/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en la ubicación de/gi, 'El paciente refiere la presencia de dolor localizado en');
-    textoCorregido = textoCorregido.replace(/El paciente refiere la presencia de dolor localizado en el sector de/gi, 'El paciente refiere la presencia de dolor localizado en');
+    frasesRedundantes.forEach(({ patron, reemplazo }) => {
+      textoCorregido = textoCorregido.replace(patron, reemplazo);
+    });
 
-    // Eliminar frases redundantes relacionadas a la atenuación
-    textoCorregido = textoCorregido.replace(/Se ha observado que Se ha observado que/gi, 'Se ha observado que');
-    textoCorregido = textoCorregido.replace(/Se atenua con ibuprofeno influyen en su intensidad/gi, 'Se atenúa con ibuprofeno, lo cual influye en su intensidad');
-
-    // Corregir mayúsculas al inicio de cada oración
-    textoCorregido = textoCorregido.replace(/(^\s*\w|[.!?]\s*\w)/g, (match) => match.toUpperCase());
-
-    // Eliminar espacios extra entre palabras y después de signos de puntuación
-    textoCorregido = textoCorregido.replace(/\s+/g, ' ').replace(/([.!?,])(\S)/g, '$1 $2');
-
-    // Asegurar un espacio después de los signos de puntuación
-    textoCorregido = textoCorregido.replace(/([.!?,])(\S)/g, '$1 $2');
-
-    // Corregir términos específicos
-    textoCorregido = textoCorregido.replace(/frecuencia continuo/gi, 'frecuencia continua');
-    textoCorregido = textoCorregido.replace(/intensidad moderado/gi, 'intensidad moderada');
-    textoCorregido = textoCorregido.replace(/espontaneo/gi, 'espontáneo');
-    textoCorregido = textoCorregido.replace(/Se atenua con ibuprofeno influyen en su intensidad/gi, 'Se atenúa con ibuprofeno, lo cual influye en su intensidad');
+    // Corregir mayúsculas después de punto
+    textoCorregido = textoCorregido.replace(/\. ([a-z])/g, (_, letra) => `. ${letra.toUpperCase()}`);
 
     return textoCorregido;
+  };
+
+  const formatearTexto = (text: string): string => {
+    // Agregar salto de línea después de dos puntos, excepto cuando hay una lista
+    let textoFormateado = text.replace(/:\s*(?![\s-*])/g, ':\n');
+    
+    // Agregar salto de línea después del punto en el motivo de consulta
+    textoFormateado = textoFormateado.replace(/(Motivo de consulta:[^\n]*\.)/g, '$1\n');
+    
+    // Asegurar que no haya múltiples saltos de línea consecutivos
+    textoFormateado = textoFormateado.replace(/\n\s*\n/g, '\n');
+    
+    return textoFormateado;
   };
 
   const handleCopy = async () => {
