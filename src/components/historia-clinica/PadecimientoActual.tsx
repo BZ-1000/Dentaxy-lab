@@ -261,10 +261,8 @@ const PadecimientoActual = ({
                 }}
               ></div>
             </div>
-            <Textarea
-              value={displayedText}
-              readOnly
-              className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y whitespace-pre-wrap"
+            <div 
+              className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-y-auto whitespace-pre-wrap"
               style={{ whiteSpace: 'pre-wrap' }}
               dangerouslySetInnerHTML={{ __html: displayedText }}
             />
