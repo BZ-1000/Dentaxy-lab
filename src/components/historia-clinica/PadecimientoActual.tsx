@@ -82,8 +82,7 @@ const PadecimientoActual = ({
       textoGenerado = `Motivo de consulta:
       El paciente acude a consulta por ${motivoConsulta}.
 
-      Historia del padecimiento:
-      El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}`;
+      Historia del padecimiento: El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}`;
     }
 
     // Aplicar las correcciones y formato
@@ -151,25 +150,19 @@ const PadecimientoActual = ({
     let textoFormateado = text
       .replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>')
       .replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
-    
+
     // Agregar salto de línea después de dos puntos (solo uno)
     textoFormateado = textoFormateado.replace(/:\s*/g, ': ');
-    
-    // Agregar doble salto de línea después del punto en el motivo de consulta
-    textoFormateado = textoFormateado.replace(/(Motivo de consulta:[^\n]*\.)/g, '$1\n\n');
-    
+
     // Justificar el texto de la historia del padecimiento
-    const sections = textoFormateado.split('Historia del padecimiento:');
-    if (sections.length > 1) {
-      textoFormateado = `${sections[0]}Historia del padecimiento:<div style="text-align: justify;">${sections[1]}</div>`;
-    }
-    
+    textoFormateado = `<div style="text-align: justify;">${textoFormateado}</div>`;
+
     // Eliminar punto final si existe
     textoFormateado = textoFormateado.replace(/\.$/, '');
-    
+
     // Asegurar que no haya múltiples saltos de línea consecutivos
     textoFormateado = textoFormateado.replace(/\n\s*\n\s*\n/g, '\n\n');
-    
+
     return textoFormateado;
   };
 
@@ -261,7 +254,7 @@ const PadecimientoActual = ({
                 }}
               ></div>
             </div>
-            <div 
+            <div
               className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-y-auto whitespace-pre-wrap"
               style={{ whiteSpace: 'pre-wrap' }}
               dangerouslySetInnerHTML={{ __html: displayedText }}
