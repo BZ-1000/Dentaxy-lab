@@ -36,6 +36,65 @@ interface PadecimientoActualProps {
   handleSinSintomasChange: (checked: boolean) => void;
 }
 
+function revisarRedaccion(text: string): string {
+  // Eliminar palabras consecutivas repetidas
+  let textoCorregido = text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
+
+  // Eliminar frases redundantes comunes en historias clínicas
+  const frasesRedundantes = [
+    { patron: /Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi, reemplazo: 'Motivo de consulta: El paciente acude a consulta por' },
+    { patron: /El paciente acude a consulta por El paciente acude a consulta por/gi, reemplazo: 'El paciente acude a consulta por' },
+    { patron: /El paciente acude a consulta por por/gi, reemplazo: 'El paciente acude a consulta por' },
+    { patron: /El paciente acude a consulta por debido a/gi, reemplazo: 'El paciente acude a consulta por' },
+    { patron: /El paciente refiere la presencia de dolor localizado en localizado en/gi, reemplazo: 'El paciente refiere la presencia de dolor localizado en' },
+    { patron: /El paciente refiere que refiere/gi, reemplazo: 'El paciente refiere' },
+    { patron: /refiere que refiere/gi, reemplazo: 'refiere' },
+    { patron: /presenta dolor con doloroso/gi, reemplazo: 'presenta dolor' },
+  ];
+
+  frasesRedundantes.forEach(({ patron, reemplazo }) => {
+    textoCorregido = textoCorregido.replace(patron, reemplazo);
+  });
+
+  // Corregir mayúsculas después de punto
+  textoCorregido = textoCorregido.replace(/\. ([a-z])/g, (_, letra) => `. ${letra.toUpperCase()}`);
+
+  // Mejorar la redacción de algunas frases
+  textoCorregido = textoCorregido
+    .replace(/provocado por/gi, 'provocada por')
+    .replace(/aparece en/gi, 'aparece cuando')
+    .replace(/se ha observado que/gi, 'se observa que')
+    .replace(/presenta un dolor/gi, 'manifiesta dolor')
+    .replace(/tiene dolor/gi, 'presenta dolor')
+    .replace(/el dolor es/gi, 'el dolor se caracteriza por ser');
+
+  return textoCorregido;
+}
+
+function formatearTexto(text: string): string {
+  // Reemplazar los títulos con HTML
+  let textoFormateado = text
+    .replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>')
+    .replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
+
+  // Justificar el texto de la historia del padecimiento
+  const sections = textoFormateado.split('<strong>Historia del padecimiento:</strong>');
+  if (sections.length > 1) {
+    textoFormateado = `${sections[0]}<strong>Historia del padecimiento:</strong><div style="text-align: justify;">${sections[1].trim()}</div>`;
+  }
+
+  // Eliminar punto final si existe
+  textoFormateado = textoFormateado.replace(/\.$/, '');
+
+  // Asegurar que solo haya un salto de línea después de "Historia del padecimiento:"
+  textoFormateado = textoFormateado.replace(/<strong>Historia del padecimiento:<\/strong>\s*\n\s*/g, '<strong>Historia del padecimiento:</strong>\n');
+
+  // Eliminar múltiples saltos de línea consecutivos
+  textoFormateado = textoFormateado.replace(/\n\s*\n\s*\n/g, '\n\n');
+
+  return textoFormateado;
+}
+
 const PadecimientoActual = ({
   formData,
   handlePadecimientoChange,
@@ -74,14 +133,25 @@ const PadecimientoActual = ({
     let textoGenerado = "";
 
     if (sinSintomas) {
-      textoGenerado = `Motivo de consulta:\nEl paciente acude a consulta por ${motivoConsulta}.\n\nActualmente no refiere sintomatología.`;
+      textoGenerado = `Motivo de consulta:
+El paciente acude a consulta por ${motivoConsulta}.
+
+Actualmente no refiere sintomatología`;
     } else {
       const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion, causaProvocado } = formData.padecimientoActual.dolor;
 
-      textoGenerado = `Motivo de consulta:\nEl paciente acude a consulta por ${motivoConsulta}.\n\nHistoria del padecimiento:\nEl paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'} lo atenúan.`;
+      textoGenerado = `Motivo de consulta:
+El paciente acude a consulta por ${motivoConsulta}.
 
-      if (causaProvocado) {
-        textoGenerado += ` El dolor está provocado por ${causaProvocado}.`;
+Historia del padecimiento:
+El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'}`;
+
+      if (condicionAparicion === 'provocado' && causaProvocado) {
+        textoGenerado += `, siendo provocado específicamente por ${causaProvocado}`;
+      }
+
+      if (atenuacion) {
+        textoGenerado += `. Se ha observado que ${atenuacion}`;
       }
     }
 
@@ -120,60 +190,6 @@ const PadecimientoActual = ({
   const removeDuplicates = (text: string): string => {
     // Eliminar palabras consecutivas repetidas
     return text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
-  };
-
-  const revisarRedaccion = (text: string): string => {
-    let textoCorregido = removeDuplicates(text);
-
-    // Eliminar frases redundantes comunes en historias clínicas
-    const frasesRedundantes = [
-      { patron: /Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi, reemplazo: 'Motivo de consulta: El paciente acude a consulta por' },
-      { patron: /El paciente acude a consulta por El paciente acude a consulta por/gi, reemplazo: 'El paciente acude a consulta por' },
-      { patron: /El paciente acude a consulta por por/gi, reemplazo: 'El paciente acude a consulta por' },
-      { patron: /El paciente acude a consulta por debido a/gi, reemplazo: 'El paciente acude a consulta por' },
-      { patron: /El paciente refiere la presencia de dolor localizado en localizado en/gi, reemplazo: 'El paciente refiere la presencia de dolor localizado en' },
-      { patron: /El paciente refiere que refiere/gi, reemplazo: 'El paciente refiere' },
-      { patron: /refiere que refiere/gi, reemplazo: 'refiere' },
-      { patron: /presenta dolor con doloroso/gi, reemplazo: 'presenta dolor' },
-    ];
-
-    frasesRedundantes.forEach(({ patron, reemplazo }) => {
-      textoCorregido = textoCorregido.replace(patron, reemplazo);
-    });
-
-    // Corregir mayúsculas después de punto
-    textoCorregido = textoCorregido.replace(/\. ([a-z])/g, (_, letra) => `. ${letra.toUpperCase()}`);
-
-    // Mejorar la redacción de algunas frases
-    textoCorregido = textoCorregido.replace(/provocado por/gi, 'provocada por');
-    textoCorregido = textoCorregido.replace(/aparece en/gi, 'aparece en');
-    textoCorregido = textoCorregido.replace(/se ha observado que/gi, 'se ha observado que');
-
-    return textoCorregido;
-  };
-
-  const formatearTexto = (text: string): string => {
-    // Reemplazar los títulos con HTML en lugar de markdown
-    let textoFormateado = text
-      .replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>')
-      .replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
-
-    // Justificar el texto de la historia del padecimiento
-    const sections = textoFormateado.split('<strong>Historia del padecimiento:</strong>');
-    if (sections.length > 1) {
-      textoFormateado = `${sections[0]}<strong>Historia del padecimiento:</strong><div style="text-align: justify;">${sections[1].trim()}</div>`;
-    }
-
-    // Asegurar que solo haya un salto de línea después de "Historia del padecimiento:"
-    textoFormateado = textoFormateado.replace(/<strong>Historia del padecimiento:<\/strong>\s*\n\s*/g, '<strong>Historia del padecimiento:</strong>\n');
-
-    // Eliminar punto final si existe
-    textoFormateado = textoFormateado.replace(/\.$/, '');
-
-    // Asegurar que no haya múltiples saltos de línea consecutivos
-    textoFormateado = textoFormateado.replace(/\n\s*\n\s*\n/g, '\n\n');
-
-    return textoFormateado;
   };
 
   const handleCopy = async () => {
@@ -321,18 +337,19 @@ const PadecimientoActual = ({
                   {showCausasProvocado && (
                     <div className="mt-4">
                       <Label className="text-gray-700 dark:text-gray-300">Causa del dolor provocado:</Label>
-                      <select
-                        value={formData.padecimientoActual.dolor.causaProvocado || ''}
-                        onChange={(e) => handleDolorChange('causaProvocado', e.target.value)}
-                        className="mt-2 w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 rounded-md p-2"
-                      >
-                        <option value="">Seleccione una causa</option>
-                        <option value="caries">Caries</option>
-                        <option value="infeccion">Infección</option>
-                        <option value="trauma">Trauma</option>
-                        <option value="bruxismo">Bruxismo</option>
-                        <option value="otra">Otra</option>
-                      </select>
+                      <div className="flex items-center gap-4">
+                        <Textarea
+                          value={formData.padecimientoActual.dolor.causaProvocado || ''}
+                          onChange={(e) => handleDolorChange('causaProvocado', e.target.value)}
+                          placeholder="Describa la causa específica que provoca el dolor..."
+                          className="min-h-[100px] max-h-[200px] w-[75%]"
+                        />
+                        <div className="h-[40px]">
+                          <VoiceInput 
+                            onTranscriptionComplete={(text) => handleDolorChange('causaProvocado', text)} 
+                          />
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
