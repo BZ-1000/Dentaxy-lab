@@ -74,16 +74,15 @@ const PadecimientoActual = ({
     if (sinSintomas) {
       textoGenerado = `Motivo de consulta:\n
       El paciente acude a consulta por ${motivoConsulta}.\n\n
-      Actualmente no refiere sintomatología.`;
+      Actualmente no refiere sintomatología`;
     } else {
       const historiaPadecimiento = formData.padecimientoActual.historiaPadecimiento.trim();
       const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion } = formData.padecimientoActual.dolor;
 
       textoGenerado = `Motivo de consulta:\n
       El paciente acude a consulta por ${motivoConsulta}.\n\n
-      
       Historia del padecimiento:\n
-      El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}.`;
+      El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}`;
     }
 
     // Aplicar las correcciones y formato
@@ -148,14 +147,28 @@ const PadecimientoActual = ({
   };
 
   const formatearTexto = (text: string): string => {
-    // Agregar salto de línea después de dos puntos, excepto cuando hay una lista
-    let textoFormateado = text.replace(/:\s*(?![\s-*])/g, ':\n');
+    // Agregar negritas a los títulos
+    let textoFormateado = text
+      .replace(/Motivo de consulta:/g, '**Motivo de consulta:**')
+      .replace(/Historia del padecimiento:/g, '**Historia del padecimiento:**');
     
-    // Agregar salto de línea después del punto en el motivo de consulta
-    textoFormateado = textoFormateado.replace(/(Motivo de consulta:[^\n]*\.)/g, '$1\n');
+    // Agregar salto de línea después de dos puntos, excepto cuando hay una lista
+    textoFormateado = textoFormateado.replace(/:\s*(?![\s-*])/g, ':\n');
+    
+    // Agregar doble salto de línea después del punto en el motivo de consulta
+    textoFormateado = textoFormateado.replace(/(Motivo de consulta:[^\n]*\.)/g, '$1\n\n');
+    
+    // Justificar el texto de la historia del padecimiento
+    textoFormateado = textoFormateado.replace(
+      /(Historia del padecimiento:\n)(.*?)(?=\n|$)/s,
+      (match, title, content) => `${title}<div style="text-align: justify;">${content}</div>`
+    );
+    
+    // Eliminar punto final si existe
+    textoFormateado = textoFormateado.replace(/\.$/, '');
     
     // Asegurar que no haya múltiples saltos de línea consecutivos
-    textoFormateado = textoFormateado.replace(/\n\s*\n/g, '\n');
+    textoFormateado = textoFormateado.replace(/\n\s*\n\s*\n/g, '\n\n');
     
     return textoFormateado;
   };
@@ -251,8 +264,9 @@ const PadecimientoActual = ({
             <Textarea
               value={displayedText}
               readOnly
-              className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
-              style={{ whiteSpace: 'pre-wrap' }} // Asegura que se respete el formato de salto de línea
+              className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y whitespace-pre-wrap"
+              style={{ whiteSpace: 'pre-wrap' }}
+              dangerouslySetInnerHTML={{ __html: displayedText }}
             />
             <Button
               onClick={handleCopy}
