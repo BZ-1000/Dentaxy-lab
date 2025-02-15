@@ -72,16 +72,17 @@ const PadecimientoActual = ({
     let textoGenerado = "";
 
     if (sinSintomas) {
-      textoGenerado = `Motivo de consulta:\n
-      El paciente acude a consulta por ${motivoConsulta}.\n\n
+      textoGenerado = `Motivo de consulta:
+      El paciente acude a consulta por ${motivoConsulta}.
+
       Actualmente no refiere sintomatología`;
     } else {
-      const historiaPadecimiento = formData.padecimientoActual.historiaPadecimiento.trim();
       const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion } = formData.padecimientoActual.dolor;
 
-      textoGenerado = `Motivo de consulta:\n
-      El paciente acude a consulta por ${motivoConsulta}.\n\n
-      Historia del padecimiento:\n
+      textoGenerado = `Motivo de consulta:
+      El paciente acude a consulta por ${motivoConsulta}.
+
+      Historia del padecimiento:
       El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}`;
     }
 
@@ -132,8 +133,7 @@ const PadecimientoActual = ({
       { patron: /El paciente refiere la presencia de dolor localizado en localizado en/gi, reemplazo: 'El paciente refiere la presencia de dolor localizado en' },
       { patron: /El paciente refiere que refiere/gi, reemplazo: 'El paciente refiere' },
       { patron: /refiere que refiere/gi, reemplazo: 'refiere' },
-      { patron: /presenta dolor con dolor/gi, reemplazo: 'presenta dolor' },
-      { patron: /dolor doloroso/gi, reemplazo: 'dolor' },
+      { patron: /presenta dolor con doloroso/gi, reemplazo: 'presenta dolor' },
     ];
 
     frasesRedundantes.forEach(({ patron, reemplazo }) => {
@@ -147,22 +147,22 @@ const PadecimientoActual = ({
   };
 
   const formatearTexto = (text: string): string => {
-    // Agregar negritas a los títulos
+    // Reemplazar los títulos con HTML en lugar de markdown
     let textoFormateado = text
-      .replace(/Motivo de consulta:/g, '**Motivo de consulta:**')
-      .replace(/Historia del padecimiento:/g, '**Historia del padecimiento:**');
+      .replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>')
+      .replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
     
-    // Agregar salto de línea después de dos puntos, excepto cuando hay una lista
-    textoFormateado = textoFormateado.replace(/:\s*(?![\s-*])/g, ':\n');
+    // Agregar salto de línea después de dos puntos (solo uno)
+    textoFormateado = textoFormateado.replace(/:\s*/g, ': ');
     
     // Agregar doble salto de línea después del punto en el motivo de consulta
     textoFormateado = textoFormateado.replace(/(Motivo de consulta:[^\n]*\.)/g, '$1\n\n');
     
     // Justificar el texto de la historia del padecimiento
-    textoFormateado = textoFormateado.replace(
-      /(Historia del padecimiento:\n)(.*?)(?=\n|$)/s,
-      (match, title, content) => `${title}<div style="text-align: justify;">${content}</div>`
-    );
+    const sections = textoFormateado.split('Historia del padecimiento:');
+    if (sections.length > 1) {
+      textoFormateado = `${sections[0]}Historia del padecimiento:<div style="text-align: justify;">${sections[1]}</div>`;
+    }
     
     // Eliminar punto final si existe
     textoFormateado = textoFormateado.replace(/\.$/, '');
