@@ -72,17 +72,11 @@ const PadecimientoActual = ({
     let textoGenerado = "";
 
     if (sinSintomas) {
-      textoGenerado = `Motivo de consulta:
-      El paciente acude a consulta por ${motivoConsulta}.
-
-      Actualmente no refiere sintomatología`;
+      textoGenerado = `Motivo de consulta:\nEl paciente acude a consulta por ${motivoConsulta}.\n\nActualmente no refiere sintomatología.`;
     } else {
       const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion } = formData.padecimientoActual.dolor;
 
-      textoGenerado = `Motivo de consulta:
-      El paciente acude a consulta por ${motivoConsulta}.
-
-      Historia del padecimiento: El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}`;
+      textoGenerado = `Motivo de consulta:\nEl paciente acude a consulta por ${motivoConsulta}.\n\nHistoria del padecimiento:\nEl paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}.`;
     }
 
     // Aplicar las correcciones y formato
@@ -150,9 +144,6 @@ const PadecimientoActual = ({
     let textoFormateado = text
       .replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>')
       .replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
-
-    // Agregar salto de línea después de dos puntos (solo uno)
-    textoFormateado = textoFormateado.replace(/:\s*/g, ': ');
 
     // Justificar el texto de la historia del padecimiento
     const sections = textoFormateado.split('<strong>Historia del padecimiento:</strong>');
