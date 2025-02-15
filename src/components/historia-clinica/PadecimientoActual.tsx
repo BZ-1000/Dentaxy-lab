@@ -76,7 +76,7 @@ const PadecimientoActual = ({
     } else {
       const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion } = formData.padecimientoActual.dolor;
 
-      textoGenerado = `Motivo de consulta:\nEl paciente acude a consulta por ${motivoConsulta}.\n\nHistoria del padecimiento:\nEl paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}.`;
+      textoGenerado = `Motivo de consulta:\nEl paciente acude a consulta por ${motivoConsulta}.\n\nHistoria del padecimiento:\nEl paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece de forma ${condicionAparicion || 'una condición no especificada'} y se ha observado que ${atenuacion || 'factores no especificados'}.`;
     }
 
     // Aplicar las correcciones y formato
