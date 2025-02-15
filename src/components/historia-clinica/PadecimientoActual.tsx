@@ -155,7 +155,13 @@ const PadecimientoActual = ({
     textoFormateado = textoFormateado.replace(/:\s*/g, ': ');
 
     // Justificar el texto de la historia del padecimiento
-    textoFormateado = `<div style="text-align: justify;">${textoFormateado}</div>`;
+    const sections = textoFormateado.split('<strong>Historia del padecimiento:</strong>');
+    if (sections.length > 1) {
+      textoFormateado = `${sections[0]}<strong>Historia del padecimiento:</strong><div style="text-align: justify;">${sections[1].trim()}</div>`;
+    }
+
+    // Asegurar que solo haya un salto de línea después de "Historia del padecimiento:"
+    textoFormateado = textoFormateado.replace(/<strong>Historia del padecimiento:<\/strong>\s*\n\s*/g, '<strong>Historia del padecimiento:</strong>\n');
 
     // Eliminar punto final si existe
     textoFormateado = textoFormateado.replace(/\.$/, '');
