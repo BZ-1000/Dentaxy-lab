@@ -127,7 +127,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="intermitente">Intermitente</SelectItem>
-              <SelectItem value="continuo">Continua</SelectItem>
+              <SelectItem value="continua">Continua</SelectItem>
             </SelectContent>
           </Select>
         </div>
