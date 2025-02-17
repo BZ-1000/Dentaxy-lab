@@ -161,8 +161,8 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="leve">Leve</SelectItem>
-              <SelectItem value="moderado">Moderado</SelectItem>
-              <SelectItem value="severo">Severo</SelectItem>
+              <SelectItem value="moderado">Moderada</SelectItem>
+              <SelectItem value="severo">Severa</SelectItem>
             </SelectContent>
           </Select>
         </div>
