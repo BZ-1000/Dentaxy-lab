@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -152,8 +151,8 @@ const AntecedentesPersonalesNoPatologicos = ({
                 <div className="grid gap-4">
                   <div>
                     <Label>Frecuencia de Limpieza</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
+                    <Select>
+                      <SelectTrigger className="mt-2">
                         <SelectValue placeholder="Seleccione frecuencia" />
                       </SelectTrigger>
                       <SelectContent>
@@ -179,8 +178,8 @@ const AntecedentesPersonalesNoPatologicos = ({
                 <div className="grid gap-4">
                   <div>
                     <Label>Frecuencia de Baño</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
+                    <Select>
+                      <SelectTrigger className="mt-2">
                         <SelectValue placeholder="Seleccione frecuencia" />
                       </SelectTrigger>
                       <SelectContent>
@@ -198,8 +197,8 @@ const AntecedentesPersonalesNoPatologicos = ({
                 <div className="grid gap-4">
                   <div>
                     <Label>Frecuencia de Cepillado</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
+                    <Select>
+                      <SelectTrigger className="mt-2">
                         <SelectValue placeholder="Seleccione frecuencia" />
                       </SelectTrigger>
                       <SelectContent>
@@ -231,8 +230,8 @@ const AntecedentesPersonalesNoPatologicos = ({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Grupo Sanguíneo</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
+                    <Select>
+                      <SelectTrigger className="mt-2">
                         <SelectValue placeholder="Seleccione grupo" />
                       </SelectTrigger>
                       <SelectContent>
