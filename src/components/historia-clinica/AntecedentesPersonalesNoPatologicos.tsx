@@ -103,28 +103,28 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   </div>
                   <div>
                     <Label>Servicios Disponibles</Label>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      <div className="flex items-center space-x-2">
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="agua" />
                         <Label htmlFor="agua">Agua</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="luz" />
                         <Label htmlFor="luz">Luz</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="drenaje" />
                         <Label htmlFor="drenaje">Drenaje</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="transporte" />
                         <Label htmlFor="transporte">Transporte</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="internet" />
                         <Label htmlFor="internet">Internet</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="gas" />
                         <Label htmlFor="gas">Gas</Label>
                       </div>
@@ -192,55 +192,53 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   </div>
                   <div className="mt-2">
                     <Label>Presencia de Hacinamiento</Label>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="hacinamiento-si" />
-                      <Label htmlFor="hacinamiento-si">Sí, duermen más de 3 personas en una habitación</Label>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="hacinamiento-no" />
-                      <Label htmlFor="hacinamiento-no">No hay hacinamiento</Label>
-                    </div>
+                    <Select className="mt-2">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione opción" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="si">Sí, duermen más de 3 personas en una habitación</SelectItem>
+                        <SelectItem value="no">No hay hacinamiento</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="mt-2">
                     <Label>Presencia de Promiscuidad</Label>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="promiscuidad-si" />
-                      <Label htmlFor="promiscuidad-si">Sí</Label>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="promiscuidad-no" />
-                      <Label htmlFor="promiscuidad-no">No</Label>
-                    </div>
+                    <Select className="mt-2">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione opción" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="si">Sí</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="mt-2">
                     <Label>Presencia de Animales en Casa</Label>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="animales-dentro" />
-                      <Label htmlFor="animales-dentro">Sí, dentro de la casa</Label>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="animales-patio" />
-                      <Label htmlFor="animales-patio">Sí, en el patio</Label>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="no-mascotas" />
-                      <Label htmlFor="no-mascotas">No tienen mascotas</Label>
-                    </div>
+                    <Select className="mt-2">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione opción" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="dentro">Sí, dentro de la casa</SelectItem>
+                        <SelectItem value="patio">Sí, en el patio</SelectItem>
+                        <SelectItem value="no">No tienen mascotas</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="mt-2">
                     <Label>Manejo de Residuos</Label>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="recicla" />
-                      <Label htmlFor="recicla">Separa y recicla la basura</Label>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="basura-diaria" />
-                      <Label htmlFor="basura-diaria">Bota la basura diariamente</Label>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="acumula-basura" />
-                      <Label htmlFor="acumula-basura">Acumula basura dentro de la vivienda</Label>
-                    </div>
+                    <Select className="mt-2">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione opción" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="recicla">Separa y recicla la basura</SelectItem>
+                        <SelectItem value="diaria">Bota la basura diariamente</SelectItem>
+                        <SelectItem value="acumula">Acumula basura dentro de la vivienda</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -327,20 +325,20 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   </div>
                   <div className="mt-2">
                     <Label>Uso de Auxiliares</Label>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      <div className="flex items-center space-x-2">
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="hilo-dental" />
                         <Label htmlFor="hilo-dental">Hilo Dental</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="enjuague" />
                         <Label htmlFor="enjuague">Enjuague Bucal</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="irrigador" />
                         <Label htmlFor="irrigador">Irrigador Dental</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="no-auxiliares" />
                         <Label htmlFor="no-auxiliares">No usa auxiliares</Label>
                       </div>
@@ -362,24 +360,24 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   </div>
                   <div className="mt-2">
                     <Label>Problemas Bucales Presentes</Label>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      <div className="flex items-center space-x-2">
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="encias-sangran" />
                         <Label htmlFor="encias-sangran">Encías que sangran al cepillarse</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="dientes-agujeros" />
                         <Label htmlFor="dientes-agujeros">Dientes con agujeros o zonas oscuras</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="mal-aliento" />
                         <Label htmlFor="mal-aliento">Mal aliento frecuente</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="dolor-dientes" />
                         <Label htmlFor="dolor-dientes">Dolor en dientes o encías</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="no-problemas" />
                         <Label htmlFor="no-problemas">No tengo problemas bucales</Label>
                       </div>
@@ -393,24 +391,24 @@ const AntecedentesPersonalesNoPatologicos = () => {
                 <div className="grid gap-4">
                   <div>
                     <Label>Tipo de Alimentos Consumidos Frecuentemente</Label>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      <div className="flex items-center space-x-2">
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="frutas-verduras" />
                         <Label htmlFor="frutas-verduras">Frutas y verduras</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="carnes-proteinas" />
                         <Label htmlFor="carnes-proteinas">Carnes y proteínas</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="alimentos-procesados" />
                         <Label htmlFor="alimentos-procesados">Alimentos procesados y fritos</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="dulces-azucares" />
                         <Label htmlFor="dulces-azucares">Dulces y azúcares</Label>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1">
                         <CustomCheckbox id="lacteos" />
                         <Label htmlFor="lacteos">Lácteos</Label>
                       </div>
@@ -504,42 +502,17 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </Select>
                   </div>
                   <div className="mt-2">
-                    <Label>Saltas Alguna Comida Frecuentemente?</Label>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      <div className="flex items-center space-x-2">
-                        <CustomCheckbox id="salta-desayuno" />
-                        <Label htmlFor="salta-desayuno">Sí, el desayuno</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CustomCheckbox id="salta-almuerzo" />
-                        <Label htmlFor="salta-almuerzo">Sí, el almuerzo</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CustomCheckbox id="salta-cena" />
-                        <Label htmlFor="salta-cena">Sí, la cena</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CustomCheckbox id="no-salta" />
-                        <Label htmlFor="no-salta">No</Label>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-2">
                     <Label>Realizas Ayuno Prolongado?</Label>
-                    <div className="grid grid-cols-2 gap-4 mt-2">
-                      <div className="flex items-center space-x-2">
-                        <CustomCheckbox id="ayuno-eleccion" />
-                        <Label htmlFor="ayuno-eleccion">Sí, por elección</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CustomCheckbox id="ayuno-acceso" />
-                        <Label htmlFor="ayuno-acceso">Sí, por falta de acceso a alimentos</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <CustomCheckbox id="no-ayuno" />
-                        <Label htmlFor="no-ayuno">No</Label>
-                      </div>
-                    </div>
+                    <Select className="mt-2">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione opción" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="eleccion">Sí, por elección</SelectItem>
+                        <SelectItem value="acceso">Sí, por falta de acceso a alimentos</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
