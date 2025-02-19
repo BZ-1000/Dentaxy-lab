@@ -48,6 +48,16 @@ export const useHistoriaClinica = () => {
     }
   };
 
+  const handleFormSectionChange = (section: string, field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: value
+      }
+    }));
+  };
+
   const generarResumen = async () => {
     try {
       setIsGenerating(true);
@@ -73,6 +83,7 @@ export const useHistoriaClinica = () => {
     resumen,
     isGenerating,
     handleInputChange,
+    handleFormSectionChange,
     generarResumen
   };
 };

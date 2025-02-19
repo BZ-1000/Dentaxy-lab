@@ -18,11 +18,7 @@ const HistoriaClinica = () => {
     resumen,
     isGenerating,
     handleInputChange,
-    handlePadecimientoChange,
-    handleDolorChange,
-    handleSinSintomasChange,
-    handleFamiliarChange,
-    handleCondicionChange,
+    handleFormSectionChange,
     generarResumen
   } = useHistoriaClinica();
 
@@ -33,15 +29,16 @@ const HistoriaClinica = () => {
           <div className="space-y-6">            
             <PadecimientoActual 
               formData={formData}
-              handlePadecimientoChange={handlePadecimientoChange}
-              handleDolorChange={handleDolorChange}
-              handleSinSintomasChange={handleSinSintomasChange}
+              handleInputChange={(field: string, value: any) => 
+                handleFormSectionChange('padecimientoActual', field, value)
+              }
             />
             
             <AntecedentesHeredoFamiliares 
               formData={formData}
-              handleFamiliarChange={handleFamiliarChange}
-              handleCondicionChange={handleCondicionChange}
+              handleInputChange={(field: string, value: any) => 
+                handleFormSectionChange('antecedentesHeredoFamiliares', field, value)
+              }
             />
 
             <AntecedentesPersonalesNoPatologicos
