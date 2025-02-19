@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,8 +10,12 @@ import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 const AntecedentesPersonalesNoPatologicos = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
-  const [showForm, setShowForm] = useState(true);
-  const formRef = useRef(null);
+  const [showRedaccion, setShowRedaccion] = useState(false);
+  const [redaccionIA, setRedaccionIA] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [displayedText, setDisplayedText] = useState("");
+  const [progress, setProgress] = useState(0);
+  const redaccionRef = useRef(null);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -28,6 +32,50 @@ const AntecedentesPersonalesNoPatologicos = () => {
     setIsMaximized(false);
   };
 
+  const generarRedaccionIA = () => {
+    // Lógica para generar la redacción basada en los datos del formulario
+    const textoGenerado = "Este es un ejemplo de redacción generada automáticamente...";
+    setRedaccionIA(textoGenerado);
+    setDisplayedText(""); // Reset the displayed text
+    setShowRedaccion(true);
+
+    setTimeout(() => {
+      redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(() => {
+        window.scrollBy(0, -200);
+      }, 300);
+    }, 100);
+  };
+
+  const limpiarFormulario = () => {
+    // Lógica para limpiar el formulario
+    setRedaccionIA("");
+    setShowRedaccion(false);
+  };
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(redaccionIA);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
+
+  useEffect(() => {
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < redaccionIA.length) {
+        setDisplayedText(redaccionIA.substring(0, index + 1));
+        setProgress((index / redaccionIA.length) * 100);
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
+
+    return () => clearInterval(interval);
+  }, [redaccionIA]);
+
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
@@ -35,16 +83,16 @@ const AntecedentesPersonalesNoPatologicos = () => {
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
               <button
-                onClick={() => setShowForm(true)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+                onClick={() => setShowRedaccion(false)}
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
                 Formulario
               </button>
               <button
-                onClick={() => setShowForm(false)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+                onClick={() => setShowRedaccion(true)}
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
-                Vista Previa
+                Redacción IA
               </button>
             </div>
           </div>
@@ -69,10 +117,58 @@ const AntecedentesPersonalesNoPatologicos = () => {
         </div>
 
         {!isMinimized && (
-          <div className="p-6" ref={formRef}>
-            <div className="space-y-6">
-              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                <h4 className="text-lg font-semibold mb-4">Servicios Domiciliarios</h4>
+          <>
+            {showRedaccion ? (
+              <div ref={redaccionRef} className="p-6">
+                <label className="font-mono text-sm font-medium text-gray-800">
+                  Redacción IA...
+                </label>
+                <div
+                  className="progress-bar-container"
+                  style={{
+                    width: '100%',
+                    backgroundColor: '#d3d3d3',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    marginBottom: '1rem',
+                    boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <div
+                    className="progress-bar"
+                    style={{
+                      height: '8px',
+                      backgroundColor: '#34c759',
+                      transition: 'width 0.015s ease-in-out',
+                      width: `${progress}%`,
+                      borderRadius: '12px',
+                    }}
+                  ></div>
+                </div>
+                <div
+                  className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
+                  style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                >
+                  {displayedText}
+                </div>
+
+                <Button
+                  onClick={handleCopy}
+                  className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
+                >
+                  <Copy className="w-4 h-4" />
+                  <span>Copiar Redacción</span>
+                  {copied && (
+                    <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
+                      <CheckCircle className="w-4 h-4" />
+                      <span>Copiado</span>
+                    </div>
+                  )}
+                </Button>
+              </div>
+            ) : (
+              <div className="p-6 space-y-6">
+                {/* Aquí va el formulario */}
                 <div className="grid gap-4">
                   <div>
                     <Label>Tipo de Vivienda</Label>
@@ -155,42 +251,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                <h4 className="text-lg font-semibold mb-4">Higiene de la Vivienda</h4>
-                <div className="grid gap-4">
                   <div>
-                    <Label>Regularidad en el Aseo de la Vivienda</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione frecuencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="diariamente">Diariamente</SelectItem>
-                        <SelectItem value="semanalmente">Semanalmente</SelectItem>
-                        <SelectItem value="quincenal">Quincenal</SelectItem>
-                        <SelectItem value="esporadico">Esporádico</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Cambio de Ropa de Cama</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione frecuencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="diario">Diario</SelectItem>
-                        <SelectItem value="semanal">Semanal</SelectItem>
-                        <SelectItem value="quincenal">Quincenal</SelectItem>
-                        <SelectItem value="mensual">Mensual</SelectItem>
-                        <SelectItem value="no-regular">No se cambia regularmente</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="mt-2">
                     <Label>Presencia de Hacinamiento</Label>
                     <Select className="mt-2">
                       <SelectTrigger>
@@ -202,7 +263,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="mt-2">
+                  <div>
                     <Label>Presencia de Promiscuidad</Label>
                     <Select className="mt-2">
                       <SelectTrigger>
@@ -214,7 +275,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="mt-2">
+                  <div>
                     <Label>Presencia de Animales en Casa</Label>
                     <Select className="mt-2">
                       <SelectTrigger>
@@ -227,7 +288,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="mt-2">
+                  <div>
                     <Label>Manejo de Residuos</Label>
                     <Select className="mt-2">
                       <SelectTrigger>
@@ -240,12 +301,6 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                <h4 className="text-lg font-semibold mb-4">Higiene Personal</h4>
-                <div className="grid gap-4">
                   <div>
                     <Label>Frecuencia de Baño</Label>
                     <Select className="mt-2">
@@ -288,12 +343,6 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                <h4 className="text-lg font-semibold mb-4">Higiene Bucal</h4>
-                <div className="grid gap-4">
                   <div>
                     <Label>Frecuencia de Cepillado Dental</Label>
                     <Select className="mt-2">
@@ -323,7 +372,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="mt-2">
+                  <div>
                     <Label>Uso de Auxiliares</Label>
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       <div className="flex items-center space-x-1">
@@ -358,7 +407,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="mt-2">
+                  <div>
                     <Label>Problemas Bucales Presentes</Label>
                     <div className="grid grid-cols-2 gap-2 mt-2">
                       <div className="flex items-center space-x-1">
@@ -383,12 +432,6 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                <h4 className="text-lg font-semibold mb-4">Alimentación</h4>
-                <div className="grid gap-4">
                   <div>
                     <Label>Tipo de Alimentos Consumidos Frecuentemente</Label>
                     <div className="grid grid-cols-2 gap-2 mt-2">
@@ -469,12 +512,6 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-              </div>
-
-              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                <h4 className="text-lg font-semibold mb-4">Hábitos Alimenticios</h4>
-                <div className="grid gap-4">
                   <div>
                     <Label>Número de Comidas al Día</Label>
                     <Select className="mt-2">
@@ -501,7 +538,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="mt-2">
+                  <div>
                     <Label>Realizas Ayuno Prolongado?</Label>
                     <Select className="mt-2">
                       <SelectTrigger>
@@ -516,18 +553,20 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            <div className="flex justify-center gap-4 mt-6">
-              <Button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
-                <span>Generar Vista Previa</span>
-              </Button>
-              <Button className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
-                <Eraser className="w-4 h-4" />
-                <span>Limpiar Formulario</span>
-              </Button>
-            </div>
-          </div>
+            {!showRedaccion && (
+              <div className="p-6 flex justify-center gap-4">
+                <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
+                  <span>Generar Redacción IA</span>
+                </Button>
+                <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
+                  <Eraser className="w-4 h-4" />
+                  <span>Limpiar Formulario</span>
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </Card>
     </div>

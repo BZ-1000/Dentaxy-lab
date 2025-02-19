@@ -1,13 +1,149 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
+import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
+import './AntecedentesHeredoFamiliares.css';
 
-const AntecedentesPersonalesNoPatologicos = () => {
+interface AntecedentesHeredoFamiliaresProps {
+  formData: FormDataState;
+  handleFamiliarChange: (familiar: string, field: string, value: string | boolean) => void;
+  handleCondicionChange: (familiar: string, condicion: string, value: string | boolean) => void;
+}
+
+const familiares = [
+  "Padre",
+  "Madre",
+  "Abuelo Paterno",
+  "Abuela Paterna",
+  "Abuelo Materno",
+  "Abuela Materna",
+];
+
+const condiciones = ["Diabetes Mellitus", "Hipertensión Arterial", "Cáncer", "Otras"];
+
+interface Familiar extends OriginalFamiliar {
+  vivoSano: boolean;
+}
+
+interface FamiliaRowProps {
+  familiar: string;
+  formData: FormDataState;
+  handleFamiliarChange: (familiar: string, field: string, value: string | boolean) => void;
+  handleCondicionChange: (familiar: string, condicion: string, value: string | boolean) => void;
+}
+
+const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionChange }: FamiliaRowProps) => {
+  const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
+    const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
+      "Padre": "padre",
+      "Madre": "madre",
+      "Abuelo Paterno": "abueloPaterno",
+      "Abuela Paterna": "abuelaPaterna",
+      "Abuelo Materno": "abueloMaterno",
+      "Abuela Materna": "abuelaMaterna"
+    };
+    return mapping[familiar];
+  };
+
+  const familiarKey = getFamiliarKey(familiar);
+  const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+
+  const getCondicionKey = (condicion: string) => {
+    const mapping: { [key: string]: string } = {
+      "Diabetes Mellitus": "diabetesMellitus",
+      "Hipertensión Arterial": "hipertensionArterial",
+      "Cáncer": "cancer",
+      "Otras": "otras"
+    };
+    return mapping[condicion];
+  };
+
+  const handleVivoSano = () => {
+    const newVivoSano = !familiarData.vivoSano;
+    handleFamiliarChange(familiarKey, 'finado', false);
+    handleFamiliarChange(familiarKey, 'vivoSano', newVivoSano);
+    if (newVivoSano) {
+      condiciones.forEach((cond) => {
+        const condKey = getCondicionKey(cond);
+        handleCondicionChange(familiarKey, condKey, false);
+      });
+    }
+  };
+
+  const handleFinado = () => {
+    const newFinado = !familiarData.finado;
+    handleFamiliarChange(familiarKey, 'finado', newFinado);
+    if (newFinado) {
+      handleFamiliarChange(familiarKey, 'vivoSano', false);
+      condiciones.forEach((cond) => {
+        const condKey = getCondicionKey(cond);
+        handleCondicionChange(familiarKey, condKey, false);
+      });
+    }
+  };
+
+  return (
+    <div className="flex flex-col gap-4 border-b pb-6">
+      <div className="grid grid-cols-7 gap-4 items-center">
+        <span className="font-semibold text-base text-center col-span-1 text-gray-700">{familiar}</span>
+        {!familiarData.vivoSano && (
+          <button
+            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
+              familiarData.finado ? "bg-red-600 text-white" : "bg-white text-gray-700 border-gray-300"
+            }`}
+            onClick={handleFinado}
+          >
+            Finado
+          </button>
+        )}
+        {!familiarData.finado && (
+          <button
+            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium ${
+              familiarData.vivoSano ? "bg-green-600 text-white col-span-7" : "bg-white text-gray-700 border-gray-300 col-span-1"
+            }`}
+            onClick={handleVivoSano}
+          >
+            Vivo y Sano
+          </button>
+        )}
+        {!familiarData.finado && !familiarData.vivoSano &&
+          condiciones.map((cond) => {
+            const condKey = getCondicionKey(cond);
+            return (
+              <button
+                key={cond}
+                className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
+                  familiarData.condiciones[condKey] ? "bg-blue-600 text-white" : "bg-white text-gray-700 border-gray-300"
+                }`}
+                onClick={() => handleCondicionChange(familiarKey, condKey, !familiarData.condiciones[condKey])}
+              >
+                {cond}
+              </button>
+            );
+          })}
+      </div>
+      {familiarData.finado && (
+        <input
+          value={familiarData.causaMuerte}
+          onChange={(e) => handleFamiliarChange(familiarKey, 'causaMuerte', e.target.value)}
+          placeholder="Causa de fallecimiento"
+          className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
+        />
+      )}
+      {familiarData.condiciones.otras && !familiarData.finado && !familiarData.vivoSano && (
+        <input
+          value={typeof familiarData.condiciones.otras === 'string' ? familiarData.condiciones.otras : ''}
+          onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
+          placeholder="Especifique otras condiciones"
+          className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
+        />
+      )}
+    </div>
+  );
+};
+
+const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCondicionChange }: AntecedentesHeredoFamiliaresProps) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
@@ -15,7 +151,18 @@ const AntecedentesPersonalesNoPatologicos = () => {
   const [copied, setCopied] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
   const [progress, setProgress] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [missingFamiliares, setMissingFamiliares] = useState<string[]>([]);
   const redaccionRef = useRef(null);
+
+  useEffect(() => {
+    const missing = familiares.filter(familiar => {
+      const familiarKey = getFamiliarKey(familiar);
+      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+      return !(familiarData.vivoSano || familiarData.finado || Object.values(familiarData.condiciones).some(value => value));
+    });
+    setMissingFamiliares(missing);
+  }, [formData]);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -33,9 +180,111 @@ const AntecedentesPersonalesNoPatologicos = () => {
   };
 
   const generarRedaccionIA = () => {
-    // Lógica para generar la redacción basada en los datos del formulario
-    const textoGenerado = "Este es un ejemplo de redacción generada automáticamente...";
-    setRedaccionIA(textoGenerado);
+    if (missingFamiliares.length > 0) {
+      setShowModal(true);
+      return;
+    }
+
+    const textoGenerado = familiares.map(familiar => {
+      const familiarKey = getFamiliarKey(familiar);
+      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+
+      // Obtener las condiciones en un formato legible
+      const condicionesText = Object.entries(familiarData.condiciones)
+        .filter(([key, value]) => value)
+        .map(([key, value]) => {
+          switch (key) {
+            case "diabetesMellitus":
+              return "Diabetes mellitus";
+            case "hipertensionArterial":
+              return "Hipertensión arterial";
+            case "cancer":
+              return "Cáncer";
+            case "otras":
+              return typeof value === 'string' ? value : ''; // Asegúrate de que 'otras' sea un string
+            default:
+              return "";
+          }
+        });
+
+      // Construir la redacción para cada familiar
+      const esFemenino = familiar.includes("Madre") || familiar.includes("Abuela");
+      const articuloFemenino = esFemenino ? "La " : "El ";
+      const verboSerFemenino = esFemenino ? "está viva" : "está vivo";
+      const verboEstarFemenino = esFemenino ? "finada" : "finado";
+      const ySanoFemenino = esFemenino ? "y sana" : "y sano";
+
+      let condicionesConectadas = "";
+      if (condicionesText.length === 1) {
+        condicionesConectadas = condicionesText[0];
+      } else if (condicionesText.length === 2) {
+        const [primera, segunda] = condicionesText;
+        if ((primera === "Diabetes mellitus" && segunda === "Hipertensión arterial") ||
+            (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
+          condicionesConectadas = `${primera} e ${segunda}`;
+        } else {
+          condicionesConectadas = `${primera} y ${segunda}`;
+        }
+      } else if (condicionesText.length > 2) {
+        const ultimaCondicion = condicionesText.pop();
+        condicionesConectadas = `${condicionesText.join(", ")} y ${ultimaCondicion}`;
+      }
+
+      if (familiarData.vivoSano) {
+        return `${articuloFemenino}${familiar} ${verboSerFemenino} ${ySanoFemenino}.`;
+      } else if (familiarData.finado) {
+        return `${articuloFemenino}${familiar} ${verboEstarFemenino} por ${familiarData.causaMuerte}.`;
+      } else {
+        return `${articuloFemenino}${familiar} ${verboSerFemenino} con diagnóstico de ${condicionesConectadas}.`;
+      }
+    }).join(" ");
+
+    // Determinar las enfermedades más repetidas en la familia
+    const enfermedadesContador: { [key: string]: number } = {};
+    familiares.forEach(familiar => {
+      const familiarKey = getFamiliarKey(familiar);
+      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+      Object.entries(familiarData.condiciones).forEach(([key, value]) => {
+        if (value) {
+          enfermedadesContador[key] = (enfermedadesContador[key] || 0) + 1;
+        }
+      });
+    });
+
+    const enfermedadesRepetidas = Object.entries(enfermedadesContador)
+      .filter(([key, value]) => value >= 2)
+      .map(([key]) => {
+        switch (key) {
+          case "diabetesMellitus":
+            return "Diabetes mellitus";
+          case "hipertensionArterial":
+            return "Hipertensión arterial";
+          case "cancer":
+            return "Cáncer";
+          default:
+            return "";
+        }
+      })
+      .filter(Boolean);
+
+    let enfermedadesConectadas = "";
+    if (enfermedadesRepetidas.length === 1) {
+      enfermedadesConectadas = enfermedadesRepetidas[0];
+    } else if (enfermedadesRepetidas.length === 2) {
+      const [primera, segunda] = enfermedadesRepetidas;
+      if ((primera === "Diabetes mellitus" && segunda === "Hipertensión arterial") ||
+          (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
+        enfermedadesConectadas = `${primera} e ${segunda}`;
+      } else {
+        enfermedadesConectadas = `${primera} y ${segunda}`;
+      }
+    } else if (enfermedadesRepetidas.length > 2) {
+      const ultimaEnfermedad = enfermedadesRepetidas.pop();
+      enfermedadesConectadas = `${enfermedadesRepetidas.join(", ")} y ${ultimaEnfermedad}`;
+    }
+
+    const redaccionFinal = `${textoGenerado.trim()}\n\n Nota: En la familia predominan los antecedentes de: ${enfermedadesConectadas}.`;
+    setRedaccionIA(redaccionFinal);
     setDisplayedText(""); // Reset the displayed text
     setShowRedaccion(true);
 
@@ -48,7 +297,16 @@ const AntecedentesPersonalesNoPatologicos = () => {
   };
 
   const limpiarFormulario = () => {
-    // Lógica para limpiar el formulario
+    familiares.forEach(familiar => {
+      const familiarKey = getFamiliarKey(familiar);
+      handleFamiliarChange(familiarKey, 'finado', false);
+      handleFamiliarChange(familiarKey, 'vivoSano', false);
+      handleFamiliarChange(familiarKey, 'causaMuerte', '');
+      condiciones.forEach(cond => {
+        const condKey = getCondicionKey(cond);
+        handleCondicionChange(familiarKey, condKey, false);
+      });
+    });
     setRedaccionIA("");
     setShowRedaccion(false);
   };
@@ -76,6 +334,28 @@ const AntecedentesPersonalesNoPatologicos = () => {
     return () => clearInterval(interval);
   }, [redaccionIA]);
 
+  const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
+    const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
+      "Padre": "padre",
+      "Madre": "madre",
+      "Abuelo Paterno": "abueloPaterno",
+      "Abuela Paterna": "abuelaPaterna",
+      "Abuelo Materno": "abueloMaterno",
+      "Abuela Materna": "abuelaMaterna"
+    };
+    return mapping[familiar];
+  };
+
+  const getCondicionKey = (condicion: string) => {
+    const mapping: { [key: string]: string } = {
+      "Diabetes Mellitus": "diabetesMellitus",
+      "Hipertensión Arterial": "hipertensionArterial",
+      "Cáncer": "cancer",
+      "Otras": "otras"
+    };
+    return mapping[condicion];
+  };
+
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
@@ -96,7 +376,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
               </button>
             </div>
           </div>
-
+  
           <div className="flex items-center gap-2">
             <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
               <Minus className="w-4 h-4" />
@@ -109,13 +389,13 @@ const AntecedentesPersonalesNoPatologicos = () => {
             </button>
           </div>
         </div>
-
+  
         <div className="flex justify-start px-6 py-2">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">III.</span> ANTECEDENTES PERSONALES NO PATOLÓGICOS
+            <span className="text-gray-400">II.</span> Antecedentes Heredo Familiares
           </h2>
         </div>
-
+  
         {!isMinimized && (
           <>
             {showRedaccion ? (
@@ -151,7 +431,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                 >
                   {displayedText}
                 </div>
-
+  
                 <Button
                   onClick={handleCopy}
                   className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
@@ -168,393 +448,18 @@ const AntecedentesPersonalesNoPatologicos = () => {
               </div>
             ) : (
               <div className="p-6 space-y-6">
-                {/* Aquí va el formulario */}
-                <div className="grid gap-4">
-                  <div>
-                    <Label>Tipo de Vivienda</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione tipo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="urbana">Urbana</SelectItem>
-                        <SelectItem value="rural">Rural</SelectItem>
-                        <SelectItem value="semiurbana">Semiurbana</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Material Predominante de la Vivienda</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione material" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="concreto">Concreto</SelectItem>
-                        <SelectItem value="madera">Madera</SelectItem>
-                        <SelectItem value="lamina">Lámina</SelectItem>
-                        <SelectItem value="ladrillo">Ladrillo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Servicios Disponibles</Label>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="agua" />
-                        <Label htmlFor="agua">Agua</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="luz" />
-                        <Label htmlFor="luz">Luz</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="drenaje" />
-                        <Label htmlFor="drenaje">Drenaje</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="transporte" />
-                        <Label htmlFor="transporte">Transporte</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="internet" />
-                        <Label htmlFor="internet">Internet</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="gas" />
-                        <Label htmlFor="gas">Gas</Label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <Label>Condiciones de la Calle</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione condición" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pavimentada">Pavimentada</SelectItem>
-                        <SelectItem value="sin-pavimentar">Sin pavimentar</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Iluminación en la Calle</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione iluminación" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="bien-iluminada">Bien iluminada</SelectItem>
-                        <SelectItem value="poca-iluminacion">Poca iluminación</SelectItem>
-                        <SelectItem value="sin-iluminacion">Sin iluminación</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Presencia de Hacinamiento</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione opción" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="si">Sí, duermen más de 3 personas en una habitación</SelectItem>
-                        <SelectItem value="no">No hay hacinamiento</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Presencia de Promiscuidad</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione opción" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="si">Sí</SelectItem>
-                        <SelectItem value="no">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Presencia de Animales en Casa</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione opción" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="dentro">Sí, dentro de la casa</SelectItem>
-                        <SelectItem value="patio">Sí, en el patio</SelectItem>
-                        <SelectItem value="no">No tienen mascotas</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Manejo de Residuos</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione opción" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="recicla">Separa y recicla la basura</SelectItem>
-                        <SelectItem value="diaria">Bota la basura diariamente</SelectItem>
-                        <SelectItem value="acumula">Acumula basura dentro de la vivienda</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Frecuencia de Baño</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione frecuencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="diario">Diario</SelectItem>
-                        <SelectItem value="cada-2-dias">Cada 2 días</SelectItem>
-                        <SelectItem value="cada-3-dias">Cada 3 días</SelectItem>
-                        <SelectItem value="esporadico">Esporádico</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Aseo de Manos</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione frecuencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="antes-comida">Antes de cada comida</SelectItem>
-                        <SelectItem value="despues-bano">Después de ir al baño</SelectItem>
-                        <SelectItem value="antes-despues-comida">Antes y después de manipular alimentos</SelectItem>
-                        <SelectItem value="no-regular">No tiene hábito regular de lavado de manos</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Cambio de Ropa</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione frecuencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="diario">Diario</SelectItem>
-                        <SelectItem value="cada-2-dias">Cada 2 días</SelectItem>
-                        <SelectItem value="cada-3-dias">Cada 3 días</SelectItem>
-                        <SelectItem value="esporadico">Esporádico</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Frecuencia de Cepillado Dental</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione frecuencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="3-veces">3 veces al día</SelectItem>
-                        <SelectItem value="2-veces">2 veces al día</SelectItem>
-                        <SelectItem value="1-vez">1 vez al día</SelectItem>
-                        <SelectItem value="menos-1-vez">Menos de una vez al día</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Técnica de Cepillado Empleada</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione técnica" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="circular">Circular</SelectItem>
-                        <SelectItem value="horizontal">Horizontal</SelectItem>
-                        <SelectItem value="vertical">Vertical</SelectItem>
-                        <SelectItem value="barrido">De barrido</SelectItem>
-                        <SelectItem value="no-sabe">No sabe cómo se cepilla</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Uso de Auxiliares</Label>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="hilo-dental" />
-                        <Label htmlFor="hilo-dental">Hilo Dental</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="enjuague" />
-                        <Label htmlFor="enjuague">Enjuague Bucal</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="irrigador" />
-                        <Label htmlFor="irrigador">Irrigador Dental</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="no-auxiliares" />
-                        <Label htmlFor="no-auxiliares">No usa auxiliares</Label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <Label>Última Visita al Odontólogo</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione tiempo" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="menos-6-meses">Menos de 6 meses</SelectItem>
-                        <SelectItem value="1-ano">1 año</SelectItem>
-                        <SelectItem value="mas-2-anos">Más de 2 años</SelectItem>
-                        <SelectItem value="nunca">Nunca ha visitado al odontólogo</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Problemas Bucales Presentes</Label>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="encias-sangran" />
-                        <Label htmlFor="encias-sangran">Encías que sangran al cepillarse</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="dientes-agujeros" />
-                        <Label htmlFor="dientes-agujeros">Dientes con agujeros o zonas oscuras</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="mal-aliento" />
-                        <Label htmlFor="mal-aliento">Mal aliento frecuente</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="dolor-dientes" />
-                        <Label htmlFor="dolor-dientes">Dolor en dientes o encías</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="no-problemas" />
-                        <Label htmlFor="no-problemas">No tengo problemas bucales</Label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <Label>Tipo de Alimentos Consumidos Frecuentemente</Label>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="frutas-verduras" />
-                        <Label htmlFor="frutas-verduras">Frutas y verduras</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="carnes-proteinas" />
-                        <Label htmlFor="carnes-proteinas">Carnes y proteínas</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="alimentos-procesados" />
-                        <Label htmlFor="alimentos-procesados">Alimentos procesados y fritos</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="dulces-azucares" />
-                        <Label htmlFor="dulces-azucares">Dulces y azúcares</Label>
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <CustomCheckbox id="lacteos" />
-                        <Label htmlFor="lacteos">Lácteos</Label>
-                      </div>
-                    </div>
-                  </div>
-                  <div>
-                    <Label>Frecuencia de Consumo de Frutas y Verduras</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione frecuencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="diario">Diario</SelectItem>
-                        <SelectItem value="3-4-veces-semana">3-4 veces por semana</SelectItem>
-                        <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
-                        <SelectItem value="no-consume">No las consume</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Frecuencia de Consumo de Bebidas Azucaradas</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione frecuencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="diario">Diario</SelectItem>
-                        <SelectItem value="3-4-veces-semana">3-4 veces por semana</SelectItem>
-                        <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
-                        <SelectItem value="no-consume">No las consume</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Frecuencia de Consumo de Comida Chatarra</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione frecuencia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="diario">Diario</SelectItem>
-                        <SelectItem value="3-4-veces-semana">3-4 veces por semana</SelectItem>
-                        <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
-                        <SelectItem value="no-consume">No la consume</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Consumo de Agua al Día</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione cantidad" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="mas-2-litros">Más de 2 litros</SelectItem>
-                        <SelectItem value="1-2-litros">1-2 litros</SelectItem>
-                        <SelectItem value="menos-1-litro">Menos de 1 litro</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Número de Comidas al Día</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione número" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="3-comidas">3 comidas</SelectItem>
-                        <SelectItem value="4-comidas">4 comidas</SelectItem>
-                        <SelectItem value="5-o-mas">5 o más comidas</SelectItem>
-                        <SelectItem value="menos-3-comidas">Menos de 3 comidas</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Horario de Comidas</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione horario" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="fijo">Fijo (desayuno, almuerzo, cena)</SelectItem>
-                        <SelectItem value="irregular">Irregular</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Realizas Ayuno Prolongado?</Label>
-                    <Select className="mt-2">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Seleccione opción" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="eleccion">Sí, por elección</SelectItem>
-                        <SelectItem value="acceso">Sí, por falta de acceso a alimentos</SelectItem>
-                        <SelectItem value="no">No</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                {familiares.map((familiar) => (
+                  <FamiliaRow
+                    key={familiar}
+                    familiar={familiar}
+                    formData={formData}
+                    handleFamiliarChange={handleFamiliarChange}
+                    handleCondicionChange={handleCondicionChange}
+                  />
+                ))}
               </div>
             )}
-
+  
             {!showRedaccion && (
               <div className="p-6 flex justify-center gap-4">
                 <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
@@ -569,8 +474,25 @@ const AntecedentesPersonalesNoPatologicos = () => {
           </>
         )}
       </Card>
+  
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
+            <h2 className="text-lg font-semibold mb-4">Faltan datos</h2>
+            <p className="mb-4">Por favor, selecciona al menos una opción para los siguientes familiares:</p>
+            <ul className="list-disc list-inside mb-4">
+              {missingFamiliares.map((familiar, index) => (
+                <li key={index}>{familiar}</li>
+              ))}
+            </ul>
+            <Button onClick={() => setShowModal(false)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full">
+              Cerrar
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  );  
 };
 
-export default AntecedentesPersonalesNoPatologicos;
+export default AntecedentesHeredoFamiliares;
