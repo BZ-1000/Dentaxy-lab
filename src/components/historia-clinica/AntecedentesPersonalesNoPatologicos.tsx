@@ -76,20 +76,16 @@ const AntecedentesPersonalesNoPatologicos = () => {
                 <div className="grid gap-4">
                   <div>
                     <Label>Tipo de Vivienda</Label>
-                    <RadioGroup defaultValue="urbana" className="flex gap-4 mt-2">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="urbana" id="urbana" />
-                        <Label htmlFor="urbana">Urbana</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="rural" id="rural" />
-                        <Label htmlFor="rural">Rural</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="semiurbana" id="semiurbana" />
-                        <Label htmlFor="semiurbana">Semiurbana</Label>
-                      </div>
-                    </RadioGroup>
+                    <Select className="mt-2">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="urbana">Urbana</SelectItem>
+                        <SelectItem value="rural">Rural</SelectItem>
+                        <SelectItem value="semiurbana">Semiurbana</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>Material Predominante de la Vivienda</Label>
@@ -136,33 +132,28 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   </div>
                   <div>
                     <Label>Condiciones de la Calle</Label>
-                    <RadioGroup defaultValue="pavimentada" className="flex gap-4 mt-2">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="pavimentada" id="pavimentada" />
-                        <Label htmlFor="pavimentada">Pavimentada</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="sin-pavimentar" id="sin-pavimentar" />
-                        <Label htmlFor="sin-pavimentar">Sin pavimentar</Label>
-                      </div>
-                    </RadioGroup>
+                    <Select className="mt-2">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione condición" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pavimentada">Pavimentada</SelectItem>
+                        <SelectItem value="sin-pavimentar">Sin pavimentar</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>Iluminación en la Calle</Label>
-                    <RadioGroup defaultValue="bien-iluminada" className="flex gap-4 mt-2">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="bien-iluminada" id="bien-iluminada" />
-                        <Label htmlFor="bien-iluminada">Bien iluminada</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="poca-iluminacion" id="poca-iluminacion" />
-                        <Label htmlFor="poca-iluminacion">Poca iluminación</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="sin-iluminacion" id="sin-iluminacion" />
-                        <Label htmlFor="sin-iluminacion">Sin iluminación</Label>
-                      </div>
-                    </RadioGroup>
+                    <Select className="mt-2">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione iluminación" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="bien-iluminada">Bien iluminada</SelectItem>
+                        <SelectItem value="poca-iluminacion">Poca iluminación</SelectItem>
+                        <SelectItem value="sin-iluminacion">Sin iluminación</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
@@ -202,15 +193,23 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   <div className="mt-2">
                     <Label>Presencia de Hacinamiento</Label>
                     <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="hacinamiento" />
-                      <Label htmlFor="hacinamiento">Sí, duermen más de 3 personas en una habitación</Label>
+                      <CustomCheckbox id="hacinamiento-si" />
+                      <Label htmlFor="hacinamiento-si">Sí, duermen más de 3 personas en una habitación</Label>
+                    </div>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <CustomCheckbox id="hacinamiento-no" />
+                      <Label htmlFor="hacinamiento-no">No hay hacinamiento</Label>
                     </div>
                   </div>
                   <div className="mt-2">
                     <Label>Presencia de Promiscuidad</Label>
                     <div className="flex items-center space-x-2 mt-2">
-                      <CustomCheckbox id="promiscuidad" />
-                      <Label htmlFor="promiscuidad">Sí</Label>
+                      <CustomCheckbox id="promiscuidad-si" />
+                      <Label htmlFor="promiscuidad-si">Sí</Label>
+                    </div>
+                    <div className="flex items-center space-x-2 mt-2">
+                      <CustomCheckbox id="promiscuidad-no" />
+                      <Label htmlFor="promiscuidad-no">No</Label>
                     </div>
                   </div>
                   <div className="mt-2">
@@ -494,16 +493,15 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   </div>
                   <div>
                     <Label>Horario de Comidas</Label>
-                    <RadioGroup defaultValue="fijo" className="flex gap-4 mt-2">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="fijo" id="fijo" />
-                        <Label htmlFor="fijo">Fijo (desayuno, almuerzo, cena)</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="irregular" id="irregular" />
-                        <Label htmlFor="irregular">Irregular</Label>
-                      </div>
-                    </RadioGroup>
+                    <Select className="mt-2">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione horario" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fijo">Fijo (desayuno, almuerzo, cena)</SelectItem>
+                        <SelectItem value="irregular">Irregular</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="mt-2">
                     <Label>Saltas Alguna Comida Frecuentemente?</Label>
