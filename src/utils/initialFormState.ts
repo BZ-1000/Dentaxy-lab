@@ -1,3 +1,4 @@
+
 import { FormDataState } from '@/types/historiaClinica';
 
 export const getInitialFormState = (): FormDataState => ({
@@ -107,7 +108,7 @@ export const getInitialFormState = (): FormDataState => ({
   frecuenciaRespiratoria: '',
   temperatura: '',
   diagnosticos: '',
-  pronosticos: '',
+  pronosticos: ''
 });
 
 const getInitialFamiliarState = () => ({
