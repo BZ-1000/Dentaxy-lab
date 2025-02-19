@@ -1,4 +1,3 @@
-
 import { FormDataState } from '@/types/historiaClinica';
 
 export const getInitialFormState = (): FormDataState => ({
@@ -27,27 +26,74 @@ export const getInitialFormState = (): FormDataState => ({
     abueloMaterno: getInitialFamiliarState(),
     abuelaMaterna: getInitialFamiliarState()
   },
-  serviciosDomiciliarios: '',
-  pisosVivienda: '',
-  materialVivienda: '',
-  materialPiso: '',
-  ventilacion: '',
-  frecuenciaLimpieza: '',
-  hacinamiento: '',
-  frecuenciaBano: '',
+  serviciosDomiciliarios: {
+    tipoVivienda: 'urbana',
+    materialVivienda: 'concreto',
+    servicios: {
+      agua: false,
+      luz: false,
+      drenaje: false,
+      transporte: false,
+      internet: false,
+      gas: false
+    },
+    condicionesCalle: 'pavimentada',
+    iluminacionCalle: 'bien-iluminada'
+  },
+  higieneVivienda: {
+    regularidadAseo: 'diario',
+    cambioRopaCama: 'semanal',
+    hacinamiento: false,
+    promiscuidad: false,
+    animales: 'no',
+    manejoResiduos: 'diario'
+  },
+  higienePersonal: {
+    frecuenciaBano: 'diario',
+    aseoManos: {
+      antesComida: false,
+      despuesBano: false,
+      manipularAlimentos: false,
+      sinHabito: false
+    },
+    cambioRopa: 'diario'
+  },
   higieneBucal: {
-    frecuenciaCepillado: '',
-    usoHiloDental: '',
-    tipoCerdas: '',
-    cantidadPasta: '',
-    marcaPasta: '',
+    frecuenciaCepillado: '2-veces',
+    tecnicaCepillado: 'circular',
+    auxiliares: {
+      hiloDental: false,
+      enjuagueBucal: false,
+      irrigador: false,
+      noUsa: true
+    },
+    ultimaVisita: 'menos-6-meses',
+    problemas: {
+      sangradoEncias: false,
+      caries: false,
+      malAliento: false,
+      dolor: false,
+      sinProblemas: true
+    }
   },
   alimentacion: {
-    tipoDieta: '',
-    frecuenciaComidas: '',
-    tiposAlimentos: '',
-    saltaComidas: '',
-    consumoNutritivo: '',
+    tiposAlimentos: {
+      frutasVerduras: false,
+      carnesProteinas: false,
+      procesadosFritos: false,
+      dulcesAzucares: false,
+      lacteos: false
+    },
+    frecuenciaFrutasVerduras: 'diario',
+    frecuenciaBebidasAzucaradas: 'ocasional',
+    frecuenciaComidaChatarra: 'ocasional',
+    consumoAgua: '1-2-litros'
+  },
+  habitosAlimenticios: {
+    numeroComidas: '3-comidas',
+    horarioComidas: 'fijo',
+    saltaComidas: 'no',
+    ayunoProlongado: 'no'
   },
   grupoSanguineo: '',
   factorRh: '',
