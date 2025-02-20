@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from '@/hooks/use-theme';
 import { Loader2 } from "lucide-react";
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
-import type { ChangeEvent } from 'react';
 
 const HistoriaClinica = () => {
   const { theme } = useTheme();
@@ -19,7 +18,11 @@ const HistoriaClinica = () => {
     resumen,
     isGenerating,
     handleInputChange,
-    handleFormSectionChange,
+    handlePadecimientoChange,
+    handleDolorChange,
+    handleSinSintomasChange,
+    handleFamiliarChange,
+    handleCondicionChange,
     generarResumen
   } = useHistoriaClinica();
 
@@ -28,19 +31,32 @@ const HistoriaClinica = () => {
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="space-y-6">            
+            <PadecimientoActual 
+              formData={formData}
+              handlePadecimientoChange={handlePadecimientoChange}
+              handleDolorChange={handleDolorChange}
+              handleSinSintomasChange={handleSinSintomasChange}
+            />
+            
+            <AntecedentesHeredoFamiliares 
+              formData={formData}
+              handleFamiliarChange={handleFamiliarChange}
+              handleCondicionChange={handleCondicionChange}
+            />
+
             <AntecedentesPersonalesNoPatologicos
               formData={formData}
-              handleInputChange={(section, field, value) => handleFormSectionChange(section, field, value)}
+              handleInputChange={handleInputChange}
             />
             
             <SignosVitales 
               formData={formData} 
-              handleInputChange={(section, field, value) => handleFormSectionChange(section, field, value)} 
+              handleInputChange={handleInputChange} 
             />
             
             <DiagnosticoPronostico 
               formData={formData} 
-              handleInputChange={(section, field, value) => handleFormSectionChange(section, field, value)} 
+              handleInputChange={handleInputChange} 
             />
 
             <div className="flex justify-center pt-6">

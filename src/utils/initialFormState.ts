@@ -27,20 +27,7 @@ export const getInitialFormState = (): FormDataState => ({
     abueloMaterno: getInitialFamiliarState(),
     abuelaMaterna: getInitialFamiliarState()
   },
-  serviciosDomiciliarios: {
-    tipoVivienda: '',
-    materialVivienda: '',
-    condicionesCalle: '',
-    iluminacionCalle: '',
-    servicios: {
-      agua: false,
-      luz: false,
-      drenaje: false,
-      transporte: false,
-      internet: false,
-      gas: false
-    }
-  },
+  serviciosDomiciliarios: '',
   pisosVivienda: '',
   materialVivienda: '',
   materialPiso: '',
@@ -54,26 +41,13 @@ export const getInitialFormState = (): FormDataState => ({
     tipoCerdas: '',
     cantidadPasta: '',
     marcaPasta: '',
-    auxiliares: {
-      hiloDental: false,
-      enjuagueBucal: false,
-      irrigador: false,
-      noUsa: false
-    },
-    problemas: {
-      sangradoEncias: false,
-      caries: false,
-      malAliento: false,
-      dolor: false,
-      sinProblemas: false
-    }
   },
   alimentacion: {
     tipoDieta: '',
     frecuenciaComidas: '',
     tiposAlimentos: '',
     saltaComidas: '',
-    consumoNutritivo: ''
+    consumoNutritivo: '',
   },
   grupoSanguineo: '',
   factorRh: '',
@@ -87,7 +61,7 @@ export const getInitialFormState = (): FormDataState => ({
   frecuenciaRespiratoria: '',
   temperatura: '',
   diagnosticos: '',
-  pronosticos: ''
+  pronosticos: '',
 });
 
 const getInitialFamiliarState = () => ({
