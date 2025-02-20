@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
@@ -11,11 +10,45 @@ const AntecedentesPersonalesNoPatologicos = () => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showForm, setShowForm] = useState(true);
-  const [redaccionIA, setRedaccionIA] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [displayedText, setDisplayedText] = useState("");
-  const [progress, setProgress] = useState(0);
+  const [redacciones, setRedacciones] = useState({
+    serviciosDomiciliarios: "",
+    higieneVivienda: "",
+    higienePersonal: "",
+    higieneBucal: "",
+    alimentacion: ""
+  });
+  const [copied, setCopied] = useState(null);
   const formRef = useRef(null);
+
+  const [formData, setFormData] = useState({
+    tipoVivienda: "",
+    materialVivienda: "",
+    servicios: [],
+    condicionCalle: "",
+    iluminacionCalle: "",
+    frecuenciaLimpieza: "",
+    cambioRopaCama: "",
+    hacinamiento: "",
+    promiscuidad: "",
+    mascotas: "",
+    manejoResiduos: "",
+    frecuenciaBano: "",
+    lavadoManos: "",
+    cambioRopa: "",
+    frecuenciaCepillado: "",
+    tecnicaCepillado: "",
+    auxiliaresBucales: [],
+    ultimaVisitaOdontologo: "",
+    problemasBucales: [],
+    alimentosConsumidos: [],
+    frecuenciaFrutasVerduras: "",
+    frecuenciaBebidasAzucaradas: "",
+    frecuenciaComidaChatarra: "",
+    consumoAgua: "",
+    numeroComidas: "",
+    horarioComidas: "",
+    ayunoProlongado: ""
+  });
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -33,48 +66,30 @@ const AntecedentesPersonalesNoPatologicos = () => {
   };
 
   const generarRedaccionIA = () => {
-    // Lógica para generar la redacción basada en los datos del formulario
-    const textoGenerado = "Este es un ejemplo de redacción generada automáticamente...";
-    setRedaccionIA(textoGenerado);
-    setDisplayedText(""); // Reset the displayed text
+    const redaccionesGeneradas = {
+      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formData.tipoVivienda} con estructura predominante de ${formData.materialVivienda}. Cuenta con servicios básicos de ${formData.servicios.join(", ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formData.condicionCalle} y presenta ${formData.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.`,
+      higieneVivienda: `La vivienda del paciente se mantiene con una rutina de limpieza ${formData.frecuenciaLimpieza}, lo que influye en su bienestar general. El cambio de ropa de cama se realiza ${formData.cambioRopaCama}. Se observa que la vivienda ${formData.hacinamiento === "no" ? "no presenta" : "presenta"} condiciones de hacinamiento. Además, se identifica que ${formData.promiscuidad === "no" ? "no" : "sí"} existe promiscuidad. El paciente ${formData.mascotas === "no" ? "no tiene" : "tiene"} mascotas. En cuanto a la recolección de basura, ${formData.manejoResiduos === "diaria" ? "la basura se desecha diariamente" : "se acumulan residuos dentro del hogar"}, lo que puede influir en la higiene del entorno.`,
+      higienePersonal: `El paciente reporta una frecuencia de baño ${formData.frecuenciaBano}, lo que influye en su higiene y confort personal. Respecto al lavado de manos, lo realiza ${formData.lavadoManos}. En cuanto al cambio de ropa, se registra una frecuencia ${formData.cambioRopa}.`,
+      higieneBucal: `El paciente se cepilla los dientes ${formData.frecuenciaCepillado} veces al día y utiliza una técnica de cepillado ${formData.tecnicaCepillado}. Se observa que ${formData.auxiliaresBucales.length > 0 ? "utiliza" : "no utiliza"} auxiliares de higiene bucal, como ${formData.auxiliaresBucales.join(" y ")}. En relación con la atención odontológica, su última consulta fue hace ${formData.ultimaVisitaOdontologo}. El paciente reporta la presencia de ${formData.problemasBucales.join(" y ")}, lo que podría indicar la necesidad de una revisión odontológica.`,
+      alimentacion: `El paciente consume frecuentemente ${formData.alimentosConsumidos.join(" y ")}. Su alimentación incluye frutas y verduras con una frecuencia ${formData.frecuenciaFrutasVerduras}, mientras que las bebidas azucaradas son consumidas ${formData.frecuenciaBebidasAzucaradas}. También reporta que come comida chatarra ${formData.frecuenciaComidaChatarra}. Su consumo de agua al día es de ${formData.consumoAgua}. El paciente realiza ${formData.numeroComidas} comidas al día y mantiene un horario de alimentación ${formData.horarioComidas}. Además, menciona que ${formData.ayunoProlongado === "no" ? "no realiza" : "realiza"} ayunos prolongados.`
+    };
+
+    setRedacciones(redaccionesGeneradas);
     setShowForm(false);
-
-    setTimeout(() => {
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => {
-        window.scrollBy(0, -200);
-      }, 300);
-    }, 100);
   };
 
-  const limpiarFormulario = () => {
-    // Lógica para limpiar el formulario
-    setRedaccionIA("");
-    setShowForm(true);
+  const handleCopy = (section) => {
+    navigator.clipboard.writeText(redacciones[section]);
+    setCopied(section);
+    setTimeout(() => setCopied(null), 2000);
   };
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(redaccionIA);
-    setCopied(true);
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
+  const handleFormChange = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: value
+    }));
   };
-
-  useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < redaccionIA.length) {
-        setDisplayedText(redaccionIA.substring(0, index + 1));
-        setProgress((index / redaccionIA.length) * 100);
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
-
-    return () => clearInterval(interval);
-  }, [redaccionIA]);
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
@@ -125,7 +140,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   <div className="grid gap-4">
                     <div>
                       <Label>Tipo de Vivienda</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('tipoVivienda', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione tipo" />
                         </SelectTrigger>
@@ -138,7 +153,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Material Predominante de la Vivienda</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('materialVivienda', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione material" />
                         </SelectTrigger>
@@ -154,34 +169,34 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       <Label>Servicios Disponibles</Label>
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="agua" />
+                          <CustomCheckbox id="agua" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'agua'] : formData.servicios.filter(s => s !== 'agua'))} />
                           <Label htmlFor="agua">Agua</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="luz" />
+                          <CustomCheckbox id="luz" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'luz'] : formData.servicios.filter(s => s !== 'luz'))} />
                           <Label htmlFor="luz">Luz</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="drenaje" />
+                          <CustomCheckbox id="drenaje" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'drenaje'] : formData.servicios.filter(s => s !== 'drenaje'))} />
                           <Label htmlFor="drenaje">Drenaje</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="transporte" />
+                          <CustomCheckbox id="transporte" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'transporte'] : formData.servicios.filter(s => s !== 'transporte'))} />
                           <Label htmlFor="transporte">Transporte</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="internet" />
+                          <CustomCheckbox id="internet" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'internet'] : formData.servicios.filter(s => s !== 'internet'))} />
                           <Label htmlFor="internet">Internet</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="gas" />
+                          <CustomCheckbox id="gas" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'gas'] : formData.servicios.filter(s => s !== 'gas'))} />
                           <Label htmlFor="gas">Gas</Label>
                         </div>
                       </div>
                     </div>
                     <div>
                       <Label>Condiciones de la Calle</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('condicionCalle', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione condición" />
                         </SelectTrigger>
@@ -193,7 +208,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Iluminación en la Calle</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('iluminacionCalle', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione iluminación" />
                         </SelectTrigger>
@@ -212,7 +227,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   <div className="grid gap-4">
                     <div>
                       <Label>Regularidad en el Aseo de la Vivienda</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('frecuenciaLimpieza', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
@@ -226,7 +241,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Cambio de Ropa de Cama</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('cambioRopaCama', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
@@ -241,7 +256,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div className="mt-2">
                       <Label>Presencia de Hacinamiento</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('hacinamiento', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione opción" />
                         </SelectTrigger>
@@ -253,7 +268,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div className="mt-2">
                       <Label>Presencia de Promiscuidad</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('promiscuidad', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione opción" />
                         </SelectTrigger>
@@ -265,7 +280,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div className="mt-2">
                       <Label>Presencia de Animales en Casa</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('mascotas', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione opción" />
                         </SelectTrigger>
@@ -278,7 +293,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div className="mt-2">
                       <Label>Manejo de Residuos</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('manejoResiduos', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione opción" />
                         </SelectTrigger>
@@ -297,7 +312,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   <div className="grid gap-4">
                     <div>
                       <Label>Frecuencia de Baño</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('frecuenciaBano', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
@@ -311,7 +326,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Aseo de Manos</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('lavadoManos', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
@@ -325,7 +340,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Cambio de Ropa</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('cambioRopa', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
@@ -345,7 +360,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   <div className="grid gap-4">
                     <div>
                       <Label>Frecuencia de Cepillado Dental</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('frecuenciaCepillado', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
@@ -359,7 +374,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Técnica de Cepillado Empleada</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('tecnicaCepillado', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione técnica" />
                         </SelectTrigger>
@@ -376,26 +391,26 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       <Label>Uso de Auxiliares</Label>
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="hilo-dental" />
+                          <CustomCheckbox id="hilo-dental" onChange={(e) => handleFormChange('auxiliaresBucales', e.target.checked ? [...formData.auxiliaresBucales, 'hilo dental'] : formData.auxiliaresBucales.filter(a => a !== 'hilo dental'))} />
                           <Label htmlFor="hilo-dental">Hilo Dental</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="enjuague" />
+                          <CustomCheckbox id="enjuague" onChange={(e) => handleFormChange('auxiliaresBucales', e.target.checked ? [...formData.auxiliaresBucales, 'enjuague bucal'] : formData.auxiliaresBucales.filter(a => a !== 'enjuague bucal'))} />
                           <Label htmlFor="enjuague">Enjuague Bucal</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="irrigador" />
+                          <CustomCheckbox id="irrigador" onChange={(e) => handleFormChange('auxiliaresBucales', e.target.checked ? [...formData.auxiliaresBucales, 'irrigador dental'] : formData.auxiliaresBucales.filter(a => a !== 'irrigador dental'))} />
                           <Label htmlFor="irrigador">Irrigador Dental</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="no-auxiliares" />
+                          <CustomCheckbox id="no-auxiliares" onChange={(e) => handleFormChange('auxiliaresBucales', e.target.checked ? [] : formData.auxiliaresBucales)} />
                           <Label htmlFor="no-auxiliares">No usa auxiliares</Label>
                         </div>
                       </div>
                     </div>
                     <div>
                       <Label>Última Visita al Odontólogo</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('ultimaVisitaOdontologo', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione tiempo" />
                         </SelectTrigger>
@@ -411,23 +426,23 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       <Label>Problemas Bucales Presentes</Label>
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="encias-sangran" />
+                          <CustomCheckbox id="encias-sangran" onChange={(e) => handleFormChange('problemasBucales', e.target.checked ? [...formData.problemasBucales, 'encías que sangran'] : formData.problemasBucales.filter(p => p !== 'encías que sangran'))} />
                           <Label htmlFor="encias-sangran">Encías que sangran al cepillarse</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="dientes-agujeros" />
+                          <CustomCheckbox id="dientes-agujeros" onChange={(e) => handleFormChange('problemasBucales', e.target.checked ? [...formData.problemasBucales, 'dientes con agujeros'] : formData.problemasBucales.filter(p => p !== 'dientes con agujeros'))} />
                           <Label htmlFor="dientes-agujeros">Dientes con agujeros o zonas oscuras</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="mal-aliento" />
+                          <CustomCheckbox id="mal-aliento" onChange={(e) => handleFormChange('problemasBucales', e.target.checked ? [...formData.problemasBucales, 'mal aliento frecuente'] : formData.problemasBucales.filter(p => p !== 'mal aliento frecuente'))} />
                           <Label htmlFor="mal-aliento">Mal aliento frecuente</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="dolor-dientes" />
+                          <CustomCheckbox id="dolor-dientes" onChange={(e) => handleFormChange('problemasBucales', e.target.checked ? [...formData.problemasBucales, 'dolor en dientes o encías'] : formData.problemasBucales.filter(p => p !== 'dolor en dientes o encías'))} />
                           <Label htmlFor="dolor-dientes">Dolor en dientes o encías</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="no-problemas" />
+                          <CustomCheckbox id="no-problemas" onChange={(e) => handleFormChange('problemasBucales', e.target.checked ? [] : formData.problemasBucales)} />
                           <Label htmlFor="no-problemas">No tengo problemas bucales</Label>
                         </div>
                       </div>
@@ -442,30 +457,30 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       <Label>Tipo de Alimentos Consumidos Frecuentemente</Label>
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="frutas-verduras" />
+                          <CustomCheckbox id="frutas-verduras" onChange={(e) => handleFormChange('alimentosConsumidos', e.target.checked ? [...formData.alimentosConsumidos, 'frutas y verduras'] : formData.alimentosConsumidos.filter(a => a !== 'frutas y verduras'))} />
                           <Label htmlFor="frutas-verduras">Frutas y verduras</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="carnes-proteinas" />
+                          <CustomCheckbox id="carnes-proteinas" onChange={(e) => handleFormChange('alimentosConsumidos', e.target.checked ? [...formData.alimentosConsumidos, 'carnes y proteínas'] : formData.alimentosConsumidos.filter(a => a !== 'carnes y proteínas'))} />
                           <Label htmlFor="carnes-proteinas">Carnes y proteínas</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="alimentos-procesados" />
+                          <CustomCheckbox id="alimentos-procesados" onChange={(e) => handleFormChange('alimentosConsumidos', e.target.checked ? [...formData.alimentosConsumidos, 'alimentos procesados y fritos'] : formData.alimentosConsumidos.filter(a => a !== 'alimentos procesados y fritos'))} />
                           <Label htmlFor="alimentos-procesados">Alimentos procesados y fritos</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="dulces-azucares" />
+                          <CustomCheckbox id="dulces-azucares" onChange={(e) => handleFormChange('alimentosConsumidos', e.target.checked ? [...formData.alimentosConsumidos, 'dulces y azúcares'] : formData.alimentosConsumidos.filter(a => a !== 'dulces y azúcares'))} />
                           <Label htmlFor="dulces-azucares">Dulces y azúcares</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="lacteos" />
+                          <CustomCheckbox id="lacteos" onChange={(e) => handleFormChange('alimentosConsumidos', e.target.checked ? [...formData.alimentosConsumidos, 'lácteos'] : formData.alimentosConsumidos.filter(a => a !== 'lácteos'))} />
                           <Label htmlFor="lacteos">Lácteos</Label>
                         </div>
                       </div>
                     </div>
                     <div>
                       <Label>Frecuencia de Consumo de Frutas y Verduras</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('frecuenciaFrutasVerduras', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
@@ -479,7 +494,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Frecuencia de Consumo de Bebidas Azucaradas</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('frecuenciaBebidasAzucaradas', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
@@ -493,7 +508,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Frecuencia de Consumo de Comida Chatarra</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('frecuenciaComidaChatarra', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
@@ -507,7 +522,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Consumo de Agua al Día</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('consumoAgua', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione cantidad" />
                         </SelectTrigger>
@@ -518,15 +533,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-4">Hábitos Alimenticios</h4>
-                  <div className="grid gap-4">
                     <div>
                       <Label>Número de Comidas al Día</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('numeroComidas', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione número" />
                         </SelectTrigger>
@@ -540,19 +549,25 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Horario de Comidas</Label>
-                      <Select className="mt-2">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione horario" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="fijo">Fijo (desayuno, almuerzo, cena)</SelectItem>
-                          <SelectItem value="irregular">Irregular</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <div className="grid grid-cols-2 gap-2 mt-2">
+                        <div className="flex items-center space-x-1">
+                          <Label>Desayuno:</Label>
+                          <input type="time" className="border rounded px-2 py-1" onChange={(e) => handleFormChange('horarioComidas', { ...formData.horarioComidas, desayuno: e.target.value })} />
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Label>Almuerzo:</Label>
+                          <input type="time" className="border rounded px-2 py-1" onChange={(e) => handleFormChange('horarioComidas', { ...formData.horarioComidas, almuerzo: e.target.value })} />
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <Label>Cena:</Label>
+                          <input type="time" className="border rounded px-2 py-1" onChange={(e) => handleFormChange('horarioComidas', { ...formData.horarioComidas, cena: e.target.value })} />
+                        </div>
+                        {/* Agregar más campos de tiempo si es necesario */}
+                      </div>
                     </div>
-                    <div className="mt-2">
+                    <div>
                       <Label>Realizas Ayuno Prolongado?</Label>
-                      <Select className="mt-2">
+                      <Select className="mt-2" onValueChange={(value) => handleFormChange('ayunoProlongado', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione opción" />
                         </SelectTrigger>
@@ -567,52 +582,30 @@ const AntecedentesPersonalesNoPatologicos = () => {
                 </div>
               </div>
             ) : (
-              <div ref={formRef} className="p-6">
-                <label className="font-mono text-sm font-medium text-gray-800">
-                  Redacción IA...
-                </label>
-                <div
-                  className="progress-bar-container"
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#d3d3d3',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    marginBottom: '1rem',
-                    boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)',
-                  }}
-                >
-                  <div
-                    className="progress-bar"
-                    style={{
-                      height: '8px',
-                      backgroundColor: '#34c759',
-                      transition: 'width 0.015s ease-in-out',
-                      width: `${progress}%`,
-                      borderRadius: '12px',
-                    }}
-                  ></div>
-                </div>
-                <div
-                  className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
-                  style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-                >
-                  {displayedText}
-                </div>
-
-                <Button
-                  onClick={handleCopy}
-                  className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
-                >
-                  <Copy className="w-4 h-4" />
-                  <span>Copiar Redacción</span>
-                  {copied && (
-                    <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>Copiado</span>
-                    </div>
-                  )}
-                </Button>
+              <div>
+                {Object.entries(redacciones).map(([section, redaccion], index) => (
+                  <div key={index} className="mb-4">
+                    <Label className="font-semibold">{section.charAt(0).toUpperCase() + section.slice(1)}</Label>
+                    <textarea
+                      className="w-full h-auto min-h-[100px] mt-2 p-2 border rounded-md"
+                      value={redaccion}
+                      readOnly
+                    />
+                    <Button
+                      onClick={() => handleCopy(section)}
+                      className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
+                    >
+                      <Copy className="w-4 h-4" />
+                      <span>Copiar Redacción</span>
+                      {copied === section && (
+                        <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Copiado</span>
+                        </div>
+                      )}
+                    </Button>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -620,7 +613,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
               <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
                 <span>Generar Redacción IA</span>
               </Button>
-              <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
+              <Button onClick={() => setShowForm(true)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
                 <Eraser className="w-4 h-4" />
                 <span>Limpiar Formulario</span>
               </Button>
