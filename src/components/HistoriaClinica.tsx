@@ -23,10 +23,6 @@ const HistoriaClinica = () => {
     generarResumen
   } = useHistoriaClinica();
 
-  const handleComponentChange = (section: string) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    handleFormSectionChange(section, e.target.name, e.target.value);
-  };
-
   return (
     <div className={`${theme} min-h-screen`}>
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
@@ -34,17 +30,17 @@ const HistoriaClinica = () => {
           <div className="space-y-6">            
             <AntecedentesPersonalesNoPatologicos
               formData={formData}
-              handleInputChange={handleFormSectionChange}
+              handleInputChange={(section, field, value) => handleFormSectionChange(section, field, value)}
             />
             
             <SignosVitales 
               formData={formData} 
-              handleInputChange={handleFormSectionChange} 
+              handleInputChange={(section, field, value) => handleFormSectionChange(section, field, value)} 
             />
             
             <DiagnosticoPronostico 
               formData={formData} 
-              handleInputChange={handleFormSectionChange} 
+              handleInputChange={(section, field, value) => handleFormSectionChange(section, field, value)} 
             />
 
             <div className="flex justify-center pt-6">

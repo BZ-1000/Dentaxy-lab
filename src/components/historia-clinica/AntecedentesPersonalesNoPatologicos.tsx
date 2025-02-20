@@ -86,7 +86,7 @@ const AntecedentesPersonalesNoPatologicos = ({
                   <div>
                     <Label>Tipo de Vivienda</Label>
                     <RadioGroup 
-                      value={formData.serviciosDomiciliarios.tipoVivienda} 
+                      value={formData.serviciosDomiciliarios.tipoVivienda}
                       onValueChange={(value) => handleInputChange('serviciosDomiciliarios', 'tipoVivienda', value)}
                       className="flex gap-4 mt-2"
                     >
@@ -222,8 +222,8 @@ const AntecedentesPersonalesNoPatologicos = ({
                   <div>
                     <Label>Condiciones de la Calle</Label>
                     <Select
-                      value={formData.condicionesCalle}
-                      onValueChange={(value) => handleInputChange('condicionesCalle', 'condicionesCalle', value)}
+                      value={formData.serviciosDomiciliarios.condicionesCalle}
+                      onValueChange={(value) => handleInputChange('serviciosDomiciliarios', 'condicionesCalle', value)}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Seleccione condición" />
@@ -238,8 +238,8 @@ const AntecedentesPersonalesNoPatologicos = ({
                   <div>
                     <Label>Iluminación en la Calle</Label>
                     <RadioGroup
-                      value={formData.iluminacionCalle}
-                      onValueChange={(value) => handleInputChange('iluminacionCalle', 'iluminacionCalle', value)}
+                      value={formData.serviciosDomiciliarios.iluminacionCalle}
+                      onValueChange={(value) => handleInputChange('serviciosDomiciliarios', 'iluminacionCalle', value)}
                       className="flex gap-4 mt-2"
                     >
                       <div className="flex items-center space-x-2">
