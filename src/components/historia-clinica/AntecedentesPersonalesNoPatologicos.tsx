@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -46,7 +46,11 @@ const AntecedentesPersonalesNoPatologicos = () => {
     frecuenciaComidaChatarra: "",
     consumoAgua: "",
     numeroComidas: "",
-    horarioComidas: "",
+    horarioComidas: {
+      desayuno: "",
+      almuerzo: "",
+      cena: ""
+    },
     ayunoProlongado: ""
   });
 
@@ -88,6 +92,15 @@ const AntecedentesPersonalesNoPatologicos = () => {
     setFormData((prevData) => ({
       ...prevData,
       [field]: value
+    }));
+  };
+
+  const handleCheckboxChange = (field, value) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [field]: prevData[field].includes(value)
+        ? prevData[field].filter((item) => item !== value)
+        : [...prevData[field], value]
     }));
   };
 
@@ -169,27 +182,27 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       <Label>Servicios Disponibles</Label>
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="agua" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'agua'] : formData.servicios.filter(s => s !== 'agua'))} />
+                          <CustomCheckbox id="agua" onChange={(e) => handleCheckboxChange('servicios', 'agua')} />
                           <Label htmlFor="agua">Agua</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="luz" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'luz'] : formData.servicios.filter(s => s !== 'luz'))} />
+                          <CustomCheckbox id="luz" onChange={(e) => handleCheckboxChange('servicios', 'luz')} />
                           <Label htmlFor="luz">Luz</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="drenaje" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'drenaje'] : formData.servicios.filter(s => s !== 'drenaje'))} />
+                          <CustomCheckbox id="drenaje" onChange={(e) => handleCheckboxChange('servicios', 'drenaje')} />
                           <Label htmlFor="drenaje">Drenaje</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="transporte" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'transporte'] : formData.servicios.filter(s => s !== 'transporte'))} />
+                          <CustomCheckbox id="transporte" onChange={(e) => handleCheckboxChange('servicios', 'transporte')} />
                           <Label htmlFor="transporte">Transporte</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="internet" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'internet'] : formData.servicios.filter(s => s !== 'internet'))} />
+                          <CustomCheckbox id="internet" onChange={(e) => handleCheckboxChange('servicios', 'internet')} />
                           <Label htmlFor="internet">Internet</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="gas" onChange={(e) => handleFormChange('servicios', e.target.checked ? [...formData.servicios, 'gas'] : formData.servicios.filter(s => s !== 'gas'))} />
+                          <CustomCheckbox id="gas" onChange={(e) => handleCheckboxChange('servicios', 'gas')} />
                           <Label htmlFor="gas">Gas</Label>
                         </div>
                       </div>
@@ -391,19 +404,19 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       <Label>Uso de Auxiliares</Label>
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="hilo-dental" onChange={(e) => handleFormChange('auxiliaresBucales', e.target.checked ? [...formData.auxiliaresBucales, 'hilo dental'] : formData.auxiliaresBucales.filter(a => a !== 'hilo dental'))} />
+                          <CustomCheckbox id="hilo-dental" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'hilo dental')} />
                           <Label htmlFor="hilo-dental">Hilo Dental</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="enjuague" onChange={(e) => handleFormChange('auxiliaresBucales', e.target.checked ? [...formData.auxiliaresBucales, 'enjuague bucal'] : formData.auxiliaresBucales.filter(a => a !== 'enjuague bucal'))} />
+                          <CustomCheckbox id="enjuague" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'enjuague bucal')} />
                           <Label htmlFor="enjuague">Enjuague Bucal</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="irrigador" onChange={(e) => handleFormChange('auxiliaresBucales', e.target.checked ? [...formData.auxiliaresBucales, 'irrigador dental'] : formData.auxiliaresBucales.filter(a => a !== 'irrigador dental'))} />
+                          <CustomCheckbox id="irrigador" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'irrigador dental')} />
                           <Label htmlFor="irrigador">Irrigador Dental</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="no-auxiliares" onChange={(e) => handleFormChange('auxiliaresBucales', e.target.checked ? [] : formData.auxiliaresBucales)} />
+                          <CustomCheckbox id="no-auxiliares" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'no auxiliares')} />
                           <Label htmlFor="no-auxiliares">No usa auxiliares</Label>
                         </div>
                       </div>
@@ -426,23 +439,23 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       <Label>Problemas Bucales Presentes</Label>
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="encias-sangran" onChange={(e) => handleFormChange('problemasBucales', e.target.checked ? [...formData.problemasBucales, 'encías que sangran'] : formData.problemasBucales.filter(p => p !== 'encías que sangran'))} />
+                          <CustomCheckbox id="encias-sangran" onChange={(e) => handleCheckboxChange('problemasBucales', 'encías que sangran')} />
                           <Label htmlFor="encias-sangran">Encías que sangran al cepillarse</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="dientes-agujeros" onChange={(e) => handleFormChange('problemasBucales', e.target.checked ? [...formData.problemasBucales, 'dientes con agujeros'] : formData.problemasBucales.filter(p => p !== 'dientes con agujeros'))} />
+                          <CustomCheckbox id="dientes-agujeros" onChange={(e) => handleCheckboxChange('problemasBucales', 'dientes con agujeros')} />
                           <Label htmlFor="dientes-agujeros">Dientes con agujeros o zonas oscuras</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="mal-aliento" onChange={(e) => handleFormChange('problemasBucales', e.target.checked ? [...formData.problemasBucales, 'mal aliento frecuente'] : formData.problemasBucales.filter(p => p !== 'mal aliento frecuente'))} />
+                          <CustomCheckbox id="mal-aliento" onChange={(e) => handleCheckboxChange('problemasBucales', 'mal aliento frecuente')} />
                           <Label htmlFor="mal-aliento">Mal aliento frecuente</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="dolor-dientes" onChange={(e) => handleFormChange('problemasBucales', e.target.checked ? [...formData.problemasBucales, 'dolor en dientes o encías'] : formData.problemasBucales.filter(p => p !== 'dolor en dientes o encías'))} />
+                          <CustomCheckbox id="dolor-dientes" onChange={(e) => handleCheckboxChange('problemasBucales', 'dolor en dientes o encías')} />
                           <Label htmlFor="dolor-dientes">Dolor en dientes o encías</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="no-problemas" onChange={(e) => handleFormChange('problemasBucales', e.target.checked ? [] : formData.problemasBucales)} />
+                          <CustomCheckbox id="no-problemas" onChange={(e) => handleCheckboxChange('problemasBucales', 'no problemas')} />
                           <Label htmlFor="no-problemas">No tengo problemas bucales</Label>
                         </div>
                       </div>
@@ -457,23 +470,23 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       <Label>Tipo de Alimentos Consumidos Frecuentemente</Label>
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="frutas-verduras" onChange={(e) => handleFormChange('alimentosConsumidos', e.target.checked ? [...formData.alimentosConsumidos, 'frutas y verduras'] : formData.alimentosConsumidos.filter(a => a !== 'frutas y verduras'))} />
+                          <CustomCheckbox id="frutas-verduras" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'frutas y verduras')} />
                           <Label htmlFor="frutas-verduras">Frutas y verduras</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="carnes-proteinas" onChange={(e) => handleFormChange('alimentosConsumidos', e.target.checked ? [...formData.alimentosConsumidos, 'carnes y proteínas'] : formData.alimentosConsumidos.filter(a => a !== 'carnes y proteínas'))} />
+                          <CustomCheckbox id="carnes-proteinas" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'carnes y proteínas')} />
                           <Label htmlFor="carnes-proteinas">Carnes y proteínas</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="alimentos-procesados" onChange={(e) => handleFormChange('alimentosConsumidos', e.target.checked ? [...formData.alimentosConsumidos, 'alimentos procesados y fritos'] : formData.alimentosConsumidos.filter(a => a !== 'alimentos procesados y fritos'))} />
+                          <CustomCheckbox id="alimentos-procesados" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'alimentos procesados y fritos')} />
                           <Label htmlFor="alimentos-procesados">Alimentos procesados y fritos</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="dulces-azucares" onChange={(e) => handleFormChange('alimentosConsumidos', e.target.checked ? [...formData.alimentosConsumidos, 'dulces y azúcares'] : formData.alimentosConsumidos.filter(a => a !== 'dulces y azúcares'))} />
+                          <CustomCheckbox id="dulces-azucares" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'dulces y azúcares')} />
                           <Label htmlFor="dulces-azucares">Dulces y azúcares</Label>
                         </div>
                         <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="lacteos" onChange={(e) => handleFormChange('alimentosConsumidos', e.target.checked ? [...formData.alimentosConsumidos, 'lácteos'] : formData.alimentosConsumidos.filter(a => a !== 'lácteos'))} />
+                          <CustomCheckbox id="lacteos" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'lácteos')} />
                           <Label htmlFor="lacteos">Lácteos</Label>
                         </div>
                       </div>
