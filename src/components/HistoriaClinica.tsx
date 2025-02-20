@@ -29,17 +29,17 @@ const HistoriaClinica = () => {
           <div className="space-y-6">            
             <AntecedentesPersonalesNoPatologicos
               formData={formData}
-              handleInputChange={handleInputChange}
+              handleInputChange={handleFormSectionChange}
             />
             
             <SignosVitales 
               formData={formData} 
-              handleInputChange={handleInputChange} 
+              handleInputChange={handleFormSectionChange} 
             />
             
             <DiagnosticoPronostico 
               formData={formData} 
-              handleInputChange={handleInputChange} 
+              handleInputChange={handleFormSectionChange} 
             />
 
             <div className="flex justify-center pt-6">

@@ -16,53 +16,25 @@ export interface Familiar {
   };
 }
 
-export interface PadecimientoActual {
-  sinSintomas: boolean;
-  motivoConsulta: string;
-  historiaPadecimiento: string;
-  dolor: {
-    fechaInicio: string;
-    condicionAparicion: string;
-    frecuencia: string;
-    caracter: string;
-    intensidad: string;
-    localizacion: {
-      tipo: string;
-      descripcion: string;
-    };
-    atenuacion: string;
+export interface ServiciosDomiciliarios {
+  tipoVivienda: string;
+  materialVivienda: string;
+  condicionesCalle: string;
+  iluminacionCalle: string;
+  servicios: {
+    agua: boolean;
+    luz: boolean;
+    drenaje: boolean;
+    transporte: boolean;
+    internet: boolean;
+    gas: boolean;
   };
-}
-
-export interface AntecedentesHeredoFamiliares {
-  padre: Familiar;
-  madre: Familiar;
-  abueloPaterno: Familiar;
-  abuelaPaterna: Familiar;
-  abueloMaterno: Familiar;
-  abuelaMaterna: Familiar;
-}
-
-export interface HigieneBucal {
-  frecuenciaCepillado: string;
-  usoHiloDental: string;
-  tipoCerdas: string;
-  cantidadPasta: string;
-  marcaPasta: string;
-}
-
-export interface Alimentacion {
-  tipoDieta: string;
-  frecuenciaComidas: string;
-  tiposAlimentos: string;
-  saltaComidas: string;
-  consumoNutritivo: string;
 }
 
 export interface FormDataState {
   padecimientoActual: PadecimientoActual;
   antecedentesHeredoFamiliares: AntecedentesHeredoFamiliares;
-  serviciosDomiciliarios: string;
+  serviciosDomiciliarios: ServiciosDomiciliarios;
   pisosVivienda: string;
   materialVivienda: string;
   materialPiso: string;
@@ -70,8 +42,33 @@ export interface FormDataState {
   frecuenciaLimpieza: string;
   hacinamiento: string;
   frecuenciaBano: string;
-  higieneBucal: HigieneBucal;
-  alimentacion: Alimentacion;
+  higieneBucal: {
+    frecuenciaCepillado: string;
+    usoHiloDental: string;
+    tipoCerdas: string;
+    cantidadPasta: string;
+    marcaPasta: string;
+    auxiliares: {
+      hiloDental: boolean;
+      enjuagueBucal: boolean;
+      irrigador: boolean;
+      noUsa: boolean;
+    };
+    problemas: {
+      sangradoEncias: boolean;
+      caries: boolean;
+      malAliento: boolean;
+      dolor: boolean;
+      sinProblemas: boolean;
+    };
+  };
+  alimentacion: {
+    tipoDieta: string;
+    frecuenciaComidas: string;
+    tiposAlimentos: string;
+    saltaComidas: string;
+    consumoNutritivo: string;
+  };
   grupoSanguineo: string;
   factorRh: string;
   inmunizaciones: string;
