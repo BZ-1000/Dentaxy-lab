@@ -1,4 +1,31 @@
 
+export interface PadecimientoActual {
+  sinSintomas: boolean;
+  motivoConsulta: string;
+  historiaPadecimiento: string;
+  dolor: {
+    fechaInicio: string;
+    condicionAparicion: string;
+    frecuencia: string;
+    caracter: string;
+    intensidad: string;
+    localizacion: {
+      tipo: string;
+      descripcion: string;
+    };
+    atenuacion: string;
+  };
+}
+
+export interface AntecedentesHeredoFamiliares {
+  padre: Familiar;
+  madre: Familiar;
+  abueloPaterno: Familiar;
+  abuelaPaterna: Familiar;
+  abueloMaterno: Familiar;
+  abuelaMaterna: Familiar;
+}
+
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from '@/hooks/use-theme';
 import { Loader2 } from "lucide-react";
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
+import type { ChangeEvent } from 'react';
 
 const HistoriaClinica = () => {
   const { theme } = useTheme();
@@ -21,6 +22,10 @@ const HistoriaClinica = () => {
     handleFormSectionChange,
     generarResumen
   } = useHistoriaClinica();
+
+  const handleComponentChange = (section: string) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    handleFormSectionChange(section, e.target.name, e.target.value);
+  };
 
   return (
     <div className={`${theme} min-h-screen`}>
