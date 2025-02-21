@@ -98,9 +98,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
         } else {
           clearInterval(intervalId);
           // Auto-scroll to the top of the section
-          redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
+          redaccionesRef.current.scrollIntoView({ behavior: 'auto' });
         }
-      }, 0.05);
+      }, 1);
     });
   };
 
