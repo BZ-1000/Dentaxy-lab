@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,6 +19,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
   });
   const [copied, setCopied] = useState(null);
   const formRef = useRef(null);
+  const [progress, setProgress] = useState(0);
 
   const [formData, setFormData] = useState({
     tipoVivienda: "",
@@ -80,6 +81,24 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
     setRedacciones(redaccionesGeneradas);
     setShowForm(false);
+
+    // Simulate typing effect
+    Object.keys(redaccionesGeneradas).forEach((key) => {
+      const text = redaccionesGeneradas[key];
+      let index = 0;
+      const intervalId = setInterval(() => {
+        if (index <= text.length) {
+          setRedacciones((prev) => ({
+            ...prev,
+            [key]: text.slice(0, index)
+          }));
+          setProgress((index / text.length) * 100);
+          index++;
+        } else {
+          clearInterval(intervalId);
+        }
+      }, 10);
+    });
   };
 
   const handleCopy = (section) => {
@@ -597,26 +616,26 @@ const AntecedentesPersonalesNoPatologicos = () => {
             ) : (
               <div>
                 {Object.entries(redacciones).map(([section, redaccion], index) => (
-                  <div key={index} className="mb-4">
+                  <div key={index} className="mb-4 relative">
                     <Label className="font-semibold">{section.charAt(0).toUpperCase() + section.slice(1)}</Label>
                     <textarea
-                      className="w-full h-auto min-h-[100px] mt-2 p-2 border rounded-md"
+                      className="w-full h-auto min-h-[100px] mt-2 p-2 border rounded-md resize-none"
                       value={redaccion}
                       readOnly
+                      style={{ height: 'auto' }}
                     />
                     <Button
                       onClick={() => handleCopy(section)}
-                      className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
+                      className="absolute top-2 right-2 bg-blue-500 text-white p-1 rounded-lg hover:bg-blue-600"
                     >
                       <Copy className="w-4 h-4" />
-                      <span>Copiar Redacción</span>
-                      {copied === section && (
-                        <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
-                          <CheckCircle className="w-4 h-4" />
-                          <span>Copiado</span>
-                        </div>
-                      )}
                     </Button>
+                    <div className="h-2 bg-gray-200 rounded-full mt-2">
+                      <div
+                        className="h-full bg-blue-500 rounded-full"
+                        style={{ width: `${progress}%` }}
+                      ></div>
+                    </div>
                   </div>
                 ))}
               </div>
