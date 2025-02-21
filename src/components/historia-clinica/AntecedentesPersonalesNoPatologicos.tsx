@@ -77,7 +77,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
       higieneVivienda: `La vivienda del paciente se mantiene con una rutina de limpieza ${formData.frecuenciaLimpieza}, lo que influye en su bienestar general. El cambio de ropa de cama se realiza ${formData.cambioRopaCama}. Se observa que la vivienda ${formData.hacinamiento === "no" ? "no presenta" : "presenta"} condiciones de hacinamiento. Además, se identifica que ${formData.promiscuidad === "no" ? "no" : "sí"} existe promiscuidad. El paciente ${formData.mascotas === "no" ? "no tiene" : "tiene"} mascotas. En cuanto a la recolección de basura, ${formData.manejoResiduos === "diaria" ? "la basura se desecha diariamente" : "se acumulan residuos dentro del hogar"}, lo que puede influir en la higiene del entorno.\n`,
       higienePersonal: `El paciente reporta una frecuencia de baño ${formData.frecuenciaBano}, lo que influye en su higiene y confort personal. Respecto al lavado de manos, lo realiza ${formData.lavadoManos.join(" y ")}. En cuanto al cambio de ropa, se registra una frecuencia ${formData.cambioRopa}.\n`,
       higieneBucal: `El paciente se cepilla los dientes ${formData.frecuenciaCepillado} veces al día y utiliza una técnica de cepillado ${formData.tecnicaCepillado}. Se observa que ${formData.auxiliaresBucales.length > 0 ? "utiliza" : "no utiliza"} auxiliares de higiene bucal, como ${formData.auxiliaresBucales.join(" y ")}. En relación con la atención odontológica, su última consulta fue hace ${formData.ultimaVisitaOdontologo}. El paciente reporta la presencia de ${formData.problemasBucales.join(" y ")}, lo que podría indicar la necesidad de una revisión odontológica.\n`,
-      alimentacion: `El paciente consume frecuentemente ${formData.alimentosConsumidos.join(" y ")}. Su alimentación incluye frutas y verduras con una frecuencia ${formData.frecuenciaFrutasVerduras}, mientras que las bebidas azucaradas son consumidas ${formData.frecuenciaBebidasAzucaradas}. También reporta que come comida chatarra ${formData.frecuenciaComidaChatarra}. Su consumo de agua al día es de ${formData.consumoAgua}. El paciente realiza ${formData.numeroComidas} comidas al día y mantiene un horario de alimentación ${formData.horarioComidas}. Además, menciona que ${formData.ayunoProlongado === "no" ? "no realiza" : "realiza"} ayunos prolongados.\n`
+      alimentacion: `El paciente consume frecuentemente ${formData.alimentosConsumidos.join(" , ")}. Su alimentación incluye frutas y verduras con una frecuencia ${formData.frecuenciaFrutasVerduras}, mientras que las bebidas azucaradas son consumidas ${formData.frecuenciaBebidasAzucaradas}. También reporta que come comida chatarra ${formData.frecuenciaComidaChatarra}. Su consumo de agua al día es de ${formData.consumoAgua}. El paciente realiza ${formData.numeroComidas} comidas al día y mantiene un horario de alimentación ${formData.horarioComidas}. Además, menciona que ${formData.ayunoProlongado === "no" ? "no realiza" : "realiza"} ayunos prolongados.\n`
     };
 
     setRedacciones(redaccionesGeneradas);
@@ -101,7 +101,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
         } else {
           clearInterval(intervalId);
         }
-      }, 0.01); // Reduced interval for faster scroll
+      }, 0.5); // Reduced interval for faster scroll
     });
   };
 
@@ -316,10 +316,10 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="diariamente">Diariamente</SelectItem>
-                          <SelectItem value="semanalmente">Semanalmente</SelectItem>
-                          <SelectItem value="quincenalmente">Quincenal</SelectItem>
-                          <SelectItem value="esporadicamente">Esporádico</SelectItem>
+                          <SelectItem value="diariae">Diariamente</SelectItem>
+                          <SelectItem value="semanal">Semanalmente</SelectItem>
+                          <SelectItem value="quincenal">Quincenal</SelectItem>
+                          <SelectItem value="esporadica">Esporádico</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -330,7 +330,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
+                          <SelectItem value="diaria">Diario</SelectItem>
                           <SelectItem value="semanal">Semanal</SelectItem>
                           <SelectItem value="quincenal">Quincenal</SelectItem>
                           <SelectItem value="mensual">Mensual</SelectItem>
