@@ -73,35 +73,38 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
   const generarRedaccionIA = () => {
     const redaccionesGeneradas = {
-      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formData.tipoVivienda} con estructura predominante de ${formData.materialVivienda}. Cuenta con servicios básicos de ${formData.servicios.join(", ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formData.condicionCalle} y presenta ${formData.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.\n`,
-      higieneVivienda: `La vivienda del paciente se mantiene con una rutina de limpieza ${formData.frecuenciaLimpieza}, lo que influye en su bienestar general. El cambio de ropa de cama se realiza ${formData.cambioRopaCama}. Se observa que la vivienda ${formData.hacinamiento === "no" ? "no presenta" : "presenta"} condiciones de hacinamiento. Además, se identifica que ${formData.promiscuidad === "no" ? "no" : "sí"} existe promiscuidad. El paciente ${formData.mascotas === "no" ? "no tiene" : "tiene"} mascotas. En cuanto a la recolección de basura, ${formData.manejoResiduos === "diaria" ? "la basura se desecha diariamente" : "se acumulan residuos dentro del hogar"}, lo que puede influir en la higiene del entorno.\n`,
-      higienePersonal: `El paciente reporta una frecuencia de baño ${formData.frecuenciaBano}, lo que influye en su higiene y confort personal. Respecto al lavado de manos, lo realiza ${formData.lavadoManos}. En cuanto al cambio de ropa, se registra una frecuencia ${formData.cambioRopa}.\n`,
-      higieneBucal: `El paciente se cepilla los dientes ${formData.frecuenciaCepillado} veces al día y utiliza una técnica de cepillado ${formData.tecnicaCepillado}. Se observa que ${formData.auxiliaresBucales.length > 0 ? "utiliza" : "no utiliza"} auxiliares de higiene bucal, como ${formData.auxiliaresBucales.join(" y ")}. En relación con la atención odontológica, su última consulta fue hace ${formData.ultimaVisitaOdontologo}. El paciente reporta la presencia de ${formData.problemasBucales.join(" y ")}, lo que podría indicar la necesidad de una revisión odontológica.\n`,
-      alimentacion: `El paciente consume frecuentemente ${formData.alimentosConsumidos.join(" y ")}. Su alimentación incluye frutas y verduras con una frecuencia ${formData.frecuenciaFrutasVerduras}, mientras que las bebidas azucaradas son consumidas ${formData.frecuenciaBebidasAzucaradas}. También reporta que come comida chatarra ${formData.frecuenciaComidaChatarra}. Su consumo de agua al día es de ${formData.consumoAgua}. El paciente realiza ${formData.numeroComidas} comidas al día y mantiene un horario de alimentación ${formData.horarioComidas}. Además, menciona que ${formData.ayunoProlongado === "no" ? "no realiza" : "realiza"} ayunos prolongados.\n`
+      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formData.tipoVivienda} con estructura predominante de ${formData.materialVivienda}. Cuenta con servicios básicos como ${formData.servicios.join(" y ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formData.condicionCalle} y presenta ${formData.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.`,
+      higieneVivienda: `La vivienda del paciente se mantiene con una rutina de limpieza ${formData.frecuenciaLimpieza}, lo que influye en su bienestar general. El cambio de ropa de cama se realiza ${formData.cambioRopaCama}. Se observa que la vivienda ${formData.hacinamiento === "no" ? "no presenta" : "presenta"} condiciones de hacinamiento. Además, se identifica que ${formData.promiscuidad === "no" ? "no" : "sí"} existe promiscuidad. El paciente ${formData.mascotas === "no" ? "no tiene" : "tiene"} mascotas. En cuanto a la recolección de basura, ${formData.manejoResiduos === "diaria" ? "la basura se desecha diariamente" : "se acumulan residuos dentro del hogar"}, lo que puede influir en la higiene del entorno.`,
+      higienePersonal: `El paciente reporta una frecuencia de baño ${formData.frecuenciaBano}, lo que influye en su higiene y confort personal. Respecto al lavado de manos, lo realiza ${formData.lavadoManos}. En cuanto al cambio de ropa, se registra una frecuencia ${formData.cambioRopa}.`,
+      higieneBucal: `El paciente se cepilla los dientes ${formData.frecuenciaCepillado} veces al día y utiliza una técnica de cepillado ${formData.tecnicaCepillado}. Se observa que ${formData.auxiliaresBucales.length > 0 ? "utiliza" : "no utiliza"} auxiliares de higiene bucal, como ${formData.auxiliaresBucales.join(" y ")}. En relación con la atención odontológica, su última consulta fue hace ${formData.ultimaVisitaOdontologo}. El paciente reporta la presencia de ${formData.problemasBucales.join(" y ")}, lo que podría indicar la necesidad de una revisión odontológica.`,
+      alimentacion: `El paciente consume frecuentemente ${formData.alimentosConsumidos.join(" y ")}. Su alimentación incluye frutas y verduras con una frecuencia ${formData.frecuenciaFrutasVerduras}, mientras que las bebidas azucaradas son consumidas ${formData.frecuenciaBebidasAzucaradas}. También reporta que come comida chatarra ${formData.frecuenciaComidaChatarra}. Su consumo de agua al día es de ${formData.consumoAgua}. El paciente realiza ${formData.numeroComidas} comidas al día y mantiene un horario de alimentación ${formData.horarioComidas}. Además, menciona que ${formData.ayunoProlongado === "no" ? "no realiza" : "realiza"} ayunos prolongados.`
     };
 
     setRedacciones(redaccionesGeneradas);
     setShowForm(false);
 
-    // Simulate typing effect
-    Object.keys(redaccionesGeneradas).forEach((key) => {
-      const text = redaccionesGeneradas[key];
-      let index = 0;
-      const intervalId = setInterval(() => {
-        if (index <= text.length) {
-          setRedacciones((prev) => ({
-            ...prev,
-            [key]: text.slice(0, index)
-          }));
-          setProgress((index / text.length) * 100);
-          index++;
-        } else {
-          clearInterval(intervalId);
-          // Auto-scroll to the top of the section
-          redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 0.05);
-    });
+    // Auto-scroll to the top of the section
+    redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
+
+    // Simulate typing effect after scroll
+    setTimeout(() => {
+      Object.keys(redaccionesGeneradas).forEach((key) => {
+        const text = redaccionesGeneradas[key];
+        let index = 0;
+        const intervalId = setInterval(() => {
+          if (index <= text.length) {
+            setRedacciones((prev) => ({
+              ...prev,
+              [key]: text.slice(0, index)
+            }));
+            setProgress((index / text.length) * 100);
+            index++;
+          } else {
+            clearInterval(intervalId);
+          }
+        }, 0.05);
+      });
+    }, 500); // Delay to ensure scroll is complete
   };
 
   const handleCopy = (section) => {
@@ -308,7 +311,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione opción" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="si">Sí, duermen más de 3 personas en una habitación</SelectItem>
+                          <SelectItem value="si">Sí, duermen más de tres personas en una habitación</SelectItem>
                           <SelectItem value="no">No hay hacinamiento</SelectItem>
                         </SelectContent>
                       </Select>
@@ -365,8 +368,8 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada-2-dias">Cada 2 días</SelectItem>
-                          <SelectItem value="cada-3-dias">Cada 3 días</SelectItem>
+                          <SelectItem value="cada-2-dias">Cada dos días</SelectItem>
+                          <SelectItem value="cada-3-dias">Cada tres días</SelectItem>
                           <SelectItem value="esporadico">Esporádico</SelectItem>
                         </SelectContent>
                       </Select>
@@ -393,8 +396,8 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada-2-dias">Cada 2 días</SelectItem>
-                          <SelectItem value="cada-3-dias">Cada 3 días</SelectItem>
+                          <SelectItem value="cada-2-dias">Cada dos días</SelectItem>
+                          <SelectItem value="cada-3-dias">Cada tres días</SelectItem>
                           <SelectItem value="esporadico">Esporádico</SelectItem>
                         </SelectContent>
                       </Select>
@@ -412,9 +415,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="3-veces">3 veces al día</SelectItem>
-                          <SelectItem value="2-veces">2 veces al día</SelectItem>
-                          <SelectItem value="1-vez">1 vez al día</SelectItem>
+                          <SelectItem value="3-veces">Tres veces al día</SelectItem>
+                          <SelectItem value="2-veces">Dos veces al día</SelectItem>
+                          <SelectItem value="1-vez">Una vez al día</SelectItem>
                           <SelectItem value="menos-1-vez">Menos de una vez al día</SelectItem>
                         </SelectContent>
                       </Select>
@@ -462,9 +465,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione tiempo" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="menos-6-meses">Menos de 6 meses</SelectItem>
-                          <SelectItem value="1-ano">1 año</SelectItem>
-                          <SelectItem value="mas-2-anos">Más de 2 años</SelectItem>
+                          <SelectItem value="menos-6-meses">Menos de seis meses</SelectItem>
+                          <SelectItem value="1-ano">Un año</SelectItem>
+                          <SelectItem value="mas-2-anos">Más de dos años</SelectItem>
                           <SelectItem value="nunca">Nunca ha visitado al odontólogo</SelectItem>
                         </SelectContent>
                       </Select>
@@ -533,7 +536,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="3-4-veces-semana">3-4 veces por semana</SelectItem>
+                          <SelectItem value="3-4-veces-semana">Tres o cuatro veces por semana</SelectItem>
                           <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
                           <SelectItem value="no-consume">No las consume</SelectItem>
                         </SelectContent>
@@ -547,7 +550,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="3-4-veces-semana">3-4 veces por semana</SelectItem>
+                          <SelectItem value="3-4-veces-semana">Tres o cuatro veces por semana</SelectItem>
                           <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
                           <SelectItem value="no-consume">No las consume</SelectItem>
                         </SelectContent>
@@ -561,7 +564,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="3-4-veces-semana">3-4 veces por semana</SelectItem>
+                          <SelectItem value="3-4-veces-semana">Tres o cuatro veces por semana</SelectItem>
                           <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
                           <SelectItem value="no-consume">No la consume</SelectItem>
                         </SelectContent>
@@ -574,9 +577,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione cantidad" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="mas-2-litros">Más de 2 litros</SelectItem>
-                          <SelectItem value="1-2-litros">1-2 litros</SelectItem>
-                          <SelectItem value="menos-1-litro">Menos de 1 litro</SelectItem>
+                          <SelectItem value="mas-2-litros">Más de dos litros</SelectItem>
+                          <SelectItem value="1-2-litros">Uno o dos litros</SelectItem>
+                          <SelectItem value="menos-1-litro">Menos de un litro</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -587,10 +590,10 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione número" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="3-comidas">3 comidas</SelectItem>
-                          <SelectItem value="4-comidas">4 comidas</SelectItem>
-                          <SelectItem value="5-o-mas">5 o más comidas</SelectItem>
-                          <SelectItem value="menos-3-comidas">Menos de 3 comidas</SelectItem>
+                          <SelectItem value="3-comidas">Tres comidas</SelectItem>
+                          <SelectItem value="4-comidas">Cuatro comidas</SelectItem>
+                          <SelectItem value="5-o-mas">Cinco o más comidas</SelectItem>
+                          <SelectItem value="menos-3-comidas">Menos de tres comidas</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
