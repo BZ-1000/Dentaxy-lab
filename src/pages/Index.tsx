@@ -1,5 +1,5 @@
+
 import { AppleStyleDock } from "@/components/AppleStyleDock";
-import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import { useEffect, useState } from "react";
 
@@ -12,17 +12,12 @@ const Index = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <div className="min-h-screen relative overflow-hidden">
-        {/* Background image with parallax effect */}
         <img 
           src="/lovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png"
           alt="Background"
@@ -35,7 +30,6 @@ const Index = () => {
         
         <div className="relative z-10 container mx-auto px-4 py-16">
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
-            {/* Logo and Title */}
             <div className="flex items-center gap-2 mb-12">
               <div className="w-12 h-12">
                 <img 
@@ -70,15 +64,8 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Form Section */}
-      <div className="min-h-screen bg-background py-16">
-        <div className="container mx-auto px-4">
-          <HistoriaClinica />
-        </div>
-      </div>
-
       <AppleStyleDock />
-      <div className="h-24" /> {/* Spacer for dock */}
+      <div className="h-24" />
     </div>
   );
 };
