@@ -73,7 +73,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
   const generarRedaccionIA = () => {
     const redaccionesGeneradas = {
-      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formData.tipoVivienda} con estructura predominante de ${formData.materialVivienda}. Cuenta con servicios básicos de ${formData.servicios.join(", ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formData.condicionCalle} y se presenta ${formData.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.\n`,
+      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formData.tipoVivienda} con estructura predominante de ${formData.materialVivienda}. Cuenta con servicios básicos de ${formData.servicios.length === 6 ? "todos los servicios" : formData.servicios.join(", ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formData.condicionCalle} y se presenta ${formData.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.\n`,
       higieneVivienda: `La vivienda del paciente se mantiene con una rutina de limpieza ${formData.frecuenciaLimpieza}, lo que influye en su bienestar general. El cambio de ropa de cama se realiza ${formData.cambioRopaCama}. Se observa que la vivienda ${formData.hacinamiento === "no" ? "no presenta" : "presenta"} condiciones de hacinamiento. Además, se identifica que ${formData.promiscuidad === "no" ? "no" : "sí"} existe promiscuidad. El paciente ${formData.mascotas === "no" ? "no tiene" : "tiene"} mascotas. En cuanto a la recolección de basura, ${formData.manejoResiduos === "diaria" ? "la basura se desecha diariamente" : "se acumulan residuos dentro del hogar"}, lo que puede influir en la higiene del entorno.\n`,
       higienePersonal: `El paciente reporta una frecuencia de baño ${formData.frecuenciaBano}, lo que influye en su higiene y confort personal. Respecto al lavado de manos, lo realiza ${formData.lavadoManos.join(" y ")}. En cuanto al cambio de ropa, se registra una frecuencia ${formData.cambioRopa}.\n`,
       higieneBucal: `El paciente se cepilla los dientes ${formData.frecuenciaCepillado} veces al día y utiliza una técnica de cepillado ${formData.tecnicaCepillado}. Se observa que ${formData.auxiliaresBucales.length > 0 ? "utiliza" : "no utiliza"} auxiliares de higiene bucal, como ${formData.auxiliaresBucales.join(" y ")}. En relación con la atención odontológica, su última consulta fue hace ${formData.ultimaVisitaOdontologo}. El paciente reporta la presencia de ${formData.problemasBucales.join(" y ")}, lo que podría indicar la necesidad de una revisión odontológica.\n`,
@@ -217,7 +217,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
               <div className="space-y-6">
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2">Servicios Domiciliarios</h4>
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Tipo de Vivienda</Label>
                       <Select className="mt-1" onValueChange={(value) => handleFormChange('tipoVivienda', value)}>
@@ -308,7 +308,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2">Higiene de la Vivienda</h4>
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Regularidad en el Aseo de la Vivienda</Label>
                       <Select className="mt-1" onValueChange={(value) => handleFormChange('frecuenciaLimpieza', value)}>
@@ -316,7 +316,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="diariae">Diariamente</SelectItem>
+                          <SelectItem value="diaria">Diariamente</SelectItem>
                           <SelectItem value="semanal">Semanalmente</SelectItem>
                           <SelectItem value="quincenal">Quincenal</SelectItem>
                           <SelectItem value="esporadica">Esporádico</SelectItem>
@@ -393,7 +393,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2">Higiene Personal</h4>
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Frecuencia de Baño</Label>
                       <Select className="mt-1" onValueChange={(value) => handleFormChange('frecuenciaBano', value)}>
@@ -448,7 +448,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2">Higiene Bucal</h4>
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Frecuencia de Cepillado Dental</Label>
                       <Select className="mt-1" onValueChange={(value) => handleFormChange('frecuenciaCepillado', value)}>
@@ -543,7 +543,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2">Alimentación</h4>
-                  <div className="grid gap-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Tipo de Alimentos Consumidos Frecuentemente</Label>
                       <div className="grid grid-cols-2 gap-1 mt-1">
