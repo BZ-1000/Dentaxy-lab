@@ -34,13 +34,10 @@ export interface PadecimientoActual {
   };
 }
 
-export interface AntecedentesHeredoFamiliares {
-  padre: Familiar;
-  madre: Familiar;
-  abueloPaterno: Familiar;
-  abuelaPaterna: Familiar;
-  abueloMaterno: Familiar;
-  abuelaMaterna: Familiar;
+export interface HigienePersonal {
+  frecuenciaBano: string;
+  aseoManos: string;
+  cambioRopa: string;
 }
 
 export interface HigieneBucal {
@@ -52,37 +49,41 @@ export interface HigieneBucal {
 }
 
 export interface Alimentacion {
-  tipoDieta: string;
-  frecuenciaComidas: string;
   tiposAlimentos: string;
-  saltaComidas: string;
+  frecuenciaComidas: string;
   consumoNutritivo: string;
+}
+
+export interface Vivienda {
+  serviciosBasicos: string[];
+  material: string;
+  ventilacion: string;
 }
 
 export interface FormDataState {
   padecimientoActual: PadecimientoActual;
-  antecedentesHeredoFamiliares: AntecedentesHeredoFamiliares;
-  serviciosDomiciliarios: string;
-  pisosVivienda: string;
-  materialVivienda: string;
-  materialPiso: string;
-  ventilacion: string;
-  frecuenciaLimpieza: string;
-  hacinamiento: string;
-  frecuenciaBano: string;
+  antecedentesHeredoFamiliares: {
+    [key: string]: Familiar;
+  };
+  higienePersonal: HigienePersonal;
   higieneBucal: HigieneBucal;
   alimentacion: Alimentacion;
-  grupoSanguineo: string;
-  factorRh: string;
-  inmunizaciones: string;
-  peso: string;
-  imc: string;
-  talla: string;
-  presionArterial: string;
-  pulso: string;
-  frecuenciaCardiaca: string;
-  frecuenciaRespiratoria: string;
-  temperatura: string;
-  diagnosticos: string;
-  pronosticos: string;
+  vivienda: Vivienda;
+  actividadFisica?: string;
+  sueno?: string;
+  tabaquismo?: {
+    fumador: boolean;
+    frecuencia?: string;
+    cantidad?: string;
+  };
+  alcoholismo?: {
+    bebedor: boolean;
+    frecuencia?: string;
+    cantidad?: string;
+  };
+  toxicomanias?: {
+    consumidor: boolean;
+    tipo?: string;
+    frecuencia?: string;
+  };
 }

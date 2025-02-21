@@ -395,16 +395,16 @@ const AntecedentesPersonalesNoPatologicos = () => {
                   <h4 className="text-lg font-semibold mb-2">Higiene Personal</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Frecuencia de Baño</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('frecuenciaBano', value)}>
+                      <Label>Cambio de Ropa</Label>
+                      <Select className="mt-1" onValueChange={(value) => handleFormChange('cambioRopa', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada dos dias">Cada dos días</SelectItem>
-                          <SelectItem value="cada tercer día">Cada tres días</SelectItem>
-                          <SelectItem value="esporadicamente">Esporádico</SelectItem>
+                          <SelectItem value="cada dos días">Cada dos días</SelectItem>
+                          <SelectItem value="cada tres días">Cada tres días</SelectItem>
+                          <SelectItem value="esporádicamente">Esporádico</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -430,16 +430,16 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </div>
                     </div>
                     <div>
-                      <Label>Cambio de Ropa</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('cambioRopa', value)}>
+                      <Label>Frecuencia de Baño</Label>
+                      <Select className="mt-1" onValueChange={(value) => handleFormChange('frecuenciaBano', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada dos días">Cada dos días</SelectItem>
-                          <SelectItem value="cada tres días">Cada tres días</SelectItem>
-                          <SelectItem value="esporádicamente">Esporádico</SelectItem>
+                          <SelectItem value="cada dos dias">Cada dos días</SelectItem>
+                          <SelectItem value="cada tercer día">Cada tres días</SelectItem>
+                          <SelectItem value="esporadicamente">Esporádico</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -619,101 +619,4 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="más de dos litros">Más de dos litros</SelectItem>
-                          <SelectItem value="medio litro">Uno o dos litros</SelectItem>
-                          <SelectItem value="menos de un litro">Menos de un litro</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Número de Comidas al Día</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('numeroComidas', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione número" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="tres comidas">Tres comidas</SelectItem>
-                          <SelectItem value="cuatro comidas">Cuatro comidas</SelectItem>
-                          <SelectItem value="cinco o mas">Cinco o más comidas</SelectItem>
-                          <SelectItem value="menos de tres comidas">Menos de tres comidas</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Horario de Comidas</Label>
-                      <div className="grid grid-cols-2 gap-1 mt-1">
-                        <div className="flex items-center space-x-1">
-                          <Label>Desayuno:</Label>
-                          <input type="time" className="border rounded px-2 py-1" onChange={(e) => handleFormChange('horarioComidas', { ...formData.horarioComidas, desayuno: e.target.value })} />
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Label>Almuerzo:</Label>
-                          <input type="time" className="border rounded px-2 py-1" onChange={(e) => handleFormChange('horarioComidas', { ...formData.horarioComidas, almuerzo: e.target.value })} />
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Label>Cena:</Label>
-                          <input type="time" className="border rounded px-2 py-1" onChange={(e) => handleFormChange('horarioComidas', { ...formData.horarioComidas, cena: e.target.value })} />
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <Label>¿Realiza Ayuno Prolongado?</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('ayunoProlongado', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione opción" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="eleccion">Sí, por elección</SelectItem>
-                          <SelectItem value="acceso">Sí, por falta de acceso a alimentos</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div>
-                {Object.entries(redacciones).map(([section, redaccion], index) => (
-                  <div key={index} className="mb-4 relative">
-                    <Label className="font-semibold">{section.charAt(0).toUpperCase() + section.slice(1)}</Label>
-                    <textarea
-                      className="w-full h-auto min-h-[100px] mt-2 p-2 border rounded-md resize-none"
-                      value={redaccion}
-                      readOnly
-                      onInput={adjustTextareaHeight}
-                    />
-                    <Button
-                      onClick={() => handleCopy(section)}
-                      className="absolute top-2 right-2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
-                      style={{ transform: 'translate(50%, -50%)' }}
-                    >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                    {copied[section] && (
-                      <div className="absolute top-0 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
-                        <CheckCircle className="w-4 h-4" />
-                        <span>Copiado</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="flex justify-center gap-4 mt-6">
-              <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
-                <span>Generar Redacción IA</span>
-              </Button>
-              <Button onClick={() => setShowForm(true)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
-                <Eraser className="w-4 h-4" />
-                <span>Limpiar Formulario</span>
-              </Button>
-            </div>
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-};
-
-export default AntecedentesPersonalesNoPatologicos;
+                          <SelectItem value="medio litro">Uno o dos litros
