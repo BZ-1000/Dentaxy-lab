@@ -20,6 +20,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
   const [copied, setCopied] = useState(null);
   const formRef = useRef(null);
   const [progress, setProgress] = useState(0);
+  const redaccionesRef = useRef(null);
 
   const [formData, setFormData] = useState({
     tipoVivienda: "",
@@ -96,6 +97,8 @@ const AntecedentesPersonalesNoPatologicos = () => {
           index++;
         } else {
           clearInterval(intervalId);
+          // Auto-scroll to the top of the section
+          redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
         }
       }, 10);
     });
@@ -157,7 +160,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
           </div>
         </div>
 
-        <div className="flex justify-start px-6 py-2">
+        <div ref={redaccionesRef} className="flex justify-start px-6 py-2">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">III.</span> ANTECEDENTES PERSONALES NO PATOLÓGICOS
           </h2>
@@ -622,11 +625,16 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       className="w-full h-auto min-h-[100px] mt-2 p-2 border rounded-md resize-none"
                       value={redaccion}
                       readOnly
-                      style={{ height: 'auto' }}
+                      style={{ height: 'auto', overflow: 'hidden' }}
+                      onInput={(e) => {
+                        e.target.style.height = 'auto';
+                        e.target.style.height = `${e.target.scrollHeight}px`;
+                      }}
                     />
                     <Button
                       onClick={() => handleCopy(section)}
-                      className="absolute top-2 right-2 bg-blue-500 text-white p-1 rounded-lg hover:bg-blue-600"
+                      className="absolute top-2 right-2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
+                      style={{ transform: 'translate(50%, -50%)' }}
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
