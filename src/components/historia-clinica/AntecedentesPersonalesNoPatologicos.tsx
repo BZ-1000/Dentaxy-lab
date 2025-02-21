@@ -98,9 +98,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
         } else {
           clearInterval(intervalId);
           // Auto-scroll to the top of the section
-          redaccionesRef.current.scrollIntoView({ behavior: 'auto' });
+          redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-      }, 1);
+      }, 0.05);
     });
   };
 
@@ -124,6 +124,13 @@ const AntecedentesPersonalesNoPatologicos = () => {
         ? prevData[field].filter((item) => item !== value)
         : [...prevData[field], value]
     }));
+  };
+
+  // Ajustar automáticamente el tamaño de los textarea
+  const adjustTextareaHeight = (e) => {
+    const target = e.target;
+    target.style.height = 'auto';
+    target.style.height = `${target.scrollHeight}px`;
   };
 
   return (
@@ -164,6 +171,11 @@ const AntecedentesPersonalesNoPatologicos = () => {
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">III.</span> ANTECEDENTES PERSONALES NO PATOLÓGICOS
           </h2>
+        </div>
+
+        {/* Barra de progreso en la parte superior */}
+        <div className="h-2 bg-gray-200 rounded-full mt-2 mb-4">
+          <div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div>
         </div>
 
         {!isMinimized && (
@@ -625,12 +637,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       className="w-full h-auto min-h-[100px] mt-2 p-2 border rounded-md resize-none"
                       value={redaccion}
                       readOnly
-                      style={{ height: 'auto', overflow: 'hidden' }}
-                      onInput={(e) => {
-                        const target = e.target as HTMLTextAreaElement;
-                        target.style.height = 'auto';
-                        target.style.height = `${target.scrollHeight}px`;
-                      }}
+                      onInput={adjustTextareaHeight}
                     />
                     <Button
                       onClick={() => handleCopy(section)}
@@ -645,12 +652,6 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         <span>Copiado</span>
                       </div>
                     )}
-                    <div className="h-2 bg-gray-200 rounded-full mt-2">
-                      <div
-                        className="h-full bg-blue-500 rounded-full"
-                        style={{ width: `${progress}%` }}
-                      ></div>
-                    </div>
                   </div>
                 ))}
               </div>
