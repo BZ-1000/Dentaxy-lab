@@ -100,7 +100,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
           // Auto-scroll to the top of the section
           redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-      }, 10);
+      }, 0);
     });
   };
 
