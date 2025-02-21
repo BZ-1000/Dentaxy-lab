@@ -625,12 +625,13 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       className="w-full h-auto min-h-[100px] mt-2 p-2 border rounded-md resize-none"
                       value={redaccion}
                       readOnly
-                      style={{ height: 'auto', overflow: 'hidden' }}
-                      onInput={(e) => {
-                        e.target.style.height = 'auto';
-                        e.target.style.height = `${e.target.scrollHeight}px`;
-                      }}
-                    />
+                     style={{ height: 'auto', overflow: 'hidden' }}
+                     onInput={(e) => {
+                     const target = e.target as HTMLTextAreaElement;
+                      target.style.height = 'auto';
+                     target.style.height = `${target.scrollHeight}px`;
+                  }}
+               />
                     <Button
                       onClick={() => handleCopy(section)}
                       className="absolute top-2 right-2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
