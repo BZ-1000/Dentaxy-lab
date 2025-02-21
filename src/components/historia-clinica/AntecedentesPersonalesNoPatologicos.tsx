@@ -1,3 +1,4 @@
+<lov-code>
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -619,4 +620,4 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="más de dos litros">Más de dos litros</SelectItem>
-                          <SelectItem value="medio litro">Uno o dos litros
+                          <SelectItem value="medio litro">Uno
