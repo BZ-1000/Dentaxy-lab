@@ -601,7 +601,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </div>
                     </div>
                     <div>
-                      <Label>Realizas Ayuno Prolongado?</Label>
+                      <Label>¿Realiza Ayuno Prolongado?</Label>
                       <Select className="mt-2" onValueChange={(value) => handleFormChange('ayunoProlongado', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione opción" />
