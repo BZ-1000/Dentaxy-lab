@@ -1,60 +1,25 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
-import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
+import { Minus, Maximize2, X } from "lucide-react";
+import { FormDataState } from '@/types/historiaClinica';
 
-const AntecedentesPersonalesNoPatologicos = () => {
+interface Props {
+  formData: FormDataState;
+  handleInputChange: (section: string, field: string, value: any) => void;
+}
+
+const AntecedentesPersonalesNoPatologicos = ({
+  formData,
+  handleInputChange,
+}: Props) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showForm, setShowForm] = useState(true);
-  const [redacciones, setRedacciones] = useState({
-    serviciosDomiciliarios: "",
-    higieneVivienda: "",
-    higienePersonal: "",
-    higieneBucal: "",
-    alimentacion: ""
-  });
-  const [copied, setCopied] = useState<Record<string, boolean>>({});
   const formRef = useRef(null);
-  const redaccionesRef = useRef(null);
-  const [progress, setProgress] = useState(0);
-
-  const [formData, setFormData] = useState({
-    tipoVivienda: "",
-    materialVivienda: "",
-    servicios: [],
-    condicionCalle: "",
-    iluminacionCalle: "",
-    frecuenciaLimpieza: "",
-    cambioRopaCama: "",
-    hacinamiento: "",
-    promiscuidad: "",
-    mascotas: "",
-    manejoResiduos: "",
-    frecuenciaBano: "",
-    lavadoManos: [],
-    cambioRopa: "",
-    frecuenciaCepillado: "",
-    tecnicaCepillado: "",
-    auxiliaresBucales: [],
-    ultimaVisitaOdontologo: "",
-    problemasBucales: [],
-    alimentosConsumidos: [],
-    frecuenciaFrutasVerduras: "",
-    frecuenciaBebidasAzucaradas: "",
-    frecuenciaComidaChatarra: "",
-    consumoAgua: "",
-    numeroComidas: "",
-    horarioComidas: {
-      desayuno: "",
-      almuerzo: "",
-      cena: ""
-    },
-    ayunoProlongado: ""
-  });
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -67,647 +32,468 @@ const AntecedentesPersonalesNoPatologicos = () => {
   };
 
   const handleClose = () => {
-    setIsMinimized(false);
-    setIsMaximized(false);
-  };
-
-  const generarRedaccionIA = () => {
-    const redaccionesGeneradas = {
-      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formData.tipoVivienda} con estructura predominante de ${formData.materialVivienda}. Cuenta con servicios básicos de ${formData.servicios.length === 6 ? "todos los servicios" : formData.servicios.join(", ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formData.condicionCalle} y se presenta ${formData.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.\n`,
-      higieneVivienda: `La vivienda del paciente se mantiene con una rutina de limpieza ${formData.frecuenciaLimpieza}, lo que influye en su bienestar general. El cambio de ropa de cama se realiza ${formData.cambioRopaCama}. Se observa que la vivienda ${formData.hacinamiento === "no" ? "no presenta" : "presenta"} condiciones de hacinamiento. Además, se identifica que ${formData.promiscuidad === "no" ? "no" : "sí"} existe promiscuidad. El paciente ${formData.mascotas === "no" ? "no tiene" : "tiene"} mascotas. En cuanto a la recolección de basura, ${formData.manejoResiduos === "diaria" ? "la basura se desecha diariamente" : "se acumulan residuos dentro del hogar"}, lo que puede influir en la higiene del entorno.\n`,
-      higienePersonal: `El paciente reporta una frecuencia de baño ${formData.frecuenciaBano}, lo que influye en su higiene y confort personal. Respecto al lavado de manos, lo realiza ${formData.lavadoManos.join(" y ")}. En cuanto al cambio de ropa, se registra una frecuencia ${formData.cambioRopa}.\n`,
-      higieneBucal: `El paciente se cepilla los dientes ${formData.frecuenciaCepillado} veces al día y utiliza una técnica de cepillado ${formData.tecnicaCepillado}. Se observa que ${formData.auxiliaresBucales.length > 0 ? "utiliza" : "no utiliza"} auxiliares de higiene bucal, como ${formData.auxiliaresBucales.join(" y ")}. En relación con la atención odontológica, su última consulta fue hace ${formData.ultimaVisitaOdontologo}. El paciente reporta la presencia de ${formData.problemasBucales.join(" y ")}, lo que podría indicar la necesidad de una revisión odontológica.\n`,
-      alimentacion: `El paciente consume frecuentemente ${formData.alimentosConsumidos.join(" , ")}. Su alimentación incluye frutas y verduras con una frecuencia ${formData.frecuenciaFrutasVerduras}, mientras que las bebidas azucaradas son consumidas ${formData.frecuenciaBebidasAzucaradas}. También reporta que come comida chatarra ${formData.frecuenciaComidaChatarra}. Su consumo de agua al día es de ${formData.consumoAgua}. El paciente realiza ${formData.numeroComidas} comidas al día y mantiene un horario de alimentación ${formData.horarioComidas}. Además, menciona que ${formData.ayunoProlongado === "no" ? "no realiza" : "realiza"} ayunos prolongados.\n`
-    };
-
-    setRedacciones(redaccionesGeneradas);
     setShowForm(false);
-
-    // Simulate typing effect
-    // Auto-scroll to the top of the section
-    redaccionesRef.current.scrollIntoView({ behavior: 'auto' });
-
-    Object.keys(redaccionesGeneradas).forEach((key) => {
-      const text = redaccionesGeneradas[key];
-      let index = 0;
-      const intervalId = setInterval(() => {
-        if (index <= text.length) {
-          setRedacciones((prev) => ({
-            ...prev,
-            [key]: text.slice(0, index)
-          }));
-          setProgress((index / text.length) * 100);
-          index++;
-        } else {
-          clearInterval(intervalId);
-        }
-      }, 0.5); // Reduced interval for faster scroll
-    });
-  };
-
-  const handleCopy = (section) => {
-    navigator.clipboard.writeText(redacciones[section]);
-    setCopied((prev) => ({ ...prev, [section]: true }));
-    setTimeout(() => setCopied((prev) => ({ ...prev, [section]: false })), 2000);
-  };
-
-  const handleFormChange = (field, value) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [field]: value
-    }));
-  };
-
-  const handleCheckboxChange = (field, value) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      [field]: prevData[field].includes(value)
-        ? prevData[field].filter((item) => item !== value)
-        : [...prevData[field], value]
-    }));
-  };
-
-  const handleSelectAllServices = (isChecked) => {
-    if (isChecked) {
-      setFormData((prevData) => ({
-        ...prevData,
-        servicios: ["agua", "luz", "drenaje", "transporte", "internet", "gas"]
-      }));
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        servicios: []
-      }));
-    }
-  };
-
-  const handleLavadoManosChange = (value) => {
-    setFormData((prevData) => {
-      const newLavadoManos = prevData.lavadoManos.includes(value)
-        ? prevData.lavadoManos.filter((item) => item !== value)
-        : [...prevData.lavadoManos, value];
-
-      // Remove "no auxiliares" if any other option is selected
-      if (value !== "no auxiliares" && newLavadoManos.includes("no auxiliares")) {
-        newLavadoManos.splice(newLavadoManos.indexOf("no auxiliares"), 1);
-      }
-
-      return {
-        ...prevData,
-        lavadoManos: newLavadoManos
-      };
-    });
-  };
-
-  // Ajustar automáticamente el tamaño de los textarea
-  const adjustTextareaHeight = (e) => {
-    const target = e.target;
-    target.style.height = 'auto';
-    target.style.height = `${target.scrollHeight}px`;
   };
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button
-                onClick={() => setShowForm(true)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Formulario
-              </button>
-              <button
-                onClick={() => setShowForm(false)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
-              <Minus className="w-4 h-4" />
+        <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
+          <h3 className="text-lg font-semibold">Antecedentes Personales No Patológicos</h3>
+          <div className="space-x-2">
+            <button onClick={handleMinimize} className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+              {isMinimized ? <Maximize2 size={16} /> : <Minus size={16} />}
             </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" aria-label={isMaximized ? "Restaurar" : "Maximizar"}>
-              <Maximize2 className="w-4 h-4" />
+            <button onClick={handleMaximize} className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+              <Maximize2 size={16} />
             </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" aria-label="Cerrar">
-              <X className="w-4 h-4" />
+            <button onClick={handleClose} className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
+              <X size={16} />
             </button>
           </div>
-        </div>
-
-        <div ref={redaccionesRef} className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">III.</span> ANTECEDENTES PERSONALES NO PATOLÓGICOS
-          </h2>
-        </div>
-
-        {/* Barra de progreso en la parte superior */}
-        <div className="h-2 bg-gray-200 rounded-full mt-2 mb-4">
-          <div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div>
         </div>
 
         {!isMinimized && (
           <div className="p-6" ref={formRef}>
-            {showForm ? (
-              <div className="space-y-6">
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2">Servicios Domiciliarios</h4>
-                  <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-6">
+              {/* Alimentación */}
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4">Alimentación</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="tipoAlimentacion">Tipo de Alimentación</Label>
+                    <Select
+                      id="tipoAlimentacion"
+                      value={formData.alimentacion?.tipoAlimentacion || ""}
+                      onValueChange={(value) => handleInputChange('alimentacion', 'tipoAlimentacion', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="balanceada">Balanceada</SelectItem>
+                        <SelectItem value="no-balanceada">No Balanceada</SelectItem>
+                        <SelectItem value="vegetariana">Vegetariana</SelectItem>
+                        <SelectItem value="vegana">Vegana</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="frecuenciaAlimentacion">Frecuencia de Alimentación</Label>
+                    <Select
+                      id="frecuenciaAlimentacion"
+                      value={formData.alimentacion?.frecuenciaAlimentacion || ""}
+                      onValueChange={(value) => handleInputChange('alimentacion', 'frecuenciaAlimentacion', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione frecuencia" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="3-veces-dia">3 veces al día</SelectItem>
+                        <SelectItem value="2-veces-dia">2 veces al día</SelectItem>
+                        <SelectItem value="1-vez-dia">1 vez al día</SelectItem>
+                        <SelectItem value="mas-3-veces-dia">Más de 3 veces al día</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actividad Física */}
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4">Actividad Física</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Realiza Actividad Física</Label>
+                    <RadioGroup
+                      defaultValue={formData.actividadFisica?.realizaActividadFisica ? "si" : "no"}
+                      onValueChange={(value) => handleInputChange('actividadFisica', 'realizaActividadFisica', value === "si")}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="si" id="actividad-si" />
+                        <Label htmlFor="actividad-si">Sí</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="actividad-no" />
+                        <Label htmlFor="actividad-no">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  {formData.actividadFisica?.realizaActividadFisica && (
                     <div>
-                      <Label>Tipo de Vivienda</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('tipoVivienda', value)}>
+                      <Label htmlFor="tipoActividadFisica">Tipo de Actividad Física</Label>
+                      <Select
+                        id="tipoActividadFisica"
+                        value={formData.actividadFisica?.tipoActividadFisica || ""}
+                        onValueChange={(value) => handleInputChange('actividadFisica', 'tipoActividadFisica', value)}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione tipo" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="urbana">Urbana</SelectItem>
-                          <SelectItem value="rural">Rural</SelectItem>
-                          <SelectItem value="semiurbana">Semiurbana</SelectItem>
+                          <SelectItem value="cardio">Cardio</SelectItem>
+                          <SelectItem value="pesas">Pesas</SelectItem>
+                          <SelectItem value="yoga">Yoga</SelectItem>
+                          <SelectItem value="pilates">Pilates</SelectItem>
+                          <SelectItem value="otro">Otro</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div>
-                      <Label>Material Predominante de la Vivienda</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('materialVivienda', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione material" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="concreto">Concreto</SelectItem>
-                          <SelectItem value="madera">Madera</SelectItem>
-                          <SelectItem value="lamina">Lámina</SelectItem>
-                          <SelectItem value="ladrillo">Ladrillo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Servicios Disponibles</Label>
-                      <div className="grid grid-cols-2 gap-1 mt-1">
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="todos" onChange={(e) => handleSelectAllServices(e.target.checked)} />
-                          <Label htmlFor="todos">Todos los servicios</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="agua" onChange={(e) => handleCheckboxChange('servicios', 'agua')} />
-                          <Label htmlFor="agua">Agua</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="luz" onChange={(e) => handleCheckboxChange('servicios', 'luz')} />
-                          <Label htmlFor="luz">Luz</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="drenaje" onChange={(e) => handleCheckboxChange('servicios', 'drenaje')} />
-                          <Label htmlFor="drenaje">Drenaje</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="transporte" onChange={(e) => handleCheckboxChange('servicios', 'transporte')} />
-                          <Label htmlFor="transporte">Transporte</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="internet" onChange={(e) => handleCheckboxChange('servicios', 'internet')} />
-                          <Label htmlFor="internet">Internet</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="gas" onChange={(e) => handleCheckboxChange('servicios', 'gas')} />
-                          <Label htmlFor="gas">Gas</Label>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <Label>Condiciones de la Calle</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('condicionCalle', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione condición" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pavimentada">Pavimentada</SelectItem>
-                          <SelectItem value="sin pavimentar">Sin pavimentar</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Iluminación en la Calle</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('iluminacionCalle', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione iluminación" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="bien iluminada">Bien iluminada</SelectItem>
-                          <SelectItem value="poca iluminacion">Poca iluminación</SelectItem>
-                          <SelectItem value="sin iluminacion">Sin iluminación</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2">Higiene de la Vivienda</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Regularidad en el Aseo de la Vivienda</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('frecuenciaLimpieza', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diaria">Diariamente</SelectItem>
-                          <SelectItem value="semanal">Semanalmente</SelectItem>
-                          <SelectItem value="quincenal">Quincenal</SelectItem>
-                          <SelectItem value="esporadica">Esporádico</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Cambio de Ropa de Cama</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('cambioRopaCama', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diaria">Diario</SelectItem>
-                          <SelectItem value="semanal">Semanal</SelectItem>
-                          <SelectItem value="quincenal">Quincenal</SelectItem>
-                          <SelectItem value="mensual">Mensual</SelectItem>
-                          <SelectItem value="de manera no regular">No se cambia regularmente</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="mt-1">
-                      <Label>Presencia de Hacinamiento</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('hacinamiento', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione opción" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="si">Sí, duermen más de tres personas en una habitación</SelectItem>
-                          <SelectItem value="no">No hay hacinamiento</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="mt-1">
-                      <Label>Presencia de Promiscuidad</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('promiscuidad', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione opción" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="si">Sí</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="mt-1">
-                      <Label>Presencia de Animales en Casa</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('mascotas', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione opción" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="dentro">Sí, dentro de la casa</SelectItem>
-                          <SelectItem value="patio">Sí, en el patio</SelectItem>
-                          <SelectItem value="no">No tienen mascotas</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="mt-1">
-                      <Label>Manejo de Residuos</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('manejoResiduos', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione opción" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="recicla">Separa y recicla la basura</SelectItem>
-                          <SelectItem value="diaria">Bota la basura diariamente</SelectItem>
-                          <SelectItem value="acumula">Acumula basura dentro de la vivienda</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2">Higiene Personal</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Frecuencia de Baño</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('frecuenciaBano', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada dos dias">Cada dos días</SelectItem>
-                          <SelectItem value="cada tercer día">Cada tres días</SelectItem>
-                          <SelectItem value="esporadicamente">Esporádico</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Aseo de Manos</Label>
-                      <div className="grid grid-cols-2 gap-1 mt-1">
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="antes-comida" onChange={() => handleLavadoManosChange('antes de cada comida')} />
-                          <Label htmlFor="antes-comida">Antes de cada comida</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="despues-bano" onChange={() => handleLavadoManosChange('despues de ir al baño')} />
-                          <Label htmlFor="despues-bano">Después de ir al baño</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="antes-despues-comida" onChange={() => handleLavadoManosChange('antes y despues de cada comida')} />
-                          <Label htmlFor="antes-despues-comida">Antes y después de manipular alimentos</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="no-regular" onChange={() => handleLavadoManosChange('de manera no regular')} />
-                          <Label htmlFor="no-regular">No tiene hábito regular de lavado de manos</Label>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <Label>Cambio de Ropa</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('cambioRopa', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada dos días">Cada dos días</SelectItem>
-                          <SelectItem value="cada tres días">Cada tres días</SelectItem>
-                          <SelectItem value="esporádicamente">Esporádico</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2">Higiene Bucal</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Frecuencia de Cepillado Dental</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('frecuenciaCepillado', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="tres veces al día">Tres veces al día</SelectItem>
-                          <SelectItem value="dos veces al día">Dos veces al día</SelectItem>
-                          <SelectItem value="una vez al día">Una vez al día</SelectItem>
-                          <SelectItem value="menos de una vez al día">Menos de una vez al día</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Técnica de Cepillado Empleada</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('tecnicaCepillado', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione técnica" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="circular">Circular</SelectItem>
-                          <SelectItem value="horizontal">Horizontal</SelectItem>
-                          <SelectItem value="vertical">Vertical</SelectItem>
-                          <SelectItem value="barrido">De barrido</SelectItem>
-                          <SelectItem value="que refiere no saber como la realiza">No sabe cómo se cepilla</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="mt-1">
-                      <Label>Uso de Auxiliares</Label>
-                      <div className="grid grid-cols-2 gap-1 mt-1">
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="hilo-dental" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'hilo dental')} />
-                          <Label htmlFor="hilo-dental">Hilo Dental</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="enjuague" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'enjuague bucal')} />
-                          <Label htmlFor="enjuague">Enjuague Bucal</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="irrigador" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'irrigador dental')} />
-                          <Label htmlFor="irrigador">Irrigador Dental</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="no-auxiliares" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'no auxiliares')} />
-                          <Label htmlFor="no-auxiliares">No usa auxiliares</Label>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <Label>Última Visita al Odontólogo</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('ultimaVisitaOdontologo', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione tiempo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="menos-seis-meses">Menos de seis meses</SelectItem>
-                          <SelectItem value="un-ano">Un año</SelectItem>
-                          <SelectItem value="mas-dos-anos">Más de dos años</SelectItem>
-                          <SelectItem value="nunca">Nunca ha visitado al odontólogo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="mt-1">
-                      <Label>Problemas Bucales Presentes</Label>
-                      <div className="grid grid-cols-2 gap-1 mt-1">
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="encias-sangran" onChange={(e) => handleCheckboxChange('problemasBucales', 'encías que sangran')} />
-                          <Label htmlFor="encias-sangran">Encías que sangran al cepillarse</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="dientes-agujeros" onChange={(e) => handleCheckboxChange('problemasBucales', 'dientes con agujeros')} />
-                          <Label htmlFor="dientes-agujeros">Dientes con agujeros o zonas oscuras</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="mal-aliento" onChange={(e) => handleCheckboxChange('problemasBucales', 'mal aliento frecuente')} />
-                          <Label htmlFor="mal-aliento">Mal aliento frecuente</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="dolor-dientes" onChange={(e) => handleCheckboxChange('problemasBucales', 'dolor en dientes o encías')} />
-                          <Label htmlFor="dolor-dientes">Dolor en dientes o encías</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="no-problemas" onChange={(e) => handleCheckboxChange('problemasBucales', 'no problemas')} />
-                          <Label htmlFor="no-problemas">No tengo problemas bucales</Label>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2">Alimentación</h4>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Tipo de Alimentos Consumidos Frecuentemente</Label>
-                      <div className="grid grid-cols-2 gap-1 mt-1">
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="frutas-verduras" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'frutas y verduras')} />
-                          <Label htmlFor="frutas-verduras">Frutas y verduras</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="carnes-proteinas" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'carnes y proteínas')} />
-                          <Label htmlFor="carnes-proteinas">Carnes y proteínas</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="alimentos-procesados" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'alimentos procesados y fritos')} />
-                          <Label htmlFor="alimentos-procesados">Alimentos procesados y fritos</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="dulces-azucares" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'dulces y azúcares')} />
-                          <Label htmlFor="dulces-azucares">Dulces y azúcares</Label>
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <CustomCheckbox id="lacteos" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'lácteos')} />
-                          <Label htmlFor="lacteos">Lácteos</Label>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <Label>Frecuencia de Consumo de Frutas y Verduras</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('frecuenciaFrutasVerduras', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="tres-cuatro-veces-semana">Tres o cuatro veces por semana</SelectItem>
-                          <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
-                          <SelectItem value="no-consume">No las consume</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Frecuencia de Consumo de Bebidas Azucaradas</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('frecuenciaBebidasAzucaradas', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="tres-cuatro-veces-semana">Tres o cuatro veces por semana</SelectItem>
-                          <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
-                          <SelectItem value="no-consume">No las consume</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Frecuencia de Consumo de Comida Chatarra</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('frecuenciaComidaChatarra', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="tres-cuatro-veces-semana">Tres o cuatro veces por semana</SelectItem>
-                          <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
-                          <SelectItem value="no-consume">No la consume</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Consumo de Agua al Día</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('consumoAgua', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione cantidad" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="más de dos litros">Más de dos litros</SelectItem>
-                          <SelectItem value="medio litro">Uno o dos litros</SelectItem>
-                          <SelectItem value="menos de un litro">Menos de un litro</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Número de Comidas al Día</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('numeroComidas', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione número" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="tres comidas">Tres comidas</SelectItem>
-                          <SelectItem value="cuatro comidas">Cuatro comidas</SelectItem>
-                          <SelectItem value="cinco o mas">Cinco o más comidas</SelectItem>
-                          <SelectItem value="menos de tres comidas">Menos de tres comidas</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Horario de Comidas</Label>
-                      <div className="grid grid-cols-2 gap-1 mt-1">
-                        <div className="flex items-center space-x-1">
-                          <Label>Desayuno:</Label>
-                          <input type="time" className="border rounded px-2 py-1" onChange={(e) => handleFormChange('horarioComidas', { ...formData.horarioComidas, desayuno: e.target.value })} />
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Label>Almuerzo:</Label>
-                          <input type="time" className="border rounded px-2 py-1" onChange={(e) => handleFormChange('horarioComidas', { ...formData.horarioComidas, almuerzo: e.target.value })} />
-                        </div>
-                        <div className="flex items-center space-x-1">
-                          <Label>Cena:</Label>
-                          <input type="time" className="border rounded px-2 py-1" onChange={(e) => handleFormChange('horarioComidas', { ...formData.horarioComidas, cena: e.target.value })} />
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <Label>¿Realiza Ayuno Prolongado?</Label>
-                      <Select className="mt-1" onValueChange={(value) => handleFormChange('ayunoProlongado', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione opción" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="eleccion">Sí, por elección</SelectItem>
-                          <SelectItem value="acceso">Sí, por falta de acceso a alimentos</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
-            ) : (
-              <div>
-                {Object.entries(redacciones).map(([section, redaccion], index) => (
-                  <div key={index} className="mb-4 relative">
-                    <Label className="font-semibold">{section.charAt(0).toUpperCase() + section.slice(1)}</Label>
-                    <textarea
-                      className="w-full h-auto min-h-[100px] mt-2 p-2 border rounded-md resize-none"
-                      value={redaccion}
-                      readOnly
-                      onInput={adjustTextareaHeight}
-                    />
-                    <Button
-                      onClick={() => handleCopy(section)}
-                      className="absolute top-2 right-2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
-                      style={{ transform: 'translate(50%, -50%)' }}
+
+              {/* Sueño */}
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4">Sueño</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="horasSueno">Horas de Sueño</Label>
+                    <Select
+                      id="horasSueno"
+                      value={formData.sueno?.horasSueno || ""}
+                      onValueChange={(value) => handleInputChange('sueno', 'horasSueno', value)}
                     >
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                    {copied[section] && (
-                      <div className="absolute top-0 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
-                        <CheckCircle className="w-4 h-4" />
-                        <span>Copiado</span>
-                      </div>
-                    )}
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione horas" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="menos-6">Menos de 6 horas</SelectItem>
+                        <SelectItem value="6-8">6-8 horas</SelectItem>
+                        <SelectItem value="mas-8">Más de 8 horas</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                ))}
+                  <div>
+                    <Label>Calidad de Sueño</Label>
+                    <RadioGroup
+                      defaultValue={formData.sueno?.calidadSueno || ""}
+                      onValueChange={(value) => handleInputChange('sueno', 'calidadSueno', value)}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="buena" id="sueno-buena" />
+                        <Label htmlFor="sueno-buena">Buena</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="mala" id="sueno-mala" />
+                        <Label htmlFor="sueno-mala">Mala</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
               </div>
-            )}
 
-            <div className="flex justify-center gap-4 mt-6">
-              <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
-                <span>Generar Redacción IA</span>
-              </Button>
-              <Button onClick={() => setShowForm(true)} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
-                <Eraser className="w-4 h-4" />
-                <span>Limpiar Formulario</span>
-              </Button>
+              {/* Tabaquismo */}
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4">Tabaquismo</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Tabaquismo</Label>
+                    <RadioGroup
+                      defaultValue={formData.tabaquismo?.tabaquismo ? "si" : "no"}
+                      onValueChange={(value) => handleInputChange('tabaquismo', 'tabaquismo', value === "si")}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="si" id="tabaquismo-si" />
+                        <Label htmlFor="tabaquismo-si">Sí</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="tabaquismo-no" />
+                        <Label htmlFor="tabaquismo-no">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  {formData.tabaquismo?.tabaquismo && (
+                    <>
+                      <div>
+                        <Label htmlFor="cantidadCigarrillos">Cantidad de Cigarrillos al Día</Label>
+                        <Select
+                          id="cantidadCigarrillos"
+                          value={formData.tabaquismo?.cantidadCigarrillos || ""}
+                          onValueChange={(value) => handleInputChange('tabaquismo', 'cantidadCigarrillos', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccione cantidad" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="menos-5">Menos de 5</SelectItem>
+                            <SelectItem value="5-10">5-10</SelectItem>
+                            <SelectItem value="mas-10">Más de 10</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="tiempoFumando">Tiempo Fumando</Label>
+                        <Select
+                          id="tiempoFumando"
+                          value={formData.tabaquismo?.tiempoFumando || ""}
+                          onValueChange={(value) => handleInputChange('tabaquismo', 'tiempoFumando', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccione tiempo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="menos-1-ano">Menos de 1 año</SelectItem>
+                            <SelectItem value="1-5-anos">1-5 años</SelectItem>
+                            <SelectItem value="mas-5-anos">Más de 5 años</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Alcoholismo */}
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4">Alcoholismo</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Alcoholismo</Label>
+                    <RadioGroup
+                      defaultValue={formData.alcoholismo?.alcoholismo ? "si" : "no"}
+                      onValueChange={(value) => handleInputChange('alcoholismo', 'alcoholismo', value === "si")}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="si" id="alcoholismo-si" />
+                        <Label htmlFor="alcoholismo-si">Sí</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="alcoholismo-no" />
+                        <Label htmlFor="alcoholismo-no">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  {formData.alcoholismo?.alcoholismo && (
+                    <>
+                      <div>
+                        <Label htmlFor="frecuenciaAlcohol">Frecuencia de Consumo</Label>
+                        <Select
+                          id="frecuenciaAlcohol"
+                          value={formData.alcoholismo?.frecuenciaAlcohol || ""}
+                          onValueChange={(value) => handleInputChange('alcoholismo', 'frecuenciaAlcohol', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccione frecuencia" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ocasional">Ocasional</SelectItem>
+                            <SelectItem value="frecuente">Frecuente</SelectItem>
+                            <SelectItem value="diario">Diario</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="tipoAlcohol">Tipo de Alcohol</Label>
+                        <Select
+                          id="tipoAlcohol"
+                          value={formData.alcoholismo?.tipoAlcohol || ""}
+                          onValueChange={(value) => handleInputChange('alcoholismo', 'tipoAlcohol', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccione tipo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="cerveza">Cerveza</SelectItem>
+                            <SelectItem value="vino">Vino</SelectItem>
+                            <SelectItem value="licor">Licor</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Toxicomanías */}
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4">Toxicomanías</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Toxicomanías</Label>
+                    <RadioGroup
+                      defaultValue={formData.toxicomanias?.toxicomanias ? "si" : "no"}
+                      onValueChange={(value) => handleInputChange('toxicomanias', 'toxicomanias', value === "si")}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="si" id="toxicomanias-si" />
+                        <Label htmlFor="toxicomanias-si">Sí</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="no" id="toxicomanias-no" />
+                        <Label htmlFor="toxicomanias-no">No</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                  {formData.toxicomanias?.toxicomanias && (
+                    <>
+                      <div>
+                        <Label htmlFor="tipoDroga">Tipo de Droga</Label>
+                        <Select
+                          id="tipoDroga"
+                          value={formData.toxicomanias?.tipoDroga || ""}
+                          onValueChange={(value) => handleInputChange('toxicomanias', 'tipoDroga', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccione tipo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="marihuana">Marihuana</SelectItem>
+                            <SelectItem value="cocaina">Cocaína</SelectItem>
+                            <SelectItem value="heroina">Heroína</SelectItem>
+                            <SelectItem value="otro">Otro</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label htmlFor="frecuenciaDroga">Frecuencia de Consumo</Label>
+                        <Select
+                          id="frecuenciaDroga"
+                          value={formData.toxicomanias?.frecuenciaDroga || ""}
+                          onValueChange={(value) => handleInputChange('toxicomanias', 'frecuenciaDroga', value)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Seleccione frecuencia" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="ocasional">Ocasional</SelectItem>
+                            <SelectItem value="frecuente">Frecuente</SelectItem>
+                            <SelectItem value="diario">Diario</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Higiene Personal - Nota: Intercambiando el orden de las secciones */}
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4">Higiene Personal</h4>
+                <div className="grid gap-4">
+                  {/* Cambio de ropa (Movido aquí desde abajo) */}
+                  <div>
+                    <Label>Cambio de Ropa</Label>
+                    <Select
+                      value={formData.higienePersonal?.cambioRopa || ""}
+                      onValueChange={(value) => handleInputChange('higienePersonal', 'cambioRopa', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione frecuencia" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="diario">Diario</SelectItem>
+                        <SelectItem value="cada-tercer-dia">Cada tercer día</SelectItem>
+                        <SelectItem value="semanal">Semanal</SelectItem>
+                        <SelectItem value="quincenal">Quincenal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Aseo de Manos (Movido aquí desde arriba) */}
+                  <div>
+                    <Label>Aseo de Manos</Label>
+                    <Select
+                      value={formData.higienePersonal?.aseoManos || ""}
+                      onValueChange={(value) => handleInputChange('higienePersonal', 'aseoManos', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione frecuencia" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="antes-despues-comida">Antes y después de comer</SelectItem>
+                        <SelectItem value="despues-sanitario">Después de ir al sanitario</SelectItem>
+                        <SelectItem value="ocasional">Ocasional</SelectItem>
+                        <SelectItem value="nunca">Nunca</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label>Baño</Label>
+                    <Select
+                      value={formData.higienePersonal?.banio || ""}
+                      onValueChange={(value) => handleInputChange('higienePersonal', 'banio', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione frecuencia" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="diario">Diario</SelectItem>
+                        <SelectItem value="interdiario">Interdiario</SelectItem>
+                        <SelectItem value="semanal">Semanal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Lavado de Dientes</Label>
+                    <Select
+                      value={formData.higienePersonal?.lavadoDientes || ""}
+                      onValueChange={(value) => handleInputChange('higienePersonal', 'lavadoDientes', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione frecuencia" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="despues-cada-comida">Después de cada comida</SelectItem>
+                        <SelectItem value="maniana-noche">Mañana y noche</SelectItem>
+                        <SelectItem value="una-vez-dia">Una vez al día</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Vivienda */}
+              <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg border border-gray-200 dark:border-gray-700">
+                <h4 className="text-lg font-semibold mb-4">Vivienda</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="tipoVivienda">Tipo de Vivienda</Label>
+                    <Select
+                      id="tipoVivienda"
+                      value={formData.vivienda?.tipoVivienda || ""}
+                      onValueChange={(value) => handleInputChange('vivienda', 'tipoVivienda', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccione tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="casa">Casa</SelectItem>
+                        <SelectItem value="apartamento">Apartamento</SelectItem>
+                        <SelectItem value="cuarto">Cuarto</SelectItem>
+                        <SelectItem value="otro">Otro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Servicios Básicos</Label>
+                    <div className="flex flex-col space-y-2">
+                      <CustomCheckbox
+                        id="aguaPotable"
+                        checked={formData.vivienda?.serviciosBasicos?.aguaPotable || false}
+                        onCheckedChange={(checked) => handleInputChange('vivienda', 'aguaPotable', checked)}
+                      >
+                        Agua Potable
+                      </CustomCheckbox>
+                      <CustomCheckbox
+                        id="electricidad"
+                        checked={formData.vivienda?.serviciosBasicos?.electricidad || false}
+                        onCheckedChange={(checked) => handleInputChange('vivienda', 'electricidad', checked)}
+                      >
+                        Electricidad
+                      </CustomCheckbox>
+                      <CustomCheckbox
+                        id="drenaje"
+                        checked={formData.vivienda?.serviciosBasicos?.drenaje || false}
+                        onCheckedChange={(checked) => handleInputChange('vivienda', 'drenaje', checked)}
+                      >
+                        Drenaje
+                      </CustomCheckbox>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
