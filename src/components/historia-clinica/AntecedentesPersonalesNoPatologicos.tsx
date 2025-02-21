@@ -120,7 +120,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                 onClick={() => setShowForm(false)}
                 className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
-                Vista Previa
+                Redacción IA
               </button>
             </div>
           </div>
