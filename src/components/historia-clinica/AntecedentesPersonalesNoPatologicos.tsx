@@ -17,10 +17,10 @@ const AntecedentesPersonalesNoPatologicos = () => {
     higieneBucal: "",
     alimentacion: ""
   });
-  const [copied, setCopied] = useState(null);
+  const [copied, setCopied] = useState<Record<string, boolean>>({});
   const formRef = useRef(null);
-  const [progress, setProgress] = useState(0);
   const redaccionesRef = useRef(null);
+  const [progress, setProgress] = useState(0);
 
   const [formData, setFormData] = useState({
     tipoVivienda: "",
@@ -106,8 +106,8 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
   const handleCopy = (section) => {
     navigator.clipboard.writeText(redacciones[section]);
-    setCopied(section);
-    setTimeout(() => setCopied(null), 2000);
+    setCopied((prev) => ({ ...prev, [section]: true }));
+    setTimeout(() => setCopied((prev) => ({ ...prev, [section]: false })), 2000);
   };
 
   const handleFormChange = (field, value) => {
@@ -625,13 +625,13 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       className="w-full h-auto min-h-[100px] mt-2 p-2 border rounded-md resize-none"
                       value={redaccion}
                       readOnly
-                     style={{ height: 'auto', overflow: 'hidden' }}
-                     onInput={(e) => {
-                     const target = e.target as HTMLTextAreaElement;
-                      target.style.height = 'auto';
-                     target.style.height = `${target.scrollHeight}px`;
-                  }}
-               />
+                      style={{ height: 'auto', overflow: 'hidden' }}
+                      onInput={(e) => {
+                        const target = e.target as HTMLTextAreaElement;
+                        target.style.height = 'auto';
+                        target.style.height = `${target.scrollHeight}px`;
+                      }}
+                    />
                     <Button
                       onClick={() => handleCopy(section)}
                       className="absolute top-2 right-2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600"
@@ -639,6 +639,12 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     >
                       <Copy className="w-4 h-4" />
                     </Button>
+                    {copied[section] && (
+                      <div className="absolute top-0 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
+                        <CheckCircle className="w-4 h-4" />
+                        <span>Copiado</span>
+                      </div>
+                    )}
                     <div className="h-2 bg-gray-200 rounded-full mt-2">
                       <div
                         className="h-full bg-blue-500 rounded-full"
