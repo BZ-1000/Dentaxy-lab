@@ -100,7 +100,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
           // Auto-scroll to the top of the section
           redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-      }, 0.05);
+      }, 0.01); // Reduced interval for faster scroll
     });
   };
 
@@ -308,7 +308,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione opción" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="si">Sí, duermen más de 3 personas en una habitación</SelectItem>
+                          <SelectItem value="si">Sí, duermen más de tres personas en una habitación</SelectItem>
                           <SelectItem value="no">No hay hacinamiento</SelectItem>
                         </SelectContent>
                       </Select>
@@ -365,8 +365,8 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada-2-dias">Cada 2 días</SelectItem>
-                          <SelectItem value="cada-3-dias">Cada 3 días</SelectItem>
+                          <SelectItem value="cada-2-dias">Cada dos días</SelectItem>
+                          <SelectItem value="cada-3-dias">Cada tres días</SelectItem>
                           <SelectItem value="esporadico">Esporádico</SelectItem>
                         </SelectContent>
                       </Select>
@@ -393,8 +393,8 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada-2-dias">Cada 2 días</SelectItem>
-                          <SelectItem value="cada-3-dias">Cada 3 días</SelectItem>
+                          <SelectItem value="cada-2-dias">Cada dos días</SelectItem>
+                          <SelectItem value="cada-3-dias">Cada tres días</SelectItem>
                           <SelectItem value="esporadico">Esporádico</SelectItem>
                         </SelectContent>
                       </Select>
@@ -412,10 +412,10 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="3-veces">3 veces al día</SelectItem>
-                          <SelectItem value="2-veces">2 veces al día</SelectItem>
-                          <SelectItem value="1-vez">1 vez al día</SelectItem>
-                          <SelectItem value="menos-1-vez">Menos de una vez al día</SelectItem>
+                          <SelectItem value="tres-veces">Tres veces al día</SelectItem>
+                          <SelectItem value="dos-veces">Dos veces al día</SelectItem>
+                          <SelectItem value="una-vez">Una vez al día</SelectItem>
+                          <SelectItem value="menos-una-vez">Menos de una vez al día</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -462,9 +462,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione tiempo" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="menos-6-meses">Menos de 6 meses</SelectItem>
-                          <SelectItem value="1-ano">1 año</SelectItem>
-                          <SelectItem value="mas-2-anos">Más de 2 años</SelectItem>
+                          <SelectItem value="menos-seis-meses">Menos de seis meses</SelectItem>
+                          <SelectItem value="un-ano">Un año</SelectItem>
+                          <SelectItem value="mas-dos-anos">Más de dos años</SelectItem>
                           <SelectItem value="nunca">Nunca ha visitado al odontólogo</SelectItem>
                         </SelectContent>
                       </Select>
@@ -533,7 +533,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="3-4-veces-semana">3-4 veces por semana</SelectItem>
+                          <SelectItem value="tres-cuatro-veces-semana">Tres o cuatro veces por semana</SelectItem>
                           <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
                           <SelectItem value="no-consume">No las consume</SelectItem>
                         </SelectContent>
@@ -547,7 +547,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="3-4-veces-semana">3-4 veces por semana</SelectItem>
+                          <SelectItem value="tres-cuatro-veces-semana">Tres o cuatro veces por semana</SelectItem>
                           <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
                           <SelectItem value="no-consume">No las consume</SelectItem>
                         </SelectContent>
@@ -561,7 +561,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="3-4-veces-semana">3-4 veces por semana</SelectItem>
+                          <SelectItem value="tres-cuatro-veces-semana">Tres o cuatro veces por semana</SelectItem>
                           <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
                           <SelectItem value="no-consume">No la consume</SelectItem>
                         </SelectContent>
@@ -574,9 +574,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione cantidad" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="mas-2-litros">Más de 2 litros</SelectItem>
-                          <SelectItem value="1-2-litros">1-2 litros</SelectItem>
-                          <SelectItem value="menos-1-litro">Menos de 1 litro</SelectItem>
+                          <SelectItem value="mas-dos-litros">Más de dos litros</SelectItem>
+                          <SelectItem value="uno-dos-litros">Uno o dos litros</SelectItem>
+                          <SelectItem value="menos-un-litro">Menos de un litro</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -587,10 +587,10 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione número" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="3-comidas">3 comidas</SelectItem>
-                          <SelectItem value="4-comidas">4 comidas</SelectItem>
-                          <SelectItem value="5-o-mas">5 o más comidas</SelectItem>
-                          <SelectItem value="menos-3-comidas">Menos de 3 comidas</SelectItem>
+                          <SelectItem value="tres-comidas">Tres comidas</SelectItem>
+                          <SelectItem value="cuatro-comidas">Cuatro comidas</SelectItem>
+                          <SelectItem value="cinco-o-mas">Cinco o más comidas</SelectItem>
+                          <SelectItem value="menos-tres-comidas">Menos de tres comidas</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
