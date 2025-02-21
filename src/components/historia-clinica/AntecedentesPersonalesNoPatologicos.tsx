@@ -73,7 +73,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
   const generarRedaccionIA = () => {
     const redaccionesGeneradas = {
-      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formData.tipoVivienda} con estructura predominante de ${formData.materialVivienda}. Cuenta con servicios básicos de ${formData.servicios.join(", ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formData.condicionCalle} y presenta ${formData.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.\n`,
+      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formData.tipoVivienda} con estructura predominante de ${formData.materialVivienda}. Cuenta con servicios básicos de ${formData.servicios.join(", ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formData.condicionCalle} y se presenta ${formData.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.\n`,
       higieneVivienda: `La vivienda del paciente se mantiene con una rutina de limpieza ${formData.frecuenciaLimpieza}, lo que influye en su bienestar general. El cambio de ropa de cama se realiza ${formData.cambioRopaCama}. Se observa que la vivienda ${formData.hacinamiento === "no" ? "no presenta" : "presenta"} condiciones de hacinamiento. Además, se identifica que ${formData.promiscuidad === "no" ? "no" : "sí"} existe promiscuidad. El paciente ${formData.mascotas === "no" ? "no tiene" : "tiene"} mascotas. En cuanto a la recolección de basura, ${formData.manejoResiduos === "diaria" ? "la basura se desecha diariamente" : "se acumulan residuos dentro del hogar"}, lo que puede influir en la higiene del entorno.\n`,
       higienePersonal: `El paciente reporta una frecuencia de baño ${formData.frecuenciaBano}, lo que influye en su higiene y confort personal. Respecto al lavado de manos, lo realiza ${formData.lavadoManos}. En cuanto al cambio de ropa, se registra una frecuencia ${formData.cambioRopa}.\n`,
       higieneBucal: `El paciente se cepilla los dientes ${formData.frecuenciaCepillado} veces al día y utiliza una técnica de cepillado ${formData.tecnicaCepillado}. Se observa que ${formData.auxiliaresBucales.length > 0 ? "utiliza" : "no utiliza"} auxiliares de higiene bucal, como ${formData.auxiliaresBucales.join(" y ")}. En relación con la atención odontológica, su última consulta fue hace ${formData.ultimaVisitaOdontologo}. El paciente reporta la presencia de ${formData.problemasBucales.join(" y ")}, lo que podría indicar la necesidad de una revisión odontológica.\n`,
@@ -84,6 +84,10 @@ const AntecedentesPersonalesNoPatologicos = () => {
     setShowForm(false);
 
     // Simulate typing effect
+    // Auto-scroll to the top of the section
+    redaccionesRef.current.scrollIntoView({ behavior: 'auto' });
+  }
+}, 0.01); // Reduced interval for faster scroll 
     Object.keys(redaccionesGeneradas).forEach((key) => {
       const text = redaccionesGeneradas[key];
       let index = 0;
@@ -97,10 +101,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
           index++;
         } else {
           clearInterval(intervalId);
-          // Auto-scroll to the top of the section
-          redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 0.01); // Reduced interval for faster scroll
+          
     });
   };
 
@@ -249,7 +250,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="pavimentada">Pavimentada</SelectItem>
-                          <SelectItem value="sin-pavimentar">Sin pavimentar</SelectItem>
+                          <SelectItem value="sin pavimentar">Sin pavimentar</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -260,9 +261,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione iluminación" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="bien-iluminada">Bien iluminada</SelectItem>
-                          <SelectItem value="poca-iluminacion">Poca iluminación</SelectItem>
-                          <SelectItem value="sin-iluminacion">Sin iluminación</SelectItem>
+                          <SelectItem value="bien iluminada">Bien iluminada</SelectItem>
+                          <SelectItem value="poca iluminacion">Poca iluminación</SelectItem>
+                          <SelectItem value="sin iluminacion">Sin iluminación</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -281,8 +282,8 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         <SelectContent>
                           <SelectItem value="diariamente">Diariamente</SelectItem>
                           <SelectItem value="semanalmente">Semanalmente</SelectItem>
-                          <SelectItem value="quincenal">Quincenal</SelectItem>
-                          <SelectItem value="esporadico">Esporádico</SelectItem>
+                          <SelectItem value="quincenalmente">Quincenal</SelectItem>
+                          <SelectItem value="esporadicamente">Esporádico</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -297,7 +298,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectItem value="semanal">Semanal</SelectItem>
                           <SelectItem value="quincenal">Quincenal</SelectItem>
                           <SelectItem value="mensual">Mensual</SelectItem>
-                          <SelectItem value="no-regular">No se cambia regularmente</SelectItem>
+                          <SelectItem value="de manera no regular">No se cambia regularmente</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -365,9 +366,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada-2-dias">Cada dos días</SelectItem>
-                          <SelectItem value="cada-3-dias">Cada tres días</SelectItem>
-                          <SelectItem value="esporadico">Esporádico</SelectItem>
+                          <SelectItem value="cada dos dias">Cada dos días</SelectItem>
+                          <SelectItem value="cada tercer día">Cada tres días</SelectItem>
+                          <SelectItem value="esporadicamente">Esporádico</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -378,10 +379,10 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="antes-comida">Antes de cada comida</SelectItem>
-                          <SelectItem value="despues-bano">Después de ir al baño</SelectItem>
-                          <SelectItem value="antes-despues-comida">Antes y después de manipular alimentos</SelectItem>
-                          <SelectItem value="no-regular">No tiene hábito regular de lavado de manos</SelectItem>
+                          <SelectItem value="antes de cada comida">Antes de cada comida</SelectItem>
+                          <SelectItem value="despues de ir al baño ">Después de ir al baño</SelectItem>
+                          <SelectItem value="antes y despues de cada comida">Antes y después de manipular alimentos</SelectItem>
+                          <SelectItem value="de manera no regular">No tiene hábito regular de lavado de manos</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -393,9 +394,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada-2-dias">Cada dos días</SelectItem>
-                          <SelectItem value="cada-3-dias">Cada tres días</SelectItem>
-                          <SelectItem value="esporadico">Esporádico</SelectItem>
+                          <SelectItem value="cada dos días">Cada dos días</SelectItem>
+                          <SelectItem value="cada tres días">Cada tres días</SelectItem>
+                          <SelectItem value="esporádicamente">Esporádico</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -412,10 +413,10 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="tres-veces">Tres veces al día</SelectItem>
-                          <SelectItem value="dos-veces">Dos veces al día</SelectItem>
-                          <SelectItem value="una-vez">Una vez al día</SelectItem>
-                          <SelectItem value="menos-una-vez">Menos de una vez al día</SelectItem>
+                          <SelectItem value="tres veces al día">Tres veces al día</SelectItem>
+                          <SelectItem value="dos veces al día">Dos veces al día</SelectItem>
+                          <SelectItem value="una vez al día">Una vez al día</SelectItem>
+                          <SelectItem value="menos de una vez al día">Menos de una vez al día</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -430,7 +431,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectItem value="horizontal">Horizontal</SelectItem>
                           <SelectItem value="vertical">Vertical</SelectItem>
                           <SelectItem value="barrido">De barrido</SelectItem>
-                          <SelectItem value="no-sabe">No sabe cómo se cepilla</SelectItem>
+                          <SelectItem value="que refiere no saber como la realiza">No sabe cómo se cepilla</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -439,7 +440,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         <div className="flex items-center space-x-1">
                           <CustomCheckbox id="hilo-dental" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'hilo dental')} />
-                          <Label htmlFor="hilo-dental">Hilo Dental</Label>
+                          <Label htmlFor="hilo dental">Hilo Dental</Label>
                         </div>
                         <div className="flex items-center space-x-1">
                           <CustomCheckbox id="enjuague" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'enjuague bucal')} />
@@ -574,9 +575,9 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione cantidad" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="mas-dos-litros">Más de dos litros</SelectItem>
-                          <SelectItem value="uno-dos-litros">Uno o dos litros</SelectItem>
-                          <SelectItem value="menos-un-litro">Menos de un litro</SelectItem>
+                          <SelectItem value="más de dos litros">Más de dos litros</SelectItem>
+                          <SelectItem value="medio litro">Uno o dos litros</SelectItem>
+                          <SelectItem value="menos de un litro">Menos de un litro</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -587,10 +588,10 @@ const AntecedentesPersonalesNoPatologicos = () => {
                           <SelectValue placeholder="Seleccione número" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="tres-comidas">Tres comidas</SelectItem>
-                          <SelectItem value="cuatro-comidas">Cuatro comidas</SelectItem>
-                          <SelectItem value="cinco-o-mas">Cinco o más comidas</SelectItem>
-                          <SelectItem value="menos-tres-comidas">Menos de tres comidas</SelectItem>
+                          <SelectItem value="tres comidas">Tres comidas</SelectItem>
+                          <SelectItem value="cuatro comidas">Cuatro comidas</SelectItem>
+                          <SelectItem value="cinco o mas">Cinco o más comidas</SelectItem>
+                          <SelectItem value="menos de tres comidas">Menos de tres comidas</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
