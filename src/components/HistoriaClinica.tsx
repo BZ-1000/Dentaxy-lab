@@ -44,10 +44,7 @@ const HistoriaClinica = () => {
               handleCondicionChange={handleCondicionChange}
             />
 
-            <AntecedentesPersonalesNoPatologicos
-              formData={formData}
-              handleInputChange={handleInputChange}
-            />
+            <AntecedentesPersonalesNoPatologicos />
             
             <SignosVitales 
               formData={formData} 
