@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -39,6 +40,11 @@ interface FormData {
   };
   ayunoProlongado: string;
 }
+
+const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { name, value } = e.target;
+  // Actualizar el estado aquí
+};
 
 const AntecedentesPersonalesNoPatologicos = () => {
   const [isMinimized, setIsMinimized] = useState(false);
@@ -656,7 +662,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
               </div>
             )}
           </div>
-        </div>
+        )}
       </Card>
     </div>
   );
