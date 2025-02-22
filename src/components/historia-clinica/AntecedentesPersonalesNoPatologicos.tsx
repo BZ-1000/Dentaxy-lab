@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -5,6 +6,40 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
+
+interface FormData {
+  tipoVivienda: string;
+  materialVivienda: string;
+  servicios: string[];
+  condicionCalle: string;
+  iluminacionCalle: string;
+  frecuenciaLimpieza: string;
+  cambioRopaCama: string;
+  hacinamiento: string;
+  promiscuidad: string;
+  mascotas: string;
+  manejoResiduos: string;
+  frecuenciaBano: string;
+  lavadoManos: string[];
+  cambioRopa: string;
+  frecuenciaCepillado: string;
+  tecnicaCepillado: string;
+  auxiliaresBucales: string[];
+  ultimaVisitaOdontologo: string;
+  problemasBucales: string[];
+  alimentosConsumidos: string[];
+  frecuenciaFrutasVerduras: string;
+  frecuenciaBebidasAzucaradas: string;
+  frecuenciaComidaChatarra: string;
+  consumoAgua: string;
+  numeroComidas: string;
+  horarioComidas: {
+    desayuno: string;
+    almuerzo: string;
+    cena: string;
+  };
+  ayunoProlongado: string;
+}
 
 const AntecedentesPersonalesNoPatologicos = () => {
   const [isMinimized, setIsMinimized] = useState(false);
@@ -18,11 +53,10 @@ const AntecedentesPersonalesNoPatologicos = () => {
     alimentacion: ""
   });
   const [copied, setCopied] = useState<Record<string, boolean>>({});
-  const formRef = useRef(null);
-  const redaccionesRef = useRef(null);
+  const formRef = useRef<HTMLDivElement>(null);
+  const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
-
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     tipoVivienda: "",
     materialVivienda: "",
     servicios: [],
@@ -188,13 +222,13 @@ const AntecedentesPersonalesNoPatologicos = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
+            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
               <Minus className="w-4 h-4" />
             </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" aria-label={isMaximized ? "Restaurar" : "Maximizar"}>
+            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
               <Maximize2 className="w-4 h-4" />
             </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" aria-label="Cerrar">
+            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -206,9 +240,12 @@ const AntecedentesPersonalesNoPatologicos = () => {
           </h2>
         </div>
 
-        {/* Barra de progreso en la parte superior */}
+        {/* Barra de progreso */}
         <div className="h-2 bg-gray-200 rounded-full mt-2 mb-4">
-          <div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div>
+          <div 
+            className="h-full bg-blue-500 rounded-full" 
+            style={{ width: `${progress}%` }}
+          />
         </div>
 
         {!isMinimized && (
