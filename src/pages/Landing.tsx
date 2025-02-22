@@ -18,7 +18,7 @@ const Landing = () => {
     <div className="landing-container">
       {/* Encabezado de Navegación */}
       <nav className="navbar">
-        <div className="logo">ZYNO</div>
+        <div className="logo">DentaXy</div>
         <ul className="nav-links">
           <li><a href="#">Home</a></li>
           <li><a href="#">Features</a></li>
@@ -32,9 +32,9 @@ const Landing = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="main-title"
+          className="main-title zen-dots-regular"
         >
-          ZYNO
+          DentaXy
         </motion.h1>
 
         {/* Botón con efecto neón */}
