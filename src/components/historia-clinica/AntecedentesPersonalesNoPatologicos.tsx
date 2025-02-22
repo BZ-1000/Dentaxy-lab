@@ -1,5 +1,4 @@
-<lov-code>
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -642,4 +641,25 @@ const AntecedentesPersonalesNoPatologicos = () => {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="tres-cuatro-veces-semana">Tres o
+                          <SelectItem value="tres-cuatro-veces-semana">Tres o cuatro veces por semana</SelectItem>
+                          <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
+                          <SelectItem value="no-consume">No las consume</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {/* Redacción IA content */}
+              </div>
+            )}
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+export default AntecedentesPersonalesNoPatologicos;
