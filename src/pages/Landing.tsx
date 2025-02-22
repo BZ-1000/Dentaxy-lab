@@ -16,16 +16,6 @@ const Landing = () => {
 
   return (
     <div className="landing-container">
-      {/* Encabezado de Navegación */}
-      <nav className="navbar">
-        <div className="logo">DentaXy</div>
-        <ul className="nav-links">
-          <li><a href="#">Home</a></li>
-          <li><a href="#">Features</a></li>
-          <li><a href="#">Specs</a></li>
-        </ul>
-      </nav>
-
       {/* Contenido principal */}
       <div className="main-content">
         <motion.h1
@@ -52,10 +42,6 @@ const Landing = () => {
           </Button>
         </motion.div>
       </div>
-
-      {/* Efectos de Luz */}
-      <div className="light left-light"></div>
-      <div className="light right-light"></div>
     </div>
   );
 };
