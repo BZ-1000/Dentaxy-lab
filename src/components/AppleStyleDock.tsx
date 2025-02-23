@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import {
   Activity,
   Component,
@@ -17,7 +16,7 @@ const data = [
     icon: (
       <HomeIcon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
     ),
-    href: '/', // Cambia esto a la ruta de tu página principal
+    href: '#',
   },
   {
     title: 'Products',
@@ -58,7 +57,6 @@ const data = [
 
 export function AppleStyleDock() {
   const { theme, toggleTheme } = useTheme();
-  const navigate = useNavigate();
 
   return (
     <div className='fixed bottom-2 left-1/2 max-w-full -translate-x-1/2 z-50'>
@@ -66,8 +64,7 @@ export function AppleStyleDock() {
         {data.map((item, idx) => (
           <DockItem
             key={idx}
-            className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer'
-            onClick={() => item.href !== '#' && navigate(item.href)}
+            className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800'
           >
             <DockLabel>{item.title}</DockLabel>
             <DockIcon>{item.icon}</DockIcon>
