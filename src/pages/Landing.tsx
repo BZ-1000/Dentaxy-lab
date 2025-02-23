@@ -3,11 +3,49 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { MenuBar } from '@/components/ui/glow-menu';
 import Spline from '@splinetool/react-spline';
+import { Home, Settings, Bell, User, Tooth } from 'lucide-react';
+
+const menuItems = [
+  {
+    icon: Home,
+    label: "Home",
+    href: "#",
+    gradient:
+      "radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.06) 50%, rgba(29,78,216,0) 100%)",
+    iconColor: "text-blue-500",
+  },
+  {
+    icon: Bell,
+    label: "Notifications",
+    href: "#",
+    gradient:
+      "radial-gradient(circle, rgba(249,115,22,0.15) 0%, rgba(234,88,12,0.06) 50%, rgba(194,65,12,0) 100%)",
+    iconColor: "text-orange-500",
+  },
+  {
+    icon: Settings,
+    label: "Settings",
+    href: "#",
+    gradient:
+      "radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(22,163,74,0.06) 50%, rgba(21,128,61,0) 100%)",
+    iconColor: "text-green-500",
+  },
+  {
+    icon: User,
+    label: "Profile",
+    href: "#",
+    gradient:
+      "radial-gradient(circle, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.06) 50%, rgba(185,28,28,0) 100%)",
+    iconColor: "text-red-500",
+  },
+];
 
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
+  const [activeItem, setActiveItem] = useState<string>("Home");
 
   useEffect(() => {
     setMounted(true);
@@ -22,8 +60,24 @@ const Landing = () => {
         <Spline scene="https://prod.spline.design/HEkikR70XhoXCBC9/scene.splinecode" />
       </div>
 
+      {/* Header con logo y menú */}
+      <div className="relative z-10 flex items-center justify-between px-6 py-4">
+        <div className="flex items-center gap-4">
+          <Tooth className="h-8 w-8 text-blue-500" />
+          <span className="text-xl font-semibold text-white">
+            Dental Basics Academy
+          </span>
+        </div>
+        <MenuBar
+          items={menuItems}
+          activeItem={activeItem}
+          onItemClick={setActiveItem}
+          className="ml-8"
+        />
+      </div>
+
       {/* Contenido principal */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-4">
+      <div className="relative z-10 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
