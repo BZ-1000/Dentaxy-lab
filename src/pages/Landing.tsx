@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { MenuBar } from '@/components/ui/glow-menu';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, Stethoscope } from 'lucide-react';
+import { Home, Settings, Bell, User } from 'lucide-react';
 
 const menuItems = [
   {
@@ -42,6 +42,21 @@ const menuItems = [
   },
 ];
 
+const ToothIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-8 w-8"
+  >
+    <path d="M12 2C7.58 2 4 4.58 4 9c0 3.42 2.24 7.42 4 10.42.8 1.36 2.62 2.62 4 2 1.38.62 3.2-.64 4-2 1.76-3 4-7 4-10.42C20 4.58 16.42 2 12 2z" />
+    <path d="M12 2c-1.8 0-3 1-3 3 0 1.8 1 3 3 3s3-1.2 3-3c0-2-1.2-3-3-3z" />
+  </svg>
+);
+
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -57,13 +72,13 @@ const Landing = () => {
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
       {/* Fondo con Spline */}
       <div className="absolute inset-0 h-[120%] w-full -translate-y-[10%]">
-        <Spline scene="https://prod.spline.design/HEkikR70XhoXCBC9/scene.splinecode" />
+        <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
       </div>
 
       {/* Header con logo y menú */}
-      <div className="relative z-10 flex items-center justify-between px-6 py-4">
+      <div className="relative z-10 flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-4">
-          <Stethoscope className="h-8 w-8 text-blue-500" />
+          <ToothIcon />
           <span className="text-xl font-semibold text-white">
             Dental Basics Academy
           </span>
@@ -72,7 +87,7 @@ const Landing = () => {
           items={menuItems}
           activeItem={activeItem}
           onItemClick={setActiveItem}
-          className="ml-8"
+          className="ml-8 py-1"
         />
       </div>
 
