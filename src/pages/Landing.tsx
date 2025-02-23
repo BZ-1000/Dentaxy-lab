@@ -88,16 +88,13 @@ const Landing = () => {
 
       {/* Sección principal con Spline y título */}
       <div className="relative flex min-h-screen flex-col items-center justify-center text-center">
-        {/* Fondo con Spline y Título */}
-        <div className="absolute inset-0 -z-10 h-full w-full flex items-center justify-center">
-          <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" className="w-full h-full" />
-        </div>
+        <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" className="absolute inset-0 w-full h-full -z-10" />
 
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="mb-16 font-mono text-8xl font-black tracking-wider text-white [text-shadow:_0_0_30px_rgb(255_255_255_/_40%)] sm:text-9xl relative"
+          className="mb-16 font-mono text-8xl font-black tracking-wider text-white [text-shadow:_0_0_30px_rgb(255_255_255_/_40%)] sm:text-9xl"
         >
           DENTAXY
         </motion.h1>
@@ -117,8 +114,8 @@ const Landing = () => {
         </motion.div>
       </div>
 
-      {/* Sección separada para HeroScrollDemo */}
-      <div className="relative z-10 mt-20 py-20 bg-black">
+      {/* Sección separada para HeroScrollDemo con fondo blanco */}
+      <div className="relative z-10 mt-20 py-20 bg-white text-black">
         <HeroScrollDemo />
       </div>
     </div>
