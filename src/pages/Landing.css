@@ -38,7 +38,7 @@ body, html {
     font-weight: 400;
     font-style: normal;
     text-transform: uppercase; /* Convertimos el texto a mayúsculas */
-    color: #ffffff; /* Color blanco para combinar con el fondo */
+    color: #000000; /* Cambiamos el color a negro */
     position: relative;
     z-index: 1;
   }
