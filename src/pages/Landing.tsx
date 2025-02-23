@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -5,7 +6,6 @@ import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
 import { Home, Settings, Bell, User } from 'lucide-react';
-import { HeroScrollDemo } from '@/components/ui/code.demo'; // Importa el componente
 
 const menuItems = [
   {
@@ -110,7 +110,7 @@ const Landing = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.8, duration: 0.5 }}
           >
-            <RainbowButton
+            <RainbowButton 
               onClick={() => navigate('/app')}
               className="text-lg py-6"
             >
@@ -119,9 +119,6 @@ const Landing = () => {
           </motion.div>
         </motion.div>
       </div>
-
-      {/* Integración de HeroScrollDemo */}
-      <HeroScrollDemo />
     </div>
   );
 };
