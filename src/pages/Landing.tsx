@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import Spline from '@splinetool/react-spline';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -15,24 +16,10 @@ const Landing = () => {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 text-white">
-      {/* Partículas de fondo */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(37,99,235,0.1),rgba(37,99,235,0.05)_15%,rgba(37,99,235,0.025)_25%,transparent_60%)]" />
-        <div className="pointer-events-none absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="animate-float absolute h-1 w-1 rounded-full bg-blue-500/20"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${5 + Math.random() * 5}s`
-              }}
-            />
-          ))}
-        </div>
+    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+      {/* Fondo con Spline */}
+      <div className="absolute inset-0 h-[120%] w-full -translate-y-[10%]">
+        <Spline scene="https://prod.spline.design/oy6GfbFwbFz9GHZL/scene.splinecode" />
       </div>
 
       {/* Contenido principal */}
@@ -43,23 +30,10 @@ const Landing = () => {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="text-center"
         >
-          {/* Título con efecto neón */}
-          <h1 className="mb-8 text-7xl font-bold tracking-tight sm:text-8xl lg:text-9xl">
-            <span className="relative inline-block font-knewave bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400 animate-glow">
-              DentaXy
-              <span className="absolute -inset-2 blur-xl bg-gradient-to-r from-blue-500/30 to-cyan-400/30" />
-            </span>
+          {/* Título futurista */}
+          <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white [text-shadow:_0_0_30px_rgb(255_255_255_/_40%)] sm:text-9xl">
+            DENTAXY
           </h1>
-
-          {/* Subtítulo con fade in */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="mb-12 text-xl text-gray-400 font-mplus"
-          >
-            La próxima generación de historias clínicas dentales con IA
-          </motion.p>
 
           {/* Botón con efecto neón */}
           <motion.div
