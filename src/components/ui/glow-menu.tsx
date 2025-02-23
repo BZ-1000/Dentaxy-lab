@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { motion } from "framer-motion"
+import { motion, HTMLMotionProps } from "framer-motion"
 import { useTheme } from "@/hooks/use-theme"
 import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
@@ -15,7 +15,7 @@ interface MenuItem {
   iconColor: string
 }
 
-interface MenuBarProps extends React.HTMLAttributes<HTMLDivElement> {
+interface MenuBarProps extends Omit<HTMLMotionProps<"nav">, "children"> {
   items: MenuItem[]
   activeItem?: string
   onItemClick?: (label: string) => void
@@ -74,6 +74,7 @@ export const MenuBar = React.forwardRef<HTMLDivElement, MenuBarProps>(
           className,
         )}
         initial="initial"
+        animate="initial"
         whileHover="hover"
         {...props}
       >

@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { MenuBar } from '@/components/ui/glow-menu';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, Tooth } from 'lucide-react';
+import { Home, Settings, Bell, User, Stethoscope } from 'lucide-react';
 
 const menuItems = [
   {
@@ -63,7 +63,7 @@ const Landing = () => {
       {/* Header con logo y menú */}
       <div className="relative z-10 flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
-          <Tooth className="h-8 w-8 text-blue-500" />
+          <Stethoscope className="h-8 w-8 text-blue-500" />
           <span className="text-xl font-semibold text-white">
             Dental Basics Academy
           </span>
