@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
 import { MenuBar } from '@/components/ui/glow-menu';
+import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
 import { Home, Settings, Bell, User } from 'lucide-react';
 
@@ -87,7 +87,7 @@ const Landing = () => {
           items={menuItems}
           activeItem={activeItem}
           onItemClick={setActiveItem}
-          className="ml-8 py-1"
+          className="ml-2 py-1"
         />
       </div>
 
@@ -104,19 +104,18 @@ const Landing = () => {
             DENTAXY
           </h1>
 
-          {/* Botón con efecto neón */}
+          {/* Botón con efecto rainbow */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.8, duration: 0.5 }}
           >
-            <Button
+            <RainbowButton 
               onClick={() => navigate('/app')}
-              className="relative group px-8 py-6 text-lg font-semibold transition-all duration-300 bg-gradient-to-r from-blue-500 to-cyan-400 hover:from-blue-600 hover:to-cyan-500 rounded-xl"
+              className="text-lg py-6"
             >
-              <span className="relative z-10">Acceder a Beta</span>
-              <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-400 opacity-70 blur-lg transition-all duration-300 group-hover:opacity-100" />
-            </Button>
+              Acceder a Beta
+            </RainbowButton>
           </motion.div>
         </motion.div>
       </div>
