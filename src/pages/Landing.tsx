@@ -54,6 +54,17 @@ const Landing = () => {
 
   useEffect(() => {
     setMounted(true);
+
+    // Importar la fuente Orbitron
+    const link = document.createElement('link');
+    link.href = "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&display=swap";
+    link.rel = "stylesheet";
+    document.head.appendChild(link);
+
+    // Limpieza al desmontar el componente
+    return () => {
+      document.head.removeChild(link);
+    };
   }, []);
 
   if (!mounted) return null;
@@ -176,7 +187,9 @@ const Landing = () => {
         <div className="text-center">
           {/* Título futurista */}
           <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl">
-            DENTAXY
+            DENTA
+            <span className="font-orbitron">X</span>
+            Y
           </h1>
 
           {/* Botón con efecto rainbow */}
@@ -187,7 +200,7 @@ const Landing = () => {
           >
             <RainbowButton
               onClick={() => navigate('/app')}
-              className="text-base py-6 shadow-2xl z-50"
+              className="text-sm py-6 shadow-2xl z-50"
             >
               Acceder a prueba BETA
             </RainbowButton>
