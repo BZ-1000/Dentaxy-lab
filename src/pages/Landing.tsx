@@ -59,26 +59,28 @@ const Landing = () => {
         <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
       </div>
 
-      {/* Header con logo, texto y menú */}
-      <div className="relative z-10 flex items-center justify-center px-6 py-6">
-        <div className="absolute left-0 flex items-center gap-4 pl-6">
+      {/* Header con logo y menú */}
+      <div className="relative z-10 flex items-center px-6 py-3">
+        <div className="flex items-center gap-4">
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
           <span className="text-sm sm:text-base font-semibold text-white text-shadow">
             Dental Basics Academy
           </span>
         </div>
-        <div className="flex justify-center w-full">
-          <MenuBar
-            items={menuItems}
-            activeItem={activeItem}
-            onItemClick={setActiveItem}
-            className="py-1 text-shadow"
-          />
-        </div>
+      </div>
+
+      {/* Menú centrado */}
+      <div className="relative z-10 flex justify-center mt-2">
+        <MenuBar
+          items={menuItems}
+          activeItem={activeItem}
+          onItemClick={setActiveItem}
+          className="py-1 text-shadow"
+        />
       </div>
 
       {/* Contenido principal */}
-      <div className="relative z-10 flex min-h-[calc(100vh-120px)] flex-col items-center justify-center px-4 pt-20">
+      <div className="relative z-10 flex min-h-[calc(100vh-120px)] flex-col items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -87,9 +89,7 @@ const Landing = () => {
         >
           {/* Título futurista */}
           <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl">
-            DENTA
-            <span className="glitch">X</span>
-            Y
+            DENTAXY
           </h1>
 
           {/* Botón con efecto rainbow */}
@@ -107,31 +107,6 @@ const Landing = () => {
           </motion.div>
         </motion.div>
       </div>
-
-      {/* Estilos para el efecto glitch */}
-      <style jsx>{`
-        @keyframes glitch {
-          0%, 100% {
-            text-shadow: 0.05em 0 0 #000, -0.05em 0 0 #000;
-          }
-          20% {
-            text-shadow: 0.05em 0 0 #000, -0.05em -0.05em 0 #000;
-          }
-          40% {
-            text-shadow: 0.05em 0.05em 0 #000, -0.05em 0 0 #000;
-          }
-          60% {
-            text-shadow: 0.05em 0 0 #000, -0.05em 0.05em 0 #000;
-          }
-          80% {
-            text-shadow: 0.05em -0.05em 0 #000, -0.05em 0 0 #000;
-          }
-        }
-        .glitch {
-          display: inline-block;
-          animation: glitch 2s infinite linear alternate-reverse;
-        }
-      `}</style>
     </div>
   );
 };
