@@ -152,20 +152,25 @@ const Landing = () => {
       </motion.div>
 
       {/* Menú centrado y en la capa superior */}
-      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 5, duration: 0.5 }}
+        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20"
+      >
         <MenuBar
           items={menuItems}
           activeItem={activeItem}
           onItemClick={setActiveItem}
           className="py-1 text-shadow"
         />
-      </div>
+      </motion.div>
 
       {/* Contenido principal */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 5, duration: 0.8, ease: "easeOut" }}
+        transition={{ delay: 5.5, duration: 0.8, ease: "easeOut" }}
         className="relative z-10 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
       >
         <div className="text-center">
@@ -178,7 +183,7 @@ const Landing = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 5.8, duration: 0.5 }}
+            transition={{ delay: 6.3, duration: 0.5 }}
           >
             <RainbowButton
               onClick={() => navigate('/app')}
