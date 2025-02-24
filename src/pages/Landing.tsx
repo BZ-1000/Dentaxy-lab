@@ -58,6 +58,8 @@ const Landing = () => {
 
   if (!mounted) return null;
 
+  const text = "Dental Basics Academy";
+
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
       {/* Fondo con Spline */}
@@ -84,14 +86,18 @@ const Landing = () => {
           className="flex items-center gap-4"
         >
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5, duration: 1 }}
-            className="text-sm sm:text-base font-semibold text-white text-shadow"
-          >
-            Dental Basics Academy
-          </motion.span>
+          <div className="text-sm sm:text-base font-semibold text-white text-shadow flex space-x-1">
+            {text.split('').map((letter, index) => (
+              <motion.span
+                key={index}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5 + index * 0.1, duration: 0.5 }}
+              >
+                {letter}
+              </motion.span>
+            ))}
+          </div>
         </motion.div>
       </motion.div>
 
