@@ -5,82 +5,52 @@ import { motion } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, LogOut } from 'lucide-react';
+import { Home, Settings, Bell, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { AuthDialog } from '@/components/auth/AuthDialog';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+
+const menuItems = [
+  {
+    icon: Home,
+    label: "Home",
+    href: "#",
+    gradient:
+      "radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.06) 50%, rgba(29,78,216,0) 100%)",
+    iconColor: "text-blue-500",
+  },
+  {
+    icon: Bell,
+    label: "Notifications",
+    href: "#",
+    gradient:
+      "radial-gradient(circle, rgba(249,115,22,0.15) 0%, rgba(234,88,12,0.06) 50%, rgba(194,65,12,0) 100%)",
+    iconColor: "text-orange-500",
+  },
+  {
+    icon: Settings,
+    label: "Settings",
+    href: "#",
+    gradient:
+      "radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(22,163,74,0.06) 50%, rgba(21,128,61,0) 100%)",
+    iconColor: "text-green-500",
+  },
+  {
+    icon: User,
+    label: "Profile",
+    href: "#",
+    gradient:
+      "radial-gradient(circle, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.06) 50%, rgba(185,28,28,0) 100%)",
+    iconColor: "text-red-500",
+  },
+];
 
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
   const [activeItem, setActiveItem] = useState<string>("Home");
-  const [authDialog, setAuthDialog] = useState<{ isOpen: boolean; mode: "login" | "register" }>({
-    isOpen: false,
-    mode: "login"
-  });
-  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     setMounted(true);
-    
-    // Obtener el usuario actual
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-
-    // Suscribirse a cambios en el estado de autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast.success('Has cerrado sesión correctamente');
-    } catch (error: any) {
-      toast.error('Error al cerrar sesión');
-    }
-  };
-
-  // Crear los items del menú dinámicamente basados en el estado de autenticación
-  const menuItems = [
-    {
-      icon: Home,
-      label: "Home",
-      href: "#",
-      gradient:
-        "radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.06) 50%, rgba(29,78,216,0) 100%)",
-      iconColor: "text-blue-500",
-    },
-    {
-      icon: Bell,
-      label: "Notifications",
-      href: "#",
-      gradient:
-        "radial-gradient(circle, rgba(249,115,22,0.15) 0%, rgba(234,88,12,0.06) 50%, rgba(194,65,12,0) 100%)",
-      iconColor: "text-orange-500",
-    },
-    {
-      icon: Settings,
-      label: "Settings",
-      href: "#",
-      gradient:
-        "radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(22,163,74,0.06) 50%, rgba(21,128,61,0) 100%)",
-      iconColor: "text-green-500",
-    },
-    {
-      icon: User,
-      label: user ? user.email : "Profile",
-      href: "#",
-      gradient:
-        "radial-gradient(circle, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.06) 50%, rgba(185,28,28,0) 100%)",
-      iconColor: "text-red-500",
-    },
-  ];
 
   if (!mounted) return null;
 
@@ -100,33 +70,20 @@ const Landing = () => {
           </span>
         </div>
         <div className="flex gap-4">
-          {user ? (
-            <Button 
-              variant="ghost" 
-              onClick={handleLogout}
-              className="text-white hover:text-white hover:bg-white/10 border border-white/20"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Cerrar Sesión
-            </Button>
-          ) : (
-            <>
-              <Button 
-                variant="ghost" 
-                onClick={() => setAuthDialog({ isOpen: true, mode: "login" })}
-                className="text-white hover:text-white hover:bg-white/10 border border-white/20"
-              >
-                Iniciar Sesión
-              </Button>
-              <Button 
-                variant="ghost" 
-                onClick={() => setAuthDialog({ isOpen: true, mode: "register" })}
-                className="text-white hover:text-white hover:bg-white/10 border border-white/20"
-              >
-                Registrarse
-              </Button>
-            </>
-          )}
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/auth/login')}
+            className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+          >
+            Iniciar Sesión
+          </Button>
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/auth/register')}
+            className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+          >
+            Registrarse
+          </Button>
         </div>
       </div>
 
@@ -168,13 +125,6 @@ const Landing = () => {
           </motion.div>
         </motion.div>
       </div>
-
-      {/* Dialog de autenticación */}
-      <AuthDialog
-        isOpen={authDialog.isOpen}
-        onClose={() => setAuthDialog({ ...authDialog, isOpen: false })}
-        defaultMode={authDialog.mode}
-      />
     </div>
   );
 };
