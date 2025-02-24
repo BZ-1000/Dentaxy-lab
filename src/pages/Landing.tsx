@@ -236,8 +236,8 @@ const Landing = () => {
 
       {/* Popup para ingresar el nombre de usuario */}
       {showPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded shadow-lg">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-8 rounded shadow-lg z-50">
             <input
               type="text"
               placeholder="Nombre de usuario"
@@ -249,6 +249,7 @@ const Landing = () => {
               Guardar
             </Button>
           </div>
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-blue-500 to-green-500 opacity-50 z-40"></div>
         </div>
       )}
 
