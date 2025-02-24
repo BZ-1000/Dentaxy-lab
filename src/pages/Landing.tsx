@@ -71,8 +71,8 @@ const Landing = () => {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       {/* Contenedor principal con fondo de Spline */}
-      <div className="relative h-[120vh] w-full overflow-hidden bg-black">
-        <div className="absolute inset-0 h-[120%] w-full -translate-y-[10%]">
+      <div className="relative h-[100vh] w-full overflow-hidden bg-black">
+        <div className="absolute inset-0 h-full w-full">
           <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
         </div>
 
@@ -95,7 +95,7 @@ const Landing = () => {
         </div>
 
         {/* Contenido principal */}
-        <div className="relative z-10 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4">
+        <div className="relative z-10 flex flex-grow flex-col items-center justify-center px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -125,8 +125,10 @@ const Landing = () => {
       </div>
 
       {/* Nueva sección para HeroScrollDemo */}
-      <div className="relative z-10 w-full py-10 bg-white">
-        <HeroScrollDemo />
+      <div className="relative z-10 w-full py-10 bg-white flex justify-center items-center">
+        <div className="w-full max-w-4xl">
+          <HeroScrollDemo />
+        </div>
       </div>
     </div>
   );
