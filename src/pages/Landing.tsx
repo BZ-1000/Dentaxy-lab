@@ -5,6 +5,7 @@ import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
 import { Home, Settings, Bell, User } from 'lucide-react';
+import { HeroScrollDemo } from '@/components/ui/code.demo'; // Importa el componente
 
 const menuItems = [
   {
@@ -119,6 +120,11 @@ const Landing = () => {
             </RainbowButton>
           </motion.div>
         </motion.div>
+      </div>
+
+      {/* Nueva sección para HeroScrollDemo */}
+      <div className="relative z-10 w-full py-10 bg-white">
+        <HeroScrollDemo />
       </div>
     </div>
   );
