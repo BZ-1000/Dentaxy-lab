@@ -115,7 +115,7 @@ const Landing = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 5, duration: 0.5 }}
-        className="relative z-40 flex items-center justify-between px-6 py-3"
+        className="relative z-50 flex items-center justify-between px-6 py-3"
       >
         <motion.div
           initial={{ opacity: 0 }}
@@ -137,14 +137,14 @@ const Landing = () => {
           <Button
             variant="ghost"
             onClick={() => setAuthDialog({ isOpen: true, mode: "login" })}
-            className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-40"
+            className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-50"
           >
             Iniciar Sesión
           </Button>
           <Button
             variant="ghost"
             onClick={() => setAuthDialog({ isOpen: true, mode: "register" })}
-            className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-40"
+            className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-50"
           >
             Registrarse
           </Button>
@@ -156,7 +156,7 @@ const Landing = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 6, duration: 0.5 }}
-        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-40"
+        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50"
       >
         <MenuBar
           items={menuItems}
@@ -171,7 +171,7 @@ const Landing = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 6.5, duration: 0.8, ease: "easeOut" }}
-        className="relative z-30 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
+        className="relative z-40 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
       >
         <div className="text-center">
           {/* Título futurista */}
@@ -187,7 +187,7 @@ const Landing = () => {
           >
             <RainbowButton
               onClick={() => navigate('/app')}
-              className="text-lg py-6 shadow-2xl z-40"
+              className="text-lg py-6 shadow-2xl z-50"
             >
               Acceder a Beta
             </RainbowButton>
