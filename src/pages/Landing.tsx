@@ -59,7 +59,7 @@ const Landing = () => {
         <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
       </div>
 
-      {/* Header con logo y menú */}
+      {/* Header con logo y texto */}
       <div className="relative z-10 flex items-center px-6 py-3">
         <div className="flex items-center gap-4">
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
@@ -69,8 +69,8 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Menú centrado */}
-      <div className="relative z-10 flex justify-center mt-2">
+      {/* Menú centrado y en la capa superior */}
+      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
         <MenuBar
           items={menuItems}
           activeItem={activeItem}
@@ -80,7 +80,7 @@ const Landing = () => {
       </div>
 
       {/* Contenido principal */}
-      <div className="relative z-10 flex min-h-[calc(100vh-120px)] flex-col items-center justify-center px-4">
+      <div className="relative z-10 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
