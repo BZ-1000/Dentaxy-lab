@@ -91,7 +91,7 @@ const Landing = () => {
             className="h-8 w-8 text-white"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 1 }}
+            transition={{ delay: 1.5, duration: 1 }}
           />
           <div className="text-sm sm:text-base font-semibold text-white text-shadow flex space-x-1">
             {text.split('').map((letter, index) => (
@@ -99,7 +99,7 @@ const Landing = () => {
                 key={index}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1 + index * 0.05, duration: 0.5 }}
+                transition={{ delay: 1.5 + index * 0.05, duration: 0.5 }}
               >
                 {letter}
               </motion.span>
@@ -112,7 +112,7 @@ const Landing = () => {
       <motion.div
         initial={{ opacity: 1 }}
         animate={{ opacity: 0 }}
-        transition={{ delay: 3, duration: 1 }}
+        transition={{ delay: 3.5, duration: 1 }}
         className="absolute inset-0 flex items-center justify-center bg-black z-0"
       >
         <div className="flex items-center gap-4">
