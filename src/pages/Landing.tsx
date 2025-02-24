@@ -75,19 +75,21 @@ const Landing = () => {
       </div>
 
       {/* Header con logo y menú */}
-      <div className="relative z-10 flex flex-col items-center justify-between px-6 py-3">
+      <div className="relative z-10 flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-4">
           <ToothIcon />
           <span className="text-xl font-semibold text-white">
             Dental Basics Academy
           </span>
         </div>
-        <MenuBar
-          items={menuItems}
-          activeItem={activeItem}
-          onItemClick={setActiveItem}
-          className="mt-2 py-1"
-        />
+        <div className="flex-grow flex justify-center">
+          <MenuBar
+            items={menuItems}
+            activeItem={activeItem}
+            onItemClick={setActiveItem}
+            className="py-1"
+          />
+        </div>
       </div>
 
       {/* Contenido principal */}
