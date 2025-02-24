@@ -72,19 +72,14 @@ const Landing = () => {
         <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
       </motion.div>
 
-      {/* Animación inicial del logo y texto */}
+      {/* Animación inicial del texto */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 1 }}
         className="absolute inset-0 flex items-center justify-center z-0"
       >
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 1 }}
-          className="flex items-center gap-4"
-        >
+        <div className="flex items-center gap-4">
           <motion.img
             src="/diente.png"
             alt="Logo"
@@ -105,14 +100,14 @@ const Landing = () => {
               </motion.span>
             ))}
           </div>
-        </motion.div>
+        </div>
       </motion.div>
 
       {/* Animación de borrado */}
       <motion.div
         initial={{ opacity: 1 }}
         animate={{ opacity: 0 }}
-        transition={{ delay: 3.5, duration: 1 }}
+        transition={{ delay: 4, duration: 1 }}
         className="absolute inset-0 flex items-center justify-center bg-black z-0"
       >
         <div className="flex items-center gap-4">
@@ -127,20 +122,20 @@ const Landing = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 4, duration: 0.5 }}
+        transition={{ delay: 5, duration: 0.5 }}
         className="relative z-20 flex items-center justify-between px-6 py-3"
       >
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 4.5, duration: 1 }}
+          transition={{ delay: 5.5, duration: 1 }}
           className="flex items-center gap-4"
         >
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
           <motion.span
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 5, duration: 1 }}
+            transition={{ delay: 6, duration: 1 }}
             className="text-sm sm:text-base font-semibold text-white text-shadow"
           >
             Dental Basics Academy
@@ -168,7 +163,7 @@ const Landing = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 5, duration: 0.5 }}
+        transition={{ delay: 6, duration: 0.5 }}
         className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20"
       >
         <MenuBar
@@ -183,7 +178,7 @@ const Landing = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 5.5, duration: 0.8, ease: "easeOut" }}
+        transition={{ delay: 6.5, duration: 0.8, ease: "easeOut" }}
         className="relative z-20 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
       >
         <div className="text-center">
@@ -196,7 +191,7 @@ const Landing = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 6.3, duration: 0.5 }}
+            transition={{ delay: 7.3, duration: 0.5 }}
           >
             <RainbowButton
               onClick={() => navigate('/app')}
