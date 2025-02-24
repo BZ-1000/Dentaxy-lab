@@ -75,7 +75,7 @@ const Landing = () => {
       </div>
 
       {/* Header con logo y menú */}
-      <div className="relative z-10 flex items-center justify-between px-6 py-3">
+      <div className="relative z-10 flex flex-col items-center justify-between px-6 py-3">
         <div className="flex items-center gap-4">
           <ToothIcon />
           <span className="text-xl font-semibold text-white">
@@ -86,7 +86,7 @@ const Landing = () => {
           items={menuItems}
           activeItem={activeItem}
           onItemClick={setActiveItem}
-          className="ml-2 py-1"
+          className="mt-2 py-1"
         />
       </div>
 
@@ -109,7 +109,7 @@ const Landing = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.8, duration: 0.5 }}
           >
-            <RainbowButton 
+            <RainbowButton
               onClick={() => navigate('/app')}
               className="text-lg py-6"
             >
@@ -122,4 +122,4 @@ const Landing = () => {
   );
 };
 
-export default Landing;  
+export default Landing;
