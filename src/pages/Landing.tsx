@@ -54,17 +54,6 @@ const Landing = () => {
 
   useEffect(() => {
     setMounted(true);
-
-    // Importar la fuente Orbitron
-    const link = document.createElement('link');
-    link.href = "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&display=swap";
-    link.rel = "stylesheet";
-    document.head.appendChild(link);
-
-    // Limpieza al desmontar el componente
-    return () => {
-      document.head.removeChild(link);
-    };
   }, []);
 
   if (!mounted) return null;
@@ -188,9 +177,7 @@ const Landing = () => {
           {/* Título futurista */}
           <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl">
             DENTA
-            <span className="font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
-              X
-            </span>
+            <span className="text-black text-9xl">X</span>
             Y
           </h1>
 
@@ -204,7 +191,7 @@ const Landing = () => {
               onClick={() => navigate('/app')}
               className="text-sm py-6 shadow-2xl z-50"
             >
-              Prueba BETA
+              Acceder a prueba BETA
             </RainbowButton>
           </motion.div>
         </div>
