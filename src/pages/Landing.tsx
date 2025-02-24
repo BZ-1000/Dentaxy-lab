@@ -51,6 +51,8 @@ const Landing = () => {
     isOpen: false,
     mode: "login"
   });
+  const [username, setUsername] = useState<string>("");
+  const [showPopup, setShowPopup] = useState<boolean>(false);
 
   useEffect(() => {
     setMounted(true);
@@ -66,6 +68,24 @@ const Landing = () => {
       document.head.removeChild(link);
     };
   }, []);
+
+  const handleLogin = () => {
+    setAuthDialog({ isOpen: true, mode: "login" });
+  };
+
+  const handleRegister = () => {
+    setAuthDialog({ isOpen: true, mode: "register" });
+  };
+
+  const handleSaveUsername = () => {
+    setShowPopup(false);
+    // Aquí puedes agregar lógica adicional para guardar el nombre de usuario si es necesario
+  };
+
+  const handleAuthSuccess = () => {
+    setShowPopup(true);
+    setAuthDialog({ isOpen: false, mode: "login" });
+  };
 
   if (!mounted) return null;
 
@@ -145,20 +165,24 @@ const Landing = () => {
           </motion.span>
         </motion.div>
         <div className="flex gap-4">
-          <Button
-            variant="ghost"
-            onClick={() => setAuthDialog({ isOpen: true, mode: "login" })}
-            className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-50"
-          >
-            Iniciar Sesión
-          </Button>
-          <Button
-            variant="ghost"
-            onClick={() => setAuthDialog({ isOpen: true, mode: "register" })}
-            className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-50"
-          >
-            Registrarse
-          </Button>
+          {!username && (
+            <>
+              <Button
+                variant="ghost"
+                onClick={handleLogin}
+                className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-50"
+              >
+                Iniciar Sesión
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={handleRegister}
+                className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-50"
+              >
+                Registrarse
+              </Button>
+            </>
+          )}
         </div>
       </motion.div>
 
@@ -170,7 +194,9 @@ const Landing = () => {
         className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50"
       >
         <MenuBar
-          items={menuItems}
+          items={menuItems.map(item =>
+            item.label === "Profile" ? { ...item, label: username || "Profile" } : item
+          )}
           activeItem={activeItem}
           onItemClick={setActiveItem}
           className="py-1 text-shadow"
@@ -202,17 +228,36 @@ const Landing = () => {
               onClick={() => navigate('/app')}
               className="text-sm py-6 shadow-2xl z-50"
             >
-              Acceder a prueba BETA
+              Prueba BETA
             </RainbowButton>
           </motion.div>
         </div>
       </motion.div>
+
+      {/* Popup para ingresar el nombre de usuario */}
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded shadow-lg">
+            <input
+              type="text"
+              placeholder="Nombre de usuario"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="border p-2 mb-4"
+            />
+            <Button onClick={handleSaveUsername} className="bg-blue-500 text-white px-4 py-2">
+              Guardar
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Dialog de autenticación */}
       <AuthDialog
         isOpen={authDialog.isOpen}
         onClose={() => setAuthDialog({ ...authDialog, isOpen: false })}
         defaultMode={authDialog.mode}
+        onSuccess={handleAuthSuccess}
       />
     </div>
   );
