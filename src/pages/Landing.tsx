@@ -60,7 +60,7 @@ const Landing = () => {
       </div>
 
       {/* Header con logo y menú */}
-      <div className="relative z-10 flex items-center px-6 py-3">
+      <div className="relative z-10 flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-4">
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
           <span className="text-sm sm:text-base font-semibold text-white text-shadow">
@@ -70,7 +70,7 @@ const Landing = () => {
       </div>
 
       {/* Menú centrado */}
-      <div className="relative z-10 flex justify-center mt-2">
+      <div className="relative z-10 flex justify-center mt-1">
         <MenuBar
           items={menuItems}
           activeItem={activeItem}
