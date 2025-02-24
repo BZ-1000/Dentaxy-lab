@@ -65,7 +65,7 @@ const Landing = () => {
         initial={{ opacity: 1 }}
         animate={{ opacity: 0 }}
         transition={{ delay: 3, duration: 1 }}
-        className="absolute inset-0 flex items-center justify-center bg-black z-50"
+        className="absolute inset-0 flex items-center justify-center bg-black z-10"
       />
 
       {/* Animación inicial del texto */}
@@ -105,7 +105,7 @@ const Landing = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 4, duration: 1 }}
-        className="absolute inset-0 h-[120%] w-full -translate-y-[10%] z-10"
+        className="absolute inset-0 h-[120%] w-full -translate-y-[10%] z-0"
       >
         <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
       </motion.div>
@@ -115,7 +115,7 @@ const Landing = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 5, duration: 0.5 }}
-        className="relative z-30 flex items-center justify-between px-6 py-3"
+        className="relative z-40 flex items-center justify-between px-6 py-3"
       >
         <motion.div
           initial={{ opacity: 0 }}
@@ -137,14 +137,14 @@ const Landing = () => {
           <Button
             variant="ghost"
             onClick={() => setAuthDialog({ isOpen: true, mode: "login" })}
-            className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+            className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-40"
           >
             Iniciar Sesión
           </Button>
           <Button
             variant="ghost"
             onClick={() => setAuthDialog({ isOpen: true, mode: "register" })}
-            className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+            className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-40"
           >
             Registrarse
           </Button>
@@ -156,7 +156,7 @@ const Landing = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 6, duration: 0.5 }}
-        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-30"
+        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-40"
       >
         <MenuBar
           items={menuItems}
@@ -187,7 +187,7 @@ const Landing = () => {
           >
             <RainbowButton
               onClick={() => navigate('/app')}
-              className="text-lg py-6 shadow-2xl"
+              className="text-lg py-6 shadow-2xl z-40"
             >
               Acceder a Beta
             </RainbowButton>
