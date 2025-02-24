@@ -71,7 +71,7 @@ const Landing = () => {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
       {/* Fondo con Spline */}
-      <div className="absolute inset-0 h-[120%] w-full -translate-y-[10%]">
+      <div className="absolute inset-0 h-full w-full">
         <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
       </div>
 
@@ -121,7 +121,9 @@ const Landing = () => {
       </div>
 
       {/* Integración de HeroScrollDemo */}
-      <HeroScrollDemo />
+      <div className="relative z-10">
+        <HeroScrollDemo />
+      </div>
     </div>
   );
 };
