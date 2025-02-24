@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface AuthDialogProps {
 }
 
 export function AuthDialog({ isOpen, onClose, defaultMode = "login" }: AuthDialogProps) {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "register">(defaultMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,12 +27,14 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login" }: AuthDialo
 
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { error, data } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
         toast.success("¡Bienvenido de vuelta!");
+        onClose();
+        navigate('/');
       } else {
         const { error } = await supabase.auth.signUp({
           email,
@@ -40,7 +44,6 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login" }: AuthDialo
         toast.success("¡Cuenta creada exitosamente! Por favor verifica tu email.");
         setMode("login");
       }
-      onClose();
     } catch (error: any) {
       toast.error(error.message);
     } finally {
