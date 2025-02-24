@@ -64,7 +64,7 @@ const Landing = () => {
       <motion.div
         initial={{ opacity: 1 }}
         animate={{ opacity: 0 }}
-        transition={{ delay: 3, duration: 1 }}
+        transition={{ delay: 3.5, duration: 1 }}
         className="absolute inset-0 flex items-center justify-center bg-black z-50"
       />
 
@@ -98,6 +98,21 @@ const Landing = () => {
             ))}
           </div>
         </motion.div>
+      </motion.div>
+
+      {/* Animación de borrado (con mayor tiempo de permanencia) */}
+      <motion.div
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 0 }}
+        transition={{ delay: 5, duration: 1 }} // Se cambió el delay de 4.5 a 5 para que se quede más tiempo
+        className="absolute inset-0 flex items-center justify-center bg-black z-40"
+      >
+        <div className="flex items-center gap-4">
+          <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
+          <span className="text-sm sm:text-base font-semibold text-white text-shadow">
+            Dental Basics Academy
+          </span>
+        </div>
       </motion.div>
 
       {/* Fondo con Spline */}
@@ -174,33 +189,22 @@ const Landing = () => {
         className="relative z-30 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
       >
         <div className="text-center">
-          {/* Título futurista */}
           <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl">
             DENTAXY
           </h1>
-
-          {/* Botón con efecto rainbow */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 7.3, duration: 0.5 }}
           >
-            <RainbowButton
-              onClick={() => navigate('/app')}
-              className="text-lg py-6 shadow-2xl"
-            >
+            <RainbowButton onClick={() => navigate('/app')} className="text-lg py-6 shadow-2xl">
               Acceder a Beta
             </RainbowButton>
           </motion.div>
         </div>
       </motion.div>
 
-      {/* Dialog de autenticación */}
-      <AuthDialog
-        isOpen={authDialog.isOpen}
-        onClose={() => setAuthDialog({ ...authDialog, isOpen: false })}
-        defaultMode={authDialog.mode}
-      />
+      <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({ ...authDialog, isOpen: false })} defaultMode={authDialog.mode} />
     </div>
   );
 };
