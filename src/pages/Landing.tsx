@@ -7,6 +7,7 @@ import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
 import { Home, Settings, Bell, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { AuthDialog } from '@/components/auth/AuthDialog';
 
 const menuItems = [
   {
@@ -47,6 +48,10 @@ const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
   const [activeItem, setActiveItem] = useState<string>("Home");
+  const [authDialog, setAuthDialog] = useState<{ isOpen: boolean; mode: "login" | "register" }>({
+    isOpen: false,
+    mode: "login"
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -72,14 +77,14 @@ const Landing = () => {
         <div className="flex gap-4">
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/auth/login')}
+            onClick={() => setAuthDialog({ isOpen: true, mode: "login" })}
             className="text-white hover:text-white hover:bg-white/10 border border-white/20"
           >
             Iniciar Sesión
           </Button>
           <Button 
             variant="ghost" 
-            onClick={() => navigate('/auth/register')}
+            onClick={() => setAuthDialog({ isOpen: true, mode: "register" })}
             className="text-white hover:text-white hover:bg-white/10 border border-white/20"
           >
             Registrarse
@@ -125,6 +130,13 @@ const Landing = () => {
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Dialog de autenticación */}
+      <AuthDialog
+        isOpen={authDialog.isOpen}
+        onClose={() => setAuthDialog({ ...authDialog, isOpen: false })}
+        defaultMode={authDialog.mode}
+      />
     </div>
   );
 };
