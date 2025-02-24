@@ -72,14 +72,14 @@ const Landing = () => {
 
       {/* Animación inicial del logo y texto */}
       <motion.div
-        initial={{ scale: 2, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 1 }}
-        className="absolute inset-0 flex items-center justify-center"
+        initial={{ scale: 2, opacity: 0, x: 0, y: 0 }}
+        animate={{ scale: 1, opacity: 1, x: "-50%", y: "50%" }}
+        transition={{ duration: 1, delay: 1 }}
+        className="absolute flex items-center justify-center top-6 left-1/2 transform -translate-x-1/2 z-20"
       >
         <div className="flex items-center gap-4">
-          <img src="/diente.png" alt="Logo" className="h-16 w-16 text-white" />
-          <span className="text-2xl sm:text-4xl font-semibold text-white text-shadow">
+          <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
+          <span className="text-sm sm:text-base font-semibold text-white text-shadow">
             Dental Basics Academy
           </span>
         </div>
@@ -89,14 +89,12 @@ const Landing = () => {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 0.5 }}
+        transition={{ delay: 1.5, duration: 0.5 }}
         className="relative z-10 flex items-center justify-between px-6 py-3"
       >
         <div className="flex items-center gap-4">
-          <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
-          <span className="text-sm sm:text-base font-semibold text-white text-shadow">
-            Dental Basics Academy
-          </span>
+          {/* Espacio vacío para el logo y texto que se mueve */}
+          <div className="h-8 w-8"></div>
         </div>
         <div className="flex gap-4">
           <Button
