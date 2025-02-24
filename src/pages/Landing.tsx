@@ -195,7 +195,7 @@ const Landing = () => {
               onClick={() => navigate('/app')}
               className="text-lg py-6 shadow-2xl"
             >
-              Acceder a Beta
+              Acceder a Prueba Beta
             </RainbowButton>
           </motion.div>
         </div>
