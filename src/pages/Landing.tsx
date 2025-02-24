@@ -249,7 +249,7 @@ const Landing = () => {
               Guardar
             </Button>
           </div>
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-blue-500 to-green-500 opacity-50 z-40"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black opacity-75 z-40"></div>
         </div>
       )}
 
