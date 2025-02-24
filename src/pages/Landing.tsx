@@ -70,11 +70,11 @@ const Landing = () => {
 
       {/* Animación inicial del texto */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, zIndex: 50 }}
+        animate={{ opacity: 1, zIndex: 0 }}
         transition={{ delay: 1, duration: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 flex items-center justify-center z-40"
+        className="absolute inset-0 flex items-center justify-center"
       >
         <motion.div className="flex items-center gap-4">
           <motion.img
