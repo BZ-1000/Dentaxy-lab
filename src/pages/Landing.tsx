@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -5,6 +6,7 @@ import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
 import { Home, Settings, Bell, User } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const menuItems = [
   {
@@ -60,12 +62,28 @@ const Landing = () => {
       </div>
 
       {/* Header con logo y texto */}
-      <div className="relative z-10 flex items-center px-6 py-3">
+      <div className="relative z-10 flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-4">
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
           <span className="text-sm sm:text-base font-semibold text-white text-shadow">
             Dental Basics Academy
           </span>
+        </div>
+        <div className="flex gap-4">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/auth/login')}
+            className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+          >
+            Iniciar Sesión
+          </Button>
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate('/auth/register')}
+            className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+          >
+            Registrarse
+          </Button>
         </div>
       </div>
 

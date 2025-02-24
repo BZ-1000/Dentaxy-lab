@@ -8,6 +8,8 @@ import { useTheme } from '@/hooks/use-theme';
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/auth/Login";
+import Register from "./pages/auth/Register";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +27,8 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/app" element={<Index />} />
+                <Route path="/auth/login" element={<Login />} />
+                <Route path="/auth/register" element={<Register />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
