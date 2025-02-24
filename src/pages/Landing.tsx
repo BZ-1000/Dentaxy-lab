@@ -66,7 +66,7 @@ const Landing = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 4, duration: 1 }}
+        transition={{ delay: 0.5, duration: 1 }}
         className="absolute inset-0 h-[120%] w-full -translate-y-[10%] z-10"
       >
         <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
@@ -76,8 +76,8 @@ const Landing = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.5, duration: 1 }}
-        className="absolute inset-0 flex items-center justify-center z-0"
+        transition={{ delay: 1, duration: 1 }}
+        className="absolute inset-0 flex items-center justify-center z-20"
       >
         <div className="flex items-center gap-4">
           <motion.img
@@ -108,7 +108,7 @@ const Landing = () => {
         initial={{ opacity: 1 }}
         animate={{ opacity: 0 }}
         transition={{ delay: 4, duration: 1 }}
-        className="absolute inset-0 flex items-center justify-center bg-black z-0"
+        className="absolute inset-0 flex items-center justify-center bg-black z-20"
       >
         <div className="flex items-center gap-4">
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
@@ -123,7 +123,7 @@ const Landing = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 5, duration: 0.5 }}
-        className="relative z-20 flex items-center justify-between px-6 py-3"
+        className="relative z-30 flex items-center justify-between px-6 py-3"
       >
         <motion.div
           initial={{ opacity: 0 }}
@@ -164,7 +164,7 @@ const Landing = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 6, duration: 0.5 }}
-        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20"
+        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-30"
       >
         <MenuBar
           items={menuItems}
@@ -179,7 +179,7 @@ const Landing = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 6.5, duration: 0.8, ease: "easeOut" }}
-        className="relative z-20 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
+        className="relative z-30 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
       >
         <div className="text-center">
           {/* Título futurista */}
