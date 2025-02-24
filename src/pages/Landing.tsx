@@ -72,25 +72,27 @@ const Landing = () => {
       </div>
 
       {/* Header con logo y menú */}
-      <div className="relative z-10 flex items-center px-6 py-3">
+      <div className="relative z-10 flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-4">
           <ToothIcon />
           <span className="text-xl font-semibold text-white text-shadow">
             Dental Basics Academy
           </span>
         </div>
-        <div className="flex-grow flex justify-center">
-          <MenuBar
-            items={menuItems}
-            activeItem={activeItem}
-            onItemClick={setActiveItem}
-            className="py-1 text-shadow"
-          />
-        </div>
+      </div>
+
+      {/* Menú centrado */}
+      <div className="relative z-10 flex justify-center">
+        <MenuBar
+          items={menuItems}
+          activeItem={activeItem}
+          onItemClick={setActiveItem}
+          className="py-1 text-shadow"
+        />
       </div>
 
       {/* Contenido principal */}
-      <div className="relative z-10 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4">
+      <div className="relative z-10 flex min-h-[calc(100vh-120px)] flex-col items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
