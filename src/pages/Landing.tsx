@@ -41,18 +41,6 @@ const menuItems = [
   },
 ];
 
-const ToothIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    stroke="none"
-    className="h-8 w-8 text-white"
-  >
-    <path d="M12 2C7.58 2 4 4.58 4 9c0 3.42 2.24 7.42 4 10.42.8 1.36 2.62 2.62 4 2 1.38.62 3.2-.64 4-2 1.76-3 4-7 4-10.42C20 4.58 16.42 2 12 2z" />
-    <path d="M12 2c-1.8 0-3 1-3 3 0 1.8 1 3 3 3s3-1.2 3-3c0-2-1.2-3-3-3z" />
-  </svg>
-);
-
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -72,17 +60,17 @@ const Landing = () => {
       </div>
 
       {/* Header con logo y menú */}
-      <div className="relative z-10 flex items-center justify-between px-6 py-3">
+      <div className="relative z-10 flex items-center px-6 py-3">
         <div className="flex items-center gap-4">
-          <ToothIcon />
-          <span className="text-xl font-semibold text-white text-shadow">
+          <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
+          <span className="text-sm sm:text-base font-semibold text-white text-shadow">
             Dental Basics Academy
           </span>
         </div>
       </div>
 
       {/* Menú centrado */}
-      <div className="relative z-10 flex justify-center">
+      <div className="relative z-10 flex justify-center mt-2">
         <MenuBar
           items={menuItems}
           activeItem={activeItem}
