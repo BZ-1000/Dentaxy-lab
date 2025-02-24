@@ -5,7 +5,6 @@ import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
 import { Home, Settings, Bell, User } from 'lucide-react';
-import { HeroScrollDemo } from '@/components/ui/code.demo'; // Importa el componente
 
 const menuItems = [
   {
@@ -71,7 +70,7 @@ const Landing = () => {
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
       {/* Fondo con Spline */}
-      <div className="absolute inset-0 h-full w-full">
+      <div className="absolute inset-0 h-[120%] w-full -translate-y-[10%]">
         <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
       </div>
 
@@ -110,7 +109,7 @@ const Landing = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.8, duration: 0.5 }}
           >
-            <RainbowButton
+            <RainbowButton 
               onClick={() => navigate('/app')}
               className="text-lg py-6"
             >
@@ -119,13 +118,8 @@ const Landing = () => {
           </motion.div>
         </motion.div>
       </div>
-
-      {/* Integración de HeroScrollDemo */}
-      <div className="relative z-10">
-        <HeroScrollDemo />
-      </div>
     </div>
   );
 };
 
-export default Landing;
+export default Landing;  
