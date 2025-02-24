@@ -237,13 +237,13 @@ const Landing = () => {
       {/* Popup para ingresar el nombre de usuario */}
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded shadow-lg z-50">
+          <div className="bg-white p-8 rounded shadow-lg z-50 flex items-center">
             <input
               type="text"
               placeholder="Nombre de usuario"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="border p-2 mb-6" // Aumentamos el margen inferior
+              className="border p-2 flex-grow mr-2" // Ajustamos el margen derecho
             />
             <Button onClick={handleSaveUsername} className="bg-blue-500 text-white px-4 py-2 flex items-center justify-center">
               <Save className="h-5 w-5" /> {/* Usamos el ícono Save */}
