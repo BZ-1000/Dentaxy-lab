@@ -92,6 +92,7 @@ const Landing = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.5 + index * 0.05, duration: 0.5 }}
+                exit={{ opacity: 0, transition: { delay: 3 } }}
               >
                 {letter}
               </motion.span>
