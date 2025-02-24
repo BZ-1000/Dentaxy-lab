@@ -72,8 +72,8 @@ const Landing = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.3 }} // Aparece más rápido
-        exit={{ opacity: 0, transition: { delay: 3 } }}
+        transition={{ delay: 1, duration: 1 }}
+        exit={{ opacity: 0 }}
         className="absolute inset-0 flex items-center justify-center z-40"
       >
         <motion.div className="flex items-center gap-4">
@@ -88,11 +88,11 @@ const Landing = () => {
           <div className="text-sm sm:text-base font-semibold text-white text-shadow flex space-x-1">
             {"Dental Basics Academy".split('').map((letter, index) => (
               <motion.span
-              key={index}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 + index * 0.03, duration: 0.3 }} 
-            >
+                key={index}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5 + index * 0.05, duration: 0.5 }}
+              >
                 {letter}
               </motion.span>
             ))}
