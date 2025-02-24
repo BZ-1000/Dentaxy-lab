@@ -63,17 +63,16 @@ const Landing = () => {
       {/* Fondo negro inicial */}
       <motion.div
         initial={{ opacity: 1 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ delay: 5, duration: 1 }} // Ajusta el delay para que dure más tiempo antes de desaparecer
+        animate={{ opacity: 0 }}
+        transition={{ delay: 3, duration: 1 }}
         className="absolute inset-0 flex items-center justify-center bg-black z-50"
       />
-  
+
       {/* Animación inicial del texto */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.5, duration: 1 }}
+        transition={{ delay: 1, duration: 1 }}
         exit={{ opacity: 0 }}
         className="absolute inset-0 flex items-center justify-center z-40"
       >
@@ -84,7 +83,7 @@ const Landing = () => {
             className="h-8 w-8 text-white"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 1 }}
+            transition={{ delay: 1.5, duration: 1 }}
           />
           <div className="text-sm sm:text-base font-semibold text-white text-shadow flex space-x-1">
             {"Dental Basics Academy".split('').map((letter, index) => (
@@ -92,7 +91,7 @@ const Landing = () => {
                 key={index}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 1 + index * 0.05, duration: 0.5 }}
+                transition={{ delay: 1.5 + index * 0.05, duration: 0.5 }}
               >
                 {letter}
               </motion.span>
@@ -100,39 +99,7 @@ const Landing = () => {
           </div>
         </motion.div>
       </motion.div>
-  
-      {/* Animación para ocultar el texto y el logo */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ delay: 5, duration: 1 }} // Ajusta el delay para que el texto y el logo desaparezcan después de un tiempo
-        className="absolute inset-0 flex items-center justify-center z-40"
-      >
-        <motion.div className="flex items-center gap-4">
-          <motion.img
-            src="/diente.png"
-            alt="Logo"
-            className="h-8 w-8 text-white"
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 0 }}
-            transition={{ delay: 5, duration: 1 }}
-          />
-          <div className="text-sm sm:text-base font-semibold text-white text-shadow flex space-x-1">
-            {"Dental Basics Academy".split('').map((letter, index) => (
-              <motion.span
-                key={index}
-                initial={{ opacity: 1 }}
-                animate={{ opacity: 0 }}
-                transition={{ delay: 5 + index * 0.05, duration: 0.5 }}
-              >
-                {letter}
-              </motion.span>
-            ))}
-          </div>
-        </motion.div>
-      </motion.div>
-      
+
       {/* Fondo con Spline */}
       <motion.div
         initial={{ opacity: 0 }}
@@ -239,4 +206,3 @@ const Landing = () => {
 };
 
 export default Landing;
-
