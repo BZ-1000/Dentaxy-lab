@@ -71,26 +71,28 @@ const Landing = () => {
         <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
       </div>
 
-      {/* Header con logo y menú */}
-      <div className="relative z-10 flex flex-col items-center justify-between px-6 py-3 sm:flex-row">
-        <div className="flex items-center gap-4 w-full justify-center sm:justify-start sm:w-auto mb-4 sm:mb-0">
+      {/* Header con logo */}
+      <div className="relative z-10 flex items-center justify-between px-6 py-3">
+        <div className="flex items-center gap-4">
           <ToothIcon />
           <span className="text-xl font-semibold text-white text-shadow">
             Dental Basics Academy
           </span>
         </div>
-        <div className="w-full flex justify-center sm:justify-end">
-          <MenuBar
-            items={menuItems}
-            activeItem={activeItem}
-            onItemClick={setActiveItem}
-            className="ml-2 py-1 text-shadow"
-          />
-        </div>
+      </div>
+
+      {/* Menú centrado */}
+      <div className="relative z-10 flex justify-center mt-4">
+        <MenuBar
+          items={menuItems}
+          activeItem={activeItem}
+          onItemClick={setActiveItem}
+          className="py-1 text-shadow"
+        />
       </div>
 
       {/* Contenido principal */}
-      <div className="relative z-10 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4">
+      <div className="relative z-10 flex min-h-[calc(100vh-120px)] flex-col items-center justify-center px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -98,7 +100,7 @@ const Landing = () => {
           className="text-center"
         >
           {/* Título futurista */}
-          <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow-lg sm:text-9xl">
+          <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl">
             DENTAXY
           </h1>
 
@@ -110,7 +112,7 @@ const Landing = () => {
           >
             <RainbowButton
               onClick={() => navigate('/app')}
-              className="text-lg py-6 shadow-xl"
+              className="text-lg py-6 shadow-2xl"
             >
               Acceder a Beta
             </RainbowButton>
