@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -76,10 +75,10 @@ const Landing = () => {
       </div>
 
       {/* Header con logo y menú */}
-      <div className="relative z-10 flex items-center justify-between px-6 py-3">
-        <div className="flex items-center gap-4">
+      <div className="relative z-10 flex flex-col items-center justify-between px-6 py-3 sm:flex-row">
+        <div className="flex items-center gap-4 mb-4 sm:mb-0">
           <ToothIcon />
-          <span className="text-xl font-semibold text-white">
+          <span className="text-xl font-semibold text-white text-shadow">
             Dental Basics Academy
           </span>
         </div>
@@ -87,7 +86,7 @@ const Landing = () => {
           items={menuItems}
           activeItem={activeItem}
           onItemClick={setActiveItem}
-          className="ml-2 py-1"
+          className="ml-2 py-1 text-shadow"
         />
       </div>
 
@@ -100,7 +99,7 @@ const Landing = () => {
           className="text-center"
         >
           {/* Título futurista */}
-          <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white [text-shadow:_0_0_30px_rgb(255_255_255_/_40%)] sm:text-9xl">
+          <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow sm:text-9xl">
             DENTAXY
           </h1>
 
@@ -110,9 +109,9 @@ const Landing = () => {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.8, duration: 0.5 }}
           >
-            <RainbowButton 
+            <RainbowButton
               onClick={() => navigate('/app')}
-              className="text-lg py-6"
+              className="text-lg py-6 shadow-lg"
             >
               Acceder a Beta
             </RainbowButton>
