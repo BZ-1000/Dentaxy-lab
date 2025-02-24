@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -11,9 +10,10 @@ interface AuthDialogProps {
   isOpen: boolean;
   onClose: () => void;
   defaultMode?: "login" | "register";
+  onSuccess: () => void; // Nuevo callback para manejar el éxito del inicio de sesión
 }
 
-export function AuthDialog({ isOpen, onClose, defaultMode = "login" }: AuthDialogProps) {
+export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }: AuthDialogProps) {
   const [mode, setMode] = useState<"login" | "register">(defaultMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,6 +31,7 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login" }: AuthDialo
         });
         if (error) throw error;
         toast.success("¡Bienvenido de vuelta!");
+        onSuccess(); // Llamar al callback cuando el inicio de sesión sea exitoso
       } else {
         const { error } = await supabase.auth.signUp({
           email,
