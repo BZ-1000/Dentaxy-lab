@@ -72,7 +72,7 @@ const Landing = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.03, duration: 0.5 }}
+        transition={{ delay: 1, duration: 1 }}
         exit={{ opacity: 0 }}
         className="absolute inset-0 flex items-center justify-center z-40"
       >
@@ -91,8 +91,7 @@ const Landing = () => {
                 key={index}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.05 + index * 0.05, duration: 0.05 }}
-                exit={{ opacity: 0, transition: { delay: 0 } }}
+                transition={{ delay: 1.5 + index * 0.05, duration: 0.5 }}
               >
                 {letter}
               </motion.span>
