@@ -152,19 +152,14 @@ const Landing = () => {
       </motion.div>
 
       {/* Menú centrado y en la capa superior */}
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 4.5, duration: 0.5 }}
-        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20"
-      >
+      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
         <MenuBar
           items={menuItems}
           activeItem={activeItem}
           onItemClick={setActiveItem}
           className="py-1 text-shadow"
         />
-      </motion.div>
+      </div>
 
       {/* Contenido principal */}
       <motion.div
