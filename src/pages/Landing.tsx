@@ -64,41 +64,55 @@ const Landing = () => {
       <motion.div
         initial={{ opacity: 1 }}
         animate={{ opacity: 0 }}
-        transition={{ delay: 3, duration: 1 }}
+        transition={{ delay: 3.5, duration: 1 }}
         className="absolute inset-0 flex items-center justify-center bg-black z-50"
       />
 
       {/* Animación inicial del texto */}
       <motion.div
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ delay: 0.2, duration: 0.3 }} // Aparece más rápido
-  exit={{ opacity: 0, transition: { delay: 3 } }} // Se mantiene más tiempo antes de desvanecerse
-  className="absolute inset-0 flex items-center justify-center z-40"
->
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5, duration: 1 }}
+        exit={{ opacity: 0, transition: { delay: 3 } }}
+        className="absolute inset-0 flex items-center justify-center z-40"
+      >
         <motion.div className="flex items-center gap-4">
-        <motion.img
-  src="/diente.png"
-  alt="Logo"
-  className="h-8 w-8 text-white"
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ delay: 0.5, duration: 0.3 }} // Aparece más rápido
-/>
+          <motion.img
+            src="/diente.png"
+            alt="Logo"
+            className="h-8 w-8 text-white"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 1 }}
+          />
           <div className="text-sm sm:text-base font-semibold text-white text-shadow flex space-x-1">
-          {"Dental Basics Academy".split('').map((letter, index) => (
-  <motion.span
-    key={index}
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ delay: 0.5 + index * 0.02, duration: 0.2 }} // Cada letra aparece más rápido
-  >
-    {letter}
-  </motion.span>
-))}
-
+            {"Dental Basics Academy".split('').map((letter, index) => (
+              <motion.span
+                key={index}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5 + index * 0.05, duration: 0.5 }}
+              >
+                {letter}
+              </motion.span>
+            ))}
           </div>
         </motion.div>
+      </motion.div>
+
+      {/* Animación de borrado */}
+      <motion.div
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 0 }}
+        transition={{ delay: 4.5, duration: 1 }}
+        className="absolute inset-0 flex items-center justify-center bg-black z-40"
+      >
+        <div className="flex items-center gap-4">
+          <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
+          <span className="text-sm sm:text-base font-semibold text-white text-shadow">
+            Dental Basics Academy
+          </span>
+        </div>
       </motion.div>
 
       {/* Fondo con Spline */}
