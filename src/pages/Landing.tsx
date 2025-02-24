@@ -5,7 +5,7 @@ import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
 import { Home, Settings, Bell, User } from 'lucide-react';
-import { HeroScrollDemo } from '@/components/ui/code.demo'; // Importa el componente
+import { HeroScrollDemo } from '@/components/ui/code.demo';
 
 const menuItems = [
   {
@@ -60,7 +60,7 @@ const ToothIcon = () => (
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
-  const [activeItem, setActiveItem] = useState<string>("Home");
+  const [activeItem, setActiveItem] = useState("Home");
 
   useEffect(() => {
     setMounted(true);
@@ -70,11 +70,6 @@ const Landing = () => {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
-      {/* Fondo con Spline */}
-      <div className="absolute inset-0 h-full w-full">
-        <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
-      </div>
-
       {/* Header con logo y menú */}
       <div className="relative z-10 flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-4">
@@ -91,37 +86,39 @@ const Landing = () => {
         />
       </div>
 
-      {/* Contenido principal */}
-      <div className="relative z-10 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4">
-        <motion.div
+      {/* Sección principal con Spline y título */}
+      <div className="relative flex min-h-screen flex-col items-center justify-center text-center">
+        {/* Fondo con Spline y Título */}
+        <div className="absolute inset-0 -z-10 h-full w-full flex items-center justify-center">
+          <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" className="w-full h-full" />
+        </div>
+
+        <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="text-center"
+          className="mb-16 font-mono text-8xl font-black tracking-wider text-white [text-shadow:_0_0_30px_rgb(255_255_255_/_40%)] sm:text-9xl relative"
         >
-          {/* Título futurista */}
-          <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white [text-shadow:_0_0_30px_rgb(255_255_255_/_40%)] sm:text-9xl">
-            DENTAXY
-          </h1>
+          DENTAXY
+        </motion.h1>
 
-          {/* Botón con efecto rainbow */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
+        {/* Botón con efecto rainbow */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.8, duration: 0.5 }}
+        >
+          <RainbowButton
+            onClick={() => navigate('/app')}
+            className="text-lg py-6"
           >
-            <RainbowButton
-              onClick={() => navigate('/app')}
-              className="text-lg py-6"
-            >
-              Acceder a Beta
-            </RainbowButton>
-          </motion.div>
+            Acceder a Beta
+          </RainbowButton>
         </motion.div>
       </div>
 
-      {/* Espacio separado para HeroScrollDemo */}
-      <div className="relative z-10 mt-20">
+      {/* Sección separada para HeroScrollDemo */}
+      <div className="relative z-10 mt-20 py-20 bg-black">
         <HeroScrollDemo />
       </div>
     </div>
