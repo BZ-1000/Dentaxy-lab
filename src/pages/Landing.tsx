@@ -44,12 +44,9 @@ const menuItems = [
 const ToothIcon = () => (
   <svg
     viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="h-8 w-8"
+    fill="currentColor"
+    stroke="none"
+    className="h-8 w-8 text-white"
   >
     <path d="M12 2C7.58 2 4 4.58 4 9c0 3.42 2.24 7.42 4 10.42.8 1.36 2.62 2.62 4 2 1.38.62 3.2-.64 4-2 1.76-3 4-7 4-10.42C20 4.58 16.42 2 12 2z" />
     <path d="M12 2c-1.8 0-3 1-3 3 0 1.8 1 3 3 3s3-1.2 3-3c0-2-1.2-3-3-3z" />
@@ -76,18 +73,20 @@ const Landing = () => {
 
       {/* Header con logo y menú */}
       <div className="relative z-10 flex flex-col items-center justify-between px-6 py-3 sm:flex-row">
-        <div className="flex items-center gap-4 mb-4 sm:mb-0">
+        <div className="flex items-center gap-4 w-full justify-center sm:justify-start sm:w-auto mb-4 sm:mb-0">
           <ToothIcon />
           <span className="text-xl font-semibold text-white text-shadow">
             Dental Basics Academy
           </span>
         </div>
-        <MenuBar
-          items={menuItems}
-          activeItem={activeItem}
-          onItemClick={setActiveItem}
-          className="ml-2 py-1 text-shadow"
-        />
+        <div className="w-full flex justify-center sm:justify-end">
+          <MenuBar
+            items={menuItems}
+            activeItem={activeItem}
+            onItemClick={setActiveItem}
+            className="ml-2 py-1 text-shadow"
+          />
+        </div>
       </div>
 
       {/* Contenido principal */}
@@ -99,7 +98,7 @@ const Landing = () => {
           className="text-center"
         >
           {/* Título futurista */}
-          <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow sm:text-9xl">
+          <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow-lg sm:text-9xl">
             DENTAXY
           </h1>
 
@@ -111,7 +110,7 @@ const Landing = () => {
           >
             <RainbowButton
               onClick={() => navigate('/app')}
-              className="text-lg py-6 shadow-lg"
+              className="text-lg py-6 shadow-xl"
             >
               Acceder a Beta
             </RainbowButton>
