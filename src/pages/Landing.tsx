@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User } from 'lucide-react';
+import { Home, Settings, Bell, User, Save } from 'lucide-react'; // Importamos el ícono Save
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 
@@ -243,10 +243,10 @@ const Landing = () => {
               placeholder="Nombre de usuario"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="border p-2 mb-4"
+              className="border p-2 mb-6" // Aumentamos el margen inferior
             />
-            <Button onClick={handleSaveUsername} className="bg-blue-500 text-white px-4 py-2">
-              Guardar
+            <Button onClick={handleSaveUsername} className="bg-blue-500 text-white px-4 py-2 flex items-center justify-center">
+              <Save className="h-5 w-5" /> {/* Usamos el ícono Save */}
             </Button>
           </div>
           <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black opacity-75 z-40"></div>
