@@ -120,9 +120,11 @@ const Landing = () => {
         </motion.div>
       </div>
 
-      {/* Espacio separado para HeroScrollDemo */}
-      <div className="relative z-10 mt-20 bg-black">
-        <HeroScrollDemo />
+      {/* Contenedor del HeroScrollDemo */}
+      <div className="relative z-10 mt-20 flex items-center justify-center bg-black px-6 py-10">
+        <div className="max-w-6xl w-full">
+          <HeroScrollDemo />
+        </div>
       </div>
     </div>
   );
