@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -5,7 +6,6 @@ import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
 import { Home, Settings, Bell, User } from 'lucide-react';
-import { HeroScrollDemo } from '@/components/ui/code.demo'; // Importa el componente
 
 const menuItems = [
   {
@@ -69,66 +69,55 @@ const Landing = () => {
   if (!mounted) return null;
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
-      {/* Contenedor principal con fondo de Spline */}
-      <div className="relative h-[100vh] w-full overflow-hidden bg-black">
-        <div className="absolute inset-0 h-full w-full">
-          <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
-        </div>
-
-        {/* Header con logo y menú */}
-        <div className="relative z-10 flex justify-between items-center px-6 py-3">
-          <div className="flex items-center gap-4">
-            <ToothIcon />
-            <span className="text-xl font-semibold text-white">
-              Dental Basics Academy
-            </span>
-          </div>
-          <div className="absolute left-1/2 transform -translate-x-1/2">
-            <MenuBar
-              items={menuItems}
-              activeItem={activeItem}
-              onItemClick={setActiveItem}
-              className="py-1"
-            />
-          </div>
-        </div>
-
-        {/* Contenido principal */}
-        <div className="relative z-10 flex flex-grow flex-col items-center justify-center px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-center"
-          >
-            {/* Título futurista */}
-            <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white [text-shadow:_0_0_30px_rgb(255_255_255_/_40%)] sm:text-9xl">
-              DENTAXY
-            </h1>
-
-            {/* Botón con efecto rainbow */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-            >
-              <RainbowButton
-                onClick={() => navigate('/app')}
-                className="text-lg py-6"
-              >
-                Acceder a Beta
-              </RainbowButton>
-            </motion.div>
-          </motion.div>
-        </div>
+    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+      {/* Fondo con Spline */}
+      <div className="absolute inset-0 h-[120%] w-full -translate-y-[10%]">
+        <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
       </div>
 
-      {/* Nueva sección para HeroScrollDemo */}
-      <div className="relative z-10 w-full py-10 bg-white flex justify-center items-center">
-        <div className="w-full max-w-4xl">
-          <HeroScrollDemo />
+      {/* Header con logo y menú */}
+      <div className="relative z-10 flex items-center justify-between px-6 py-3">
+        <div className="flex items-center gap-4">
+          <ToothIcon />
+          <span className="text-xl font-semibold text-white">
+            Dental Basics Academy
+          </span>
         </div>
+        <MenuBar
+          items={menuItems}
+          activeItem={activeItem}
+          onItemClick={setActiveItem}
+          className="ml-2 py-1"
+        />
+      </div>
+
+      {/* Contenido principal */}
+      <div className="relative z-10 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="text-center"
+        >
+          {/* Título futurista */}
+          <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white [text-shadow:_0_0_30px_rgb(255_255_255_/_40%)] sm:text-9xl">
+            DENTAXY
+          </h1>
+
+          {/* Botón con efecto rainbow */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.8, duration: 0.5 }}
+          >
+            <RainbowButton 
+              onClick={() => navigate('/app')}
+              className="text-lg py-6"
+            >
+              Acceder a Beta
+            </RainbowButton>
+          </motion.div>
+        </motion.div>
       </div>
     </div>
   );
