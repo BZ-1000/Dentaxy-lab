@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, Save } from 'lucide-react'; // Importamos el ícono Save
+import { Home, Settings, Bell, User, Save, LogOut } from 'lucide-react'; // Importamos el ícono LogOut
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 
@@ -53,6 +53,7 @@ const Landing = () => {
   });
   const [username, setUsername] = useState<string>("");
   const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
   useEffect(() => {
     setMounted(true);
@@ -85,6 +86,15 @@ const Landing = () => {
   const handleAuthSuccess = () => {
     setShowPopup(true);
     setAuthDialog({ isOpen: false, mode: "login" });
+  };
+
+  const handleLogout = () => {
+    setUsername("");
+    setShowDropdown(false);
+  };
+
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
   };
 
   if (!mounted) return null;
@@ -165,7 +175,7 @@ const Landing = () => {
           </motion.span>
         </motion.div>
         <div className="flex gap-4">
-          {!username && (
+          {!username ? (
             <>
               <Button
                 variant="ghost"
@@ -182,6 +192,35 @@ const Landing = () => {
                 Registrarse
               </Button>
             </>
+          ) : (
+            <div className="relative">
+              <Button
+                variant="ghost"
+                onClick={toggleDropdown}
+                className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-50"
+              >
+                {username}
+              </Button>
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                  <div
+                    className="py-1"
+                    role="menu"
+                    aria-orientation="vertical"
+                    aria-labelledby="options-menu"
+                  >
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex items-center"
+                      role="menuitem"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" /> Cerrar sesión
+                    </button>
+                    {/* Puedes agregar más opciones aquí */}
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </motion.div>
