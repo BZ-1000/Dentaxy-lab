@@ -188,7 +188,9 @@ const Landing = () => {
           {/* Título futurista */}
           <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl">
             DENTA
-            <span className="font-orbitron">X</span>
+            <span className="font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-blue-500">
+              X
+            </span>
             Y
           </h1>
 
@@ -202,7 +204,7 @@ const Landing = () => {
               onClick={() => navigate('/app')}
               className="text-sm py-6 shadow-2xl z-50"
             >
-              Acceder a prueba BETA
+              Prueba BETA
             </RainbowButton>
           </motion.div>
         </div>
