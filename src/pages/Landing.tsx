@@ -70,9 +70,9 @@ const Landing = () => {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
-      {/* Contenedor principal con fondo de Spline */}
-      <div className="relative h-[120vh] w-full overflow-hidden bg-black">
-        <div className="absolute inset-0 h-[120%] w-full -translate-y-[10%]">
+      {/* Contenedor principal con fondo de Spline fijo */}
+      <div className="relative h-screen w-full overflow-hidden bg-black">
+        <div className="absolute inset-0 h-full w-full">
           <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
         </div>
 
