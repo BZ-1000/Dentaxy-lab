@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, Save, LogOut } from 'lucide-react';
+import { Home, Settings, Bell, User, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,7 +59,6 @@ const Landing = () => {
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -161,19 +160,6 @@ const Landing = () => {
     navigate('/app');
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setSession(null);
-    setUsername("");
-    setShowDropdown(false);
-    toast.success('Sesión cerrada exitosamente');
-  };
-
-  const handleChangeUsername = () => {
-    setShowPopup(true);
-    setShowDropdown(false);
-  };
-
   if (!mounted) return null;
 
   return (
@@ -266,37 +252,8 @@ const Landing = () => {
               </Button>
             </>
           ) : (
-            <div className="relative flex items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={() => setShowDropdown(!showDropdown)}
-                className="text-white hover:text-white hover:bg-white/10 border border-white/20"
-              >
-                {username || "Profile"}
-              </Button>
-              {showDropdown && (
-                <div className="absolute top-full right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                  <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                    <button
-                      onClick={handleChangeUsername}
-                      className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                      role="menuitem"
-                    >
-                      Cambiar Nombre de Usuario
-                    </button>
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                      role="menuitem"
-                    >
-                      Cerrar Sesión
-                    </button>
-                    <div className="px-4 py-2 text-sm text-gray-500">
-                      Plan Actual: Beta
-                    </div>
-                  </div>
-                </div>
-              )}
+            <div className="flex items-center gap-4">
+              {/* Eliminado el nombre de usuario de aquí */}
             </div>
           )}
         </div>
@@ -310,39 +267,12 @@ const Landing = () => {
       >
         <MenuBar
           items={menuItems.map(item =>
-            item.label === "Profile" ? {
-              ...item,
-              label: username || "Profile",
-              onClick: () => setShowDropdown(!showDropdown)
-            } : item
+            item.label === "Profile" ? { ...item, label: username || "Profile" } : item
           )}
           activeItem={activeItem}
           onItemClick={setActiveItem}
           className="py-1 text-shadow"
         />
-        {showDropdown && (
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-            <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-              <button
-                onClick={handleChangeUsername}
-                className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                role="menuitem"
-              >
-                Cambiar Nombre de Usuario
-              </button>
-              <button
-                onClick={handleLogout}
-                className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                role="menuitem"
-              >
-                Cerrar Sesión
-              </button>
-              <div className="px-4 py-2 text-sm text-gray-500">
-                Plan Actual: Beta
-              </div>
-            </div>
-          </div>
-        )}
       </motion.div>
 
       <motion.div
