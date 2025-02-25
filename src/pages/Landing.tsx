@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -91,7 +90,7 @@ const Landing = () => {
 
       const { data, error } = await supabase
         .from('user_profiles')
-        .select<'user_profiles', UserProfile>('*')
+        .select('id, username, created_at')
         .eq('id', userId)
         .single();
 
@@ -254,9 +253,7 @@ const Landing = () => {
             </>
           ) : (
             <div className="flex items-center gap-4">
-              <span className="text-white">
-                {username || 'Usuario'}
-              </span>
+              {username && <span className="text-white">{username}</span>}
               <Button
                 variant="ghost"
                 onClick={() => navigate('/app')}
@@ -313,7 +310,7 @@ const Landing = () => {
         </div>
       </motion.div>
 
-      {showPopup && (
+      {showPopup && session && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-black/90 p-8 rounded-lg border border-white/20 shadow-xl w-full max-w-md">
             <h2 className="text-2xl font-bold text-white mb-4">¡Bienvenido!</h2>
