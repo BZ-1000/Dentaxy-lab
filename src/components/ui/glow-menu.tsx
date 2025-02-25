@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -6,6 +5,9 @@ import { motion, HTMLMotionProps } from "framer-motion"
 import { useTheme } from "@/hooks/use-theme"
 import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
+import { Menubar, MenubarTrigger, MenubarContent, MenubarItem, MenubarSeparator } from "./menubar" // Asegúrate de importar los componentes del menú
+import { supabase } from "@/integrations/supabase/client"
+import { toast } from "sonner"
 
 interface MenuItem {
   icon: LucideIcon | React.FC
@@ -19,6 +21,10 @@ interface MenuBarProps extends Omit<HTMLMotionProps<"nav">, "children"> {
   items: MenuItem[]
   activeItem?: string
   onItemClick?: (label: string) => void
+  session: any
+  setSession: (session: any) => void
+  username: string
+  setUsername: (username: string) => void
 }
 
 const itemVariants = {
@@ -62,7 +68,7 @@ const sharedTransition = {
 }
 
 export const MenuBar = React.forwardRef<HTMLDivElement, MenuBarProps>(
-  ({ className, items, activeItem, onItemClick, ...props }, ref) => {
+  ({ className, items, activeItem, onItemClick, session, setSession, username, setUsername, ...props }, ref) => {
     const { theme } = useTheme()
     const isDarkTheme = theme === "dark"
 
@@ -169,6 +175,31 @@ export const MenuBar = React.forwardRef<HTMLDivElement, MenuBarProps>(
               </motion.li>
             )
           })}
+          {session && (
+            <Menubar>
+              <MenubarTrigger>
+                <span className="text-sm">{username || "Profile"}</span>
+              </MenubarTrigger>
+              <MenubarContent align="end">
+                <MenubarItem onClick={() => toast.success("Cambiar nombre de usuario")}>
+                  Cambiar nombre de usuario
+                </MenubarItem>
+                <MenubarItem onClick={() => toast.success("Plan actual: Beta")}>
+                  Plan actual: Beta
+                </MenubarItem>
+                <MenubarSeparator />
+                <MenubarItem
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    setSession(null);
+                    toast.success("Sesión cerrada");
+                  }}
+                >
+                  Cerrar sesión
+                </MenubarItem>
+              </MenubarContent>
+            </Menubar>
+          )}
         </ul>
       </motion.nav>
     )
