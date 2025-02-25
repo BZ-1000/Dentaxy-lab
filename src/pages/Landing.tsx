@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MenuBar } from '@/components/ui/glow-menu'; // Asegúrate de importar MenuBar
+import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
 import { Home, Settings, Bell, User, Save } from 'lucide-react';
@@ -266,10 +266,6 @@ const Landing = () => {
         className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50"
       >
         <MenuBar
-          session={session}
-          setSession={setSession}
-          username={username}
-          setUsername={setUsername}
           items={menuItems.map(item =>
             item.label === "Profile" ? { ...item, label: username || "Profile" } : item
           )}
