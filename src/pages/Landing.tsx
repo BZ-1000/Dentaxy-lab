@@ -83,9 +83,15 @@ const Landing = () => {
 
   const checkUsername = async (userId: string) => {
     try {
+      type UserProfile = {
+        id: string;
+        username: string;
+        created_at: string;
+      };
+
       const { data, error } = await supabase
         .from('user_profiles')
-        .select()
+        .select<'user_profiles', UserProfile>('*')
         .eq('id', userId)
         .single();
 
@@ -111,14 +117,17 @@ const Landing = () => {
 
     setLoading(true);
     try {
+      type UserProfileInsert = {
+        id: string;
+        username: string;
+      };
+
       const { error } = await supabase
         .from('user_profiles')
-        .insert([{ 
+        .insert<UserProfileInsert>([{
           id: session.user.id,
           username: username.trim()
-        }])
-        .select()
-        .single();
+        }]);
 
       if (error) throw error;
 
