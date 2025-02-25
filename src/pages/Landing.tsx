@@ -394,24 +394,11 @@ const Landing = () => {
                  index === 25 ? "s" :
                  index === 26 ? " " :
                  index === 27 ? "p" :
-                 index === 28 ? "a" :
-                 "r" :
-                 "a" :
-                 " " :
-                 "o" :
-                 "d" :
-                 "o" :
-                 "n" :
-                 "t" :
-                 "ó" :
-                 "l" :
-                 "o" :
-                 "g" :
-                 "o" :
-                 "s"
+                 "a"
                 }
               </motion.span>
             ))}
+            ra odontólogos
           </motion.p>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -474,4 +461,3 @@ const Landing = () => {
 };
 
 export default Landing;
-     
