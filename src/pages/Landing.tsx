@@ -323,7 +323,59 @@ const Landing = () => {
         className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50"
       >
         <MenuBar
-          items={menuItems}
+          items={menuItems.map(item =>
+            item.label === "Profile" ? {
+              ...item,
+              label: (
+                <div className="relative">
+                  {username || "Profile"}
+                  <Button
+                    onClick={toggleDropdown}
+                    className="px-2 py-1 bg-transparent hover:bg-white/10 rounded-xl"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                  <AnimatePresence>
+                    {isDropdownOpen && (
+                      <motion.div
+                        initial={{ y: -5, scale: 0.95, filter: "blur(10px)" }}
+                        animate={{ y: 0, scale: 1, filter: "blur(0px)" }}
+                        exit={{ y: -5, scale: 0.95, opacity: 0, filter: "blur(10px)" }}
+                        transition={{ duration: 0.6, ease: "circInOut", type: "spring" }}
+                        className="absolute top-full left-0 z-[60] w-48 p-2 bg-[#11111198] rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm flex flex-col gap-2"
+                      >
+                        <motion.button
+                          onClick={handleChangeUsername}
+                          initial={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                          animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
+                          exit={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                          transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut", type: "spring" }}
+                          whileHover={{ backgroundColor: "#11111140" }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-2 py-3 text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                        >
+                          Cambiar nombre
+                        </motion.button>
+                        <motion.button
+                          onClick={handleLogout}
+                          initial={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                          animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
+                          exit={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                          transition={{ duration: 0.4, delay: 0.2, ease: "easeInOut", type: "spring" }}
+                          whileHover={{ backgroundColor: "#11111140" }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Cerrar sesión
+                        </motion.button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ),
+            } : item
+          )}
           activeItem={activeItem}
           onItemClick={setActiveItem}
           className="py-1 text-shadow"
