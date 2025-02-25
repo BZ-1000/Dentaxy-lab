@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, Save } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,6 +59,7 @@ const Landing = () => {
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -160,6 +161,20 @@ const Landing = () => {
     navigate('/app');
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+    toast.success('Sesión cerrada exitosamente');
+  };
+
+  const handleChangeUsername = () => {
+    setShowPopup(true);
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   if (!mounted) return null;
 
   return (
@@ -252,8 +267,59 @@ const Landing = () => {
               </Button>
             </>
           ) : (
-            <div className="flex items-center gap-4">
-              {/* Eliminado el nombre de usuario de aquí */}
+            <div className="relative">
+              <Button
+                onClick={toggleDropdown}
+                className="px-4 py-2 bg-[#11111198] hover:bg-[#111111d1] shadow-[0_0_20px_rgba(0,0,0,0.2)] border-none rounded-xl backdrop-blur-sm"
+              >
+                <User className="h-4 w-4" />
+                {username || "Profile"}
+                <motion.span
+                  className="ml-2"
+                  animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+                  transition={{ duration: 0.4, ease: "easeInOut", type: "spring" }}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </motion.span>
+              </Button>
+
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div
+                    initial={{ y: -5, scale: 0.95, filter: "blur(10px)" }}
+                    animate={{ y: 0, scale: 1, filter: "blur(0px)" }}
+                    exit={{ y: -5, scale: 0.95, opacity: 0, filter: "blur(10px)" }}
+                    transition={{ duration: 0.6, ease: "circInOut", type: "spring" }}
+                    className="absolute z-10 w-48 mt-2 p-1 bg-[#11111198] rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm flex flex-col gap-2"
+                  >
+                    <motion.button
+                      onClick={handleChangeUsername}
+                      initial={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                      animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                      transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut", type: "spring" }}
+                      whileHover={{ backgroundColor: "#11111140" }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-2 py-3 cursor-pointer text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                    >
+                      Cambiar nombre
+                    </motion.button>
+                    <motion.button
+                      onClick={handleLogout}
+                      initial={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                      animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                      transition={{ duration: 0.4, delay: 0.2, ease: "easeInOut", type: "spring" }}
+                      whileHover={{ backgroundColor: "#11111140" }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-2 py-3 cursor-pointer text-red-500 text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Cerrar sesión
+                    </motion.button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
         </div>
@@ -287,7 +353,66 @@ const Landing = () => {
             <span className="font-orbitron">X</span>
             Y
           </h1>
-
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 7, duration: 0.5 }}
+            className="text-xs font-thin text-white/70 mb-8 overflow-hidden whitespace-nowrap typewriter"
+          >
+            {[...Array(29)].map((_, index) => (
+              <motion.span
+                key={index}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 7 + index * 0.05, duration: 0.5 }}
+              >
+                {index === 0 ? "I" :
+                 index === 1 ? "n" :
+                 index === 2 ? "t" :
+                 index === 3 ? "e" :
+                 index === 4 ? "l" :
+                 index === 5 ? "i" :
+                 index === 6 ? "g" :
+                 index === 7 ? "e" :
+                 index === 8 ? "n" :
+                 index === 9 ? "c" :
+                 index === 10 ? "i" :
+                 index === 11 ? "a" :
+                 index === 12 ? "s" :
+                 index === 13 ? " " :
+                 index === 14 ? "a" :
+                 index === 15 ? "r" :
+                 index === 16 ? "t" :
+                 index === 17 ? "i" :
+                 index === 18 ? "f" :
+                 index === 19 ? "i" :
+                 index === 20 ? "c" :
+                 index === 21 ? "i" :
+                 index === 22 ? "a" :
+                 index === 23 ? "l" :
+                 index === 24 ? "e" :
+                 index === 25 ? "s" :
+                 index === 26 ? " " :
+                 index === 27 ? "p" :
+                 index === 28 ? "a" :
+                 "r" :
+                 "a" :
+                 " " :
+                 "o" :
+                 "d" :
+                 "o" :
+                 "n" :
+                 "t" :
+                 "ó" :
+                 "l" :
+                 "o" :
+                 "g" :
+                 "o" :
+                 "s"
+                }
+              </motion.span>
+            ))}
+          </motion.p>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
