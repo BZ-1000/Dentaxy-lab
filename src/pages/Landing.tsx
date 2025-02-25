@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -10,6 +11,7 @@ import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
+import { Session } from '@supabase/supabase-js';
 
 const menuItems = [
   {
@@ -56,7 +58,7 @@ const Landing = () => {
   });
   const [username, setUsername] = useState<string>("");
   const [showPopup, setShowPopup] = useState<boolean>(false);
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -83,11 +85,13 @@ const Landing = () => {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
-        .select('username')
+        .select()
         .eq('id', userId)
         .single();
 
-      if (error) throw error;
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
 
       if (data?.username) {
         setUsername(data.username);
@@ -99,16 +103,8 @@ const Landing = () => {
     }
   };
 
-  const handleLogin = () => {
-    setAuthDialog({ isOpen: true, mode: "login" });
-  };
-
-  const handleRegister = () => {
-    setAuthDialog({ isOpen: true, mode: "register" });
-  };
-
   const handleSaveUsername = async () => {
-    if (!username.trim()) {
+    if (!session || !username.trim()) {
       toast.error('Por favor ingresa un nombre de usuario');
       return;
     }
@@ -117,10 +113,12 @@ const Landing = () => {
     try {
       const { error } = await supabase
         .from('user_profiles')
-        .upsert({ 
+        .insert([{ 
           id: session.user.id,
           username: username.trim()
-        });
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
 
@@ -131,6 +129,14 @@ const Landing = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleLogin = () => {
+    setAuthDialog({ isOpen: true, mode: "login" });
+  };
+
+  const handleRegister = () => {
+    setAuthDialog({ isOpen: true, mode: "register" });
   };
 
   const handleAuthSuccess = () => {
@@ -289,7 +295,7 @@ const Landing = () => {
             transition={{ delay: 7.3, duration: 0.5 }}
           >
             <RainbowButton
-              onClick={() => navigate('/app')}
+              onClick={handleBetaAccess}
               className="text-sm py-6 shadow-2xl z-50"
             >
               Prueba BETA
