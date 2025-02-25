@@ -310,12 +310,39 @@ const Landing = () => {
       >
         <MenuBar
           items={menuItems.map(item =>
-            item.label === "Profile" ? { ...item, label: username || "Profile" } : item
+            item.label === "Profile" ? {
+              ...item,
+              label: username || "Profile",
+              onClick: () => setShowDropdown(!showDropdown)
+            } : item
           )}
           activeItem={activeItem}
           onItemClick={setActiveItem}
           className="py-1 text-shadow"
         />
+        {showDropdown && (
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+            <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+              <button
+                onClick={handleChangeUsername}
+                className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                role="menuitem"
+              >
+                Cambiar Nombre de Usuario
+              </button>
+              <button
+                onClick={handleLogout}
+                className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                role="menuitem"
+              >
+                Cerrar Sesión
+              </button>
+              <div className="px-4 py-2 text-sm text-gray-500">
+                Plan Actual: Beta
+              </div>
+            </div>
+          </div>
+        )}
       </motion.div>
 
       <motion.div
