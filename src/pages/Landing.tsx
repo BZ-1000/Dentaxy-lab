@@ -254,13 +254,6 @@ const Landing = () => {
           ) : (
             <div className="flex items-center gap-4">
               {username && <span className="text-white">{username}</span>}
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/app')}
-                className="text-white hover:text-white hover:bg-white/10 border border-white/20"
-              >
-                Dashboard
-              </Button>
             </div>
           )}
         </div>
@@ -323,8 +316,8 @@ const Landing = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
               />
-              <Button 
-                onClick={handleSaveUsername} 
+              <Button
+                onClick={handleSaveUsername}
                 className="w-full bg-white text-black hover:bg-white/90 transition-colors"
                 disabled={loading}
               >
