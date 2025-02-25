@@ -1,12 +1,14 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, Save, LogOut } from 'lucide-react'; // Importamos el ícono LogOut
+import { Home, Settings, Bell, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
+import { toast } from 'sonner';
 
 const menuItems = [
   {
@@ -43,7 +45,7 @@ const menuItems = [
   },
 ];
 
-const Landing = () => {
+const Landing = ({ session }) => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
   const [activeItem, setActiveItem] = useState<string>("Home");
@@ -51,50 +53,18 @@ const Landing = () => {
     isOpen: false,
     mode: "login"
   });
-  const [username, setUsername] = useState<string>("");
-  const [showPopup, setShowPopup] = useState<boolean>(false);
-  const [showDropdown, setShowDropdown] = useState<boolean>(false);
 
   useEffect(() => {
     setMounted(true);
-
-    // Importar la fuente Orbitron
-    const link = document.createElement('link');
-    link.href = "https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600&display=swap";
-    link.rel = "stylesheet";
-    document.head.appendChild(link);
-
-    // Limpieza al desmontar el componente
-    return () => {
-      document.head.removeChild(link);
-    };
   }, []);
 
-  const handleLogin = () => {
-    setAuthDialog({ isOpen: true, mode: "login" });
-  };
-
-  const handleRegister = () => {
-    setAuthDialog({ isOpen: true, mode: "register" });
-  };
-
-  const handleSaveUsername = () => {
-    setShowPopup(false);
-    // Aquí puedes agregar lógica adicional para guardar el nombre de usuario si es necesario
-  };
-
-  const handleAuthSuccess = () => {
-    setShowPopup(true);
-    setAuthDialog({ isOpen: false, mode: "login" });
-  };
-
-  const handleLogout = () => {
-    setUsername("");
-    setShowDropdown(false);
-  };
-
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown);
+  const handleBetaAccess = () => {
+    if (!session) {
+      toast.error('Debes iniciar sesión para acceder a la versión beta');
+      setAuthDialog({ isOpen: true, mode: "login" });
+      return;
+    }
+    navigate('/app');
   };
 
   if (!mounted) return null;
@@ -109,54 +79,25 @@ const Landing = () => {
         className="absolute inset-0 flex items-center justify-center bg-black z-10"
       />
 
-      {/* Animación inicial del texto */}
-      <motion.div
-        initial={{ opacity: 0, zIndex: 50 }}
-        animate={{ opacity: 1, zIndex: 0 }}
-        transition={{ delay: 1, duration: 1 }}
-        exit={{ opacity: 0 }}
-        className="absolute inset-0 flex items-center justify-center"
-      >
-        <motion.div className="flex items-center gap-4">
-          <motion.img
-            src="/diente.png"
-            alt="Logo"
-            className="h-8 w-8 text-white"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5, duration: 1 }}
-          />
-          <div className="text-sm sm:text-base font-semibold text-white text-shadow flex space-x-1">
-            {"Dental Basics Academy".split('').map((letter, index) => (
-              <motion.span
-                key={index}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.5 + index * 0.05, duration: 0.5 }}
-              >
-                {letter}
-              </motion.span>
-            ))}
-          </div>
-        </motion.div>
-      </motion.div>
-
       {/* Fondo con Spline */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 4, duration: 1 }}
-        className="absolute inset-0 h-[120%] w-full -translate-y-[10%] z-0"
+        className="absolute inset-0 h-[120%] w-full -translate-y-[10%] z-0 hidden md:block"
       >
         <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
       </motion.div>
+
+      {/* Versión móvil del fondo */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-gray-900 to-black md:hidden" />
 
       {/* Header con logo y texto */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 5, duration: 0.5 }}
-        className="relative z-50 flex items-center justify-between px-6 py-3"
+        className="relative z-50 flex items-center justify-between px-4 sm:px-6 py-3"
       >
         <motion.div
           initial={{ opacity: 0 }}
@@ -164,78 +105,55 @@ const Landing = () => {
           transition={{ delay: 5.5, duration: 1 }}
           className="flex items-center gap-4"
         >
-          <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
+          <img src="/diente.png" alt="Logo" className="h-8 w-8" />
           <motion.span
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 6, duration: 1 }}
-            className="text-sm sm:text-base font-semibold text-white text-shadow"
+            className="text-sm sm:text-base font-semibold text-white text-shadow hidden sm:block"
           >
             Dental Basics Academy
           </motion.span>
         </motion.div>
-        <div className="flex gap-4">
-          {!username ? (
+        <div className="flex gap-2 sm:gap-4">
+          {!session ? (
             <>
               <Button
                 variant="ghost"
-                onClick={handleLogin}
-                className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-50"
+                onClick={() => setAuthDialog({ isOpen: true, mode: "login" })}
+                className="text-white hover:text-white hover:bg-white/10 border border-white/20"
               >
                 Iniciar Sesión
               </Button>
               <Button
                 variant="ghost"
-                onClick={handleRegister}
-                className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-50"
+                onClick={() => setAuthDialog({ isOpen: true, mode: "register" })}
+                className="text-white hover:text-white hover:bg-white/10 border border-white/20"
               >
                 Registrarse
               </Button>
             </>
           ) : (
-            <div className="relative">
-              <Button
-                variant="ghost"
-                onClick={toggleDropdown}
-                className="text-white hover:text-white hover:bg-white/10 border border-white/20 z-50"
-              >
-                {username}
-              </Button>
-              {showDropdown && (
-                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                  <div
-                    className="py-1"
-                    role="menu"
-                    aria-orientation="vertical"
-                    aria-labelledby="options-menu"
-                  >
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex items-center"
-                      role="menuitem"
-                    >
-                      <LogOut className="h-4 w-4 mr-2" /> Cerrar sesión
-                    </button>
-                    {/* Puedes agregar más opciones aquí */}
-                  </div>
-                </div>
-              )}
-            </div>
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/app')}
+              className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+            >
+              Dashboard
+            </Button>
           )}
         </div>
       </motion.div>
 
-      {/* Menú centrado y en la capa superior */}
+      {/* Menú centrado */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 6, duration: 0.5 }}
-        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50"
+        className="absolute top-20 left-1/2 transform -translate-x-1/2 z-50 w-full px-4 sm:px-0 sm:w-auto"
       >
         <MenuBar
-          items={menuItems.map(item =>
-            item.label === "Profile" ? { ...item, label: username || "Profile" } : item
-          )}
+          items={menuItems}
           activeItem={activeItem}
           onItemClick={setActiveItem}
           className="py-1 text-shadow"
@@ -250,22 +168,20 @@ const Landing = () => {
         className="relative z-40 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
       >
         <div className="text-center">
-          {/* Título futurista */}
-          <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl">
+          <h1 className="mb-16 font-mono text-6xl sm:text-8xl md:text-9xl font-black tracking-wider text-white text-shadow-xl">
             DENTA
             <span className="font-orbitron">X</span>
             Y
           </h1>
 
-          {/* Botón con efecto rainbow */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 7.3, duration: 0.5 }}
           >
             <RainbowButton
-              onClick={() => navigate('/app')}
-              className="text-sm py-6 shadow-2xl z-50"
+              onClick={handleBetaAccess}
+              className="text-sm py-6 shadow-2xl"
             >
               Prueba BETA
             </RainbowButton>
@@ -273,31 +189,15 @@ const Landing = () => {
         </div>
       </motion.div>
 
-      {/* Popup para ingresar el nombre de usuario */}
-      {showPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-8 rounded shadow-lg z-50 flex items-center">
-            <input
-              type="text"
-              placeholder="Nombre de usuario"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="border p-2 flex-grow mr-2" // Ajustamos el margen derecho
-            />
-            <Button onClick={handleSaveUsername} className="bg-blue-500 text-white px-4 py-2 flex items-center justify-center">
-              <Save className="h-5 w-5" /> {/* Usamos el ícono Save */}
-            </Button>
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black opacity-75 z-40"></div>
-        </div>
-      )}
-
       {/* Dialog de autenticación */}
       <AuthDialog
         isOpen={authDialog.isOpen}
         onClose={() => setAuthDialog({ ...authDialog, isOpen: false })}
         defaultMode={authDialog.mode}
-        onSuccess={handleAuthSuccess}
+        onSuccess={() => {
+          setAuthDialog({ ...authDialog, isOpen: false });
+          navigate('/app');
+        }}
       />
     </div>
   );
