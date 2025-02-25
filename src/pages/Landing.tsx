@@ -466,6 +466,34 @@ const Landing = () => {
         defaultMode={authDialog.mode}
         onSuccess={handleAuthSuccess}
       />
+
+{isDropdownOpen && (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{ opacity: 1, scale: 1 }}
+    exit={{ opacity: 0, scale: 0.95 }}
+    transition={{ duration: 0.3 }}
+    className="absolute top-full right-0 z-50 w-48 p-2 bg-[#11111198] rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm flex flex-col gap-2"
+  >
+    <motion.button
+      onClick={handleChangeUsername}
+      whileHover={{ backgroundColor: "#11111140" }}
+      whileTap={{ scale: 0.95 }}
+      className="px-2 py-3 text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+    >
+      Cambiar nombre
+    </motion.button>
+    <motion.button
+      onClick={handleLogout}
+      whileHover={{ backgroundColor: "#11111140" }}
+      whileTap={{ scale: 0.95 }}
+      className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+    >
+      <LogOut className="h-4 w-4" />
+      Cerrar sesión
+    </motion.button>
+  </motion.div>
+)}
     </div>
   );
 };
