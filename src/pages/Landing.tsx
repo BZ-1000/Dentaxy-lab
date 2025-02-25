@@ -1,16 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, Save } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
-import { supabase } from '@/integrations/supabase/client';
+import { createClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
-import { Session } from '@supabase/supabase-js';
+
+// Configura el cliente de Supabase
+const supabaseUrl = 'https://your-supabase-url.supabase.co';
+const supabaseKey = 'your-supabase-key';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 const menuItems = [
   {
@@ -57,20 +61,24 @@ const Landing = () => {
   });
   const [username, setUsername] = useState<string>("");
   const [showPopup, setShowPopup] = useState<boolean>(false);
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       if (session) {
         checkUsername(session.user.id);
       }
-    });
+    };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+    getSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       if (session) {
         checkUsername(session.user.id);
@@ -82,12 +90,6 @@ const Landing = () => {
 
   const checkUsername = async (userId: string) => {
     try {
-      type UserProfile = {
-        id: string;
-        username: string;
-        created_at: string;
-      };
-
       const { data, error } = await supabase
         .from('user_profiles')
         .select('id, username, created_at')
@@ -116,17 +118,12 @@ const Landing = () => {
 
     setLoading(true);
     try {
-      type UserProfileInsert = {
-        id: string;
-        username: string;
-      };
-
       const { error } = await supabase
         .from('user_profiles')
-        .insert<UserProfileInsert>([{
+        .upsert([{
           id: session.user.id,
           username: username.trim()
-        }]);
+        }], { onConflict: 'id' });
 
       if (error) throw error;
 
@@ -158,6 +155,23 @@ const Landing = () => {
       return;
     }
     navigate('/app');
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error signing out:', error.message);
+    }
+    setSession(null);
+    toast.success('Sesión cerrada exitosamente');
+  };
+
+  const handleChangeUsername = () => {
+    setShowPopup(true);
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
   };
 
   if (!mounted) return null;
@@ -252,8 +266,59 @@ const Landing = () => {
               </Button>
             </>
           ) : (
-            <div className="flex items-center gap-4">
-              {/* Eliminado el nombre de usuario de aquí */}
+            <div className="relative">
+              <Button
+                onClick={toggleDropdown}
+                className="px-4 py-2 bg-[#11111198] hover:bg-[#111111d1] shadow-[0_0_20px_rgba(0,0,0,0.2)] border-none rounded-xl backdrop-blur-sm"
+              >
+                <User className="h-4 w-4" />
+                {username || "Profile"}
+                <motion.span
+                  className="ml-2"
+                  animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+                  transition={{ duration: 0.4, ease: "easeInOut", type: "spring" }}
+                >
+                  <ChevronDown className="h-4 w-4" />
+                </motion.span>
+              </Button>
+
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <motion.div
+                    initial={{ y: -5, scale: 0.95, filter: "blur(10px)" }}
+                    animate={{ y: 0, scale: 1, filter: "blur(0px)" }}
+                    exit={{ y: -5, scale: 0.95, opacity: 0, filter: "blur(10px)" }}
+                    transition={{ duration: 0.6, ease: "circInOut", type: "spring" }}
+                    className="absolute z-10 w-48 mt-2 p-1 bg-[#11111198] rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm flex flex-col gap-2"
+                  >
+                    <motion.button
+                      onClick={handleChangeUsername}
+                      initial={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                      animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                      transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut", type: "spring" }}
+                      whileHover={{ backgroundColor: "#11111140" }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-2 py-3 cursor-pointer text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                    >
+                      Cambiar nombre
+                    </motion.button>
+                    <motion.button
+                      onClick={handleLogout}
+                      initial={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                      animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
+                      exit={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                      transition={{ duration: 0.4, delay: 0.2, ease: "easeInOut", type: "spring" }}
+                      whileHover={{ backgroundColor: "#11111140" }}
+                      whileTap={{ scale: 0.95 }}
+                      className="px-2 py-3 cursor-pointer text-red-500 text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Cerrar sesión
+                    </motion.button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           )}
         </div>
@@ -267,7 +332,57 @@ const Landing = () => {
       >
         <MenuBar
           items={menuItems.map(item =>
-            item.label === "Profile" ? { ...item, label: username || "Profile" } : item
+            item.label === "Profile" ? {
+              ...item,
+              label: (
+                <div className="relative">
+                  {username || "Profile"}
+                  <Button
+                    onClick={toggleDropdown}
+                    className="px-2 py-1 bg-transparent hover:bg-white/10 rounded-xl"
+                  >
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                  <AnimatePresence>
+                    {isDropdownOpen && (
+                      <motion.div
+                        initial={{ y: -5, scale: 0.95, filter: "blur(10px)" }}
+                        animate={{ y: 0, scale: 1, filter: "blur(0px)" }}
+                        exit={{ y: -5, scale: 0.95, opacity: 0, filter: "blur(10px)" }}
+                        transition={{ duration: 0.6, ease: "circInOut", type: "spring" }}
+                        className="absolute z-10 w-48 mt-2 p-1 bg-[#11111198] rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm flex flex-col gap-2"
+                      >
+                        <motion.button
+                          onClick={handleChangeUsername}
+                          initial={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                          animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
+                          exit={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                          transition={{ duration: 0.4, delay: 0.1, ease: "easeInOut", type: "spring" }}
+                          whileHover={{ backgroundColor: "#11111140" }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-2 py-3 cursor-pointer text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                        >
+                          Cambiar nombre
+                        </motion.button>
+                        <motion.button
+                          onClick={handleLogout}
+                          initial={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                          animate={{ opacity: 1, x: 0, scale: 1, filter: "blur(0px)" }}
+                          exit={{ opacity: 0, x: 10, scale: 0.95, filter: "blur(10px)" }}
+                          transition={{ duration: 0.4, delay: 0.2, ease: "easeInOut", type: "spring" }}
+                          whileHover={{ backgroundColor: "#11111140" }}
+                          whileTap={{ scale: 0.95 }}
+                          className="px-2 py-3 cursor-pointer text-red-500 text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Cerrar sesión
+                        </motion.button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ),
+            } : item
           )}
           activeItem={activeItem}
           onItemClick={setActiveItem}
@@ -282,12 +397,19 @@ const Landing = () => {
         className="relative z-40 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
       >
         <div className="text-center">
-          <h1 className="mb-16 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl">
+          <h1 className="mb-4 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl">
             DENTA
             <span className="font-orbitron">X</span>
             Y
           </h1>
-
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 7, duration: 0.5 }}
+            className="text-xs font-thin text-white/70 mb-8"
+          >
+            Inteligencias artificiales para odontólogos
+          </motion.p>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
