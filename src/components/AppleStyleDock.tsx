@@ -44,9 +44,9 @@ const data = [
     href: '#',
   },
   {
-    title: 'Feedback',
+    title: 'Mejoras',
     icon: (
-      <Mail className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+      <Mail className='h-full w-full text-red-500 dark:text-red-400' /> // Color rojo estilo Apple
     ),
     href: '#',
   },
