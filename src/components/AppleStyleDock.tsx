@@ -1,10 +1,10 @@
-
 import {
   Mail,
   ScrollText,
   HomeIcon,
   UserCircle,
   SunMoon,
+  Crown,
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -61,6 +61,7 @@ export function AppleStyleDock() {
   const [session, setSession] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
+  const [showPricingPopup, setShowPricingPopup] = useState(false);
 
   const handleItemClick = async (title: string) => {
     switch (title) {
@@ -86,15 +87,38 @@ export function AppleStyleDock() {
   };
 
   const handleSendFeedback = async () => {
+    if (!feedbackMessage.trim()) {
+      toast.error('Por favor escribe un mensaje');
+      return;
+    }
+
     try {
-      // Here you would typically use an API endpoint to send the email
-      // For now, we'll just show a success message
+      const response = await fetch(
+        'https://tlgofrhdhfklmjioearg.supabase.co/functions/v1/send-feedback',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ message: feedbackMessage }),
+        }
+      );
+
+      if (!response.ok) throw new Error('Error al enviar el feedback');
+
       toast.success('¡Feedback enviado exitosamente!');
       setFeedbackMessage('');
       setShowFeedback(false);
     } catch (error) {
+      console.error('Error:', error);
       toast.error('Error al enviar el feedback');
     }
+  };
+
+  const handleChangePlan = () => {
+    setShowPricingPopup(true);
+    setShowProfile(false);
   };
 
   const handleLogout = async () => {
@@ -187,10 +211,20 @@ export function AppleStyleDock() {
               <div className="space-y-4 mt-4">
                 {session ? (
                   <>
-                    <div className="text-sm">
+                    <div className="text-sm space-y-2">
                       <p>Email: {session.user.email}</p>
                       {username && <p>Usuario: {username}</p>}
+                      <div className="flex items-center gap-2 text-blue-500">
+                        <Crown className="h-4 w-4" />
+                        <p>Plan Beta</p>
+                      </div>
                     </div>
+                    <Button
+                      onClick={handleChangePlan}
+                      className="w-full mb-2"
+                    >
+                      Cambiar Plan
+                    </Button>
                     <Button
                       variant="destructive"
                       onClick={handleLogout}
