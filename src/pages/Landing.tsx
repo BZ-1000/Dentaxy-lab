@@ -4,14 +4,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, Save, LogOut } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { createClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from './hooks/use-mobile'; // Importa el hook
 
+// Configura el cliente de Supabase
 const supabaseUrl = 'https://your-supabase-url.supabase.co';
 const supabaseKey = 'your-supabase-key';
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -64,7 +65,7 @@ const Landing = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(); // Usa el hook para detectar si es móvil
 
   useEffect(() => {
     setMounted(true);
