@@ -10,7 +10,6 @@ import { AuthDialog } from '@/components/auth/AuthDialog';
 import { createClient } from '@supabase/supabase-js';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
-import { useIsMobile } from './hooks/use-mobile'; // Importa el hook
 
 // Configura el cliente de Supabase
 const supabaseUrl = 'https://your-supabase-url.supabase.co';
@@ -65,7 +64,6 @@ const Landing = () => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const isMobile = useIsMobile(); // Usa el hook para detectar si es móvil
 
   useEffect(() => {
     setMounted(true);
@@ -308,39 +306,37 @@ const Landing = () => {
         </div>
       </motion.div>
 
-      {isMobile && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 6, duration: 0.5 }}
-          className="fixed bottom-0 left-0 right-0 z-50 bg-black/90 p-4"
-        >
-          <MenuBar
-            items={menuItems.map(item =>
-              item.label === "Profile" ? {
-                ...item,
-                label: (
-                  <div className="relative">
-                    {username || "Profile"}
-                  </div>
-                ),
-              } : item
-            )}
-            activeItem={activeItem}
-            onItemClick={setActiveItem}
-            className="py-1 text-shadow w-full justify-around"
-          />
-        </motion.div>
-      )}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 6, duration: 0.5 }}
+        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50"
+      >
+        <MenuBar
+          items={menuItems.map(item =>
+            item.label === "Profile" ? {
+              ...item,
+              label: (
+                <div className="relative">
+                  {username || "Profile"}
+                </div>
+              ),
+            } : item
+          )}
+          activeItem={activeItem}
+          onItemClick={setActiveItem}
+          className="py-1 text-shadow"
+        />
+      </motion.div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 6.5, duration: 0.8, ease: "easeOut" }}
-        className={`relative z-40 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20 ${isMobile ? 'text-center' : ''}`}
+        className="relative z-40 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
       >
         <div className="text-center">
-          <h1 className={`mb-4 font-mono text-${isMobile ? '6xl' : '8xl'} font-black tracking-wider text-white text-shadow-xl sm:text-9xl`}>
+          <h1 className="mb-4 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl">
             DENTA
             <span className="font-orbitron">X</span>
             Y
