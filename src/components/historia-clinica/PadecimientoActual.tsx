@@ -302,20 +302,29 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
         ) : (
           <div className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2">
-                <div className="text-gray-700 dark:text-gray-300">
-                  {defaultMotivoConsulta}
-                </div>
-                <Textarea
-                  value={formData.padecimientoActual.motivoConsulta.replace(defaultMotivoConsulta, '').trim()}
-                  onChange={(e) => handlePadecimientoChange("motivoConsulta", `${defaultMotivoConsulta} ${e.target.value}`)}
-                  placeholder="Escriba el motivo de la consulta..."
-                  className="flex-grow min-h-[100px] max-h-[200px] bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
-                />
-              </div>
+            <div className="flex items-start gap-4">
+              <Textarea
+                value={formData.padecimientoActual.motivoConsulta}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  if (!newValue.startsWith(defaultMotivoConsulta)) {
+                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+                  } else {
+                    handlePadecimientoChange("motivoConsulta", newValue);
+                  }
+                }}
+                placeholder="El paciente acude a consulta por..."
+                className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
+              />
               <div className="mt-2">
-                <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", `${defaultMotivoConsulta} ${text}`)} />
+                <VoiceInput onTranscriptionComplete={(text) => {
+                  const newValue = text;
+                  if (!newValue.startsWith(defaultMotivoConsulta)) {
+                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+                  } else {
+                    handlePadecimientoChange("motivoConsulta", newValue);
+                  }
+                }} />
               </div>
             </div>
           </div>
