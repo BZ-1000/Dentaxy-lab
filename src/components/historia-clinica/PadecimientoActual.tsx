@@ -109,7 +109,7 @@ const PadecimientoActual = ({
   const [showCausasProvocado, setShowCausasProvocado] = useState(false);
   const redaccionRef = useRef(null);
 
-  const defaultMotivoConsulta = "El paciente acude a consulta por también en causas de dolor provocado, con la frase Provocado con";
+  const defaultMotivoConsulta = "El paciente acude a consulta por";
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -308,19 +308,19 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                 onChange={(e) => {
                   const newValue = e.target.value;
                   if (!newValue.startsWith(defaultMotivoConsulta)) {
-                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta + newValue);
+                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
                   } else {
                     handlePadecimientoChange("motivoConsulta", newValue);
                   }
                 }}
-                placeholder="El paciente acude a consulta por...INICIE CON ESTA FRASE PARA MEJOR REDACCIÓN"
+                placeholder="El paciente acude a consulta por..."
                 className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
               />
               <div className="mt-2">
                 <VoiceInput onTranscriptionComplete={(text) => {
                   const newValue = text;
                   if (!newValue.startsWith(defaultMotivoConsulta)) {
-                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta + newValue);
+                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
                   } else {
                     handlePadecimientoChange("motivoConsulta", newValue);
                   }
