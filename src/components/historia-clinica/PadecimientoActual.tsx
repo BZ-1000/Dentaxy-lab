@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -111,6 +109,8 @@ const PadecimientoActual = ({
   const [showCausasProvocado, setShowCausasProvocado] = useState(false);
   const redaccionRef = useRef(null);
 
+  const defaultMotivoConsulta = "El paciente acude a consulta por también en causas de dolor provocado, con la frase Provocado con";
+
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
@@ -134,14 +134,14 @@ const PadecimientoActual = ({
 
     if (sinSintomas) {
       textoGenerado = `Motivo de consulta:
-El paciente acude a consulta por ${motivoConsulta}.
+${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
 
 Actualmente no refiere sintomatología`;
     } else {
       const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion, causaProvocado } = formData.padecimientoActual.dolor;
 
       textoGenerado = `Motivo de consulta:
-El paciente acude a consulta por ${motivoConsulta}.
+${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
 
 Historia del padecimiento:
 El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'}`;
@@ -171,7 +171,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
   };
 
   const limpiarFormulario = () => {
-    handlePadecimientoChange("motivoConsulta", "");
+    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
     handlePadecimientoChange("historiaPadecimiento", "");
     handleDolorChange("fechaInicio", "");
     handleDolorChange("condicionAparicion", "");
@@ -305,12 +305,26 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
             <div className="flex items-start gap-4">
               <Textarea
                 value={formData.padecimientoActual.motivoConsulta}
-                onChange={(e) => handlePadecimientoChange("motivoConsulta", revisarRedaccion(e.target.value))}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  if (!newValue.startsWith(defaultMotivoConsulta)) {
+                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta + newValue);
+                  } else {
+                    handlePadecimientoChange("motivoConsulta", newValue);
+                  }
+                }}
                 placeholder="El paciente acude a consulta por...INICIE CON ESTA FRASE PARA MEJOR REDACCIÓN"
                 className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
               />
               <div className="mt-2">
-                <VoiceInput onTranscriptionComplete={(text) => handlePadecimientoChange("motivoConsulta", revisarRedaccion(text))} />
+                <VoiceInput onTranscriptionComplete={(text) => {
+                  const newValue = text;
+                  if (!newValue.startsWith(defaultMotivoConsulta)) {
+                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta + newValue);
+                  } else {
+                    handlePadecimientoChange("motivoConsulta", newValue);
+                  }
+                }} />
               </div>
             </div>
           </div>
@@ -345,8 +359,8 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                           className="min-h-[100px] max-h-[200px] w-[75%]"
                         />
                         <div className="h-[40px]">
-                          <VoiceInput 
-                            onTranscriptionComplete={(text) => handleDolorChange('causaProvocado', text)} 
+                          <VoiceInput
+                            onTranscriptionComplete={(text) => handleDolorChange('causaProvocado', text)}
                           />
                         </div>
                       </div>
