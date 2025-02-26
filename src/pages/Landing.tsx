@@ -105,6 +105,36 @@ const Landing = () => {
     }
   };
 
+  const handleSaveUsername = async () => {
+    if (!session || !username.trim()) {
+      toast.error('Por favor ingresa un nombre de usuario');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('user_profiles')
+        .upsert([
+          {
+            id: session.user.id,
+            username: username.trim(),
+          },
+        ], {
+          onConflict: 'id'
+        });
+
+      if (error) throw error;
+      
+      setShowPopup(false);
+      toast.success('¡Nombre de usuario guardado exitosamente!');
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleItemClick = (label: string) => {
     setActiveItem(label);
     if (label === "Profile" && session) {
