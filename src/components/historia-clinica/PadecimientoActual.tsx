@@ -171,7 +171,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
   };
 
   const limpiarFormulario = () => {
-    handlePadecimientoChange("motivoConsulta", "");
+    handlePadecimientoChange("motivoConsulta", "El paciente acude a consulta por...");
     handlePadecimientoChange("historiaPadecimiento", "");
     handleDolorChange("fechaInicio", "");
     handleDolorChange("condicionAparicion", "");
@@ -180,7 +180,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     handleDolorChange("intensidad", "");
     handleDolorChange("localizacion", { tipo: "", descripcion: "" });
     handleDolorChange("atenuacion", "");
-    handleDolorChange("causaProvocado", "");
+    handleDolorChange("causaProvocado", "Describa la causa específica que provoca el dolor...INICIANDO CON provocado con...");
     handleSinSintomasChange(false);
     setRedaccionIA("");
     setShowRedaccion(false);
@@ -219,7 +219,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     if (value.startsWith(defaultText)) {
       handlePadecimientoChange(field, value);
     } else {
-      handlePadecimientoChange(field, defaultText + value);
+      handlePadecimientoChange(field, defaultText + value.slice(defaultText.length));
     }
   };
 
@@ -313,7 +313,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
             <div className="flex items-start gap-4">
               <Textarea
                 value={formData.padecimientoActual.motivoConsulta}
-                onChange={(e) => handleTextareaChange("motivoConsulta", e.target.value, "El paciente acude a consulta por")}
+                onChange={(e) => handleTextareaChange("motivoConsulta", e.target.value, "El paciente acude a consulta por...")}
                 className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
               />
               <div className="mt-2">
