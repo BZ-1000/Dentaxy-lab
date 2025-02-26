@@ -306,7 +306,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
               <Textarea
                 value={formData.padecimientoActual.motivoConsulta}
                 onChange={(e) => handlePadecimientoChange("motivoConsulta", revisarRedaccion(e.target.value))}
-                placeholder="El paciente acude a consulta por...INICIE CON ESTA FRASE PARA MEJOR REDACCIÓN"
+                placeholder="El paciente acude a consulta por...INICIA CON ESTA FRASE PARA MEJOR REDACCIÓN"
                 className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
               />
               <div className="mt-2">
