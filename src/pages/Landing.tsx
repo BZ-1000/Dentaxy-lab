@@ -4,49 +4,41 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, Save, LogOut, ChevronDown } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
-
-// Configura el cliente de Supabase
-const supabaseUrl = 'https://your-supabase-url.supabase.co';
-const supabaseKey = 'your-supabase-key';
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const menuItems = [
   {
     icon: Home,
     label: "Home",
     href: "#",
-    gradient:
-      "radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.06) 50%, rgba(29,78,216,0) 100%)",
+    gradient: "radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.06) 50%, rgba(29,78,216,0) 100%)",
     iconColor: "text-blue-500",
   },
   {
     icon: Bell,
     label: "Notifications",
     href: "#",
-    gradient:
-      "radial-gradient(circle, rgba(249,115,22,0.15) 0%, rgba(234,88,12,0.06) 50%, rgba(194,65,12,0) 100%)",
+    gradient: "radial-gradient(circle, rgba(249,115,22,0.15) 0%, rgba(234,88,12,0.06) 50%, rgba(194,65,12,0) 100%)",
     iconColor: "text-orange-500",
   },
   {
     icon: Settings,
     label: "Settings",
     href: "#",
-    gradient:
-      "radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(22,163,74,0.06) 50%, rgba(21,128,61,0) 100%)",
+    gradient: "radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(22,163,74,0.06) 50%, rgba(21,128,61,0) 100%)",
     iconColor: "text-green-500",
   },
   {
     icon: User,
     label: "Profile",
     href: "#",
-    gradient:
-      "radial-gradient(circle, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.06) 50%, rgba(185,28,28,0) 100%)",
+    gradient: "radial-gradient(circle, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.06) 50%, rgba(185,28,28,0) 100%)",
     iconColor: "text-red-500",
   },
 ];
@@ -63,7 +55,8 @@ const Landing = () => {
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     setMounted(true);
@@ -87,6 +80,17 @@ const Landing = () => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const handleItemClick = (label: string) => {
+    setActiveItem(label);
+    if (label === "Profile") {
+      if (!session) {
+        handleLogin();
+      } else {
+        setShowDropdown(!showDropdown);
+      }
+    }
+  };
 
   const checkUsername = async (userId: string) => {
     try {
@@ -148,6 +152,21 @@ const Landing = () => {
     setAuthDialog({ isOpen: false, mode: "login" });
   };
 
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error signing out:', error.message);
+    }
+    setSession(null);
+    setShowDropdown(false);
+    toast.success('Sesión cerrada exitosamente');
+  };
+
+  const handleChangeUsername = () => {
+    setShowPopup(true);
+    setShowDropdown(false);
+  };
+
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -155,23 +174,6 @@ const Landing = () => {
       return;
     }
     navigate('/app');
-  };
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error.message);
-    }
-    setSession(null);
-    toast.success('Sesión cerrada exitosamente');
-  };
-
-  const handleChangeUsername = () => {
-    setShowPopup(true);
-  };
-
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
   };
 
   if (!mounted) return null;
@@ -268,12 +270,12 @@ const Landing = () => {
           ) : (
             <div className="relative">
               <Button
-                onClick={toggleDropdown}
+                onClick={() => setShowDropdown(!showDropdown)}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-default"
                 aria-label="Toggle dropdown"
               />
               <AnimatePresence>
-                {isDropdownOpen && (
+                {showDropdown && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -306,28 +308,77 @@ const Landing = () => {
         </div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 6, duration: 0.5 }}
-        className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50"
-      >
-        <MenuBar
-          items={menuItems.map(item =>
-            item.label === "Profile" ? {
-              ...item,
-              label: (
-                <div className="relative">
-                  {username || "Profile"}
-                </div>
-              ),
-            } : item
+      {!isMobile && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 6, duration: 0.5 }}
+          className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50"
+        >
+          <MenuBar
+            items={menuItems}
+            activeItem={activeItem}
+            onItemClick={handleItemClick}
+            className="py-1 text-shadow"
+          />
+        </motion.div>
+      )}
+
+      {isMobile && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 6, duration: 0.5 }}
+          className="fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm border-t border-white/10 p-4"
+        >
+          <MenuBar
+            items={menuItems}
+            activeItem={activeItem}
+            onItemClick={handleItemClick}
+            className="py-1 text-shadow w-full justify-around"
+          />
+          {showDropdown && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-black/90 backdrop-blur-sm rounded-xl border border-white/10 shadow-xl"
+            >
+              {session ? (
+                <>
+                  <button
+                    onClick={handleChangeUsername}
+                    className="w-full px-4 py-2 text-left text-white hover:bg-white/10 transition-colors"
+                  >
+                    Cambiar nombre
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full px-4 py-2 text-left text-red-500 hover:bg-white/10 transition-colors"
+                  >
+                    Cerrar sesión
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleLogin}
+                    className="w-full px-4 py-2 text-left text-white hover:bg-white/10 transition-colors"
+                  >
+                    Iniciar sesión
+                  </button>
+                  <button
+                    onClick={handleRegister}
+                    className="w-full px-4 py-2 text-left text-white hover:bg-white/10 transition-colors"
+                  >
+                    Registrarse
+                  </button>
+                </>
+              )}
+            </motion.div>
           )}
-          activeItem={activeItem}
-          onItemClick={setActiveItem}
-          className="py-1 text-shadow"
-        />
-      </motion.div>
+        </motion.div>
+      )}
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
