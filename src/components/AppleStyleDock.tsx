@@ -93,19 +93,11 @@ export function AppleStyleDock() {
     }
 
     try {
-      const response = await fetch(
-        'https://tlgofrhdhfklmjioearg.supabase.co/functions/v1/send-feedback',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({ message: feedbackMessage }),
-        }
-      );
+      const { error } = await supabase.functions.invoke('send-feedback', {
+        body: { message: feedbackMessage }
+      });
 
-      if (!response.ok) throw new Error('Error al enviar el feedback');
+      if (error) throw error;
 
       toast.success('¡Feedback enviado exitosamente!');
       setFeedbackMessage('');
