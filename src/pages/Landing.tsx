@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, Save, LogOut } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -53,9 +53,11 @@ const Landing = () => {
   });
   const [username, setUsername] = useState<string>("");
   const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [showPricingPopup, setShowPricingPopup] = useState<boolean>(false);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -81,17 +83,6 @@ const Landing = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleItemClick = (label: string) => {
-    setActiveItem(label);
-    if (label === "Profile") {
-      if (!session) {
-        handleLogin();
-      } else {
-        setShowDropdown(!showDropdown);
-      }
-    }
-  };
-
   const checkUsername = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -114,29 +105,10 @@ const Landing = () => {
     }
   };
 
-  const handleSaveUsername = async () => {
-    if (!session || !username.trim()) {
-      toast.error('Por favor ingresa un nombre de usuario');
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .upsert([{
-          id: session.user.id,
-          username: username.trim()
-        }], { onConflict: 'id' });
-
-      if (error) throw error;
-
-      setShowPopup(false);
-      toast.success('¡Nombre de usuario guardado exitosamente!');
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
+  const handleItemClick = (label: string) => {
+    setActiveItem(label);
+    if (label === "Profile" && session) {
+      setShowDropdown(!showDropdown);
     }
   };
 
@@ -159,6 +131,7 @@ const Landing = () => {
     }
     setSession(null);
     setShowDropdown(false);
+    setHasBetaPlan(false);
     toast.success('Sesión cerrada exitosamente');
   };
 
@@ -173,7 +146,18 @@ const Landing = () => {
       setAuthDialog({ isOpen: true, mode: "login" });
       return;
     }
-    navigate('/app');
+
+    if (hasBetaPlan) {
+      navigate('/app');
+    } else {
+      setShowPricingPopup(true);
+    }
+  };
+
+  const handleSelectBetaPlan = () => {
+    setHasBetaPlan(true);
+    setShowPricingPopup(false);
+    toast.success('¡Plan Beta activado exitosamente!');
   };
 
   if (!mounted) return null;
@@ -268,41 +252,8 @@ const Landing = () => {
               </Button>
             </>
           ) : (
-            <div className="relative">
-              <Button
-                onClick={() => setShowDropdown(!showDropdown)}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-default"
-                aria-label="Toggle dropdown"
-              />
-              <AnimatePresence>
-                {showDropdown && (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3 }}
-                    className="absolute top-full right-0 z-[60] w-48 p-2 bg-[#11111198] rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm flex flex-col gap-2"
-                  >
-                    <motion.button
-                      onClick={handleChangeUsername}
-                      whileHover={{ backgroundColor: "#11111140" }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-2 py-3 text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2"
-                    >
-                      Cambiar nombre
-                    </motion.button>
-                    <motion.button
-                      onClick={handleLogout}
-                      whileHover={{ backgroundColor: "#11111140" }}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left flex items-center gap-x-2"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Cerrar sesión
-                    </motion.button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+            <div className="flex items-center gap-4">
+              {username && <span className="text-white">{username}</span>}
             </div>
           )}
         </div>
@@ -321,6 +272,41 @@ const Landing = () => {
             onItemClick={handleItemClick}
             className="py-1 text-shadow"
           />
+          <AnimatePresence>
+            {showDropdown && session && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.3 }}
+                className="absolute top-full right-0 z-[60] w-48 p-2 bg-[#11111198] rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm flex flex-col gap-2"
+              >
+                {hasBetaPlan && (
+                  <div className="px-2 py-3 text-blue-400 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
+                    <Crown className="h-4 w-4" />
+                    Plan Beta
+                  </div>
+                )}
+                <motion.button
+                  onClick={handleChangeUsername}
+                  whileHover={{ backgroundColor: "#11111140" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-2 py-3 text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                >
+                  Cambiar nombre
+                </motion.button>
+                <motion.button
+                  onClick={handleLogout}
+                  whileHover={{ backgroundColor: "#11111140" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Cerrar sesión
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
 
@@ -445,6 +431,59 @@ const Landing = () => {
                   </span>
                 )}
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showPricingPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+          <div className="bg-black/90 p-8 rounded-lg border border-white/20 shadow-xl w-full max-w-4xl">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold text-white">Planes Disponibles</h2>
+              <Button
+                variant="ghost"
+                onClick={() => setShowPricingPopup(false)}
+                className="text-white/60 hover:text-white"
+              >
+                ✕
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="relative p-6 rounded-xl border border-white/20 backdrop-blur-sm">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm">
+                  Disponible
+                </div>
+                <h3 className="text-xl font-bold text-white mb-4 mt-4">Plan Beta</h3>
+                <p className="text-white/60 mb-6">Acceso completo durante la fase beta</p>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center text-white/80">
+                    <span className="mr-2">✓</span> Acceso a todas las funciones
+                  </li>
+                  <li className="flex items-center text-white/80">
+                    <span className="mr-2">✓</span> Soporte prioritario
+                  </li>
+                  <li className="flex items-center text-white/80">
+                    <span className="mr-2">✓</span> Beneficios exclusivos
+                  </li>
+                </ul>
+                <Button
+                  onClick={handleSelectBetaPlan}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  Seleccionar Plan Beta
+                </Button>
+              </div>
+              
+              <div className="p-6 rounded-xl border border-white/20 backdrop-blur-sm opacity-50">
+                <h3 className="text-xl font-bold text-white mb-4">Plan Básico</h3>
+                <p className="text-white/60 mb-6">Próximamente</p>
+              </div>
+              
+              <div className="p-6 rounded-xl border border-white/20 backdrop-blur-sm opacity-50">
+                <h3 className="text-xl font-bold text-white mb-4">Plan Premium</h3>
+                <p className="text-white/60 mb-6">Próximamente</p>
+              </div>
             </div>
           </div>
         </div>
