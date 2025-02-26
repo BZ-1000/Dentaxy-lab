@@ -187,7 +187,7 @@ export function AppleStyleDock() {
                   placeholder="Describe el error o sugerencia de mejora..."
                 />
                 <Button onClick={handleSendFeedback} className="w-full">
-                 Enviar sugerencia
+                 Enviar sugerencias
                 </Button>
               </div>
             </DialogDescription>
