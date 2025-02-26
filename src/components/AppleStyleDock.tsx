@@ -80,6 +80,9 @@ export function AppleStyleDock() {
       case 'Change Log':
         setShowInstructions(true);
         break;
+      case 'Mejoras':
+        // Aquí puedes agregar la lógica específica para "Mejoras" si es necesario
+        break;
       case 'Feedback':
         setShowFeedback(true);
         break;
