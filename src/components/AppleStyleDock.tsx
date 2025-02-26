@@ -177,7 +177,7 @@ export function AppleStyleDock() {
       <Dialog open={showFeedback} onOpenChange={setShowFeedback}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Enviar Feedback</DialogTitle>
+            <DialogTitle>¿Ideas o problemas? Escríbenos</DialogTitle>
             <DialogDescription>
               <div className="space-y-4 mt-4">
                 <textarea
@@ -187,7 +187,7 @@ export function AppleStyleDock() {
                   placeholder="Describe el error o sugerencia de mejora..."
                 />
                 <Button onClick={handleSendFeedback} className="w-full">
-                  Enviar Feedback
+                 Enviar sugerencia
                 </Button>
               </div>
             </DialogDescription>
