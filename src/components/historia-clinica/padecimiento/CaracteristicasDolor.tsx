@@ -174,7 +174,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
           <Textarea
             value={dolor.localizacion.descripcion}
             onChange={(e) => onDolorChange('localizacion', JSON.stringify({ ...dolor.localizacion, descripcion: e.target.value }))}
-            placeholder="Describa la localización del dolor"
+            placeholder="Describa la localización del dolor. INICIANDO CON Localizado en ..."
             className="min-h-[135px] max-h-[135px] w-[75%]"
           />
           <div className="h-[40px]">
