@@ -44,9 +44,9 @@ const data = [
     href: '#',
   },
   {
-    title: 'Mejoras',
+    title: 'Feedback',
     icon: (
-      <Mail className='h-full w-full text-red-500 dark:text-red-400' /> // Color rojo estilo Apple
+      <Mail className='h-full w-full text-neutral-600 dark:text-neutral-300' />
     ),
     href: '#',
   },
@@ -79,9 +79,6 @@ export function AppleStyleDock() {
         break;
       case 'Change Log':
         setShowInstructions(true);
-        break;
-      case 'Mejoras':
-        // Aquí puedes agregar la lógica específica para "Mejoras" si es necesario
         break;
       case 'Feedback':
         setShowFeedback(true);
