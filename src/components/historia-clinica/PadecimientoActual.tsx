@@ -330,13 +330,13 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                   onChange={(e) => {
                     const newValue = e.target.value;
                     if (!newValue.startsWith(defaultMotivoConsulta)) {
-                      handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+                      handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta + newValue);
                     } else {
                       handlePadecimientoChange("motivoConsulta", newValue);
                     }
                   }}
                   placeholder={defaultMotivoConsulta}
-                  className="opacity-0 absolute inset-0 min-h-[100px] max-h-[200px] w-full resize-y"
+                  className="min-h-[100px] max-h-[200px] w-full resize-y"
                 />
               </div>
               <div className="mt-2">
