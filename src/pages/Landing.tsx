@@ -68,6 +68,7 @@ const Landing = () => {
       setSession(session);
       if (session) {
         checkUsername(session.user.id);
+        checkUserPlan(session.user.id);
       }
     };
 
@@ -77,6 +78,7 @@ const Landing = () => {
       setSession(session);
       if (session) {
         checkUsername(session.user.id);
+        checkUserPlan(session.user.id);
       }
     });
 
@@ -102,6 +104,26 @@ const Landing = () => {
       }
     } catch (error) {
       console.error('Error checking username:', error);
+    }
+  };
+
+  const checkUserPlan = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_plans')
+        .select('plan_type')
+        .eq('id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data) {
+        setHasBetaPlan(data.plan_type === 'beta');
+      }
+    } catch (error) {
+      console.error('Error checking user plan:', error);
     }
   };
 
@@ -132,6 +154,30 @@ const Landing = () => {
       toast.error(error.message);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSelectBetaPlan = async () => {
+    if (!session) {
+      toast.error('Debes iniciar sesión para seleccionar un plan');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('user_plans')
+        .upsert({
+          id: session.user.id,
+          plan_type: 'beta'
+        });
+
+      if (error) throw error;
+
+      setHasBetaPlan(true);
+      setShowPricingPopup(false);
+      toast.success('¡Plan Beta activado exitosamente!');
+    } catch (error) {
+      toast.error('Error al activar el plan');
     }
   };
 
@@ -182,12 +228,6 @@ const Landing = () => {
     } else {
       setShowPricingPopup(true);
     }
-  };
-
-  const handleSelectBetaPlan = () => {
-    setHasBetaPlan(true);
-    setShowPricingPopup(false);
-    toast.success('¡Plan Beta activado exitosamente!');
   };
 
   if (!mounted) return null;
@@ -254,36 +294,51 @@ const Landing = () => {
           className="flex items-center gap-4"
         >
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 6, duration: 1 }}
-            className="text-sm sm:text-base font-semibold text-white text-shadow"
-          >
-            Dental Basics Academy
-          </motion.span>
+          {!isMobile && (
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 6, duration: 1 }}
+              className="text-sm sm:text-base font-semibold text-white text-shadow"
+            >
+              Dental Basics Academy
+            </motion.span>
+          )}
         </motion.div>
         <div className="flex gap-4">
           {!session ? (
             <>
-              <Button
-                variant="ghost"
-                onClick={handleLogin}
-                className="text-white hover:text-white hover:bg-white/10 border border-white/20"
-              >
-                Iniciar Sesión
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={handleRegister}
-                className="text-white hover:text-white hover:bg-white/10 border border-white/20"
-              >
-                Registrarse
-              </Button>
+              {!isMobile ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    onClick={handleLogin}
+                    className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+                  >
+                    Iniciar Sesión
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handleRegister}
+                    className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+                  >
+                    Registrarse
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="ghost"
+                  onClick={handleLogin}
+                  size="icon"
+                  className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+                >
+                  <UserCircle className="h-5 w-5" />
+                </Button>
+              )}
             </>
           ) : (
             <div className="flex items-center gap-4">
-              {username && <span className="text-white">{username}</span>}
+              {username && !isMobile && <span className="text-white">{username}</span>}
             </div>
           )}
         </div>
@@ -402,8 +457,8 @@ const Landing = () => {
         transition={{ delay: 6.5, duration: 0.8, ease: "easeOut" }}
         className="relative z-40 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
       >
-        <div className="text-center">
-          <h1 className="mb-4 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl">
+        <div className={`text-center ${isMobile ? 'w-full px-4' : ''}`}>
+          <h1 className={`mb-4 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl ${isMobile ? 'text-6xl' : ''}`}>
             DENTA
             <span className="font-orbitron">X</span>
             Y
@@ -420,10 +475,11 @@ const Landing = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 7.3, duration: 0.5 }}
+            className={isMobile ? 'w-full' : ''}
           >
             <RainbowButton
               onClick={handleBetaAccess}
-              className="text-sm py-6 shadow-2xl z-50"
+              className={`text-sm py-6 shadow-2xl z-50 ${isMobile ? 'w-full' : ''}`}
             >
               Prueba BETA
             </RainbowButton>
