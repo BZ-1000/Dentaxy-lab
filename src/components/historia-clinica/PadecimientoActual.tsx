@@ -314,14 +314,16 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
               <div className="relative w-full">
                 <div className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 resize-y">
                   <span>{defaultMotivoConsulta}</span>
-                  <Typewriter
-                    text={motivosEjemplo}
-                    speed={50}
-                    deleteSpeed={30}
-                    delay={2000}
-                    loop={true}
-                    className="inline"
-                  />
+                  {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && (
+                    <Typewriter
+                      text={motivosEjemplo}
+                      speed={50}
+                      deleteSpeed={30}
+                      delay={2000}
+                      loop={true}
+                      className="text-gray-500 italic"
+                    />
+                  )}
                 </div>
                 <Textarea
                   value={formData.padecimientoActual.motivoConsulta}
