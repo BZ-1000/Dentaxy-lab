@@ -30,6 +30,24 @@ export type Database = {
         }
         Relationships: []
       }
+      user_plans: {
+        Row: {
+          created_at: string
+          id: string
+          plan_type: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          plan_type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          plan_type?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           created_at: string
