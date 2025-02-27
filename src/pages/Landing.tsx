@@ -13,6 +13,13 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 
+// Crear un cliente tipado de Supabase
+const typedSupabase = supabase as unknown as ReturnType<typeof supabase.from> & {
+  from<T extends keyof Database['public']['Tables']>(
+    table: T
+  ): ReturnType<typeof supabase.from>;
+};
+
 const menuItems = [
   {
     icon: Home,
@@ -110,7 +117,7 @@ const Landing = () => {
 
   const checkUserPlan = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await typedSupabase
         .from('user_plans')
         .select('plan_type')
         .eq('id', userId)
@@ -164,7 +171,7 @@ const Landing = () => {
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await typedSupabase
         .from('user_plans')
         .upsert({
           id: session.user.id,
