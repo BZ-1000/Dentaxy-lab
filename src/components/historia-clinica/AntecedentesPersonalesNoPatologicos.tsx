@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -40,11 +39,6 @@ interface FormData {
   };
   ayunoProlongado: string;
 }
-
-const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const { name, value } = e.target;
-  // Actualizar el estado aquí
-};
 
 const AntecedentesPersonalesNoPatologicos = () => {
   const [isMinimized, setIsMinimized] = useState(false);
@@ -205,6 +199,51 @@ const AntecedentesPersonalesNoPatologicos = () => {
     target.style.height = `${target.scrollHeight}px`;
   };
 
+  const limpiarFormulario = () => {
+    setFormData({
+      tipoVivienda: "",
+      materialVivienda: "",
+      servicios: [],
+      condicionCalle: "",
+      iluminacionCalle: "",
+      frecuenciaLimpieza: "",
+      cambioRopaCama: "",
+      hacinamiento: "",
+      promiscuidad: "",
+      mascotas: "",
+      manejoResiduos: "",
+      frecuenciaBano: "",
+      lavadoManos: [],
+      cambioRopa: "",
+      frecuenciaCepillado: "",
+      tecnicaCepillado: "",
+      auxiliaresBucales: [],
+      ultimaVisitaOdontologo: "",
+      problemasBucales: [],
+      alimentosConsumidos: [],
+      frecuenciaFrutasVerduras: "",
+      frecuenciaBebidasAzucaradas: "",
+      frecuenciaComidaChatarra: "",
+      consumoAgua: "",
+      numeroComidas: "",
+      horarioComidas: {
+        desayuno: "",
+        almuerzo: "",
+        cena: ""
+      },
+      ayunoProlongado: ""
+    });
+    setShowForm(true);
+    setRedacciones({
+      serviciosDomiciliarios: "",
+      higieneVivienda: "",
+      higienePersonal: "",
+      higieneBucal: "",
+      alimentacion: ""
+    });
+    setProgress(0);
+  };
+
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
@@ -247,8 +286,8 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
         {/* Barra de progreso */}
         <div className="h-2 bg-gray-200 rounded-full mt-2 mb-4">
-          <div 
-            className="h-full bg-blue-500 rounded-full" 
+          <div
+            className="h-full bg-blue-500 rounded-full"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -659,8 +698,38 @@ const AntecedentesPersonalesNoPatologicos = () => {
             ) : (
               <div className="space-y-6">
                 {/* Redacción IA content */}
+                {Object.keys(redacciones).map((section, index) => (
+                  <div key={index} className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <h4 className="text-lg font-semibold mb-2">{section.charAt(0).toUpperCase() + section.slice(1)}</h4>
+                    <p>{redacciones[section]}</p>
+                    <Button
+                      onClick={() => handleCopy(section)}
+                      className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
+                    >
+                      <Copy className="w-4 h-4" />
+                      <span>Copiar</span>
+                      {copied[section] && (
+                        <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Copiado</span>
+                        </div>
+                      )}
+                    </Button>
+                  </div>
+                ))}
               </div>
             )}
+
+            {/* Botones de acción */}
+            <div className="p-6 flex justify-center gap-4">
+              <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
+                <span>Generar Redacción IA</span>
+              </Button>
+              <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
+                <Eraser className="w-4 h-4" />
+                <span>Limpiar Formulario</span>
+              </Button>
+            </div>
           </div>
         )}
       </Card>
