@@ -4,13 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
 import Spline from '@splinetool/react-spline';
-import { Home, Settings, Bell, User, Save, LogOut, Crown } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
+import type { Database } from '@/types/supabase';
 
 const menuItems = [
   {
@@ -113,15 +114,14 @@ const Landing = () => {
         .from('user_plans')
         .select('plan_type')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (error) {
+        console.error('Error checking plan:', error);
+        return;
       }
 
-      if (data) {
-        setHasBetaPlan(data.plan_type === 'beta');
-      }
+      setHasBetaPlan(data?.plan_type === 'beta');
     } catch (error) {
       console.error('Error checking user plan:', error);
     }
@@ -177,6 +177,7 @@ const Landing = () => {
       setShowPricingPopup(false);
       toast.success('¡Plan Beta activado exitosamente!');
     } catch (error) {
+      console.error('Error:', error);
       toast.error('Error al activar el plan');
     }
   };
