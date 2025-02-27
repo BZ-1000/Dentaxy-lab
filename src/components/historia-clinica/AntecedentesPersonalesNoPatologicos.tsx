@@ -284,14 +284,6 @@ const AntecedentesPersonalesNoPatologicos = () => {
           </h2>
         </div>
 
-        {/* Barra de progreso */}
-        <div className="h-2 bg-gray-200 rounded-full mt-2 mb-4">
-          <div
-            className="h-full bg-blue-500 rounded-full"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
         {!isMinimized && (
           <div className="p-6" ref={formRef}>
             {showForm ? (
@@ -717,6 +709,13 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </Button>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Barra de progreso */}
+            {!showForm && (
+              <div className="progress-bar-container" style={{ width: '100%', backgroundColor: '#d3d3d3', borderRadius: '12px', overflow: 'hidden', marginBottom: '1rem', boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)' }}>
+                <div className="progress-bar" style={{ height: '8px', backgroundColor: '#34c759', transition: 'width 0.015s ease-in-out', width: `${progress}%`, borderRadius: '12px' }} />
               </div>
             )}
 
