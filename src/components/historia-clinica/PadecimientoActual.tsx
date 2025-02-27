@@ -5,6 +5,7 @@ import { VoiceInput } from "@/components/ui/voice-input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
+import { Typewriter } from "@/components/ui/typewriter-text";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
 
@@ -25,20 +26,18 @@ interface PadecimientoActualProps {
           descripcion: string;
         };
         atenuacion: string;
-        causaProvocado?: string; // Nueva propiedad para la causa del dolor
+        causaProvocado?: string;
       };
     };
   };
   handlePadecimientoChange: (field: string, value: string) => void;
-  handleDolorChange: (field: string, value: any) => void; // Cambio aquí para aceptar cualquier tipo
+  handleDolorChange: (field: string, value: any) => void;
   handleSinSintomasChange: (checked: boolean) => void;
 }
 
 function revisarRedaccion(text: string): string {
-  // Eliminar palabras consecutivas repetidas
   let textoCorregido = text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
 
-  // Eliminar frases redundantes comunes en historias clínicas
   const frasesRedundantes = [
     { patron: /Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi, reemplazo: 'Motivo de consulta: El paciente acude a consulta por' },
     { patron: /El paciente acude a consulta por El paciente acude a consulta por/gi, reemplazo: 'El paciente acude a consulta por' },
@@ -54,10 +53,8 @@ function revisarRedaccion(text: string): string {
     textoCorregido = textoCorregido.replace(patron, reemplazo);
   });
 
-  // Corregir mayúsculas después de punto
   textoCorregido = textoCorregido.replace(/\. ([a-z])/g, (_, letra) => `. ${letra.toUpperCase()}`);
 
-  // Mejorar la redacción de algunas frases
   textoCorregido = textoCorregido
     .replace(/provocado por/gi, 'provocada por')
     .replace(/aparece en/gi, 'aparece cuando')
@@ -70,24 +67,19 @@ function revisarRedaccion(text: string): string {
 }
 
 function formatearTexto(text: string): string {
-  // Reemplazar los títulos con HTML
   let textoFormateado = text
     .replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>')
     .replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
 
-  // Justificar el texto de la historia del padecimiento
   const sections = textoFormateado.split('<strong>Historia del padecimiento:</strong>');
   if (sections.length > 1) {
     textoFormateado = `${sections[0]}<strong>Historia del padecimiento:</strong><div style="text-align: justify;">${sections[1].trim()}</div>`;
   }
 
-  // Eliminar punto final si existe
   textoFormateado = textoFormateado.replace(/\.$/, '');
 
-  // Asegurar que solo haya un salto de línea después de "Historia del padecimiento:"
   textoFormateado = textoFormateado.replace(/<strong>Historia del padecimiento:<\/strong>\s*\n\s*/g, '<strong>Historia del padecimiento:</strong>\n');
 
-  // Eliminar múltiples saltos de línea consecutivos
   textoFormateado = textoFormateado.replace(/\n\s*\n\s*\n/g, '\n\n');
 
   return textoFormateado;
@@ -110,6 +102,24 @@ const PadecimientoActual = ({
   const redaccionRef = useRef(null);
 
   const defaultMotivoConsulta = "El paciente acude a consulta por";
+  const motivosEjemplo = [
+    "dolor dental intenso en molar superior derecho...",
+    "sangrado de encías al cepillarse...",
+    "revisión y limpieza dental de rutina...",
+    "sensibilidad al frío y calor en dientes anteriores...",
+    "inflamación y dolor en zona de muelas del juicio...",
+    "aplicación de resina en diente fracturado...",
+    "evaluación para tratamiento de ortodoncia...",
+    "manchas oscuras en los dientes frontales...",
+    "mal aliento persistente...",
+    "dolor al masticar alimentos...",
+  ];
+
+  useEffect(() => {
+    if (!formData.padecimientoActual.motivoConsulta) {
+      handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+    }
+  }, []);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -155,7 +165,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
       }
     }
 
-    // Aplicar las correcciones y formato
     const textoRevisado = revisarRedaccion(textoGenerado);
     const textoFinal = formatearTexto(textoRevisado);
 
@@ -188,7 +197,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
   };
 
   const removeDuplicates = (text: string): string => {
-    // Eliminar palabras consecutivas repetidas
     return text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
   };
 
@@ -210,7 +218,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
       } else {
         clearInterval(interval);
       }
-    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
+    }, 15);
 
     return () => clearInterval(interval);
   }, [redaccionIA]);
@@ -303,24 +311,38 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
           <div className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
             <div className="flex items-start gap-4">
-              <Textarea
-                value={formData.padecimientoActual.motivoConsulta}
-                onChange={(e) => {
-                  const newValue = e.target.value;
-                  if (!newValue.startsWith(defaultMotivoConsulta)) {
-                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
-                  } else {
-                    handlePadecimientoChange("motivoConsulta", newValue);
-                  }
-                }}
-                placeholder="El paciente acude a consulta por..."
-                className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
-              />
+              <div className="relative w-full">
+                <Textarea
+                  value={formData.padecimientoActual.motivoConsulta}
+                  onChange={(e) => {
+                    const newValue = e.target.value;
+                    if (!newValue.startsWith(defaultMotivoConsulta)) {
+                      handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+                    } else {
+                      handlePadecimientoChange("motivoConsulta", newValue);
+                    }
+                  }}
+                  placeholder={defaultMotivoConsulta}
+                  className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 resize-y"
+                />
+                {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && (
+                  <div className="absolute top-2 left-2 text-gray-500">
+                    <Typewriter
+                      text={motivosEjemplo}
+                      speed={50}
+                      deleteSpeed={30}
+                      delay={2000}
+                      loop={true}
+                      className="italic"
+                    />
+                  </div>
+                )}
+              </div>
               <div className="mt-2">
                 <VoiceInput onTranscriptionComplete={(text) => {
                   const newValue = text;
                   if (!newValue.startsWith(defaultMotivoConsulta)) {
-                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+                    handlePadecimientoChange("motivoConsulta", `${defaultMotivoConsulta} ${newValue}`);
                   } else {
                     handlePadecimientoChange("motivoConsulta", newValue);
                   }
