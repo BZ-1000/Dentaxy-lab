@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -468,9 +469,9 @@ const Landing = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 6.5, duration: 0.8, ease: "easeOut" }}
-        className="relative z-40 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
+        className={`relative z-40 flex flex-col items-center justify-center px-4 ${isMobile ? 'min-h-[70vh] pt-0' : 'min-h-[calc(100vh-80px)] pt-20'}`}
       >
-        <div className={`text-center w-full ${isMobile ? 'px-2' : ''}`}>
+        <div className={`text-center w-full ${isMobile ? 'px-2 -mt-20' : ''}`}>
           <h1 className={`mb-4 font-mono text-center font-black tracking-wider text-white text-shadow-xl ${isMobile ? 'text-5xl' : 'text-8xl sm:text-9xl'}`}>
             DENTA
             <span className="font-orbitron">X</span>
