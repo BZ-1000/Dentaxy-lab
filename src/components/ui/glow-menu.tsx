@@ -19,6 +19,7 @@ interface MenuBarProps extends Omit<HTMLMotionProps<"nav">, "children"> {
   items: MenuItem[]
   activeItem?: string
   onItemClick?: (label: string) => void
+  hideLabels?: boolean
 }
 
 const itemVariants = {
@@ -62,7 +63,7 @@ const sharedTransition = {
 }
 
 export const MenuBar = React.forwardRef<HTMLDivElement, MenuBarProps>(
-  ({ className, items, activeItem, onItemClick, ...props }, ref) => {
+  ({ className, items, activeItem, onItemClick, hideLabels = false, ...props }, ref) => {
     const { theme } = useTheme()
     const isDarkTheme = theme === "dark"
 
@@ -136,7 +137,9 @@ export const MenuBar = React.forwardRef<HTMLDivElement, MenuBarProps>(
                       >
                         <Icon className="h-4 w-4" />
                       </span>
-                      <span className="text-sm">{item.label}</span>
+                      {!hideLabels && (
+                        <span className="text-sm">{item.label}</span>
+                      )}
                     </motion.div>
                     <motion.div
                       className={cn(
@@ -162,7 +165,9 @@ export const MenuBar = React.forwardRef<HTMLDivElement, MenuBarProps>(
                       >
                         <Icon className="h-4 w-4" />
                       </span>
-                      <span className="text-sm">{item.label}</span>
+                      {!hideLabels && (
+                        <span className="text-sm">{item.label}</span>
+                      )}
                     </motion.div>
                   </motion.div>
                 </button>

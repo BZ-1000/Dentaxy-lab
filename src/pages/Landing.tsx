@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,28 +17,28 @@ import type { Database } from '@/types/supabase';
 const menuItems = [
   {
     icon: Home,
-    label: "Home",
+    label: "Inicio",
     href: "#",
     gradient: "radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.06) 50%, rgba(29,78,216,0) 100%)",
     iconColor: "text-blue-500",
   },
   {
     icon: Bell,
-    label: "Notifications",
+    label: "Notificaciones",
     href: "#",
     gradient: "radial-gradient(circle, rgba(249,115,22,0.15) 0%, rgba(234,88,12,0.06) 50%, rgba(194,65,12,0) 100%)",
     iconColor: "text-orange-500",
   },
   {
     icon: Settings,
-    label: "Settings",
+    label: "Ajustes",
     href: "#",
     gradient: "radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(22,163,74,0.06) 50%, rgba(21,128,61,0) 100%)",
     iconColor: "text-green-500",
   },
   {
     icon: User,
-    label: "Profile",
+    label: "Perfil",
     href: "#",
     gradient: "radial-gradient(circle, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.06) 50%, rgba(185,28,28,0) 100%)",
     iconColor: "text-red-500",
@@ -47,7 +48,7 @@ const menuItems = [
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
-  const [activeItem, setActiveItem] = useState<string>("Home");
+  const [activeItem, setActiveItem] = useState<string>("Inicio");
   const [authDialog, setAuthDialog] = useState<{ isOpen: boolean; mode: "login" | "register" }>({
     isOpen: false,
     mode: "login"
@@ -187,7 +188,7 @@ const Landing = () => {
 
   const handleItemClick = (label: string) => {
     setActiveItem(label);
-    if (label === "Profile" && session) {
+    if (label === "Perfil" && session) {
       setShowDropdown(!showDropdown);
     }
   };
@@ -385,6 +386,15 @@ const Landing = () => {
                   Cambiar nombre
                 </motion.button>
                 <motion.button
+                  onClick={() => setShowPricingPopup(true)}
+                  whileHover={{ backgroundColor: "#11111140" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-2 py-3 text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                >
+                  <Crown className="h-4 w-4" />
+                  Cambiar plan
+                </motion.button>
+                <motion.button
                   onClick={handleLogout}
                   whileHover={{ backgroundColor: "#11111140" }}
                   whileTap={{ scale: 0.95 }}
@@ -411,6 +421,7 @@ const Landing = () => {
             activeItem={activeItem}
             onItemClick={handleItemClick}
             className="py-1 text-shadow w-full justify-around"
+            hideLabels={true}
           />
           {showDropdown && (
             <motion.div
@@ -426,6 +437,13 @@ const Landing = () => {
                     className="w-full px-4 py-2 text-left text-white hover:bg-white/10 transition-colors"
                   >
                     Cambiar nombre
+                  </button>
+                  <button
+                    onClick={() => setShowPricingPopup(true)}
+                    className="w-full px-4 py-2 text-left text-white hover:bg-white/10 transition-colors flex items-center gap-x-2"
+                  >
+                    <Crown className="h-4 w-4" />
+                    Cambiar plan
                   </button>
                   <button
                     onClick={handleLogout}
@@ -462,7 +480,7 @@ const Landing = () => {
         className="relative z-40 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
       >
         <div className={`text-center ${isMobile ? 'w-full px-4' : ''}`}>
-          <h1 className={`mb-4 font-mono text-8xl font-black tracking-wider text-white text-shadow-xl sm:text-9xl ${isMobile ? 'text-6xl' : ''}`}>
+          <h1 className={`mb-4 font-mono text-center font-black tracking-wider text-white text-shadow-xl ${isMobile ? 'text-6xl' : 'text-8xl sm:text-9xl'}`}>
             DENTA
             <span className="font-orbitron">X</span>
             Y
@@ -561,7 +579,7 @@ const Landing = () => {
                   onClick={handleSelectBetaPlan}
                   className="w-full bg-blue-500 hover:bg-blue-600 text-white"
                 >
-                  Seleccionar Plan Beta
+                  {hasBetaPlan ? "Plan Actual" : "Seleccionar Plan Beta"}
                 </Button>
               </div>
               
