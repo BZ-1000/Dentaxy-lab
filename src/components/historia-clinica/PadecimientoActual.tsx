@@ -313,23 +313,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
             <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
             <div className="flex items-start gap-4">
               <div className="relative w-full">
-                <div className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 resize-y overflow-hidden">
-                  {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta ? (
-                    <>
-                      <span>{defaultMotivoConsulta}</span>
-                      <Typewriter
-                        text={motivosEjemplo}
-                        speed={50}
-                        deleteSpeed={30}
-                        delay={2000}
-                        loop={true}
-                        className="text-gray-500 italic"
-                      />
-                    </>
-                  ) : (
-                    <span>{formData.padecimientoActual.motivoConsulta}</span>
-                  )}
-                </div>
                 <Textarea
                   value={formData.padecimientoActual.motivoConsulta}
                   onChange={(e) => {
@@ -341,8 +324,20 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                     }
                   }}
                   placeholder={defaultMotivoConsulta}
-                  className="absolute inset-0 min-h-[100px] max-h-[200px] w-full resize-y bg-transparent"
+                  className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
                 />
+                {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && (
+                  <div className="absolute top-3 left-[185px] pointer-events-none">
+                    <Typewriter
+                      text={motivosEjemplo}
+                      speed={50}
+                      deleteSpeed={30}
+                      delay={2000}
+                      loop={true}
+                      className="text-gray-500 italic"
+                    />
+                  </div>
+                )}
               </div>
               <div className="mt-2">
                 <VoiceInput onTranscriptionComplete={(text) => {
