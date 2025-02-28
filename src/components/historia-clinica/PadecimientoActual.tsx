@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -312,17 +313,21 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
             <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
             <div className="flex items-start gap-4">
               <div className="relative w-full">
-                <div className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 resize-y">
-                  <span>{defaultMotivoConsulta}</span>
-                  {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && (
-                    <Typewriter
-                      text={motivosEjemplo}
-                      speed={50}
-                      deleteSpeed={30}
-                      delay={2000}
-                      loop={true}
-                      className="text-gray-500 italic"
-                    />
+                <div className="min-h-[100px] max-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 resize-y overflow-hidden">
+                  {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta ? (
+                    <>
+                      <span>{defaultMotivoConsulta}</span>
+                      <Typewriter
+                        text={motivosEjemplo}
+                        speed={50}
+                        deleteSpeed={30}
+                        delay={2000}
+                        loop={true}
+                        className="text-gray-500 italic"
+                      />
+                    </>
+                  ) : (
+                    <span>{formData.padecimientoActual.motivoConsulta}</span>
                   )}
                 </div>
                 <Textarea
@@ -336,7 +341,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                     }
                   }}
                   placeholder={defaultMotivoConsulta}
-                  className="opacity-0 absolute inset-0 min-h-[100px] max-h-[200px] w-full resize-y"
+                  className="absolute inset-0 min-h-[100px] max-h-[200px] w-full resize-y bg-transparent"
                 />
               </div>
               <div className="mt-2">
