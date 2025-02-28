@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -262,18 +261,20 @@ const Landing = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5, duration: 1 }}
           />
-          <div className="text-sm sm:text-base font-semibold text-white text-shadow flex space-x-1">
-            {"Dental Basics Academy".split('').map((letter, index) => (
-              <motion.span
-                key={index}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1.5 + index * 0.05, duration: 0.5 }}
-              >
-                {letter}
-              </motion.span>
-            ))}
-          </div>
+          {!isMobile && (
+            <div className="text-sm sm:text-base font-semibold text-white text-shadow flex space-x-1">
+              {"Dental Basics Academy".split('').map((letter, index) => (
+                <motion.span
+                  key={index}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.5 + index * 0.05, duration: 0.5 }}
+                >
+                  {letter}
+                </motion.span>
+              ))}
+            </div>
+          )}
         </motion.div>
       </motion.div>
 
@@ -299,16 +300,6 @@ const Landing = () => {
           className="flex items-center gap-4"
         >
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
-          {!isMobile && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 6, duration: 1 }}
-              className="text-sm sm:text-base font-semibold text-white text-shadow"
-            >
-              Dental Basics Academy
-            </motion.span>
-          )}
         </motion.div>
         <div className="flex gap-4">
           {!session ? (
@@ -343,7 +334,7 @@ const Landing = () => {
             </>
           ) : (
             <div className="flex items-center gap-4">
-              {username && !isMobile && <span className="text-white">{username}</span>}
+              <span className="text-white text-sm">{username}</span>
             </div>
           )}
         </div>
@@ -420,7 +411,7 @@ const Landing = () => {
             items={menuItems}
             activeItem={activeItem}
             onItemClick={handleItemClick}
-            className="py-1 text-shadow w-full justify-around"
+            className="py-1 text-shadow w-full justify-around mx-auto"
             hideLabels={true}
           />
           {showDropdown && (
@@ -479,8 +470,8 @@ const Landing = () => {
         transition={{ delay: 6.5, duration: 0.8, ease: "easeOut" }}
         className="relative z-40 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
       >
-        <div className={`text-center ${isMobile ? 'w-full px-4' : ''}`}>
-          <h1 className={`mb-4 font-mono text-center font-black tracking-wider text-white text-shadow-xl ${isMobile ? 'text-6xl' : 'text-8xl sm:text-9xl'}`}>
+        <div className={`text-center w-full ${isMobile ? 'px-2' : ''}`}>
+          <h1 className={`mb-4 font-mono text-center font-black tracking-wider text-white text-shadow-xl ${isMobile ? 'text-5xl' : 'text-8xl sm:text-9xl'}`}>
             DENTA
             <span className="font-orbitron">X</span>
             Y

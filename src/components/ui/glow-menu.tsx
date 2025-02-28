@@ -87,7 +87,7 @@ export const MenuBar = React.forwardRef<HTMLDivElement, MenuBarProps>(
           } to-transparent rounded-3xl z-0 pointer-events-none`}
           variants={navGlowVariants}
         />
-        <ul className="flex items-center gap-1 relative z-10">
+        <ul className={`flex items-center relative z-10 ${hideLabels ? "justify-evenly w-full px-6" : "gap-1"}`}>
           {items.map((item) => {
             const Icon = item.icon
             const isActive = item.label === activeItem
@@ -96,7 +96,7 @@ export const MenuBar = React.forwardRef<HTMLDivElement, MenuBarProps>(
               <motion.li key={item.label} className="relative">
                 <button
                   onClick={() => onItemClick?.(item.label)}
-                  className="block w-full"
+                  className={`block ${hideLabels ? "w-12 h-12 flex items-center justify-center" : "w-full"}`}
                 >
                   <motion.div
                     className="block rounded-xl overflow-visible group relative"
@@ -135,7 +135,7 @@ export const MenuBar = React.forwardRef<HTMLDivElement, MenuBarProps>(
                           `group-hover:${item.iconColor}`,
                         )}
                       >
-                        <Icon className="h-4 w-4" />
+                        <Icon className={hideLabels ? "h-6 w-6" : "h-4 w-4"} />
                       </span>
                       {!hideLabels && (
                         <span className="text-sm">{item.label}</span>
@@ -163,7 +163,7 @@ export const MenuBar = React.forwardRef<HTMLDivElement, MenuBarProps>(
                           `group-hover:${item.iconColor}`,
                         )}
                       >
-                        <Icon className="h-4 w-4" />
+                        <Icon className={hideLabels ? "h-6 w-6" : "h-4 w-4"} />
                       </span>
                       {!hideLabels && (
                         <span className="text-sm">{item.label}</span>
