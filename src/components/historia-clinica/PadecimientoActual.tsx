@@ -333,7 +333,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                       deleteSpeed={30}
                       delay={2000}
                       loop={true}
-                      className="text-gray-500 italic text-base"
+                      className="text-gray-500 italic text-sm"
                     />
                   </div>
                 )}
