@@ -327,7 +327,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                   className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
                 />
                 {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && (
-                  <div className="absolute top-3 left-[185px] pointer-events-none">
+                  <div className="absolute top-3 left-0 pl-[185px] pointer-events-none">
                     <Typewriter
                       text={motivosEjemplo}
                       speed={50}
