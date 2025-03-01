@@ -1,4 +1,3 @@
-
 import { FormDataState } from '@/types/historiaClinica';
 
 export const getInitialFormState = (): FormDataState => ({
@@ -26,6 +25,39 @@ export const getInitialFormState = (): FormDataState => ({
     abuelaPaterna: getInitialFamiliarState(),
     abueloMaterno: getInitialFamiliarState(),
     abuelaMaterna: getInitialFamiliarState()
+  },
+  antecedentesPersonalesNoPatologicos: {
+    tipoVivienda: "",
+    materialVivienda: "",
+    servicios: [],
+    condicionCalle: "",
+    iluminacionCalle: "",
+    frecuenciaLimpieza: "",
+    cambioRopaCama: "",
+    hacinamiento: "",
+    promiscuidad: "",
+    mascotas: "",
+    manejoResiduos: "",
+    frecuenciaBano: "",
+    lavadoManos: [],
+    cambioRopa: "",
+    frecuenciaCepillado: "",
+    tecnicaCepillado: "",
+    auxiliaresBucales: [],
+    ultimaVisitaOdontologo: "",
+    problemasBucales: [],
+    alimentosConsumidos: [],
+    frecuenciaFrutasVerduras: "",
+    frecuenciaBebidasAzucaradas: "",
+    frecuenciaComidaChatarra: "",
+    consumoAgua: "",
+    numeroComidas: "",
+    horarioComidas: {
+      desayuno: "",
+      almuerzo: "",
+      cena: ""
+    },
+    ayunoProlongado: ""
   },
   serviciosDomiciliarios: '',
   pisosVivienda: '',

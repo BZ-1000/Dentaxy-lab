@@ -1,3 +1,4 @@
+<lov-code>
 import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -5,42 +6,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
+import { FormDataState } from '@/types/historiaClinica';
 
-interface FormData {
-  tipoVivienda: string;
-  materialVivienda: string;
-  servicios: string[];
-  condicionCalle: string;
-  iluminacionCalle: string;
-  frecuenciaLimpieza: string;
-  cambioRopaCama: string;
-  hacinamiento: string;
-  promiscuidad: string;
-  mascotas: string;
-  manejoResiduos: string;
-  frecuenciaBano: string;
-  lavadoManos: string[];
-  cambioRopa: string;
-  frecuenciaCepillado: string;
-  tecnicaCepillado: string;
-  auxiliaresBucales: string[];
-  ultimaVisitaOdontologo: string;
-  problemasBucales: string[];
-  alimentosConsumidos: string[];
-  frecuenciaFrutasVerduras: string;
-  frecuenciaBebidasAzucaradas: string;
-  frecuenciaComidaChatarra: string;
-  consumoAgua: string;
-  numeroComidas: string;
-  horarioComidas: {
-    desayuno: string;
-    almuerzo: string;
-    cena: string;
-  };
-  ayunoProlongado: string;
+interface AntecedentesPersonalesNoPatologicosProps {
+  formData: FormDataState;
+  handleAntecedenteChange: (field: string, value: any) => void;
 }
 
-const AntecedentesPersonalesNoPatologicos = () => {
+const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPatologicosProps> = ({ 
+  formData, 
+  handleAntecedenteChange 
+}) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showForm, setShowForm] = useState(true);
@@ -55,7 +31,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
   const formRef = useRef<HTMLDivElement>(null);
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
-  const [formData, setFormData] = useState<FormData>({
+  const [formDataLocal, setFormDataLocal] = useState({
     tipoVivienda: "",
     materialVivienda: "",
     servicios: [],
@@ -106,11 +82,11 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
   const generarRedaccionIA = () => {
     const redaccionesGeneradas = {
-      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formData.tipoVivienda} con estructura predominante de ${formData.materialVivienda}. Cuenta con servicios básicos de ${formData.servicios.length === 6 ? "todos los servicios" : formData.servicios.join(", ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formData.condicionCalle} y se presenta ${formData.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.\n`,
-      higieneVivienda: `La vivienda del paciente se mantiene con una rutina de limpieza ${formData.frecuenciaLimpieza}, lo que influye en su bienestar general. El cambio de ropa de cama se realiza ${formData.cambioRopaCama}. Se observa que la vivienda ${formData.hacinamiento === "no" ? "no presenta" : "presenta"} condiciones de hacinamiento. Además, se identifica que ${formData.promiscuidad === "no" ? "no" : "sí"} existe promiscuidad. El paciente ${formData.mascotas === "no" ? "no tiene" : "tiene"} mascotas. En cuanto a la recolección de basura, ${formData.manejoResiduos === "diaria" ? "la basura se desecha diariamente" : "se acumulan residuos dentro del hogar"}, lo que puede influir en la higiene del entorno.\n`,
-      higienePersonal: `El paciente reporta una frecuencia de baño ${formData.frecuenciaBano}, lo que influye en su higiene y confort personal. Respecto al lavado de manos, lo realiza ${formData.lavadoManos.join(" y ")}. En cuanto al cambio de ropa, se registra una frecuencia ${formData.cambioRopa}.\n`,
-      higieneBucal: `El paciente se cepilla los dientes ${formData.frecuenciaCepillado} veces al día y utiliza una técnica de cepillado ${formData.tecnicaCepillado}. Se observa que ${formData.auxiliaresBucales.length > 0 ? "utiliza" : "no utiliza"} auxiliares de higiene bucal, como ${formData.auxiliaresBucales.join(" y ")}. En relación con la atención odontológica, su última consulta fue hace ${formData.ultimaVisitaOdontologo}. El paciente reporta la presencia de ${formData.problemasBucales.join(" y ")}, lo que podría indicar la necesidad de una revisión odontológica.\n`,
-      alimentacion: `El paciente consume frecuentemente ${formData.alimentosConsumidos.join(" , ")}. Su alimentación incluye frutas y verduras con una frecuencia ${formData.frecuenciaFrutasVerduras}, mientras que las bebidas azucaradas son consumidas ${formData.frecuenciaBebidasAzucaradas}. También reporta que come comida chatarra ${formData.frecuenciaComidaChatarra}. Su consumo de agua al día es de ${formData.consumoAgua}. El paciente realiza ${formData.numeroComidas} comidas al día y mantiene un horario de alimentación ${formData.horarioComidas}. Además, menciona que ${formData.ayunoProlongado === "no" ? "no realiza" : "realiza"} ayunos prolongados.\n`
+      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formDataLocal.tipoVivienda} con estructura predominante de ${formDataLocal.materialVivienda}. Cuenta con servicios básicos de ${formDataLocal.servicios.length === 6 ? "todos los servicios" : formDataLocal.servicios.join(", ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formDataLocal.condicionCalle} y se presenta ${formDataLocal.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.\n`,
+      higieneVivienda: `La vivienda del paciente se mantiene con una rutina de limpieza ${formDataLocal.frecuenciaLimpieza}, lo que influye en su bienestar general. El cambio de ropa de cama se realiza ${formDataLocal.cambioRopaCama}. Se observa que la vivienda ${formDataLocal.hacinamiento === "no" ? "no presenta" : "presenta"} condiciones de hacinamiento. Además, se identifica que ${formDataLocal.promiscuidad === "no" ? "no" : "sí"} existe promiscuidad. El paciente ${formDataLocal.mascotas === "no" ? "no tiene" : "tiene"} mascotas. En cuanto a la recolección de basura, ${formDataLocal.manejoResiduos === "diaria" ? "la basura se desecha diariamente" : "se acumulan residuos dentro del hogar"}, lo que puede influir en la higiene del entorno.\n`,
+      higienePersonal: `El paciente reporta una frecuencia de baño ${formDataLocal.frecuenciaBano}, lo que influye en su higiene y confort personal. Respecto al lavado de manos, lo realiza ${formDataLocal.lavadoManos.join(" y ")}. En cuanto al cambio de ropa, se registra una frecuencia ${formDataLocal.cambioRopa}.\n`,
+      higieneBucal: `El paciente se cepilla los dientes ${formDataLocal.frecuenciaCepillado} veces al día y utiliza una técnica de cepillado ${formDataLocal.tecnicaCepillado}. Se observa que ${formDataLocal.auxiliaresBucales.length > 0 ? "utiliza" : "no utiliza"} auxiliares de higiene bucal, como ${formDataLocal.auxiliaresBucales.join(" y ")}. En relación con la atención odontológica, su última consulta fue hace ${formDataLocal.ultimaVisitaOdontologo}. El paciente reporta la presencia de ${formDataLocal.problemasBucales.join(" y ")}, lo que podría indicar la necesidad de una revisión odontológica.\n`,
+      alimentacion: `El paciente consume frecuentemente ${formDataLocal.alimentosConsumidos.join(" , ")}. Su alimentación incluye frutas y verduras con una frecuencia ${formDataLocal.frecuenciaFrutasVerduras}, mientras que las bebidas azucaradas son consumidas ${formDataLocal.frecuenciaBebidasAzucaradas}. También reporta que come comida chatarra ${formDataLocal.frecuenciaComidaChatarra}. Su consumo de agua al día es de ${formDataLocal.consumoAgua}. El paciente realiza ${formDataLocal.numeroComidas} comidas al día y mantiene un horario de alimentación ${formDataLocal.horarioComidas}. Además, menciona que ${formDataLocal.ayunoProlongado === "no" ? "no realiza" : "realiza"} ayunos prolongados.\n`
     };
 
     setRedacciones(redaccionesGeneradas);
@@ -145,14 +121,14 @@ const AntecedentesPersonalesNoPatologicos = () => {
   };
 
   const handleFormChange = (field, value) => {
-    setFormData((prevData) => ({
+    setFormDataLocal((prevData) => ({
       ...prevData,
       [field]: value
     }));
   };
 
   const handleCheckboxChange = (field, value) => {
-    setFormData((prevData) => ({
+    setFormDataLocal((prevData) => ({
       ...prevData,
       [field]: prevData[field].includes(value)
         ? prevData[field].filter((item) => item !== value)
@@ -162,12 +138,12 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
   const handleSelectAllServices = (isChecked) => {
     if (isChecked) {
-      setFormData((prevData) => ({
+      setFormDataLocal((prevData) => ({
         ...prevData,
         servicios: ["agua", "luz", "drenaje", "transporte", "internet", "gas"]
       }));
     } else {
-      setFormData((prevData) => ({
+      setFormDataLocal((prevData) => ({
         ...prevData,
         servicios: []
       }));
@@ -175,7 +151,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
   };
 
   const handleLavadoManosChange = (value) => {
-    setFormData((prevData) => {
+    setFormDataLocal((prevData) => {
       const newLavadoManos = prevData.lavadoManos.includes(value)
         ? prevData.lavadoManos.filter((item) => item !== value)
         : [...prevData.lavadoManos, value];
@@ -200,7 +176,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
   };
 
   const limpiarFormulario = () => {
-    setFormData({
+    setFormDataLocal({
       tipoVivienda: "",
       materialVivienda: "",
       servicios: [],
@@ -671,69 +647,4 @@ const AntecedentesPersonalesNoPatologicos = () => {
                       </Select>
                     </div>
                     <div>
-                      <Label>Frecuencia de Consumo de Comida Chatarra</Label>
-                      <Select onValueChange={(value) => handleFormChange('frecuenciaComidaChatarra', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="tres-cuatro-veces-semana">Tres o cuatro veces por semana</SelectItem>
-                          <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
-                          <SelectItem value="no-consume">No las consume</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Redacción IA content */}
-                {Object.keys(redacciones).map((section, index) => (
-                  <div key={index} className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <h4 className="text-lg font-semibold mb-2">{section.charAt(0).toUpperCase() + section.slice(1)}</h4>
-                    <p>{redacciones[section]}</p>
-                    <Button
-                      onClick={() => handleCopy(section)}
-                      className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
-                    >
-                      <Copy className="w-4 h-4" />
-                      <span>Copiar</span>
-                      {copied[section] && (
-                        <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
-                          <CheckCircle className="w-4 h-4" />
-                          <span>Copiado</span>
-                        </div>
-                      )}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Barra de progreso */}
-            {!showForm && (
-              <div className="progress-bar-container" style={{ width: '100%', backgroundColor: '#d3d3d3', borderRadius: '12px', overflow: 'hidden', marginBottom: '1rem', boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)' }}>
-                <div className="progress-bar" style={{ height: '8px', backgroundColor: '#34c759', transition: 'width 0.015s ease-in-out', width: `${progress}%`, borderRadius: '12px' }} />
-              </div>
-            )}
-
-            {/* Botones de acción */}
-            <div className="p-6 flex justify-center gap-4">
-              <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
-                <span>Generar Redacción IA</span>
-              </Button>
-              <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
-                <Eraser className="w-4 h-4" />
-                <span>Limpiar Formulario</span>
-              </Button>
-            </div>
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-};
-
-export default AntecedentesPersonalesNoPatologicos;
+                      <Label>Frecuencia de Consumo

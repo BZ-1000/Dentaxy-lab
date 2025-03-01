@@ -1,4 +1,3 @@
-
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -59,9 +58,44 @@ export interface Alimentacion {
   consumoNutritivo: string;
 }
 
+export interface AntecedentesPersonalesNoPatologicos {
+  tipoVivienda: string;
+  materialVivienda: string;
+  servicios: string[];
+  condicionCalle: string;
+  iluminacionCalle: string;
+  frecuenciaLimpieza: string;
+  cambioRopaCama: string;
+  hacinamiento: string;
+  promiscuidad: string;
+  mascotas: string;
+  manejoResiduos: string;
+  frecuenciaBano: string;
+  lavadoManos: string[];
+  cambioRopa: string;
+  frecuenciaCepillado: string;
+  tecnicaCepillado: string;
+  auxiliaresBucales: string[];
+  ultimaVisitaOdontologo: string;
+  problemasBucales: string[];
+  alimentosConsumidos: string[];
+  frecuenciaFrutasVerduras: string;
+  frecuenciaBebidasAzucaradas: string;
+  frecuenciaComidaChatarra: string;
+  consumoAgua: string;
+  numeroComidas: string;
+  horarioComidas: {
+    desayuno: string;
+    almuerzo: string;
+    cena: string;
+  };
+  ayunoProlongado: string;
+}
+
 export interface FormDataState {
   padecimientoActual: PadecimientoActual;
   antecedentesHeredoFamiliares: AntecedentesHeredoFamiliares;
+  antecedentesPersonalesNoPatologicos: AntecedentesPersonalesNoPatologicos;
   serviciosDomiciliarios: string;
   pisosVivienda: string;
   materialVivienda: string;
