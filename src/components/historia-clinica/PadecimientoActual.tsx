@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -327,14 +326,14 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                   className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
                 />
                 {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && (
-                  <div className="absolute top-3 left-[185px] pointer-events-none">
+                  <div className="absolute top-3 left-[185px] pointer-events-none flex items-center">
                     <Typewriter
                       text={motivosEjemplo}
                       speed={50}
                       deleteSpeed={30}
                       delay={2000}
                       loop={true}
-                      className="text-gray-500 italic"
+                      className="text-gray-500 italic text-base"
                     />
                   </div>
                 )}
