@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +8,7 @@ import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface PadecimientoActualProps {
   formData: {
@@ -101,6 +101,7 @@ const PadecimientoActual = ({
   const [copied, setCopied] = useState(false);
   const [showCausasProvocado, setShowCausasProvocado] = useState(false);
   const redaccionRef = useRef(null);
+  const isMobile = useIsMobile();
 
   const defaultMotivoConsulta = "El paciente acude a consulta por ";
   const motivosEjemplo = [
@@ -327,7 +328,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                   className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
                 />
                 {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && (
-                  <div className="absolute top-3 left-0 pl-[185px] pointer-events-none">
+                  <div className="absolute top-2.5 left-0 pl-[186px] pointer-events-none">
                     <Typewriter
                       text={motivosEjemplo}
                       speed={50}
