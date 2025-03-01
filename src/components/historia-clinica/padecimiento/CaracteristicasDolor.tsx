@@ -44,13 +44,10 @@ const definicionesDolor = [
 ];
 
 const localizacionesEjemplo = [
-  "molar superior derecho...",
-  "encías inferiores...",
-  "zona de muelas del juicio...",
-  "diente fracturado frontal...",
-  "área de la mandíbula izquierda...",
-  "diente con caries inferior...",
-  "encía inflamada alrededor del implante...",
+  "en la región molar inferior izquierda...",
+  "en la articulación temporomandibular izquierda...",
+  "en el piso de boca, irradiado hacia la lengua...",
+  "en la papila interdentaria entre los incisivos inferiores...",
 ];
 
 const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProps) => {
@@ -164,12 +161,19 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
 
       <div>
         <Label>Localización</Label>
-        <div className="relative flex items-center gap-4">
+        <div className="relative flex items-start gap-4">
           <Textarea
             value={dolor.localizacion.descripcion}
-            onChange={(e) => onDolorChange('localizacion', JSON.stringify({ ...dolor.localizacion, descripcion: e.target.value }))}
+            onChange={(e) => {
+              const newValue = e.target.value;
+              if (!newValue.startsWith(defaultLocalizacion)) {
+                onDolorChange('localizacion', JSON.stringify({ ...dolor.localizacion, descripcion: defaultLocalizacion }));
+              } else {
+                onDolorChange('localizacion', JSON.stringify({ ...dolor.localizacion, descripcion: newValue }));
+              }
+            }}
             placeholder={defaultLocalizacion}
-            className="min-h-[135px] max-h-[135px] w-[75%]"
+            className="min-h-[135px] max-h-[135px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
           />
           {dolor.localizacion.descripcion === defaultLocalizacion && (
             <div className="absolute top-1.5 left-[130px] pointer-events-none flex items-center">
@@ -183,12 +187,22 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
               />
             </div>
           )}
-          <div className="h-[40px]">
+          <div className="mt-2">
             <VoiceInput
-              onTranscriptionComplete={(text) => onDolorChange('localizacion', JSON.stringify({
-                ...dolor.localizacion,
-                descripcion: text
-              }))}
+              onTranscriptionComplete={(text) => {
+                const newValue = text;
+                if (!newValue.startsWith(defaultLocalizacion)) {
+                  onDolorChange('localizacion', JSON.stringify({
+                    ...dolor.localizacion,
+                    descripcion: `${defaultLocalizacion} ${newValue}`
+                  }));
+                } else {
+                  onDolorChange('localizacion', JSON.stringify({
+                    ...dolor.localizacion,
+                    descripcion: newValue
+                  }));
+                }
+              }}
             />
           </div>
         </div>
