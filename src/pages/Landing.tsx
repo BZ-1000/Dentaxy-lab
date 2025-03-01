@@ -300,6 +300,9 @@ const Landing = () => {
           className="flex items-center gap-4"
         >
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
+          <div className="hidden md:block text-white font-semibold">
+            Dental Basics Academy
+          </div>
         </motion.div>
         <div className="flex gap-4">
           {!session ? (
