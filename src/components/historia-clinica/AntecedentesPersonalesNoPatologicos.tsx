@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 
@@ -105,7 +106,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
   const generarRedaccionIA = () => {
     const redaccionesGeneradas = {
-      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formData.tipoVivienda} con estructura predominante de ${formData.materialVivienda}. Cuenta con servicios básicos de ${formData.servicios.length === 6 ? "agua, luz, drenaje, transporte, internet y gas" : formData.servicios.join(", ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formData.condicionCalle} y se presenta ${formData.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.\n`,
+      serviciosDomiciliarios: `El paciente reside en una vivienda de tipo ${formData.tipoVivienda} con estructura predominante de ${formData.materialVivienda}. Cuenta con servicios básicos de ${formData.servicios.length === 6 ? "todos los servicios" : formData.servicios.join(", ")}, lo que facilita su calidad de vida. La calle donde habita se encuentra ${formData.condicionCalle} y se presenta ${formData.iluminacionCalle}, lo que puede afectar su seguridad y movilidad.\n`,
       higieneVivienda: `La vivienda del paciente se mantiene con una rutina de limpieza ${formData.frecuenciaLimpieza}, lo que influye en su bienestar general. El cambio de ropa de cama se realiza ${formData.cambioRopaCama}. Se observa que la vivienda ${formData.hacinamiento === "no" ? "no presenta" : "presenta"} condiciones de hacinamiento. Además, se identifica que ${formData.promiscuidad === "no" ? "no" : "sí"} existe promiscuidad. El paciente ${formData.mascotas === "no" ? "no tiene" : "tiene"} mascotas. En cuanto a la recolección de basura, ${formData.manejoResiduos === "diaria" ? "la basura se desecha diariamente" : "se acumulan residuos dentro del hogar"}, lo que puede influir en la higiene del entorno.\n`,
       higienePersonal: `El paciente reporta una frecuencia de baño ${formData.frecuenciaBano}, lo que influye en su higiene y confort personal. Respecto al lavado de manos, lo realiza ${formData.lavadoManos.join(" y ")}. En cuanto al cambio de ropa, se registra una frecuencia ${formData.cambioRopa}.\n`,
       higieneBucal: `El paciente se cepilla los dientes ${formData.frecuenciaCepillado} veces al día y utiliza una técnica de cepillado ${formData.tecnicaCepillado}. Se observa que ${formData.auxiliaresBucales.length > 0 ? "utiliza" : "no utiliza"} auxiliares de higiene bucal, como ${formData.auxiliaresBucales.join(" y ")}. En relación con la atención odontológica, su última consulta fue hace ${formData.ultimaVisitaOdontologo}. El paciente reporta la presencia de ${formData.problemasBucales.join(" y ")}, lo que podría indicar la necesidad de una revisión odontológica.\n`,
@@ -245,7 +246,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
-      <Card className={`bg-white dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
+      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
@@ -289,7 +290,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
               <div className="space-y-6">
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2">Servicios Domiciliarios</h4>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Tipo de Vivienda</Label>
                       <Select onValueChange={(value) => handleFormChange('tipoVivienda', value)}>
@@ -319,49 +320,35 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Servicios Disponibles</Label>
-                      <div className="grid grid-cols-1 gap-2 mt-1 md:grid-cols-2">
-                        <Button
-                          onClick={() => handleSelectAllServices(true)}
-                          className="w-full px-2 py-1 text-sm bg-blue-500 text-white rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2"
-                        >
-                          Todos los servicios
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('servicios', 'agua')}
-                          className={`w-full px-2 py-1 text-sm ${formData.servicios.includes('agua') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Agua
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('servicios', 'luz')}
-                          className={`w-full px-2 py-1 text-sm ${formData.servicios.includes('luz') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Luz
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('servicios', 'drenaje')}
-                          className={`w-full px-2 py-1 text-sm ${formData.servicios.includes('drenaje') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Drenaje
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('servicios', 'transporte')}
-                          className={`w-full px-2 py-1 text-sm ${formData.servicios.includes('transporte') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Transporte
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('servicios', 'internet')}
-                          className={`w-full px-2 py-1 text-sm ${formData.servicios.includes('internet') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Internet
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('servicios', 'gas')}
-                          className={`w-full px-2 py-1 text-sm ${formData.servicios.includes('gas') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Gas
-                        </Button>
+                      <div className="grid grid-cols-2 gap-1 mt-1">
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="todos" onChange={(e) => handleSelectAllServices(e.target.checked)} />
+                          <Label htmlFor="todos">Todos los servicios</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="agua" onChange={(e) => handleCheckboxChange('servicios', 'agua')} />
+                          <Label htmlFor="agua">Agua</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="luz" onChange={(e) => handleCheckboxChange('servicios', 'luz')} />
+                          <Label htmlFor="luz">Luz</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="drenaje" onChange={(e) => handleCheckboxChange('servicios', 'drenaje')} />
+                          <Label htmlFor="drenaje">Drenaje</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="transporte" onChange={(e) => handleCheckboxChange('servicios', 'transporte')} />
+                          <Label htmlFor="transporte">Transporte</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="internet" onChange={(e) => handleCheckboxChange('servicios', 'internet')} />
+                          <Label htmlFor="internet">Internet</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="gas" onChange={(e) => handleCheckboxChange('servicios', 'gas')} />
+                          <Label htmlFor="gas">Gas</Label>
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -394,7 +381,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2">Higiene de la Vivienda</h4>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Regularidad en el Aseo de la Vivienda</Label>
                       <Select onValueChange={(value) => handleFormChange('frecuenciaLimpieza', value)}>
@@ -479,7 +466,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2">Higiene Personal</h4>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Frecuencia de Baño</Label>
                       <Select onValueChange={(value) => handleFormChange('frecuenciaBano', value)}>
@@ -496,31 +483,23 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div>
                       <Label>Aseo de Manos</Label>
-                      <div className="grid grid-cols-1 gap-2 mt-1 md:grid-cols-2">
-                        <Button
-                          onClick={() => handleLavadoManosChange('antes de cada comida')}
-                          className={`w-full px-2 py-1 text-sm ${formData.lavadoManos.includes('antes de cada comida') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Antes de cada comida
-                        </Button>
-                        <Button
-                          onClick={() => handleLavadoManosChange('despues de ir al baño')}
-                          className={`w-full px-2 py-1 text-sm ${formData.lavadoManos.includes('despues de ir al baño') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Después de ir al baño
-                        </Button>
-                        <Button
-                          onClick={() => handleLavadoManosChange('antes y despues de cada comida')}
-                          className={`w-full px-2 py-1 text-sm ${formData.lavadoManos.includes('antes y despues de cada comida') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Antes y después de manipular alimentos
-                        </Button>
-                        <Button
-                          onClick={() => handleLavadoManosChange('de manera no regular')}
-                          className={`w-full px-2 py-1 text-sm ${formData.lavadoManos.includes('de manera no regular') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          No tiene hábito regular de lavado de manos
-                        </Button>
+                      <div className="grid grid-cols-2 gap-1 mt-1">
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="antes-comida" onChange={() => handleLavadoManosChange('antes de cada comida')} />
+                          <Label htmlFor="antes-comida">Antes de cada comida</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="despues-bano" onChange={() => handleLavadoManosChange('despues de ir al baño')} />
+                          <Label htmlFor="despues-bano">Después de ir al baño</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="antes-despues-comida" onChange={() => handleLavadoManosChange('antes y despues de cada comida')} />
+                          <Label htmlFor="antes-despues-comida">Antes y después de manipular alimentos</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="no-regular" onChange={() => handleLavadoManosChange('de manera no regular')} />
+                          <Label htmlFor="no-regular">No tiene hábito regular de lavado de manos</Label>
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -542,7 +521,7 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2">Higiene Bucal</h4>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Frecuencia de Cepillado Dental</Label>
                       <Select onValueChange={(value) => handleFormChange('frecuenciaCepillado', value)}>
@@ -574,31 +553,23 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div className="mt-1">
                       <Label>Uso de Auxiliares</Label>
-                      <div className="grid grid-cols-1 gap-2 mt-1 md:grid-cols-2">
-                        <Button
-                          onClick={() => handleCheckboxChange('auxiliaresBucales', 'hilo dental')}
-                          className={`w-full px-2 py-1 text-sm ${formData.auxiliaresBucales.includes('hilo dental') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Hilo Dental
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('auxiliaresBucales', 'enjuague bucal')}
-                          className={`w-full px-2 py-1 text-sm ${formData.auxiliaresBucales.includes('enjuague bucal') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Enjuague Bucal
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('auxiliaresBucales', 'irrigador dental')}
-                          className={`w-full px-2 py-1 text-sm ${formData.auxiliaresBucales.includes('irrigador dental') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Irrigador Dental
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('auxiliaresBucales', 'no auxiliares')}
-                          className={`w-full px-2 py-1 text-sm ${formData.auxiliaresBucales.includes('no auxiliares') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          No usa auxiliares
-                        </Button>
+                      <div className="grid grid-cols-2 gap-1 mt-1">
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="hilo-dental" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'hilo dental')} />
+                          <Label htmlFor="hilo-dental">Hilo Dental</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="enjuague" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'enjuague bucal')} />
+                          <Label htmlFor="enjuague">Enjuague Bucal</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="irrigador" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'irrigador dental')} />
+                          <Label htmlFor="irrigador">Irrigador Dental</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="no-auxiliares" onChange={(e) => handleCheckboxChange('auxiliaresBucales', 'no auxiliares')} />
+                          <Label htmlFor="no-auxiliares">No usa auxiliares</Label>
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -617,37 +588,27 @@ const AntecedentesPersonalesNoPatologicos = () => {
                     </div>
                     <div className="mt-1">
                       <Label>Problemas Bucales Presentes</Label>
-                      <div className="grid grid-cols-1 gap-2 mt-1 md:grid-cols-2">
-                        <Button
-                          onClick={() => handleCheckboxChange('problemasBucales', 'encías que sangran')}
-                          className={`w-full px-2 py-1 text-sm ${formData.problemasBucales.includes('encías que sangran') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Encías que sangran al cepillarse
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('problemasBucales', 'dientes con agujeros')}
-                          className={`w-full px-2 py-1 text-sm ${formData.problemasBucales.includes('dientes con agujeros') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Dientes con agujeros o zonas oscuras
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('problemasBucales', 'mal aliento frecuente')}
-                          className={`w-full px-2 py-1 text-sm ${formData.problemasBucales.includes('mal aliento frecuente') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Mal aliento frecuente
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('problemasBucales', 'dolor en dientes o encías')}
-                          className={`w-full px-2 py-1 text-sm ${formData.problemasBucales.includes('dolor en dientes o encías') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Dolor en dientes o encías
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('problemasBucales', 'no problemas')}
-                          className={`w-full px-2 py-1 text-sm ${formData.problemasBucales.includes('no problemas') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          No tengo problemas bucales
-                        </Button>
+                      <div className="grid grid-cols-2 gap-1 mt-1">
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="encias-sangran" onChange={(e) => handleCheckboxChange('problemasBucales', 'encías que sangran')} />
+                          <Label htmlFor="encias-sangran">Encías que sangran al cepillarse</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="dientes-agujeros" onChange={(e) => handleCheckboxChange('problemasBucales', 'dientes con agujeros')} />
+                          <Label htmlFor="dientes-agujeros">Dientes con agujeros o zonas oscuras</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="mal-aliento" onChange={(e) => handleCheckboxChange('problemasBucales', 'mal aliento frecuente')} />
+                          <Label htmlFor="mal-aliento">Mal aliento frecuente</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="dolor-dientes" onChange={(e) => handleCheckboxChange('problemasBucales', 'dolor en dientes o encías')} />
+                          <Label htmlFor="dolor-dientes">Dolor en dientes o encías</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="no-problemas" onChange={(e) => handleCheckboxChange('problemasBucales', 'no problemas')} />
+                          <Label htmlFor="no-problemas">No tengo problemas bucales</Label>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -655,40 +616,30 @@ const AntecedentesPersonalesNoPatologicos = () => {
 
                 <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2">Alimentación</h4>
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Tipo de Alimentos Consumidos Frecuentemente</Label>
-                      <div className="grid grid-cols-1 gap-2 mt-1 md:grid-cols-2">
-                        <Button
-                          onClick={() => handleCheckboxChange('alimentosConsumidos', 'frutas y verduras')}
-                          className={`w-full px-2 py-1 text-sm ${formData.alimentosConsumidos.includes('frutas y verduras') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Frutas y verduras
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('alimentosConsumidos', 'carnes y proteínas')}
-                          className={`w-full px-2 py-1 text-sm ${formData.alimentosConsumidos.includes('carnes y proteínas') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Carnes y proteínas
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('alimentosConsumidos', 'alimentos procesados y fritos')}
-                          className={`w-full px-2 py-1 text-sm ${formData.alimentosConsumidos.includes('alimentos procesados y fritos') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Alimentos procesados y fritos
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('alimentosConsumidos', 'dulces y azúcares')}
-                          className={`w-full px-2 py-1 text-sm ${formData.alimentosConsumidos.includes('dulces y azúcares') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Dulces y azúcares
-                        </Button>
-                        <Button
-                          onClick={() => handleCheckboxChange('alimentosConsumidos', 'lácteos')}
-                          className={`w-full px-2 py-1 text-sm ${formData.alimentosConsumidos.includes('lácteos') ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'} rounded-lg hover:bg-blue-600 flex items-center justify-center gap-2`}
-                        >
-                          Lácteos
-                        </Button>
+                      <div className="grid grid-cols-2 gap-1 mt-1">
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="frutas-verduras" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'frutas y verduras')} />
+                          <Label htmlFor="frutas-verduras">Frutas y verduras</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="carnes-proteinas" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'carnes y proteínas')} />
+                          <Label htmlFor="carnes-proteinas">Carnes y proteínas</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="alimentos-procesados" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'alimentos procesados y fritos')} />
+                          <Label htmlFor="alimentos-procesados">Alimentos procesados y fritos</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="dulces-azucares" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'dulces y azúcares')} />
+                          <Label htmlFor="dulces-azucares">Dulces y azúcares</Label>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <CustomCheckbox id="lacteos" onChange={(e) => handleCheckboxChange('alimentosConsumidos', 'lácteos')} />
+                          <Label htmlFor="lacteos">Lácteos</Label>
+                        </div>
                       </div>
                     </div>
                     <div>
