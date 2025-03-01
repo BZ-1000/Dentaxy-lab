@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -98,7 +99,7 @@ const PadecimientoActual = ({
   const [displayedText, setDisplayedText] = useState("");
   const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
-  const [showCausasProvocado, setShowCausasProvocado] = useState(false);
+  const [showCausasProvocado, setShowCausasProvocado] = useState(formData.padecimientoActual.dolor.condicionAparicion === 'provocado');
   const redaccionRef = useRef(null);
 
   const defaultMotivoConsulta = "El paciente acude a consulta por ";
@@ -115,9 +116,24 @@ const PadecimientoActual = ({
     "dolor al masticar alimentos...",
   ];
 
+  const defaultCausaProvocado = "Provocado con ";
+  const causasProvocadoEjemplo = [
+    "alimentos fríos o helados en contacto con el diente...",
+    "la presión durante la masticación de alimentos duros...",
+    "bebidas calientes que generan dolor inmediato...",
+    "el cepillado en la zona vestibular de los premolares...",
+    "dulces y alimentos azucarados que desencadenan molestias...",
+  ];
+
   useEffect(() => {
     if (!formData.padecimientoActual.motivoConsulta) {
       handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+    }
+    
+    if (formData.padecimientoActual.dolor.condicionAparicion === 'provocado' && 
+        (!formData.padecimientoActual.dolor.causaProvocado || 
+         formData.padecimientoActual.dolor.causaProvocado === '')) {
+      handleDolorChange("causaProvocado", defaultCausaProvocado);
     }
   }, []);
 
@@ -326,7 +342,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                   className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
                 />
                 {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && (
-                  <div className="absolute top-1.5 left-[215px] pointer-events-none flex items-center">
+                  <div className="absolute top-2 left-[215px] pointer-events-none">
                     <Typewriter
                       text={motivosEjemplo}
                       speed={50}
@@ -374,15 +390,43 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                     <div className="mt-4">
                       <Label className="text-gray-700 dark:text-gray-300">Causa del dolor provocado:</Label>
                       <div className="flex items-center gap-4">
-                        <Textarea
-                          value={formData.padecimientoActual.dolor.causaProvocado || ''}
-                          onChange={(e) => handleDolorChange('causaProvocado', e.target.value)}
-                          placeholder="Describa la causa específica que provoca el dolor...INICIANDO CON provocado con..."
-                          className="min-h-[100px] max-h-[200px] w-[75%]"
-                        />
+                        <div className="relative w-full">
+                          <Textarea
+                            value={formData.padecimientoActual.dolor.causaProvocado || defaultCausaProvocado}
+                            onChange={(e) => {
+                              const newValue = e.target.value;
+                              if (!newValue.startsWith(defaultCausaProvocado)) {
+                                handleDolorChange('causaProvocado', `${defaultCausaProvocado} ${newValue}`);
+                              } else {
+                                handleDolorChange('causaProvocado', newValue);
+                              }
+                            }}
+                            placeholder={defaultCausaProvocado}
+                            className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
+                          />
+                          {(!formData.padecimientoActual.dolor.causaProvocado || formData.padecimientoActual.dolor.causaProvocado === defaultCausaProvocado) && (
+                            <div className="absolute top-2 left-[115px] pointer-events-none">
+                              <Typewriter
+                                text={causasProvocadoEjemplo}
+                                speed={50}
+                                deleteSpeed={30}
+                                delay={2000}
+                                loop={true}
+                                className="text-gray-500 italic text-base"
+                              />
+                            </div>
+                          )}
+                        </div>
                         <div className="h-[40px]">
                           <VoiceInput
-                            onTranscriptionComplete={(text) => handleDolorChange('causaProvocado', text)}
+                            onTranscriptionComplete={(text) => {
+                              const newValue = text;
+                              if (!newValue.startsWith(defaultCausaProvocado)) {
+                                handleDolorChange('causaProvocado', `${defaultCausaProvocado} ${newValue}`);
+                              } else {
+                                handleDolorChange('causaProvocado', newValue);
+                              }
+                            }}
                           />
                         </div>
                       </div>

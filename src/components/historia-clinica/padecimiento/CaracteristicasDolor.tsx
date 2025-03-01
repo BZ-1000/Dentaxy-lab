@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -6,6 +7,7 @@ import { VoiceInput } from "@/components/ui/voice-input";
 import { BookOpen, Lightbulb } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { Typewriter } from "@/components/ui/typewriter-text";
 
 interface CaracteristicasDolorProps {
   dolor: {
@@ -19,6 +21,7 @@ interface CaracteristicasDolorProps {
       descripcion: string;
     };
     atenuacion: string;
+    causaProvocado?: string;
   };
   onDolorChange: (field: string, value: string) => void;
 }
@@ -44,15 +47,25 @@ const definicionesDolor = [
 
 const defaultLocalizacion = "Localizado en ";
 const localizacionesEjemplo = [
-  "en la región molar inferior izquierda...",
-  "en la articulación temporomandibular izquierda...",
-  "en el piso de boca, irradiado hacia la lengua...",
-  "en la papila interdentaria entre los incisivos inferiores...",
+  "la región molar inferior izquierda...",
+  "la articulación temporomandibular izquierda...",
+  "el piso de boca, irradiado hacia la lengua...",
+  "la papila interdentaria entre los incisivos inferiores...",
+];
+
+const defaultCausaProvocado = "Provocado con ";
+const causasProvocadoEjemplo = [
+  "alimentos fríos o helados en contacto con el diente...",
+  "la presión durante la masticación de alimentos duros...",
+  "bebidas calientes que generan dolor inmediato...",
+  "el cepillado en la zona vestibular de los premolares...",
+  "dulces y alimentos azucarados que desencadenan molestias...",
 ];
 
 const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProps) => {
   const [showIcon, setShowIcon] = useState(false);
-  const [localizacionText, setLocalizacionText] = useState(defaultLocalizacion);
+  const [localizacionText, setLocalizacionText] = useState(dolor.localizacion?.descripcion || defaultLocalizacion);
+  const [causaProvocadoText, setCausaProvocadoText] = useState(dolor.causaProvocado || defaultCausaProvocado);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -65,6 +78,11 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
   const handleLocalizacionChange = (field: string, value: string) => {
     setLocalizacionText(value);
     onDolorChange(field, value);
+  };
+
+  const handleCausaProvocadoChange = (value: string) => {
+    setCausaProvocadoText(value);
+    onDolorChange('causaProvocado', value);
   };
 
   return (
@@ -188,10 +206,15 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
               className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
             />
             {localizacionText === defaultLocalizacion && (
-              <div className="absolute top-1.5 left-[215px] pointer-events-none flex items-center">
-                <span className="text-gray-500 italic text-base">
-                  {localizacionesEjemplo.join(', ')}
-                </span>
+              <div className="absolute top-2 left-[115px] pointer-events-none">
+                <Typewriter
+                  text={localizacionesEjemplo}
+                  speed={50}
+                  deleteSpeed={30}
+                  delay={2000}
+                  loop={true}
+                  className="text-gray-500 italic text-base"
+                />
               </div>
             )}
           </div>

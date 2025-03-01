@@ -96,6 +96,16 @@ export const useHistoriaClinica = () => {
     }));
   };
 
+  const handleAntecedenteChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesPersonalesNoPatologicos: {
+        ...prev.antecedentesPersonalesNoPatologicos,
+        [field]: value
+      }
+    }));
+  };
+
   const generarResumen = async () => {
     try {
       setIsGenerating(true);
@@ -126,6 +136,7 @@ export const useHistoriaClinica = () => {
     handleSinSintomasChange,
     handleFamiliarChange,
     handleCondicionChange,
+    handleAntecedenteChange,
     generarResumen
   };
 };
