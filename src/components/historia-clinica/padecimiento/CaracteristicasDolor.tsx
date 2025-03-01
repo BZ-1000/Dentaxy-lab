@@ -1,3 +1,4 @@
+import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -5,8 +6,6 @@ import { VoiceInput } from "@/components/ui/voice-input";
 import { BookOpen, Lightbulb } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
-import { Typewriter } from "@/components/ui/typewriter-text";
 
 interface CaracteristicasDolorProps {
   dolor: {
@@ -43,6 +42,7 @@ const definicionesDolor = [
   }
 ];
 
+const defaultLocalizacion = "Localizado en ";
 const localizacionesEjemplo = [
   "en la región molar inferior izquierda...",
   "en la articulación temporomandibular izquierda...",
@@ -52,7 +52,7 @@ const localizacionesEjemplo = [
 
 const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProps) => {
   const [showIcon, setShowIcon] = useState(false);
-  const defaultLocalizacion = "Localizado en ";
+  const [localizacionText, setLocalizacionText] = useState(defaultLocalizacion);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -61,6 +61,11 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
     }, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleLocalizacionChange = (field: string, value: string) => {
+    setLocalizacionText(value);
+    onDolorChange(field, value);
+  };
 
   return (
     <div className="space-y-4">
@@ -159,45 +164,48 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
         </div>
       </div>
 
-      <div>
-        <Label>Localización</Label>
-        <div className="relative flex items-start gap-4">
-          <Textarea
-            value={dolor.localizacion.descripcion}
-            onChange={(e) => {
-              const newValue = e.target.value;
-              if (!newValue.startsWith(defaultLocalizacion)) {
-                onDolorChange('localizacion', JSON.stringify({ ...dolor.localizacion, descripcion: defaultLocalizacion }));
-              } else {
-                onDolorChange('localizacion', JSON.stringify({ ...dolor.localizacion, descripcion: newValue }));
-              }
-            }}
-            placeholder={defaultLocalizacion}
-            className="min-h-[135px] max-h-[135px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
-          />
-          {dolor.localizacion.descripcion === defaultLocalizacion && (
-            <div className="absolute top-1.5 left-[130px] pointer-events-none flex items-center">
-              <Typewriter
-                text={localizacionesEjemplo}
-                speed={50}
-                deleteSpeed={30}
-                delay={2000}
-                loop={true}
-                className="text-gray-500 italic text-base"
-              />
-            </div>
-          )}
+      <div className="p-6">
+        <Label className="text-gray-700 dark:text-gray-300">Localización</Label>
+        <div className="flex items-start gap-4">
+          <div className="relative w-full">
+            <Textarea
+              value={localizacionText}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                if (!newValue.startsWith(defaultLocalizacion)) {
+                  handleLocalizacionChange("localizacion", JSON.stringify({
+                    ...dolor.localizacion,
+                    descripcion: `${defaultLocalizacion} ${newValue}`
+                  }));
+                } else {
+                  handleLocalizacionChange("localizacion", JSON.stringify({
+                    ...dolor.localizacion,
+                    descripcion: newValue
+                  }));
+                }
+              }}
+              placeholder={defaultLocalizacion}
+              className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
+            />
+            {localizacionText === defaultLocalizacion && (
+              <div className="absolute top-1.5 left-[215px] pointer-events-none flex items-center">
+                <span className="text-gray-500 italic text-base">
+                  {localizacionesEjemplo.join(', ')}
+                </span>
+              </div>
+            )}
+          </div>
           <div className="mt-2">
             <VoiceInput
               onTranscriptionComplete={(text) => {
                 const newValue = text;
                 if (!newValue.startsWith(defaultLocalizacion)) {
-                  onDolorChange('localizacion', JSON.stringify({
+                  handleLocalizacionChange("localizacion", JSON.stringify({
                     ...dolor.localizacion,
                     descripcion: `${defaultLocalizacion} ${newValue}`
                   }));
                 } else {
-                  onDolorChange('localizacion', JSON.stringify({
+                  handleLocalizacionChange("localizacion", JSON.stringify({
                     ...dolor.localizacion,
                     descripcion: newValue
                   }));
