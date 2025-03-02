@@ -392,21 +392,15 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                       <div className="flex items-center gap-4">
                         <div className="relative w-full">
                         <Textarea
-                          value={formData.padecimientoActual.dolor.causaProvocado || defaultCausaProvocado}
-                         onChange={(e) => {
-                         const newValue = e.target.value;
-                        // Si el nuevo valor es una cadena vacía, permitirlo
-                         if (newValue === '') {
-                         handleDolorChange('causaProvocado', '');
-                         } else if (!newValue.startsWith(defaultCausaProvocado)) {
-                          handleDolorChange('causaProvocado', `${defaultCausaProvocado} ${newValue}`);
-                         } else {
-                         handleDolorChange('causaProvocado', newValue);
-                         }
-                         }}
-                         placeholder={defaultCausaProvocado}
-                         className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
-                       />
+                       value={formData.padecimientoActual.dolor.causaProvocado || ''}
+                       onChange={(e) => {
+                       const newValue = e.target.value;
+                       handleDolorChange('causaProvocado', newValue);
+                       }}
+                       placeholder={defaultCausaProvocado}
+                       className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
+                      />
+
                           {(!formData.padecimientoActual.dolor.causaProvocado || formData.padecimientoActual.dolor.causaProvocado === defaultCausaProvocado) && (
                             <div className="absolute top-2 left-[115px] pointer-events-none">
                               <Typewriter
