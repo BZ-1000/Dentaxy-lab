@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -129,9 +128,9 @@ const PadecimientoActual = ({
     if (!formData.padecimientoActual.motivoConsulta) {
       handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
     }
-    
-    if (formData.padecimientoActual.dolor.condicionAparicion === 'provocado' && 
-        (!formData.padecimientoActual.dolor.causaProvocado || 
+
+    if (formData.padecimientoActual.dolor.condicionAparicion === 'provocado' &&
+        (!formData.padecimientoActual.dolor.causaProvocado ||
          formData.padecimientoActual.dolor.causaProvocado === '')) {
       handleDolorChange("causaProvocado", defaultCausaProvocado);
     }
@@ -210,10 +209,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     setRedaccionIA("");
     setShowRedaccion(false);
     setShowCausasProvocado(false);
-  };
-
-  const removeDuplicates = (text: string): string => {
-    return text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
   };
 
   const handleCopy = async () => {
@@ -391,16 +386,15 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                       <Label className="text-gray-700 dark:text-gray-300">Causa del dolor provocado:</Label>
                       <div className="flex items-center gap-4">
                         <div className="relative w-full">
-                        <Textarea
-                       value={formData.padecimientoActual.dolor.causaProvocado || ''}
-                       onChange={(e) => {
-                       const newValue = e.target.value;
-                       handleDolorChange('causaProvocado', newValue);
-                       }}
-                       placeholder={defaultCausaProvocado}
-                       className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
-                      />
-
+                          <Textarea
+                            value={formData.padecimientoActual.dolor.causaProvocado || ''}
+                            onChange={(e) => {
+                              const newValue = e.target.value;
+                              handleDolorChange('causaProvocado', newValue);
+                            }}
+                            placeholder={defaultCausaProvocado}
+                            className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
+                          />
                           {(!formData.padecimientoActual.dolor.causaProvocado || formData.padecimientoActual.dolor.causaProvocado === defaultCausaProvocado) && (
                             <div className="absolute top-2 left-[115px] pointer-events-none">
                               <Typewriter
@@ -418,11 +412,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                           <VoiceInput
                             onTranscriptionComplete={(text) => {
                               const newValue = text;
-                              if (!newValue.startsWith(defaultCausaProvocado)) {
-                                handleDolorChange('causaProvocado', `${defaultCausaProvocado} ${newValue}`);
-                              } else {
-                                handleDolorChange('causaProvocado', newValue);
-                              }
+                              handleDolorChange('causaProvocado', newValue);
                             }}
                           />
                         </div>
