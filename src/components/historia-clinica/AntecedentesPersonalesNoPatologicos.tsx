@@ -1,4 +1,4 @@
-
+<lov-code>
 import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -10,6 +10,7 @@ import { FormDataState } from '@/types/historiaClinica';
 interface AntecedentesPersonalesNoPatologicosProps {
   formData: FormDataState;
   handleAntecedenteChange: (field: string, value: any) => void;
+  toggleService: (service: string) => void;
 }
 
 // Word button component for replacing checkboxes
@@ -38,7 +39,8 @@ const WordButton = ({
 
 const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPatologicosProps> = ({ 
   formData, 
-  handleAntecedenteChange 
+  handleAntecedenteChange,
+  toggleService
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -742,149 +744,4 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                             <SelectContent>
                               <SelectItem value="antes-ocho">Antes de las 8:00 PM</SelectItem>
                               <SelectItem value="ocho-diez">Entre 8:00 PM y 10:00 PM</SelectItem>
-                              <SelectItem value="despues-diez">Después de las 10:00 PM</SelectItem>
-                              <SelectItem value="no-cena">No cena</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    </div>
-                    <div>
-                      <Label>¿Realiza Ayunos Prolongados?</Label>
-                      <Select onValueChange={(value) => handleFormChange('ayunoProlongado', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione opción" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="si">Sí</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-center mt-6">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={limpiarFormulario}
-                    className="flex items-center gap-2 bg-white dark:bg-gray-800"
-                  >
-                    <Eraser className="w-4 h-4" />
-                    Limpiar formulario
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="relative overflow-hidden bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
-                  <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-200 dark:bg-gray-700">
-                    <div className="h-full bg-blue-500 transition-all duration-300" style={{ width: `${progress}%` }}></div>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400">Servicios Domiciliarios</h4>
-                        {redacciones.serviciosDomiciliarios && (
-                          <button 
-                            onClick={() => handleCopy('serviciosDomiciliarios')} 
-                            className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-                          >
-                            {copied.serviciosDomiciliarios ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                          </button>
-                        )}
-                      </div>
-                      <div className="mt-2 text-sm whitespace-pre-line">{redacciones.serviciosDomiciliarios}</div>
-                    </div>
-                    
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400">Higiene de la Vivienda</h4>
-                        {redacciones.higieneVivienda && (
-                          <button 
-                            onClick={() => handleCopy('higieneVivienda')} 
-                            className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-                          >
-                            {copied.higieneVivienda ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                          </button>
-                        )}
-                      </div>
-                      <div className="mt-2 text-sm whitespace-pre-line">{redacciones.higieneVivienda}</div>
-                    </div>
-                    
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400">Higiene Personal</h4>
-                        {redacciones.higienePersonal && (
-                          <button 
-                            onClick={() => handleCopy('higienePersonal')} 
-                            className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-                          >
-                            {copied.higienePersonal ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                          </button>
-                        )}
-                      </div>
-                      <div className="mt-2 text-sm whitespace-pre-line">{redacciones.higienePersonal}</div>
-                    </div>
-                    
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400">Higiene Bucal</h4>
-                        {redacciones.higieneBucal && (
-                          <button 
-                            onClick={() => handleCopy('higieneBucal')} 
-                            className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-                          >
-                            {copied.higieneBucal ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                          </button>
-                        )}
-                      </div>
-                      <div className="mt-2 text-sm whitespace-pre-line">{redacciones.higieneBucal}</div>
-                    </div>
-                    
-                    <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-semibold text-blue-600 dark:text-blue-400">Alimentación</h4>
-                        {redacciones.alimentacion && (
-                          <button 
-                            onClick={() => handleCopy('alimentacion')} 
-                            className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-                          >
-                            {copied.alimentacion ? <CheckCircle className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                          </button>
-                        )}
-                      </div>
-                      <div className="mt-2 text-sm whitespace-pre-line">{redacciones.alimentacion}</div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-center gap-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowForm(true)}
-                    className="flex items-center gap-2 bg-white dark:bg-gray-800"
-                  >
-                    Volver al formulario
-                  </Button>
-                  <Button
-                    type="button"
-                    onClick={generarRedaccionIA}
-                    className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white"
-                  >
-                    Generar redacción
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-};
-
-export default AntecedentesPersonalesNoPatologicos;
+                              <SelectItem value="despues-diez">Después

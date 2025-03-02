@@ -43,7 +43,7 @@ export const useHistoriaClinica = () => {
           } else {
             // It's just a plain string, use it as a description
             localizacion = { 
-              tipo: prev.padecimientoActual.dolor.localizacion.tipo || '',
+              tipo: '',
               descripcion: value 
             };
           }
