@@ -387,7 +387,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                       <div className="flex items-center gap-4">
                         <div className="relative w-full">
                           <Textarea
-                            value={formData.padecimientoActual.dolor.causaProvocado || defaultCausaProvocado}
+                            value={formData.padecimientoActual.dolor.causaProvocado || ''}
                             onChange={(e) => {
                               const newValue = e.target.value;
                               if (!newValue.startsWith(defaultCausaProvocado)) {
