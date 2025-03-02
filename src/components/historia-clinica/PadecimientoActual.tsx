@@ -407,7 +407,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                          placeholder={defaultCausaProvocado}
                          className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
                        />
-
                           {(!formData.padecimientoActual.dolor.causaProvocado || formData.padecimientoActual.dolor.causaProvocado === defaultCausaProvocado) && (
                             <div className="absolute top-2 left-[115px] pointer-events-none">
                               <Typewriter
