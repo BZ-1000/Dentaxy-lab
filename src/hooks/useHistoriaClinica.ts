@@ -31,8 +31,31 @@ export const useHistoriaClinica = () => {
 
   const handleDolorChange = (field: string, value: any) => {
     if (field === 'localizacion') {
-      // If value is already an object, use it directly
-      const localizacion = typeof value === 'string' ? JSON.parse(value) : value;
+      // Ensure we're not creating nested objects with duplicate keys
+      let localizacion;
+      
+      // If it's a string that might be JSON, safely parse it or use a default object
+      if (typeof value === 'string') {
+        try {
+          // Only try to parse if it looks like JSON
+          if (value.startsWith('{') && value.endsWith('}')) {
+            localizacion = JSON.parse(value);
+          } else {
+            // It's just a plain string, use it as a description
+            localizacion = { 
+              tipo: prev.padecimientoActual.dolor.localizacion.tipo || '',
+              descripcion: value 
+            };
+          }
+        } catch (e) {
+          // If parsing fails, use a clean object
+          localizacion = { tipo: '', descripcion: value };
+        }
+      } else if (typeof value === 'object') {
+        // It's already an object, use it directly
+        localizacion = value;
+      }
+      
       setFormData(prev => ({
         ...prev,
         padecimientoActual: {
@@ -97,13 +120,38 @@ export const useHistoriaClinica = () => {
   };
 
   const handleAntecedenteChange = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      antecedentesPersonalesNoPatologicos: {
-        ...prev.antecedentesPersonalesNoPatologicos,
-        [field]: value
-      }
-    }));
+    // Handle nested objects like horarioComidas
+    if (field.includes('.')) {
+      const [parent, child] = field.split('.');
+      setFormData(prev => ({
+        ...prev,
+        antecedentesPersonalesNoPatologicos: {
+          ...prev.antecedentesPersonalesNoPatologicos,
+          [parent]: {
+            ...prev.antecedentesPersonalesNoPatologicos[parent],
+            [child]: value
+          }
+        }
+      }));
+    } else if (Array.isArray(value)) {
+      // Handle arrays like servicios
+      setFormData(prev => ({
+        ...prev,
+        antecedentesPersonalesNoPatologicos: {
+          ...prev.antecedentesPersonalesNoPatologicos,
+          [field]: value
+        }
+      }));
+    } else {
+      // Regular fields
+      setFormData(prev => ({
+        ...prev,
+        antecedentesPersonalesNoPatologicos: {
+          ...prev.antecedentesPersonalesNoPatologicos,
+          [field]: value
+        }
+      }));
+    }
   };
 
   const generarResumen = async () => {
@@ -126,6 +174,41 @@ export const useHistoriaClinica = () => {
     }
   };
 
+  // Toggle a service in the services array
+  const toggleService = (service: string) => {
+    setFormData(prev => {
+      const currentServices = [...prev.antecedentesPersonalesNoPatologicos.servicios];
+      
+      // Special case for "todos"
+      if (service === 'todos') {
+        const allServices = ['agua', 'luz', 'drenaje', 'transporte', 'internet', 'gas'];
+        // If all services are already selected, clear them, otherwise select all
+        const hasAllServices = allServices.every(s => currentServices.includes(s));
+        
+        return {
+          ...prev,
+          antecedentesPersonalesNoPatologicos: {
+            ...prev.antecedentesPersonalesNoPatologicos,
+            servicios: hasAllServices ? [] : allServices
+          }
+        };
+      }
+      
+      // Toggle individual service
+      const updatedServices = currentServices.includes(service)
+        ? currentServices.filter(s => s !== service)
+        : [...currentServices, service];
+        
+      return {
+        ...prev,
+        antecedentesPersonalesNoPatologicos: {
+          ...prev.antecedentesPersonalesNoPatologicos,
+          servicios: updatedServices
+        }
+      };
+    });
+  };
+
   return {
     formData,
     resumen,
@@ -137,6 +220,7 @@ export const useHistoriaClinica = () => {
     handleFamiliarChange,
     handleCondicionChange,
     handleAntecedenteChange,
+    toggleService,
     generarResumen
   };
 };

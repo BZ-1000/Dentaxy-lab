@@ -24,6 +24,7 @@ const HistoriaClinica = () => {
     handleFamiliarChange,
     handleCondicionChange,
     handleAntecedenteChange,
+    toggleService,
     generarResumen
   } = useHistoriaClinica();
 
@@ -48,6 +49,7 @@ const HistoriaClinica = () => {
             <AntecedentesPersonalesNoPatologicos 
               formData={formData}
               handleAntecedenteChange={handleAntecedenteChange}
+              toggleService={toggleService}
             />
             
             <SignosVitales 
