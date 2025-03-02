@@ -1,4 +1,4 @@
-<lov-code>
+
 import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -137,7 +137,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
         if (field === 'servicios' && value === 'todos') {
           return {
             ...prevData,
-            [field]: ['agua', 'luz', 'drenaje', 'transporte', 'internet', 'gas']
+            [field]: currentValues.length === 6 ? [] : ['agua', 'luz', 'drenaje', 'transporte', 'internet', 'gas']
           };
         }
         
@@ -499,7 +499,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                 </div>
 
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2">Higiene Bucal</h4>
+                  <h4 className="text-lg font-semibold mb-2 text-center">Higiene Bucal</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Frecuencia de Cepillado Dental</Label>
@@ -531,7 +531,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                       </Select>
                     </div>
                     <div className="mt-1">
-                      <Label>Uso de Auxiliares</Label>
+                      <Label className="text-center block">Uso de Auxiliares</Label>
                       <div className="flex flex-wrap mt-1">
                         <WordButton 
                           label="Hilo Dental" 
@@ -570,7 +570,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                       </Select>
                     </div>
                     <div className="mt-1">
-                      <Label>Problemas Bucales Presentes</Label>
+                      <Label className="text-center block">Problemas Bucales Presentes</Label>
                       <div className="flex flex-wrap mt-1">
                         <WordButton 
                           label="Encías que sangran" 
@@ -709,39 +709,113 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                         <div>
                           <Label>Desayuno</Label>
-                          <Select onValueChange={(value) => handleFormChange('horarioComidas.desayuno', value)}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Seleccione horario" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="antes-ocho">Antes de las 8:00 AM</SelectItem>
-                              <SelectItem value="ocho-diez">Entre 8:00 AM y 10:00 AM</SelectItem>
-                              <SelectItem value="despues-diez">Después de las 10:00 AM</SelectItem>
-                              <SelectItem value="no-desayuna">No desayuna</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <input 
+                            type="time" 
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                            onChange={(e) => handleFormChange('horarioComidas.desayuno', e.target.value)}
+                            value={formDataLocal.horarioComidas.desayuno}
+                          />
                         </div>
                         <div>
                           <Label>Almuerzo</Label>
-                          <Select onValueChange={(value) => handleFormChange('horarioComidas.almuerzo', value)}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Seleccione horario" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="antes-una">Antes de la 1:00 PM</SelectItem>
-                              <SelectItem value="una-tres">Entre 1:00 PM y 3:00 PM</SelectItem>
-                              <SelectItem value="despues-tres">Después de las 3:00 PM</SelectItem>
-                              <SelectItem value="no-almuerza">No almuerza</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <input 
+                            type="time" 
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                            onChange={(e) => handleFormChange('horarioComidas.almuerzo', e.target.value)}
+                            value={formDataLocal.horarioComidas.almuerzo}
+                          />
                         </div>
                         <div>
                           <Label>Cena</Label>
-                          <Select onValueChange={(value) => handleFormChange('horarioComidas.cena', value)}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Seleccione horario" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="antes-ocho">Antes de las 8:00 PM</SelectItem>
-                              <SelectItem value="ocho-diez">Entre 8:00 PM y 10:00 PM</SelectItem>
-                              <SelectItem value="despues-diez">Después
+                          <input 
+                            type="time" 
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+                            onChange={(e) => handleFormChange('horarioComidas.cena', e.target.value)}
+                            value={formDataLocal.horarioComidas.cena}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-between mt-4">
+                  <Button 
+                    variant="destructive" 
+                    onClick={limpiarFormulario}
+                    className="bg-red-500 hover:bg-red-600 text-white"
+                  >
+                    <Eraser className="mr-2 h-4 w-4" /> Limpiar Formulario
+                  </Button>
+                  <Button
+                    onClick={generarRedaccionIA}
+                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                  >
+                    Generar Redacción IA
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-bold">Redacción generada</h3>
+                  <div className="flex items-center gap-3">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={generarRedaccionIA} 
+                      className="flex items-center gap-2"
+                    >
+                      Regenerar
+                    </Button>
+                  </div>
+                </div>
+
+                {Object.keys(redacciones).map((section) => (
+                  <div key={section} className="bg-white/95 dark:bg-gray-900/90 p-4 rounded-lg shadow">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="font-medium capitalize">
+                        {section === 'serviciosDomiciliarios' ? 'Servicios Domiciliarios' : 
+                          section === 'higieneVivienda' ? 'Higiene de la Vivienda' : 
+                          section === 'higienePersonal' ? 'Higiene Personal' : 
+                          section === 'higieneBucal' ? 'Higiene Bucal' : 'Alimentación'}
+                      </h4>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleCopy(section)}
+                        className="text-gray-500 hover:text-blue-500"
+                      >
+                        {copied[section] ? <CheckCircle className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    <textarea
+                      className="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md p-2 text-sm min-h-[100px] focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      value={redacciones[section]}
+                      onChange={(e) => {
+                        setRedacciones(prev => ({
+                          ...prev,
+                          [section]: e.target.value
+                        }));
+                        adjustTextareaHeight(e.target);
+                      }}
+                      placeholder={`Escriba o genere la redacción para ${
+                        section === 'serviciosDomiciliarios' ? 'Servicios Domiciliarios' : 
+                        section === 'higieneVivienda' ? 'Higiene de la Vivienda' : 
+                        section === 'higienePersonal' ? 'Higiene Personal' : 
+                        section === 'higieneBucal' ? 'Higiene Bucal' : 'Alimentación'
+                      }...`}
+                      onFocus={(e) => adjustTextareaHeight(e.target)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+};
+
+export default AntecedentesPersonalesNoPatologicos;
