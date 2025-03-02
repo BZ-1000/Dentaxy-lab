@@ -204,7 +204,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     handleDolorChange("intensidad", "");
     handleDolorChange("localizacion", { tipo: "", descripcion: "" });
     handleDolorChange("atenuacion", "");
-    handleDolorChange("causaProvocado", "");
+    handleDolorChange("causaProvocado", defaultCausaProvocado);
     handleSinSintomasChange(false);
     setRedaccionIA("");
     setShowRedaccion(false);
@@ -387,10 +387,14 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                       <div className="flex items-center gap-4">
                         <div className="relative w-full">
                           <Textarea
-                            value={formData.padecimientoActual.dolor.causaProvocado || ''}
+                            value={formData.padecimientoActual.dolor.causaProvocado || defaultCausaProvocado}
                             onChange={(e) => {
                               const newValue = e.target.value;
-                              handleDolorChange('causaProvocado', newValue);
+                              if (!newValue.startsWith(defaultCausaProvocado)) {
+                                handleDolorChange('causaProvocado', defaultCausaProvocado + newValue);
+                              } else {
+                                handleDolorChange('causaProvocado', newValue);
+                              }
                             }}
                             placeholder={defaultCausaProvocado}
                             className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
@@ -412,7 +416,11 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                           <VoiceInput
                             onTranscriptionComplete={(text) => {
                               const newValue = text;
-                              handleDolorChange('causaProvocado', newValue);
+                              if (!newValue.startsWith(defaultCausaProvocado)) {
+                                handleDolorChange('causaProvocado', defaultCausaProvocado + newValue);
+                              } else {
+                                handleDolorChange('causaProvocado', newValue);
+                              }
                             }}
                           />
                         </div>
