@@ -1,3 +1,4 @@
+
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -42,22 +43,6 @@ export interface AntecedentesHeredoFamiliares {
   abuelaMaterna: Familiar;
 }
 
-export interface HigieneBucal {
-  frecuenciaCepillado: string;
-  usoHiloDental: string;
-  tipoCerdas: string;
-  cantidadPasta: string;
-  marcaPasta: string;
-}
-
-export interface Alimentacion {
-  tipoDieta: string;
-  frecuenciaComidas: string;
-  tiposAlimentos: string;
-  saltaComidas: string;
-  consumoNutritivo: string;
-}
-
 export interface AntecedentesPersonalesNoPatologicos {
   tipoVivienda: string;
   materialVivienda: string;
@@ -90,6 +75,22 @@ export interface AntecedentesPersonalesNoPatologicos {
     cena: string;
   };
   ayunoProlongado: string;
+}
+
+export interface HigieneBucal {
+  frecuenciaCepillado: string;
+  usoHiloDental: string;
+  tipoCerdas: string;
+  cantidadPasta: string;
+  marcaPasta: string;
+}
+
+export interface Alimentacion {
+  tipoDieta: string;
+  frecuenciaComidas: string;
+  tiposAlimentos: string;
+  saltaComidas: string;
+  consumoNutritivo: string;
 }
 
 export interface FormDataState {

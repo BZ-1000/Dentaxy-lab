@@ -1,3 +1,4 @@
+
 import { FormDataState } from '@/types/historiaClinica';
 
 export const getInitialFormState = (): FormDataState => ({
