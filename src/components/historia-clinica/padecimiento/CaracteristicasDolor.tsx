@@ -227,7 +227,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
         </div>
       </div>
 
-      <div className="p-6">
+      <div>
         <Label className="text-gray-700 dark:text-gray-300">Localización</Label>
         <div className="flex items-start gap-4">
           <div className="relative w-full">
@@ -236,7 +236,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
               onChange={handleLocalizacionChange}
               onKeyDown={(e) => handleKeyDown(defaultLocalizacion, e)}
               placeholder={defaultLocalizacion}
-              className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
+              className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify"
             />
             {localizacionText === defaultLocalizacion && (
               <div className="absolute top-2 left-[115px] pointer-events-none">
@@ -277,7 +277,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
             value={dolor.atenuacion}
             onChange={(e) => onDolorChange('atenuacion', e.target.value)}
             placeholder="Describe que empeora el dolor (frío, caliente,) o que lo disminuye (analgésicos)"
-            className="min-h-[135px] max-h-[135px] w-[75%]"
+            className="min-h-[135px] max-h-[135px] w-[75%] text-justify"
           />
           <div className="h-[40px]">
             <VoiceInput onTranscriptionComplete={(text) => onDolorChange('atenuacion', text)} />
