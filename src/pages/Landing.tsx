@@ -262,18 +262,9 @@ const Landing = () => {
             transition={{ delay: 1.5, duration: 1 }}
           />
           {!isMobile && (
-            <div className="text-sm sm:text-base font-semibold text-white text-shadow flex space-x-1">
-              {"Dental Basics Academy".split('').map((letter, index) => (
-                <motion.span
-                  key={index}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.5 + index * 0.05, duration: 0.5 }}
-                >
-                  {letter}
-                </motion.span>
-              ))}
-            </div>
+            <span className="text-sm sm:text-base font-semibold text-white text-shadow">
+              Dental Basics Academy IA
+            </span>
           )}
         </motion.div>
       </motion.div>
@@ -300,6 +291,11 @@ const Landing = () => {
           className="flex items-center gap-4"
         >
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
+          {!isMobile && (
+            <span className="text-sm sm:text-base font-semibold text-white text-shadow">
+              Dental Basics Academy IA
+            </span>
+          )}
         </motion.div>
         <div className="flex gap-4">
           {!session ? (

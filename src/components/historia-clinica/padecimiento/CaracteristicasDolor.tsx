@@ -76,11 +76,21 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
   }, []);
 
   const handleLocalizacionChange = (field: string, value: string) => {
+    // Prevent deletion of prefix
+    if (!value.startsWith(defaultLocalizacion)) {
+      value = defaultLocalizacion + value.replace(defaultLocalizacion, '');
+    }
+    
     setLocalizacionText(value);
     onDolorChange(field, value);
   };
 
   const handleCausaProvocadoChange = (value: string) => {
+    // Prevent deletion of prefix
+    if (!value.startsWith(defaultCausaProvocado)) {
+      value = defaultCausaProvocado + value.replace(defaultCausaProvocado, '');
+    }
+    
     setCausaProvocadoText(value);
     onDolorChange('causaProvocado', value);
   };
@@ -190,16 +200,15 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
               value={localizacionText}
               onChange={(e) => {
                 const newValue = e.target.value;
-                if (!newValue.startsWith(defaultLocalizacion)) {
-                  handleLocalizacionChange("localizacion", JSON.stringify({
-                    ...dolor.localizacion,
-                    descripcion: `${defaultLocalizacion} ${newValue}`
-                  }));
-                } else {
-                  handleLocalizacionChange("localizacion", JSON.stringify({
-                    ...dolor.localizacion,
-                    descripcion: newValue
-                  }));
+                handleLocalizacionChange("localizacion", JSON.stringify({
+                  ...dolor.localizacion,
+                  descripcion: newValue
+                }));
+              }}
+              onKeyDown={(e) => {
+                // Prevent backspace at the beginning of the text after the prefix
+                if (e.key === 'Backspace' && e.currentTarget.selectionStart <= defaultLocalizacion.length) {
+                  e.preventDefault();
                 }
               }}
               placeholder={defaultLocalizacion}
@@ -222,17 +231,10 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
             <VoiceInput
               onTranscriptionComplete={(text) => {
                 const newValue = text;
-                if (!newValue.startsWith(defaultLocalizacion)) {
-                  handleLocalizacionChange("localizacion", JSON.stringify({
-                    ...dolor.localizacion,
-                    descripcion: `${defaultLocalizacion} ${newValue}`
-                  }));
-                } else {
-                  handleLocalizacionChange("localizacion", JSON.stringify({
-                    ...dolor.localizacion,
-                    descripcion: newValue
-                  }));
-                }
+                handleLocalizacionChange("localizacion", JSON.stringify({
+                  ...dolor.localizacion,
+                  descripcion: newValue.startsWith(defaultLocalizacion) ? newValue : `${defaultLocalizacion} ${newValue}`
+                }));
               }}
             />
           </div>

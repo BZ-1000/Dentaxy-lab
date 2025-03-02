@@ -1,11 +1,11 @@
-
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
+import { Textarea } from "@/components/ui/textarea";
 
 interface AntecedentesPersonalesNoPatologicosProps {
   formData: FormDataState;
@@ -56,39 +56,11 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
   const formRef = useRef<HTMLDivElement>(null);
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
-  const [formDataLocal, setFormDataLocal] = useState({
-    tipoVivienda: "",
-    materialVivienda: "",
-    servicios: [] as string[],
-    condicionCalle: "",
-    iluminacionCalle: "",
-    frecuenciaLimpieza: "",
-    cambioRopaCama: "",
-    hacinamiento: "",
-    promiscuidad: "",
-    mascotas: "",
-    manejoResiduos: "",
-    frecuenciaBano: "",
-    lavadoManos: [] as string[],
-    cambioRopa: "",
-    frecuenciaCepillado: "",
-    tecnicaCepillado: "",
-    auxiliaresBucales: [] as string[],
-    ultimaVisitaOdontologo: "",
-    problemasBucales: [] as string[],
-    alimentosConsumidos: [] as string[],
-    frecuenciaFrutasVerduras: "",
-    frecuenciaBebidasAzucaradas: "",
-    frecuenciaComidaChatarra: "",
-    consumoAgua: "",
-    numeroComidas: "",
-    horarioComidas: {
-      desayuno: "",
-      almuerzo: "",
-      cena: ""
-    },
-    ayunoProlongado: ""
-  });
+  const [formDataLocal, setFormDataLocal] = useState(formData.antecedentesPersonalesNoPatologicos);
+
+  useEffect(() => {
+    setFormDataLocal(formData.antecedentesPersonalesNoPatologicos);
+  }, [formData]);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -106,8 +78,106 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
   };
 
   const generarRedaccionIA = () => {
-    // Implementar la lógica para generar la redacción con IA
-    console.log("Generar redacción con IA");
+    // Implement AI text generation logic for each section
+    const serviciosRedaccion = generateServiciosDomiciliariosText();
+    const higieneViviendaRedaccion = generateHigieneViviendaText();
+    const higienePersonalRedaccion = generateHigienePersonalText();
+    const higieneBucalRedaccion = generateHigieneBucalText();
+    const alimentacionRedaccion = generateAlimentacionText();
+    
+    setRedacciones({
+      serviciosDomiciliarios: serviciosRedaccion,
+      higieneVivienda: higieneViviendaRedaccion,
+      higienePersonal: higienePersonalRedaccion,
+      higieneBucal: higieneBucalRedaccion,
+      alimentacion: alimentacionRedaccion
+    });
+    
+    setShowForm(false);
+    setProgress(100);
+  };
+
+  const generateServiciosDomiciliariosText = () => {
+    const { tipoVivienda, materialVivienda, servicios, condicionCalle, iluminacionCalle } = formDataLocal;
+    
+    let serviciosList = '';
+    if (servicios.length === 6) {
+      serviciosList = 'todos los servicios básicos (agua, luz, drenaje, transporte, internet y gas)';
+    } else if (servicios.length > 0) {
+      serviciosList = servicios.join(', ');
+    } else {
+      serviciosList = 'servicios limitados';
+    }
+    
+    return `El paciente habita en una vivienda de tipo ${tipoVivienda || '[no especificado]'}, construida principalmente con ${materialVivienda || '[no especificado]'}. Cuenta con los siguientes servicios básicos: ${serviciosList}. La condición de la calle en la que se encuentra la vivienda es ${condicionCalle || '[no especificado]'}, y la iluminación en la vía pública es ${iluminacionCalle || '[no especificado]'}, lo que puede influir en la seguridad y accesibilidad del entorno.`;
+  };
+
+  const generateHigieneViviendaText = () => {
+    const { frecuenciaLimpieza, cambioRopaCama, hacinamiento, promiscuidad, mascotas, manejoResiduos } = formDataLocal;
+    
+    let hacinamientoText = hacinamiento === 'si' ? 'presencia de hacinamiento' : 'ausencia de hacinamiento';
+    let promiscuidadText = promiscuidad === 'si' ? 'hay presencia de promiscuidad' : 'no hay evidencia de promiscuidad';
+    let mascotasText = '';
+    
+    if (mascotas === 'dentro') {
+      mascotasText = 'se observan animales dentro de la casa';
+    } else if (mascotas === 'patio') {
+      mascotasText = 'se observan animales en el patio';
+    } else {
+      mascotasText = 'no se observan animales en el domicilio';
+    }
+    
+    return `El mantenimiento del hogar se realiza con una frecuencia ${frecuenciaLimpieza || '[no especificada]'}, lo que impacta directamente en la salubridad del entorno. La ropa de cama se cambia ${cambioRopaCama || '[no especificado]'}, contribuyendo a la higiene y confort del paciente. Se observa ${hacinamientoText}, lo que puede influir en la calidad de vida y bienestar de los habitantes. Asimismo, ${promiscuidadText}, lo cual puede ser relevante en la evaluación de riesgos sanitarios y epidemiológicos. En el domicilio ${mascotasText}, lo que puede representar un factor de exposición a zoonosis u otras afecciones. En cuanto al manejo de residuos, ${manejoResiduos || '[no especificado]'}, lo que influye en la prevención de enfermedades y el control ambiental.`;
+  };
+
+  const generateHigienePersonalText = () => {
+    const { frecuenciaBano, lavadoManos, cambioRopa } = formDataLocal;
+    
+    let lavadoManosText = '';
+    if (lavadoManos.length > 0) {
+      lavadoManosText = lavadoManos.join(', ');
+    } else {
+      lavadoManosText = 'sin hábito regular';
+    }
+    
+    return `El paciente refiere una frecuencia de baño ${frecuenciaBano || '[no especificada]'}, lo que contribuye a la higiene general y prevención de infecciones cutáneas. Presenta hábitos de higiene de manos ${lavadoManosText}, lo que es un factor clave en la prevención de enfermedades de transmisión feco-oral. El cambio de ropa se realiza ${cambioRopa || '[no especificada]'}, aspecto importante en el mantenimiento de la higiene personal.`;
+  };
+
+  const generateHigieneBucalText = () => {
+    const { frecuenciaCepillado, tecnicaCepillado, auxiliaresBucales, ultimaVisitaOdontologo, problemasBucales } = formDataLocal;
+    
+    let auxiliaresText = '';
+    if (auxiliaresBucales.includes('no auxiliares')) {
+      auxiliaresText = 'no usa auxiliares de higiene bucal';
+    } else if (auxiliaresBucales.length > 0) {
+      auxiliaresText = auxiliaresBucales.join(', ');
+    } else {
+      auxiliaresText = '[no especificado]';
+    }
+    
+    let problemasText = '';
+    if (problemasBucales.includes('no problemas')) {
+      problemasText = 'sin problemas bucales';
+    } else if (problemasBucales.length > 0) {
+      problemasText = problemasBucales.join(', ');
+    } else {
+      problemasText = '[no especificado]';
+    }
+    
+    return `El paciente refiere un cepillado dental con una frecuencia ${frecuenciaCepillado || '[no especificada]'}, utilizando técnica ${tecnicaCepillado || '[no especificada]'}, lo que influye directamente en la salud periodontal y la prevención de caries. Además, complementa su higiene bucal con ${auxiliaresText}. La última visita al odontólogo fue hace ${ultimaVisitaOdontologo || '[no especificada]'}, lo que permite evaluar su acceso a la atención odontológica y el seguimiento de su salud bucal. Actualmente, refiere ${problemasText}, aspectos clave en la valoración del estado oral.`;
+  };
+
+  const generateAlimentacionText = () => {
+    const { alimentosConsumidos, frecuenciaFrutasVerduras, frecuenciaBebidasAzucaradas, frecuenciaComidaChatarra, consumoAgua, numeroComidas, horarioComidas } = formDataLocal;
+    
+    let alimentosText = alimentosConsumidos.length > 0 ? alimentosConsumidos.join(', ') : '[no especificado]';
+    
+    let horarios = '';
+    if (horarioComidas) {
+      horarios = `Desayuno: ${horarioComidas.desayuno || '[no especificado]'}\nAlmuerzo: ${horarioComidas.almuerzo || '[no especificado]'}\nCena: ${horarioComidas.cena || '[no especificado]'}`;
+    }
+    
+    return `El paciente tiene una alimentación basada en ${alimentosText}, lo que influye en su estado nutricional y salud general. El consumo de frutas y verduras es ${frecuenciaFrutasVerduras || '[no especificado]'}, mientras que la ingesta de bebidas azucaradas ocurre ${frecuenciaBebidasAzucaradas || '[no especificado]'} y el consumo de comida chatarra ${frecuenciaComidaChatarra || '[no especificado]'}, factores determinantes en el riesgo de enfermedades metabólicas y caries dental. La cantidad de agua ingerida diariamente es de aproximadamente ${consumoAgua || '[no especificado]'}, contribuyendo a la hidratación y función renal. Realiza ${numeroComidas || '[no especificado]'} comidas al día, con los siguientes horarios reportados:\n\n${horarios}`;
   };
 
   const adjustTextareaHeight = (element: HTMLTextAreaElement) => {
@@ -122,53 +192,60 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
   };
 
   const handleFormChange = (field: string, value: any) => {
+    // Local state update
     setFormDataLocal((prevData) => ({
       ...prevData,
       [field]: value
     }));
+    
+    // Also update parent state
+    handleAntecedenteChange(field, value);
   };
 
   const handleWordButtonClick = (field: string, value: string) => {
-    setFormDataLocal((prevData) => {
-      const currentValues = prevData[field] as string[];
-      
-      // If this is a special case like 'no auxiliares' or 'no problemas'
-      if (value === 'no auxiliares' || value === 'no problemas' || value === 'todos') {
-        if (field === 'servicios' && value === 'todos') {
-          return {
-            ...prevData,
-            [field]: currentValues.length === 6 ? [] : ['agua', 'luz', 'drenaje', 'transporte', 'internet', 'gas']
-          };
-        }
-        
-        // If selecting an exclusive option, remove all other options
-        return {
-          ...prevData,
-          [field]: currentValues.includes(value) ? [] : [value]
-        };
+    let newValues;
+    
+    // If this is "todos los servicios" in servicios field, handle specially
+    if (field === 'servicios' && value === 'todos') {
+      // Toggle all services
+      if (formDataLocal.servicios.length === 6) {
+        newValues = [];
+      } else {
+        newValues = ['agua', 'luz', 'drenaje', 'transporte', 'internet', 'gas'];
       }
-      
+      handleFormChange(field, newValues);
+      return;
+    }
+    
+    const currentValues = formDataLocal[field] as string[];
+    
+    // If this is a special case like 'no auxiliares' or 'no problemas'
+    if (value === 'no auxiliares' || value === 'no problemas') {
+      // If selecting an exclusive option, remove all other options
+      if (currentValues.includes(value)) {
+        newValues = [];
+      } else {
+        newValues = [value];
+      }
+    } else {
       // Remove exclusive options if selecting something else
-      let newValues = currentValues.filter(v => 
+      let filteredValues = currentValues.filter(v => 
         v !== 'no auxiliares' && v !== 'no problemas'
       );
       
       // Toggle the selected value
-      if (newValues.includes(value)) {
-        newValues = newValues.filter(v => v !== value);
+      if (filteredValues.includes(value)) {
+        newValues = filteredValues.filter(v => v !== value);
       } else {
-        newValues = [...newValues, value];
+        newValues = [...filteredValues, value];
       }
-      
-      return {
-        ...prevData,
-        [field]: newValues
-      };
-    });
+    }
+    
+    handleFormChange(field, newValues);
   };
 
   const limpiarFormulario = () => {
-    setFormDataLocal({
+    const emptyData = {
       tipoVivienda: "",
       materialVivienda: "",
       servicios: [],
@@ -200,7 +277,15 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
         cena: ""
       },
       ayunoProlongado: ""
+    };
+    
+    setFormDataLocal(emptyData);
+    
+    // Update all fields in parent state
+    Object.entries(emptyData).forEach(([key, value]) => {
+      handleAntecedenteChange(key, value);
     });
+    
     setShowForm(true);
     setRedacciones({
       serviciosDomiciliarios: "",
@@ -256,12 +341,14 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           <div className="p-6" ref={formRef}>
             {showForm ? (
               <div className="space-y-6">
+                
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2">Servicios Domiciliarios</h4>
+                  <h4 className="text-lg font-semibold mb-2 text-center">Servicios Domiciliarios</h4>
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Tipo de Vivienda</Label>
-                      <Select onValueChange={(value) => handleFormChange('tipoVivienda', value)}>
+                      <Select value={formDataLocal.tipoVivienda} onValueChange={(value) => handleFormChange('tipoVivienda', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione tipo" />
                         </SelectTrigger>
@@ -274,7 +361,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                     </div>
                     <div>
                       <Label>Material Predominante de la Vivienda</Label>
-                      <Select onValueChange={(value) => handleFormChange('materialVivienda', value)}>
+                      <Select value={formDataLocal.materialVivienda} onValueChange={(value) => handleFormChange('materialVivienda', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione material" />
                         </SelectTrigger>
@@ -292,117 +379,107 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                         <WordButton 
                           label="Todos los servicios" 
                           isSelected={formDataLocal.servicios.length === 6} 
-                          onClick={() => handleWordButtonClick('servicios', 'todos')} 
+                          onClick={() => toggleService('todos')} 
                         />
                         <WordButton 
                           label="Agua" 
                           isSelected={formDataLocal.servicios.includes('agua')} 
-                          onClick={() => handleWordButtonClick('servicios', 'agua')} 
+                          onClick={() => toggleService('agua')} 
                         />
                         <WordButton 
                           label="Luz" 
                           isSelected={formDataLocal.servicios.includes('luz')} 
-                          onClick={() => handleWordButtonClick('servicios', 'luz')} 
+                          onClick={() => toggleService('luz')} 
                         />
                         <WordButton 
                           label="Drenaje" 
                           isSelected={formDataLocal.servicios.includes('drenaje')} 
-                          onClick={() => handleWordButtonClick('servicios', 'drenaje')} 
+                          onClick={() => toggleService('drenaje')} 
                         />
                         <WordButton 
                           label="Transporte" 
                           isSelected={formDataLocal.servicios.includes('transporte')} 
-                          onClick={() => handleWordButtonClick('servicios', 'transporte')} 
+                          onClick={() => toggleService('transporte')} 
                         />
                         <WordButton 
                           label="Internet" 
                           isSelected={formDataLocal.servicios.includes('internet')} 
-                          onClick={() => handleWordButtonClick('servicios', 'internet')} 
+                          onClick={() => toggleService('internet')} 
                         />
                         <WordButton 
                           label="Gas" 
                           isSelected={formDataLocal.servicios.includes('gas')} 
-                          onClick={() => handleWordButtonClick('servicios', 'gas')} 
+                          onClick={() => toggleService('gas')} 
                         />
                       </div>
                     </div>
                     <div>
-                      <Label>Condiciones de la Calle</Label>
-                      <Select onValueChange={(value) => handleFormChange('condicionCalle', value)}>
+                      <Label>Condición de la Calle</Label>
+                      <Select value={formDataLocal.condicionCalle} onValueChange={(value) => handleFormChange('condicionCalle', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione condición" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="pavimentada">Pavimentada</SelectItem>
-                          <SelectItem value="sin pavimentar">Sin pavimentar</SelectItem>
+                          <SelectItem value="terraceria">Terracería</SelectItem>
+                          <SelectItem value="adoquinada">Adoquinada</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label>Iluminación en la Calle</Label>
-                      <Select onValueChange={(value) => handleFormChange('iluminacionCalle', value)}>
+                      <Label>Iluminación en la Vía Pública</Label>
+                      <Select value={formDataLocal.iluminacionCalle} onValueChange={(value) => handleFormChange('iluminacionCalle', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione iluminación" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="bien iluminada">Bien iluminada</SelectItem>
-                          <SelectItem value="poca iluminacion">Poca iluminación</SelectItem>
-                          <SelectItem value="sin iluminacion">Sin iluminación</SelectItem>
+                          <SelectItem value="buena">Buena</SelectItem>
+                          <SelectItem value="mala">Mala</SelectItem>
+                          <SelectItem value="sin iluminación">Sin iluminación</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
                 </div>
 
+                
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2">Higiene de la Vivienda</h4>
+                  <h4 className="text-lg font-semibold mb-2 text-center">Higiene de la Vivienda</h4>
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Regularidad en el Aseo de la Vivienda</Label>
-                      <Select onValueChange={(value) => handleFormChange('frecuenciaLimpieza', value)}>
+                      <Label>Frecuencia de Limpieza del Hogar</Label>
+                      <Select value={formDataLocal.frecuenciaLimpieza} onValueChange={(value) => handleFormChange('frecuenciaLimpieza', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="diaria">Diariamente</SelectItem>
-                          <SelectItem value="semanal">Semanalmente</SelectItem>
+                          <SelectItem value="diaria">Diaria</SelectItem>
+                          <SelectItem value="interdiaria">Interdiaria</SelectItem>
+                          <SelectItem value="semanal">Semanal</SelectItem>
                           <SelectItem value="quincenal">Quincenal</SelectItem>
-                          <SelectItem value="esporadica">Esporádico</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label>Cambio de Ropa de Cama</Label>
-                      <Select onValueChange={(value) => handleFormChange('cambioRopaCama', value)}>
+                      <Label>Frecuencia de Cambio de Ropa de Cama</Label>
+                      <Select value={formDataLocal.cambioRopaCama} onValueChange={(value) => handleFormChange('cambioRopaCama', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="diaria">Diario</SelectItem>
+                          <SelectItem value="diario">Diario</SelectItem>
+                          <SelectItem value="interdiario">Interdiario</SelectItem>
                           <SelectItem value="semanal">Semanal</SelectItem>
                           <SelectItem value="quincenal">Quincenal</SelectItem>
-                          <SelectItem value="mensual">Mensual</SelectItem>
-                          <SelectItem value="de manera no regular">No se cambia regularmente</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="mt-1">
-                      <Label>Presencia de Hacinamiento</Label>
-                      <Select onValueChange={(value) => handleFormChange('hacinamiento', value)}>
+                    <div>
+                      <Label>Hacinamiento en el Domicilio</Label>
+                      <Select value={formDataLocal.hacinamiento} onValueChange={(value) => handleFormChange('hacinamiento', value)}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Seleccione opción" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="si">Sí, duermen más de tres personas en una habitación</SelectItem>
-                          <SelectItem value="no">No hay hacinamiento</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="mt-1">
-                      <Label>Presencia de Promiscuidad</Label>
-                      <Select onValueChange={(value) => handleFormChange('promiscuidad', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione opción" />
+                          <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="si">Sí</SelectItem>
@@ -410,54 +487,68 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="mt-1">
-                      <Label>Presencia de Animales en Casa</Label>
-                      <Select onValueChange={(value) => handleFormChange('mascotas', value)}>
+                    <div>
+                      <Label>Promiscuidad en el Domicilio</Label>
+                      <Select value={formDataLocal.promiscuidad} onValueChange={(value) => handleFormChange('promiscuidad', value)}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Seleccione opción" />
+                          <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="dentro">Sí, dentro de la casa</SelectItem>
-                          <SelectItem value="patio">Sí, en el patio</SelectItem>
-                          <SelectItem value="no">No tienen mascotas</SelectItem>
+                          <SelectItem value="si">Sí</SelectItem>
+                          <SelectItem value="no">No</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="mt-1">
-                      <Label>Manejo de Residuos</Label>
-                      <Select onValueChange={(value) => handleFormChange('manejoResiduos', value)}>
+                    <div>
+                      <Label>Presencia de Mascotas en el Domicilio</Label>
+                      <Select value={formDataLocal.mascotas} onValueChange={(value) => handleFormChange('mascotas', value)}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Seleccione opción" />
+                          <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="recicla">Separa y recicla la basura</SelectItem>
-                          <SelectItem value="diaria">Bota la basura diariamente</SelectItem>
-                          <SelectItem value="acumula">Acumula basura dentro de la vivienda</SelectItem>
+                          <SelectItem value="dentro">Dentro de la casa</SelectItem>
+                          <SelectItem value="patio">En el patio</SelectItem>
+                          <SelectItem value="no">No hay mascotas</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Manejo de Residuos</Label>
+                      <Select value={formDataLocal.manejoResiduos} onValueChange={(value) => handleFormChange('manejoResiduos', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="recoleccion municipal">Recolección municipal</SelectItem>
+                          <SelectItem value="quema">Quema</SelectItem>
+                          <SelectItem value="entierro">Entierro</SelectItem>
+                          <SelectItem value="otro">Otro</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
                 </div>
 
+                
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2">Higiene Personal</h4>
-                  <div className="grid grid-cols-2 gap-4">
+                  <h4 className="text-lg font-semibold mb-2 text-center">Higiene Personal</h4>
+                  
+                  <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label>Frecuencia de Baño</Label>
-                      <Select onValueChange={(value) => handleFormChange('frecuenciaBano', value)}>
+                      <Select value={formDataLocal.frecuenciaBano} onValueChange={(value) => handleFormChange('frecuenciaBano', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada dos dias">Cada dos días</SelectItem>
-                          <SelectItem value="cada tercer día">Cada tres días</SelectItem>
-                          <SelectItem value="esporadicamente">Esporádico</SelectItem>
+                          <SelectItem value="diaria">Diaria</SelectItem>
+                          <SelectItem value="interdiaria">Interdiaria</SelectItem>
+                          <SelectItem value="semanal">Semanal</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label>Aseo de Manos</Label>
+                      <Label>Hábitos de Higiene de Manos</Label>
                       <div className="flex flex-wrap mt-1">
                         <WordButton 
                           label="Antes de cada comida" 
@@ -466,90 +557,89 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                         />
                         <WordButton 
                           label="Después de ir al baño" 
-                          isSelected={formDataLocal.lavadoManos.includes('despues de ir al baño')} 
-                          onClick={() => handleWordButtonClick('lavadoManos', 'despues de ir al baño')} 
+                          isSelected={formDataLocal.lavadoManos.includes('después de ir al baño')} 
+                          onClick={() => handleWordButtonClick('lavadoManos', 'después de ir al baño')} 
                         />
                         <WordButton 
                           label="Al manipular alimentos" 
-                          isSelected={formDataLocal.lavadoManos.includes('antes y despues de cada comida')} 
-                          onClick={() => handleWordButtonClick('lavadoManos', 'antes y despues de cada comida')} 
+                          isSelected={formDataLocal.lavadoManos.includes('al manipular alimentos')} 
+                          onClick={() => handleWordButtonClick('lavadoManos', 'al manipular alimentos')} 
                         />
                         <WordButton 
                           label="Sin hábito regular" 
-                          isSelected={formDataLocal.lavadoManos.includes('de manera no regular')} 
-                          onClick={() => handleWordButtonClick('lavadoManos', 'de manera no regular')} 
+                          isSelected={formDataLocal.lavadoManos.includes('sin hábito regular')} 
+                          onClick={() => handleWordButtonClick('lavadoManos', 'sin hábito regular')} 
                         />
                       </div>
                     </div>
                     <div>
-                      <Label>Cambio de Ropa</Label>
-                      <Select onValueChange={(value) => handleFormChange('cambioRopa', value)}>
+                      <Label>Frecuencia de Cambio de Ropa</Label>
+                      <Select value={formDataLocal.cambioRopa} onValueChange={(value) => handleFormChange('cambioRopa', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="cada dos días">Cada dos días</SelectItem>
-                          <SelectItem value="cada tres días">Cada tres días</SelectItem>
-                          <SelectItem value="esporádicamente">Esporádico</SelectItem>
+                          <SelectItem value="diaria">Diaria</SelectItem>
+                          <SelectItem value="interdiaria">Interdiaria</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
                 </div>
 
+                
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2 text-center">Higiene Bucal</h4>
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Frecuencia de Cepillado Dental</Label>
-                      <Select onValueChange={(value) => handleFormChange('frecuenciaCepillado', value)}>
+                      <Select value={formDataLocal.frecuenciaCepillado} onValueChange={(value) => handleFormChange('frecuenciaCepillado', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="tres veces al día">Tres veces al día</SelectItem>
+                          <SelectItem value="después de cada comida">Después de cada comida</SelectItem>
                           <SelectItem value="dos veces al día">Dos veces al día</SelectItem>
                           <SelectItem value="una vez al día">Una vez al día</SelectItem>
-                          <SelectItem value="menos de una vez al día">Menos de una vez al día</SelectItem>
+                          <SelectItem value="ocasional">Ocasional</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label>Técnica de Cepillado Empleada</Label>
-                      <Select onValueChange={(value) => handleFormChange('tecnicaCepillado', value)}>
+                      <Label>Técnica de Cepillado Dental</Label>
+                      <Select value={formDataLocal.tecnicaCepillado} onValueChange={(value) => handleFormChange('tecnicaCepillado', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione técnica" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="circular">Circular</SelectItem>
                           <SelectItem value="horizontal">Horizontal</SelectItem>
                           <SelectItem value="vertical">Vertical</SelectItem>
-                          <SelectItem value="barrido">De barrido</SelectItem>
-                          <SelectItem value="que refiere no saber como la realiza">No sabe cómo se cepilla</SelectItem>
+                          <SelectItem value="circular">Circular</SelectItem>
+                          <SelectItem value="bass">Bass</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="mt-1">
-                      <Label className="text-center block">Uso de Auxiliares</Label>
+                    <div>
+                      <Label>Auxiliares de Higiene Bucal</Label>
                       <div className="flex flex-wrap mt-1">
                         <WordButton 
-                          label="Hilo Dental" 
+                          label="Hilo dental" 
                           isSelected={formDataLocal.auxiliaresBucales.includes('hilo dental')} 
                           onClick={() => handleWordButtonClick('auxiliaresBucales', 'hilo dental')} 
                         />
                         <WordButton 
-                          label="Enjuague Bucal" 
+                          label="Enjuague bucal" 
                           isSelected={formDataLocal.auxiliaresBucales.includes('enjuague bucal')} 
                           onClick={() => handleWordButtonClick('auxiliaresBucales', 'enjuague bucal')} 
                         />
                         <WordButton 
-                          label="Irrigador Dental" 
+                          label="Irrigador dental" 
                           isSelected={formDataLocal.auxiliaresBucales.includes('irrigador dental')} 
                           onClick={() => handleWordButtonClick('auxiliaresBucales', 'irrigador dental')} 
                         />
                         <WordButton 
-                          label="No usa auxiliares" 
+                          label="No auxiliares" 
                           isSelected={formDataLocal.auxiliaresBucales.includes('no auxiliares')} 
                           onClick={() => handleWordButtonClick('auxiliaresBucales', 'no auxiliares')} 
                         />
@@ -557,20 +647,20 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                     </div>
                     <div>
                       <Label>Última Visita al Odontólogo</Label>
-                      <Select onValueChange={(value) => handleFormChange('ultimaVisitaOdontologo', value)}>
+                      <Select value={formDataLocal.ultimaVisitaOdontologo} onValueChange={(value) => handleFormChange('ultimaVisitaOdontologo', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione tiempo" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="menos-seis-meses">Menos de seis meses</SelectItem>
-                          <SelectItem value="un-ano">Un año</SelectItem>
-                          <SelectItem value="mas-dos-anos">Más de dos años</SelectItem>
-                          <SelectItem value="nunca">Nunca ha visitado al odontólogo</SelectItem>
+                          <SelectItem value="menos de 6 meses">Menos de 6 meses</SelectItem>
+                          <SelectItem value="entre 6 meses y 1 año">Entre 6 meses y 1 año</SelectItem>
+                          <SelectItem value="más de 1 año">Más de 1 año</SelectItem>
+                          <SelectItem value="nunca">Nunca</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="mt-1">
-                      <Label className="text-center block">Problemas Bucales Presentes</Label>
+                    <div>
+                      <Label>Problemas Bucales Referidos</Label>
                       <div className="flex flex-wrap mt-1">
                         <WordButton 
                           label="Encías que sangran" 
@@ -578,14 +668,14 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                           onClick={() => handleWordButtonClick('problemasBucales', 'encías que sangran')} 
                         />
                         <WordButton 
-                          label="Dientes con agujeros" 
-                          isSelected={formDataLocal.problemasBucales.includes('dientes con agujeros')} 
-                          onClick={() => handleWordButtonClick('problemasBucales', 'dientes con agujeros')} 
+                          label="Dientes con cavidades" 
+                          isSelected={formDataLocal.problemasBucales.includes('dientes con cavidades')} 
+                          onClick={() => handleWordButtonClick('problemasBucales', 'dientes con cavidades')} 
                         />
                         <WordButton 
-                          label="Mal aliento" 
-                          isSelected={formDataLocal.problemasBucales.includes('mal aliento frecuente')} 
-                          onClick={() => handleWordButtonClick('problemasBucales', 'mal aliento frecuente')} 
+                          label="Halitosis" 
+                          isSelected={formDataLocal.problemasBucales.includes('halitosis')} 
+                          onClick={() => handleWordButtonClick('problemasBucales', 'halitosis')} 
                         />
                         <WordButton 
                           label="Dolor en dientes o encías" 
@@ -593,229 +683,19 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                           onClick={() => handleWordButtonClick('problemasBucales', 'dolor en dientes o encías')} 
                         />
                         <WordButton 
-                          label="Sin problemas" 
-                          isSelected={formDataLocal.problemasBucales.includes('no problemas')} 
-                          onClick={() => handleWordButtonClick('problemasBucales', 'no problemas')} 
+                          label="Sin problemas bucales" 
+                          isSelected={formDataLocal.problemasBucales.includes('sin problemas bucales')} 
+                          onClick={() => handleWordButtonClick('problemasBucales', 'sin problemas bucales')} 
                         />
                       </div>
                     </div>
                   </div>
                 </div>
 
+                
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2">Alimentación</h4>
+                  <h4 className="text-lg font-semibold mb-2 text-center">Alimentación</h4>
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Tipo de Alimentos Consumidos Frecuentemente</Label>
-                      <div className="flex flex-wrap mt-1">
-                        <WordButton 
-                          label="Frutas y verduras" 
-                          isSelected={formDataLocal.alimentosConsumidos.includes('frutas y verduras')} 
-                          onClick={() => handleWordButtonClick('alimentosConsumidos', 'frutas y verduras')} 
-                        />
-                        <WordButton 
-                          label="Carnes y proteínas" 
-                          isSelected={formDataLocal.alimentosConsumidos.includes('carnes y proteínas')} 
-                          onClick={() => handleWordButtonClick('alimentosConsumidos', 'carnes y proteínas')} 
-                        />
-                        <WordButton 
-                          label="Alimentos procesados" 
-                          isSelected={formDataLocal.alimentosConsumidos.includes('alimentos procesados y fritos')} 
-                          onClick={() => handleWordButtonClick('alimentosConsumidos', 'alimentos procesados y fritos')} 
-                        />
-                        <WordButton 
-                          label="Dulces y azúcares" 
-                          isSelected={formDataLocal.alimentosConsumidos.includes('dulces y azúcares')} 
-                          onClick={() => handleWordButtonClick('alimentosConsumidos', 'dulces y azúcares')} 
-                        />
-                        <WordButton 
-                          label="Lácteos" 
-                          isSelected={formDataLocal.alimentosConsumidos.includes('lácteos')} 
-                          onClick={() => handleWordButtonClick('alimentosConsumidos', 'lácteos')} 
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label>Frecuencia de Consumo de Frutas y Verduras</Label>
-                      <Select onValueChange={(value) => handleFormChange('frecuenciaFrutasVerduras', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="tres-cuatro-veces-semana">Tres o cuatro veces por semana</SelectItem>
-                          <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
-                          <SelectItem value="no-consume">No las consume</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Frecuencia de Consumo de Bebidas Azucaradas</Label>
-                      <Select onValueChange={(value) => handleFormChange('frecuenciaBebidasAzucaradas', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="tres-cuatro-veces-semana">Tres o cuatro veces por semana</SelectItem>
-                          <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
-                          <SelectItem value="no-consume">No las consume</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Frecuencia de Consumo de Comida Chatarra</Label>
-                      <Select onValueChange={(value) => handleFormChange('frecuenciaComidaChatarra', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="tres-cuatro-veces-semana">Tres o cuatro veces por semana</SelectItem>
-                          <SelectItem value="ocasionalmente">Ocasionalmente</SelectItem>
-                          <SelectItem value="no-consume">No las consume</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Consumo de Agua al Día</Label>
-                      <Select onValueChange={(value) => handleFormChange('consumoAgua', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione cantidad" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="menos-un-litro">Menos de un litro</SelectItem>
-                          <SelectItem value="uno-dos-litros">Entre uno y dos litros</SelectItem>
-                          <SelectItem value="mas-dos-litros">Más de dos litros</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Número de Comidas al Día</Label>
-                      <Select onValueChange={(value) => handleFormChange('numeroComidas', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione número" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="una">Una</SelectItem>
-                          <SelectItem value="dos">Dos</SelectItem>
-                          <SelectItem value="tres">Tres</SelectItem>
-                          <SelectItem value="mas-tres">Más de tres</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Horario de Comidas</Label>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                        <div>
-                          <Label>Desayuno</Label>
-                          <input 
-                            type="time" 
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-                            onChange={(e) => handleFormChange('horarioComidas.desayuno', e.target.value)}
-                            value={formDataLocal.horarioComidas.desayuno}
-                          />
-                        </div>
-                        <div>
-                          <Label>Almuerzo</Label>
-                          <input 
-                            type="time" 
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-                            onChange={(e) => handleFormChange('horarioComidas.almuerzo', e.target.value)}
-                            value={formDataLocal.horarioComidas.almuerzo}
-                          />
-                        </div>
-                        <div>
-                          <Label>Cena</Label>
-                          <input 
-                            type="time" 
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-                            onChange={(e) => handleFormChange('horarioComidas.cena', e.target.value)}
-                            value={formDataLocal.horarioComidas.cena}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-between mt-4">
-                  <Button 
-                    variant="destructive" 
-                    onClick={limpiarFormulario}
-                    className="bg-red-500 hover:bg-red-600 text-white"
-                  >
-                    <Eraser className="mr-2 h-4 w-4" /> Limpiar Formulario
-                  </Button>
-                  <Button
-                    onClick={generarRedaccionIA}
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                  >
-                    Generar Redacción IA
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold">Redacción generada</h3>
-                  <div className="flex items-center gap-3">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={generarRedaccionIA} 
-                      className="flex items-center gap-2"
-                    >
-                      Regenerar
-                    </Button>
-                  </div>
-                </div>
-
-                {Object.keys(redacciones).map((section) => (
-                  <div key={section} className="bg-white/95 dark:bg-gray-900/90 p-4 rounded-lg shadow">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-medium capitalize">
-                        {section === 'serviciosDomiciliarios' ? 'Servicios Domiciliarios' : 
-                          section === 'higieneVivienda' ? 'Higiene de la Vivienda' : 
-                          section === 'higienePersonal' ? 'Higiene Personal' : 
-                          section === 'higieneBucal' ? 'Higiene Bucal' : 'Alimentación'}
-                      </h4>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleCopy(section)}
-                        className="text-gray-500 hover:text-blue-500"
-                      >
-                        {copied[section] ? <CheckCircle className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
-                      </Button>
-                    </div>
-                    <textarea
-                      className="w-full bg-transparent border border-gray-200 dark:border-gray-700 rounded-md p-2 text-sm min-h-[100px] focus:outline-none focus:ring-1 focus:ring-blue-500"
-                      value={redacciones[section]}
-                      onChange={(e) => {
-                        setRedacciones(prev => ({
-                          ...prev,
-                          [section]: e.target.value
-                        }));
-                        adjustTextareaHeight(e.target);
-                      }}
-                      placeholder={`Escriba o genere la redacción para ${
-                        section === 'serviciosDomiciliarios' ? 'Servicios Domiciliarios' : 
-                        section === 'higieneVivienda' ? 'Higiene de la Vivienda' : 
-                        section === 'higienePersonal' ? 'Higiene Personal' : 
-                        section === 'higieneBucal' ? 'Higiene Bucal' : 'Alimentación'
-                      }...`}
-                      onFocus={(e) => adjustTextareaHeight(e.target)}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-};
-
-export default AntecedentesPersonalesNoPatologicos;
+                      <Label>Alimentos
