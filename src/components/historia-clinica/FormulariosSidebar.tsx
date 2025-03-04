@@ -92,7 +92,7 @@ const FormulariosSidebar = ({
                 
                 <div className="space-y-2">
                   <Input placeholder="Nombre del paciente" value={nombrePaciente} onChange={e => setNombrePaciente(e.target.value)} className="bg-white dark:bg-neutral-700" />
-                  <Button onClick={handleGuardarFormulario} disabled={!nombrePaciente.trim()} className="w-full bg-green-400 hover:bg-green-300">
+                  <Button onClick={handleGuardarFormulario} disabled={!nombrePaciente.trim()} className="w-full bg-violet-600 hover:bg-violet-500">
                     <Save className="w-4 h-4 mr-2" />
                     Guardar Formulario
                   </Button>
