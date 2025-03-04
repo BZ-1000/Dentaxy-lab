@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Save, FileText, Trash, Pencil, Share2, X } from "lucide-react";
+import { Save, FileText, BookOpen, Trash, Pencil, Share2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
 import {
@@ -173,23 +173,6 @@ const FormulariosSidebar = ({
     });
   };
 
-  // Custom dental icon that changes color based on theme
-  const DentalIcon = () => (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="flex-shrink-0"
-    >
-      <path
-        d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM8 20H6v-2h2v2zm0-4H6v-2h2v2zm0-4H6v-2h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V8h2v2zm4 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V8h2v2zm1-12.7V6.3L17.7 5h.3v1.4h-.3l-.7.7zm-1.6 2.3L15 8.3v1.4h1.4l-.7-.7zm-1.6 2.3L13 10.7v1.4h1.4l-.7-.7zm-1.6 2.3L11 13v1.4h1.4l-.7-.7z"
-        fill={theme === 'dark' ? 'white' : '#3b82f6'}
-      />
-    </svg>
-  );
-
   return (
     <>
       <div className="flex">
@@ -198,9 +181,9 @@ const FormulariosSidebar = ({
             <div className="sticky top-0 bg-slate-50 z-10">
               <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
                 {open ? <Logo>
-                    <DentalIcon />
+                    <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
                   </Logo> : <LogoIcon>
-                    <DentalIcon />
+                    <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
                   </LogoIcon>}
 
                 <div className="mt-8 flex flex-col gap-4">
@@ -236,7 +219,7 @@ const FormulariosSidebar = ({
                       <SidebarLink
                         link={{
                           label: form.nombre,
-                          icon: <DentalIcon />,
+                          icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
                           onClick: () => onCargarFormulario(form.data, form.nombre)
                         }}
                         className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1"
