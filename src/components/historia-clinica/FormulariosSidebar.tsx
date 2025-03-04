@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Save, FileText, BookOpen, Trash, Pencil, Share2, X } from "lucide-react";
+import { Save, FileText, BookOpen, Trash, Pencil, Share2, X, Menu } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
 import {
@@ -43,7 +43,7 @@ const FormulariosSidebar = ({
     data: FormDataState;
   }[]>([]);
   const { theme } = useTheme();
-  const [open, setOpen] = useState(true); // Asegúrate de que el sidebar esté abierto por defecto
+  const [open, setOpen] = useState(false); // Establecer a false para que esté oculto por defecto
   const [dialogOpen, setDialogOpen] = useState(false);
   const [accionFormulario, setAccionFormulario] = useState<'eliminar' | 'renombrar' | 'compartir' | null>(null);
   const [formularioSeleccionado, setFormularioSeleccionado] = useState<string | null>(null);
@@ -271,6 +271,9 @@ const FormulariosSidebar = ({
         </div>
 
         <div className="flex-1 p-4">
+          <Button onClick={() => setOpen(!open)} className="mb-4">
+            <Menu className="w-6 h-6" />
+          </Button>
           {pacienteActual && (
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm text-gray-600">Formulario del Paciente: {pacienteActual}</span>
