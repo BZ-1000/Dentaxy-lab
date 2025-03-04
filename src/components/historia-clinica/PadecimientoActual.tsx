@@ -305,7 +305,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
         }} />
             {!formData.padecimientoActual.sinSintomas && <div className="space-y-6">
                 <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-                  <h3 className="mb-6 text-xl font-bold text-gray-800">EN CASO DE DOLOR</h3>
+                  <h3 className="mb-6 text-xl text-gray-800 font-medium">EN CASO DE DOLOR</h3>
                   <CaracteristicasDolor dolor={formData.padecimientoActual.dolor} onDolorChange={(field, value) => {
               handleDolorChange(field, value);
               if (field === 'condicionAparicion' && value === 'provocado') {
