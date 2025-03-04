@@ -725,7 +725,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                   <Button onClick={generarRedaccionIA} className="bg-blue-500 hover:bg-blue-600 text-white">
                     Generar Redacción IA
                   </Button>
-                  <Button onClick={limpiarFormulario} variant="outline" className="border-gray-300 bg-red-500 hover:bg-red-400 text-slate-100 font-semibold">
+                  <Button onClick={limpiarFormulario} variant="outline" className="border-gray-300 text-slate-100 font-semibold bg-[#ff0000]">
                     Limpiar Formulario
                   </Button>
                 </div>
