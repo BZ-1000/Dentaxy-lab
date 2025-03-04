@@ -79,7 +79,7 @@ const FormulariosSidebar = ({
   // Custom dental icon that changes color based on theme
   const DentalIcon = () => <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />;
   return <Sidebar open={open} setOpen={setOpen} animate={true}>
-      <SidebarBody className="border-r bg-slate-50">
+      <SidebarBody className="border-r bg-slate-50 rounded-none">
         <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           {open ? <Logo>
               <DentalIcon />
@@ -89,10 +89,10 @@ const FormulariosSidebar = ({
           
           <div className="mt-8 flex flex-col gap-4">
             {open && <div className="space-y-2">
-                <h2 className="font-semibold text-sm">Formularios Guardados</h2>
+                
                 <div className="space-y-2">
                   <Input placeholder="Nombre del paciente" value={nombrePaciente} onChange={e => setNombrePaciente(e.target.value)} className="bg-white dark:bg-neutral-700" />
-                  <Button onClick={handleGuardarFormulario} className="w-full bg-primary hover:bg-primary/90" disabled={!nombrePaciente.trim()}>
+                  <Button onClick={handleGuardarFormulario} disabled={!nombrePaciente.trim()} className="w-full bg-violet-600 hover:bg-violet-500">
                     <Save className="w-4 h-4 mr-2" />
                     Guardar Formulario
                   </Button>
