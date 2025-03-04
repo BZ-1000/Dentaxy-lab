@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -34,7 +35,7 @@ const HistoriaClinica = () => {
   } = useHistoriaClinica();
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <div className={`${theme} min-h-screen w-full flex`}>
         <FormulariosSidebar 
           onCargarFormulario={(data, nombre) => {
