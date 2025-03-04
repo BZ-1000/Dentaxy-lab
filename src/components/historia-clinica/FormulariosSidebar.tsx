@@ -1,16 +1,19 @@
 
 import { useState, useEffect } from 'react';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Save, FileText } from "lucide-react";
+import { Save, FileText, Tooth } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
+import {
+  Sidebar,
+  SidebarBody,
+  SidebarLink,
+  Logo,
+  LogoIcon,
+  useSidebar
+} from '@/components/ui/modern-sidebar';
 
 interface FormulariosSidebarProps {
   onCargarFormulario: (data: FormDataState, nombre: string) => void;
@@ -24,6 +27,7 @@ const FormulariosSidebar = ({
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [formularios, setFormularios] = useState<{ nombre: string; data: FormDataState }[]>([]);
   const { theme } = useTheme();
+  const [open, setOpen] = useState(false);
 
   // Load saved forms from localStorage on component mount
   useEffect(() => {
@@ -72,70 +76,68 @@ const FormulariosSidebar = ({
 
   // Custom tooth icon that changes color based on theme
   const ToothIcon = () => (
-    <svg 
-      width="24" 
-      height="24" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke={theme === 'dark' ? 'white' : '#3b82f6'} 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-      <path d="M12 5.5c-1.5-1-2.5-2-2.5-3.5 0-.8.2-1.5.6-2" />
-      <path d="M17.9 5.5c1.5-1 2.6-2 2.6-3.5 0-.8-.2-1.5-.6-2" />
-      <path d="M13 8c0-2 1-3.5 3-3.5s3 1.5 3 3.5c0 1.5-1 2.5-3 2.5-1 0-2-1-2-2Z" />
-      <path d="M9.7 17c-.4.4-.7.9-.7 1.5V21h6v-3c0-1.5-1.5-2-2.5-2h-2.3c-.2 0-.5 0-.7.1-.1 0-.2.1-.3.2-.1.1-.2.1-.3.2l-.2.2c-.1.1-.1.2-.1.3" />
-      <path d="M8 8c0-2-1-3.5-3-3.5S2 6 2 8c0 1.5 1 2.5 3 2.5 1 0 2-1 2-2Z" />
-      <path d="M7 13c-1 1-1 2.3-1 4 0 .9.2 1.7.7 2.5" />
-      <path d="M17 13c1 1 1 2.3 1 4 0 .9-.2 1.7-.7 2.5" />
-      <path d="M12 10c-1.1 0-2 .9-2 2v2" />
-      <path d="M14 10c1.1 0 2 .9 2 2v2" />
-    </svg>
+    <Tooth 
+      className="flex-shrink-0" 
+      size={24}
+      color={theme === 'dark' ? 'white' : '#3b82f6'} 
+    />
   );
 
   return (
-    <Sidebar className="w-[240px] border-r">
-      <SidebarTrigger className="absolute left-[240px] top-4">
-        <ToothIcon />
-      </SidebarTrigger>
-      <SidebarContent>
-        <div className="p-4 space-y-4">
-          <h2 className="font-semibold">Formularios Guardados</h2>
+    <Sidebar open={open} setOpen={setOpen} animate={true}>
+      <SidebarBody className="border-r">
+        <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+          {open ? (
+            <Logo>
+              <ToothIcon />
+            </Logo>
+          ) : (
+            <LogoIcon>
+              <ToothIcon />
+            </LogoIcon>
+          )}
           
-          <div className="space-y-2">
-            <Input
-              placeholder="Nombre del paciente"
-              value={nombrePaciente}
-              onChange={(e) => setNombrePaciente(e.target.value)}
-            />
-            <Button 
-              onClick={handleGuardarFormulario}
-              className="w-full"
-              disabled={!nombrePaciente.trim()}
-            >
-              <Save className="w-4 h-4 mr-2" />
-              Guardar Formulario
-            </Button>
+          <div className="mt-8 flex flex-col gap-4">
+            {open && (
+              <div className="space-y-2">
+                <h2 className="font-semibold text-sm">Formularios Guardados</h2>
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Nombre del paciente"
+                    value={nombrePaciente}
+                    onChange={(e) => setNombrePaciente(e.target.value)}
+                    className="bg-white dark:bg-neutral-700"
+                  />
+                  <Button 
+                    onClick={handleGuardarFormulario}
+                    className="w-full bg-primary hover:bg-primary/90"
+                    disabled={!nombrePaciente.trim()}
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Guardar Formulario
+                  </Button>
+                </div>
+              </div>
+            )}
+            
+            <ScrollArea className={open ? "h-[calc(100vh-200px)]" : "h-[calc(100vh-100px)]"}>
+              <div className="space-y-1 pr-2">
+                {formularios.map((form, index) => (
+                  <SidebarLink
+                    key={index}
+                    link={{
+                      label: form.nombre,
+                      icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
+                      onClick: () => onCargarFormulario(form.data, form.nombre)
+                    }}
+                    className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2"
+                  />
+                ))}
+              </div>
+            </ScrollArea>
           </div>
-
-          <ScrollArea className="h-[calc(100vh-200px)]">
-            <div className="space-y-2">
-              {formularios.map((form, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => onCargarFormulario(form.data, form.nombre)}
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  {form.nombre}
-                </Button>
-              ))}
-            </div>
-          </ScrollArea>
         </div>
-      </SidebarContent>
+      </SidebarBody>
     </Sidebar>
   );
 };
