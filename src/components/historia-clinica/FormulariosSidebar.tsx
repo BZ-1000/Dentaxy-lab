@@ -175,7 +175,7 @@ const FormulariosSidebar = ({
 
   return (
     <>
-      <div className="flex">
+      <div className="flex h-screen">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
           <SidebarBody className="border-r bg-slate-50 h-full flex flex-col">
             <div className="sticky top-0 bg-slate-50 z-10">
