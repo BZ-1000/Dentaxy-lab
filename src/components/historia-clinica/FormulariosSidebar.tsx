@@ -211,11 +211,11 @@ const FormulariosSidebar = ({
               </div>
             </div>
 
-            <div className="sticky top-[120px] bg-slate-50 z-10">
+            <div className="sticky top-[120px] bg-slate-50 z-10 mt-4">
               <ScrollArea className="flex-1">
                 <div className="space-y-1 pr-2">
                   {formularios.map((form, index) => (
-                    <div key={index} className="group flex justify-between items-center">
+                    <div key={index} className="group flex justify-between items-center mb-2">
                       <SidebarLink
                         link={{
                           label: form.nombre,
