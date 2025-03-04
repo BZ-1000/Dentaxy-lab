@@ -182,76 +182,78 @@ const FormulariosSidebar = ({
     <>
       <div className="flex">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
-          <SidebarBody className="border-r bg-slate-50 h-full flex flex-col sticky top-0">
-            <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-              {open ? <Logo>
-                  <DentalIcon />
-                </Logo> : <LogoIcon>
-                  <DentalIcon />
-                </LogoIcon>}
+          <SidebarBody className="border-r bg-slate-50 h-full flex flex-col">
+            <div className="sticky top-0 bg-slate-50 z-10">
+              <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+                {open ? <Logo>
+                    <DentalIcon />
+                  </Logo> : <LogoIcon>
+                    <DentalIcon />
+                  </LogoIcon>}
 
-              <div className="mt-8 flex flex-col gap-4 flex-1">
-                {open && (
-                  <div className="space-y-2">
+                <div className="mt-8 flex flex-col gap-4">
+                  {open && (
                     <div className="space-y-2">
-                      <Input
-                        placeholder="Nombre del paciente"
-                        value={nombrePaciente}
-                        onChange={e => setNombrePaciente(e.target.value)}
-                        className="bg-white dark:bg-neutral-700"
-                      />
-                      <Button
-                        onClick={handleGuardarFormulario}
-                        disabled={!nombrePaciente.trim()}
-                        className="w-full bg-violet-600 hover:bg-violet-500"
-                      >
-                        <Save className="w-4 h-4 mr-2" />
-                        Guardar Formulario
-                      </Button>
-                    </div>
-                  </div>
-                )}
-
-                <ScrollArea className="flex-1">
-                  <div className="space-y-1 pr-2">
-                    {formularios.map((form, index) => (
-                      <div key={index} className="group">
-                        <SidebarLink
-                          link={{
-                            label: form.nombre,
-                            icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
-                            onClick: () => onCargarFormulario(form.data, form.nombre)
-                          }}
-                          className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex justify-between"
+                      <div className="space-y-2">
+                        <Input
+                          placeholder="Nombre del paciente"
+                          value={nombrePaciente}
+                          onChange={e => setNombrePaciente(e.target.value)}
+                          className="bg-white dark:bg-neutral-700"
                         />
-                        {open && (
-                          <div className="flex justify-end gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                              onClick={() => handleFormularioAction('renombrar', form.nombre)}
-                              className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                            >
-                              <Pencil className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
-                            </button>
-                            <button
-                              onClick={() => handleFormularioAction('compartir', form.nombre)}
-                              className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                            >
-                              <Share2 className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
-                            </button>
-                            <button
-                              onClick={() => handleFormularioAction('eliminar', form.nombre)}
-                              className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                            >
-                              <Trash className="h-3.5 w-3.5 text-red-500" />
-                            </button>
-                          </div>
-                        )}
+                        <Button
+                          onClick={handleGuardarFormulario}
+                          disabled={!nombrePaciente.trim()}
+                          className="w-full bg-violet-600 hover:bg-violet-500"
+                        >
+                          <Save className="w-4 h-4 mr-2" />
+                          Guardar Formulario
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-                </ScrollArea>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+
+            <ScrollArea className="flex-1">
+              <div className="space-y-1 pr-2">
+                {formularios.map((form, index) => (
+                  <div key={index} className="group">
+                    <SidebarLink
+                      link={{
+                        label: form.nombre,
+                        icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
+                        onClick: () => onCargarFormulario(form.data, form.nombre)
+                      }}
+                      className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex justify-between"
+                    />
+                    {open && (
+                      <div className="flex justify-end gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => handleFormularioAction('renombrar', form.nombre)}
+                          className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                        >
+                          <Pencil className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+                        </button>
+                        <button
+                          onClick={() => handleFormularioAction('compartir', form.nombre)}
+                          className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                        >
+                          <Share2 className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+                        </button>
+                        <button
+                          onClick={() => handleFormularioAction('eliminar', form.nombre)}
+                          className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                        >
+                          <Trash className="h-3.5 w-3.5 text-red-500" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
           </SidebarBody>
         </Sidebar>
 
