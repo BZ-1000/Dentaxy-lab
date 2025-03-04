@@ -211,7 +211,7 @@ const FormulariosSidebar = ({
               </div>
             </div>
 
-            <div className="sticky top-[120px] bg-slate-50 z-10 mt-4">
+            <div className="flex-1 overflow-y-auto">
               <ScrollArea className="flex-1">
                 <div className="space-y-1 pr-2">
                   {formularios.map((form, index) => (
