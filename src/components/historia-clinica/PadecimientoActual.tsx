@@ -381,52 +381,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
                       setShowCausasProvocado(false);
                     }
                   }} />
-                  {showCausasProvocado && (
-                    <div className="mt-4">
-                      <Label className="text-gray-700 dark:text-gray-300">Causa del dolor provocado:</Label>
-                      <div className="flex items-center gap-4">
-                        <div className="relative w-full">
-                          <Textarea
-                            value={formData.padecimientoActual.dolor.causaProvocado || ''}
-                            onChange={(e) => {
-                              const newValue = e.target.value;
-                              if (!newValue.startsWith(defaultCausaProvocado)) {
-                                handleDolorChange('causaProvocado', defaultCausaProvocado + newValue);
-                              } else {
-                                handleDolorChange('causaProvocado', newValue);
-                              }
-                            }}
-                            placeholder={defaultCausaProvocado}
-                            className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
-                          />
-                          {(!formData.padecimientoActual.dolor.causaProvocado || formData.padecimientoActual.dolor.causaProvocado === defaultCausaProvocado) && (
-                            <div className="absolute top-2 left-[115px] pointer-events-none">
-                              <Typewriter
-                                text={causasProvocadoEjemplo}
-                                speed={50}
-                                deleteSpeed={30}
-                                delay={2000}
-                                loop={true}
-                                className="text-gray-500 italic text-base"
-                              />
-                            </div>
-                          )}
-                        </div>
-                        <div className="h-[40px]">
-                          <VoiceInput
-                            onTranscriptionComplete={(text) => {
-                              const newValue = text;
-                              if (!newValue.startsWith(defaultCausaProvocado)) {
-                                handleDolorChange('causaProvocado', defaultCausaProvocado + newValue);
-                              } else {
-                                handleDolorChange('causaProvocado', newValue);
-                              }
-                            }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             )}

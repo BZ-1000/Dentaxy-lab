@@ -272,18 +272,60 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
 
       <div>
         <Label>Atenuación</Label>
-        <div className="flex items-center gap-4">
+        <div className="flex items-start gap-4">
           <Textarea
             value={dolor.atenuacion}
             onChange={(e) => onDolorChange('atenuacion', e.target.value)}
             placeholder="Describe que empeora el dolor (frío, caliente,) o que lo disminuye (analgésicos)"
-            className="min-h-[135px] max-h-[135px] w-[75%] text-justify"
+            className="min-h-[100px] max-h-[200px] w-full resize-y text-justify"
           />
-          <div className="h-[40px]">
+          <div className="mt-2">
             <VoiceInput onTranscriptionComplete={(text) => onDolorChange('atenuacion', text)} />
           </div>
         </div>
       </div>
+
+      {dolor.condicionAparicion === 'provocado' && (
+        <div className="mt-4">
+          <Label className="text-gray-700 dark:text-gray-300">Causa del dolor provocado:</Label>
+          <div className="flex items-start gap-4">
+            <div className="relative w-full">
+              <Textarea
+                value={causaProvocadoText}
+                onChange={handleCausaProvocadoChange}
+                onKeyDown={(e) => handleKeyDown(defaultCausaProvocado, e)}
+                placeholder={defaultCausaProvocado}
+                className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify"
+              />
+              {causaProvocadoText === defaultCausaProvocado && (
+                <div className="absolute top-2 left-[115px] pointer-events-none">
+                  <Typewriter
+                    text={causasProvocadoEjemplo}
+                    speed={50}
+                    deleteSpeed={30}
+                    delay={2000}
+                    loop={true}
+                    className="text-gray-500 italic text-base"
+                  />
+                </div>
+              )}
+            </div>
+            <div className="mt-2">
+              <VoiceInput
+                onTranscriptionComplete={(text) => {
+                  const newValue = text;
+                  let finalText = newValue;
+                  if (!finalText.startsWith(defaultCausaProvocado)) {
+                    finalText = `${defaultCausaProvocado} ${finalText}`;
+                  }
+                  setCausaProvocadoText(finalText);
+                  onDolorChange('causaProvocado', finalText);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
