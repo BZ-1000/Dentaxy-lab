@@ -151,7 +151,7 @@ export const Logo = ({
       opacity: 0
     }} animate={{
       opacity: 1
-    }} className="font-medium text-black dark:text-white whitespace-pre">Nube personal de formularios</motion.span>
+    }} className="whitespace-pre font-semibold text-base text-gray-800">Nube personal de formularios</motion.span>
     </div>;
 };
 export const LogoIcon = ({
