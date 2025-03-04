@@ -173,18 +173,15 @@ export const SidebarLink = ({
       {...props}
     >
       {link.icon}
-      {/* Fix for the TypeScript error, using a conditional render instead of motion value */}
-      {animate ? (
-        open ? (
-          <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0">
-            {link.label}
-          </span>
-        ) : null
-      ) : (
-        <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0">
-          {link.label}
-        </span>
-      )}
+      <motion.span
+        animate={{
+          display: animate ? (open ? "inline-block" : "none") : "inline-block",
+          opacity: animate ? (open ? 1 : 0) : 1,
+        }}
+        className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
+      >
+        {link.label}
+      </motion.span>
     </div>
   );
   
