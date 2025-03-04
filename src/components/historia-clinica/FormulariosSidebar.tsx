@@ -228,44 +228,46 @@ const FormulariosSidebar = ({
               </div>
             </div>
 
-            <ScrollArea className="flex-1">
-              <div className="space-y-1 pr-2">
-                {formularios.map((form, index) => (
-                  <div key={index} className="group flex justify-between items-center">
-                    <SidebarLink
-                      link={{
-                        label: form.nombre,
-                        icon: <DentalIcon />,
-                        onClick: () => onCargarFormulario(form.data, form.nombre)
-                      }}
-                      className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1"
-                    />
-                    {open && (
-                      <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                          onClick={() => handleFormularioAction('renombrar', form.nombre)}
-                          className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                        >
-                          <Pencil className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
-                        </button>
-                        <button
-                          onClick={() => handleFormularioAction('compartir', form.nombre)}
-                          className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                        >
-                          <Share2 className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
-                        </button>
-                        <button
-                          onClick={() => handleFormularioAction('eliminar', form.nombre)}
-                          className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
-                        >
-                          <Trash className="h-3.5 w-3.5 text-red-500" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </ScrollArea>
+            <div className="sticky top-[120px] bg-slate-50 z-10">
+              <ScrollArea className="flex-1">
+                <div className="space-y-1 pr-2">
+                  {formularios.map((form, index) => (
+                    <div key={index} className="group flex justify-between items-center">
+                      <SidebarLink
+                        link={{
+                          label: form.nombre,
+                          icon: <DentalIcon />,
+                          onClick: () => onCargarFormulario(form.data, form.nombre)
+                        }}
+                        className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1"
+                      />
+                      {open && (
+                        <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleFormularioAction('renombrar', form.nombre)}
+                            className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                          >
+                            <Pencil className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+                          </button>
+                          <button
+                            onClick={() => handleFormularioAction('compartir', form.nombre)}
+                            className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                          >
+                            <Share2 className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+                          </button>
+                          <button
+                            onClick={() => handleFormularioAction('eliminar', form.nombre)}
+                            className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                          >
+                            <Trash className="h-3.5 w-3.5 text-red-500" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
           </SidebarBody>
         </Sidebar>
 
