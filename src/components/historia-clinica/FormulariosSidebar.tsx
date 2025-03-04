@@ -79,7 +79,7 @@ const FormulariosSidebar = ({
   // Custom dental icon that changes color based on theme
   const DentalIcon = () => <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />;
   return <Sidebar open={open} setOpen={setOpen} animate={true}>
-      <SidebarBody className="border-r bg-slate-50">
+      <SidebarBody className="border-r bg-slate-50 rounded-none">
         <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           {open ? <Logo>
               <DentalIcon />
