@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
@@ -31,28 +30,22 @@ export const useHistoriaClinica = () => {
 
   const handleDolorChange = (field: string, value: any) => {
     if (field === 'localizacion') {
-      // Ensure we're not creating nested objects with duplicate keys
       let localizacion;
       
-      // If it's a string that might be JSON, safely parse it or use a default object
       if (typeof value === 'string') {
         try {
-          // Only try to parse if it looks like JSON
           if (value.startsWith('{') && value.endsWith('}')) {
             localizacion = JSON.parse(value);
           } else {
-            // It's just a plain string, use it as a description
             localizacion = { 
               tipo: '',
               descripcion: value 
             };
           }
         } catch (e) {
-          // If parsing fails, use a clean object
           localizacion = { tipo: '', descripcion: value };
         }
       } else if (typeof value === 'object') {
-        // It's already an object, use it directly
         localizacion = value;
       }
       
@@ -120,7 +113,6 @@ export const useHistoriaClinica = () => {
   };
 
   const handleAntecedenteChange = (field: string, value: any) => {
-    // Handle nested objects like horarioComidas
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
       setFormData(prev => ({
@@ -134,7 +126,6 @@ export const useHistoriaClinica = () => {
         }
       }));
     } else if (Array.isArray(value)) {
-      // Handle arrays like servicios
       setFormData(prev => ({
         ...prev,
         antecedentesPersonalesNoPatologicos: {
@@ -143,7 +134,6 @@ export const useHistoriaClinica = () => {
         }
       }));
     } else {
-      // Regular fields
       setFormData(prev => ({
         ...prev,
         antecedentesPersonalesNoPatologicos: {
@@ -174,15 +164,12 @@ export const useHistoriaClinica = () => {
     }
   };
 
-  // Toggle a service in the services array
   const toggleService = (service: string) => {
     setFormData(prev => {
       const currentServices = [...prev.antecedentesPersonalesNoPatologicos.servicios];
       
-      // Special case for "todos"
       if (service === 'todos') {
         const allServices = ['agua', 'luz', 'drenaje', 'transporte', 'internet', 'gas'];
-        // If all services are already selected, clear them, otherwise select all
         const hasAllServices = allServices.every(s => currentServices.includes(s));
         
         return {
@@ -194,7 +181,6 @@ export const useHistoriaClinica = () => {
         };
       }
       
-      // Toggle individual service
       const updatedServices = currentServices.includes(service)
         ? currentServices.filter(s => s !== service)
         : [...currentServices, service];
@@ -209,6 +195,14 @@ export const useHistoriaClinica = () => {
     });
   };
 
+  const guardarFormulario = (data: FormDataState, nombre: string) => {
+    localStorage.setItem(`formulario_${nombre}`, JSON.stringify(data));
+  };
+
+  const cargarFormulario = (data: FormDataState) => {
+    setFormData(data);
+  };
+
   return {
     formData,
     resumen,
@@ -221,6 +215,8 @@ export const useHistoriaClinica = () => {
     handleCondicionChange,
     handleAntecedenteChange,
     toggleService,
-    generarResumen
+    generarResumen,
+    guardarFormulario,
+    cargarFormulario
   };
 };
