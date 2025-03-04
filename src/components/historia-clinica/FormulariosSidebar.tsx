@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Save, FileText, Tooth } from "lucide-react";
+import { Save, FileText, BookOpen } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
 import {
@@ -74,9 +74,9 @@ const FormulariosSidebar = ({
     setNombrePaciente('');
   };
 
-  // Custom tooth icon that changes color based on theme
-  const ToothIcon = () => (
-    <Tooth 
+  // Custom dental icon that changes color based on theme
+  const DentalIcon = () => (
+    <BookOpen 
       className="flex-shrink-0" 
       size={24}
       color={theme === 'dark' ? 'white' : '#3b82f6'} 
@@ -89,11 +89,11 @@ const FormulariosSidebar = ({
         <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           {open ? (
             <Logo>
-              <ToothIcon />
+              <DentalIcon />
             </Logo>
           ) : (
             <LogoIcon>
-              <ToothIcon />
+              <DentalIcon />
             </LogoIcon>
           )}
           
