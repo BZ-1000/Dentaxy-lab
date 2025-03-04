@@ -89,7 +89,7 @@ const FormulariosSidebar = ({
           
           <div className="mt-8 flex flex-col gap-4">
             {open && <div className="space-y-2">
-                <h2 className="font-semibold text-sm">Formularios Guardados</h2>
+                
                 <div className="space-y-2">
                   <Input placeholder="Nombre del paciente" value={nombrePaciente} onChange={e => setNombrePaciente(e.target.value)} className="bg-white dark:bg-neutral-700" />
                   <Button onClick={handleGuardarFormulario} className="w-full bg-primary hover:bg-primary/90" disabled={!nombrePaciente.trim()}>
