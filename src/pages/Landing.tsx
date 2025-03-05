@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -60,6 +61,21 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
+  // Using this to detect tablet size (between mobile and desktop)
+  const isTablet = () => window.innerWidth >= 768 && window.innerWidth < 1024;
+  const [isTabletDevice, setIsTabletDevice] = useState(false);
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setIsTabletDevice(isTablet());
+    };
+    
+    // Initialize on mount
+    handleResize();
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -261,7 +277,7 @@ const Landing = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5, duration: 1 }}
           />
-          {!isMobile && (
+          {!isMobile && !isTabletDevice && (
             <span className="text-sm sm:text-base font-semibold text-white text-shadow">
               Dental Basics Academy IA
             </span>
@@ -291,7 +307,7 @@ const Landing = () => {
           className="flex items-center gap-4"
         >
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
-          {!isMobile && (
+          {!isMobile && !isTabletDevice && (
             <span className="text-sm sm:text-base font-semibold text-white text-shadow">
               Dental Basics Academy IA
             </span>
@@ -300,7 +316,7 @@ const Landing = () => {
         <div className="flex gap-4">
           {!session ? (
             <>
-              {!isMobile ? (
+              {!isMobile && !isTabletDevice ? (
                 <>
                   <Button
                     variant="ghost"
@@ -336,7 +352,8 @@ const Landing = () => {
         </div>
       </motion.div>
 
-      {!isMobile && (
+      {/* Menu positioning based on device type */}
+      {(!isMobile && !isTabletDevice) && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -393,6 +410,71 @@ const Landing = () => {
               </motion.div>
             )}
           </AnimatePresence>
+        </motion.div>
+      )}
+
+      {/* Tablet specific menu */}
+      {isTabletDevice && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 6, duration: 0.5 }}
+          className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm border-b border-white/10 p-2"
+        >
+          <MenuBar
+            items={menuItems}
+            activeItem={activeItem}
+            onItemClick={handleItemClick}
+            className="py-1 text-shadow w-full justify-around mx-auto"
+            hideLabels={true}
+          />
+          {showDropdown && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="absolute top-full mt-2 right-4 py-2 bg-black/90 backdrop-blur-sm rounded-xl border border-white/10 shadow-xl w-48"
+            >
+              {session ? (
+                <>
+                  <button
+                    onClick={handleChangeUsername}
+                    className="w-full px-4 py-2 text-left text-white hover:bg-white/10 transition-colors"
+                  >
+                    Cambiar nombre
+                  </button>
+                  <button
+                    onClick={() => setShowPricingPopup(true)}
+                    className="w-full px-4 py-2 text-left text-white hover:bg-white/10 transition-colors flex items-center gap-x-2"
+                  >
+                    <Crown className="h-4 w-4" />
+                    Cambiar plan
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full px-4 py-2 text-left text-red-500 hover:bg-white/10 transition-colors"
+                  >
+                    Cerrar sesión
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button
+                    onClick={handleLogin}
+                    className="w-full px-4 py-2 text-left text-white hover:bg-white/10 transition-colors"
+                  >
+                    Iniciar sesión
+                  </button>
+                  <button
+                    onClick={handleRegister}
+                    className="w-full px-4 py-2 text-left text-white hover:bg-white/10 transition-colors"
+                  >
+                    Registrarse
+                  </button>
+                </>
+              )}
+            </motion.div>
+          )}
         </motion.div>
       )}
 
@@ -484,11 +566,11 @@ const Landing = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 7.3, duration: 0.5 }}
-            className={isMobile ? 'w-full' : ''}
+            className={isMobile || isTabletDevice ? 'w-full' : ''}
           >
             <RainbowButton
               onClick={handleBetaAccess}
-              className={`text-sm py-6 shadow-2xl z-50 ${isMobile ? 'w-full' : ''}`}
+              className={`text-sm py-6 shadow-2xl z-50 ${isMobile || isTabletDevice ? 'w-full' : ''}`}
             >
               Prueba BETA
             </RainbowButton>
