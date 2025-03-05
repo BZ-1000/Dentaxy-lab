@@ -8,12 +8,14 @@ import { useTheme } from '@/hooks/use-theme';
 import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@/components/ui/modern-sidebar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+
 interface FormulariosSidebarProps {
   onCargarFormulario: (data: FormDataState, nombre: string) => void;
   onGuardarFormulario: (nombre: string) => void;
   onCerrarFormulario: () => void;
   pacienteActual: string;
 }
+
 const FormulariosSidebar = ({
   onCargarFormulario,
   onGuardarFormulario,
@@ -28,21 +30,19 @@ const FormulariosSidebar = ({
   const {
     theme
   } = useTheme();
-  const [open, setOpen] = useState(false); // Establecer a false para que esté oculto por defecto
+  const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [accionFormulario, setAccionFormulario] = useState<'eliminar' | 'renombrar' | 'compartir' | null>(null);
   const [formularioSeleccionado, setFormularioSeleccionado] = useState<string | null>(null);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
 
-  // Load saved forms from localStorage on component mount
   const loadSavedForms = () => {
     const savedForms: {
       nombre: string;
       data: FormDataState;
     }[] = [];
 
-    // Check localStorage for saved forms by looking for keys that match our pattern
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith('formulario_')) {
@@ -56,16 +56,17 @@ const FormulariosSidebar = ({
     }
     setFormularios(savedForms);
   };
+
   useEffect(() => {
     loadSavedForms();
   }, []);
+
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       return;
     }
     onGuardarFormulario(nombrePaciente);
 
-    // Update the local state with the new form
     loadSavedForms();
     setNombrePaciente('');
     toast({
@@ -73,13 +74,13 @@ const FormulariosSidebar = ({
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
+
   const handleEliminarFormulario = () => {
     if (!formularioSeleccionado) return;
     localStorage.removeItem(`formulario_${formularioSeleccionado}`);
     loadSavedForms();
     setDialogOpen(false);
 
-    // If we're deleting the currently loaded form, close it
     if (formularioSeleccionado === pacienteActual) {
       onCerrarFormulario();
     }
@@ -88,18 +89,15 @@ const FormulariosSidebar = ({
       description: `El formulario de ${formularioSeleccionado} ha sido eliminado.`
     });
   };
+
   const handleRenombrarFormulario = () => {
     if (!formularioSeleccionado || !nuevoNombre.trim()) return;
 
-    // Get the data from the old key
     const oldData = localStorage.getItem(`formulario_${formularioSeleccionado}`);
     if (oldData) {
-      // Save under the new key
       localStorage.setItem(`formulario_${nuevoNombre}`, oldData);
-      // Remove the old key
       localStorage.removeItem(`formulario_${formularioSeleccionado}`);
 
-      // If this is the current form, update its name
       if (formularioSeleccionado === pacienteActual) {
         const data = JSON.parse(oldData);
         onCargarFormulario(data, nuevoNombre);
@@ -112,17 +110,17 @@ const FormulariosSidebar = ({
       });
     }
   };
+
   const handleCompartirFormulario = () => {
     if (!formularioSeleccionado || !emailCompartir.trim()) return;
 
-    // This would typically connect to a backend service
-    // For now, we'll just show a toast message
     toast({
       title: "Formulario compartido",
       description: `Se ha compartido el formulario de ${formularioSeleccionado} con ${emailCompartir}.`
     });
     setDialogOpen(false);
   };
+
   const handleFormularioAction = (action: 'eliminar' | 'renombrar' | 'compartir', nombre: string) => {
     setAccionFormulario(action);
     setFormularioSeleccionado(nombre);
@@ -134,6 +132,7 @@ const FormulariosSidebar = ({
     setEmailCompartir('');
     setDialogOpen(true);
   };
+
   const handleQuitarNombre = () => {
     setNombrePaciente('');
     onCerrarFormulario();
@@ -142,6 +141,7 @@ const FormulariosSidebar = ({
       description: "El formulario ha sido reseteado y el nombre del paciente eliminado."
     });
   };
+
   return <>
       <div className="flex">
         <div className="sticky top-0 h-screen">
@@ -197,15 +197,12 @@ const FormulariosSidebar = ({
           </Sidebar>
         </div>
 
-        <div className="flex-1 p-4 py-0 px-0">
-          {pacienteActual && <div className="flex items-center justify-between mb-4">
+        {pacienteActual && <div className="flex items-center justify-between mb-4">
               <span className="text-sm text-gray-600">Formulario del Paciente: {pacienteActual}</span>
               <button onClick={handleQuitarNombre} className="text-red-500 hover:text-red-700">
                 <X className="w-4 h-4" />
               </button>
             </div>}
-          {/* Aquí va el contenido del formulario */}
-        </div>
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -239,4 +236,5 @@ const FormulariosSidebar = ({
       </Dialog>
     </>;
 };
+
 export default FormulariosSidebar;
