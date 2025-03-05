@@ -15,7 +15,7 @@ import { useState, useEffect } from 'react';
 const HistoriaClinica = () => {
   const { theme } = useTheme();
   const [pacienteActual, setPacienteActual] = useState<string>('');
-  const [estadoInicial, setEstadoInicial] = useState(null);
+  const [estadoOriginal, setEstadoOriginal] = useState(null);
 
   const {
     formData,
@@ -34,12 +34,12 @@ const HistoriaClinica = () => {
     cargarFormulario
   } = useHistoriaClinica();
 
-  // Guardar el estado inicial del formulario cuando se carga por primera vez
+  // Guardar el estado original del formulario cuando se carga por primera vez
   useEffect(() => {
-    if (!estadoInicial) {
-      setEstadoInicial(formData);
+    if (!estadoOriginal) {
+      setEstadoOriginal({ ...formData }); // Guardar una copia del estado original
     }
-  }, [formData, estadoInicial]);
+  }, [formData, estadoOriginal]);
 
   // Efecto para guardar automáticamente cuando cambia el formulario y hay un paciente seleccionado
   useEffect(() => {
@@ -50,18 +50,20 @@ const HistoriaClinica = () => {
 
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
-    if (estadoInicial) {
-      cargarFormulario(estadoInicial); // Restaurar al estado inicial
+    if (estadoOriginal) {
+      cargarFormulario(estadoOriginal); // Restaurar al estado original
     }
+  };
+
+  const handleCargarFormulario = (data) => {
+    setPacienteActual(data.nombre);
+    cargarFormulario(data); // Cargar el nuevo formulario
   };
 
   return (
     <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar
-        onCargarFormulario={(data, nombre) => {
-          cargarFormulario(data);
-          setPacienteActual(nombre);
-        }}
+        onCargarFormulario={handleCargarFormulario}
         onGuardarFormulario={(nombre) => guardarFormulario(formData, nombre)}
         onCerrarFormulario={handleLimpiarFormulario}
         pacienteActual={pacienteActual}
