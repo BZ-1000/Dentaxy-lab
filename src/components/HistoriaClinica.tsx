@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -16,6 +15,8 @@ import { useState, useEffect } from 'react';
 const HistoriaClinica = () => {
   const { theme } = useTheme();
   const [pacienteActual, setPacienteActual] = useState<string>('');
+  const [estadoInicial, setEstadoInicial] = useState(null);
+
   const {
     formData,
     resumen,
@@ -33,6 +34,13 @@ const HistoriaClinica = () => {
     cargarFormulario
   } = useHistoriaClinica();
 
+  // Guardar el estado inicial del formulario cuando se carga por primera vez
+  useEffect(() => {
+    if (!estadoInicial) {
+      setEstadoInicial(formData);
+    }
+  }, [formData, estadoInicial]);
+
   // Efecto para guardar automáticamente cuando cambia el formulario y hay un paciente seleccionado
   useEffect(() => {
     if (pacienteActual) {
@@ -42,12 +50,14 @@ const HistoriaClinica = () => {
 
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
-    cargarFormulario(null); // Cargar formulario vacío
+    if (estadoInicial) {
+      cargarFormulario(estadoInicial); // Restaurar al estado inicial
+    }
   };
 
   return (
     <div className={`${theme} min-h-screen w-full flex`}>
-      <FormulariosSidebar 
+      <FormulariosSidebar
         onCargarFormulario={(data, nombre) => {
           cargarFormulario(data);
           setPacienteActual(nombre);
@@ -56,7 +66,7 @@ const HistoriaClinica = () => {
         onCerrarFormulario={handleLimpiarFormulario}
         pacienteActual={pacienteActual}
       />
-      
+
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="text-center">
@@ -67,8 +77,8 @@ const HistoriaClinica = () => {
             {pacienteActual && (
               <div className="text-sm text-primary mb-4 flex items-center justify-center gap-2">
                 Formulario del paciente: {pacienteActual}
-                <button 
-                  onClick={handleLimpiarFormulario} 
+                <button
+                  onClick={handleLimpiarFormulario}
                   className="text-red-500 hover:text-red-700 transition-colors focus:outline-none"
                   aria-label="Limpiar formulario"
                 >
@@ -79,37 +89,37 @@ const HistoriaClinica = () => {
           </div>
 
           <div className="space-y-6">
-            <PadecimientoActual 
+            <PadecimientoActual
               formData={formData}
               handlePadecimientoChange={handlePadecimientoChange}
               handleDolorChange={handleDolorChange}
               handleSinSintomasChange={handleSinSintomasChange}
             />
-            
-            <AntecedentesHeredoFamiliares 
+
+            <AntecedentesHeredoFamiliares
               formData={formData}
               handleFamiliarChange={handleFamiliarChange}
               handleCondicionChange={handleCondicionChange}
             />
 
-            <AntecedentesPersonalesNoPatologicos 
+            <AntecedentesPersonalesNoPatologicos
               formData={formData}
               handleAntecedenteChange={handleAntecedenteChange}
               toggleService={toggleService}
             />
-            
-            <SignosVitales 
-              formData={formData} 
-              handleInputChange={handleInputChange} 
+
+            <SignosVitales
+              formData={formData}
+              handleInputChange={handleInputChange}
             />
-            
-            <DiagnosticoPronostico 
-              formData={formData} 
-              handleInputChange={handleInputChange} 
+
+            <DiagnosticoPronostico
+              formData={formData}
+              handleInputChange={handleInputChange}
             />
 
             <div className="flex justify-center pt-6">
-              <Button 
+              <Button
                 onClick={generarResumen}
                 disabled={isGenerating}
                 className="bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-all duration-200 text-white font-semibold px-8 py-3 rounded-lg shadow-lg hover:shadow-xl"
