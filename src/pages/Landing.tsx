@@ -61,25 +61,6 @@ const Landing = () => {
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
 
-  const isTablet = () => {
-    return window.innerWidth > 640 && window.innerWidth < 1024;
-  };
-  
-  const [isTabletSize, setIsTabletSize] = useState(false);
-
-  useEffect(() => {
-    const checkTablet = () => {
-      setIsTabletSize(isTablet());
-    };
-    
-    checkTablet();
-    window.addEventListener('resize', checkTablet);
-    
-    return () => {
-      window.removeEventListener('resize', checkTablet);
-    };
-  }, []);
-
   useEffect(() => {
     setMounted(true);
 
@@ -255,10 +236,6 @@ const Landing = () => {
 
   if (!mounted) return null;
 
-  const menuWidth = 400; // Approximate width of the menu
-  const headerWidth = window.innerWidth - 40; // Approximate available width
-  const wouldOverlap = headerWidth < menuWidth + 300; // 300px is approximate width for auth buttons
-
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
       <motion.div
@@ -284,7 +261,7 @@ const Landing = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: 1.5, duration: 1 }}
           />
-          {!isMobile && !isTabletSize && (
+          {!isMobile && (
             <span className="text-sm sm:text-base font-semibold text-white text-shadow">
               Dental Basics Academy IA
             </span>
@@ -314,7 +291,7 @@ const Landing = () => {
           className="flex items-center gap-4"
         >
           <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
-          {!isMobile && !isTabletSize && (
+          {!isMobile && (
             <span className="text-sm sm:text-base font-semibold text-white text-shadow">
               Dental Basics Academy IA
             </span>
@@ -325,33 +302,20 @@ const Landing = () => {
             <>
               {!isMobile ? (
                 <>
-                  {!wouldOverlap ? (
-                    <>
-                      <Button
-                        variant="ghost"
-                        onClick={handleLogin}
-                        className="text-white hover:text-white hover:bg-white/10 border border-white/20"
-                      >
-                        Iniciar Sesión
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        onClick={handleRegister}
-                        className="text-white hover:text-white hover:bg-white/10 border border-white/20"
-                      >
-                        Registrarse
-                      </Button>
-                    </>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleItemClick('Perfil')}
-                      size="icon"
-                      className="text-white hover:text-white hover:bg-white/10 border border-white/20"
-                    >
-                      <UserCircle className="h-5 w-5" />
-                    </Button>
-                  )}
+                  <Button
+                    variant="ghost"
+                    onClick={handleLogin}
+                    className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+                  >
+                    Iniciar Sesión
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    onClick={handleRegister}
+                    className="text-white hover:text-white hover:bg-white/10 border border-white/20"
+                  >
+                    Registrarse
+                  </Button>
                 </>
               ) : (
                 <Button
@@ -377,78 +341,55 @@ const Landing = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 6, duration: 0.5 }}
-          className={`absolute ${isTabletSize ? 'top-0 right-0 py-3 px-3' : 'top-6 left-1/2 transform -translate-x-1/2'} z-50`}
+          className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50"
         >
           <MenuBar
             items={menuItems}
             activeItem={activeItem}
             onItemClick={handleItemClick}
-            className={`py-1 text-shadow ${isTabletSize ? 'flex-col' : ''}`}
-            hideLabels={isTabletSize}
+            className="py-1 text-shadow"
           />
           <AnimatePresence>
-            {showDropdown && (
+            {showDropdown && session && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.3 }}
-                className={`absolute ${isTabletSize ? 'top-0 right-full mr-2' : 'top-full right-0'} z-[60] w-48 p-2 bg-[#11111198] rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm flex flex-col gap-2`}
+                className="absolute top-full right-0 z-[60] w-48 p-2 bg-[#11111198] rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm flex flex-col gap-2"
               >
-                {session ? (
-                  <>
-                    {hasBetaPlan && (
-                      <div className="px-2 py-3 text-blue-400 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
-                        <Crown className="h-4 w-4" />
-                        Plan Beta
-                      </div>
-                    )}
-                    <motion.button
-                      onClick={handleChangeUsername}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-2 py-3 text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2 hover:bg-white/10"
-                    >
-                      Cambiar nombre
-                    </motion.button>
-                    <motion.button
-                      onClick={() => setShowPricingPopup(true)}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-2 py-3 text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2 hover:bg-white/10"
-                    >
-                      <Crown className="h-4 w-4" />
-                      Cambiar plan
-                    </motion.button>
-                    <motion.button
-                      onClick={handleLogout}
-                      whileTap={{ scale: 0.95 }}
-                      className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left flex items-center gap-x-2 hover:bg-white/10"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Cerrar sesión
-                    </motion.button>
-                  </>
-                ) : (
-                  <>
-                    {wouldOverlap && (
-                      <>
-                        <motion.button
-                          onClick={handleLogin}
-                          whileTap={{ scale: 0.95 }}
-                          className="px-2 py-3 text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2 hover:bg-white/10"
-                        >
-                          Iniciar Sesión
-                        </motion.button>
-                        <motion.button
-                          onClick={handleRegister}
-                          whileTap={{ scale: 0.95 }}
-                          className="px-2 py-3 text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2 hover:bg-white/10"
-                        >
-                          Registrarse
-                        </motion.button>
-                      </>
-                    )}
-                  </>
+                {hasBetaPlan && (
+                  <div className="px-2 py-3 text-blue-400 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
+                    <Crown className="h-4 w-4" />
+                    Plan Beta
+                  </div>
                 )}
+                <motion.button
+                  onClick={handleChangeUsername}
+                  whileHover={{ backgroundColor: "#11111140" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-2 py-3 text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                >
+                  Cambiar nombre
+                </motion.button>
+                <motion.button
+                  onClick={() => setShowPricingPopup(true)}
+                  whileHover={{ backgroundColor: "#11111140" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-2 py-3 text-white text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                >
+                  <Crown className="h-4 w-4" />
+                  Cambiar plan
+                </motion.button>
+                <motion.button
+                  onClick={handleLogout}
+                  whileHover={{ backgroundColor: "#11111140" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left flex items-center gap-x-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Cerrar sesión
+                </motion.button>
               </motion.div>
             )}
           </AnimatePresence>
