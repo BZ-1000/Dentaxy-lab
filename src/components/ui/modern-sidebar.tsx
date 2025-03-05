@@ -147,8 +147,7 @@ export const SidebarLink = ({
   return (
     <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} onClick={link.onClick} {...props}>
       {link.icon}
-      {/* Solucionamos el error de tipado aquí, cambiando de motion.span a una combinación de 
-          divs condicionales para evitar la incompatibilidad de tipos */}
+      {/* Conditionally render the label based on open and animate states to avoid type incompatibility */}
       {animate ? (
         open ? (
           <motion.span 
