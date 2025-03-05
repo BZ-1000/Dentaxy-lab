@@ -196,11 +196,17 @@ export const useHistoriaClinica = () => {
   };
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {
+    if (!nombre.trim()) return;
     localStorage.setItem(`formulario_${nombre}`, JSON.stringify(data));
   };
 
-  const cargarFormulario = (data: FormDataState) => {
-    setFormData(data);
+  const cargarFormulario = (data: FormDataState | null) => {
+    if (data === null) {
+      setFormData(getInitialFormState());
+      setResumen('');
+    } else {
+      setFormData(data);
+    }
   };
 
   return {

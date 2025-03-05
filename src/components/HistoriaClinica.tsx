@@ -8,10 +8,10 @@ import DiagnosticoPronostico from './historia-clinica/DiagnosticoPronostico';
 import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
 import { Button } from "@/components/ui/button";
 import { useTheme } from '@/hooks/use-theme';
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const HistoriaClinica = () => {
   const { theme } = useTheme();
@@ -33,6 +33,18 @@ const HistoriaClinica = () => {
     cargarFormulario
   } = useHistoriaClinica();
 
+  // Efecto para guardar automáticamente cuando cambia el formulario y hay un paciente seleccionado
+  useEffect(() => {
+    if (pacienteActual) {
+      guardarFormulario(formData, pacienteActual);
+    }
+  }, [formData, pacienteActual, guardarFormulario]);
+
+  const handleLimpiarFormulario = () => {
+    setPacienteActual('');
+    cargarFormulario(null); // Cargar formulario vacío
+  };
+
   return (
     <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar 
@@ -41,6 +53,8 @@ const HistoriaClinica = () => {
           setPacienteActual(nombre);
         }}
         onGuardarFormulario={(nombre) => guardarFormulario(formData, nombre)}
+        onCerrarFormulario={handleLimpiarFormulario}
+        pacienteActual={pacienteActual}
       />
       
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
@@ -51,8 +65,15 @@ const HistoriaClinica = () => {
               (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)
             </p>
             {pacienteActual && (
-              <div className="text-sm text-primary mb-4">
+              <div className="text-sm text-primary mb-4 flex items-center justify-center gap-2">
                 Formulario del paciente: {pacienteActual}
+                <button 
+                  onClick={handleLimpiarFormulario} 
+                  className="text-red-500 hover:text-red-700 transition-colors focus:outline-none"
+                  aria-label="Limpiar formulario"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             )}
           </div>
