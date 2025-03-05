@@ -33,6 +33,10 @@ const HistoriaClinica = () => {
     cargarFormulario
   } = useHistoriaClinica();
 
+  const handleCerrarFormulario = () => {
+    setPacienteActual('');
+  };
+
   return (
     <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar 
@@ -41,6 +45,8 @@ const HistoriaClinica = () => {
           setPacienteActual(nombre);
         }}
         onGuardarFormulario={(nombre) => guardarFormulario(formData, nombre)}
+        onCerrarFormulario={handleCerrarFormulario}
+        pacienteActual={pacienteActual}
       />
       
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>

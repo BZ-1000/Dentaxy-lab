@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -93,8 +92,6 @@ export const DesktopSidebar = ({
       animate={{
         width: animate ? (open ? "300px" : "60px") : "300px"
       }} 
-      onMouseEnter={() => setOpen(true)} 
-      onMouseLeave={() => setOpen(false)} 
       {...props}
     >
       {children}
@@ -156,15 +153,21 @@ export const SidebarLink = ({
       {...props}
     >
       {link.icon}
-      <motion.span 
-        animate={{
-          display: animate ? (open ? "inline-block" : "none") : "inline-block",
-          opacity: animate ? (open ? 1 : 0) : 1
-        }} 
-        className="text-neutral-700 dark:text-neutral-200 text-sm transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify"
-      >
-        {link.label}
-      </motion.span>
+      {animate ? (
+        <motion.span 
+          animate={{
+            display: open ? "inline-block" : "none",
+            opacity: open ? 1 : 0
+          }} 
+          className="text-neutral-700 dark:text-neutral-200 text-sm transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify"
+        >
+          {link.label}
+        </motion.span>
+      ) : (
+        <span className="text-neutral-700 dark:text-neutral-200 text-sm transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
+          {link.label}
+        </span>
+      )}
     </div>
   );
 };
