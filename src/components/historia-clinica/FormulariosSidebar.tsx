@@ -8,14 +8,12 @@ import { useTheme } from '@/hooks/use-theme';
 import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@/components/ui/modern-sidebar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-
 interface FormulariosSidebarProps {
   onCargarFormulario: (data: FormDataState, nombre: string) => void;
   onGuardarFormulario: (nombre: string) => void;
   onCerrarFormulario: () => void;
   pacienteActual: string;
 }
-
 const FormulariosSidebar = ({
   onCargarFormulario,
   onGuardarFormulario,
@@ -36,13 +34,11 @@ const FormulariosSidebar = ({
   const [formularioSeleccionado, setFormularioSeleccionado] = useState<string | null>(null);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
-
   const loadSavedForms = () => {
     const savedForms: {
       nombre: string;
       data: FormDataState;
     }[] = [];
-
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith('formulario_')) {
@@ -56,17 +52,14 @@ const FormulariosSidebar = ({
     }
     setFormularios(savedForms);
   };
-
   useEffect(() => {
     loadSavedForms();
   }, []);
-
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       return;
     }
     onGuardarFormulario(nombrePaciente);
-
     loadSavedForms();
     setNombrePaciente('');
     toast({
@@ -74,13 +67,11 @@ const FormulariosSidebar = ({
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
-
   const handleEliminarFormulario = () => {
     if (!formularioSeleccionado) return;
     localStorage.removeItem(`formulario_${formularioSeleccionado}`);
     loadSavedForms();
     setDialogOpen(false);
-
     if (formularioSeleccionado === pacienteActual) {
       onCerrarFormulario();
     }
@@ -89,15 +80,12 @@ const FormulariosSidebar = ({
       description: `El formulario de ${formularioSeleccionado} ha sido eliminado.`
     });
   };
-
   const handleRenombrarFormulario = () => {
     if (!formularioSeleccionado || !nuevoNombre.trim()) return;
-
     const oldData = localStorage.getItem(`formulario_${formularioSeleccionado}`);
     if (oldData) {
       localStorage.setItem(`formulario_${nuevoNombre}`, oldData);
       localStorage.removeItem(`formulario_${formularioSeleccionado}`);
-
       if (formularioSeleccionado === pacienteActual) {
         const data = JSON.parse(oldData);
         onCargarFormulario(data, nuevoNombre);
@@ -110,17 +98,14 @@ const FormulariosSidebar = ({
       });
     }
   };
-
   const handleCompartirFormulario = () => {
     if (!formularioSeleccionado || !emailCompartir.trim()) return;
-
     toast({
       title: "Formulario compartido",
       description: `Se ha compartido el formulario de ${formularioSeleccionado} con ${emailCompartir}.`
     });
     setDialogOpen(false);
   };
-
   const handleFormularioAction = (action: 'eliminar' | 'renombrar' | 'compartir', nombre: string) => {
     setAccionFormulario(action);
     setFormularioSeleccionado(nombre);
@@ -132,7 +117,6 @@ const FormulariosSidebar = ({
     setEmailCompartir('');
     setDialogOpen(true);
   };
-
   const handleQuitarNombre = () => {
     setNombrePaciente('');
     onCerrarFormulario();
@@ -141,7 +125,6 @@ const FormulariosSidebar = ({
       description: "El formulario ha sido reseteado y el nombre del paciente eliminado."
     });
   };
-
   return <>
       <div className="flex">
         <div className="sticky top-0 h-screen">
@@ -197,12 +180,7 @@ const FormulariosSidebar = ({
           </Sidebar>
         </div>
 
-        {pacienteActual && <div className="flex items-center justify-between mb-4">
-              <span className="text-sm text-gray-600">Formulario del Paciente: {pacienteActual}</span>
-              <button onClick={handleQuitarNombre} className="text-red-500 hover:text-red-700">
-                <X className="w-4 h-4" />
-              </button>
-            </div>}
+        {pacienteActual}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -236,5 +214,4 @@ const FormulariosSidebar = ({
       </Dialog>
     </>;
 };
-
 export default FormulariosSidebar;
