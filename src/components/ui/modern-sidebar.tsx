@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -158,7 +159,7 @@ export const SidebarLink = ({
           animate={{
             display: open ? "inline-block" : "none",
             opacity: open ? 1 : 0
-          }} 
+          }}
           className="text-neutral-700 dark:text-neutral-200 text-sm transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify"
         >
           {link.label}
