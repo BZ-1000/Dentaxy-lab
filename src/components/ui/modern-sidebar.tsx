@@ -1,19 +1,24 @@
+
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+
 interface Links {
   label: string;
   href?: string;
   icon: React.JSX.Element | React.ReactNode;
   onClick?: () => void;
 }
+
 interface SidebarContextProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   animate: boolean;
 }
+
 const SidebarContext = createContext<SidebarContextProps | undefined>(undefined);
+
 export const useSidebar = () => {
   const context = useContext(SidebarContext);
   if (!context) {
@@ -21,6 +26,7 @@ export const useSidebar = () => {
   }
   return context;
 };
+
 export const SidebarProvider = ({
   children,
   open: openProp,
@@ -35,6 +41,7 @@ export const SidebarProvider = ({
   const [openState, setOpenState] = useState(false);
   const open = openProp !== undefined ? openProp : openState;
   const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
+
   return <SidebarContext.Provider value={{
     open,
     setOpen,
@@ -43,6 +50,7 @@ export const SidebarProvider = ({
       {children}
     </SidebarContext.Provider>;
 };
+
 export const Sidebar = ({
   children,
   open,
@@ -58,12 +66,14 @@ export const Sidebar = ({
       {children}
     </SidebarProvider>;
 };
+
 export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
   return <>
       <DesktopSidebar {...props} />
       <MobileSidebar {...props} />
     </>;
 };
+
 export const DesktopSidebar = ({
   className,
   children,
@@ -74,12 +84,14 @@ export const DesktopSidebar = ({
     setOpen,
     animate
   } = useSidebar();
+
   return <motion.div className={cn("h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 w-[300px] flex-shrink-0", className)} animate={{
     width: animate ? open ? "300px" : "60px" : "300px"
   }} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} {...props}>
       {children}
     </motion.div>;
 };
+
 export const MobileSidebar = ({
   className,
   children,
@@ -89,6 +101,7 @@ export const MobileSidebar = ({
     open,
     setOpen
   } = useSidebar();
+
   return <>
       <motion.div className={cn("h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-100 dark:bg-neutral-800 w-full")} {...props}>
         <div className="flex justify-end z-20 w-full">
@@ -117,6 +130,7 @@ export const MobileSidebar = ({
       </motion.div>
     </>;
 };
+
 export const SidebarLink = ({
   link,
   className,
@@ -129,17 +143,31 @@ export const SidebarLink = ({
     open,
     animate
   } = useSidebar();
-  const content = <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} onClick={link.onClick} {...props}>
+
+  return (
+    <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} onClick={link.onClick} {...props}>
       {link.icon}
-      <motion.span animate={{
-      display: animate ? open ? "inline-block" : "none" : "inline-block",
-      opacity: animate ? open ? 1 : 0 : 1
-    }} className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
-        {link.label}
-      </motion.span>
-    </div>;
-  return content;
+      {/* Solucionamos el error de tipado aquí, cambiando de motion.span a una combinación de 
+          divs condicionales para evitar la incompatibilidad de tipos */}
+      {animate ? (
+        open ? (
+          <motion.span 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify"
+          >
+            {link.label}
+          </motion.span>
+        ) : null
+      ) : (
+        <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
+          {link.label}
+        </span>
+      )}
+    </div>
+  );
 };
+
 export const Logo = ({
   children
 }: {
@@ -154,6 +182,7 @@ export const Logo = ({
     }} className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</motion.span>
     </div>;
 };
+
 export const LogoIcon = ({
   children
 }: {
