@@ -169,11 +169,7 @@ export const Logo = ({
 }) => {
   return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
       {children}
-      <motion.span initial={{
-      opacity: 0
-    }} animate={{
-      opacity: 1
-    }} className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</motion.span>
+      <div className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</div>
     </div>;
 };
 
