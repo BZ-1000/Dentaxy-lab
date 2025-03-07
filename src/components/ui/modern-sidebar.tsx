@@ -1,10 +1,10 @@
+
 import React from "react";
-import { useRouter } from "next/router";
-import { SidebarLink } from "./SidebarLink";
+import { useLocation } from "react-router-dom";
 
 const ModernSidebar = () => {
-  const router = useRouter();
-  const { pathname } = router;
+  const location = useLocation();
+  const { pathname } = location;
 
   const links = [
     { href: "/historia-clinica", label: "Historia Clínica" },
@@ -19,16 +19,17 @@ const ModernSidebar = () => {
       <h2 className="text-xl font-bold mb-4">Menú</h2>
       <nav className="flex-1">
         {links.map((link) => (
-          <SidebarLink key={link.href} href={link.href} isActive={pathname === link.href}>
+          <NavLink key={link.href} href={link.href} isActive={pathname === link.href}>
             {link.label}
-          </SidebarLink>
+          </NavLink>
         ))}
       </nav>
     </div>
   );
 };
 
-const SidebarLink = ({ href, isActive, children }) => {
+// Renamed from SidebarLink to NavLink to avoid naming conflicts
+const NavLink = ({ href, isActive, children }) => {
   return (
     <a
       href={href}
@@ -44,4 +45,6 @@ const SidebarLink = ({ href, isActive, children }) => {
   );
 };
 
+// Export components for use in other files
+export { NavLink };
 export default ModernSidebar;

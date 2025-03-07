@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Save, FileText, BookOpen, Trash, Pencil, Share2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
-import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@/components/ui/modern-sidebar';
+import ModernSidebar, { NavLink } from '@/components/ui/modern-sidebar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 
@@ -158,15 +157,17 @@ const FormulariosSidebar = ({
   return <>
       <div className="">
         <div className="sticky top-0 h-screen">
-          <Sidebar open={open} setOpen={setOpen} animate={true}>
-            <SidebarBody className="border-r bg-slate-50 h-full flex flex-col">
+          <div open={open} className="h-full">
+            <div className="border-r bg-slate-50 h-full flex flex-col">
               <div className="sticky top-0 bg-slate-50 z-10">
                 <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-                  {open ? <Logo>
+                  {open ? 
+                    <div>
                       <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
-                    </Logo> : <LogoIcon>
+                    </div> : 
+                    <div>
                       <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
-                    </LogoIcon>}
+                    </div>}
 
                   <div className="mt-8 flex flex-col gap-4">
                     {open && <div className="space-y-2">
@@ -187,14 +188,15 @@ const FormulariosSidebar = ({
                   <div className="space-y-1 pr-2">
                     {formularios.map((form, index) => (
                       <div key={index} className="group flex justify-between items-center mb-2">
-                        <SidebarLink 
-                          link={{
-                            label: form.nombre,
-                            icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
-                            onClick: () => onCargarFormulario(form.data, form.nombre)
-                          }} 
-                          className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1" 
-                        />
+                        <div 
+                          onClick={() => onCargarFormulario(form.data, form.nombre)}
+                          className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1 cursor-pointer"
+                        >
+                          <div className="flex items-center p-2">
+                            <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0 mr-2" />
+                            <span>{form.nombre}</span>
+                          </div>
+                        </div>
                         {open && (
                           <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onClick={() => handleFormularioAction('renombrar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700">
@@ -213,13 +215,14 @@ const FormulariosSidebar = ({
                   </div>
                 </ScrollArea>
               </div>
-            </SidebarBody>
-          </Sidebar>
+            </div>
+          </div>
         </div>
 
         {pacienteActual}
       </div>
 
+      
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
