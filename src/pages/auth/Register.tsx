@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/use-toast';
 
 export default function Register() {
   const navigate = useNavigate();
@@ -21,14 +21,26 @@ export default function Register() {
       const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/verify`
+        }
       });
 
       if (error) throw error;
 
-      toast.success('¡Cuenta creada exitosamente! Por favor verifica tu email.');
+      toast({
+        title: "¡Cuenta creada exitosamente!",
+        description: "Hemos enviado un correo de verificación a tu email. Por favor revisa tu bandeja de entrada y sigue las instrucciones para activar tu cuenta y unirte al equipo Dental Basics Academy IA.",
+        variant: "default",
+      });
+      
       navigate('/auth/login');
     } catch (error: any) {
-      toast.error(error.message);
+      toast({
+        title: "Error al crear la cuenta",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -38,11 +50,18 @@ export default function Register() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/verify`
+        }
       });
 
       if (error) throw error;
     } catch (error: any) {
-      toast.error(error.message);
+      toast({
+        title: "Error de autenticación",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -53,6 +72,9 @@ export default function Register() {
           <h2 className="text-3xl font-bold tracking-tight text-white">
             Crear Cuenta
           </h2>
+          <p className="mt-2 text-sm text-white/70">
+            Únete al equipo Dental Basics Academy IA
+          </p>
         </div>
 
         <form onSubmit={handleRegister} className="mt-8 space-y-6">
@@ -109,7 +131,7 @@ export default function Register() {
             onClick={handleGoogleRegister}
             className="w-full border border-white/20 bg-transparent text-white hover:bg-white/10"
           >
-            <img src="https://www.google.com/favicon.ico" className="mr-2 h-4 w-4" />
+            <img src="https://www.google.com/favicon.ico" className="mr-2 h-4 w-4" alt="Google" />
             Google
           </Button>
         </form>

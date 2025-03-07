@@ -10,6 +10,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+import VerifyEmail from "./pages/auth/VerifyEmail";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ const App = () => {
                 <Route path="/app" element={<Index />} />
                 <Route path="/auth/login" element={<Login />} />
                 <Route path="/auth/register" element={<Register />} />
+                <Route path="/auth/verify" element={<VerifyEmail />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

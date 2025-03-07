@@ -1,16 +1,17 @@
+
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/use-toast";
 
 interface AuthDialogProps {
   isOpen: boolean;
   onClose: () => void;
   defaultMode?: "login" | "register";
-  onSuccess: () => void; // Nuevo callback para manejar el éxito del inicio de sesión
+  onSuccess: () => void;
 }
 
 export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }: AuthDialogProps) {
@@ -30,20 +31,35 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
           password,
         });
         if (error) throw error;
-        toast.success("¡Bienvenido de vuelta!");
-        onSuccess(); // Llamar al callback cuando el inicio de sesión sea exitoso
+        toast({
+          title: "¡Bienvenido de vuelta!",
+          description: "Has iniciado sesión correctamente en Dental Basics Academy IA.",
+          variant: "default",
+        });
+        onSuccess();
       } else {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/verify`
+          }
         });
         if (error) throw error;
-        toast.success("¡Cuenta creada exitosamente! Por favor verifica tu email.");
+        toast({
+          title: "¡Cuenta creada exitosamente!",
+          description: "Hemos enviado un correo de verificación a tu email. Por favor revisa tu bandeja de entrada y sigue las instrucciones para activar tu cuenta y unirte al equipo Dental Basics Academy IA.",
+          variant: "default",
+        });
         setMode("login");
       }
       onClose();
     } catch (error: any) {
-      toast.error(error.message);
+      toast({
+        title: "Error de autenticación",
+        description: error.message,
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -54,12 +70,16 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: `${window.location.origin}/auth/verify`
         }
       });
       if (error) throw error;
     } catch (error: any) {
-      toast.error(error.message);
+      toast({
+        title: "Error de autenticación",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -70,6 +90,11 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
           <h2 className="text-3xl font-bold tracking-tight">
             {mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
           </h2>
+          {mode === "register" && (
+            <p className="mt-2 text-sm text-white/70">
+              Únete al equipo Dental Basics Academy IA
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
