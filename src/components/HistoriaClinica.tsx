@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -66,17 +65,14 @@ const HistoriaClinica = () => {
             </p>
             {pacienteActual && (
               <div className="text-sm text-primary mb-4 flex items-center justify-center gap-2">
-                <div className="flex items-center">
-                  Formulario del paciente: 
-                  <span className="font-medium mx-1">{pacienteActual}</span>
-                  <button 
-                    onClick={handleLimpiarFormulario} 
-                    className="text-red-500 hover:text-red-700 transition-colors focus:outline-none ml-2"
-                    aria-label="Limpiar formulario"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
+                Formulario del paciente: {pacienteActual}
+                <button 
+                  onClick={handleLimpiarFormulario} 
+                  className="text-red-500 hover:text-red-700 transition-colors focus:outline-none"
+                  aria-label="Limpiar formulario"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
             )}
           </div>

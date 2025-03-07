@@ -1,3 +1,4 @@
+
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -119,21 +120,4 @@ export interface FormDataState {
   temperatura: string;
   diagnosticos: string;
   pronosticos: string;
-  antecedentesAlergicos?: string;
-  antecedentesHemorragicos?: string;
-  antecedentesMedicos?: string;
-  antecedentesPersonalesPatologicos?: string;
-  articulacionCraneomandibular?: string;
-  cuello?: string;
-  examenCabeza?: string;
-  exploracionFisica?: string;
-  interrogatorioSistemas?: string;
-  examenIntrabucal?: string;
-  glandulasSalivales?: string;
-  oclusion?: string;
-  relacionDientes?: string;
-  lineaMedia?: string;
-  frenillos?: string;
-  diagnostico?: string;
-  pronostico?: string;
 }

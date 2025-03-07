@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,17 +5,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Save, FileText, BookOpen, Trash, Pencil, Share2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
-import ModernSidebar, { NavLink } from '@/components/ui/modern-sidebar';
+import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@/components/ui/modern-sidebar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-
 interface FormulariosSidebarProps {
   onCargarFormulario: (data: FormDataState, nombre: string) => void;
   onGuardarFormulario: (nombre: string) => void;
   onCerrarFormulario: () => void;
   pacienteActual: string;
 }
-
 const FormulariosSidebar = ({
   onCargarFormulario,
   onGuardarFormulario,
@@ -37,8 +34,6 @@ const FormulariosSidebar = ({
   const [formularioSeleccionado, setFormularioSeleccionado] = useState<string | null>(null);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
-  const [formularioOriginal, setFormularioOriginal] = useState<FormDataState | null>(null);
-
   const loadSavedForms = () => {
     const savedForms: {
       nombre: string;
@@ -57,11 +52,9 @@ const FormulariosSidebar = ({
     }
     setFormularios(savedForms);
   };
-
   useEffect(() => {
     loadSavedForms();
   }, []);
-
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       return;
@@ -74,7 +67,6 @@ const FormulariosSidebar = ({
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
-
   const handleEliminarFormulario = () => {
     if (!formularioSeleccionado) return;
     localStorage.removeItem(`formulario_${formularioSeleccionado}`);
@@ -88,7 +80,6 @@ const FormulariosSidebar = ({
       description: `El formulario de ${formularioSeleccionado} ha sido eliminado.`
     });
   };
-
   const handleRenombrarFormulario = () => {
     if (!formularioSeleccionado || !nuevoNombre.trim()) return;
     const oldData = localStorage.getItem(`formulario_${formularioSeleccionado}`);
@@ -107,7 +98,6 @@ const FormulariosSidebar = ({
       });
     }
   };
-
   const handleCompartirFormulario = () => {
     if (!formularioSeleccionado || !emailCompartir.trim()) return;
     toast({
@@ -116,7 +106,6 @@ const FormulariosSidebar = ({
     });
     setDialogOpen(false);
   };
-
   const handleFormularioAction = (action: 'eliminar' | 'renombrar' | 'compartir', nombre: string) => {
     setAccionFormulario(action);
     setFormularioSeleccionado(nombre);
@@ -128,47 +117,26 @@ const FormulariosSidebar = ({
     setEmailCompartir('');
     setDialogOpen(true);
   };
-
   const handleQuitarNombre = () => {
-    // Cuando se cierra el formulario, cargar el formulario original sin borrar datos
-    if (formularioOriginal) {
-      onCargarFormulario(formularioOriginal, '');
-    } else {
-      onCerrarFormulario();
-    }
+    setNombrePaciente('');
+    onCerrarFormulario();
     toast({
       title: "Formulario reseteado",
-      description: "Se ha cerrado el formulario del paciente actual."
+      description: "El formulario ha sido reseteado y el nombre del paciente eliminado."
     });
   };
-
-  // Guardar el formulario original cuando se carga un nuevo formulario
-  useEffect(() => {
-    if (pacienteActual && !formularioOriginal) {
-      const originalForm = localStorage.getItem(`formulario_${pacienteActual}`);
-      if (originalForm) {
-        setFormularioOriginal(JSON.parse(originalForm));
-      }
-    }
-    if (!pacienteActual) {
-      setFormularioOriginal(null);
-    }
-  }, [pacienteActual]);
-
   return <>
       <div className="">
         <div className="sticky top-0 h-screen">
-          <div className="h-full">
-            <div className="border-r bg-slate-50 h-full flex flex-col">
+          <Sidebar open={open} setOpen={setOpen} animate={true}>
+            <SidebarBody className="border-r bg-slate-50 h-full flex flex-col">
               <div className="sticky top-0 bg-slate-50 z-10">
                 <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
-                  {open ? 
-                    <div>
+                  {open ? <Logo>
                       <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
-                    </div> : 
-                    <div>
+                    </Logo> : <LogoIcon>
                       <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
-                    </div>}
+                    </LogoIcon>}
 
                   <div className="mt-8 flex flex-col gap-4">
                     {open && <div className="space-y-2">
@@ -187,19 +155,13 @@ const FormulariosSidebar = ({
               <div className="flex-1 overflow-y-auto">
                 <ScrollArea className="flex-1">
                   <div className="space-y-1 pr-2">
-                    {formularios.map((form, index) => (
-                      <div key={index} className="group flex justify-between items-center mb-2">
-                        <div 
-                          onClick={() => onCargarFormulario(form.data, form.nombre)}
-                          className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1 cursor-pointer"
-                        >
-                          <div className="flex items-center p-2">
-                            <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0 mr-2" />
-                            <span>{form.nombre}</span>
-                          </div>
-                        </div>
-                        {open && (
-                          <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {formularios.map((form, index) => <div key={index} className="group flex justify-between items-center mb-2">
+                        <SidebarLink link={{
+                      label: form.nombre,
+                      icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
+                      onClick: () => onCargarFormulario(form.data, form.nombre)
+                    }} className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1" />
+                        {open && <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onClick={() => handleFormularioAction('renombrar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700">
                               <Pencil className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
                             </button>
@@ -209,21 +171,18 @@ const FormulariosSidebar = ({
                             <button onClick={() => handleFormularioAction('eliminar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700">
                               <Trash className="h-3.5 w-3.5 text-red-500" />
                             </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                          </div>}
+                      </div>)}
                   </div>
                 </ScrollArea>
               </div>
-            </div>
-          </div>
+            </SidebarBody>
+          </Sidebar>
         </div>
 
         {pacienteActual}
       </div>
 
-      
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -255,5 +214,4 @@ const FormulariosSidebar = ({
       </Dialog>
     </>;
 };
-
 export default FormulariosSidebar;
