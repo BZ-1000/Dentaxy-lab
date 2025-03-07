@@ -60,6 +60,36 @@ export const getInitialFormState = (): FormDataState => ({
     },
     ayunoProlongado: ""
   },
+  antecedentesPersonalesPatologicos: {
+    enfermedadesCronicas: {
+      tiene: false,
+      descripcion: "",
+      control: "",
+      apegoTratamiento: ""
+    },
+    hospitalizaciones: {
+      ha_sido_hospitalizado: false,
+      numero: 0,
+      motivo_ultimo: "",
+      fecha_ultimo: ""
+    }
+  },
+  antecedentesAlergicos: {
+    medicamentos: {
+      es_alergico: false,
+      cuales: "",
+      tipo_reaccion: "",
+      severidad: ""
+    },
+    alimentos: {
+      es_alergico: false,
+      cuales: ""
+    },
+    latex: {
+      es_alergico: false,
+      descripcion_reaccion: ""
+    }
+  },
   serviciosDomiciliarios: '',
   pisosVivienda: '',
   materialVivienda: '',

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
@@ -144,6 +145,54 @@ export const useHistoriaClinica = () => {
     }
   };
 
+  const handleAntecedentePatologicoChange = (field: string, value: any) => {
+    if (field.includes('.')) {
+      const [parent, child] = field.split('.');
+      setFormData(prev => ({
+        ...prev,
+        antecedentesPersonalesPatologicos: {
+          ...prev.antecedentesPersonalesPatologicos,
+          [parent]: {
+            ...prev.antecedentesPersonalesPatologicos[parent],
+            [child]: value
+          }
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        antecedentesPersonalesPatologicos: {
+          ...prev.antecedentesPersonalesPatologicos,
+          [field]: value
+        }
+      }));
+    }
+  };
+
+  const handleAntecedenteAlergicoChange = (field: string, value: any) => {
+    if (field.includes('.')) {
+      const [parent, child] = field.split('.');
+      setFormData(prev => ({
+        ...prev,
+        antecedentesAlergicos: {
+          ...prev.antecedentesAlergicos,
+          [parent]: {
+            ...prev.antecedentesAlergicos[parent],
+            [child]: value
+          }
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        antecedentesAlergicos: {
+          ...prev.antecedentesAlergicos,
+          [field]: value
+        }
+      }));
+    }
+  };
+
   const generarResumen = async () => {
     try {
       setIsGenerating(true);
@@ -220,6 +269,8 @@ export const useHistoriaClinica = () => {
     handleFamiliarChange,
     handleCondicionChange,
     handleAntecedenteChange,
+    handleAntecedentePatologicoChange,
+    handleAntecedenteAlergicoChange,
     toggleService,
     generarResumen,
     guardarFormulario,

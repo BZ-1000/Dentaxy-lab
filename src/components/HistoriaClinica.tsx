@@ -1,9 +1,10 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
 import AntecedentesPersonalesNoPatologicos from './historia-clinica/AntecedentesPersonalesNoPatologicos';
-import SignosVitales from './historia-clinica/SignosVitales';
-import DiagnosticoPronostico from './historia-clinica/DiagnosticoPronostico';
+import AntecedentesPersonalesPatologicos from './historia-clinica/AntecedentesPersonalesPatologicos';
+import AntecedentesAlergicos from './historia-clinica/AntecedentesAlergicos';
 import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
 import { Button } from "@/components/ui/button";
 import { useTheme } from '@/hooks/use-theme';
@@ -26,6 +27,8 @@ const HistoriaClinica = () => {
     handleFamiliarChange,
     handleCondicionChange,
     handleAntecedenteChange,
+    handleAntecedentePatologicoChange,
+    handleAntecedenteAlergicoChange,
     toggleService,
     generarResumen,
     guardarFormulario,
@@ -97,14 +100,14 @@ const HistoriaClinica = () => {
               toggleService={toggleService}
             />
             
-            <SignosVitales 
-              formData={formData} 
-              handleInputChange={handleInputChange} 
+            <AntecedentesPersonalesPatologicos
+              formData={formData}
+              handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
             />
             
-            <DiagnosticoPronostico 
-              formData={formData} 
-              handleInputChange={handleInputChange} 
+            <AntecedentesAlergicos
+              formData={formData}
+              handleAntecedenteAlergicoChange={handleAntecedenteAlergicoChange}
             />
 
             <div className="flex justify-center pt-6">

@@ -77,6 +77,38 @@ export interface AntecedentesPersonalesNoPatologicos {
   ayunoProlongado: string;
 }
 
+export interface AntecedentesPersonalesPatologicos {
+  enfermedadesCronicas: {
+    tiene: boolean;
+    descripcion: string;
+    control: string;
+    apegoTratamiento: string;
+  };
+  hospitalizaciones: {
+    ha_sido_hospitalizado: boolean;
+    numero: number;
+    motivo_ultimo: string;
+    fecha_ultimo: string;
+  };
+}
+
+export interface AntecedentesAlergicos {
+  medicamentos: {
+    es_alergico: boolean;
+    cuales: string;
+    tipo_reaccion: string;
+    severidad: string;
+  };
+  alimentos: {
+    es_alergico: boolean;
+    cuales: string;
+  };
+  latex: {
+    es_alergico: boolean;
+    descripcion_reaccion: string;
+  };
+}
+
 export interface HigieneBucal {
   frecuenciaCepillado: string;
   usoHiloDental: string;
@@ -97,6 +129,8 @@ export interface FormDataState {
   padecimientoActual: PadecimientoActual;
   antecedentesHeredoFamiliares: AntecedentesHeredoFamiliares;
   antecedentesPersonalesNoPatologicos: AntecedentesPersonalesNoPatologicos;
+  antecedentesPersonalesPatologicos: AntecedentesPersonalesPatologicos;
+  antecedentesAlergicos: AntecedentesAlergicos;
   serviciosDomiciliarios: string;
   pisosVivienda: string;
   materialVivienda: string;
