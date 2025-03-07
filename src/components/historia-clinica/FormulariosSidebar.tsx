@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -157,7 +158,7 @@ const FormulariosSidebar = ({
   return <>
       <div className="">
         <div className="sticky top-0 h-screen">
-          <div open={open} className="h-full">
+          <div className="h-full">
             <div className="border-r bg-slate-50 h-full flex flex-col">
               <div className="sticky top-0 bg-slate-50 z-10">
                 <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
