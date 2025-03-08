@@ -130,6 +130,22 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   };
 
   const generarRedaccionPorCategoria = (categoria: string) => {
+    // Si sinPatologia está activado, generar redacción como si hubiera seleccionado "ninguna" en todas
+    if (sinPatologia) {
+      const enfermedadesComunes = {
+        nutricionales: "anorexia, bulimia, sobrepeso, obesidad",
+        cardiacos: "enfermedad coronaria, arritmias, defectos cardíacos congénitos",
+        hepaticos: "hepatitis A, B, C, hígado graso, cirrosis",
+        enfermedadesTransmisionSexual: "VIH/SIDA, sífilis, gonorrea, herpes genital, VPH",
+        enfermedadesEruptivas: "sarampión, rubéola, escarlatina, varicela, paperas",
+        pulmonares: "neumonía, bronquitis, asma, EPOC",
+        infecciosasParasitarias: "fiebre tifoidea, tuberculosis, amibiasis, giardiasis, ascariasis",
+        otrosPadecimientos: "otras enfermedades sistémicas"
+      };
+      
+      return `El paciente niega antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()} (se interrogó específicamente por ${enfermedadesComunes[categoria]}).`;
+    }
+    
     const categoriaData = formData.antecedentesPersonalesPatologicos[categoria];
     
     if (!categoriaData) return "No hay datos disponibles.";
@@ -326,6 +342,33 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     setSinPatologia(false);
   };
 
+  // Nueva versión minimalista de la opción de categoría patológica
+  const OpcionPatologica = ({ 
+    categoria, 
+    valor, 
+    etiqueta 
+  }: { 
+    categoria: string, 
+    valor: string, 
+    etiqueta: string 
+  }) => {
+    const isChecked = formData.antecedentesPersonalesPatologicos[categoria]?.[valor] || false;
+    
+    return (
+      <button
+        type="button"
+        onClick={() => seleccionarOpcion(categoria, valor, !isChecked)}
+        className={`px-3 py-1.5 rounded-md text-xs transition-all ${
+          isChecked 
+            ? "bg-blue-500 text-white shadow-md" 
+            : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+        }`}
+      >
+        {etiqueta}
+      </button>
+    );
+  };
+
   const CategoriaPatologica = ({ 
     categoria, 
     titulo, 
@@ -339,53 +382,30 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
       <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
         <h4 className="text-lg font-semibold mb-3">{titulo}</h4>
         
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-wrap gap-2">
           {opciones.map(opcion => (
-            <div key={opcion.valor} className="flex items-center space-x-2">
-              <Checkbox 
-                id={`${categoria}-${opcion.valor}`} 
-                checked={formData.antecedentesPersonalesPatologicos[categoria]?.[opcion.valor] || false}
-                onCheckedChange={(checked) => seleccionarOpcion(categoria, opcion.valor, checked === true)}
-              />
-              <Label 
-                htmlFor={`${categoria}-${opcion.valor}`} 
-                className="text-sm text-gray-700 dark:text-gray-300"
-              >
-                {opcion.etiqueta}
-              </Label>
-            </div>
+            <OpcionPatologica
+              key={opcion.valor}
+              categoria={categoria}
+              valor={opcion.valor}
+              etiqueta={opcion.etiqueta}
+            />
           ))}
           
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id={`${categoria}-ninguna`} 
-              checked={formData.antecedentesPersonalesPatologicos[categoria]?.ninguna || false}
-              onCheckedChange={(checked) => seleccionarOpcion(categoria, 'ninguna', checked === true)}
-            />
-            <Label 
-              htmlFor={`${categoria}-ninguna`} 
-              className="text-sm text-gray-700 dark:text-gray-300"
-            >
-              Ninguna
-            </Label>
-          </div>
+          <OpcionPatologica
+            categoria={categoria}
+            valor="ninguna"
+            etiqueta="Ninguna"
+          />
           
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id={`${categoria}-otra`} 
-              checked={formData.antecedentesPersonalesPatologicos[categoria]?.otra || false}
-              onCheckedChange={(checked) => seleccionarOpcion(categoria, 'otra', checked === true)}
-            />
-            <Label 
-              htmlFor={`${categoria}-otra`} 
-              className="text-sm text-gray-700 dark:text-gray-300"
-            >
-              Otra
-            </Label>
-          </div>
+          <OpcionPatologica
+            categoria={categoria}
+            valor="otra"
+            etiqueta="Otra"
+          />
           
           {formData.antecedentesPersonalesPatologicos[categoria]?.otra && (
-            <div className="col-span-2 mt-2">
+            <div className="w-full mt-2">
               <Input
                 placeholder="Especificar otra condición..."
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
@@ -445,103 +465,105 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
               <Button 
                 onClick={handleSinPatologiaChange}
                 variant={sinPatologia ? "default" : "outline"}
-                className="w-full mb-4"
+                className={`w-full mb-4 py-6 text-base font-medium transition-all duration-300 ${
+                  sinPatologia 
+                    ? "bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white shadow-md" 
+                    : "border-2 border-dashed border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500"
+                }`}
               >
-                {sinPatologia ? "Paciente no presenta ninguna patología ✓" : "Paciente no presenta ninguna patología"}
+                {sinPatologia ? "✓ Paciente no presenta ninguna patología" : "Paciente no presenta ninguna patología"}
               </Button>
 
               {!sinPatologia && (
-                <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <CategoriaPatologica
-                      categoria="nutricionales"
-                      titulo="Nutricionales"
-                      opciones={[
-                        { valor: "anorexia", etiqueta: "Anorexia" },
-                        { valor: "bulimia", etiqueta: "Bulimia" },
-                        { valor: "sobrepeso", etiqueta: "Sobrepeso" },
-                        { valor: "obesidad", etiqueta: "Obesidad" }
-                      ]}
-                    />
-                    
-                    <CategoriaPatologica
-                      categoria="cardiacos"
-                      titulo="Cardíacos"
-                      opciones={[
-                        { valor: "enfermedadCoronaria", etiqueta: "Enfermedad coronaria" },
-                        { valor: "arritmias", etiqueta: "Arritmias" },
-                        { valor: "defectosCardiacosCongenitos", etiqueta: "Defectos cardíacos congénitos" }
-                      ]}
-                    />
-                    
-                    <CategoriaPatologica
-                      categoria="hepaticos"
-                      titulo="Hepáticos"
-                      opciones={[
-                        { valor: "hepatitisA", etiqueta: "Hepatitis A" },
-                        { valor: "hepatitisB", etiqueta: "Hepatitis B" },
-                        { valor: "hepatitisC", etiqueta: "Hepatitis C" },
-                        { valor: "higadoGraso", etiqueta: "Hígado graso" },
-                        { valor: "cirrosis", etiqueta: "Cirrosis" }
-                      ]}
-                    />
-                    
-                    <CategoriaPatologica
-                      categoria="enfermedadesTransmisionSexual"
-                      titulo="Enfermedades de Transmisión Sexual"
-                      opciones={[
-                        { valor: "vih", etiqueta: "VIH/SIDA" },
-                        { valor: "sifilis", etiqueta: "Sífilis" },
-                        { valor: "gonorrea", etiqueta: "Gonorrea" },
-                        { valor: "herpesGenital", etiqueta: "Herpes genital" },
-                        { valor: "vph", etiqueta: "Virus del Papiloma Humano (VPH)" }
-                      ]}
-                    />
-                    
-                    <CategoriaPatologica
-                      categoria="enfermedadesEruptivas"
-                      titulo="Enfermedades Eruptivas de la Infancia"
-                      opciones={[
-                        { valor: "sarampion", etiqueta: "Sarampión" },
-                        { valor: "rubeola", etiqueta: "Rubéola" },
-                        { valor: "escarlatina", etiqueta: "Escarlatina" },
-                        { valor: "varicela", etiqueta: "Varicela" },
-                        { valor: "paperas", etiqueta: "Parotiditis (paperas)" }
-                      ]}
-                    />
-                    
-                    <CategoriaPatologica
-                      categoria="pulmonares"
-                      titulo="Pulmonares"
-                      opciones={[
-                        { valor: "neumonia", etiqueta: "Neumonía" },
-                        { valor: "bronquitis", etiqueta: "Bronquitis" },
-                        { valor: "asma", etiqueta: "Asma" },
-                        { valor: "epoc", etiqueta: "Enfermedad Pulmonar Obstructiva Crónica (EPOC)" }
-                      ]}
-                    />
-                    
-                    <CategoriaPatologica
-                      categoria="infecciosasParasitarias"
-                      titulo="Enfermedades Infecciosas y Parasitarias"
-                      opciones={[
-                        { valor: "fiebreTifoidea", etiqueta: "Fiebre tifoidea" },
-                        { valor: "tuberculosis", etiqueta: "Tuberculosis" },
-                        { valor: "amibiasis", etiqueta: "Amibiasis" },
-                        { valor: "giardiasis", etiqueta: "Giardiasis" },
-                        { valor: "ascariasis", etiqueta: "Ascariasis" }
-                      ]}
-                    />
-                    
-                    <CategoriaPatologica
-                      categoria="otrosPadecimientos"
-                      titulo="Otros Padecimientos Sistémicos"
-                      opciones={[
-                        { valor: "especificar", etiqueta: "Especificar" }
-                      ]}
-                    />
-                  </div>
-                </>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <CategoriaPatologica
+                    categoria="nutricionales"
+                    titulo="Nutricionales"
+                    opciones={[
+                      { valor: "anorexia", etiqueta: "Anorexia" },
+                      { valor: "bulimia", etiqueta: "Bulimia" },
+                      { valor: "sobrepeso", etiqueta: "Sobrepeso" },
+                      { valor: "obesidad", etiqueta: "Obesidad" }
+                    ]}
+                  />
+                  
+                  <CategoriaPatologica
+                    categoria="cardiacos"
+                    titulo="Cardíacos"
+                    opciones={[
+                      { valor: "enfermedadCoronaria", etiqueta: "Enfermedad coronaria" },
+                      { valor: "arritmias", etiqueta: "Arritmias" },
+                      { valor: "defectosCardiacosCongenitos", etiqueta: "Defectos cardíacos congénitos" }
+                    ]}
+                  />
+                  
+                  <CategoriaPatologica
+                    categoria="hepaticos"
+                    titulo="Hepáticos"
+                    opciones={[
+                      { valor: "hepatitisA", etiqueta: "Hepatitis A" },
+                      { valor: "hepatitisB", etiqueta: "Hepatitis B" },
+                      { valor: "hepatitisC", etiqueta: "Hepatitis C" },
+                      { valor: "higadoGraso", etiqueta: "Hígado graso" },
+                      { valor: "cirrosis", etiqueta: "Cirrosis" }
+                    ]}
+                  />
+                  
+                  <CategoriaPatologica
+                    categoria="enfermedadesTransmisionSexual"
+                    titulo="Enfermedades de Transmisión Sexual"
+                    opciones={[
+                      { valor: "vih", etiqueta: "VIH/SIDA" },
+                      { valor: "sifilis", etiqueta: "Sífilis" },
+                      { valor: "gonorrea", etiqueta: "Gonorrea" },
+                      { valor: "herpesGenital", etiqueta: "Herpes genital" },
+                      { valor: "vph", etiqueta: "VPH" }
+                    ]}
+                  />
+                  
+                  <CategoriaPatologica
+                    categoria="enfermedadesEruptivas"
+                    titulo="Enfermedades Eruptivas de la Infancia"
+                    opciones={[
+                      { valor: "sarampion", etiqueta: "Sarampión" },
+                      { valor: "rubeola", etiqueta: "Rubéola" },
+                      { valor: "escarlatina", etiqueta: "Escarlatina" },
+                      { valor: "varicela", etiqueta: "Varicela" },
+                      { valor: "paperas", etiqueta: "Paperas" }
+                    ]}
+                  />
+                  
+                  <CategoriaPatologica
+                    categoria="pulmonares"
+                    titulo="Pulmonares"
+                    opciones={[
+                      { valor: "neumonia", etiqueta: "Neumonía" },
+                      { valor: "bronquitis", etiqueta: "Bronquitis" },
+                      { valor: "asma", etiqueta: "Asma" },
+                      { valor: "epoc", etiqueta: "EPOC" }
+                    ]}
+                  />
+                  
+                  <CategoriaPatologica
+                    categoria="infecciosasParasitarias"
+                    titulo="Enfermedades Infecciosas y Parasitarias"
+                    opciones={[
+                      { valor: "fiebreTifoidea", etiqueta: "Fiebre tifoidea" },
+                      { valor: "tuberculosis", etiqueta: "Tuberculosis" },
+                      { valor: "amibiasis", etiqueta: "Amibiasis" },
+                      { valor: "giardiasis", etiqueta: "Giardiasis" },
+                      { valor: "ascariasis", etiqueta: "Ascariasis" }
+                    ]}
+                  />
+                  
+                  <CategoriaPatologica
+                    categoria="otrosPadecimientos"
+                    titulo="Otros Padecimientos Sistémicos"
+                    opciones={[
+                      { valor: "especificar", etiqueta: "Especificar" }
+                    ]}
+                  />
+                </div>
               )}
 
               <div className="flex justify-center gap-4 mt-6">
@@ -727,7 +749,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                     </div>
                     <Textarea 
                       value={redacciones.pulmonares}
-
                       readOnly 
                       className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" 
                       onFocus={e => adjustTextareaHeight(e.currentTarget)} 
