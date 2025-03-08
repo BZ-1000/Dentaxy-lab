@@ -61,17 +61,77 @@ export const getInitialFormState = (): FormDataState => ({
     ayunoProlongado: ""
   },
   antecedentesPersonalesPatologicos: {
-    enfermedadesCronicas: {
-      tiene: false,
-      descripcion: "",
-      control: "",
-      apegoTratamiento: ""
+    nutricionales: {
+      anorexia: false,
+      bulimia: false,
+      sobrepeso: false,
+      obesidad: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
     },
-    hospitalizaciones: {
-      ha_sido_hospitalizado: false,
-      numero: 0,
-      motivo_ultimo: "",
-      fecha_ultimo: ""
+    cardiacos: {
+      enfermedadCoronaria: false,
+      arritmias: false,
+      defectosCardiacosCongenitos: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    hepaticos: {
+      hepatitisA: false,
+      hepatitisB: false,
+      hepatitisC: false,
+      higadoGraso: false,
+      cirrosis: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    enfermedadesTransmisionSexual: {
+      vih: false,
+      sifilis: false,
+      gonorrea: false,
+      herpesGenital: false,
+      vph: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    enfermedadesEruptivas: {
+      sarampion: false,
+      rubeola: false,
+      escarlatina: false,
+      varicela: false,
+      paperas: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    pulmonares: {
+      neumonia: false,
+      bronquitis: false,
+      asma: false,
+      epoc: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    infecciosasParasitarias: {
+      fiebreTifoidea: false,
+      tuberculosis: false,
+      amibiasis: false,
+      giardiasis: false,
+      ascariasis: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    otrosPadecimientos: {
+      especificar: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
     }
   },
   antecedentesAlergicos: {

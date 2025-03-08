@@ -77,18 +77,61 @@ export interface AntecedentesPersonalesNoPatologicos {
   ayunoProlongado: string;
 }
 
+export interface CondicionPatologica {
+  [key: string]: boolean | string;
+  ninguna: boolean;
+  otra: boolean;
+  otraDescripcion: string;
+}
+
 export interface AntecedentesPersonalesPatologicos {
-  enfermedadesCronicas: {
-    tiene: boolean;
-    descripcion: string;
-    control: string;
-    apegoTratamiento: string;
+  nutricionales: CondicionPatologica & {
+    anorexia?: boolean;
+    bulimia?: boolean;
+    sobrepeso?: boolean;
+    obesidad?: boolean;
   };
-  hospitalizaciones: {
-    ha_sido_hospitalizado: boolean;
-    numero: number;
-    motivo_ultimo: string;
-    fecha_ultimo: string;
+  cardiacos: CondicionPatologica & {
+    enfermedadCoronaria?: boolean;
+    arritmias?: boolean;
+    defectosCardiacosCongenitos?: boolean;
+  };
+  hepaticos: CondicionPatologica & {
+    hepatitisA?: boolean;
+    hepatitisB?: boolean;
+    hepatitisC?: boolean;
+    higadoGraso?: boolean;
+    cirrosis?: boolean;
+  };
+  enfermedadesTransmisionSexual: CondicionPatologica & {
+    vih?: boolean;
+    sifilis?: boolean;
+    gonorrea?: boolean;
+    herpesGenital?: boolean;
+    vph?: boolean;
+  };
+  enfermedadesEruptivas: CondicionPatologica & {
+    sarampion?: boolean;
+    rubeola?: boolean;
+    escarlatina?: boolean;
+    varicela?: boolean;
+    paperas?: boolean;
+  };
+  pulmonares: CondicionPatologica & {
+    neumonia?: boolean;
+    bronquitis?: boolean;
+    asma?: boolean;
+    epoc?: boolean;
+  };
+  infecciosasParasitarias: CondicionPatologica & {
+    fiebreTifoidea?: boolean;
+    tuberculosis?: boolean;
+    amibiasis?: boolean;
+    giardiasis?: boolean;
+    ascariasis?: boolean;
+  };
+  otrosPadecimientos: CondicionPatologica & {
+    especificar?: boolean;
   };
 }
 
