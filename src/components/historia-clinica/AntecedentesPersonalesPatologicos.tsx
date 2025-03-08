@@ -3,11 +3,10 @@ import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
+import { Minus, Maximize2, X, Eraser, Copy, CheckCircle, AlertCircle } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 
 interface AntecedentesPersonalesPatologicosProps {
   formData: FormDataState;
@@ -465,17 +464,30 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         {!isMinimized && <div className="p-6" ref={formRef}>
           {showForm ? (
             <div className="space-y-6">
-              <Button 
+              {/* Nuevo botón con diseño similar a SintomasToggle */}
+              <button
                 onClick={handleSinPatologiaChange}
-                variant={sinPatologia ? "default" : "outline"}
-                className={`w-full mb-4 ${
-                  sinPatologia 
-                    ? "bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-semibold shadow-lg py-6 text-base" 
-                    : "border-2 border-dashed border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500 py-6 text-base font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
-                }`}
+                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left"
               >
-                {sinPatologia ? "✓ Paciente no presenta ninguna patología" : "Paciente no presenta ninguna patología"}
-              </Button>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-blue-500" />
+                    <Label className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                      Paciente no presenta ninguna patología
+                    </Label>
+                  </div>
+                  <div className={`relative inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${sinPatologia ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'}`}>
+                    <span
+                      className={`pointer-events-none inline-block h-[20px] w-[20px] rounded-full bg-white shadow-lg transform ring-0 transition duration-200 ease-in-out ${sinPatologia ? 'translate-x-5' : 'translate-x-0'}`}
+                    />
+                  </div>
+                </div>
+                {sinPatologia && (
+                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 ml-7">
+                    El paciente no presenta patologías. No es necesario rellenar el resto del formulario.
+                  </p>
+                )}
+              </button>
 
               {!sinPatologia && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
