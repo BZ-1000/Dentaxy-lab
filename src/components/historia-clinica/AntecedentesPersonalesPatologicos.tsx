@@ -107,7 +107,10 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
 
   const handleOtraDescripcionChange = (categoria: string, valor: string) => {
     const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
+    // Asegurarnos de que la opción "otra" esté activa cuando el usuario escribe en el campo
+    categoriasActualizadas.otra = true;
     categoriasActualizadas.otraDescripcion = valor;
+    categoriasActualizadas.ninguna = false;
     
     handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
   };
@@ -465,10 +468,10 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
               <Button 
                 onClick={handleSinPatologiaChange}
                 variant={sinPatologia ? "default" : "outline"}
-                className={`w-full mb-4 py-6 text-base font-medium transition-all duration-300 ${
+                className={`w-full mb-4 ${
                   sinPatologia 
-                    ? "bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white shadow-md" 
-                    : "border-2 border-dashed border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500"
+                    ? "bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white font-semibold shadow-lg py-6 text-base" 
+                    : "border-2 border-dashed border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500 py-6 text-base font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
                 }`}
               >
                 {sinPatologia ? "✓ Paciente no presenta ninguna patología" : "Paciente no presenta ninguna patología"}
