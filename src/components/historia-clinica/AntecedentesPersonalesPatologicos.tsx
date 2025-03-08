@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -53,7 +52,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
 
   const handleSinPatologiaChange = () => {
     setSinPatologia(!sinPatologia);
-    
+
     if (!sinPatologia) {
       // Si está marcando que no tiene patologías, limpiar el formulario
       limpiarFormulario();
@@ -64,27 +63,27 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     // Si es "Ninguna" y se está activando, desactivar todas las demás
     if (opcion === 'ninguna' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
-      
+
       // Desactivar todas las opciones
       Object.keys(categoriasActualizadas).forEach(key => {
         if (key !== 'ninguna' && key !== 'otra' && key !== 'otraDescripcion') {
           categoriasActualizadas[key] = false;
         }
       });
-      
+
       // Activar solo "Ninguna"
       categoriasActualizadas.ninguna = true;
       categoriasActualizadas.otra = false;
       categoriasActualizadas.otraDescripcion = '';
-      
+
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-    } 
+    }
     // Si es cualquier otra opción y se está activando, desactivar "Ninguna"
     else if (opcion !== 'ninguna' && opcion !== 'otra' && opcion !== 'otraDescripcion' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas[opcion] = valor;
       categoriasActualizadas.ninguna = false;
-      
+
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
     }
     // Si es la opción "Otra" y se está activando, desactivar "Ninguna"
@@ -92,14 +91,14 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas.otra = valor;
       categoriasActualizadas.ninguna = false;
-      
+
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
     }
     // Para todos los demás casos, solo actualizar la opción seleccionada
     else {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas[opcion] = valor;
-      
+
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
     }
   };
@@ -110,7 +109,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     categoriasActualizadas.otra = true;
     categoriasActualizadas.otraDescripcion = valor;
     categoriasActualizadas.ninguna = false;
-    
+
     handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
   };
 
@@ -144,14 +143,14 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         infecciosasParasitarias: "fiebre tifoidea, tuberculosis, amibiasis, giardiasis, ascariasis",
         otrosPadecimientos: "otras enfermedades sistémicas"
       };
-      
+
       return `El paciente niega antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()} (se interrogó específicamente por ${enfermedadesComunes[categoria]}).`;
     }
-    
+
     const categoriaData = formData.antecedentesPersonalesPatologicos[categoria];
-    
+
     if (!categoriaData) return "No hay datos disponibles.";
-    
+
     if (categoriaData.ninguna) {
       // Respuestas para cuando el paciente no tiene patologías en esta categoría
       const enfermedadesComunes = {
@@ -164,7 +163,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         infecciosasParasitarias: "fiebre tifoidea, tuberculosis, amibiasis, giardiasis, ascariasis",
         otrosPadecimientos: "otras enfermedades sistémicas"
       };
-      
+
       return `El paciente niega antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()} (se interrogó específicamente por ${enfermedadesComunes[categoria]}).`;
     }
 
@@ -174,10 +173,10 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
 
     // Buscar qué opciones están seleccionadas (excepto "ninguna" y "otra")
     const opcionesSeleccionadas = Object.entries(categoriaData)
-      .filter(([key, value]) => 
-        key !== 'ninguna' && 
-        key !== 'otra' && 
-        key !== 'otraDescripcion' && 
+      .filter(([key, value]) =>
+        key !== 'ninguna' &&
+        key !== 'otra' &&
+        key !== 'otraDescripcion' &&
         value === true
       )
       .map(([key]) => getNombreOpcion(key, categoria));
@@ -200,7 +199,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
       infecciosasParasitarias: "Enfermedades Infecciosas y Parasitarias",
       otrosPadecimientos: "Otros Padecimientos Sistémicos"
     };
-    
+
     return titulos[categoria] || categoria;
   };
 
@@ -252,7 +251,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         ascariasis: "Ascariasis"
       }
     };
-    
+
     return opciones[categoria]?.[opcion] || opcion;
   };
 
@@ -275,16 +274,16 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
 
   const limpiarFormulario = () => {
     // Reiniciar todas las categorías a su valor inicial
-    const categoriasIniciales = ['nutricionales', 'cardiacos', 'hepaticos', 'enfermedadesTransmisionSexual', 
+    const categoriasIniciales = ['nutricionales', 'cardiacos', 'hepaticos', 'enfermedadesTransmisionSexual',
                               'enfermedadesEruptivas', 'pulmonares', 'infecciosasParasitarias', 'otrosPadecimientos'];
-    
+
     categoriasIniciales.forEach(categoria => {
       const categoriasLimpias = {
         ninguna: false,
         otra: false,
         otraDescripcion: ''
       };
-      
+
       // Agregar todas las opciones específicas de cada categoría como false
       if (categoria === 'nutricionales') {
         categoriasLimpias['anorexia'] = false;
@@ -325,10 +324,10 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         categoriasLimpias['giardiasis'] = false;
         categoriasLimpias['ascariasis'] = false;
       }
-      
+
       handleAntecedentePatologicoChange(categoria, categoriasLimpias);
     });
-    
+
     setShowForm(true);
     setRedacciones({
       nutricionales: "",
@@ -345,24 +344,24 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   };
 
   // Nueva versión minimalista de la opción de categoría patológica
-  const OpcionPatologica = ({ 
-    categoria, 
-    valor, 
-    etiqueta 
-  }: { 
-    categoria: string, 
-    valor: string, 
-    etiqueta: string 
+  const OpcionPatologica = ({
+    categoria,
+    valor,
+    etiqueta
+  }: {
+    categoria: string,
+    valor: string,
+    etiqueta: string
   }) => {
     const isChecked = formData.antecedentesPersonalesPatologicos[categoria]?.[valor] || false;
-    
+
     return (
       <button
         type="button"
         onClick={() => seleccionarOpcion(categoria, valor, !isChecked)}
         className={`px-3 py-1.5 rounded-md text-xs transition-all ${
-          isChecked 
-            ? "bg-blue-500 text-white shadow-md" 
+          isChecked
+            ? "bg-blue-500 text-white shadow-md"
             : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
         }`}
       >
@@ -371,19 +370,19 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     );
   };
 
-  const CategoriaPatologica = ({ 
-    categoria, 
-    titulo, 
-    opciones 
-  }: { 
-    categoria: string, 
-    titulo: string, 
-    opciones: { valor: string, etiqueta: string }[] 
+  const CategoriaPatologica = ({
+    categoria,
+    titulo,
+    opciones
+  }: {
+    categoria: string,
+    titulo: string,
+    opciones: { valor: string, etiqueta: string }[]
   }) => {
     return (
       <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
         <h4 className="text-lg font-semibold mb-3">{titulo}</h4>
-        
+
         <div className="flex flex-wrap gap-2">
           {opciones.map(opcion => (
             <OpcionPatologica
@@ -393,19 +392,19 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
               etiqueta={opcion.etiqueta}
             />
           ))}
-          
+
           <OpcionPatologica
             categoria={categoria}
             valor="ninguna"
             etiqueta="Ninguna"
           />
-          
+
           <OpcionPatologica
             categoria={categoria}
             valor="otra"
             etiqueta="Otra"
           />
-          
+
           {formData.antecedentesPersonalesPatologicos[categoria]?.otra && (
             <div className="w-full mt-2">
               <Input
@@ -427,14 +426,14 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button 
-                onClick={() => setShowForm(true)} 
+              <button
+                onClick={() => setShowForm(true)}
                 className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
                 Formulario
               </button>
-              <button 
-                onClick={() => setShowForm(false)} 
+              <button
+                onClick={() => setShowForm(false)}
                 className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
                 Redacción IA
@@ -467,7 +466,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
               {/* Nuevo botón con diseño similar a SintomasToggle */}
               <button
                 onClick={handleSinPatologiaChange}
-                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left"
+                className={`bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left ${sinPatologia ? "bg-blue-500 text-white" : ""}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -475,11 +474,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                     <Label className="text-sm font-medium text-blue-700 dark:text-blue-300">
                       Paciente no presenta ninguna patología
                     </Label>
-                  </div>
-                  <div className={`relative inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${sinPatologia ? 'bg-blue-500' : 'bg-gray-200 dark:bg-gray-700'}`}>
-                    <span
-                      className={`pointer-events-none inline-block h-[20px] w-[20px] rounded-full bg-white shadow-lg transform ring-0 transition duration-200 ease-in-out ${sinPatologia ? 'translate-x-5' : 'translate-x-0'}`}
-                    />
                   </div>
                 </div>
                 {sinPatologia && (
@@ -501,7 +495,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       { valor: "obesidad", etiqueta: "Obesidad" }
                     ]}
                   />
-                  
+
                   <CategoriaPatologica
                     categoria="cardiacos"
                     titulo="Cardíacos"
@@ -511,7 +505,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       { valor: "defectosCardiacosCongenitos", etiqueta: "Defectos cardíacos congénitos" }
                     ]}
                   />
-                  
+
                   <CategoriaPatologica
                     categoria="hepaticos"
                     titulo="Hepáticos"
@@ -523,7 +517,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       { valor: "cirrosis", etiqueta: "Cirrosis" }
                     ]}
                   />
-                  
+
                   <CategoriaPatologica
                     categoria="enfermedadesTransmisionSexual"
                     titulo="Enfermedades de Transmisión Sexual"
@@ -535,7 +529,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       { valor: "vph", etiqueta: "VPH" }
                     ]}
                   />
-                  
+
                   <CategoriaPatologica
                     categoria="enfermedadesEruptivas"
                     titulo="Enfermedades Eruptivas de la Infancia"
@@ -547,7 +541,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       { valor: "paperas", etiqueta: "Paperas" }
                     ]}
                   />
-                  
+
                   <CategoriaPatologica
                     categoria="pulmonares"
                     titulo="Pulmonares"
@@ -558,7 +552,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       { valor: "epoc", etiqueta: "EPOC" }
                     ]}
                   />
-                  
+
                   <CategoriaPatologica
                     categoria="infecciosasParasitarias"
                     titulo="Enfermedades Infecciosas y Parasitarias"
@@ -570,7 +564,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       { valor: "ascariasis", etiqueta: "Ascariasis" }
                     ]}
                   />
-                  
+
                   <CategoriaPatologica
                     categoria="otrosPadecimientos"
                     titulo="Otros Padecimientos Sistémicos"
@@ -582,15 +576,15 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
               )}
 
               <div className="flex justify-center gap-4 mt-6">
-                <Button 
-                  onClick={generarRedaccionIA} 
+                <Button
+                  onClick={generarRedaccionIA}
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
                   Generar Redacción IA
                 </Button>
-                <Button 
-                  onClick={limpiarFormulario} 
-                  variant="outline" 
+                <Button
+                  onClick={limpiarFormulario}
+                  variant="outline"
                   className="border-gray-300 text-gray-700 dark:text-gray-300"
                 >
                   Limpiar Formulario
@@ -604,8 +598,8 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="text-lg font-semibold">Nutricionales</h4>
-                      <button 
-                        onClick={() => handleCopy('nutricionales')} 
+                      <button
+                        onClick={() => handleCopy('nutricionales')}
                         className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                       >
                         {copied.nutricionales ? (
@@ -621,19 +615,19 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea 
-                      value={redacciones.nutricionales} 
-                      readOnly 
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" 
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)} 
+                    <Textarea
+                      value={redacciones.nutricionales}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
                     />
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="text-lg font-semibold">Cardíacos</h4>
-                      <button 
-                        onClick={() => handleCopy('cardiacos')} 
+                      <button
+                        onClick={() => handleCopy('cardiacos')}
                         className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                       >
                         {copied.cardiacos ? (
@@ -649,19 +643,19 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea 
-                      value={redacciones.cardiacos} 
-                      readOnly 
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" 
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)} 
+                    <Textarea
+                      value={redacciones.cardiacos}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
                     />
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="text-lg font-semibold">Hepáticos</h4>
-                      <button 
-                        onClick={() => handleCopy('hepaticos')} 
+                      <button
+                        onClick={() => handleCopy('hepaticos')}
                         className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                       >
                         {copied.hepaticos ? (
@@ -677,19 +671,19 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea 
-                      value={redacciones.hepaticos} 
-                      readOnly 
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" 
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)} 
+                    <Textarea
+                      value={redacciones.hepaticos}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
                     />
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="text-lg font-semibold">Enfermedades de Transmisión Sexual</h4>
-                      <button 
-                        onClick={() => handleCopy('enfermedadesTransmisionSexual')} 
+                      <button
+                        onClick={() => handleCopy('enfermedadesTransmisionSexual')}
                         className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                       >
                         {copied.enfermedadesTransmisionSexual ? (
@@ -705,11 +699,11 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea 
-                      value={redacciones.enfermedadesTransmisionSexual} 
-                      readOnly 
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" 
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)} 
+                    <Textarea
+                      value={redacciones.enfermedadesTransmisionSexual}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
                     />
                   </div>
 
@@ -717,8 +711,8 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="text-lg font-semibold">Enfermedades Eruptivas de la Infancia</h4>
-                      <button 
-                        onClick={() => handleCopy('enfermedadesEruptivas')} 
+                      <button
+                        onClick={() => handleCopy('enfermedadesEruptivas')}
                         className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                       >
                         {copied.enfermedadesEruptivas ? (
@@ -734,19 +728,19 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea 
-                      value={redacciones.enfermedadesEruptivas} 
-                      readOnly 
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" 
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)} 
+                    <Textarea
+                      value={redacciones.enfermedadesEruptivas}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
                     />
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="text-lg font-semibold">Pulmonares</h4>
-                      <button 
-                        onClick={() => handleCopy('pulmonares')} 
+                      <button
+                        onClick={() => handleCopy('pulmonares')}
                         className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                       >
                         {copied.pulmonares ? (
@@ -762,19 +756,19 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea 
+                    <Textarea
                       value={redacciones.pulmonares}
-                      readOnly 
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" 
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)} 
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
                     />
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="text-lg font-semibold">Enfermedades Infecciosas y Parasitarias</h4>
-                      <button 
-                        onClick={() => handleCopy('infecciosasParasitarias')} 
+                      <button
+                        onClick={() => handleCopy('infecciosasParasitarias')}
                         className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                       >
                         {copied.infecciosasParasitarias ? (
@@ -790,19 +784,19 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea 
-                      value={redacciones.infecciosasParasitarias} 
-                      readOnly 
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" 
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)} 
+                    <Textarea
+                      value={redacciones.infecciosasParasitarias}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
                     />
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="text-lg font-semibold">Otros Padecimientos</h4>
-                      <button 
-                        onClick={() => handleCopy('otrosPadecimientos')} 
+                      <button
+                        onClick={() => handleCopy('otrosPadecimientos')}
                         className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                       >
                         {copied.otrosPadecimientos ? (
@@ -818,18 +812,18 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea 
-                      value={redacciones.otrosPadecimientos} 
-                      readOnly 
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" 
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)} 
+                    <Textarea
+                      value={redacciones.otrosPadecimientos}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
                     />
                   </div>
 
                   <div className="flex justify-center gap-4 mt-6">
-                    <Button 
-                      onClick={() => setShowForm(true)} 
-                      variant="outline" 
+                    <Button
+                      onClick={() => setShowForm(true)}
+                      variant="outline"
                       className="border-gray-300 text-gray-700"
                     >
                       Volver al Formulario
