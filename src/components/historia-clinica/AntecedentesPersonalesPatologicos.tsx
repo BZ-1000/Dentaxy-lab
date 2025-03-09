@@ -463,10 +463,10 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         {!isMinimized && <div className="p-6" ref={formRef}>
           {showForm ? (
             <div className="space-y-6">
-              {/* Nuevo botón con diseño similar a SintomasToggle */}
+              {/* Botón en la parte superior */}
               <button
                 onClick={handleSinPatologiaChange}
-                className={`bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left ${sinPatologia ? "bg-blue-500 text-white" : ""}`}
+                className={`bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left mb-4 ${sinPatologia ? "bg-blue-500 text-white" : ""}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
