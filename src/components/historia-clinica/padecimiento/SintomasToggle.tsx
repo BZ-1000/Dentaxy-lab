@@ -1,7 +1,7 @@
 
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, EyeOff, Eye } from "lucide-react";
 
 interface SintomasToggleProps {
   checked: boolean;
@@ -17,8 +17,19 @@ const SintomasToggle = ({ checked, onChange }: SintomasToggleProps) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <AlertCircle className="h-5 w-5 text-blue-500" />
-          <Label className="text-sm font-medium text-blue-700 dark:text-blue-300">
+          <Label className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
             Paciente sin sintomatología
+            {checked ? (
+              <span className="ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <EyeOff className="h-3 w-3" />
+                Secciones ocultas
+              </span>
+            ) : (
+              <span className="ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <Eye className="h-3 w-3" />
+                Secciones visibles
+              </span>
+            )}
           </Label>
         </div>
         <Switch
