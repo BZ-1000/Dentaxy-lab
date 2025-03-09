@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -6,6 +7,7 @@ import { Minus, Maximize2, X, Eraser, Copy, CheckCircle, AlertCircle } from "luc
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 
 interface AntecedentesPersonalesPatologicosProps {
   formData: FormDataState;
@@ -20,7 +22,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   const [isMaximized, setIsMaximized] = useState(false);
   const [showForm, setShowForm] = useState(true);
   const [sinPatologia, setSinPatologia] = useState(false);
-  const [apartadosVisibles, setApartadosVisibles] = useState(true); // Nuevo estado
+  const [apartadosVisibles, setApartadosVisibles] = useState(true);
   const [redacciones, setRedacciones] = useState({
     nutricionales: "",
     cardiacos: "",
@@ -52,14 +54,15 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   };
 
   const handleSinPatologiaChange = () => {
-    setSinPatologia(!sinPatologia);
-    setApartadosVisibles(!sinPatologia); // Ocultar o mostrar apartados
+    const newValue = !sinPatologia;
+    setSinPatologia(newValue);
+    setApartadosVisibles(!newValue);
 
-    if (!sinPatologia) {
+    if (newValue) {
       // Si está marcando que no tiene patologías, limpiar el formulario
       limpiarFormulario();
     }
-  }
+  };
 
   const seleccionarOpcion = (categoria: string, opcion: string, valor: boolean) => {
     // Si es "Ninguna" y se está activando, desactivar todas las demás
@@ -106,8 +109,8 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   };
 
   const handleOtraDescripcionChange = (categoria: string, valor: string) => {
+    // Asegurarnos de que la opción "otra" esté activa
     const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
-    // Asegurarnos de que la opción "otra" esté activa cuando el usuario escribe en el campo
     categoriasActualizadas.otra = true;
     categoriasActualizadas.otraDescripcion = valor;
     categoriasActualizadas.ninguna = false;
@@ -465,10 +468,10 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         {!isMinimized && <div className="p-6" ref={formRef}>
           {showForm ? (
             <div className="space-y-6">
-              {/* Botón en la parte superior */}
-              <button
+              {/* Botón en la parte superior con el mismo estilo que SintomasToggle */}
+              <div
+                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
                 onClick={handleSinPatologiaChange}
-                className={`bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left mb-4 ${sinPatologia ? "bg-blue-500 text-white" : ""}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -477,13 +480,20 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       Paciente no presenta ninguna patología
                     </Label>
                   </div>
+                  <Switch
+                    id="sin-patologia"
+                    checked={sinPatologia}
+                    onCheckedChange={handleSinPatologiaChange}
+                    className="data-[state=checked]:bg-blue-500"
+                    onClick={(e) => e.stopPropagation()}
+                  />
                 </div>
                 {sinPatologia && (
                   <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 ml-7">
                     El paciente no presenta patologías. No es necesario rellenar el resto del formulario.
                   </p>
                 )}
-              </button>
+              </div>
 
               {!sinPatologia && apartadosVisibles && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

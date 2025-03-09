@@ -1,3 +1,4 @@
+
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { AlertCircle } from "lucide-react";
@@ -8,14 +9,10 @@ interface SintomasToggleProps {
 }
 
 const SintomasToggle = ({ checked, onChange }: SintomasToggleProps) => {
-  const handleClick = () => {
-    onChange(!checked);
-  };
-
   return (
-    <button
-      onClick={handleClick}
-      className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left"
+    <div
+      className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
+      onClick={() => onChange(!checked)}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -29,6 +26,7 @@ const SintomasToggle = ({ checked, onChange }: SintomasToggleProps) => {
           checked={checked}
           onCheckedChange={onChange}
           className="data-[state=checked]:bg-blue-500"
+          onClick={(e) => e.stopPropagation()}
         />
       </div>
       {checked && (
@@ -36,7 +34,7 @@ const SintomasToggle = ({ checked, onChange }: SintomasToggleProps) => {
           Si el paciente no presenta síntomas, no es necesario rellenar la sección de características del dolor.
         </p>
       )}
-    </button>
+    </div>
   );
 };
 
