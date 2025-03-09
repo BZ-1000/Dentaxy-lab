@@ -20,6 +20,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   const [isMaximized, setIsMaximized] = useState(false);
   const [showForm, setShowForm] = useState(true);
   const [sinPatologia, setSinPatologia] = useState(false);
+  const [apartadosVisibles, setApartadosVisibles] = useState(true); // Nuevo estado
   const [redacciones, setRedacciones] = useState({
     nutricionales: "",
     cardiacos: "",
@@ -52,6 +53,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
 
   const handleSinPatologiaChange = () => {
     setSinPatologia(!sinPatologia);
+    setApartadosVisibles(!sinPatologia); // Ocultar o mostrar apartados
 
     if (!sinPatologia) {
       // Si está marcando que no tiene patologías, limpiar el formulario
@@ -380,7 +382,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     opciones: { valor: string, etiqueta: string }[]
   }) => {
     return (
-      <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia ? "hidden" : ""}`}>
+      <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia || !apartadosVisibles ? "hidden" : ""}`}>
         <h4 className="text-lg font-semibold mb-3">{titulo}</h4>
 
         <div className="flex flex-wrap gap-2">
@@ -483,7 +485,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                 )}
               </button>
 
-              {!sinPatologia && (
+              {!sinPatologia && apartadosVisibles && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <CategoriaPatologica
                     categoria="nutricionales"
