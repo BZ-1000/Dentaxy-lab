@@ -150,6 +150,58 @@ export const getInitialFormState = (): FormDataState => ({
       descripcion_reaccion: ""
     }
   },
+  antecedentesQuirurgicos: {
+    sinQuirurgicos: false,
+    cirugiasRealizadas: [],
+    hospitalizacionesPrevias: "",
+    complicacionesAnestesicas: ""
+  },
+  antecedentesHemorragicos: {
+    sinHemorragicos: false,
+    sangradoProlongado: "no",
+    hematomas: "no",
+    hemorragiasEspontaneas: "no",
+    transfusiones: "no",
+    detallesAdicionales: ""
+  },
+  interrogatorioSistemas: {
+    cardiovascular: "",
+    respiratorio: "",
+    digestivo: "",
+    urinario: "",
+    musculoEsqueletico: "",
+    nervioso: "",
+    endocrino: "",
+    tegumentario: ""
+  },
+  exploracionFisica: {
+    signosVitales: {
+      ta: "",
+      fc: "",
+      fr: "",
+      temperatura: "",
+      peso: "",
+      talla: "",
+      imc: ""
+    },
+    exploracion: {
+      cabeza: "",
+      cuello: "",
+      torax: "",
+      abdomen: "",
+      extremidades: ""
+    }
+  },
+  examenCabeza: {
+    sinHallazgos: false,
+    craneo: "",
+    cara: "",
+    ojos: "",
+    oidos: "",
+    nariz: "",
+    boca: "",
+    atm: ""
+  },
   serviciosDomiciliarios: '',
   pisosVivienda: '',
   materialVivienda: '',

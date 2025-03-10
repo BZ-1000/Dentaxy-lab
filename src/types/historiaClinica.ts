@@ -152,6 +152,58 @@ export interface AntecedentesAlergicos {
   };
 }
 
+export interface AntecedentesQuirurgicos {
+  sinQuirurgicos: boolean;
+  cirugiasRealizadas: Array<{
+    tipo: string;
+    fecha: string;
+    motivo: string;
+  }>;
+  hospitalizacionesPrevias: string;
+  complicacionesAnestesicas: string;
+}
+
+export interface AntecedentesHemorragicos {
+  sinHemorragicos: boolean;
+  sangradoProlongado: string;
+  hematomas: string;
+  hemorragiasEspontaneas: string;
+  transfusiones: string;
+  detallesAdicionales: string;
+}
+
+export interface ExploracionFisica {
+  signosVitales: {
+    ta: string;
+    fc: string;
+    fr: string;
+    temperatura: string;
+    peso: string;
+    talla: string;
+    imc: string;
+  };
+  exploracion: {
+    cabeza: string;
+    cuello: string;
+    torax: string;
+    abdomen: string;
+    extremidades: string;
+    [key: string]: string;
+  };
+}
+
+export interface ExamenCabeza {
+  sinHallazgos: boolean;
+  craneo: string;
+  cara: string;
+  ojos: string;
+  oidos: string;
+  nariz: string;
+  boca: string;
+  atm: string;
+  [key: string]: boolean | string;
+}
+
 export interface HigieneBucal {
   frecuenciaCepillado: string;
   usoHiloDental: string;
@@ -174,6 +226,21 @@ export interface FormDataState {
   antecedentesPersonalesNoPatologicos: AntecedentesPersonalesNoPatologicos;
   antecedentesPersonalesPatologicos: AntecedentesPersonalesPatologicos;
   antecedentesAlergicos: AntecedentesAlergicos;
+  antecedentesQuirurgicos: AntecedentesQuirurgicos;
+  antecedentesHemorragicos: AntecedentesHemorragicos;
+  interrogatorioSistemas: {
+    [key: string]: string;
+    cardiovascular?: string;
+    respiratorio?: string;
+    digestivo?: string;
+    urinario?: string;
+    musculoEsqueletico?: string;
+    nervioso?: string;
+    endocrino?: string;
+    tegumentario?: string;
+  };
+  exploracionFisica: ExploracionFisica;
+  examenCabeza: ExamenCabeza;
   serviciosDomiciliarios: string;
   pisosVivienda: string;
   materialVivienda: string;
