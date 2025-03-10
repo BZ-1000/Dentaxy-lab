@@ -9,10 +9,14 @@ interface SintomasToggleProps {
 }
 
 const SintomasToggle = ({ checked, onChange }: SintomasToggleProps) => {
+  const handleToggleClick = () => {
+    onChange(!checked);
+  };
+
   return (
     <div
       className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
-      onClick={() => onChange(!checked)}
+      onClick={handleToggleClick}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

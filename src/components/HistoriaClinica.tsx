@@ -5,6 +5,11 @@ import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoF
 import AntecedentesPersonalesNoPatologicos from './historia-clinica/AntecedentesPersonalesNoPatologicos';
 import AntecedentesPersonalesPatologicos from './historia-clinica/AntecedentesPersonalesPatologicos';
 import AntecedentesAlergicos from './historia-clinica/AntecedentesAlergicos';
+import AntecedentesQuirurgicos from './historia-clinica/AntecedentesQuirurgicos';
+import AntecedentesHemorragicos from './historia-clinica/AntecedentesHemorragicos';
+import InterrogatorioSistemas from './historia-clinica/InterrogatorioSistemas';
+import ExploracionFisica from './historia-clinica/ExploracionFisica';
+import ExamenCabeza from './historia-clinica/ExamenCabeza';
 import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
 import { Button } from "@/components/ui/button";
 import { useTheme } from '@/hooks/use-theme';
@@ -29,6 +34,11 @@ const HistoriaClinica = () => {
     handleAntecedenteChange,
     handleAntecedentePatologicoChange,
     handleAntecedenteAlergicoChange,
+    handleAntecedenteQuirurgicoChange,
+    handleAntecedenteHemorragicoChange,
+    handleInterrogatorioChange,
+    handleExploracionFisicaChange,
+    handleExamenCabezaChange,
     toggleService,
     generarResumen,
     guardarFormulario,
@@ -108,6 +118,31 @@ const HistoriaClinica = () => {
             <AntecedentesAlergicos
               formData={formData}
               handleAntecedenteAlergicoChange={handleAntecedenteAlergicoChange}
+            />
+
+            <AntecedentesQuirurgicos
+              formData={formData}
+              handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange}
+            />
+
+            <AntecedentesHemorragicos
+              formData={formData}
+              handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange}
+            />
+
+            <InterrogatorioSistemas
+              formData={formData}
+              handleInterrogatorioChange={handleInterrogatorioChange}
+            />
+
+            <ExploracionFisica
+              formData={formData}
+              handleExploracionFisicaChange={handleExploracionFisicaChange}
+            />
+
+            <ExamenCabeza
+              formData={formData}
+              handleExamenCabezaChange={handleExamenCabezaChange}
             />
 
             <div className="flex justify-center pt-6">

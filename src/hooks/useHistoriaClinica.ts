@@ -193,6 +193,70 @@ export const useHistoriaClinica = () => {
     }
   };
 
+  const handleAntecedenteQuirurgicoChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesQuirurgicos: {
+        ...prev.antecedentesQuirurgicos,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleAntecedenteHemorragicoChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesHemorragicos: {
+        ...prev.antecedentesHemorragicos,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleInterrogatorioChange = (system: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      interrogatorioSistemas: {
+        ...prev.interrogatorioSistemas,
+        [system]: value
+      }
+    }));
+  };
+
+  const handleExploracionFisicaChange = (field: string, value: any) => {
+    if (field.includes('.')) {
+      const [parent, child] = field.split('.');
+      setFormData(prev => ({
+        ...prev,
+        exploracionFisica: {
+          ...prev.exploracionFisica,
+          [parent]: {
+            ...prev.exploracionFisica?.[parent],
+            [child]: value
+          }
+        }
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        exploracionFisica: {
+          ...prev.exploracionFisica,
+          [field]: value
+        }
+      }));
+    }
+  };
+
+  const handleExamenCabezaChange = (part: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      examenCabeza: {
+        ...prev.examenCabeza,
+        [part]: value
+      }
+    }));
+  };
+
   const generarResumen = async () => {
     try {
       setIsGenerating(true);
@@ -271,6 +335,11 @@ export const useHistoriaClinica = () => {
     handleAntecedenteChange,
     handleAntecedentePatologicoChange,
     handleAntecedenteAlergicoChange,
+    handleAntecedenteQuirurgicoChange,
+    handleAntecedenteHemorragicoChange,
+    handleInterrogatorioChange,
+    handleExploracionFisicaChange,
+    handleExamenCabezaChange,
     toggleService,
     generarResumen,
     guardarFormulario,
