@@ -24,7 +24,8 @@ export default function VerifyEmail() {
           return;
         }
 
-        const { error } = await supabase.auth.verifyOtp({
+        // Updated to use the correct method for email verification
+        const { error } = await supabase.auth.confirmOtp({
           token_hash: token,
           type: 'email',
         });
