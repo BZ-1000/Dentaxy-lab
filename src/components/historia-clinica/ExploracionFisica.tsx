@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -60,7 +59,6 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
     const signosVitales = formData.exploracionFisica?.signosVitales || {};
     let texto = "EXPLORACIÓN FÍSICA:\n\n";
     
-    // Signos vitales
     texto += "Signos Vitales: ";
     if (signosVitales.ta) texto += `TA: ${signosVitales.ta} mmHg, `;
     if (signosVitales.fc) texto += `FC: ${signosVitales.fc} lpm, `;
@@ -70,10 +68,8 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
     if (signosVitales.talla) texto += `Talla: ${signosVitales.talla} cm, `;
     if (signosVitales.imc) texto += `IMC: ${signosVitales.imc} kg/m², `;
     
-    // Eliminar la última coma y espacio
     texto = texto.replace(/, $/, ". ");
     
-    // Exploraciones por sección
     texto += "\n\nExploración por áreas:\n";
     const exploracion = formData.exploracionFisica?.exploracion || {};
     
@@ -92,13 +88,11 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
   };
 
   const limpiarFormulario = () => {
-    // Limpiar signos vitales
     const camposSignosVitales = ["ta", "fc", "fr", "temperatura", "peso", "talla", "imc"];
     camposSignosVitales.forEach(campo => {
       actualizarSignosVitales(campo, "");
     });
     
-    // Limpiar exploraciones
     exploracionSecciones.forEach(seccion => {
       actualizarExploracion(seccion.id, "");
     });

@@ -24,8 +24,8 @@ export default function VerifyEmail() {
           return;
         }
 
-        // Updated to use the correct method for email verification
-        const { error } = await supabase.auth.confirmOtp({
+        // Using verifyOtp which is the correct method for email verification in current Supabase JS client
+        const { error } = await supabase.auth.verifyOtp({
           token_hash: token,
           type: 'email',
         });

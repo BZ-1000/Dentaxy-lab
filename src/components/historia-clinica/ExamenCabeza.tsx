@@ -44,7 +44,8 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const handleSinHallazgosChange = () => {
     const newValue = !sinHallazgos;
     setSinHallazgos(newValue);
-    handleExamenCabezaChange("sinHallazgos", newValue.toString());
+    // Convert boolean to string to match the expected type
+    handleExamenCabezaChange("sinHallazgos", newValue ? "true" : "false");
     
     if (newValue) {
       // Clear all sections if no findings
