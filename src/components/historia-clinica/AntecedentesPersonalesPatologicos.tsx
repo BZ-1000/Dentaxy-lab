@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -37,6 +36,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   const formRef = useRef<HTMLDivElement>(null);
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
+  const [previousFormState, setPreviousFormState] = useState(null);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -59,8 +59,17 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     setApartadosVisibles(!newValue);
 
     if (newValue) {
-      // Si está marcando que no tiene patologías, limpiar el formulario
+      // Guardar el estado actual del formulario antes de limpiarlo
+      setPreviousFormState(JSON.parse(JSON.stringify(formData.antecedentesPersonalesPatologicos)));
+      // Limpiar el formulario
       limpiarFormulario();
+    } else {
+      // Restaurar el estado anterior del formulario
+      if (previousFormState) {
+        Object.keys(previousFormState).forEach(categoria => {
+          handleAntecedentePatologicoChange(categoria, previousFormState[categoria]);
+        });
+      }
     }
   };
 
