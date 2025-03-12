@@ -416,7 +416,7 @@ const Landing = () => {
         <div className={`text-center w-full ${isMobile ? 'px-2' : ''}`}>
           <h1 className={`mb-4 font-mono text-center font-black tracking-wider text-white text-shadow-xl ${isMobile ? 'text-5xl' : 'text-8xl sm:text-9xl'}`}>
             DENTA
-            <span className="font-orbitron text-50xl font-extrabold text-slate-50">X</span>
+            <span className="font-orbitron text-50xl font-extrabold text-sky-500">X</span>
             Y
           </h1>
           <motion.p initial={{
