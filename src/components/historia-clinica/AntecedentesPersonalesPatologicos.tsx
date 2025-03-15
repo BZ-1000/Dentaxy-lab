@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import SintomasToggle from "./padecimiento/SintomasToggle";
+import SintomasToggle from "./padecimiento/SintomasToggle"; // Asegúrate de importar SintomasToggle
 
 interface AntecedentesPersonalesPatologicosProps {
   formData: FormDataState;
@@ -38,7 +38,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [previousFormState, setPreviousFormState] = useState(null);
-  const [displayedText, setDisplayedText] = useState("");
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -144,24 +143,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     setRedacciones(nuevasRedacciones);
     setShowForm(false);
     setProgress(100);
-
-    // Unir todas las redacciones en un solo texto
-    const textoGenerado = Object.values(nuevasRedacciones).join("\n\n");
-    setDisplayedText("");
-
-    // Efecto de escritura
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < textoGenerado.length) {
-        setDisplayedText((prev) => prev + textoGenerado.charAt(index));
-        setProgress((index / textoGenerado.length) * 100);
-        index++;
-      } else {
-        clearInterval(interval);
-        // Desplazarse a la sección de redacción
-        redaccionesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 15);
   };
 
   const generarRedaccionPorCategoria = (categoria: string) => {
