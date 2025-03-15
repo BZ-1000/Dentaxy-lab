@@ -9,8 +9,6 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 const menuItems = [{
   label: "Menu",
   href: "#"
@@ -24,6 +22,9 @@ const menuItems = [{
   label: "nosotros",
   href: "#"
 }];
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+
 const LoadingScreen = ({ visible, onComplete }) => {
   const [displayText, setDisplayText] = useState("");
   const fullText = "Dental Basics Academy";
