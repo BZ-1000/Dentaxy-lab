@@ -63,13 +63,11 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
       setPreviousFormState(JSON.parse(JSON.stringify(formData.antecedentesPersonalesPatologicos)));
       // Limpiar el formulario
       limpiarFormulario();
-    } else {
-      // Restaurar el estado anterior del formulario
-      if (previousFormState) {
-        Object.keys(previousFormState).forEach(categoria => {
-          handleAntecedentePatologicoChange(categoria, previousFormState[categoria]);
-        });
-      }
+    } else if (previousFormState) {
+      // Restaurar el estado anterior del formulario al volver a mostrar las secciones
+      Object.keys(previousFormState).forEach(categoria => {
+        handleAntecedentePatologicoChange(categoria, previousFormState[categoria]);
+      });
     }
   };
 
@@ -479,7 +477,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
             <div className="space-y-6">
               {/* Botón en la parte superior con el mismo estilo que SintomasToggle */}
               <div
-                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
+                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer transition-all hover:bg-blue-100 dark:hover:bg-blue-900/30"
                 onClick={handleSinPatologiaChange}
               >
                 <div className="flex items-center justify-between">
@@ -510,7 +508,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                 </div>
                 {sinPatologia && (
                   <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 ml-7">
-                    El paciente no presenta patologías. No es necesario rellenar el resto del formulario.
+                    El paciente no presenta patologías. Presione nuevamente para mostrar el formulario completo.
                   </p>
                 )}
               </div>
@@ -741,133 +739,4 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                     <div className="flex justify-between items-center mb-2">
-                      <h4 className="text-lg font-semibold">Enfermedades Eruptivas de la Infancia</h4>
-                      <button
-                        onClick={() => handleCopy('enfermedadesEruptivas')}
-                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                      >
-                        {copied.enfermedadesEruptivas ? (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Copiado</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span>Copiar</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <Textarea
-                      value={redacciones.enfermedadesEruptivas}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
-                  </div>
-
-                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="text-lg font-semibold">Pulmonares</h4>
-                      <button
-                        onClick={() => handleCopy('pulmonares')}
-                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                      >
-                        {copied.pulmonares ? (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Copiado</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span>Copiar</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <Textarea
-                      value={redacciones.pulmonares}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
-                  </div>
-
-                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="text-lg font-semibold">Enfermedades Infecciosas y Parasitarias</h4>
-                      <button
-                        onClick={() => handleCopy('infecciosasParasitarias')}
-                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                      >
-                        {copied.infecciosasParasitarias ? (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Copiado</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span>Copiar</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <Textarea
-                      value={redacciones.infecciosasParasitarias}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
-                  </div>
-
-                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="text-lg font-semibold">Otros Padecimientos Sistémicos</h4>
-                      <button
-                        onClick={() => handleCopy('otrosPadecimientos')}
-                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                      >
-                        {copied.otrosPadecimientos ? (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Copiado</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span>Copiar</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <Textarea
-                      value={redacciones.otrosPadecimientos}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
-                  </div>
-
-                  <div className="flex justify-center">
-                    <Button
-                      onClick={() => setShowForm(true)}
-                      variant="outline"
-                      className="border-gray-300 text-gray-700 dark:text-gray-300"
-                    >
-                      Volver al Formulario
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </div>}
-      </Card>
-    </div>
-  );
-};
-
-export default AntecedentesPersonalesPatologicos;
+                      <h4 className="text-lg
