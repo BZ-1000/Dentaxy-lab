@@ -406,7 +406,7 @@ const Landing = () => {
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto">
         <div className="text-center w-full">
-          <h1 className="mb-5 font-black text-black sm:text-8xl text-5xl text-justify">
+          <h1 className="mb-5 font-black text-black text-5xl text-center sm:text-8xl">
             DENTAXY.ai
           </h1>
 
