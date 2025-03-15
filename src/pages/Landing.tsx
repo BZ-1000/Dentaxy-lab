@@ -13,13 +13,13 @@ const menuItems = [{
   label: "Menu",
   href: "#"
 }, {
-  label: "settings.",
+  label: "Configuración",
   href: "#"
 }, {
-  label: "perfil.",
+  label: "Perfil",
   href: "#"
 }, {
-  label: "nosotros",
+  label: "Nosotros",
   href: "#"
 }];
 const LoadingScreen = ({
