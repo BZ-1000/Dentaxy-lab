@@ -36,7 +36,7 @@ const LoadingScreen = ({
       } else {
         clearInterval(interval);
       }
-    }, 150); // Velocidad de escritura
+    }, 100); // Velocidad de escritura
 
     return () => clearInterval(interval);
   }, []);
