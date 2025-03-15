@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import SintomasToggle from "./padecimiento/SintomasToggle";
 
 interface AntecedentesPersonalesPatologicosProps {
   formData: FormDataState;
@@ -37,6 +38,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [previousFormState, setPreviousFormState] = useState(null);
+  const [displayedText, setDisplayedText] = useState("");
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -53,8 +55,8 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     setIsMaximized(false);
   };
 
-  const handleSinPatologiaChange = () => {
-    const newValue = !sinPatologia;
+  const handleSinPatologiaChange = (checked: boolean) => {
+    const newValue = checked;
     setSinPatologia(newValue);
     setApartadosVisibles(!newValue);
 
@@ -142,6 +144,24 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     setRedacciones(nuevasRedacciones);
     setShowForm(false);
     setProgress(100);
+
+    // Unir todas las redacciones en un solo texto
+    const textoGenerado = Object.values(nuevasRedacciones).join("\n\n");
+    setDisplayedText("");
+
+    // Efecto de escritura
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < textoGenerado.length) {
+        setDisplayedText((prev) => prev + textoGenerado.charAt(index));
+        setProgress((index / textoGenerado.length) * 100);
+        index++;
+      } else {
+        clearInterval(interval);
+        // Desplazarse a la sección de redacción
+        redaccionesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 15);
   };
 
   const generarRedaccionPorCategoria = (categoria: string) => {
@@ -478,42 +498,10 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
           {showForm ? (
             <div className="space-y-6">
               {/* Botón en la parte superior con el mismo estilo que SintomasToggle */}
-              <div
-                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
-                onClick={handleSinPatologiaChange}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <AlertCircle className="h-5 w-5 text-blue-500" />
-                    <Label className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
-                      Paciente no presenta ninguna patología
-                      {sinPatologia ? (
-                        <span className="ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <EyeOff className="h-3 w-3" />
-                          Secciones ocultas
-                        </span>
-                      ) : (
-                        <span className="ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                          <Eye className="h-3 w-3" />
-                          Secciones visibles
-                        </span>
-                      )}
-                    </Label>
-                  </div>
-                  <Switch
-                    id="sin-patologia"
-                    checked={sinPatologia}
-                    onCheckedChange={handleSinPatologiaChange}
-                    className="data-[state=checked]:bg-blue-500"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-                {sinPatologia && (
-                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 ml-7">
-                    El paciente no presenta patologías. No es necesario rellenar el resto del formulario.
-                  </p>
-                )}
-              </div>
+              <SintomasToggle
+                checked={sinPatologia}
+                onChange={handleSinPatologiaChange}
+              />
 
               {!sinPatologia && apartadosVisibles && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
