@@ -16,10 +16,10 @@ const menuItems = [{
   label: "Configuración",
   href: "#"
 }, {
-  label: "Perfil.",
+  label: "Perfil",
   href: "#"
 }, {
-  label: "nosotros",
+  label: "Nosotros",
   href: "#"
 }];
 const Landing = () => {
