@@ -16,7 +16,7 @@ export function UnderlinedHeading({
   className,
   textColor = "text-white",
   bgColor = "bg-blue-500",
-  padding = "px-6 py-3",
+  padding = "px-4 py-2",
   borderRadius = "rounded-full"
 }: UnderlinedHeadingProps) {
   return (
@@ -25,7 +25,7 @@ export function UnderlinedHeading({
       padding,
       borderRadius,
       textColor,
-      "font-medium inline-block",
+      "font-medium inline-block text-sm tracking-wide",
       className
     )}>
       {text}

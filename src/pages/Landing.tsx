@@ -8,6 +8,8 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
+import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
+
 const menuItems = [{
   label: "Menu",
   href: "#"
@@ -21,6 +23,7 @@ const menuItems = [{
   label: "nosotros",
   href: "#"
 }];
+
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -204,10 +207,99 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
+
+  // Dummy form data for the AntecedentesPersonalesPatologicos component
+  const [formData, setFormData] = useState({
+    antecedentesPersonalesPatologicos: {
+      nutricionales: {
+        anorexia: false,
+        bulimia: false,
+        sobrepeso: false,
+        obesidad: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      cardiacos: {
+        enfermedadCoronaria: false,
+        arritmias: false,
+        defectosCardiacosCongenitos: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      hepaticos: {
+        hepatitisA: false,
+        hepatitisB: false,
+        hepatitisC: false,
+        higadoGraso: false,
+        cirrosis: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      enfermedadesTransmisionSexual: {
+        vih: false,
+        sifilis: false,
+        gonorrea: false,
+        herpesGenital: false,
+        vph: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      enfermedadesEruptivas: {
+        sarampion: false,
+        rubeola: false,
+        escarlatina: false,
+        varicela: false,
+        paperas: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      pulmonares: {
+        neumonia: false,
+        bronquitis: false,
+        asma: false,
+        epoc: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      infecciosasParasitarias: {
+        fiebreTifoidea: false,
+        tuberculosis: false,
+        amibiasis: false,
+        giardiasis: false,
+        ascariasis: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      otrosPadecimientos: {
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      }
+    }
+  });
+
+  const handleAntecedentePatologicoChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesPersonalesPatologicos: {
+        ...prev.antecedentesPersonalesPatologicos,
+        [field]: value
+      }
+    }));
+  };
+
   if (!mounted) return null;
-  return <div className="min-h-screen w-full bg-white">
+  
+  return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
-      <div className="flex items-center justify-between px-6 py-4">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
         <div className="flex items-center gap-4">
           <img src="/diente.png" alt="Logo" className="h-12 w-12" />
         </div>
@@ -285,34 +377,37 @@ const Landing = () => {
         </div>}
 
       {/* Main Content */}
-      <div className="flex flex-col items-center justify-center px-4 pt-16 pb-32 max-w-5xl mx-auto">
+      <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto">
         <div className="text-center w-full">
-          <h1 className="mb-8 font-black text-black text-7xl my--10 sm:text-8xl">
+          <h1 className="mb-5 font-black text-black text-7xl sm:text-8xl">
             DENTAXY.ai
           </h1>
           
-          <div className="mb-16">
-            <div className="inline-block bg-blue-500 text-white text-lg font-medium px-[24px] py-0 rounded-full mx-0 my-0">
+          <div className="mb-5">
+            <div className="inline-block bg-blue-500 text-white text-sm font-medium px-[20px] py-2 rounded-full mx-0 my-0">
               REDACCIÓN CLÍNICA CON INTELIGENCIA ARTIFICIAL
             </div>
           </div>
           
-          <div className="mb-16">
-            <button onClick={handleBetaAccess} className="text-white font-bold rounded-full text-xl px-[20px] py-[5px] bg-[#00bcd4]">
+          <div className="mb-12">
+            <button onClick={handleBetaAccess} className="text-white font-bold rounded-full text-sm px-[20px] py-[8px] bg-[#00bcd4]">
               PRUEBA BETA
             </button>
           </div>
 
-          <div className="border border-gray-200 rounded-3xl p-8 mb-12">
-            <h2 className="text-xl font-bold mb-4 text-center">
+          <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
+            <h2 className="text-xl font-bold mb-6 text-center text-gray-800">
               "DEMOSTRACIÓN DE REDACCIÓN AUTOMÁTICA"
             </h2>
-            <div className="h-60 flex items-center justify-center text-gray-400">
-              Vista previa de la demostración
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+              <AntecedentesPersonalesPatologicos 
+                formData={formData}
+                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
+              />
             </div>
           </div>
 
-          <p className="text-center text-gray-600 text-sm max-w-3xl mx-auto">
+          <p className="text-center text-gray-500 text-xs max-w-3xl mx-auto">
             "Revisado y aprobado por líderes en odontología clínica, incluyendo el Dr. Alejandro Fuentes, la Dra. Mariana López y el Dr. Ricardo Méndez."
           </p>
         </div>
@@ -390,4 +485,5 @@ const Landing = () => {
     })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
     </div>;
 };
+
 export default Landing;
