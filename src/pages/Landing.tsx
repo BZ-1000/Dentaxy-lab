@@ -22,16 +22,12 @@ const menuItems = [{
   label: "nosotros",
   href: "#"
 }];
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-
-const LoadingScreen = ({ visible, onComplete }) => {
-  const [displayText, setDisplayText] = useState("");
+const LoadingScreen = ({
+  visible
+}) => {
+  const [displayText, setDisplayText] = useState('');
   const fullText = "Dental Basics Academy";
-
   useEffect(() => {
-    if (!visible) return;
-
     let currentIndex = 0;
     const interval = setInterval(() => {
       if (currentIndex <= fullText.length) {
@@ -39,39 +35,8 @@ const LoadingScreen = ({ visible, onComplete }) => {
         currentIndex++;
       } else {
         clearInterval(interval);
-        setTimeout(() => onComplete(), 800); // Espera antes de ocultar
       }
-    }, 80); // Velocidad de escritura mejorada
-
-    return () => clearInterval(interval);
-  }, [visible]);
-
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ opacity: 1, scale: 1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-          className="fixed inset-0 flex items-center justify-center bg-black text-white text-3xl font-semibold"
-        >
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            className="tracking-wide"
-          >
-            {displayText}
-          </motion.span>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
-
-export default LoadingScreen;
-
+    }, 100); // Velocidad de escritura
 
     return () => clearInterval(interval);
   }, []);
