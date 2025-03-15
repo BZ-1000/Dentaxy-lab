@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 
 interface ExamenCabezaProps {
@@ -6,11 +7,11 @@ interface ExamenCabezaProps {
 }
 
 const ExamenCabeza: React.FC<ExamenCabezaProps> = ({ formValues, onFormChange }) => {
-  const [tieneLesiones, setTieneLesiones] = useState(formValues.tieneLesiones === 'true');
+  const [tieneLesiones, setTieneLesiones] = useState(formValues.tieneLesiones === 'true' || formValues.tieneLesiones === true);
   const [descripcionLesiones, setDescripcionLesiones] = useState(formValues.descripcionLesiones || '');
 
   useEffect(() => {
-    setTieneLesiones(formValues.tieneLesiones === 'true');
+    setTieneLesiones(formValues.tieneLesiones === 'true' || formValues.tieneLesiones === true);
     setDescripcionLesiones(formValues.descripcionLesiones || '');
   }, [formValues]);
 
@@ -22,7 +23,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({ formValues, onFormChange })
   const handleTieneLesionesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.checked;
     setTieneLesiones(newValue);
-    handleExamenCabezaChange('tieneLesiones', newValue);
+    handleExamenCabezaChange('tieneLesiones', String(newValue));
   };
 
   const handleDescripcionLesionesChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {

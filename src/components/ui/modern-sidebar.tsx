@@ -1,5 +1,5 @@
+
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -16,7 +16,7 @@ export function ModernSidebar({
 }: ModernSidebarProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
-  // Change the width to be a string rather than a motion value
+  // Use string for width instead of MotionValue
   const width = expanded ? "240px" : "80px";
 
   return (
@@ -90,3 +90,11 @@ export function SidebarItem({
     </button>
   );
 }
+
+// Add these exports to fix FormulariosSidebar import issues
+export const Sidebar = ModernSidebar;
+export const SidebarBody = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+export const SidebarLink = SidebarItem;
+export const Logo = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+export const LogoIcon = ({ children }: { children: React.ReactNode }) => <div>{children}</div>;
+export const useSidebar = () => ({ isExpanded: true, toggleSidebar: () => {} });

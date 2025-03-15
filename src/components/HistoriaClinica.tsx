@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -141,8 +140,8 @@ const HistoriaClinica = () => {
             />
 
             <ExamenCabeza
-              formData={formData}
-              handleExamenCabezaChange={handleExamenCabezaChange}
+              formValues={formData.examenCabeza}
+              onFormChange={handleExamenCabezaChange}
             />
 
             <div className="flex justify-center pt-6">
