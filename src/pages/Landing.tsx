@@ -7,19 +7,19 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
-import type { Database } from '@/types/supabase';
+import type { Database } from '@/types/supabase'; 
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 const menuItems = [{
   label: "Menu",
   href: "#"
 }, {
-  label: "settings.",
+  label: "Configuración",
   href: "#"
 }, {
-  label: "perfil.",
+  label: "Perfil",
   href: "#"
 }, {
-  label: "nosotros",
+  label: "Nosotros",
   href: "#"
 }];
 const Landing = () => {
