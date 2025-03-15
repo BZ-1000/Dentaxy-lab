@@ -399,7 +399,8 @@ const Landing = () => {
                   </button>
                 </>}
             </motion.div>}
-        </motion.div>}
+        </motion.div>
+      )}
 
       {/* Main Content */}
       <motion.div 
