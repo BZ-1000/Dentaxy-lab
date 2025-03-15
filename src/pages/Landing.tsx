@@ -9,18 +9,24 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
-
-const menuItems = [
-  { label: "Menu", href: "#" },
-  { label: "settings.", href: "#" },
-  { label: "perfil.", href: "#" },
-  { label: "nosotros", href: "#" }
-];
-
-const LoadingScreen = ({ visible }) => {
+const menuItems = [{
+  label: "Menu",
+  href: "#"
+}, {
+  label: "settings.",
+  href: "#"
+}, {
+  label: "perfil.",
+  href: "#"
+}, {
+  label: "nosotros",
+  href: "#"
+}];
+const LoadingScreen = ({
+  visible
+}) => {
   const [displayText, setDisplayText] = useState('');
   const fullText = "Dental Basics Academy";
-
   useEffect(() => {
     let currentIndex = 0;
     const interval = setInterval(() => {
@@ -34,27 +40,15 @@ const LoadingScreen = ({ visible }) => {
 
     return () => clearInterval(interval);
   }, []);
-
-  return (
-    <div
-      className={`flex flex-col items-center justify-center h-screen bg-white transition-opacity duration-2000 ${
-        visible ? 'opacity-100' : 'opacity-0'
-      }`}
-    >
+  return <div className={`flex flex-col items-center justify-center h-screen bg-white transition-opacity duration-2000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
       <div className="flex items-center space-x-4">
-        <img
-          alt="Logo"
-          src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png"
-          className="h-16 w-16"
-        />
+        <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-16 w-16" />
         <h1 className="text-xl sm:text-3xl font-bold text-black text-center">
           {displayText}
         </h1>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -74,7 +68,6 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -83,7 +76,9 @@ const Landing = () => {
 
     const getSession = async () => {
       const {
-        data: { session }
+        data: {
+          session
+        }
       } = await supabase.auth.getSession();
       setSession(session);
       if (session) {
@@ -93,7 +88,9 @@ const Landing = () => {
     };
     getSession();
     const {
-      data: { subscription }
+      data: {
+        subscription
+      }
     } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       if (session) {
@@ -106,14 +103,12 @@ const Landing = () => {
       subscription.unsubscribe();
     };
   }, []);
-
   const checkUsername = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('id, username, created_at')
-        .eq('id', userId)
-        .single();
+      const {
+        data,
+        error
+      } = await supabase.from('user_profiles').select('id, username, created_at').eq('id', userId).single();
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
@@ -126,14 +121,12 @@ const Landing = () => {
       console.error('Error checking username:', error);
     }
   };
-
   const checkUserPlan = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('user_plans')
-        .select('plan_type')
-        .eq('id', userId)
-        .maybeSingle();
+      const {
+        data,
+        error
+      } = await supabase.from('user_plans').select('plan_type').eq('id', userId).maybeSingle();
       if (error) {
         console.error('Error checking plan:', error);
         return;
@@ -143,7 +136,6 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
-
   const handleSaveUsername = async () => {
     if (!session || !username.trim()) {
       toast.error('Por favor ingresa un nombre de usuario');
@@ -151,12 +143,14 @@ const Landing = () => {
     }
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('user_profiles')
-        .upsert(
-          [{ id: session.user.id, username: username.trim() }],
-          { onConflict: 'id' }
-        );
+      const {
+        error
+      } = await supabase.from('user_profiles').upsert([{
+        id: session.user.id,
+        username: username.trim()
+      }], {
+        onConflict: 'id'
+      });
       if (error) throw error;
       setShowPopup(false);
       toast.success('¡Nombre de usuario guardado exitosamente!');
@@ -166,16 +160,18 @@ const Landing = () => {
       setLoading(false);
     }
   };
-
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
       return;
     }
     try {
-      const { error } = await supabase
-        .from('user_plans')
-        .upsert({ id: session.user.id, plan_type: 'beta' });
+      const {
+        error
+      } = await supabase.from('user_plans').upsert({
+        id: session.user.id,
+        plan_type: 'beta'
+      });
       if (error) {
         console.error('Error details:', error);
         throw error;
@@ -188,28 +184,34 @@ const Landing = () => {
       toast.error('Error al activar el plan');
     }
   };
-
   const handleItemClick = (label: string) => {
     setActiveItem(label);
     if (label === "perfil." && session) {
       setShowDropdown(!showDropdown);
     }
   };
-
   const handleLogin = () => {
-    setAuthDialog({ isOpen: true, mode: "login" });
+    setAuthDialog({
+      isOpen: true,
+      mode: "login"
+    });
   };
-
   const handleRegister = () => {
-    setAuthDialog({ isOpen: true, mode: "register" });
+    setAuthDialog({
+      isOpen: true,
+      mode: "register"
+    });
   };
-
   const handleAuthSuccess = () => {
-    setAuthDialog({ isOpen: false, mode: "login" });
+    setAuthDialog({
+      isOpen: false,
+      mode: "login"
+    });
   };
-
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
+    const {
+      error
+    } = await supabase.auth.signOut();
     if (error) {
       console.error('Error signing out:', error.message);
     }
@@ -218,16 +220,17 @@ const Landing = () => {
     setHasBetaPlan(false);
     toast.success('Sesión cerrada exitosamente');
   };
-
   const handleChangeUsername = () => {
     setShowPopup(true);
     setShowDropdown(false);
   };
-
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
-      setAuthDialog({ isOpen: true, mode: "login" });
+      setAuthDialog({
+        isOpen: true,
+        mode: "login"
+      });
       return;
     }
     if (hasBetaPlan) {
@@ -236,7 +239,6 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
-
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
       nutricionales: {
@@ -312,7 +314,6 @@ const Landing = () => {
       }
     }
   });
-
   const handleAntecedentePatologicoChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -322,161 +323,90 @@ const Landing = () => {
       }
     }));
   };
-
   if (loading) return <LoadingScreen visible={loading} />;
-
-  return (
-    <div className="min-h-screen w-full bg-white apple-minimalist">
+  return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
         <div className="flex items-center gap-4">
-          <img
-            alt="Logo"
-            src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png"
-            className="h-8 w-8"
-          />
+          <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-8 w-8" />
         </div>
 
         {/* Main horizontal navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          {menuItems.map(item => (
-            <button
-              key={item.label}
-              onClick={() => handleItemClick(item.label)}
-              className={`text-black hover:text-black/70 text-sm ${
-                activeItem === item.label ? 'font-medium' : 'font-normal'
-              }`}
-            >
+          {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`text-black hover:text-black/70 text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}>
               {item.label}
-            </button>
-          ))}
+            </button>)}
         </div>
 
         {/* Auth buttons */}
         <div className="flex gap-4">
-          {!session ? (
-            <>
-              <Button
-                variant="default"
-                onClick={handleLogin}
-                className="bg-black text-white hover:bg-black/80 rounded-full"
-              >
+          {!session ? <>
+              <Button variant="default" onClick={handleLogin} className="bg-black text-white hover:bg-black/80 rounded-full">
                 Iniciar sesión
               </Button>
-              <Button
-                variant="outline"
-                onClick={handleRegister}
-                className="bg-white text-black hover:bg-white/90 border-black rounded-full"
-              >
+              <Button variant="outline" onClick={handleRegister} className="bg-white text-black hover:bg-white/90 border-black rounded-full">
                 Registrarse
               </Button>
-            </>
-          ) : (
-            <div className="flex items-center gap-4">
+            </> : <div className="flex items-center gap-4">
               <span className="text-black text-sm">{username}</span>
               <button onClick={() => setShowDropdown(!showDropdown)} className="relative">
                 <UserCircle className="h-6 w-6 text-black" />
-                {showDropdown && (
-                  <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
-                    {hasBetaPlan && (
-                      <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
+                {showDropdown && <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
+                    {hasBetaPlan && <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
                         <Crown className="h-4 w-4" />
                         Plan Beta
-                      </div>
-                    )}
-                    <button
-                      onClick={handleChangeUsername}
-                      className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100"
-                    >
+                      </div>}
+                    <button onClick={handleChangeUsername} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100">
                       Cambiar nombre
                     </button>
-                    <button
-                      onClick={() => setShowPricingPopup(true)}
-                      className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2"
-                    >
+                    <button onClick={() => setShowPricingPopup(true)} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2">
                       <Crown className="h-4 w-4" />
                       Cambiar plan
                     </button>
-                    <button
-                      onClick={handleLogout}
-                      className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2"
-                    >
+                    <button onClick={handleLogout} className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2">
                       <LogOut className="h-4 w-4" />
                       Cerrar sesión
                     </button>
-                  </div>
-                )}
+                  </div>}
               </button>
-            </div>
-          )}
+            </div>}
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {isMobile && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
+      {isMobile && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
           <div className="flex justify-around">
-            {menuItems.map(item => (
-              <button
-                key={item.label}
-                onClick={() => handleItemClick(item.label)}
-                className={`flex flex-col items-center text-xs ${
-                  activeItem === item.label ? 'text-blue-600' : 'text-gray-500'
-                }`}
-              >
+            {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}>
                 {item.label}
-              </button>
-            ))}
+              </button>)}
           </div>
-          {showDropdown && (
-            <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
-              {session ? (
-                <>
-                  <button
-                    onClick={handleChangeUsername}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-                  >
+          {showDropdown && <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
+              {session ? <>
+                  <button onClick={handleChangeUsername} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Cambiar nombre
                   </button>
-                  <button
-                    onClick={() => setShowPricingPopup(true)}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center gap-x-2"
-                  >
+                  <button onClick={() => setShowPricingPopup(true)} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center gap-x-2">
                     <Crown className="h-4 w-4" />
                     Cambiar plan
                   </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100"
-                  >
+                  <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100">
                     Cerrar sesión
                   </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={handleLogin}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-                  >
+                </> : <>
+                  <button onClick={handleLogin} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Iniciar sesión
                   </button>
-                  <button
-                    onClick={handleRegister}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-                  >
+                  <button onClick={handleRegister} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Registrarse
                   </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                </>}
+            </div>}
+        </div>}
 
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto">
         <div className="text-center w-full">
-          <h1 className="mb-5 font-black text-black sm:text-8xl text-5xl">
+          <h1 className="mb-5 font-black text-black sm:text-8xl text-5xl text-justify">
             DENTAXY.ai
           </h1>
 
@@ -488,23 +418,17 @@ const Landing = () => {
           </div>
 
           <div className="mb-12">
-            <button
-              onClick={handleBetaAccess}
-              className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50"
-            >
+            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50">
               PRUEBA BETA
             </button>
           </div>
 
           <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
-            <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-center">
+            <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
                 🔽 Demostracion de redacción automatica...
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <AntecedentesPersonalesPatologicos
-                formData={formData}
-                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
-              />
+              <AntecedentesPersonalesPatologicos formData={formData} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
           </div>
 
@@ -516,54 +440,33 @@ const Landing = () => {
       </div>
 
       {/* Username Popup */}
-      {showPopup && session && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
             <h2 className="text-2xl font-bold text-black mb-4">¡Bienvenido!</h2>
             <p className="text-gray-600 mb-6">
               Por favor, ingresa tu nombre de usuario para continuar.
             </p>
             <div className="space-y-4">
-              <Input
-                type="text"
-                placeholder="Nombre de usuario"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                className="bg-white border-gray-300"
-              />
-              <Button
-                onClick={handleSaveUsername}
-                className="w-full bg-blue-600 text-white hover:bg-blue-700"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
+              <Input type="text" placeholder="Nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="bg-white border-gray-300" />
+              <Button onClick={handleSaveUsername} className="w-full bg-blue-600 text-white hover:bg-blue-700" disabled={loading}>
+                {loading ? <span className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     Guardando...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
+                  </span> : <span className="flex items-center gap-2">
                     <Save className="h-4 w-4" />
                     Guardar
-                  </span>
-                )}
+                  </span>}
               </Button>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Pricing Popup */}
-      {showPricingPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {showPricingPopup && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold text-black">Planes Disponibles</h2>
-              <Button
-                variant="ghost"
-                onClick={() => setShowPricingPopup(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
+              <Button variant="ghost" onClick={() => setShowPricingPopup(false)} className="text-gray-500 hover:text-gray-700">
                 ✕
               </Button>
             </div>
@@ -592,10 +495,7 @@ const Landing = () => {
                     exclusivos
                   </li>
                 </ul>
-                <Button
-                  onClick={handleSelectBetaPlan}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-                >
+                <Button onClick={handleSelectBetaPlan} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
                   {hasBetaPlan ? "Plan Actual" : "Seleccionar Plan Beta"}
                 </Button>
               </div>
@@ -615,23 +515,13 @@ const Landing = () => {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Auth Dialog */}
-      <AuthDialog
-        isOpen={authDialog.isOpen}
-        onClose={() =>
-          setAuthDialog({
-            ...authDialog,
-            isOpen: false
-          })
-        }
-        defaultMode={authDialog.mode}
-        onSuccess={handleAuthSuccess}
-      />
-    </div>
-  );
+      <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({
+      ...authDialog,
+      isOpen: false
+    })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
+    </div>;
 };
-
 export default Landing;
