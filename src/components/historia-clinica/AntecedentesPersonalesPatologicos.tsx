@@ -229,7 +229,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         rubeola: "Rubéola",
         escarlatina: "Escarlatina",
         varicela: "Varicela",
-        paperas: "Parotiditis (paperas)"
+        paperas: "Paperas"
       },
       pulmonares: {
         neumonia: "Neumonía",
