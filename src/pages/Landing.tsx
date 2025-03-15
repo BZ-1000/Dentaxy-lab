@@ -379,7 +379,7 @@ const Landing = () => {
           </h1>
           
           <div className="mb-5">
-            <div className="inline-block bg-blue-500 text-white text-sm font-medium rounded-full mx-0 my-0 px-[20px] py-px">Calidad y velocidad en redacción clínica, impulsadas por inteligencia artificial</div>
+            <div className="inline-block bg-blue-500 text-white text-sm font-medium rounded-full mx-0 my-0 px-[20px] py-px">Calidad y velocidad en redacción clínica, impulsada por inteligencia artificial</div>
           </div>
           
           <div className="mb-12">
