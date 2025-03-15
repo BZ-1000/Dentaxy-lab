@@ -22,37 +22,9 @@ const menuItems = [{
   label: "nosotros",
   href: "#"
 }];
-const LoadingScreen = ({
-  visible
-}) => {
-  const [displayText, setDisplayText] = useState('');
-  const fullText = "Dental Basics Academy";
-  useEffect(() => {
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-      if (currentIndex <= fullText.length) {
-        setDisplayText(fullText.slice(0, currentIndex));
-        currentIndex++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 150); // Velocidad de escritura
-
-    return () => clearInterval(interval);
-  }, []);
-  return <div className={`flex flex-col items-center justify-center h-screen bg-white transition-opacity duration-2000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="flex items-center space-x-4">
-        <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-16 w-16" />
-        <h1 className="text-xl sm:text-3xl font-bold text-black text-center">
-          {displayText}
-        </h1>
-      </div>
-    </div>;
-};
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [activeItem, setActiveItem] = useState<string>("Menu");
   const [authDialog, setAuthDialog] = useState<{
     isOpen: boolean;
@@ -65,15 +37,12 @@ const Landing = () => {
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [showPricingPopup, setShowPricingPopup] = useState<boolean>(false);
   const [session, setSession] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-      setMounted(true);
-    }, 5000); // Tiempo de carga de 5 segundos
-
+    setMounted(true);
     const getSession = async () => {
       const {
         data: {
@@ -98,10 +67,7 @@ const Landing = () => {
         checkUserPlan(session.user.id);
       }
     });
-    return () => {
-      clearTimeout(timer);
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
   const checkUsername = async (userId: string) => {
     try {
@@ -239,6 +205,8 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
+
+  // Dummy form data for the AntecedentesPersonalesPatologicos component
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
       nutricionales: {
@@ -323,7 +291,7 @@ const Landing = () => {
       }
     }));
   };
-  if (loading) return <LoadingScreen visible={loading} />;
+  if (!mounted) return null;
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
@@ -406,17 +374,14 @@ const Landing = () => {
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto">
         <div className="text-center w-full">
-          <h1 className="mb-5 font-black text-black text-5xl text-center sm:text-8xl">
+          <h1 className="mb-5 font-black text-black sm:text-8xl text-5xl">
             DENTAXY.ai
           </h1>
-
+          
           <div className="mb-5">
-            <div className="inline-block bg-blue-500 text-white text-sm font-base rounded-full mx-0 my-0 px-[20px] py-px">
-              Calidad y velocidad en redacción clínica, impulsada por inteligencia
-              artificial
-            </div>
+            <div className="inline-block bg-blue-500 text-white text-sm font-base rounded-full mx-0 my-0 px-[20px] py-px">Calidad y velocidad en redacción clínica, impulsada por inteligencia artificial</div>
           </div>
-
+          
           <div className="mb-12">
             <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50">
               PRUEBA BETA
@@ -424,17 +389,14 @@ const Landing = () => {
           </div>
 
           <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
-            <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
-                🔽 Demostracion de redacción automatica...
-            </h2>
+            <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-center">  🔽 Demostracion de redacción automatica...</h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
               <AntecedentesPersonalesPatologicos formData={formData} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
           </div>
 
           <p className="text-center text-gray-500 text-xs max-w-3xl mx-auto">
-            "Revisado y aprobado por líderes en odontología clínica, incluyendo el
-            Dr. Alejandro Fuentes, la Dra. Mariana López y el Dr. Ricardo Méndez."
+            "Revisado y aprobado por líderes en odontología clínica, incluyendo el Dr. Alejandro Fuentes, la Dra. Mariana López y el Dr. Ricardo Méndez."
           </p>
         </div>
       </div>
@@ -443,9 +405,7 @@ const Landing = () => {
       {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
             <h2 className="text-2xl font-bold text-black mb-4">¡Bienvenido!</h2>
-            <p className="text-gray-600 mb-6">
-              Por favor, ingresa tu nombre de usuario para continuar.
-            </p>
+            <p className="text-gray-600 mb-6">Por favor, ingresa tu nombre de usuario para continuar.</p>
             <div className="space-y-4">
               <Input type="text" placeholder="Nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="bg-white border-gray-300" />
               <Button onClick={handleSaveUsername} className="w-full bg-blue-600 text-white hover:bg-blue-700" disabled={loading}>
@@ -475,42 +435,31 @@ const Landing = () => {
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm">
                   Disponible
                 </div>
-                <h3 className="text-xl font-bold text-black mb-4 mt-4">
-                  Plan Beta
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Acceso completo durante la fase beta
-                </p>
+                <h3 className="text-xl font-bold text-black mb-4 mt-4">Plan Beta</h3>
+                <p className="text-gray-600 mb-6">Acceso completo durante la fase beta</p>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Acceso a todas
-                    las funciones
+                    <span className="mr-2 text-green-500">✓</span> Acceso a todas las funciones
                   </li>
                   <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Soporte
-                    prioritario
+                    <span className="mr-2 text-green-500">✓</span> Soporte prioritario
                   </li>
                   <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Beneficios
-                    exclusivos
+                    <span className="mr-2 text-green-500">✓</span> Beneficios exclusivos
                   </li>
                 </ul>
                 <Button onClick={handleSelectBetaPlan} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
                   {hasBetaPlan ? "Plan Actual" : "Seleccionar Plan Beta"}
                 </Button>
               </div>
-
+              
               <div className="p-6 rounded-xl border border-gray-200 shadow-sm opacity-50">
-                <h3 className="text-xl font-bold text-black mb-4">
-                  Plan Básico
-                </h3>
+                <h3 className="text-xl font-bold text-black mb-4">Plan Básico</h3>
                 <p className="text-gray-600 mb-6">Próximamente</p>
               </div>
-
+              
               <div className="p-6 rounded-xl border border-gray-200 shadow-sm opacity-50">
-                <h3 className="text-xl font-bold text-black mb-4">
-                  Plan Premium
-                </h3>
+                <h3 className="text-xl font-bold text-black mb-4">Plan Premium</h3>
                 <p className="text-gray-600 mb-6">Próximamente</p>
               </div>
             </div>
