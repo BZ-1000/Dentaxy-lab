@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle } from 'lucide-react';
@@ -9,26 +8,19 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
-
-const menuItems = [
-  {
-    label: "Menu",
-    href: "#",
-  },
-  {
-    label: "settings.",
-    href: "#",
-  },
-  {
-    label: "perfil.",
-    href: "#",
-  },
-  {
-    label: "nosotros",
-    href: "#",
-  }
-];
-
+const menuItems = [{
+  label: "Menu",
+  href: "#"
+}, {
+  label: "settings.",
+  href: "#"
+}, {
+  label: "perfil.",
+  href: "#"
+}, {
+  label: "nosotros",
+  href: "#"
+}];
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -48,7 +40,6 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
-
   useEffect(() => {
     setMounted(true);
     const getSession = async () => {
@@ -77,7 +68,6 @@ const Landing = () => {
     });
     return () => subscription.unsubscribe();
   }, []);
-  
   const checkUsername = async (userId: string) => {
     try {
       const {
@@ -96,7 +86,6 @@ const Landing = () => {
       console.error('Error checking username:', error);
     }
   };
-  
   const checkUserPlan = async (userId: string) => {
     try {
       const {
@@ -112,7 +101,6 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
-  
   const handleSaveUsername = async () => {
     if (!session || !username.trim()) {
       toast.error('Por favor ingresa un nombre de usuario');
@@ -137,7 +125,6 @@ const Landing = () => {
       setLoading(false);
     }
   };
-  
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -162,35 +149,30 @@ const Landing = () => {
       toast.error('Error al activar el plan');
     }
   };
-  
   const handleItemClick = (label: string) => {
     setActiveItem(label);
     if (label === "perfil." && session) {
       setShowDropdown(!showDropdown);
     }
   };
-  
   const handleLogin = () => {
     setAuthDialog({
       isOpen: true,
       mode: "login"
     });
   };
-  
   const handleRegister = () => {
     setAuthDialog({
       isOpen: true,
       mode: "register"
     });
   };
-  
   const handleAuthSuccess = () => {
     setAuthDialog({
       isOpen: false,
       mode: "login"
     });
   };
-  
   const handleLogout = async () => {
     const {
       error
@@ -203,12 +185,10 @@ const Landing = () => {
     setHasBetaPlan(false);
     toast.success('Sesión cerrada exitosamente');
   };
-  
   const handleChangeUsername = () => {
     setShowPopup(true);
     setShowDropdown(false);
   };
-  
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -224,11 +204,8 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
-
   if (!mounted) return null;
-
-  return (
-    <div className="min-h-screen w-full bg-white">
+  return <div className="min-h-screen w-full bg-white">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-4">
@@ -237,41 +214,29 @@ const Landing = () => {
 
         {/* Main horizontal navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          {menuItems.map((item) => (
-            <button 
-              key={item.label}
-              onClick={() => handleItemClick(item.label)} 
-              className={`text-black hover:text-black/70 text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}
-            >
+          {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`text-black hover:text-black/70 text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}>
               {item.label}
-            </button>
-          ))}
+            </button>)}
         </div>
 
         {/* Auth buttons */}
         <div className="flex gap-4">
-          {!session ? (
-            <>
+          {!session ? <>
               <Button variant="default" onClick={handleLogin} className="bg-black text-white hover:bg-black/80 rounded-full">
                 Iniciar sesión
               </Button>
               <Button variant="outline" onClick={handleRegister} className="bg-white text-black hover:bg-white/90 border-black rounded-full">
                 Registrarse
               </Button>
-            </>
-          ) : (
-            <div className="flex items-center gap-4">
+            </> : <div className="flex items-center gap-4">
               <span className="text-black text-sm">{username}</span>
               <button onClick={() => setShowDropdown(!showDropdown)} className="relative">
                 <UserCircle className="h-6 w-6 text-black" />
-                {showDropdown && (
-                  <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
-                    {hasBetaPlan && (
-                      <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
+                {showDropdown && <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
+                    {hasBetaPlan && <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
                         <Crown className="h-4 w-4" />
                         Plan Beta
-                      </div>
-                    )}
+                      </div>}
                     <button onClick={handleChangeUsername} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100">
                       Cambiar nombre
                     </button>
@@ -283,32 +248,21 @@ const Landing = () => {
                       <LogOut className="h-4 w-4" />
                       Cerrar sesión
                     </button>
-                  </div>
-                )}
+                  </div>}
               </button>
-            </div>
-          )}
+            </div>}
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {isMobile && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
+      {isMobile && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
           <div className="flex justify-around">
-            {menuItems.map((item) => (
-              <button
-                key={item.label}
-                onClick={() => handleItemClick(item.label)}
-                className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}
-              >
+            {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}>
                 {item.label}
-              </button>
-            ))}
+              </button>)}
           </div>
-          {showDropdown && (
-            <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
-              {session ? (
-                <>
+          {showDropdown && <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
+              {session ? <>
                   <button onClick={handleChangeUsername} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Cambiar nombre
                   </button>
@@ -319,21 +273,16 @@ const Landing = () => {
                   <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100">
                     Cerrar sesión
                   </button>
-                </>
-              ) : (
-                <>
+                </> : <>
                   <button onClick={handleLogin} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Iniciar sesión
                   </button>
                   <button onClick={handleRegister} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Registrarse
                   </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                </>}
+            </div>}
+        </div>}
 
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center px-4 pt-16 pb-32 max-w-5xl mx-auto">
@@ -343,16 +292,13 @@ const Landing = () => {
           </h1>
           
           <div className="mb-16">
-            <div className="inline-block bg-blue-500 text-white px-6 py-3 rounded-full text-lg font-medium">
+            <div className="inline-block bg-blue-500 text-white rounded-full text-lg font-medium px-[24px] py-px">
               REDACCIÓN CLÍNICA CON INTELIGENCIA ARTIFICIAL
             </div>
           </div>
           
           <div className="mb-16">
-            <button 
-              onClick={handleBetaAccess} 
-              className="bg-[#00BCD4] hover:bg-[#00ACC1] text-white font-bold py-4 px-12 rounded-full text-xl"
-            >
+            <button onClick={handleBetaAccess} className="bg-[#00BCD4] hover:bg-[#00ACC1] text-white font-bold py-4 px-12 rounded-full text-xl">
               PRUEBA BETA
             </button>
           </div>
@@ -373,34 +319,27 @@ const Landing = () => {
       </div>
 
       {/* Username Popup */}
-      {showPopup && session && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
             <h2 className="text-2xl font-bold text-black mb-4">¡Bienvenido!</h2>
             <p className="text-gray-600 mb-6">Por favor, ingresa tu nombre de usuario para continuar.</p>
             <div className="space-y-4">
               <Input type="text" placeholder="Nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="bg-white border-gray-300" />
               <Button onClick={handleSaveUsername} className="w-full bg-blue-600 text-white hover:bg-blue-700" disabled={loading}>
-                {loading ? (
-                  <span className="flex items-center gap-2">
+                {loading ? <span className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     Guardando...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
+                  </span> : <span className="flex items-center gap-2">
                     <Save className="h-4 w-4" />
                     Guardar
-                  </span>
-                )}
+                  </span>}
               </Button>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Pricing Popup */}
-      {showPricingPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {showPricingPopup && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold text-black">Planes Disponibles</h2>
@@ -442,18 +381,13 @@ const Landing = () => {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Auth Dialog */}
-      <AuthDialog 
-        isOpen={authDialog.isOpen} 
-        onClose={() => setAuthDialog({ ...authDialog, isOpen: false })} 
-        defaultMode={authDialog.mode} 
-        onSuccess={handleAuthSuccess} 
-      />
-    </div>
-  );
+      <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({
+      ...authDialog,
+      isOpen: false
+    })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
+    </div>;
 };
-
 export default Landing;
