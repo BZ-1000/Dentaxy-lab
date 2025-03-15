@@ -9,7 +9,6 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
-
 const menuItems = [{
   label: "Menu",
   href: "#"
@@ -23,7 +22,6 @@ const menuItems = [{
   label: "nosotros",
   href: "#"
 }];
-
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -284,7 +282,6 @@ const Landing = () => {
       }
     }
   });
-
   const handleAntecedentePatologicoChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -294,9 +291,7 @@ const Landing = () => {
       }
     }));
   };
-
   if (!mounted) return null;
-  
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
@@ -396,14 +391,9 @@ const Landing = () => {
           </div>
 
           <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
-            <h2 className="text-xl font-bold mb-6 text-center text-gray-800">
-              "DEMOSTRACIÓN DE REDACCIÓN AUTOMÁTICA"
-            </h2>
+            <h2 className="mb-6 text-gray-800 text-justify text-xl font-light">  Demostracion de redacción automatica </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <AntecedentesPersonalesPatologicos 
-                formData={formData}
-                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
-              />
+              <AntecedentesPersonalesPatologicos formData={formData} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
           </div>
 
@@ -485,5 +475,4 @@ const Landing = () => {
     })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
     </div>;
 };
-
 export default Landing;
