@@ -296,7 +296,7 @@ const Landing = () => {
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
         <div className="flex items-center gap-4">
-          <img src="/diente.png" alt="Logo" className="h-12 w-12" />
+          <img alt="Logo" src="/lovable-uploads/82389c52-7841-4763-a5f6-5c15532723fb.png" className="h-12 w-12 " />
         </div>
 
         {/* Main horizontal navigation */}
