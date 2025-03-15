@@ -294,7 +294,7 @@ const Landing = () => {
   if (!mounted) return null;
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
         <div className="flex items-center gap-4">
           <img src="/diente.png" alt="Logo" className="h-12 w-12" />
         </div>
@@ -389,7 +389,7 @@ const Landing = () => {
           </div>
 
           <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
-            <h2 className="mb-6 text-justify text-slate-600 text-base mx-0 font-normal my--3">  🔽 Demostracion de redacción automatica...</h2>
+            <h2 className="mb-6 text-justify text-slate-600 text-base mx-0 font-normal my--3">  Demostracion de redacción automatica... 🔻</h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
               <AntecedentesPersonalesPatologicos formData={formData} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
