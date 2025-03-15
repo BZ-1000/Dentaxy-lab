@@ -389,7 +389,7 @@ const Landing = () => {
           </div>
 
           <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
-            <h2 className="mb-6 text-justify text-slate-600 text-base mx-0 font-normal my--3">  🔽 Demostracion de redacción automatica...</h2>
+            <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-center">  🔽 Demostracion de redacción automatica...</h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
               <AntecedentesPersonalesPatologicos formData={formData} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
