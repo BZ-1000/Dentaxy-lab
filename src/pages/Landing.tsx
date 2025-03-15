@@ -13,13 +13,13 @@ const menuItems = [{
   label: "Menu",
   href: "#"
 }, {
-  label: "Configuración",
+  label: "settings.",
   href: "#"
 }, {
-  label: "Perfil",
+  label: "perfil.",
   href: "#"
 }, {
-  label: "Nosotros",
+  label: "nosotros",
   href: "#"
 }];
 const LoadingScreen = ({
@@ -36,7 +36,7 @@ const LoadingScreen = ({
       } else {
         clearInterval(interval);
       }
-    }, 100); // Velocidad de escritura
+    }, 150); // Velocidad de escritura
 
     return () => clearInterval(interval);
   }, []);
