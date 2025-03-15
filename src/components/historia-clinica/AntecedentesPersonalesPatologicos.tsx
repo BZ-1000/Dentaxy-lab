@@ -2,11 +2,11 @@ import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Copy, CheckCircle, AlertCircle, EyeOff, Eye } from "lucide-react";
+import { Minus, Maximize2, X, Copy, CheckCircle } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
+import PatologiaToggle from './PatologiaToggle'; // Asegúrate de que la ruta sea correcta
 
 interface AntecedentesPersonalesPatologicosProps {
   formData: FormDataState;
@@ -229,7 +229,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         rubeola: "Rubéola",
         escarlatina: "Escarlatina",
         varicela: "Varicela",
-        paperas: "Paperas"
+        paperas: "Parotiditis (paperas)"
       },
       pulmonares: {
         neumonia: "Neumonía",
@@ -335,51 +335,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     setSinPatologia(false);
   };
 
-  const PadecimientoToggle = () => {
-    const handleToggleClick = () => {
-      handleSinPatologiaChange();
-    };
-
-    return (
-      <div
-        className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
-        onClick={handleToggleClick}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-blue-500" />
-            <Label className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
-              Paciente no presenta ninguna patología
-              {sinPatologia ? (
-                <span className="ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <Eye className="h-3 w-3" />
-                  Secciones visibles
-                </span>
-              ) : (
-                <span className="ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <EyeOff className="h-3 w-3" />
-                  Secciones ocultas
-                </span>
-              )}
-            </Label>
-          </div>
-          <Switch
-            id="sin-patologia"
-            checked={sinPatologia}
-            onCheckedChange={handleSinPatologiaChange}
-            className="data-[state=checked]:bg-blue-500"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
-        {sinPatologia && (
-          <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 ml-7">
-            El paciente no presenta patologías. No es necesario rellenar el resto del formulario.
-          </p>
-        )}
-      </div>
-    );
-  };
-
   const OpcionPatologica = ({
     categoria,
     valor,
@@ -416,7 +371,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     opciones: { valor: string, etiqueta: string }[]
   }) => {
     return (
-      <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia ? "hidden" : ""}`}>
+      <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia || !apartadosVisibles ? "hidden" : ""}`}>
         <h4 className="text-lg font-semibold mb-3">{titulo}</h4>
 
         <div className="flex flex-wrap gap-2">
@@ -499,7 +454,10 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         {!isMinimized && <div className="p-6" ref={formRef}>
           {showForm ? (
             <div className="space-y-6">
-              <PadecimientoToggle />
+              <PatologiaToggle
+                checked={sinPatologia}
+                onChange={handleSinPatologiaChange}
+              />
 
               {!sinPatologia && apartadosVisibles && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
