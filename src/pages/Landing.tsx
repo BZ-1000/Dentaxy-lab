@@ -17,8 +17,12 @@ const menuItems = [
   { label: "nosotros", href: "#" }
 ];
 
-const LoadingScreen = () => (
-  <div className="flex items-center justify-center h-screen bg-white">
+const LoadingScreen = ({ visible }) => (
+  <div
+    className={`flex items-center justify-center h-screen bg-white transition-opacity duration-1000 ${
+      visible ? 'opacity-100' : 'opacity-0'
+    }`}
+  >
     <div className="text-center">
       <img
         alt="Logo"
@@ -298,7 +302,7 @@ const Landing = () => {
     }));
   };
 
-  if (loading) return <LoadingScreen />;
+  if (loading) return <LoadingScreen visible={loading} />;
 
   return (
     <div className="min-h-screen w-full bg-white apple-minimalist">
