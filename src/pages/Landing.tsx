@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MenuBar } from '@/components/ui/glow-menu';
 import { RainbowButton } from '@/components/ui/rainbow-button';
-import Spline from '@splinetool/react-spline';
 import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
@@ -12,31 +11,36 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
-const menuItems = [{
-  icon: Home,
-  label: "Inicio",
-  href: "#",
-  gradient: "radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.06) 50%, rgba(29,78,216,0) 100%)",
-  iconColor: "text-blue-500"
-}, {
-  icon: Bell,
-  label: "Notificaciones",
-  href: "#",
-  gradient: "radial-gradient(circle, rgba(249,115,22,0.15) 0%, rgba(234,88,12,0.06) 50%, rgba(194,65,12,0) 100%)",
-  iconColor: "text-orange-500"
-}, {
-  icon: Settings,
-  label: "Ajustes",
-  href: "#",
-  gradient: "radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(22,163,74,0.06) 50%, rgba(21,128,61,0) 100%)",
-  iconColor: "text-green-500"
-}, {
-  icon: User,
-  label: "Perfil",
-  href: "#",
-  gradient: "radial-gradient(circle, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.06) 50%, rgba(185,28,28,0) 100%)",
-  iconColor: "text-red-500"
-}];
+
+const menuItems = [
+  {
+    icon: Home,
+    label: "Inicio",
+    href: "#",
+    gradient: "radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.06) 50%, rgba(29,78,216,0) 100%)",
+    iconColor: "text-blue-500"
+  },
+  {
+    icon: Bell,
+    label: "Notificaciones",
+    href: "#",
+    gradient: "radial-gradient(circle, rgba(249,115,22,0.15) 0%, rgba(234,88,12,0.06) 50%, rgba(194,65,12,0) 100%)",
+    iconColor: "text-orange-500"
+  }, {
+    icon: Settings,
+    label: "Ajustes",
+    href: "#",
+    gradient: "radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(22,163,74,0.06) 50%, rgba(21,128,61,0) 100%)",
+    iconColor: "text-green-500"
+  }, {
+    icon: User,
+    label: "Perfil",
+    href: "#",
+    gradient: "radial-gradient(circle, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.06) 50%, rgba(185,28,28,0) 100%)",
+    iconColor: "text-red-500"
+  }
+];
+
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -56,6 +60,7 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
+
   useEffect(() => {
     setMounted(true);
     const getSession = async () => {
@@ -220,116 +225,108 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
-  if (!mounted) return null;
-  return <div className="relative min-h-screen w-full overflow-hidden bg-black">
-      <motion.div initial={{
-      opacity: 1
-    }} animate={{
-      opacity: 0
-    }} transition={{
-      delay: 3,
-      duration: 1
-    }} className="absolute inset-0 flex items-center justify-center bg-black z-10" />
 
-      <motion.div initial={{
-      opacity: 0,
-      zIndex: 50
-    }} animate={{
-      opacity: 1,
-      zIndex: 0
-    }} transition={{
-      delay: 1,
-      duration: 1
-    }} exit={{
-      opacity: 0
-    }} className="absolute inset-0 flex items-center justify-center">
+  if (!mounted) return null;
+
+  return (
+    <div className="relative min-h-screen w-full overflow-hidden bg-white">
+      {/* Motion div for initial loading animation */}
+      <motion.div 
+        initial={{ opacity: 1 }} 
+        animate={{ opacity: 0 }} 
+        transition={{ delay: 3, duration: 1 }} 
+        className="absolute inset-0 flex items-center justify-center bg-white z-10" 
+      />
+
+      {/* Header with logo */}
+      <motion.div 
+        initial={{ opacity: 0, zIndex: 50 }} 
+        animate={{ opacity: 1, zIndex: 0 }} 
+        transition={{ delay: 1, duration: 1 }} 
+        exit={{ opacity: 0 }} 
+        className="absolute inset-0 flex items-center justify-center"
+      >
         <motion.div className="flex items-center gap-4">
-          <motion.img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" initial={{
-          opacity: 0
-        }} animate={{
-          opacity: 1
-        }} transition={{
-          delay: 1.5,
-          duration: 1
-        }} />
-          {!isMobile && <span className="text-sm sm:text-base font-semibold text-white text-shadow">
+          <motion.img 
+            src="/diente.png" 
+            alt="Logo" 
+            className="h-8 w-8 text-white" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ delay: 1.5, duration: 1 }} 
+          />
+          {!isMobile && (
+            <span className="text-sm sm:text-base font-semibold text-black">
               Dental Basics Academy IA
-            </span>}
+            </span>
+          )}
         </motion.div>
       </motion.div>
 
-      <motion.div initial={{
-      opacity: 0
-    }} animate={{
-      opacity: 1
-    }} transition={{
-      delay: 4,
-      duration: 1
-    }} className="absolute inset-0 h-[120%] w-full -translate-y-[10%] z-0">
-        <Spline scene="https://prod.spline.design/Z0KpFO88CUhof5lJ/scene.splinecode" />
-      </motion.div>
-
-      <motion.div initial={{
-      opacity: 0
-    }} animate={{
-      opacity: 1
-    }} transition={{
-      delay: 5,
-      duration: 0.5
-    }} className="relative z-50 flex items-center justify-between px-6 py-3">
-        <motion.div initial={{
-        opacity: 0
-      }} animate={{
-        opacity: 1
-      }} transition={{
-        delay: 5.5,
-        duration: 1
-      }} className="flex items-center gap-4">
-          <img src="/diente.png" alt="Logo" className="h-8 w-8 text-white" />
-          {!isMobile && <span className="text-sm sm:text-base font-semibold text-white text-shadow">
+      {/* Top Navigation */}
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        transition={{ delay: 5, duration: 0.5 }} 
+        className="relative z-50 flex items-center justify-between px-6 py-3"
+      >
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ delay: 5.5, duration: 1 }} 
+          className="flex items-center gap-4"
+        >
+          <img src="/diente.png" alt="Logo" className="h-8 w-8" />
+          {!isMobile && (
+            <span className="text-sm sm:text-base font-semibold text-black">
               Dental Basics Academy IA
-            </span>}
+            </span>
+          )}
         </motion.div>
         <div className="flex gap-4">
-          {!session ? <>
-              {!isMobile ? <>
-                  <Button variant="ghost" onClick={handleLogin} className="text-white hover:text-white hover:bg-white/10 border border-white/20">
+          {!session ? (
+            <>
+              {!isMobile ? (
+                <>
+                  <Button variant="ghost" onClick={handleLogin} className="text-black hover:text-black hover:bg-black/10 border border-black/20">
                     Iniciar Sesión
                   </Button>
-                  <Button variant="ghost" onClick={handleRegister} className="text-white hover:text-white hover:bg-white/10 border border-white/20">
+                  <Button variant="ghost" onClick={handleRegister} className="text-black hover:text-black hover:bg-black/10 border border-black/20">
                     Registrarse
                   </Button>
-                </> : <Button variant="ghost" onClick={handleLogin} size="icon" className="text-white hover:text-white hover:bg-white/10 border border-white/20">
+                </>
+              ) : (
+                <Button variant="ghost" onClick={handleLogin} size="icon" className="text-black hover:text-black hover:bg-black/10 border border-black/20">
                   <UserCircle className="h-5 w-5" />
-                </Button>}
-            </> : <div className="flex items-center gap-4">
-              <span className="text-white text-sm">{username}</span>
-            </div>}
+                </Button>
+              )}
+            </>
+          ) : (
+            <div className="flex items-center gap-4">
+              <span className="text-black text-sm">{username}</span>
+            </div>
+          )}
         </div>
       </motion.div>
 
-      {!isMobile && <motion.div initial={{
-      opacity: 0
-    }} animate={{
-      opacity: 1
-    }} transition={{
-      delay: 6,
-      duration: 0.5
-    }} className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50">
+      {/* Main Menu */}
+      {!isMobile && (
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ delay: 6, duration: 0.5 }} 
+          className="absolute top-6 left-1/2 transform -translate-x-1/2 z-50"
+        >
           <MenuBar items={menuItems} activeItem={activeItem} onItemClick={handleItemClick} className="py-1 text-shadow" />
           <AnimatePresence>
-            {showDropdown && session && <motion.div initial={{
-          opacity: 0,
-          scale: 0.95
-        }} animate={{
-          opacity: 1,
-          scale: 1
-        }} exit={{
-          opacity: 0,
-          scale: 0.95
-        }} transition={{
-          duration: 0.3
-        }} className="absolute top-full right-0 z-[60] w-48 p-2 bg-[#11111198] rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm flex flex-col gap-2">
+            {showDropdown && session && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }} 
+                animate={{ opacity: 1, scale: 1 }} 
+                exit={{ opacity: 0, scale: 0.95 }} 
+                transition={{ duration: 0.3 }} 
+                className="absolute top-full right-0 z-[60] w-48 p-2 bg-[#11111198] rounded-xl shadow-[0_0_20px_rgba(0,0,0,0.2)] backdrop-blur-sm flex flex-col gap-2"
+              >
                 {hasBetaPlan && <div className="px-2 py-3 text-blue-400 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
                     <Crown className="h-4 w-4" />
                     Plan Beta
@@ -357,18 +354,20 @@ const Landing = () => {
                   <LogOut className="h-4 w-4" />
                   Cerrar sesión
                 </motion.button>
-              </motion.div>}
+              </motion.div>
+            )}
           </AnimatePresence>
-        </motion.div>}
+        </motion.div>
+      )}
 
-      {isMobile && <motion.div initial={{
-      opacity: 0
-    }} animate={{
-      opacity: 1
-    }} transition={{
-      delay: 6,
-      duration: 0.5
-    }} className="fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm border-t border-white/10 p-4">
+      {/* Mobile Menu */}
+      {isMobile && (
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          transition={{ delay: 6, duration: 0.5 }} 
+          className="fixed bottom-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-sm border-t border-white/10 p-4"
+        >
           <MenuBar items={menuItems} activeItem={activeItem} onItemClick={handleItemClick} className="py-1 text-shadow w-full justify-around mx-auto" hideLabels={true} />
           {showDropdown && <motion.div initial={{
         opacity: 0,
@@ -402,51 +401,47 @@ const Landing = () => {
             </motion.div>}
         </motion.div>}
 
-      <motion.div initial={{
-      opacity: 0,
-      y: 20
-    }} animate={{
-      opacity: 1,
-      y: 0
-    }} transition={{
-      delay: 6.5,
-      duration: 0.8,
-      ease: "easeOut"
-    }} className="relative z-40 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20">
+      {/* Main Content */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }} 
+        animate={{ opacity: 1, y: 0 }} 
+        transition={{ delay: 6.5, duration: 0.8, ease: "easeOut" }} 
+        className="relative z-40 flex min-h-[calc(100vh-80px)] flex-col items-center justify-center px-4 pt-20"
+      >
         <div className={`text-center w-full ${isMobile ? 'px-2' : ''}`}>
-          <h1 className={`mb-4 font-mono text-center font-black tracking-wider text-white text-shadow-xl ${isMobile ? 'text-5xl' : 'text-8xl sm:text-9xl'}`}>
+          <h1 className={`mb-4 font-mono text-center font-black tracking-wider text-black ${isMobile ? 'text-5xl' : 'text-8xl sm:text-9xl'}`}>
             DENTA
-            <span className="font-orbitron text-50xl text-slate-50 font-extrabold">X</span>
-            Y
+            <span className="font-orbitron text-50xl text-black font-extrabold">X</span>
+            Y<span className="text-black">.ai</span>
           </h1>
-          <motion.p initial={{
-          opacity: 0
-        }} animate={{
-          opacity: 1
-        }} transition={{
-          delay: 7,
-          duration: 0.5
-        }} className="text-xs font-thin text-white/70 mb-8">
+          <motion.p 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ delay: 7, duration: 0.5 }} 
+            className="text-white bg-blue-600 py-2 px-4 inline-block text-sm font-medium mb-8 rounded-sm relative"
+          >
             Inteligencias artificiales para odontólogos
+            <span className="absolute bottom-0 left-0 w-full h-1 bg-blue-400"></span>
           </motion.p>
-          <motion.div initial={{
-          opacity: 0,
-          scale: 0.9
-        }} animate={{
-          opacity: 1,
-          scale: 1
-        }} transition={{
-          delay: 7.3,
-          duration: 0.5
-        }} className={isMobile ? 'w-full' : ''}>
-            <RainbowButton onClick={handleBetaAccess} className={`text-sm py-6 shadow-2xl z-50 ${isMobile ? 'w-full' : ''}`}>
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }} 
+            animate={{ opacity: 1, scale: 1 }} 
+            transition={{ delay: 7.3, duration: 0.5 }} 
+            className={isMobile ? 'w-full' : ''}
+          >
+            <Button 
+              onClick={handleBetaAccess} 
+              className={`bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-md transition-colors ${isMobile ? 'w-full' : ''}`}
+            >
               Prueba BETA
-            </RainbowButton>
+            </Button>
           </motion.div>
         </div>
       </motion.div>
 
-      {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {/* Username Popup */}
+      {showPopup && session && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-black/90 p-8 rounded-lg border border-white/20 shadow-xl w-full max-w-md">
             <h2 className="text-2xl font-bold text-white mb-4">¡Bienvenido!</h2>
             <p className="text-white/80 mb-6">Por favor, ingresa tu nombre de usuario para continuar.</p>
@@ -463,9 +458,12 @@ const Landing = () => {
               </Button>
             </div>
           </div>
-        </div>}
+        </div>
+      )}
 
-      {showPricingPopup && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {/* Pricing Popup */}
+      {showPricingPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-black/90 p-8 rounded-lg border border-white/20 shadow-xl w-full max-w-4xl">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold text-white">Planes Disponibles</h2>
@@ -507,12 +505,18 @@ const Landing = () => {
               </div>
             </div>
           </div>
-        </div>}
+        </div>
+      )}
 
-      <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({
-      ...authDialog,
-      isOpen: false
-    })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
-    </div>;
+      {/* Auth Dialog */}
+      <AuthDialog 
+        isOpen={authDialog.isOpen} 
+        onClose={() => setAuthDialog({ ...authDialog, isOpen: false })} 
+        defaultMode={authDialog.mode} 
+        onSuccess={handleAuthSuccess} 
+      />
+    </div>
+  );
 };
+
 export default Landing;
