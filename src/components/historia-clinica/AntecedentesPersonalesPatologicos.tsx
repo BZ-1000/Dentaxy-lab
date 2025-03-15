@@ -6,7 +6,8 @@ import { Minus, Maximize2, X, Copy, CheckCircle } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import PatologiaToggle from './PatologiaToggle'; // Asegúrate de que la ruta sea correcta
+import { Switch } from "@/components/ui/switch";
+import { AlertCircle, EyeOff, Eye } from "lucide-react";
 
 interface AntecedentesPersonalesPatologicosProps {
   formData: FormDataState;
@@ -20,8 +21,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showForm, setShowForm] = useState(true);
-  const [sinPatologia, setSinPatologia] = useState(false);
-  const [apartadosVisibles, setApartadosVisibles] = useState(true);
+  const [sinPatologia, setSinPatologia] = useState(formData.antecedentesPersonalesPatologicos?.sinPatologia || false);
   const [redacciones, setRedacciones] = useState({
     nutricionales: "",
     cardiacos: "",
@@ -56,15 +56,20 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   const handleSinPatologiaChange = () => {
     const newValue = !sinPatologia;
     setSinPatologia(newValue);
-    setApartadosVisibles(!newValue);
+    handleAntecedentePatologicoChange("sinPatologia", newValue);
 
     if (newValue) {
-      // Guardar el estado actual del formulario antes de limpiarlo
-      setPreviousFormState(JSON.parse(JSON.stringify(formData.antecedentesPersonalesPatologicos)));
-      // Limpiar el formulario
-      limpiarFormulario();
+      // Clear other fields when "sin patologia" is selected
+      handleAntecedentePatologicoChange("nutricionales", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("cardiacos", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("hepaticos", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("enfermedadesTransmisionSexual", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("enfermedadesEruptivas", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("pulmonares", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("infecciosasParasitarias", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("otrosPadecimientos", { ninguna: true, otra: false, otraDescripcion: '' });
     } else {
-      // Restaurar el estado anterior del formulario
+      // Restore previous state if available
       if (previousFormState) {
         Object.keys(previousFormState).forEach(categoria => {
           handleAntecedentePatologicoChange(categoria, previousFormState[categoria]);
@@ -371,7 +376,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     opciones: { valor: string, etiqueta: string }[]
   }) => {
     return (
-      <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia || !apartadosVisibles ? "hidden" : ""}`}>
+      <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia ? "hidden" : ""}`}>
         <h4 className="text-lg font-semibold mb-3">{titulo}</h4>
 
         <div className="flex flex-wrap gap-2">
@@ -454,12 +459,39 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
         {!isMinimized && <div className="p-6" ref={formRef}>
           {showForm ? (
             <div className="space-y-6">
-              <PatologiaToggle
-                checked={sinPatologia}
-                onChange={handleSinPatologiaChange}
-              />
+              <div
+                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
+                onClick={handleSinPatologiaChange}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-blue-500" />
+                    <Label className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
+                      Paciente sin patología
+                      {sinPatologia ? (
+                        <span className="ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <EyeOff className="h-3 w-3" />
+                          Secciones ocultas
+                        </span>
+                      ) : (
+                        <span className="ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <Eye className="h-3 w-3" />
+                          Secciones visibles
+                        </span>
+                      )}
+                    </Label>
+                  </div>
+                  <Switch
+                    id="sin-patologia"
+                    checked={sinPatologia}
+                    onCheckedChange={handleSinPatologiaChange}
+                    className="data-[state=checked]:bg-blue-500"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
 
-              {!sinPatologia && apartadosVisibles && (
+              {!sinPatologia && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <CategoriaPatologica
                     categoria="nutricionales"
@@ -514,7 +546,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       { valor: "rubeola", etiqueta: "Rubéola" },
                       { valor: "escarlatina", etiqueta: "Escarlatina" },
                       { valor: "varicela", etiqueta: "Varicela" },
-                      { valor: "paperas", etiqueta: "Paperas" }
+                      { valor: "paperas", etiqueta: "Parotiditis (paperas)" }
                     ]}
                   />
 
