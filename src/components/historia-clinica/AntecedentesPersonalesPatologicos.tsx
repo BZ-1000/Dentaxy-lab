@@ -371,7 +371,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     opciones: { valor: string, etiqueta: string }[]
   }) => {
     return (
-      <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia || !apartadosVisibles ? "hidden" : ""}`}>
+      <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia ? "hidden" : ""}`}>
         <h4 className="text-lg font-semibold mb-3">{titulo}</h4>
 
         <div className="flex flex-wrap gap-2">
