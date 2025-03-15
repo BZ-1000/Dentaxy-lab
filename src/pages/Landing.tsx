@@ -385,7 +385,7 @@ const Landing = () => {
           </div>
           
           <div className="mb-12">
-            <button onClick={handleBetaAccess} className="text-white font-bold rounded-full text-sm px-[20px] py-[8px] bg-[#00bcd4]">
+            <button onClick={handleBetaAccess} className="text-white font-bold rounded-full px-[20px] text-xl py-[10px] bg-emerald-500 hover:bg-emerald-400">
               PRUEBA BETA
             </button>
           </div>
