@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -352,13 +352,13 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
               Paciente no presenta ninguna patología
               {sinPatologia ? (
                 <span className="ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <EyeOff className="h-3 w-3" />
-                  Secciones ocultas
+                  <Eye className="h-3 w-3" />
+                  Secciones visibles
                 </span>
               ) : (
                 <span className="ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                  <Eye className="h-3 w-3" />
-                  Secciones visibles
+                  <EyeOff className="h-3 w-3" />
+                  Secciones ocultas
                 </span>
               )}
             </Label>
@@ -857,4 +857,3 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
 };
 
 export default AntecedentesPersonalesPatologicos;
- 
