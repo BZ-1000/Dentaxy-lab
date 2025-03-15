@@ -857,3 +857,4 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
 };
 
 export default AntecedentesPersonalesPatologicos;
+ 
