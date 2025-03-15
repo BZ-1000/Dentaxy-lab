@@ -7,23 +7,27 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
+import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
-import { motion, AnimatePresence } from 'framer-motion';
-
-const menuItems = [
-  { label: "Menu", href: "#" },
-  { label: "Configuración", href: "#" },
-  { label: "Perfil", href: "#" },
-  { label: "Nosotros", href: "#" }
-];
-
-const LoadingScreen = ({ visible, onComplete }) => {
-  const [displayText, setDisplayText] = useState("");
+const menuItems = [{
+  label: "Menu",
+  href: "#"
+}, {
+  label: "settings.",
+  href: "#"
+}, {
+  label: "perfil.",
+  href: "#"
+}, {
+  label: "nosotros",
+  href: "#"
+}];
+const LoadingScreen = ({
+  visible
+}) => {
+  const [displayText, setDisplayText] = useState('');
   const fullText = "Dental Basics Academy";
-
   useEffect(() => {
-    if (!visible) return;
-
     let currentIndex = 0;
     const interval = setInterval(() => {
       if (currentIndex <= fullText.length) {
@@ -31,54 +35,39 @@ const LoadingScreen = ({ visible, onComplete }) => {
         currentIndex++;
       } else {
         clearInterval(interval);
-        setTimeout(() => onComplete(), 800); // Espera antes de ocultar
       }
-    }, 80); // Velocidad de escritura mejorada
+    }, 100); // Velocidad de escritura
 
     return () => clearInterval(interval);
-  }, [visible]);
-
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ opacity: 1, scale: 1 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-          className="fixed inset-0 flex items-center justify-center bg-black text-white text-3xl font-semibold"
-        >
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4 }}
-            className="tracking-wide"
-          >
-            {displayText}
-          </motion.span>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+  }, []);
+  return <div className={`flex flex-col items-center justify-center h-screen bg-white transition-opacity duration-2000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
+      <div className="flex items-center space-x-4">
+        <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-16 w-16" />
+        <h1 className="text-xl sm:text-3xl font-bold text-black text-center">
+          {displayText}
+        </h1>
+      </div>
+    </div>;
 };
-
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [activeItem, setActiveItem] = useState("Menu");
-  const [authDialog, setAuthDialog] = useState({
+  const [activeItem, setActiveItem] = useState<string>("Menu");
+  const [authDialog, setAuthDialog] = useState<{
+    isOpen: boolean;
+    mode: "login" | "register";
+  }>({
     isOpen: false,
-    mode: "login" as "login" | "register"
+    mode: "login"
   });
-  const [username, setUsername] = useState("");
-  const [showPopup, setShowPopup] = useState(false);
-  const [showPricingPopup, setShowPricingPopup] = useState(false);
+  const [username, setUsername] = useState<string>("");
+  const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [showPricingPopup, setShowPricingPopup] = useState<boolean>(false);
   const [session, setSession] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -86,7 +75,11 @@ const Landing = () => {
     }, 5000); // Tiempo de carga de 5 segundos
 
     const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: {
+          session
+        }
+      } = await supabase.auth.getSession();
       setSession(session);
       if (session) {
         checkUsername(session.user.id);
@@ -94,24 +87,28 @@ const Landing = () => {
       }
     };
     getSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const {
+      data: {
+        subscription
+      }
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       if (session) {
         checkUsername(session.user.id);
         checkUserPlan(session.user.id);
       }
     });
-
     return () => {
       clearTimeout(timer);
       subscription.unsubscribe();
     };
   }, []);
-
-  const checkUsername = async (userId) => {
+  const checkUsername = async (userId: string) => {
     try {
-      const { data, error } = await supabase.from('user_profiles').select('id, username, created_at').eq('id', userId).single();
+      const {
+        data,
+        error
+      } = await supabase.from('user_profiles').select('id, username, created_at').eq('id', userId).single();
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
@@ -124,10 +121,12 @@ const Landing = () => {
       console.error('Error checking username:', error);
     }
   };
-
-  const checkUserPlan = async (userId) => {
+  const checkUserPlan = async (userId: string) => {
     try {
-      const { data, error } = await supabase.from('user_plans').select('plan_type').eq('id', userId).maybeSingle();
+      const {
+        data,
+        error
+      } = await supabase.from('user_plans').select('plan_type').eq('id', userId).maybeSingle();
       if (error) {
         console.error('Error checking plan:', error);
         return;
@@ -137,7 +136,6 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
-
   const handleSaveUsername = async () => {
     if (!session || !username.trim()) {
       toast.error('Por favor ingresa un nombre de usuario');
@@ -145,10 +143,14 @@ const Landing = () => {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.from('user_profiles').upsert([{
+      const {
+        error
+      } = await supabase.from('user_profiles').upsert([{
         id: session.user.id,
         username: username.trim()
-      }], { onConflict: 'id' });
+      }], {
+        onConflict: 'id'
+      });
       if (error) throw error;
       setShowPopup(false);
       toast.success('¡Nombre de usuario guardado exitosamente!');
@@ -158,14 +160,15 @@ const Landing = () => {
       setLoading(false);
     }
   };
-
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
       return;
     }
     try {
-      const { error } = await supabase.from('user_plans').upsert({
+      const {
+        error
+      } = await supabase.from('user_plans').upsert({
         id: session.user.id,
         plan_type: 'beta'
       });
@@ -181,28 +184,34 @@ const Landing = () => {
       toast.error('Error al activar el plan');
     }
   };
-
-  const handleItemClick = (label) => {
+  const handleItemClick = (label: string) => {
     setActiveItem(label);
-    if (label === "Perfil" && session) {
+    if (label === "perfil." && session) {
       setShowDropdown(!showDropdown);
     }
   };
-
   const handleLogin = () => {
-    setAuthDialog({ isOpen: true, mode: "login" });
+    setAuthDialog({
+      isOpen: true,
+      mode: "login"
+    });
   };
-
   const handleRegister = () => {
-    setAuthDialog({ isOpen: true, mode: "register" });
+    setAuthDialog({
+      isOpen: true,
+      mode: "register"
+    });
   };
-
   const handleAuthSuccess = () => {
-    setAuthDialog({ isOpen: false, mode: "login" });
+    setAuthDialog({
+      isOpen: false,
+      mode: "login"
+    });
   };
-
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
+    const {
+      error
+    } = await supabase.auth.signOut();
     if (error) {
       console.error('Error signing out:', error.message);
     }
@@ -211,16 +220,17 @@ const Landing = () => {
     setHasBetaPlan(false);
     toast.success('Sesión cerrada exitosamente');
   };
-
   const handleChangeUsername = () => {
     setShowPopup(true);
     setShowDropdown(false);
   };
-
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
-      setAuthDialog({ isOpen: true, mode: "login" });
+      setAuthDialog({
+        isOpen: true,
+        mode: "login"
+      });
       return;
     }
     if (hasBetaPlan) {
@@ -229,26 +239,81 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
-
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
-      nutricionales: { anorexia: false, bulimia: false, sobrepeso: false, obesidad: false, ninguna: true, otra: false, otraDescripcion: '' },
-      cardiacos: { enfermedadCoronaria: false, arritmias: false, defectosCardiacosCongenitos: false, ninguna: true, otra: false, otraDescripcion: '' },
-      hepaticos: { hepatitisA: false, hepatitisB: false, hepatitisC: false, higadoGraso: false, cirrosis: false, ninguna: true, otra: false, otraDescripcion: '' },
-      enfermedadesTransmisionSexual: { vih: false, sifilis: false, gonorrea: false, herpesGenital: false, vph: false, ninguna: true, otra: false, otraDescripcion: '' },
-      enfermedadesEruptivas: { sarampion: false, rubeola: false, escarlatina: false, varicela: false, paperas: false, ninguna: true, otra: false, otraDescripcion: '' },
-      pulmonares: { neumonia: false, bronquitis: false, asma: false, epoc: false, ninguna: true, otra: false, otraDescripcion: '' },
-      infecciosasParasitarias: { fiebreTifoidea: false, tuberculosis: false, amibiasis: false, giardiasis: false, ascariasis: false, ninguna: true, otra: false, otraDescripcion: '' },
-      otrosPadecimientos: { ninguna: true, otra: false, otraDescripcion: '' }
-    },
-    // Asegúrate de agregar todas las propiedades requeridas aquí
-    padecimientoActual: {},
-    antecedentesHeredoFamiliares: {},
-    antecedentesPersonalesNoPatologicos: {},
-    antecedentesAlergicos: {},
-    // ... otras propiedades requeridas
+      nutricionales: {
+        anorexia: false,
+        bulimia: false,
+        sobrepeso: false,
+        obesidad: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      cardiacos: {
+        enfermedadCoronaria: false,
+        arritmias: false,
+        defectosCardiacosCongenitos: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      hepaticos: {
+        hepatitisA: false,
+        hepatitisB: false,
+        hepatitisC: false,
+        higadoGraso: false,
+        cirrosis: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      enfermedadesTransmisionSexual: {
+        vih: false,
+        sifilis: false,
+        gonorrea: false,
+        herpesGenital: false,
+        vph: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      enfermedadesEruptivas: {
+        sarampion: false,
+        rubeola: false,
+        escarlatina: false,
+        varicela: false,
+        paperas: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      pulmonares: {
+        neumonia: false,
+        bronquitis: false,
+        asma: false,
+        epoc: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      infecciosasParasitarias: {
+        fiebreTifoidea: false,
+        tuberculosis: false,
+        amibiasis: false,
+        giardiasis: false,
+        ascariasis: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      otrosPadecimientos: {
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      }
+    }
   });
-
   const handleAntecedentePatologicoChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -258,11 +323,8 @@ const Landing = () => {
       }
     }));
   };
-
-  if (loading) return <LoadingScreen visible={loading} onComplete={() => setLoading(false)} />;
-
-  return (
-    <div className="min-h-screen w-full bg-white apple-minimalist">
+  if (loading) return <LoadingScreen visible={loading} />;
+  return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
         <div className="flex items-center gap-4">
@@ -271,41 +333,29 @@ const Landing = () => {
 
         {/* Main horizontal navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          {menuItems.map(item => (
-            <button
-              key={item.label}
-              onClick={() => handleItemClick(item.label)}
-              className={`text-black hover:text-black/70 text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}
-            >
+          {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`text-black hover:text-black/70 text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}>
               {item.label}
-            </button>
-          ))}
+            </button>)}
         </div>
 
         {/* Auth buttons */}
         <div className="flex gap-4">
-          {!session ? (
-            <>
+          {!session ? <>
               <Button variant="default" onClick={handleLogin} className="bg-black text-white hover:bg-black/80 rounded-full">
                 Iniciar sesión
               </Button>
               <Button variant="outline" onClick={handleRegister} className="bg-white text-black hover:bg-white/90 border-black rounded-full">
                 Registrarse
               </Button>
-            </>
-          ) : (
-            <div className="flex items-center gap-4">
+            </> : <div className="flex items-center gap-4">
               <span className="text-black text-sm">{username}</span>
               <button onClick={() => setShowDropdown(!showDropdown)} className="relative">
                 <UserCircle className="h-6 w-6 text-black" />
-                {showDropdown && (
-                  <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
-                    {hasBetaPlan && (
-                      <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
+                {showDropdown && <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
+                    {hasBetaPlan && <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
                         <Crown className="h-4 w-4" />
                         Plan Beta
-                      </div>
-                    )}
+                      </div>}
                     <button onClick={handleChangeUsername} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100">
                       Cambiar nombre
                     </button>
@@ -317,32 +367,21 @@ const Landing = () => {
                       <LogOut className="h-4 w-4" />
                       Cerrar sesión
                     </button>
-                  </div>
-                )}
+                  </div>}
               </button>
-            </div>
-          )}
+            </div>}
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {isMobile && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
+      {isMobile && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
           <div className="flex justify-around">
-            {menuItems.map(item => (
-              <button
-                key={item.label}
-                onClick={() => handleItemClick(item.label)}
-                className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}
-              >
+            {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}>
                 {item.label}
-              </button>
-            ))}
+              </button>)}
           </div>
-          {showDropdown && (
-            <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
-              {session ? (
-                <>
+          {showDropdown && <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
+              {session ? <>
                   <button onClick={handleChangeUsername} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Cambiar nombre
                   </button>
@@ -353,21 +392,16 @@ const Landing = () => {
                   <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100">
                     Cerrar sesión
                   </button>
-                </>
-              ) : (
-                <>
+                </> : <>
                   <button onClick={handleLogin} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Iniciar sesión
                   </button>
                   <button onClick={handleRegister} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Registrarse
                   </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                </>}
+            </div>}
+        </div>}
 
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto">
@@ -406,8 +440,7 @@ const Landing = () => {
       </div>
 
       {/* Username Popup */}
-      {showPopup && session && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
             <h2 className="text-2xl font-bold text-black mb-4">¡Bienvenido!</h2>
             <p className="text-gray-600 mb-6">
@@ -416,26 +449,20 @@ const Landing = () => {
             <div className="space-y-4">
               <Input type="text" placeholder="Nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="bg-white border-gray-300" />
               <Button onClick={handleSaveUsername} className="w-full bg-blue-600 text-white hover:bg-blue-700" disabled={loading}>
-                {loading ? (
-                  <span className="flex items-center gap-2">
+                {loading ? <span className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                     Guardando...
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
+                  </span> : <span className="flex items-center gap-2">
                     <Save className="h-4 w-4" />
                     Guardar
-                  </span>
-                )}
+                  </span>}
               </Button>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Pricing Popup */}
-      {showPricingPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {showPricingPopup && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold text-black">Planes Disponibles</h2>
@@ -488,13 +515,13 @@ const Landing = () => {
               </div>
             </div>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Auth Dialog */}
-      <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({ ...authDialog, isOpen: false })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
-    </div>
-  );
+      <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({
+      ...authDialog,
+      isOpen: false
+    })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
+    </div>;
 };
-
 export default Landing;
