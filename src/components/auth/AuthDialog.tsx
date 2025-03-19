@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, getURL } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 
 interface AuthDialogProps {
@@ -42,7 +42,7 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/verify`
+            emailRedirectTo: `${window.location.origin}/auth/callback`
           }
         });
         if (error) throw error;
@@ -70,7 +70,11 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/verify`
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
         }
       });
       if (error) throw error;
