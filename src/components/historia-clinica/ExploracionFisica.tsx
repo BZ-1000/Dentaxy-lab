@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -60,13 +61,13 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
     let texto = "EXPLORACIÓN FÍSICA:\n\n";
     
     texto += "Signos Vitales: ";
-    if (signosVitales.ta) texto += `TA: ${signosVitales.ta} mmHg, `;
-    if (signosVitales.fc) texto += `FC: ${signosVitales.fc} lpm, `;
-    if (signosVitales.fr) texto += `FR: ${signosVitales.fr} rpm, `;
-    if (signosVitales.temperatura) texto += `Temperatura: ${signosVitales.temperatura}°C, `;
-    if (signosVitales.peso) texto += `Peso: ${signosVitales.peso} kg, `;
-    if (signosVitales.talla) texto += `Talla: ${signosVitales.talla} cm, `;
-    if (signosVitales.imc) texto += `IMC: ${signosVitales.imc} kg/m², `;
+    if (signosVitales && 'ta' in signosVitales && signosVitales.ta) texto += `TA: ${signosVitales.ta} mmHg, `;
+    if (signosVitales && 'fc' in signosVitales && signosVitales.fc) texto += `FC: ${signosVitales.fc} lpm, `;
+    if (signosVitales && 'fr' in signosVitales && signosVitales.fr) texto += `FR: ${signosVitales.fr} rpm, `;
+    if (signosVitales && 'temperatura' in signosVitales && signosVitales.temperatura) texto += `Temperatura: ${signosVitales.temperatura}°C, `;
+    if (signosVitales && 'peso' in signosVitales && signosVitales.peso) texto += `Peso: ${signosVitales.peso} kg, `;
+    if (signosVitales && 'talla' in signosVitales && signosVitales.talla) texto += `Talla: ${signosVitales.talla} cm, `;
+    if (signosVitales && 'imc' in signosVitales && signosVitales.imc) texto += `IMC: ${signosVitales.imc} kg/m², `;
     
     texto = texto.replace(/, $/, ". ");
     
