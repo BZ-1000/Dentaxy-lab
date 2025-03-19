@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase, getURL } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -31,11 +31,7 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
           password,
         });
         if (error) throw error;
-        toast({
-          title: "¡Bienvenido de vuelta!",
-          description: "Has iniciado sesión correctamente en Dental Basics Academy IA.",
-          variant: "default",
-        });
+        toast.success("¡Bienvenido de vuelta!");
         onSuccess();
       } else {
         const { error } = await supabase.auth.signUp({
@@ -46,20 +42,12 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
           }
         });
         if (error) throw error;
-        toast({
-          title: "¡Cuenta creada exitosamente!",
-          description: "Hemos enviado un correo de verificación a tu email. Por favor revisa tu bandeja de entrada y sigue las instrucciones para activar tu cuenta y unirte al equipo Dental Basics Academy IA.",
-          variant: "default",
-        });
+        toast.success("¡Cuenta creada exitosamente! Hemos enviado un correo de verificación a tu email.");
         setMode("login");
       }
       onClose();
     } catch (error: any) {
-      toast({
-        title: "Error de autenticación",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(`Error de autenticación: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -79,11 +67,7 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
       });
       if (error) throw error;
     } catch (error: any) {
-      toast({
-        title: "Error de autenticación",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast.error(`Error de autenticación con Google: ${error.message}`);
     }
   };
 

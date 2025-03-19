@@ -27,9 +27,22 @@ export default function AuthCallback() {
         } else {
           // Try to exchange the code if there's no session yet
           const hashParams = new URLSearchParams(window.location.hash.substring(1));
-          if (hashParams.get('access_token')) {
-            // There's an access token in the URL, Supabase should be processing it
-            console.log('Procesando autenticación OAuth...');
+          const queryParams = new URLSearchParams(window.location.search);
+          
+          if (hashParams.get('access_token') || queryParams.get('code')) {
+            // There's an access token or auth code in the URL, Supabase should be processing it
+            console.log('Procesando autenticación...');
+            
+            // Wait a moment for Supabase to process the auth
+            setTimeout(async () => {
+              const { data: sessionData } = await supabase.auth.getSession();
+              if (sessionData?.session) {
+                toast.success('¡Autenticación exitosa!');
+                navigate('/app');
+              } else {
+                navigate('/auth/login');
+              }
+            }, 1000);
           } else {
             // No session and no access token in URL, redirect to login
             navigate('/auth/login');

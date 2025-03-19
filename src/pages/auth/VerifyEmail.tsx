@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 
 export default function VerifyEmail() {
   const navigate = useNavigate();
@@ -19,12 +19,12 @@ export default function VerifyEmail() {
         const type = params.get('type');
         
         if (!token || !type) {
-          setError('Invalid verification link. Please try again or request a new verification email.');
+          setError('Enlace de verificación inválido. Por favor, solicita un nuevo correo de verificación.');
           setVerifying(false);
           return;
         }
 
-        // Using verifyOtp which is the correct method for email verification in current Supabase JS client
+        // Using verifyOtp which is the correct method for email verification
         const { error } = await supabase.auth.verifyOtp({
           token_hash: token,
           type: 'email',
@@ -33,11 +33,7 @@ export default function VerifyEmail() {
         if (error) throw error;
 
         setVerifying(false);
-        toast({
-          title: "¡Verificación exitosa!",
-          description: "Tu correo electrónico ha sido verificado correctamente. Bienvenido(a) a Dental Basics Academy IA.",
-          variant: "default",
-        });
+        toast.success('¡Verificación exitosa! Tu correo electrónico ha sido verificado correctamente.');
         
         // Redirect to main page after a short delay
         setTimeout(() => navigate('/app'), 1500);

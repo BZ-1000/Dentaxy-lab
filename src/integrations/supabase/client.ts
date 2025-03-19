@@ -7,13 +7,11 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 // Get the base URL for redirects
 export const getURL = () => {
-  // Use production domain if available
+  // Use the dentaxy.com domain for production
   const url = 'https://dentaxy.com';
-    
-  // Make sure to include `https://` when not localhost
-  const httpsUrl = url.includes('http') ? url : `https://${url}`;
+  
   // Make sure to include a trailing '/'
-  return httpsUrl.charAt(httpsUrl.length - 1) === '/' ? httpsUrl : `${httpsUrl}/`;
+  return url.charAt(url.length - 1) === '/' ? url : `${url}/`;
 };
 
 // Create Supabase client with PKCE auth flow
