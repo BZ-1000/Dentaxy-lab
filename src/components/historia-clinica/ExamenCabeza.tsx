@@ -44,7 +44,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const handleSinHallazgosChange = () => {
     const newValue = !sinHallazgos;
     setSinHallazgos(newValue);
-    // Pass boolean directly instead of converting to string
+    // Pass boolean directly as intended by the prop type
     handleExamenCabezaChange("sinHallazgos", newValue);
     
     if (newValue) {
