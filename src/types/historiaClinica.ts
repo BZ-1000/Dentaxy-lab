@@ -1,4 +1,3 @@
-
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -85,6 +84,7 @@ export interface CondicionPatologica {
 }
 
 export interface AntecedentesPersonalesPatologicos {
+  sinPatologia?: boolean;
   nutricionales: CondicionPatologica & {
     anorexia?: boolean;
     bulimia?: boolean;

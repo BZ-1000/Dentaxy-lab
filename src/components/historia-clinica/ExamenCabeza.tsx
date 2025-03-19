@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 
 interface ExamenCabezaProps {
   formData: FormDataState;
-  handleExamenCabezaChange: (part: string, value: string) => void;
+  handleExamenCabezaChange: (part: string, value: string | boolean) => void;
 }
 
 const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
@@ -44,8 +44,8 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const handleSinHallazgosChange = () => {
     const newValue = !sinHallazgos;
     setSinHallazgos(newValue);
-    // Convert boolean to string to match the expected type
-    handleExamenCabezaChange("sinHallazgos", newValue ? "true" : "false");
+    // Pass boolean directly instead of converting to string
+    handleExamenCabezaChange("sinHallazgos", newValue);
     
     if (newValue) {
       // Clear all sections if no findings

@@ -61,6 +61,7 @@ export const getInitialFormState = (): FormDataState => ({
     ayunoProlongado: ""
   },
   antecedentesPersonalesPatologicos: {
+    sinPatologia: false,
     nutricionales: {
       anorexia: false,
       bulimia: false,

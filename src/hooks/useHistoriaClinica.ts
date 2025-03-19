@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
@@ -247,7 +246,7 @@ export const useHistoriaClinica = () => {
     }
   };
 
-  const handleExamenCabezaChange = (part: string, value: string) => {
+  const handleExamenCabezaChange = (part: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       examenCabeza: {
