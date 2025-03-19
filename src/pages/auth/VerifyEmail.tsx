@@ -10,24 +10,26 @@ export default function VerifyEmail() {
   const location = useLocation();
   const [verifying, setVerifying] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [type, setType] = useState<string>('email');
 
   useEffect(() => {
-    const verifyEmail = async () => {
+    const handleVerification = async () => {
       try {
         const params = new URLSearchParams(location.search);
-        const token = params.get('token_hash') || params.get('token');
-        const type = params.get('type') || 'email';
+        const tokenValue = params.get('token_hash') || params.get('token');
+        const typeValue = params.get('type') || 'email';
         
-        console.log('Verification params:', { token, type });
+        console.log('Verification params:', { token: tokenValue, type: typeValue });
         
-        if (!token) {
+        if (!tokenValue) {
           setError('Enlace de verificación inválido. Por favor, solicita un nuevo correo de verificación.');
           setVerifying(false);
           return;
         }
 
-        // For the VerifyEmail page, we just show the confirmation UI
-        // and let the user decide when to proceed to the actual verification
+        setToken(tokenValue);
+        setType(typeValue);
         setVerifying(false);
       } catch (error: any) {
         console.error('Error de verificación:', error);
@@ -36,17 +38,41 @@ export default function VerifyEmail() {
       }
     };
 
-    verifyEmail();
+    handleVerification();
   }, [location.search]);
 
-  const handleConfirmEmail = () => {
-    // Get the token and type from the URL
-    const params = new URLSearchParams(location.search);
-    const token = params.get('token_hash') || params.get('token');
-    const type = params.get('type') || 'email';
+  const handleConfirmEmail = async () => {
+    if (!token) {
+      toast.error('No se encontró el token de verificación');
+      return;
+    }
     
-    // Redirect to the callback URL with the token and type
-    navigate(`/auth/callback?token_hash=${token}&type=${type}`);
+    try {
+      setVerifying(true);
+      
+      // Use verifyOtp directly here instead of redirecting
+      const { error } = await supabase.auth.verifyOtp({
+        token_hash: token,
+        type: type as any,
+      });
+      
+      if (error) {
+        console.error('Error al verificar el correo:', error);
+        toast.error('Error al verificar el correo: ' + error.message);
+        setError(error.message);
+        setVerifying(false);
+        return;
+      }
+      
+      toast.success('Correo verificado correctamente');
+      // Redirect to landing page after successful verification
+      navigate('/');
+    } catch (err: any) {
+      console.error('Error en verificación:', err);
+      setError(err.message);
+      setVerifying(false);
+      toast.error('Error inesperado durante la verificación');
+    }
   };
 
   return (
