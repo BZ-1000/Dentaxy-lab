@@ -34,11 +34,15 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
         toast.success("¡Bienvenido de vuelta!");
         onSuccess();
       } else {
+        // For signup, use the proper redirect URL
+        const redirectUrl = `${window.location.origin}/auth/callback`;
+        console.log("Redirect URL:", redirectUrl);
+        
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`
+            emailRedirectTo: redirectUrl
           }
         });
         if (error) throw error;
@@ -55,10 +59,13 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
 
   const handleGoogleLogin = async () => {
     try {
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      console.log("Google redirect URL:", redirectUrl);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent'

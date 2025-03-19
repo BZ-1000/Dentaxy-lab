@@ -15,10 +15,12 @@ export default function VerifyEmail() {
     const verifyEmail = async () => {
       try {
         const params = new URLSearchParams(location.search);
-        const token = params.get('token');
-        const type = params.get('type');
+        const token = params.get('token_hash') || params.get('token');
+        const type = params.get('type') || 'email';
         
-        if (!token || !type) {
+        console.log('Verification params:', { token, type });
+        
+        if (!token) {
           setError('Enlace de verificación inválido. Por favor, solicita un nuevo correo de verificación.');
           setVerifying(false);
           return;
@@ -27,7 +29,7 @@ export default function VerifyEmail() {
         // Using verifyOtp which is the correct method for email verification
         const { error } = await supabase.auth.verifyOtp({
           token_hash: token,
-          type: 'email',
+          type: type as any,
         });
 
         if (error) throw error;
@@ -38,6 +40,7 @@ export default function VerifyEmail() {
         // Redirect to main page after a short delay
         setTimeout(() => navigate('/app'), 1500);
       } catch (error: any) {
+        console.error('Error de verificación:', error);
         setError(error.message);
         setVerifying(false);
       }

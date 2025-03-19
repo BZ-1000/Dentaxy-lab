@@ -1,16 +1,41 @@
 
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Check for session from the OAuth callback and URL parameters
+        // Check if this is a confirmation URL
+        const params = new URLSearchParams(location.search);
+        const confirmationToken = params.get('token_hash') || params.get('token');
+        const type = params.get('type');
+        
+        // If we have a confirmation token, try to verify it
+        if (confirmationToken && type) {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: confirmationToken,
+            type: type as any,
+          });
+          
+          if (error) {
+            console.error('Error al verificar el token:', error);
+            toast.error('Error al verificar el correo: ' + error.message);
+            navigate('/auth/login');
+            return;
+          }
+          
+          toast.success('Correo verificado correctamente');
+          navigate('/app');
+          return;
+        }
+        
+        // Else, check for session from the OAuth callback
         const { data, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -56,7 +81,7 @@ export default function AuthCallback() {
     };
 
     handleAuthCallback();
-  }, [navigate]);
+  }, [navigate, location]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">

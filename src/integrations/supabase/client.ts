@@ -7,8 +7,7 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 // Get the base URL for redirects
 export const getURL = () => {
-  // Use the dentaxy.com domain for production
-  const url = 'https://dentaxy.com';
+  let url = window?.location?.origin || 'https://dentaxy.com';
   
   // Make sure to include a trailing '/'
   return url.charAt(url.length - 1) === '/' ? url : `${url}/`;
