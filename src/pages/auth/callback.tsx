@@ -31,7 +31,7 @@ export default function AuthCallback() {
           }
           
           toast.success('Correo verificado correctamente');
-          navigate('/app');
+          navigate('/'); // Redirect to landing page after email verification
           return;
         }
         
@@ -46,9 +46,9 @@ export default function AuthCallback() {
         }
         
         if (data?.session) {
-          // The user is authenticated, redirect to dashboard
+          // The user is authenticated, redirect to landing page
           toast.success('¡Autenticación exitosa!');
-          navigate('/app');
+          navigate('/'); // Redirect to landing page after login
         } else {
           // Try to exchange the code if there's no session yet
           const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -63,7 +63,7 @@ export default function AuthCallback() {
               const { data: sessionData } = await supabase.auth.getSession();
               if (sessionData?.session) {
                 toast.success('¡Autenticación exitosa!');
-                navigate('/app');
+                navigate('/'); // Redirect to landing page after login
               } else {
                 navigate('/auth/login');
               }

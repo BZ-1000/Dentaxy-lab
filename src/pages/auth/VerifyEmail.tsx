@@ -26,19 +26,9 @@ export default function VerifyEmail() {
           return;
         }
 
-        // Using verifyOtp which is the correct method for email verification
-        const { error } = await supabase.auth.verifyOtp({
-          token_hash: token,
-          type: type as any,
-        });
-
-        if (error) throw error;
-
+        // For the VerifyEmail page, we just show the confirmation UI
+        // and let the user decide when to proceed to the actual verification
         setVerifying(false);
-        toast.success('¡Verificación exitosa! Tu correo electrónico ha sido verificado correctamente.');
-        
-        // Redirect to main page after a short delay
-        setTimeout(() => navigate('/app'), 1500);
       } catch (error: any) {
         console.error('Error de verificación:', error);
         setError(error.message);
@@ -47,7 +37,17 @@ export default function VerifyEmail() {
     };
 
     verifyEmail();
-  }, [location.search, navigate]);
+  }, [location.search]);
+
+  const handleConfirmEmail = () => {
+    // Get the token and type from the URL
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token_hash') || params.get('token');
+    const type = params.get('type') || 'email';
+    
+    // Redirect to the callback URL with the token and type
+    navigate(`/auth/callback?token_hash=${token}&type=${type}`);
+  };
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-800 to-black p-4">
@@ -76,15 +76,17 @@ export default function VerifyEmail() {
             </div>
           ) : (
             <div className="text-center">
-              <div className="text-green-500 mb-4">
+              <div className="text-blue-500 mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <h3 className="text-xl font-medium mt-2">¡Verificación Exitosa!</h3>
+                <h3 className="text-xl font-medium mt-2">Confirma tu Correo Electrónico</h3>
               </div>
-              <p className="mb-6">Tu correo electrónico ha sido verificado correctamente.</p>
-              <p className="mb-6 font-medium">¡Bienvenido(a) al equipo Dental Basics Academy IA!</p>
-              <p className="text-sm opacity-80">Serás redirigido automáticamente...</p>
+              <p className="mb-6">Estás a un paso de completar la verificación de tu correo electrónico.</p>
+              <Button onClick={handleConfirmEmail} className="bg-blue-500 text-white hover:bg-blue-600 mb-4 w-full">
+                Confirmar mi Correo
+              </Button>
+              <p className="text-sm opacity-80">Al confirmar, verificarás tu cuenta y podrás acceder a todas las funcionalidades de Dental Basics Academy IA.</p>
             </div>
           )}
         </div>
