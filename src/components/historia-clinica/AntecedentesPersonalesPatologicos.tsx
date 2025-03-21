@@ -409,6 +409,14 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     titulo: string,
     opciones: { valor: string, etiqueta: string }[]
   }) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, [formData.antecedentesPersonalesPatologicos[categoria]?.otra]);
+
     return (
       <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia ? "hidden" : ""}`}>
         <h4 className="text-lg font-semibold mb-3">{titulo}</h4>
@@ -442,7 +450,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
                 onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
                 className="w-full"
-                onFocus={(e) => e.target.select()} // Mantener el foco
+                ref={inputRef}
               />
             </div>
           )}
