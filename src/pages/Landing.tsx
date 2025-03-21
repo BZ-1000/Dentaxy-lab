@@ -248,8 +248,7 @@ const Landing = () => {
         obesidad: false,
         ninguna: true,
         otra: false,
-        otraDescripcion: '',
-        especificar: false
+        otraDescripcion: ''
       },
       cardiacos: {
         enfermedadCoronaria: false,
