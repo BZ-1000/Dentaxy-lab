@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
@@ -16,7 +17,7 @@ import ExamenCabeza from './ExamenCabeza';
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import { useToast } from '@/components/ui/use-toast';
 import { useGeminiContext } from '@/contexts/GeminiContext';
-import { FormSection } from '@/types/historiaClinica';
+import { FormDataState, FormSection } from '@/types/historiaClinica';
 import { useAuth } from '@/hooks/useAuth';
 
 const HistoriaClinica: React.FC = () => {
@@ -39,18 +40,21 @@ const HistoriaClinica: React.FC = () => {
   }, []);
 
   const {
-    formState,
-    updateInformacionPrincipal,
-    updatePadecimientoActual,
-    updateAntecedentesHeredoFamiliares,
-    updateAntecedentesPersonalesPatologicos,
-    updateAntecedentesPersonalesNoPatologicos,
-    updateAntecedentesAlergicos,
-    updateAntecedentesQuirurgicos,
-    updateAntecedentesHemorragicos,
-    updateInterrogatorioSistemas,
-    updateExploracionFisica,
-    updateExamenCabeza
+    formData,
+    handleInputChange,
+    handlePadecimientoChange,
+    handleDolorChange,
+    handleSinSintomasChange,
+    handleFamiliarChange,
+    handleCondicionChange,
+    handleAntecedenteChange,
+    handleAntecedentePatologicoChange,
+    handleAntecedenteAlergicoChange,
+    handleAntecedenteQuirurgicoChange,
+    handleAntecedenteHemorragicoChange,
+    handleInterrogatorioChange,
+    handleExploracionFisicaChange,
+    handleExamenCabezaChange
   } = useHistoriaClinica();
 
   const handleSectionChange = (section: FormSection) => {
@@ -68,7 +72,7 @@ const HistoriaClinica: React.FC = () => {
       return;
     }
 
-    if (!formState.informacionPrincipal.nombrePaciente) {
+    if (!formData.informacionPrincipal.nombrePaciente) {
       toast({
         title: "Información incompleta",
         description: "Por favor, ingresa al menos el nombre del paciente.",
@@ -99,29 +103,82 @@ const HistoriaClinica: React.FC = () => {
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'informacionPrincipal':
-        return <InformacionPrincipal data={formState.informacionPrincipal} onChange={updateInformacionPrincipal} />;
+        return (
+          <InformacionPrincipal
+            fechaAparicion={formData.padecimientoActual.dolor.fechaInicio}
+            evolucion={formData.padecimientoActual.historiaPadecimiento || ""}
+            estadoActual={formData.padecimientoActual.motivoConsulta || ""}
+            onFechaChange={(value) => handleDolorChange('fechaInicio', value)}
+            onEvolucionChange={(value) => handlePadecimientoChange('historiaPadecimiento', value)}
+            onEstadoChange={(value) => handlePadecimientoChange('motivoConsulta', value)}
+            onVoiceTranscription={(text) => handlePadecimientoChange('motivoConsulta', text)}
+          />
+        );
       case 'padecimientoActual':
-        return <PadecimientoActual data={formState.padecimientoActual} onChange={updatePadecimientoActual} />;
+        return <PadecimientoActual 
+          padecimiento={formData.padecimientoActual}
+          onPadecimientoChange={handlePadecimientoChange}
+          onDolorChange={handleDolorChange}
+          onSinSintomasChange={handleSinSintomasChange}
+        />;
       case 'antecedentesHeredoFamiliares':
-        return <AntecedentesHeredoFamiliares data={formState.antecedentesHeredoFamiliares} onChange={updateAntecedentesHeredoFamiliares} />;
+        return <AntecedentesHeredoFamiliares 
+          antecedentes={formData.antecedentesHeredoFamiliares}
+          onFamiliarChange={handleFamiliarChange}
+          onCondicionChange={handleCondicionChange}
+        />;
       case 'antecedentesPersonalesPatologicos':
-        return <AntecedentesPersonalesPatologicos data={formState.antecedentesPersonalesPatologicos} onChange={updateAntecedentesPersonalesPatologicos} />;
+        return <AntecedentesPersonalesPatologicos 
+          antecedentes={formData.antecedentesPersonalesPatologicos}
+          onChange={handleAntecedentePatologicoChange}
+        />;
       case 'antecedentesPersonalesNoPatologicos':
-        return <AntecedentesPersonalesNoPatologicos data={formState.antecedentesPersonalesNoPatologicos} onChange={updateAntecedentesPersonalesNoPatologicos} />;
+        return <AntecedentesPersonalesNoPatologicos 
+          antecedentes={formData.antecedentesPersonalesNoPatologicos}
+          onChange={handleAntecedenteChange}
+        />;
       case 'antecedentesAlergicos':
-        return <AntecedentesAlergicos data={formState.antecedentesAlergicos} onChange={updateAntecedentesAlergicos} />;
+        return <AntecedentesAlergicos 
+          antecedentes={formData.antecedentesAlergicos}
+          onChange={handleAntecedenteAlergicoChange}
+        />;
       case 'antecedentesQuirurgicos':
-        return <AntecedentesQuirurgicos data={formState.antecedentesQuirurgicos} onChange={updateAntecedentesQuirurgicos} />;
+        return <AntecedentesQuirurgicos 
+          antecedentes={formData.antecedentesQuirurgicos}
+          onChange={handleAntecedenteQuirurgicoChange}
+        />;
       case 'antecedentesHemorragicos':
-        return <AntecedentesHemorragicos data={formState.antecedentesHemorragicos} onChange={updateAntecedentesHemorragicos} />;
+        return <AntecedentesHemorragicos 
+          antecedentes={formData.antecedentesHemorragicos}
+          onChange={handleAntecedenteHemorragicoChange}
+        />;
       case 'interrogatorioSistemas':
-        return <InterrogatorioSistemas data={formState.interrogatorioSistemas} onChange={updateInterrogatorioSistemas} />;
+        return <InterrogatorioSistemas 
+          formData={formData}
+          handleInterrogatorioChange={handleInterrogatorioChange}
+        />;
       case 'exploracionFisica':
-        return <ExploracionFisica data={formState.exploracionFisica} onChange={updateExploracionFisica} />;
+        return <ExploracionFisica 
+          exploracion={formData.exploracionFisica}
+          onChange={handleExploracionFisicaChange}
+        />;
       case 'examenCabeza':
-        return <ExamenCabeza data={formState.examenCabeza} onChange={updateExamenCabeza} />;
+        return <ExamenCabeza 
+          data={formData.examenCabeza}
+          onChange={handleExamenCabezaChange}
+        />;
       default:
-        return <InformacionPrincipal data={formState.informacionPrincipal} onChange={updateInformacionPrincipal} />;
+        return (
+          <InformacionPrincipal
+            fechaAparicion={formData.padecimientoActual.dolor.fechaInicio}
+            evolucion={formData.padecimientoActual.historiaPadecimiento || ""}
+            estadoActual={formData.padecimientoActual.motivoConsulta || ""}
+            onFechaChange={(value) => handleDolorChange('fechaInicio', value)}
+            onEvolucionChange={(value) => handlePadecimientoChange('historiaPadecimiento', value)}
+            onEstadoChange={(value) => handlePadecimientoChange('motivoConsulta', value)}
+            onVoiceTranscription={(text) => handlePadecimientoChange('motivoConsulta', text)}
+          />
+        );
     }
   };
 
@@ -139,9 +196,9 @@ const HistoriaClinica: React.FC = () => {
           {/* Sidebar Navigation */}
           <div className={`w-full lg:w-64 flex-shrink-0 ${isMobile && activeSection !== 'sidebarOnly' ? 'hidden' : ''}`}>
             <FormulariosSidebar 
-              activeSection={activeSection} 
+              currentSection={activeSection} 
               onSectionChange={handleSectionChange}
-              formState={formState}
+              formData={formData}
               showPreviews={showPreviews}
               setShowPreviews={setShowPreviews}
             />
@@ -175,9 +232,9 @@ const HistoriaClinica: React.FC = () => {
       
       {/* Resumen Modal */}
       <ResumenHistoriaClinica 
-        isOpen={resumenOpen}
+        open={resumenOpen}
         onClose={() => setResumenOpen(false)}
-        formState={formState}
+        formData={formData}
       />
     </div>
   );

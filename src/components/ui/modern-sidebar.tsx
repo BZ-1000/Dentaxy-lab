@@ -81,7 +81,7 @@ export const DesktopSidebar = ({
 }: React.ComponentPropsWithoutRef<typeof motion.div>) => {
   const { open, setOpen, animate } = useSidebar();
 
-  // Use string type to ensure correct typing
+  // Fix for the type issue - use explicit width values
   const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
 
   return (

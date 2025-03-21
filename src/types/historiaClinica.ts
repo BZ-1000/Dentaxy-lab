@@ -265,3 +265,17 @@ export interface FormDataState {
   diagnosticos: string;
   pronosticos: string;
 }
+
+export type FormSection = 
+  | 'informacionPrincipal'
+  | 'padecimientoActual'
+  | 'antecedentesHeredoFamiliares'
+  | 'antecedentesPersonalesPatologicos'
+  | 'antecedentesPersonalesNoPatologicos'
+  | 'antecedentesAlergicos'
+  | 'antecedentesQuirurgicos'
+  | 'antecedentesHemorragicos'
+  | 'interrogatorioSistemas'
+  | 'exploracionFisica'
+  | 'examenCabeza'
+  | 'sidebarOnly';
