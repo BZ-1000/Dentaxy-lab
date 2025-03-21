@@ -13,7 +13,7 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        console.log("Auth callback processing...");
+        console.log("Auth callback processing for Dentaxy.com...");
         setProcessing(true);
         
         // Check if we need to get the session (for OAuth providers)
@@ -34,7 +34,7 @@ export default function AuthCallback() {
           
           console.log("Authentication successful, redirecting to:", redirectPath);
           toast.success('¡Autenticación exitosa!');
-          navigate(redirectPath);
+          navigate(redirectPath, { replace: true });
           return;
         }
         
@@ -46,7 +46,7 @@ export default function AuthCallback() {
           // There's an access token or auth code in the URL, Supabase should be processing it
           console.log('Procesando autenticación con código/token...');
           
-          // Wait a moment for Supabase to process the auth
+          // Wait for Supabase to process the auth
           setTimeout(async () => {
             const { data: sessionData } = await supabase.auth.getSession();
             if (sessionData?.session) {
@@ -54,12 +54,12 @@ export default function AuthCallback() {
               localStorage.removeItem('redirectAfterLogin');
               
               toast.success('¡Autenticación exitosa!');
-              navigate(redirectPath);
+              navigate(redirectPath, { replace: true });
             } else {
               console.error('No se pudo obtener la sesión después del callback');
               setError('Error durante la autenticación');
               toast.error('Error durante la autenticación');
-              navigate('/auth/login');
+              navigate('/auth/login', { replace: true });
             }
             setProcessing(false);
           }, 1500);
@@ -68,14 +68,14 @@ export default function AuthCallback() {
           console.error('No se encontró información de autenticación');
           setError('Enlace de autenticación inválido');
           toast.error('Enlace de autenticación inválido');
-          setTimeout(() => navigate('/auth/login'), 2000);
+          setTimeout(() => navigate('/auth/login', { replace: true }), 2000);
           setProcessing(false);
         }
       } catch (err) {
         console.error('Error en el callback de autenticación:', err);
         setError('Error inesperado durante la autenticación');
         toast.error('Error inesperado durante la autenticación');
-        setTimeout(() => navigate('/auth/login'), 2000);
+        setTimeout(() => navigate('/auth/login', { replace: true }), 2000);
         setProcessing(false);
       }
     };

@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Index from './pages/Index';
 import Landing from './pages/Landing';
@@ -15,8 +15,9 @@ import Planes from './pages/Planes';
 import Contacto from './pages/Contacto';
 import Terminos from './pages/Terminos';
 import Privacidad from './pages/Privacidad';
-import { supabase } from './integrations/supabase/client';
-import { Session } from '@supabase/supabase-js';
+import { AuthProvider, useAuth } from './hooks/useAuth';
+import { GeminiProvider } from './contexts/GeminiContext';
+import { Toaster } from '@/components/ui/sonner';
 import './App.css';
 
 // Loading component to show during authentication check
@@ -26,47 +27,26 @@ const LoadingScreen = () => (
   </div>
 );
 
-function App() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+// Protected route component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
+  
+  if (loading) {
+    return <LoadingScreen />;
+  }
+  
+  if (!isAuthenticated) {
+    // Save the attempted URL to redirect back after login
+    localStorage.setItem('redirectAfterLogin', location.pathname);
+    return <Navigate to="/auth/login" replace />;
+  }
+  
+  return <>{children}</>;
+};
 
-  useEffect(() => {
-    // First set up auth state listener to catch events
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed:", _event, session ? "User authenticated" : "No session");
-      setSession(session);
-      setLoading(false);
-    });
-
-    // Then check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Initial session check:", session ? "Session found" : "No session found");
-      setSession(session);
-      setLoading(false);
-    }).catch(error => {
-      console.error("Error checking session:", error);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Protected route component
-  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    const location = useLocation();
-    
-    if (loading) {
-      return <LoadingScreen />;
-    }
-    
-    if (!session) {
-      // Save the attempted URL to redirect back after login
-      localStorage.setItem('redirectAfterLogin', location.pathname);
-      return <Navigate to="/auth/login" replace />;
-    }
-    
-    return <>{children}</>;
-  };
+function AppRoutes() {
+  const { loading } = useAuth();
 
   // Render loading screen while initial authentication check is in progress
   if (loading) {
@@ -74,30 +54,41 @@ function App() {
   }
 
   return (
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/nosotros" element={<Nosotros />} />
+      <Route path="/funciones" element={<Funciones />} />
+      <Route path="/beneficios" element={<Beneficios />} />
+      <Route path="/planes" element={<Planes />} />
+      <Route path="/contacto" element={<Contacto />} />
+      <Route path="/terminos" element={<Terminos />} />
+      <Route path="/privacidad" element={<Privacidad />} />
+      
+      <Route path="/app" element={
+        <ProtectedRoute>
+          <Index />
+        </ProtectedRoute>
+      } />
+      
+      <Route path="/auth/login" element={<Login />} />
+      <Route path="/auth/register" element={<Register />} />
+      <Route path="/auth/verify-email" element={<VerifyEmail />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
+      
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/nosotros" element={<Nosotros />} />
-        <Route path="/funciones" element={<Funciones />} />
-        <Route path="/beneficios" element={<Beneficios />} />
-        <Route path="/planes" element={<Planes />} />
-        <Route path="/contacto" element={<Contacto />} />
-        <Route path="/terminos" element={<Terminos />} />
-        <Route path="/privacidad" element={<Privacidad />} />
-        
-        <Route path="/app" element={
-          <ProtectedRoute>
-            <Index />
-          </ProtectedRoute>
-        } />
-        
-        <Route path="/auth/login" element={session ? <Navigate to="/app" replace /> : <Login />} />
-        <Route path="/auth/register" element={session ? <Navigate to="/app" replace /> : <Register />} />
-        <Route path="/auth/verify-email" element={<VerifyEmail />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <AuthProvider>
+        <GeminiProvider>
+          <AppRoutes />
+          <Toaster />
+        </GeminiProvider>
+      </AuthProvider>
     </Router>
   );
 }

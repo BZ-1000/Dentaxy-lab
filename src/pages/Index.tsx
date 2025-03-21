@@ -4,43 +4,20 @@ import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 const Index = () => {
   const [offset, setOffset] = useState(0);
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
+  const { isAuthenticated, loading } = useAuth();
   
   useEffect(() => {
-    // Check authentication
-    const checkAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("Error checking authentication:", error);
-          toast.error("Error de autenticación. Por favor inicia sesión nuevamente.");
-          navigate('/auth/login');
-          return;
-        }
-        
-        if (!session) {
-          console.log("No active session found, redirecting to login");
-          navigate('/auth/login');
-          return;
-        }
-        
-        console.log("Authentication successful, user has active session");
-        setLoading(false);
-      } catch (err) {
-        console.error("Unexpected error during auth check:", err);
-        toast.error("Ocurrió un error. Por favor intenta nuevamente.");
-        navigate('/auth/login');
-      }
-    };
-    
-    checkAuth();
+    if (!loading && !isAuthenticated) {
+      toast.error("Debes iniciar sesión para acceder a esta página");
+      navigate('/auth/login');
+      return;
+    }
     
     const handleScroll = () => {
       setOffset(window.pageYOffset);
@@ -50,7 +27,7 @@ const Index = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [navigate]);
+  }, [navigate, isAuthenticated, loading]);
   
   if (loading) {
     return (
@@ -61,6 +38,10 @@ const Index = () => {
         </div>
       </div>
     );
+  }
+  
+  if (!isAuthenticated) {
+    return null; // will redirect in useEffect
   }
   
   return (
