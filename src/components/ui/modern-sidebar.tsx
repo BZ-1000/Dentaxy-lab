@@ -82,7 +82,7 @@ export const DesktopSidebar = ({
   const { open, setOpen, animate } = useSidebar();
 
   // Use string type to ensure correct typing
-  const sidebarWidth: string = animate ? (open ? "300px" : "60px") : "300px";
+  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
 
   return (
     <motion.div
@@ -183,6 +183,7 @@ export const Logo = ({
 }: {
   children: React.ReactNode;
 }) => {
+  // Convert children to array to ensure proper handling
   const childArray = React.Children.toArray(children);
   
   return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">

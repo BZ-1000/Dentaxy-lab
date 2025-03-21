@@ -349,9 +349,9 @@ const Landing = () => {
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
         <div className="flex items-center gap-2">
           <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-8 w-8" />
-          <div className="text-black font-mplus text-xs sm:text-sm md:text-base">
-            <div className="font-medium leading-tight tracking-wide">DENTAL BASICS</div>
-            <div className="font-medium leading-tight tracking-wide">ACADEMY</div>
+          <div className="text-black text-[10px] sm:text-xs font-bold tracking-tight">
+            <div className="leading-none">DENTAL BASICS</div>
+            <div className="leading-none">ACADEMY</div>
           </div>
         </div>
 
