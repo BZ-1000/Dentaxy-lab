@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, Instagram } from 'lucide-react';
@@ -510,12 +509,13 @@ const Landing = () => {
                   href="https://instagram.com/dentalbasicsacademy" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="hover:transform"
-                  aria-label="Síguenos en Instagram"
+                  className="block animate-wiggle"
                 >
-                  <div className="flex items-center justify-center animate-bounce" style={{ animationDuration: '2s', animationIterationCount: 'infinite' }}>
-                    <Instagram className="h-5 w-5 text-gray-600 hover:text-pink-500 transition-colors" />
-                  </div>
+                  <img 
+                    src="/lovable-uploads/caf6610c-f882-4ea5-a313-6d48cb3c6ee4.png" 
+                    alt="Instagram" 
+                    className="h-8 w-8 hover:scale-110 transition-transform"
+                  />
                 </a>
               </div>
             </div>
@@ -561,8 +561,22 @@ const Landing = () => {
             </div>
           </div>
           
-          <div className="mt-10 pt-6 border-t border-gray-100 text-center">
-            <p className="text-gray-400 text-xs">Transformando la experiencia odontológica con inteligencia artificial</p>
+          <div className="mt-10 pt-6 border-t border-gray-100 relative">
+            <div className="absolute bottom-0 right-0 mb-2 mr-6">
+              <a 
+                href="https://instagram.com/dentalbasicsacademy" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block animate-wiggle"
+              >
+                <img 
+                  src="/lovable-uploads/caf6610c-f882-4ea5-a313-6d48cb3c6ee4.png" 
+                  alt="Instagram" 
+                  className="h-8 w-8 hover:scale-110 transition-transform"
+                />
+              </a>
+            </div>
+            <p className="text-gray-400 text-xs text-center">Transformando la experiencia odontológica con inteligencia artificial</p>
           </div>
         </div>
       </footer>

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -93,6 +92,11 @@ export default {
           "0%": { "background-position": "0%" },
           "100%": { "background-position": "200%" },
         },
+        wiggle: {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '25%': { transform: 'rotate(-5deg)' },
+          '75%': { transform: 'rotate(5deg)' },
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -100,6 +104,7 @@ export default {
         float: "float 3s ease-in-out infinite",
         glow: "glow 3s ease-in-out infinite",
         rainbow: "rainbow var(--speed, 2s) infinite linear",
+        wiggle: 'wiggle 0.3s ease-in-out infinite'
       },
     },
   },
