@@ -11,6 +11,7 @@ import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { FormDataState } from '@/types/historiaClinica';
 import Footer from '@/components/Footer';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const menuItems = [
   {
@@ -82,6 +83,8 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -159,13 +162,21 @@ const Landing = () => {
       toast.error('Por favor ingresa un nombre de usuario');
       return;
     }
+    
+    if (!termsAccepted || !privacyAccepted) {
+      toast.error('Debes aceptar los términos y condiciones y la política de privacidad para continuar');
+      return;
+    }
+    
     setLoading(true);
     try {
       const {
         error
       } = await supabase.from('user_profiles').upsert([{
         id: session.user.id,
-        username: username.trim()
+        username: username.trim(),
+        terms_accepted: termsAccepted,
+        privacy_accepted: privacyAccepted
       }], {
         onConflict: 'id'
       });
@@ -497,6 +508,31 @@ const Landing = () => {
             </p>
             <div className="space-y-4">
               <Input type="text" placeholder="Nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="bg-white border-gray-300" />
+              
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="terms" 
+                    checked={termsAccepted} 
+                    onCheckedChange={(checked) => setTermsAccepted(checked === true)} 
+                  />
+                  <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
+                    Acepto los <Link to="/terminos" className="text-blue-600 hover:underline" target="_blank">Términos y Condiciones</Link>
+                  </label>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="privacy" 
+                    checked={privacyAccepted} 
+                    onCheckedChange={(checked) => setPrivacyAccepted(checked === true)} 
+                  />
+                  <label htmlFor="privacy" className="text-sm text-gray-600 cursor-pointer">
+                    Acepto la <Link to="/privacidad" className="text-blue-600 hover:underline" target="_blank">Política de Privacidad</Link>
+                  </label>
+                </div>
+              </div>
+              
               <Button onClick={handleSaveUsername} className="w-full bg-blue-600 text-white hover:bg-blue-700" disabled={loading}>
                 {loading ? <span className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>

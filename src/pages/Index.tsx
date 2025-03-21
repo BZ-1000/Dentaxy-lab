@@ -3,19 +3,42 @@ import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const [offset, setOffset] = useState(0);
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
+    // Check authentication
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/auth/login');
+        return;
+      }
+      setLoading(false);
+    };
+    
+    checkAuth();
+    
     const handleScroll = () => {
       setOffset(window.pageYOffset);
     };
+    
     window.addEventListener('scroll', handleScroll);
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [navigate]);
+  
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>;
+  }
   
   return <div className="min-h-screen">
       {/* Hero Section */}
