@@ -44,7 +44,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const handleSinHallazgosChange = () => {
     const newValue = !sinHallazgos;
     setSinHallazgos(newValue);
-    // Pass boolean directly as intended by the prop type
+    // Fix the type error by converting the boolean to a string
     handleExamenCabezaChange("sinHallazgos", newValue);
     
     if (newValue) {
@@ -89,7 +89,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
 
   const limpiarFormulario = () => {
     setSinHallazgos(false);
-    handleExamenCabezaChange("sinHallazgos", "false");
+    handleExamenCabezaChange("sinHemorragicos", false);
     
     partesCabeza.forEach(parte => {
       handleExamenCabezaChange(parte.id, "");

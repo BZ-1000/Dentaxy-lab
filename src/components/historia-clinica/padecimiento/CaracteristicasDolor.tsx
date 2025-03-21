@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -84,11 +84,10 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
     }
     setLocalizacionText(newValue);
 
-    // Only update the description part in the dolor object
-    const descripcion = newValue;
+    // Pass the structured object directly to avoid JSON string issues
     onDolorChange("localizacion", {
       tipo: dolor.localizacion?.tipo || "",
-      descripcion
+      descripcion: newValue
     });
   };
 
@@ -110,7 +109,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
     const selectionEnd = target.selectionEnd;
 
     // Prevent backspace at the beginning or when trying to delete the prefix
-    if (event.key === 'Backspace' && (selectionStart <= prefix.length || selectionStart === selectionEnd && selectionStart <= prefix.length)) {
+    if (event.key === 'Backspace' && (selectionStart <= prefix.length || (selectionStart === selectionEnd && selectionStart <= prefix.length))) {
       event.preventDefault();
     }
 
