@@ -8,6 +8,11 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import AuthCallback from './pages/auth/callback';
+import Nosotros from './pages/Nosotros';
+import ComoFunciona from './pages/ComoFunciona';
+import Beneficios from './pages/Beneficios';
+import Planes from './pages/Planes';
+import Contacto from './pages/Contacto';
 import { supabase } from './integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
 import './App.css';
@@ -47,11 +52,18 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/nosotros" element={<Nosotros />} />
+        <Route path="/como-funciona" element={<ComoFunciona />} />
+        <Route path="/beneficios" element={<Beneficios />} />
+        <Route path="/planes" element={<Planes />} />
+        <Route path="/contacto" element={<Contacto />} />
+        
         <Route path="/app" element={
           <ProtectedRoute>
             <Index />
           </ProtectedRoute>
         } />
+        
         <Route path="/auth/login" element={session ? <Navigate to="/app" replace /> : <Login />} />
         <Route path="/auth/register" element={session ? <Navigate to="/app" replace /> : <Register />} />
         <Route path="/auth/verify-email" element={<VerifyEmail />} />

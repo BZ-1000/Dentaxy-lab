@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
@@ -11,19 +11,32 @@ import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { FormDataState } from '@/types/historiaClinica';
 
-const menuItems = [{
-  label: "Menu",
-  href: "#"
-}, {
-  label: "settings.",
-  href: "#"
-}, {
-  label: "perfil.",
-  href: "#"
-}, {
-  label: "nosotros",
-  href: "#"
-}];
+const menuItems = [
+  {
+    label: "Inicio",
+    href: "/"
+  },
+  {
+    label: "Nosotros",
+    href: "/nosotros"
+  },
+  {
+    label: "Cómo Funciona",
+    href: "/como-funciona"
+  },
+  {
+    label: "Beneficios",
+    href: "/beneficios"
+  },
+  {
+    label: "Planes y Precios",
+    href: "/planes"
+  },
+  {
+    label: "Contacto",
+    href: "/contacto"
+  }
+];
 
 const LoadingScreen = ({
   visible
@@ -196,7 +209,7 @@ const Landing = () => {
 
   const handleItemClick = (label: string) => {
     setActiveItem(label);
-    if (label === "perfil." && session) {
+    if (label === "perfil" && session) {
       setShowDropdown(!showDropdown);
     }
   };
@@ -357,9 +370,16 @@ const Landing = () => {
 
         {/* Main horizontal navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`text-black hover:text-black/70 text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}>
+          {menuItems.map(item => (
+            <Link 
+              key={item.label} 
+              to={item.href} 
+              className={`text-black hover:text-black/70 text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}
+              onClick={() => handleItemClick(item.label)}
+            >
               {item.label}
-            </button>)}
+            </Link>
+          ))}
         </div>
 
         {/* Auth buttons */}
@@ -400,9 +420,16 @@ const Landing = () => {
       {/* Mobile Menu */}
       {isMobile && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
           <div className="flex justify-around">
-            {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}>
+            {menuItems.map(item => (
+              <Link 
+                key={item.label} 
+                to={item.href}
+                className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}
+                onClick={() => handleItemClick(item.label)}
+              >
                 {item.label}
-              </button>)}
+              </Link>
+            ))}
           </div>
           {showDropdown && <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
               {session ? <>
@@ -427,7 +454,7 @@ const Landing = () => {
             </div>}
         </div>}
 
-      {/* Main Content */}
+      {/* Main Content - Keep the rest of the landing page */}
       <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto">
         <div className="text-center w-full">
           <h1 className="mb-5 font-black text-black text-5xl text-center sm:text-8xl">
