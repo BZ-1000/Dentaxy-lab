@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, Instagram } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
+import { initialFormState } from '@/utils/initialFormState';
 
 const menuItems = [
   {
@@ -353,6 +354,12 @@ const Landing = () => {
 
   if (loading) return <LoadingScreen visible={loading} />;
 
+  // Use initialFormState for the missing properties
+  const formDataWithDefaults = {
+    ...initialFormState,
+    antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos
+  };
+
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shadow-sm">
@@ -473,19 +480,7 @@ const Landing = () => {
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
               <AntecedentesPersonalesPatologicos 
-                formData={{
-                  antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-                  padecimientoActual: {}, 
-                  antecedentesHeredoFamiliares: {},
-                  antecedentesPersonalesNoPatologicos: {},
-                  antecedentesAlergicos: {},
-                  antecedentesHemorragicos: {},
-                  antecedentesQuirurgicos: {},
-                  interrogatorioSistemas: {},
-                  informacionPrincipal: {},
-                  exploracionFisica: {},
-                  examenCabeza: {}
-                }} 
+                formData={formDataWithDefaults} 
                 handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
               />
             </div>
@@ -505,19 +500,6 @@ const Landing = () => {
               </div>
               <p className="text-sm text-gray-500">Dental Basics Academy</p>
               <p className="text-sm text-gray-500">© 2025 Dentaxy.ai & Dentaxy.com</p>
-              <div className="mt-4 flex">
-                <a 
-                  href="https://instagram.com/dentalbasicsacademy" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:transform"
-                  aria-label="Síguenos en Instagram"
-                >
-                  <div className="flex items-center justify-center animate-bounce" style={{ animationDuration: '2s', animationIterationCount: 'infinite' }}>
-                    <Instagram className="h-5 w-5 text-gray-600 hover:text-pink-500 transition-colors" />
-                  </div>
-                </a>
-              </div>
             </div>
             
             {/* Column 2 - Quick Links */}
@@ -561,7 +543,24 @@ const Landing = () => {
             </div>
           </div>
           
-          <div className="mt-10 pt-6 border-t border-gray-100 text-center">
+          {/* Instagram icon with wiggle animation - positioned in bottom right */}
+          <div className="flex justify-end mt-6">
+            <a 
+              href="https://instagram.com/dentalbasicsacademy" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-block"
+              aria-label="Síguenos en Instagram"
+            >
+              <img 
+                src="/lovable-uploads/35adbc20-0367-45fe-b38a-e43e94ceea4e.png" 
+                alt="Instagram" 
+                className="w-8 h-8 animate-wiggle" 
+              />
+            </a>
+          </div>
+          
+          <div className="mt-6 pt-6 border-t border-gray-100 text-center">
             <p className="text-gray-400 text-xs">Transformando la experiencia odontológica con inteligencia artificial</p>
           </div>
         </div>
