@@ -9,7 +9,7 @@ import Register from './pages/auth/Register';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import AuthCallback from './pages/auth/callback';
 import Nosotros from './pages/Nosotros';
-import ComoFunciona from './pages/ComoFunciona';
+import Funciones from './pages/Funciones';
 import Beneficios from './pages/Beneficios';
 import Planes from './pages/Planes';
 import Contacto from './pages/Contacto';
@@ -53,7 +53,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/nosotros" element={<Nosotros />} />
-        <Route path="/como-funciona" element={<ComoFunciona />} />
+        <Route path="/funciones" element={<Funciones />} />
         <Route path="/beneficios" element={<Beneficios />} />
         <Route path="/planes" element={<Planes />} />
         <Route path="/contacto" element={<Contacto />} />

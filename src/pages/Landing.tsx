@@ -13,23 +13,19 @@ import { FormDataState } from '@/types/historiaClinica';
 
 const menuItems = [
   {
-    label: "Inicio",
-    href: "/"
-  },
-  {
     label: "Nosotros",
     href: "/nosotros"
   },
   {
-    label: "Cómo Funciona",
-    href: "/como-funciona"
+    label: "Funciones",
+    href: "/funciones"
   },
   {
     label: "Beneficios",
     href: "/beneficios"
   },
   {
-    label: "Planes y Precios",
+    label: "Planes",
     href: "/planes"
   },
   {

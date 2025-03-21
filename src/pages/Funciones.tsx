@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
 import BottomMenu from '@/components/BottomMenu';
 
-const ComoFunciona = () => {
+const Funciones = () => {
   const steps = [
     {
       title: "Inicia sesión en tu cuenta",
@@ -48,7 +48,7 @@ const ComoFunciona = () => {
       
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12 max-w-4xl">
-        <h1 className="text-4xl font-bold text-center mb-8 text-gray-900">Cómo Funciona</h1>
+        <h1 className="text-4xl font-bold text-center mb-8 text-gray-900">Funciones</h1>
         
         <div className="bg-white shadow-sm rounded-lg p-8 mb-8">
           <h2 className="text-2xl font-semibold mb-6 text-gray-800 text-center">
@@ -100,4 +100,4 @@ const ComoFunciona = () => {
   );
 };
 
-export default ComoFunciona;
+export default Funciones;
