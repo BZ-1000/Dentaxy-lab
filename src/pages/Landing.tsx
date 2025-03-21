@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
+import { FormDataState } from '@/types/historiaClinica';
+
 const menuItems = [{
   label: "Menu",
   href: "#"
@@ -22,6 +24,7 @@ const menuItems = [{
   label: "nosotros",
   href: "#"
 }];
+
 const LoadingScreen = ({
   visible
 }) => {
@@ -49,6 +52,7 @@ const LoadingScreen = ({
       </div>
     </div>;
 };
+
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -68,6 +72,7 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -103,6 +108,7 @@ const Landing = () => {
       subscription.unsubscribe();
     };
   }, []);
+
   const checkUsername = async (userId: string) => {
     try {
       const {
@@ -121,6 +127,7 @@ const Landing = () => {
       console.error('Error checking username:', error);
     }
   };
+
   const checkUserPlan = async (userId: string) => {
     try {
       const {
@@ -136,6 +143,7 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
+
   const handleSaveUsername = async () => {
     if (!session || !username.trim()) {
       toast.error('Por favor ingresa un nombre de usuario');
@@ -160,6 +168,7 @@ const Landing = () => {
       setLoading(false);
     }
   };
+
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -184,30 +193,35 @@ const Landing = () => {
       toast.error('Error al activar el plan');
     }
   };
+
   const handleItemClick = (label: string) => {
     setActiveItem(label);
     if (label === "perfil." && session) {
       setShowDropdown(!showDropdown);
     }
   };
+
   const handleLogin = () => {
     setAuthDialog({
       isOpen: true,
       mode: "login"
     });
   };
+
   const handleRegister = () => {
     setAuthDialog({
       isOpen: true,
       mode: "register"
     });
   };
+
   const handleAuthSuccess = () => {
     setAuthDialog({
       isOpen: false,
       mode: "login"
     });
   };
+
   const handleLogout = async () => {
     const {
       error
@@ -220,10 +234,12 @@ const Landing = () => {
     setHasBetaPlan(false);
     toast.success('Sesión cerrada exitosamente');
   };
+
   const handleChangeUsername = () => {
     setShowPopup(true);
     setShowDropdown(false);
   };
+
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -239,7 +255,8 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
-  const [formData, setFormData] = useState({
+
+  const [formData, setFormData] = useState<Partial<FormDataState>>({
     antecedentesPersonalesPatologicos: {
       nutricionales: {
         anorexia: false,
@@ -314,7 +331,8 @@ const Landing = () => {
       }
     }
   });
-  const handleAntecedentePatologicoChange = (field, value) => {
+
+  const handleAntecedentePatologicoChange = (field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       antecedentesPersonalesPatologicos: {
@@ -323,12 +341,18 @@ const Landing = () => {
       }
     }));
   };
+  
   if (loading) return <LoadingScreen visible={loading} />;
+  
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-8 w-8" />
+          <div className="text-black font-mplus text-xs sm:text-sm md:text-base">
+            <div className="font-medium leading-tight tracking-wide">DENTAL BASICS</div>
+            <div className="font-medium leading-tight tracking-wide">ACADEMY</div>
+          </div>
         </div>
 
         {/* Main horizontal navigation */}
@@ -524,4 +548,5 @@ const Landing = () => {
     })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
     </div>;
 };
+
 export default Landing;
