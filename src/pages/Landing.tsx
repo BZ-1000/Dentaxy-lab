@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
@@ -9,33 +9,19 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
-import { FormDataState } from '@/types/historiaClinica';
-import Footer from '@/components/Footer';
-import { Checkbox } from '@/components/ui/checkbox';
-
-const menuItems = [
-  {
-    label: "Nosotros",
-    href: "/nosotros"
-  },
-  {
-    label: "Funciones",
-    href: "/funciones"
-  },
-  {
-    label: "Beneficios",
-    href: "/beneficios"
-  },
-  {
-    label: "Planes",
-    href: "/planes"
-  },
-  {
-    label: "Contacto",
-    href: "/contacto"
-  }
-];
-
+const menuItems = [{
+  label: "Menu",
+  href: "#"
+}, {
+  label: "settings.",
+  href: "#"
+}, {
+  label: "perfil.",
+  href: "#"
+}, {
+  label: "nosotros",
+  href: "#"
+}];
 const LoadingScreen = ({
   visible
 }) => {
@@ -63,7 +49,6 @@ const LoadingScreen = ({
       </div>
     </div>;
 };
-
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -83,9 +68,6 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
-  const [termsAccepted, setTermsAccepted] = useState(false);
-  const [privacyAccepted, setPrivacyAccepted] = useState(false);
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -121,7 +103,6 @@ const Landing = () => {
       subscription.unsubscribe();
     };
   }, []);
-
   const checkUsername = async (userId: string) => {
     try {
       const {
@@ -140,7 +121,6 @@ const Landing = () => {
       console.error('Error checking username:', error);
     }
   };
-
   const checkUserPlan = async (userId: string) => {
     try {
       const {
@@ -156,27 +136,18 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
-
   const handleSaveUsername = async () => {
     if (!session || !username.trim()) {
       toast.error('Por favor ingresa un nombre de usuario');
       return;
     }
-    
-    if (!termsAccepted || !privacyAccepted) {
-      toast.error('Debes aceptar los términos y condiciones y la política de privacidad para continuar');
-      return;
-    }
-    
     setLoading(true);
     try {
       const {
         error
       } = await supabase.from('user_profiles').upsert([{
         id: session.user.id,
-        username: username.trim(),
-        terms_accepted: termsAccepted,
-        privacy_accepted: privacyAccepted
+        username: username.trim()
       }], {
         onConflict: 'id'
       });
@@ -189,7 +160,6 @@ const Landing = () => {
       setLoading(false);
     }
   };
-
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -214,35 +184,30 @@ const Landing = () => {
       toast.error('Error al activar el plan');
     }
   };
-
   const handleItemClick = (label: string) => {
     setActiveItem(label);
-    if (label === "perfil" && session) {
+    if (label === "perfil." && session) {
       setShowDropdown(!showDropdown);
     }
   };
-
   const handleLogin = () => {
     setAuthDialog({
       isOpen: true,
       mode: "login"
     });
   };
-
   const handleRegister = () => {
     setAuthDialog({
       isOpen: true,
       mode: "register"
     });
   };
-
   const handleAuthSuccess = () => {
     setAuthDialog({
       isOpen: false,
       mode: "login"
     });
   };
-
   const handleLogout = async () => {
     const {
       error
@@ -255,12 +220,10 @@ const Landing = () => {
     setHasBetaPlan(false);
     toast.success('Sesión cerrada exitosamente');
   };
-
   const handleChangeUsername = () => {
     setShowPopup(true);
     setShowDropdown(false);
   };
-
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -276,8 +239,7 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
-
-  const [formData, setFormData] = useState<Partial<FormDataState>>({
+  const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
       nutricionales: {
         anorexia: false,
@@ -352,8 +314,7 @@ const Landing = () => {
       }
     }
   });
-
-  const handleAntecedentePatologicoChange = (field: string, value: any) => {
+  const handleAntecedentePatologicoChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       antecedentesPersonalesPatologicos: {
@@ -362,32 +323,19 @@ const Landing = () => {
       }
     }));
   };
-  
   if (loading) return <LoadingScreen visible={loading} />;
-  
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-8 w-8" />
-          <div className="text-black text-[10px] sm:text-xs font-bold tracking-tight">
-            <div className="leading-none">DENTAL BASICS</div>
-            <div className="leading-none">ACADEMY</div>
-          </div>
         </div>
 
         {/* Main horizontal navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          {menuItems.map(item => (
-            <Link 
-              key={item.label} 
-              to={item.href} 
-              className={`text-black hover:text-black/70 text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}
-              onClick={() => handleItemClick(item.label)}
-            >
+          {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`text-black hover:text-black/70 text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}>
               {item.label}
-            </Link>
-          ))}
+            </button>)}
         </div>
 
         {/* Auth buttons */}
@@ -428,16 +376,9 @@ const Landing = () => {
       {/* Mobile Menu */}
       {isMobile && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
           <div className="flex justify-around">
-            {menuItems.map(item => (
-              <Link 
-                key={item.label} 
-                to={item.href}
-                className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}
-                onClick={() => handleItemClick(item.label)}
-              >
+            {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}>
                 {item.label}
-              </Link>
-            ))}
+              </button>)}
           </div>
           {showDropdown && <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
               {session ? <>
@@ -484,20 +425,19 @@ const Landing = () => {
 
           <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
             <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
-                🔽 Demostracion de redacción automatica...
+                🔽 Demostracion de redacción automatica...
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <AntecedentesPersonalesPatologicos 
-                formData={formData as FormDataState} 
-                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
-              />
+              <AntecedentesPersonalesPatologicos formData={formData} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
           </div>
+
+          <p className="text-center text-gray-500 text-xs max-w-3xl mx-auto">
+            "Revisado y aprobado por líderes en odontología clínica, incluyendo el
+            Dr. Alejandro Fuentes, la Dra. Mariana López y el Dr. Ricardo Méndez."
+          </p>
         </div>
       </div>
-
-      {/* Footer */}
-      <Footer />
 
       {/* Username Popup */}
       {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
@@ -508,31 +448,6 @@ const Landing = () => {
             </p>
             <div className="space-y-4">
               <Input type="text" placeholder="Nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="bg-white border-gray-300" />
-              
-              <div className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="terms" 
-                    checked={termsAccepted} 
-                    onCheckedChange={(checked) => setTermsAccepted(checked === true)} 
-                  />
-                  <label htmlFor="terms" className="text-sm text-gray-600 cursor-pointer">
-                    Acepto los <Link to="/terminos" className="text-blue-600 hover:underline" target="_blank">Términos y Condiciones</Link>
-                  </label>
-                </div>
-                
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="privacy" 
-                    checked={privacyAccepted} 
-                    onCheckedChange={(checked) => setPrivacyAccepted(checked === true)} 
-                  />
-                  <label htmlFor="privacy" className="text-sm text-gray-600 cursor-pointer">
-                    Acepto la <Link to="/privacidad" className="text-blue-600 hover:underline" target="_blank">Política de Privacidad</Link>
-                  </label>
-                </div>
-              </div>
-              
               <Button onClick={handleSaveUsername} className="w-full bg-blue-600 text-white hover:bg-blue-700" disabled={loading}>
                 {loading ? <span className="flex items-center gap-2">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -609,5 +524,4 @@ const Landing = () => {
     })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
     </div>;
 };
-
 export default Landing;

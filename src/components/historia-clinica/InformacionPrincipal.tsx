@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,8 +38,8 @@ const InformacionPrincipal = ({
         <Label>Estado Actual</Label>
         <div className="flex items-center gap-4">
           <Textarea
-            value={estadoActual}
-            onChange={(e) => onEstadoChange(e.target.value)}
+            value={evolucion}
+            onChange={(e) => onEvolucionChange(e.target.value)}
             placeholder="Describa el estado actual de los síntomas"
             className="min-h-[135px] max-h-[135px] w-[75%]"
           />
@@ -54,13 +53,13 @@ const InformacionPrincipal = ({
         <Label>Evolución</Label>
         <div className="flex items-center gap-4">
           <Textarea
-            value={evolucion}
-            onChange={(e) => onEvolucionChange(e.target.value)}
+            value={estadoActual}
+            onChange={(e) => onEstadoChange(e.target.value)}
             placeholder="Describa la evolución de los síntomas"
             className="min-h-[135px] max-h-[135px] w-[75%]"
           />
           <div className="h-[40px]">
-            <VoiceInput onTranscriptionComplete={(text) => onEvolucionChange(text)} />
+            <VoiceInput onTranscriptionComplete={(text) => onEstadoChange(text)} />
           </div>
         </div>
       </div>

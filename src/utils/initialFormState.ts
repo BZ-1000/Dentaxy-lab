@@ -7,206 +7,30 @@ export const getInitialFormState = (): FormDataState => ({
     motivoConsulta: '',
     historiaPadecimiento: '',
     dolor: {
-      presente: false,
-      tipo: '',
-      escala: '',
       fechaInicio: '',
+      condicionAparicion: '',
       frecuencia: '',
-      duracion: '',
+      caracter: '',
+      intensidad: '',
       localizacion: {
         tipo: '',
         descripcion: ''
       },
-      irradiacion: '',
-      factoresAgravantes: '',
-      factoresAliviantes: '',
-      condicionAparicion: '',
-      caracter: '',
-      intensidad: '',
       atenuacion: ''
     }
   },
   antecedentesHeredoFamiliares: {
-    padre: {
-      vivo: true,
-      edad: '',
-      condiciones: {
-        diabetes: false,
-        hipertension: false,
-        cancer: false,
-        enfermedadesCardiacas: false,
-        otros: '',
-        diabetesMellitus: false,
-        hipertensionArterial: false,
-        osteoporosis: false,
-        artritisReumatoide: false,
-        parkinson: false,
-        alzheimer: false,
-        asma: false,
-        anemia: false,
-        otras: ''
-      },
-      finado: false,
-      causaMuerte: ''
-    },
-    madre: {
-      vivo: true,
-      edad: '',
-      condiciones: {
-        diabetes: false,
-        hipertension: false,
-        cancer: false,
-        enfermedadesCardiacas: false,
-        otros: '',
-        diabetesMellitus: false,
-        hipertensionArterial: false,
-        osteoporosis: false,
-        artritisReumatoide: false,
-        parkinson: false,
-        alzheimer: false,
-        asma: false,
-        anemia: false,
-        otras: ''
-      },
-      finado: false,
-      causaMuerte: ''
-    },
-    abueloPaterno: {
-      vivo: true,
-      edad: '',
-      condiciones: {
-        diabetes: false,
-        hipertension: false,
-        cancer: false,
-        enfermedadesCardiacas: false,
-        otros: '',
-        diabetesMellitus: false,
-        hipertensionArterial: false,
-        osteoporosis: false,
-        artritisReumatoide: false,
-        parkinson: false,
-        alzheimer: false,
-        asma: false,
-        anemia: false,
-        otras: ''
-      },
-      finado: false,
-      causaMuerte: ''
-    },
-    abuelaPaterna: {
-      vivo: true,
-      edad: '',
-      condiciones: {
-        diabetes: false,
-        hipertension: false,
-        cancer: false,
-        enfermedadesCardiacas: false,
-        otros: '',
-        diabetesMellitus: false,
-        hipertensionArterial: false,
-        osteoporosis: false,
-        artritisReumatoide: false,
-        parkinson: false,
-        alzheimer: false,
-        asma: false,
-        anemia: false,
-        otras: ''
-      },
-      finado: false,
-      causaMuerte: ''
-    },
-    abueloMaterno: {
-      vivo: true,
-      edad: '',
-      condiciones: {
-        diabetes: false,
-        hipertension: false,
-        cancer: false,
-        enfermedadesCardiacas: false,
-        otros: '',
-        diabetesMellitus: false,
-        hipertensionArterial: false,
-        osteoporosis: false,
-        artritisReumatoide: false,
-        parkinson: false,
-        alzheimer: false,
-        asma: false,
-        anemia: false,
-        otras: ''
-      },
-      finado: false,
-      causaMuerte: ''
-    },
-    abuelaMaterna: {
-      vivo: true,
-      edad: '',
-      condiciones: {
-        diabetes: false,
-        hipertension: false,
-        cancer: false,
-        enfermedadesCardiacas: false,
-        otros: '',
-        diabetesMellitus: false,
-        hipertensionArterial: false,
-        osteoporosis: false,
-        artritisReumatoide: false,
-        parkinson: false,
-        alzheimer: false,
-        asma: false,
-        anemia: false,
-        otras: ''
-      },
-      finado: false,
-      causaMuerte: ''
-    }
+    padre: getInitialFamiliarState(),
+    madre: getInitialFamiliarState(),
+    abueloPaterno: getInitialFamiliarState(),
+    abuelaPaterna: getInitialFamiliarState(),
+    abueloMaterno: getInitialFamiliarState(),
+    abuelaMaterna: getInitialFamiliarState()
   },
   antecedentesPersonalesNoPatologicos: {
-    alimentacion: {
-      tipoDieta: '',
-      frecuenciaComidas: '',
-      consumoAguaDia: ''
-    },
-    habitacion: {
-      tipoVivienda: '',
-      numeroHabitantes: '',
-      mascotas: ''
-    },
-    higienePersonal: {
-      frecuenciaBano: '',
-      cambioRopa: '',
-      aseoBucal: ''
-    },
-    actividadFisica: {
-      tipoEjercicio: '',
-      frecuenciaEjercicio: '',
-      duracionEjercicio: ''
-    },
-    sueno: {
-      horasSueno: '',
-      calidadSueno: ''
-    },
-    tabaquismo: {
-      consumeTabaco: false,
-      edadInicioTabaquismo: '',
-      cantidadTabacoDia: '',
-      tiempoAbstinenciaTabaquismo: ''
-    },
-    alcoholismo: {
-      consumeAlcohol: false,
-      edadInicioAlcoholismo: '',
-      frecuenciaAlcoholismo: '',
-      cantidadAlcoholismo: '',
-      tiempoAbstinenciaAlcoholismo: ''
-    },
-    toxicomanias: {
-      consumeDrogas: false,
-      tipoDroga: '',
-      frecuenciaDrogas: '',
-      tiempoAbstinenciaDrogas: ''
-    },
-    servicios: [],
     tipoVivienda: "",
     materialVivienda: "",
+    servicios: [],
     condicionCalle: "",
     iluminacionCalle: "",
     frecuenciaLimpieza: "",
@@ -237,36 +61,6 @@ export const getInitialFormState = (): FormDataState => ({
     ayunoProlongado: ""
   },
   antecedentesPersonalesPatologicos: {
-    enfermedadesInfancia: {
-      varicela: false,
-      sarampion: false,
-      rubeola: false,
-      parotiditis: false,
-      tosferina: false,
-      otras: ''
-    },
-    enfermedadesCronicas: {
-      diabetes: false,
-      hipertension: false,
-      cardiacas: false,
-      respiratorias: false,
-      alergias: false,
-      otras: ''
-    },
-    hospitalizaciones: {
-      haSidoHospitalizado: false,
-      motivoHospitalizacion: '',
-      fechaHospitalizacion: ''
-    },
-    transfusiones: {
-      haRecibidoTransfusiones: false,
-      motivoTransfusion: '',
-      fechaTransfusion: ''
-    },
-    vacunas: {
-      esquemaCompleto: false,
-      cualesVacunas: ''
-    },
     sinPatologia: false,
     nutricionales: {
       anorexia: false,
@@ -342,25 +136,6 @@ export const getInitialFormState = (): FormDataState => ({
     }
   },
   antecedentesAlergicos: {
-    alergiaMedicamentos: {
-      esAlergico: false,
-      medicamentos: '',
-      reaccion: ''
-    },
-    alergiaAlimentos: {
-      esAlergico: false,
-      alimentos: '',
-      reaccion: ''
-    },
-    alergiaAmbiental: {
-      esAlergico: false,
-      alergenos: '',
-      reaccion: ''
-    },
-    alergiaLatex: {
-      esAlergico: false,
-      reaccion: ''
-    },
     medicamentos: {
       es_alergico: false,
       cuales: "",
@@ -380,11 +155,7 @@ export const getInitialFormState = (): FormDataState => ({
     sinQuirurgicos: false,
     cirugiasRealizadas: [],
     hospitalizacionesPrevias: "",
-    complicacionesAnestesicas: "",
-    cirugiasPrevias: false,
-    tipoCirugia: "",
-    fechaCirugia: "",
-    complicaciones: ""
+    complicacionesAnestesicas: ""
   },
   antecedentesHemorragicos: {
     sinHemorragicos: false,
@@ -395,27 +166,13 @@ export const getInitialFormState = (): FormDataState => ({
     detallesAdicionales: ""
   },
   interrogatorioSistemas: {
-    general: '',
-    piel: '',
-    cabeza: '',
-    ojos: '',
-    oidos: '',
-    nariz: '',
-    boca: '',
-    garganta: '',
-    cuello: '',
-    torax: '',
     cardiovascular: "",
     respiratorio: "",
-    gastrointestinal: '',
-    genitourinario: '',
-    endocrino: '',
-    hematologico: '',
-    nervioso: '',
-    musculoEsqueletico: '',
-    psiquiatrico: '',
     digestivo: "",
     urinario: "",
+    musculoEsqueletico: "",
+    nervioso: "",
+    endocrino: "",
     tegumentario: ""
   },
   exploracionFisica: {
@@ -424,28 +181,10 @@ export const getInitialFormState = (): FormDataState => ({
       fc: "",
       fr: "",
       temperatura: "",
-      frecuenciaCardiaca: "",
-      frecuenciaRespiratoria: "",
-      presionArterial: "",
       peso: "",
       talla: "",
       imc: ""
     },
-    aparienciaGeneral: "",
-    piel: "",
-    cabeza: "",
-    ojos: "",
-    oidos: "",
-    nariz: "",
-    boca: "",
-    cuello: "",
-    torax: "",
-    corazon: "",
-    pulmones: "",
-    abdomen: "",
-    extremidades: "",
-    neurologico: "",
-    mental: "",
     exploracion: {
       cabeza: "",
       cuello: "",
@@ -456,16 +195,13 @@ export const getInitialFormState = (): FormDataState => ({
   },
   examenCabeza: {
     sinHallazgos: false,
-    palpacionATM: "",
-    movimientosMandibulares: "",
-    gangliosLinfaticos: "",
-    musculosMasticadores: "",
-    observaciones: "",
-    macrocefalia: "",
-    microcefalia: "",
-    dolor: "",
-    cefalea: "",
-    otrosHallazgos: ""
+    craneo: "",
+    cara: "",
+    ojos: "",
+    oidos: "",
+    nariz: "",
+    boca: "",
+    atm: ""
   },
   serviciosDomiciliarios: '',
   pisosVivienda: '',
@@ -505,16 +241,9 @@ export const getInitialFormState = (): FormDataState => ({
 });
 
 const getInitialFamiliarState = () => ({
-  vivo: true,
-  edad: '',
   finado: false,
   causaMuerte: '',
   condiciones: {
-    diabetes: false,
-    hipertension: false,
-    cancer: false,
-    enfermedadesCardiacas: false,
-    otros: '',
     diabetesMellitus: false,
     hipertensionArterial: false,
     osteoporosis: false,
@@ -522,6 +251,7 @@ const getInitialFamiliarState = () => ({
     parkinson: false,
     alzheimer: false,
     asma: false,
+    cancer: false,
     anemia: false,
     otras: ''
   }

@@ -8,16 +8,9 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 // Get the base URL for redirects
 export const getURL = () => {
   let url = window?.location?.origin || 'https://dentaxy.com';
+  
   // Make sure to include a trailing '/'
   return url.charAt(url.length - 1) === '/' ? url : `${url}/`;
-};
-
-// Setup storage configuration
-const storageOptions = {
-  autoRefreshToken: true,
-  persistSession: true,
-  detectSessionInUrl: true,
-  storageKey: 'dentaxy-auth-token'
 };
 
 // Create Supabase client with PKCE auth flow
@@ -26,14 +19,6 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    flowType: 'pkce',
-    storage: globalThis.localStorage,
-    // Ensure any custom storageKey is set here
-    storageKey: 'dentaxy-auth-token'
-  },
-  global: {
-    headers: {
-      'X-Dentaxy-Origin': 'web-app'
-    }
+    flowType: 'pkce'
   }
 });

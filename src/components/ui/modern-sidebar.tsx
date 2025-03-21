@@ -1,176 +1,200 @@
 
-import React, { useState, useEffect } from "react";
-import { useTheme } from "@/hooks/use-theme";
-import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import {
-  ChevronFirst,
-  ChevronLast,
-  Menu,
-  Moon,
-  Sun,
-} from "lucide-react";
+import React, { useState, createContext, useContext } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
 
-interface SidebarProps {
-  children: React.ReactNode;
-  className?: string;
+interface Links {
+  label: string;
+  href?: string;
+  icon: React.JSX.Element | React.ReactNode;
+  onClick?: () => void;
 }
 
-export const ModernSidebar = ({ children, className }: SidebarProps) => {
-  const [expanded, setExpanded] = useState(true);
-  const { theme, setTheme } = useTheme();
-  const [isMounted, setIsMounted] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-  const sidebarWidth = expanded ? "16rem" : "5rem";
+interface SidebarContextProps {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  animate: boolean;
+}
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+const SidebarContext = createContext<SidebarContextProps | undefined>(undefined);
 
-  if (!isMounted) {
-    return null;
+export const useSidebar = () => {
+  const context = useContext(SidebarContext);
+  if (!context) {
+    throw new Error("useSidebar must be used within a SidebarProvider");
   }
+  return context;
+};
 
-  const toggleSidebar = () => {
-    setExpanded(!expanded);
-  };
+export const SidebarProvider = ({
+  children,
+  open: openProp,
+  setOpen: setOpenProp,
+  animate = true
+}: {
+  children: React.ReactNode;
+  open?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  animate?: boolean;
+}) => {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp !== undefined ? openProp : openState;
+  const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
 
-  const logo = {
-    expanded: (
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <img src="/diente.png" alt="Logo" className="h-8 w-auto" />
-          <span className="font-semibold text-lg">Clínica Dental</span>
-        </div>
-      </div>
-    ),
-    collapsed: (
-      <div className="flex items-center justify-center">
-        <img src="/diente.png" alt="Logo" className="h-8 w-auto" />
-      </div>
-    ),
-  };
+  return <SidebarContext.Provider value={{
+    open,
+    setOpen,
+    animate
+  }}>
+      {children}
+    </SidebarContext.Provider>;
+};
 
-  const toggleThemeButton = (
-    <button
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className={cn(
-        "fixed bottom-4 right-4 p-2 rounded-full bg-opacity-20 backdrop-blur-sm",
-        theme === "dark"
-          ? "bg-white text-white"
-          : "bg-black text-black"
-      )}
-    >
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={theme === "dark" ? "dark" : "light"}
-          initial={{ y: -10, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 10, opacity: 0 }}
-          transition={{ duration: 0.15 }}
-        >
-          {theme === "dark" ? (
-            <Sun className="h-5 w-5 text-yellow-300" />
-          ) : (
-            <Moon className="h-5 w-5 text-slate-700" />
-          )}
-        </motion.div>
-      </AnimatePresence>
-    </button>
-  );
+export const Sidebar = ({
+  children,
+  open,
+  setOpen,
+  animate
+}: {
+  children: React.ReactNode;
+  open?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  animate?: boolean;
+}) => {
+  return <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
+      {children}
+    </SidebarProvider>;
+};
+
+export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
+  return <>
+      <DesktopSidebar {...props} />
+      <MobileSidebar {...props} />
+    </>;
+};
+
+export const DesktopSidebar = ({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof motion.div>) => {
+  const { open, setOpen, animate } = useSidebar();
+
+  // Use string type for width to avoid MotionValue TypeScript errors
+  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
 
   return (
-    <div
+    <motion.div
       className={cn(
-        "bg-white dark:bg-gray-900 text-gray-800 dark:text-white h-screen relative transition-all duration-300 ease-in-out",
+        "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
         className
       )}
+      animate={{
+        width: sidebarWidth
+      }}
       style={{ width: sidebarWidth }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      {...props}
     >
-      <div className="flex flex-col h-full">
-        <div className="p-4 flex justify-between items-center border-b border-gray-200 dark:border-gray-700">
-          {expanded ? logo.expanded : logo.collapsed}
-          <button
-            onClick={toggleSidebar}
-            className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-          >
-            {expanded ? (
-              <ChevronFirst className="h-5 w-5" />
-            ) : (
-              <ChevronLast className="h-5 w-5" />
-            )}
-          </button>
-        </div>
+      {children}
+    </motion.div>
+  );
+};
 
-        <div className="p-2 flex-1 overflow-y-auto">{children}</div>
+export const MobileSidebar = ({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof motion.div>) => {
+  const { open, setOpen } = useSidebar();
 
-        <div className="border-t border-gray-200 dark:border-gray-700 p-4">
-          <div
-            className={`flex ${
-              expanded ? "justify-between" : "justify-center"
-            } items-center`}
-          >
-            {expanded && (
-              <div className="flex items-center gap-2">
-                <div className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
-                  <span className="text-sm font-medium">US</span>
-                </div>
-                <div>
-                  <div className="text-sm font-medium">Usuario</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    usuario@ejemplo.com
-                  </div>
-                </div>
-              </div>
-            )}
-            <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className="p-1.5 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700"
-            >
-              {theme === "dark" ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </button>
-          </div>
-        </div>
+  return (
+    <>
+      <div className="h-14 md:hidden flex items-center px-4 bg-neutral-100 dark:bg-neutral-800">
+        <button
+          onClick={() => setOpen(true)}
+          className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg"
+        >
+          <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+        </button>
       </div>
+      
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+            className={cn(
+              "fixed inset-0 z-50 bg-white dark:bg-neutral-900 md:hidden",
+              className
+            )}
+            {...props}
+          >
+            <div className="flex flex-col h-full p-4">
+              <button
+                onClick={() => setOpen(false)}
+                className="self-end p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg mb-4"
+              >
+                <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+              </button>
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+export const SidebarLink = ({
+  link,
+  className,
+  ...props
+}: {
+  link: Links;
+  className?: string;
+}) => {
+  const { open, animate } = useSidebar();
+
+  return (
+    <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} onClick={link.onClick} {...props}>
+      {link.icon}
+      {animate ? (
+        open ? (
+          <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
+            {link.label}
+          </span>
+        ) : null
+      ) : (
+        <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
+          {link.label}
+        </span>
+      )}
     </div>
   );
 };
 
-export const SidebarItem = ({
-  icon,
-  text,
-  active = false,
-  expanded = true,
-  alert = false,
-  onClick,
+export const Logo = ({
+  children
 }: {
-  icon: React.ReactNode;
-  text: string;
-  active?: boolean;
-  expanded?: boolean;
-  alert?: boolean;
-  onClick?: () => void;
+  children: React.ReactNode;
 }) => {
-  return (
-    <div
-      className={`flex items-center gap-2 p-3 my-1 rounded-lg cursor-pointer transition-colors ${
-        active
-          ? "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400"
-          : "hover:bg-gray-100 dark:hover:bg-gray-800"
-      }`}
-      onClick={onClick}
-    >
-      <div className="relative">
-        {icon}
-        {alert && (
-          <div className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red-500" />
-        )}
-      </div>
-      {expanded && <span className="text-sm">{text}</span>}
-    </div>
-  );
+  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
+      {children}
+      <div className="whitespace-pre text-base font-medium text-gray-700">DENTAXY.ai</div>
+    </div>;
+};
+
+export const LogoIcon = ({
+  children
+}: {
+  children: React.ReactNode;
+}) => {
+  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
+      {children}
+    </div>;
 };
