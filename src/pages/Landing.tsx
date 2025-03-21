@@ -477,13 +477,16 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-gray-50 border-t border-gray-200 py-12">
+      {/* Updated Footer with Better Design */}
+      <footer className="bg-gradient-to-b from-white to-gray-100 border-t border-gray-200 py-16">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* Column 1 - Company Info */}
-            <div>
-              <h3 className="text-xl font-bold text-gray-900 mb-4">Dentaxy</h3>
+            <div className="flex flex-col space-y-4">
+              <div className="flex items-center gap-2">
+                <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-10 w-10" />
+                <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-emerald-500 bg-clip-text text-transparent">Dentaxy</h3>
+              </div>
               <p className="text-sm text-gray-600 mb-2">Dental Basics Academy</p>
               <p className="text-sm text-gray-600">© 2025 Dentaxy.ai & Dentaxy.com Todos los derechos reservados.</p>
               <div className="mt-4 flex">
@@ -491,23 +494,28 @@ const Landing = () => {
                   href="https://instagram.com/dentalbasicsacademy" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-pink-600 hover:text-pink-700"
+                  className="relative group"
+                  aria-label="Síguenos en Instagram"
                 >
-                  <Instagram className="h-5 w-5" />
+                  <div className="absolute -inset-2 bg-gradient-to-r from-pink-500 via-purple-500 to-pink-500 rounded-full opacity-0 group-hover:opacity-70 blur-md transition-all duration-500 group-hover:duration-200 animate-pulse"></div>
+                  <div className="relative flex items-center justify-center p-2 bg-white rounded-full shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-110">
+                    <Instagram className="h-6 w-6 text-pink-600 animate-bounce" style={{ animationDuration: '3s', animationIterationCount: 'infinite' }} />
+                  </div>
                 </a>
               </div>
             </div>
             
             {/* Column 2 - Quick Links */}
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Enlaces Rápidos</h3>
+            <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow transition-all duration-300">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2 border-gray-200">Enlaces Rápidos</h3>
               <ul className="space-y-3">
                 {menuItems.map((item) => (
                   <li key={item.label}>
                     <Link 
                       to={item.href} 
-                      className="text-gray-600 hover:text-blue-600 transition-colors text-sm"
+                      className="text-gray-600 hover:text-blue-600 transition-colors text-sm flex items-center gap-2 group"
                     >
+                      <span className="h-1 w-1 bg-gray-300 rounded-full group-hover:bg-blue-600 group-hover:w-3 transition-all duration-300"></span>
                       {item.label}
                     </Link>
                   </li>
@@ -516,27 +524,33 @@ const Landing = () => {
             </div>
             
             {/* Column 3 - Legal */}
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Políticas y Legalidad</h3>
+            <div className="bg-white p-6 rounded-lg shadow-sm hover:shadow transition-all duration-300">
+              <h3 className="text-lg font-bold text-gray-900 mb-4 border-b pb-2 border-gray-200">Políticas y Legalidad</h3>
               <ul className="space-y-3">
                 <li>
                   <Link 
                     to="/terms" 
-                    className="text-gray-600 hover:text-blue-600 transition-colors text-sm"
+                    className="text-gray-600 hover:text-blue-600 transition-colors text-sm flex items-center gap-2 group"
                   >
+                    <span className="h-1 w-1 bg-gray-300 rounded-full group-hover:bg-blue-600 group-hover:w-3 transition-all duration-300"></span>
                     Términos y Condiciones
                   </Link>
                 </li>
                 <li>
                   <Link 
                     to="/privacy" 
-                    className="text-gray-600 hover:text-blue-600 transition-colors text-sm"
+                    className="text-gray-600 hover:text-blue-600 transition-colors text-sm flex items-center gap-2 group"
                   >
+                    <span className="h-1 w-1 bg-gray-300 rounded-full group-hover:bg-blue-600 group-hover:w-3 transition-all duration-300"></span>
                     Política de Privacidad
                   </Link>
                 </li>
               </ul>
             </div>
+          </div>
+          
+          <div className="mt-12 pt-8 border-t border-gray-200 text-center">
+            <p className="text-gray-500 text-sm">Transformando la experiencia odontológica con inteligencia artificial</p>
           </div>
         </div>
       </footer>
