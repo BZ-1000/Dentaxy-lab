@@ -10,6 +10,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { FormDataState } from '@/types/historiaClinica';
+import Footer from '@/components/Footer';
 
 const menuItems = [
   {
@@ -450,7 +451,7 @@ const Landing = () => {
             </div>}
         </div>}
 
-      {/* Main Content - Keep the rest of the landing page */}
+      {/* Main Content */}
       <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto">
         <div className="text-center w-full">
           <h1 className="mb-5 font-black text-black text-5xl text-center sm:text-8xl">
@@ -472,19 +473,20 @@ const Landing = () => {
 
           <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
             <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
-                🔽 Demostracion de redacción automatica...
+                🔽 Demostracion de redacción automatica...
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <AntecedentesPersonalesPatologicos formData={formData} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
+              <AntecedentesPersonalesPatologicos 
+                formData={formData as FormDataState} 
+                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
+              />
             </div>
           </div>
-
-          <p className="text-center text-gray-500 text-xs max-w-3xl mx-auto">
-            "Revisado y aprobado por líderes en odontología clínica, incluyendo el
-            Dr. Alejandro Fuentes, la Dra. Mariana López y el Dr. Ricardo Méndez."
-          </p>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
 
       {/* Username Popup */}
       {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
