@@ -864,7 +864,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                     >
                       Volver al Formulario
                     </Button>
-                  </div>
+                  </div> 
                 </>
               )}
             </div>
