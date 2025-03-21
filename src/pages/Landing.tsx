@@ -1,28 +1,27 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, Instagram } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
+import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
-
 const menuItems = [{
   label: "Menu",
   href: "#"
 }, {
-  label: "Funciones",
-  href: "#features"
+  label: "settings.",
+  href: "#"
 }, {
-  label: "Planes",
-  href: "#pricing"
+  label: "perfil.",
+  href: "#"
 }, {
-  label: "Nosotros",
-  href: "#about"
+  label: "nosotros",
+  href: "#"
 }];
-
 const LoadingScreen = ({
   visible
 }) => {
@@ -50,7 +49,6 @@ const LoadingScreen = ({
       </div>
     </div>;
 };
-
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -326,17 +324,15 @@ const Landing = () => {
     }));
   };
   if (loading) return <LoadingScreen visible={loading} />;
-
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-gray-100 bg-slate-50">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
+        <div className="flex items-center gap-4">
           <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-8 w-8" />
-          <span className="text-xs font-bold text-gray-800">Dental Basics Academy</span>
         </div>
 
         {/* Main horizontal navigation */}
-        <div className="hidden md:flex items-center space-x-5">
+        <div className="hidden md:flex items-center space-x-6">
           {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`text-black hover:text-black/70 text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}>
               {item.label}
             </button>)}
@@ -429,145 +425,19 @@ const Landing = () => {
 
           <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
             <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
-                🔽 Demostracion de redacción automatica...
+                🔽 Demostracion de redacción automatica...
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <AntecedentesPersonalesPatologicos 
-                formData={{
-                  antecedentesPersonalesPatologicos: {
-                    nutricionales: {
-                      anorexia: false,
-                      bulimia: false,
-                      sobrepeso: false,
-                      obesidad: false,
-                      ninguna: true,
-                      otra: false,
-                      otraDescripcion: '',
-                      especificar: false
-                    },
-                    cardiacos: {
-                      enfermedadCoronaria: false,
-                      arritmias: false,
-                      defectosCardiacosCongenitos: false,
-                      ninguna: true,
-                      otra: false,
-                      otraDescripcion: ''
-                    },
-                    hepaticos: {
-                      hepatitisA: false,
-                      hepatitisB: false,
-                      hepatitisC: false,
-                      higadoGraso: false,
-                      cirrosis: false,
-                      ninguna: true,
-                      otra: false,
-                      otraDescripcion: ''
-                    },
-                    enfermedadesTransmisionSexual: {
-                      vih: false,
-                      sifilis: false,
-                      gonorrea: false,
-                      herpesGenital: false,
-                      vph: false,
-                      ninguna: true,
-                      otra: false,
-                      otraDescripcion: ''
-                    },
-                    enfermedadesEruptivas: {
-                      sarampion: false,
-                      rubeola: false,
-                      escarlatina: false,
-                      varicela: false,
-                      paperas: false,
-                      ninguna: true,
-                      otra: false,
-                      otraDescripcion: ''
-                    },
-                    pulmonares: {
-                      neumonia: false,
-                      bronquitis: false,
-                      asma: false,
-                      epoc: false,
-                      ninguna: true,
-                      otra: false,
-                      otraDescripcion: ''
-                    },
-                    infecciosasParasitarias: {
-                      fiebreTifoidea: false,
-                      tuberculosis: false,
-                      amibiasis: false,
-                      giardiasis: false,
-                      ascariasis: false,
-                      ninguna: true,
-                      otra: false,
-                      otraDescripcion: ''
-                    },
-                    otrosPadecimientos: {
-                      ninguna: true,
-                      otra: false,
-                      otraDescripcion: ''
-                    }
-                  }
-                }} 
-                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
-              />
+              <AntecedentesPersonalesPatologicos formData={formData} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
           </div>
+
+          <p className="text-center text-gray-500 text-xs max-w-3xl mx-auto">
+            "Revisado y aprobado por líderes en odontología clínica, incluyendo el
+            Dr. Alejandro Fuentes, la Dra. Mariana López y el Dr. Ricardo Méndez."
+          </p>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-gray-50 py-10 border-t border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Company Info */}
-            <div>
-              <h3 className="text-base font-bold text-gray-900 mb-3">Dentaxy</h3>
-              <p className="text-sm text-gray-600 mb-1">Dental Basics Academy</p>
-              <p className="text-sm text-gray-600">© 2025 Dentaxy.ai & Dentaxy.com Todos los derechos reservados.</p>
-              <div className="mt-4">
-                <a 
-                  href="https://www.instagram.com/dentalbasicsacademy" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:text-blue-800 transition-colors"
-                >
-                  <Instagram className="h-5 w-5" />
-                </a>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="text-base font-bold text-gray-900 mb-3">Enlaces Rápidos</h3>
-              <ul className="space-y-2">
-                <li><a href="#about" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Nosotros</a></li>
-                <li><a href="#features" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Cómo Funciona</a></li>
-                <li><a href="#benefits" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Beneficios</a></li>
-                <li><a href="#pricing" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Planes</a></li>
-                <li><a href="#contact" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">Contacto</a></li>
-              </ul>
-            </div>
-
-            {/* Legal Links */}
-            <div>
-              <h3 className="text-base font-bold text-gray-900 mb-3">Políticas y Legalidad</h3>
-              <ul className="space-y-2">
-                <li>
-                  <Link to="/terms" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">
-                    Términos y Condiciones
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/privacy" className="text-sm text-gray-600 hover:text-blue-600 transition-colors">
-                    Política de Privacidad
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </footer>
 
       {/* Username Popup */}
       {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
@@ -654,5 +524,4 @@ const Landing = () => {
     })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
     </div>;
 };
-
 export default Landing;
