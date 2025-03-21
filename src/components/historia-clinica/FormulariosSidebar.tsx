@@ -3,37 +3,41 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Save, FileText, BookOpen, Trash, Pencil, Share2, X } from "lucide-react";
-import { FormDataState } from '@/types/historiaClinica';
+import { FormDataState, FormSection } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
 import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@/components/ui/modern-sidebar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
+
 interface FormulariosSidebarProps {
-  onCargarFormulario: (data: FormDataState, nombre: string) => void;
-  onGuardarFormulario: (nombre: string) => void;
-  onCerrarFormulario: () => void;
-  pacienteActual: string;
+  currentSection: FormSection;
+  onSectionChange: (section: FormSection) => void;
+  formData: FormDataState;
+  showPreviews: boolean;
+  setShowPreviews: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
 const FormulariosSidebar = ({
-  onCargarFormulario,
-  onGuardarFormulario,
-  onCerrarFormulario,
-  pacienteActual
+  currentSection,
+  onSectionChange,
+  formData,
+  showPreviews,
+  setShowPreviews
 }: FormulariosSidebarProps) => {
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [formularios, setFormularios] = useState<{
     nombre: string;
     data: FormDataState;
   }[]>([]);
-  const {
-    theme
-  } = useTheme();
+  const { theme } = useTheme();
   const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [accionFormulario, setAccionFormulario] = useState<'eliminar' | 'renombrar' | 'compartir' | null>(null);
   const [formularioSeleccionado, setFormularioSeleccionado] = useState<string | null>(null);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
+  const { toast } = useToast();
+  
   const loadSavedForms = () => {
     const savedForms: {
       nombre: string;
@@ -52,14 +56,16 @@ const FormulariosSidebar = ({
     }
     setFormularios(savedForms);
   };
+
   useEffect(() => {
     loadSavedForms();
   }, []);
+
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       return;
     }
-    onGuardarFormulario(nombrePaciente);
+    // onGuardarFormulario(nombrePaciente);
     loadSavedForms();
     setNombrePaciente('');
     toast({
@@ -67,29 +73,31 @@ const FormulariosSidebar = ({
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
+
   const handleEliminarFormulario = () => {
     if (!formularioSeleccionado) return;
     localStorage.removeItem(`formulario_${formularioSeleccionado}`);
     loadSavedForms();
     setDialogOpen(false);
-    if (formularioSeleccionado === pacienteActual) {
-      onCerrarFormulario();
-    }
+    // if (formularioSeleccionado === pacienteActual) {
+    //   onCerrarFormulario();
+    // }
     toast({
       title: "Formulario eliminado",
       description: `El formulario de ${formularioSeleccionado} ha sido eliminado.`
     });
   };
+
   const handleRenombrarFormulario = () => {
     if (!formularioSeleccionado || !nuevoNombre.trim()) return;
     const oldData = localStorage.getItem(`formulario_${formularioSeleccionado}`);
     if (oldData) {
       localStorage.setItem(`formulario_${nuevoNombre}`, oldData);
       localStorage.removeItem(`formulario_${formularioSeleccionado}`);
-      if (formularioSeleccionado === pacienteActual) {
-        const data = JSON.parse(oldData);
-        onCargarFormulario(data, nuevoNombre);
-      }
+      // if (formularioSeleccionado === pacienteActual) {
+      //   const data = JSON.parse(oldData);
+      //   onCargarFormulario(data, nuevoNombre);
+      // }
       loadSavedForms();
       setDialogOpen(false);
       toast({
@@ -98,6 +106,7 @@ const FormulariosSidebar = ({
       });
     }
   };
+
   const handleCompartirFormulario = () => {
     if (!formularioSeleccionado || !emailCompartir.trim()) return;
     toast({
@@ -106,6 +115,7 @@ const FormulariosSidebar = ({
     });
     setDialogOpen(false);
   };
+
   const handleFormularioAction = (action: 'eliminar' | 'renombrar' | 'compartir', nombre: string) => {
     setAccionFormulario(action);
     setFormularioSeleccionado(nombre);
@@ -117,14 +127,16 @@ const FormulariosSidebar = ({
     setEmailCompartir('');
     setDialogOpen(true);
   };
-  const handleQuitarNombre = () => {
-    setNombrePaciente('');
-    onCerrarFormulario();
-    toast({
-      title: "Formulario reseteado",
-      description: "El formulario ha sido reseteado y el nombre del paciente eliminado."
-    });
-  };
+
+  // const handleQuitarNombre = () => {
+  //   setNombrePaciente('');
+  //   onCerrarFormulario();
+  //   toast({
+  //     title: "Formulario reseteado",
+  //     description: "El formulario ha sido reseteado y el nombre del paciente eliminado."
+  //   });
+  // };
+
   return (
     <div className="">
       <div className="sticky top-0 h-screen">
@@ -159,7 +171,9 @@ const FormulariosSidebar = ({
                       <SidebarLink link={{
                     label: form.nombre,
                     icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
-                    onClick: () => onCargarFormulario(form.data, form.nombre)
+                    onClick: () => {
+                      // onCargarFormulario(form.data, form.nombre)
+                    }
                   }} className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1" />
                       {open && <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={() => handleFormularioAction('renombrar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700">
@@ -179,7 +193,8 @@ const FormulariosSidebar = ({
           </SidebarBody>
         </Sidebar>
       </div>
-      {pacienteActual}
+      {/* Display current section name for debugging */}
+      <div className="hidden">{currentSection}</div>
     </div>
   );
 };

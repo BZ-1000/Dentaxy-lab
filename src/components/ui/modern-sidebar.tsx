@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -81,8 +80,8 @@ export const DesktopSidebar = ({
 }: React.ComponentPropsWithoutRef<typeof motion.div>) => {
   const { open, setOpen, animate } = useSidebar();
 
-  // Fix for the type issue - use explicit width values
-  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
+  // Define explicit width values as strings to fix the type issue
+  const width = animate ? (open ? "300px" : "60px") : "300px";
 
   return (
     <motion.div
@@ -90,10 +89,8 @@ export const DesktopSidebar = ({
         "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
         className
       )}
-      animate={{
-        width: sidebarWidth
-      }}
-      style={{ width: sidebarWidth }}
+      animate={{ width }}
+      style={{ width }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       {...props}

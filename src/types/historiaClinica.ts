@@ -1,3 +1,4 @@
+
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -201,7 +202,12 @@ export interface ExamenCabeza {
   nariz: string;
   boca: string;
   atm: string;
-  [key: string]: boolean | string;
+  palpacionATM?: string;
+  movimientosMandibulares?: string;
+  gangliosLinfaticos?: string;
+  musculosMasticadores?: string;
+  observaciones?: string;
+  [key: string]: boolean | string | undefined;
 }
 
 export interface HigieneBucal {

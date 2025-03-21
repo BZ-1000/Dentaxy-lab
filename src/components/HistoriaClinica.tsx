@@ -72,10 +72,11 @@ const HistoriaClinica: React.FC = () => {
       return;
     }
 
-    if (!formData.informacionPrincipal.nombrePaciente) {
+    // For simplicity, added a basic validation check on formData
+    if (!formData.padecimientoActual.motivoConsulta) {
       toast({
         title: "Información incompleta",
-        description: "Por favor, ingresa al menos el nombre del paciente.",
+        description: "Por favor, ingresa al menos el motivo de consulta.",
         variant: "destructive"
       });
       return;
@@ -115,58 +116,84 @@ const HistoriaClinica: React.FC = () => {
           />
         );
       case 'padecimientoActual':
-        return <PadecimientoActual 
-          padecimiento={formData.padecimientoActual}
-          onPadecimientoChange={handlePadecimientoChange}
-          onDolorChange={handleDolorChange}
-          onSinSintomasChange={handleSinSintomasChange}
-        />;
+        return (
+          <PadecimientoActual 
+            padecimiento={formData.padecimientoActual}
+            onPadecimientoChange={handlePadecimientoChange}
+            onDolorChange={handleDolorChange}
+            onSinSintomasChange={handleSinSintomasChange}
+          />
+        );
       case 'antecedentesHeredoFamiliares':
-        return <AntecedentesHeredoFamiliares 
-          antecedentes={formData.antecedentesHeredoFamiliares}
-          onFamiliarChange={handleFamiliarChange}
-          onCondicionChange={handleCondicionChange}
-        />;
+        return (
+          <AntecedentesHeredoFamiliares 
+            antecedentes={formData.antecedentesHeredoFamiliares}
+            onFamiliarChange={handleFamiliarChange}
+            onCondicionChange={handleCondicionChange}
+          />
+        );
       case 'antecedentesPersonalesPatologicos':
-        return <AntecedentesPersonalesPatologicos 
-          antecedentes={formData.antecedentesPersonalesPatologicos}
-          onChange={handleAntecedentePatologicoChange}
-        />;
+        return (
+          <AntecedentesPersonalesPatologicos 
+            antecedentes={formData.antecedentesPersonalesPatologicos}
+            onChange={handleAntecedentePatologicoChange}
+          />
+        );
       case 'antecedentesPersonalesNoPatologicos':
-        return <AntecedentesPersonalesNoPatologicos 
-          antecedentes={formData.antecedentesPersonalesNoPatologicos}
-          onChange={handleAntecedenteChange}
-        />;
+        return (
+          <AntecedentesPersonalesNoPatologicos 
+            antecedentes={formData.antecedentesPersonalesNoPatologicos}
+            onChange={handleAntecedenteChange}
+          />
+        );
       case 'antecedentesAlergicos':
-        return <AntecedentesAlergicos 
-          antecedentes={formData.antecedentesAlergicos}
-          onChange={handleAntecedenteAlergicoChange}
-        />;
+        return (
+          <AntecedentesAlergicos 
+            antecedentes={formData.antecedentesAlergicos}
+            onChange={handleAntecedenteAlergicoChange}
+          />
+        );
       case 'antecedentesQuirurgicos':
-        return <AntecedentesQuirurgicos 
-          antecedentes={formData.antecedentesQuirurgicos}
-          onChange={handleAntecedenteQuirurgicoChange}
-        />;
+        return (
+          <AntecedentesQuirurgicos 
+            antecedentes={formData.antecedentesQuirurgicos}
+            onChange={handleAntecedenteQuirurgicoChange}
+          />
+        );
       case 'antecedentesHemorragicos':
-        return <AntecedentesHemorragicos 
-          antecedentes={formData.antecedentesHemorragicos}
-          onChange={handleAntecedenteHemorragicoChange}
-        />;
+        return (
+          <AntecedentesHemorragicos 
+            antecedentes={formData.antecedentesHemorragicos}
+            onChange={handleAntecedenteHemorragicoChange}
+          />
+        );
       case 'interrogatorioSistemas':
-        return <InterrogatorioSistemas 
-          formData={formData}
-          handleInterrogatorioChange={handleInterrogatorioChange}
-        />;
+        return (
+          <InterrogatorioSistemas 
+            formData={formData}
+            handleInterrogatorioChange={handleInterrogatorioChange}
+          />
+        );
       case 'exploracionFisica':
-        return <ExploracionFisica 
-          exploracion={formData.exploracionFisica}
-          onChange={handleExploracionFisicaChange}
-        />;
+        return (
+          <ExploracionFisica 
+            exploracion={formData.exploracionFisica}
+            onChange={handleExploracionFisicaChange}
+          />
+        );
       case 'examenCabeza':
-        return <ExamenCabeza 
-          data={formData.examenCabeza}
-          onChange={handleExamenCabezaChange}
-        />;
+        return (
+          <ExamenCabeza 
+            data={{
+              palpacionATM: formData.examenCabeza.palpacionATM || "",
+              movimientosMandibulares: formData.examenCabeza.movimientosMandibulares || "",
+              gangliosLinfaticos: formData.examenCabeza.gangliosLinfaticos || "",
+              musculosMasticadores: formData.examenCabeza.musculosMasticadores || "",
+              observaciones: formData.examenCabeza.observaciones || ""
+            }}
+            onChange={handleExamenCabezaChange}
+          />
+        );
       default:
         return (
           <InformacionPrincipal
