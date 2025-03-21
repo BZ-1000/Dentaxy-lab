@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { AlertCircle, EyeOff, Eye } from "lucide-react";
+import { Typewriter } from "@/components/ui/typewriter-text";
 
 interface AntecedentesPersonalesPatologicosProps {
   formData: FormDataState;
@@ -32,6 +34,17 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     infecciosasParasitarias: "",
     otrosPadecimientos: ""
   });
+  const [animatedRedacciones, setAnimatedRedacciones] = useState({
+    nutricionales: "",
+    cardiacos: "",
+    hepaticos: "",
+    enfermedadesTransmisionSexual: "",
+    enfermedadesEruptivas: "",
+    pulmonares: "",
+    infecciosasParasitarias: "",
+    otrosPadecimientos: ""
+  });
+  const [isTyping, setIsTyping] = useState(false);
   const [copied, setCopied] = useState<Record<string, boolean>>({});
   const formRef = useRef<HTMLDivElement>(null);
   const redaccionesRef = useRef<HTMLDivElement>(null);
@@ -128,8 +141,27 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     };
 
     setRedacciones(nuevasRedacciones);
+    // Reiniciamos los textos animados para iniciar la animación
+    setAnimatedRedacciones({
+      nutricionales: "",
+      cardiacos: "",
+      hepaticos: "",
+      enfermedadesTransmisionSexual: "",
+      enfermedadesEruptivas: "",
+      pulmonares: "",
+      infecciosasParasitarias: "",
+      otrosPadecimientos: ""
+    });
+    setIsTyping(true);
     setShowForm(false);
     setProgress(100);
+
+    // Auto-scroll hacia arriba después de generar redacciones
+    setTimeout(() => {
+      if (redaccionesRef.current) {
+        redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
   };
 
   const generarRedaccionPorCategoria = (categoria: string) => {
@@ -167,18 +199,24 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
       return `El paciente niega antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()} (se interrogó específicamente por ${enfermedadesComunes[categoria]}).`;
     }
 
-    if (categoriaData.otra && categoriaData.otraDescripcion) {
-      return `El paciente refiere presentar antecedentes de ${categoriaData.otraDescripcion} como padecimiento ${getTituloCategoria(categoria).toLowerCase()}.`;
-    }
-
-    const opcionesSeleccionadas = Object.entries(categoriaData)
+    const opcionesSeleccionadas = [] as string[];
+    
+    // Agregar opciones estándar seleccionadas
+    Object.entries(categoriaData)
       .filter(([key, value]) =>
         key !== 'ninguna' &&
         key !== 'otra' &&
         key !== 'otraDescripcion' &&
         value === true
       )
-      .map(([key]) => getNombreOpcion(key, categoria));
+      .forEach(([key]) => {
+        opcionesSeleccionadas.push(getNombreOpcion(key, categoria));
+      });
+    
+    // Agregar descripción personalizada si "otra" está seleccionada
+    if (categoriaData.otra && categoriaData.otraDescripcion) {
+      opcionesSeleccionadas.push(categoriaData.otraDescripcion);
+    }
 
     if (opcionesSeleccionadas.length > 0) {
       return `El paciente refiere presentar antecedentes de ${opcionesSeleccionadas.join(', ')} como padecimiento(s) ${getTituloCategoria(categoria).toLowerCase()}.`;
@@ -254,6 +292,39 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     return opciones[categoria]?.[opcion] || opcion;
   };
 
+  // Efecto para animar la escritura progresiva de los textos
+  useEffect(() => {
+    if (!isTyping) return;
+    
+    const categorias = Object.keys(redacciones) as Array<keyof typeof redacciones>;
+    let currentCategory = 0;
+    let currentCharIndex = 0;
+    
+    const typeInterval = setInterval(() => {
+      if (currentCategory >= categorias.length) {
+        clearInterval(typeInterval);
+        setIsTyping(false);
+        return;
+      }
+      
+      const categoria = categorias[currentCategory];
+      const texto = redacciones[categoria];
+      
+      if (currentCharIndex < texto.length) {
+        setAnimatedRedacciones(prev => ({
+          ...prev,
+          [categoria]: texto.substring(0, currentCharIndex + 1)
+        }));
+        currentCharIndex++;
+      } else {
+        currentCategory++;
+        currentCharIndex = 0;
+      }
+    }, 10); // Velocidad de la animación - más bajo = más rápido
+    
+    return () => clearInterval(typeInterval);
+  }, [isTyping, redacciones]);
+
   const adjustTextareaHeight = (element: HTMLTextAreaElement) => {
     element.style.height = "auto";
     element.style.height = element.scrollHeight + "px";
@@ -327,6 +398,16 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
 
     setShowForm(true);
     setRedacciones({
+      nutricionales: "",
+      cardiacos: "",
+      hepaticos: "",
+      enfermedadesTransmisionSexual: "",
+      enfermedadesEruptivas: "",
+      pulmonares: "",
+      infecciosasParasitarias: "",
+      otrosPadecimientos: ""
+    });
+    setAnimatedRedacciones({
       nutricionales: "",
       cardiacos: "",
       hepaticos: "",
@@ -623,12 +704,16 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      value={redacciones.nutricionales}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                      {isTyping ? (
+                        <div className="font-mono">
+                          {animatedRedacciones.nutricionales}
+                          <span className="animate-pulse">|</span>
+                        </div>
+                      ) : (
+                        redacciones.nutricionales
+                      )}
+                    </div>
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -651,12 +736,18 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      value={redacciones.cardiacos}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                      {isTyping ? (
+                        <div className="font-mono">
+                          {animatedRedacciones.cardiacos}
+                          {!animatedRedacciones.nutricionales ? null : (
+                            <span className="animate-pulse">|</span>
+                          )}
+                        </div>
+                      ) : (
+                        redacciones.cardiacos
+                      )}
+                    </div>
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -679,12 +770,18 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      value={redacciones.hepaticos}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                      {isTyping ? (
+                        <div className="font-mono">
+                          {animatedRedacciones.hepaticos}
+                          {!animatedRedacciones.cardiacos ? null : (
+                            <span className="animate-pulse">|</span>
+                          )}
+                        </div>
+                      ) : (
+                        redacciones.hepaticos
+                      )}
+                    </div>
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -707,12 +804,18 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      value={redacciones.enfermedadesTransmisionSexual}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                      {isTyping ? (
+                        <div className="font-mono">
+                          {animatedRedacciones.enfermedadesTransmisionSexual}
+                          {!animatedRedacciones.hepaticos ? null : (
+                            <span className="animate-pulse">|</span>
+                          )}
+                        </div>
+                      ) : (
+                        redacciones.enfermedadesTransmisionSexual
+                      )}
+                    </div>
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -735,12 +838,18 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      value={redacciones.enfermedadesEruptivas}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                      {isTyping ? (
+                        <div className="font-mono">
+                          {animatedRedacciones.enfermedadesEruptivas}
+                          {!animatedRedacciones.enfermedadesTransmisionSexual ? null : (
+                            <span className="animate-pulse">|</span>
+                          )}
+                        </div>
+                      ) : (
+                        redacciones.enfermedadesEruptivas
+                      )}
+                    </div>
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -763,12 +872,18 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      value={redacciones.pulmonares}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                      {isTyping ? (
+                        <div className="font-mono">
+                          {animatedRedacciones.pulmonares}
+                          {!animatedRedacciones.enfermedadesEruptivas ? null : (
+                            <span className="animate-pulse">|</span>
+                          )}
+                        </div>
+                      ) : (
+                        redacciones.pulmonares
+                      )}
+                    </div>
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -791,12 +906,18 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      value={redacciones.infecciosasParasitarias}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                      {isTyping ? (
+                        <div className="font-mono">
+                          {animatedRedacciones.infecciosasParasitarias}
+                          {!animatedRedacciones.pulmonares ? null : (
+                            <span className="animate-pulse">|</span>
+                          )}
+                        </div>
+                      ) : (
+                        redacciones.infecciosasParasitarias
+                      )}
+                    </div>
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -819,12 +940,18 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      value={redacciones.otrosPadecimientos}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded-md border border-gray-200 dark:border-gray-700">
+                      {isTyping ? (
+                        <div className="font-mono">
+                          {animatedRedacciones.otrosPadecimientos}
+                          {!animatedRedacciones.infecciosasParasitarias ? null : (
+                            <span className="animate-pulse">|</span>
+                          )}
+                        </div>
+                      ) : (
+                        redacciones.otrosPadecimientos
+                      )}
+                    </div>
                   </div>
 
                   <div className="flex justify-center">
