@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -130,6 +130,27 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     setRedacciones(nuevasRedacciones);
     setShowForm(false);
     setProgress(100);
+
+    // Autoscroll to the top
+    redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
+
+    // Animate writing
+    Object.keys(nuevasRedacciones).forEach(categoria => {
+      escribirTexto(document.getElementById(categoria), nuevasRedacciones[categoria], 50);
+    });
+  };
+
+  const escribirTexto = (elemento: HTMLElement | null, texto: string, velocidad: number) => {
+    if (!elemento) return;
+    let i = 0;
+    const intervalo = setInterval(() => {
+      if (i < texto.length) {
+        elemento.innerHTML += texto.charAt(i);
+        i++;
+      } else {
+        clearInterval(intervalo);
+      }
+    }, velocidad);
   };
 
   const generarRedaccionPorCategoria = (categoria: string) => {
@@ -467,7 +488,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                   <div className="flex items-center gap-2">
                     <AlertCircle className="h-5 w-5 text-blue-500" />
                     <Label className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
-                      Paciente sin patología
+                      Paciente sin patologías
                       {sinPatologia ? (
                         <span className="ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
                           <EyeOff className="h-3 w-3" />
@@ -624,6 +645,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       </button>
                     </div>
                     <Textarea
+                      id="nutricionales"
                       value={redacciones.nutricionales}
                       readOnly
                       className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
@@ -652,6 +674,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       </button>
                     </div>
                     <Textarea
+                      id="cardiacos"
                       value={redacciones.cardiacos}
                       readOnly
                       className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
@@ -680,6 +703,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       </button>
                     </div>
                     <Textarea
+                      id="hepaticos"
                       value={redacciones.hepaticos}
                       readOnly
                       className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
@@ -708,6 +732,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       </button>
                     </div>
                     <Textarea
+                      id="enfermedadesTransmisionSexual"
                       value={redacciones.enfermedadesTransmisionSexual}
                       readOnly
                       className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
@@ -736,6 +761,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       </button>
                     </div>
                     <Textarea
+                      id="enfermedadesEruptivas"
                       value={redacciones.enfermedadesEruptivas}
                       readOnly
                       className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
@@ -764,6 +790,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       </button>
                     </div>
                     <Textarea
+                      id="pulmonares"
                       value={redacciones.pulmonares}
                       readOnly
                       className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
@@ -792,6 +819,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       </button>
                     </div>
                     <Textarea
+                      id="infecciosasParasitarias"
                       value={redacciones.infecciosasParasitarias}
                       readOnly
                       className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
@@ -820,6 +848,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                       </button>
                     </div>
                     <Textarea
+                      id="otrosPadecimientos"
                       value={redacciones.otrosPadecimientos}
                       readOnly
                       className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
