@@ -17,8 +17,23 @@ import ExamenCabeza from './ExamenCabeza';
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import { useToast } from '@/components/ui/use-toast';
 import { useGeminiContext } from '@/contexts/GeminiContext';
-import { FormDataState, FormSection } from '@/types/historiaClinica';
+import { FormDataState } from '@/types/historiaClinica';
 import { useAuth } from '@/hooks/useAuth';
+
+// Definir FormSection aquí temporalmente hasta que actualicemos los tipos
+type FormSection = 
+  | 'informacionPrincipal'
+  | 'padecimientoActual'
+  | 'antecedentesHeredoFamiliares'
+  | 'antecedentesPersonalesPatologicos'
+  | 'antecedentesPersonalesNoPatologicos'
+  | 'antecedentesAlergicos'
+  | 'antecedentesQuirurgicos'
+  | 'antecedentesHemorragicos'
+  | 'interrogatorioSistemas'
+  | 'exploracionFisica'
+  | 'examenCabeza'
+  | 'sidebarOnly';
 
 const HistoriaClinica: React.FC = () => {
   const { toast } = useToast();
@@ -41,6 +56,8 @@ const HistoriaClinica: React.FC = () => {
 
   const {
     formData,
+    resumen,
+    isGenerating,
     handleInputChange,
     handlePadecimientoChange,
     handleDolorChange,
@@ -54,7 +71,8 @@ const HistoriaClinica: React.FC = () => {
     handleAntecedenteHemorragicoChange,
     handleInterrogatorioChange,
     handleExploracionFisicaChange,
-    handleExamenCabezaChange
+    handleExamenCabezaChange,
+    generarResumen
   } = useHistoriaClinica();
 
   const handleSectionChange = (section: FormSection) => {
@@ -83,6 +101,7 @@ const HistoriaClinica: React.FC = () => {
     }
 
     try {
+      await generarResumen();
       setResumenOpen(true);
       
       if (geminiAvailable) {
@@ -149,8 +168,8 @@ const HistoriaClinica: React.FC = () => {
       case 'antecedentesAlergicos':
         return (
           <AntecedentesAlergicos 
-            antecedentes={formData.antecedentesAlergicos}
-            onChange={handleAntecedenteAlergicoChange}
+            formData={formData}
+            handleAntecedenteAlergicoChange={handleAntecedenteAlergicoChange}
           />
         );
       case 'antecedentesQuirurgicos':
@@ -163,8 +182,8 @@ const HistoriaClinica: React.FC = () => {
       case 'antecedentesHemorragicos':
         return (
           <AntecedentesHemorragicos 
-            antecedentes={formData.antecedentesHemorragicos}
-            onChange={handleAntecedenteHemorragicoChange}
+            formData={formData}
+            handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange}
           />
         );
       case 'interrogatorioSistemas':
@@ -185,11 +204,11 @@ const HistoriaClinica: React.FC = () => {
         return (
           <ExamenCabeza 
             data={{
-              palpacionATM: formData.examenCabeza.palpacionATM || "",
-              movimientosMandibulares: formData.examenCabeza.movimientosMandibulares || "",
-              gangliosLinfaticos: formData.examenCabeza.gangliosLinfaticos || "",
-              musculosMasticadores: formData.examenCabeza.musculosMasticadores || "",
-              observaciones: formData.examenCabeza.observaciones || ""
+              palpacionATM: formData.examenCabeza?.palpacionATM || "",
+              movimientosMandibulares: formData.examenCabeza?.movimientosMandibulares || "",
+              gangliosLinfaticos: formData.examenCabeza?.gangliosLinfaticos || "",
+              musculosMasticadores: formData.examenCabeza?.musculosMasticadores || "",
+              observaciones: formData.examenCabeza?.observaciones || ""
             }}
             onChange={handleExamenCabezaChange}
           />
@@ -248,9 +267,9 @@ const HistoriaClinica: React.FC = () => {
               <Button
                 className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white"
                 onClick={generateHistoriaClinica}
-                disabled={geminiLoading}
+                disabled={isGenerating}
               >
-                {geminiLoading ? 'Generando...' : 'Generar Historia Clínica'}
+                {isGenerating ? 'Generando...' : 'Generar Historia Clínica'}
               </Button>
             </div>
           </div>
