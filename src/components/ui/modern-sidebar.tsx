@@ -81,7 +81,7 @@ export const DesktopSidebar = ({
 }: React.ComponentProps<typeof motion.div>) => {
   const { open, setOpen, animate } = useSidebar();
 
-  // Use string type for width to avoid MotionValue TypeScript errors
+  // Use string type for width
   const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
 
   return (
@@ -185,7 +185,7 @@ export const Logo = ({
 }) => {
   return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
       {children}
-      <div className="whitespace-pre text-base font-medium text-gray-700">DENTAXY.ai</div>
+      <div className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</div>
     </div>;
 };
 
