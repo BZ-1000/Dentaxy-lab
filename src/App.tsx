@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Index from './pages/Index';
@@ -13,6 +12,8 @@ import Funciones from './pages/Funciones';
 import Beneficios from './pages/Beneficios';
 import Planes from './pages/Planes';
 import Contacto from './pages/Contacto';
+import Terminos from './pages/Terminos';
+import Privacidad from './pages/Privacidad';
 import { supabase } from './integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
 import './App.css';
@@ -57,6 +58,8 @@ function App() {
         <Route path="/beneficios" element={<Beneficios />} />
         <Route path="/planes" element={<Planes />} />
         <Route path="/contacto" element={<Contacto />} />
+        <Route path="/terminos" element={<Terminos />} />
+        <Route path="/privacidad" element={<Privacidad />} />
         
         <Route path="/app" element={
           <ProtectedRoute>

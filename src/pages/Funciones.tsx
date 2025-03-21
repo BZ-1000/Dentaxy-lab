@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { CheckCircle } from 'lucide-react';
 import BottomMenu from '@/components/BottomMenu';
+import Footer from '@/components/Footer';
 
 const Funciones = () => {
   const steps = [
@@ -30,7 +31,7 @@ const Funciones = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
         <Link to="/" className="flex items-center gap-2">
@@ -47,7 +48,7 @@ const Funciones = () => {
       </div>
       
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-12 max-w-4xl">
+      <div className="container mx-auto px-4 py-12 max-w-4xl flex-grow">
         <h1 className="text-4xl font-bold text-center mb-8 text-gray-900">Funciones</h1>
         
         <div className="bg-white shadow-sm rounded-lg p-8 mb-8">
@@ -95,6 +96,7 @@ const Funciones = () => {
         </div>
       </div>
       
+      <Footer />
       <BottomMenu />
     </div>
   );

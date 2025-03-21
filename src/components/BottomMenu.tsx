@@ -43,7 +43,7 @@ const BottomMenu = () => {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 shadow-lg z-50">
       <nav className="max-w-screen-xl mx-auto px-2">
-        <div className="flex justify-around items-center h-12 overflow-x-auto">
+        <div className="flex justify-around items-center h-10 overflow-x-auto">
           {menuItems.map((item) => (
             <Link 
               key={item.path}
@@ -52,10 +52,10 @@ const BottomMenu = () => {
                 location.pathname === item.path 
                   ? 'text-primary dark:text-primary' 
                   : 'text-gray-600 hover:text-primary dark:text-gray-400 dark:hover:text-primary'
-              } transition-colors duration-200 min-w-[3.5rem]`}
+              } transition-colors duration-200 min-w-[3rem]`}
             >
-              <item.icon className="h-4 w-4" />
-              <span className="text-[10px] whitespace-nowrap">{item.label}</span>
+              <item.icon className="h-3.5 w-3.5" />
+              <span className="text-[9px] whitespace-nowrap">{item.label}</span>
             </Link>
           ))}
         </div>
