@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, Instagram } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
+
 const menuItems = [{
   label: "Nosotros",
   href: "/about"
@@ -52,6 +53,7 @@ const LoadingScreen = ({
       </div>
     </div>;
 };
+
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -327,6 +329,7 @@ const Landing = () => {
     }));
   };
   if (loading) return <LoadingScreen visible={loading} />;
+  
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shadow-sm">
@@ -461,16 +464,14 @@ const Landing = () => {
                 <h3 className="text-lg font-semibold text-gray-800">Dentaxy</h3>
               </div>
               <p className="text-sm text-gray-500">Dental Basics Academy</p>
-              <p className="text-sm  text-gray-500">@dentalbasicsacademy</p>
-              <div className="mt-4 flex">
-                <a href="https://instagram.com/dentalbasicsacademy" target="_blank" rel="noopener noreferrer" className="hover:transform" aria-label="Síguenos en Instagram">
-                  <div className="flex items-center justify-center animate-bounce" style={{
-                  animationDuration: '2s',
-                  animationIterationCount: 'infinite'
-                }}>
-                    <Instagram className="h-5 w-5 text-gray-600 hover:text-pink-500 transition-colors" />
-                  </div>
-                </a>
+              <div className="flex items-center">
+                <img 
+                  src="/lovable-uploads/d122138d-9f75-4331-a81b-fd93b1b2e542.png" 
+                  alt="Instagram" 
+                  className="h-6 w-6 mr-2 animate-wiggle" 
+                  style={{ transformOrigin: 'center' }}
+                />
+                <span className="text-sm text-gray-500">@dentalbasicsacademy</span>
               </div>
             </div>
             
@@ -578,4 +579,5 @@ const Landing = () => {
     })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
     </div>;
 };
+
 export default Landing;
