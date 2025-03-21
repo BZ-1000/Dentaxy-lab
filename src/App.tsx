@@ -65,10 +65,15 @@ function App() {
           
           {/* Páginas del menú principal */}
           <Route path="/about" element={<About />} />
+          <Route path="/nosotros" element={<About />} />
+          <Route path="/como-funciona" element={<HowItWorks />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/benefits" element={<Benefits />} />
+          <Route path="/beneficios" element={<Benefits />} />
           <Route path="/plans" element={<Plans />} />
+          <Route path="/planes" element={<Plans />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/contacto" element={<Contact />} />
           
           {/* Páginas de políticas */}
           <Route path="/terms" element={<TermsAndConditions />} />
