@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,19 +9,31 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
-const menuItems = [{
-  label: "Menu",
-  href: "#"
-}, {
-  label: "settings.",
-  href: "#"
-}, {
-  label: "perfil.",
-  href: "#"
-}, {
-  label: "nosotros",
-  href: "#"
-}];
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from '@/components/ui/navigation-menu';
+
+const menuItems = [
+  {
+    label: "Nosotros",
+    href: "/about"
+  },
+  {
+    label: "Cómo Funciona",
+    href: "/how-it-works"
+  },
+  {
+    label: "Beneficios",
+    href: "/benefits"
+  },
+  {
+    label: "Planes",
+    href: "/plans"
+  },
+  {
+    label: "Contacto",
+    href: "/contact"
+  }
+];
+
 const LoadingScreen = ({
   visible
 }) => {
@@ -49,11 +61,12 @@ const LoadingScreen = ({
       </div>
     </div>;
 };
+
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [activeItem, setActiveItem] = useState<string>("Menu");
+  const [activeItem, setActiveItem] = useState<string>("Nosotros");
   const [authDialog, setAuthDialog] = useState<{
     isOpen: boolean;
     mode: "login" | "register";
@@ -68,6 +81,7 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -103,6 +117,7 @@ const Landing = () => {
       subscription.unsubscribe();
     };
   }, []);
+
   const checkUsername = async (userId: string) => {
     try {
       const {
@@ -121,6 +136,7 @@ const Landing = () => {
       console.error('Error checking username:', error);
     }
   };
+
   const checkUserPlan = async (userId: string) => {
     try {
       const {
@@ -136,6 +152,7 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
+
   const handleSaveUsername = async () => {
     if (!session || !username.trim()) {
       toast.error('Por favor ingresa un nombre de usuario');
@@ -160,6 +177,7 @@ const Landing = () => {
       setLoading(false);
     }
   };
+
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -184,34 +202,34 @@ const Landing = () => {
       toast.error('Error al activar el plan');
     }
   };
+
   const handleItemClick = (label: string) => {
     setActiveItem(label);
-    if (label === "perfil." && session) {
-      setShowDropdown(!showDropdown);
-    }
   };
+
   const handleLogin = () => {
     setAuthDialog({
       isOpen: true,
       mode: "login"
     });
   };
+
   const handleRegister = () => {
     setAuthDialog({
       isOpen: true,
       mode: "register"
     });
   };
+
   const handleAuthSuccess = () => {
     setAuthDialog({
       isOpen: false,
       mode: "login"
     });
   };
+
   const handleLogout = async () => {
-    const {
-      error
-    } = await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
     if (error) {
       console.error('Error signing out:', error.message);
     }
@@ -220,10 +238,12 @@ const Landing = () => {
     setHasBetaPlan(false);
     toast.success('Sesión cerrada exitosamente');
   };
+
   const handleChangeUsername = () => {
     setShowPopup(true);
     setShowDropdown(false);
   };
+
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -239,6 +259,7 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
+
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
       nutricionales: {
@@ -248,7 +269,8 @@ const Landing = () => {
         obesidad: false,
         ninguna: true,
         otra: false,
-        otraDescripcion: ''
+        otraDescripcion: '',
+        especificar: false
       },
       cardiacos: {
         enfermedadCoronaria: false,
@@ -314,6 +336,7 @@ const Landing = () => {
       }
     }
   });
+
   const handleAntecedentePatologicoChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -323,85 +346,118 @@ const Landing = () => {
       }
     }));
   };
+
   if (loading) return <LoadingScreen visible={loading} />;
-  return <div className="min-h-screen w-full bg-white apple-minimalist">
+
+  return (
+    <div className="min-h-screen w-full bg-white">
       {/* Header with logo and navigation */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
-        <div className="flex items-center gap-4">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white">
+        <div className="flex items-center gap-2">
           <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-8 w-8" />
+          <span className="text-xs font-bold text-gray-800">Dental Basics Academy</span>
         </div>
 
-        {/* Main horizontal navigation */}
-        <div className="hidden md:flex items-center space-x-6">
-          {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`text-black hover:text-black/70 text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}>
-              {item.label}
-            </button>)}
-        </div>
+        {/* Main navigation menu */}
+        <nav className="hidden md:block">
+          <ul className="flex items-center space-x-8">
+            {menuItems.map(item => (
+              <li key={item.label}>
+                <Link
+                  to={item.href}
+                  className={`text-sm ${
+                    activeItem === item.label
+                      ? 'text-blue-600 font-medium'
+                      : 'text-gray-700 hover:text-blue-600'
+                  } transition-colors`}
+                  onClick={() => handleItemClick(item.label)}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
         {/* Auth buttons */}
         <div className="flex gap-4">
-          {!session ? <>
-              <Button variant="default" onClick={handleLogin} className="bg-black text-white hover:bg-black/80 rounded-full">
+          {!session ? (
+            <>
+              <Button 
+                variant="default" 
+                onClick={handleLogin} 
+                className="bg-blue-600 text-white hover:bg-blue-700 rounded-full"
+              >
                 Iniciar sesión
               </Button>
-              <Button variant="outline" onClick={handleRegister} className="bg-white text-black hover:bg-white/90 border-black rounded-full">
+              <Button 
+                variant="outline" 
+                onClick={handleRegister} 
+                className="bg-white text-gray-800 hover:bg-gray-50 border-gray-300 rounded-full"
+              >
                 Registrarse
               </Button>
-            </> : <div className="flex items-center gap-4">
-              <span className="text-black text-sm">{username}</span>
+            </>
+          ) : (
+            <div className="flex items-center gap-4">
+              <span className="text-gray-800 text-sm">{username}</span>
               <button onClick={() => setShowDropdown(!showDropdown)} className="relative">
-                <UserCircle className="h-6 w-6 text-black" />
-                {showDropdown && <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
-                    {hasBetaPlan && <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
+                <UserCircle className="h-6 w-6 text-gray-800" />
+                {showDropdown && (
+                  <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
+                    {hasBetaPlan && (
+                      <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
                         <Crown className="h-4 w-4" />
                         Plan Beta
-                      </div>}
-                    <button onClick={handleChangeUsername} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100">
+                      </div>
+                    )}
+                    <button
+                      onClick={handleChangeUsername}
+                      className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100"
+                    >
                       Cambiar nombre
                     </button>
-                    <button onClick={() => setShowPricingPopup(true)} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2">
+                    <button
+                      onClick={() => setShowPricingPopup(true)}
+                      className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2"
+                    >
                       <Crown className="h-4 w-4" />
                       Cambiar plan
                     </button>
-                    <button onClick={handleLogout} className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2">
+                    <button
+                      onClick={handleLogout}
+                      className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2"
+                    >
                       <LogOut className="h-4 w-4" />
                       Cerrar sesión
                     </button>
-                  </div>}
+                  </div>
+                )}
               </button>
-            </div>}
+            </div>
+          )}
         </div>
-      </div>
+      </header>
 
       {/* Mobile Menu */}
-      {isMobile && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
+      {isMobile && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
           <div className="flex justify-around">
-            {menuItems.map(item => <button key={item.label} onClick={() => handleItemClick(item.label)} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}>
+            {menuItems.map(item => (
+              <Link
+                key={item.label}
+                to={item.href}
+                className={`flex flex-col items-center text-xs ${
+                  activeItem === item.label ? 'text-blue-600' : 'text-gray-500'
+                }`}
+                onClick={() => handleItemClick(item.label)}
+              >
                 {item.label}
-              </button>)}
+              </Link>
+            ))}
           </div>
-          {showDropdown && <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
-              {session ? <>
-                  <button onClick={handleChangeUsername} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                    Cambiar nombre
-                  </button>
-                  <button onClick={() => setShowPricingPopup(true)} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center gap-x-2">
-                    <Crown className="h-4 w-4" />
-                    Cambiar plan
-                  </button>
-                  <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100">
-                    Cerrar sesión
-                  </button>
-                </> : <>
-                  <button onClick={handleLogin} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                    Iniciar sesión
-                  </button>
-                  <button onClick={handleRegister} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                    Registrarse
-                  </button>
-                </>}
-            </div>}
-        </div>}
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto">
@@ -418,29 +474,105 @@ const Landing = () => {
           </div>
 
           <div className="mb-12">
-            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50">
+            <button
+              onClick={handleBetaAccess}
+              className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50"
+            >
               PRUEBA BETA
             </button>
           </div>
 
           <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
             <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
-                🔽 Demostracion de redacción automatica...
+              🔽 Demostracion de redacción automatica...
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <AntecedentesPersonalesPatologicos formData={formData} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
+              <AntecedentesPersonalesPatologicos
+                formData={formData.antecedentesPersonalesPatologicos}
+                handleAntecedentePatologicoChange={(field, value) => {
+                  setFormData(prev => ({
+                    ...prev,
+                    antecedentesPersonalesPatologicos: {
+                      ...prev.antecedentesPersonalesPatologicos,
+                      [field]: value
+                    }
+                  }));
+                }}
+              />
             </div>
           </div>
-
-          <p className="text-center text-gray-500 text-xs max-w-3xl mx-auto">
-            "Revisado y aprobado por líderes en odontología clínica, incluyendo el
-            Dr. Alejandro Fuentes, la Dra. Mariana López y el Dr. Ricardo Méndez."
-          </p>
         </div>
       </div>
 
+      {/* New Footer */}
+      <footer className="bg-gray-50 border-t border-gray-200 py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Column 1: Company Information */}
+            <div>
+              <h2 className="text-lg font-bold mb-4">Dentaxy</h2>
+              <p className="text-sm text-gray-600 mb-2">Dental Basics Academy</p>
+              <p className="text-sm text-gray-600">© 2025 Dentaxy.ai & Dentaxy.com. Todos los derechos reservados.</p>
+              
+              <div className="mt-4 flex">
+                <a 
+                  href="https://instagram.com/dentalbasicsacademy" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="text-gray-600 hover:text-pink-600 transition-colors"
+                  aria-label="Síguenos en Instagram"
+                >
+                  <Instagram className="h-5 w-5" />
+                </a>
+              </div>
+            </div>
+            
+            {/* Column 2: Quick Links */}
+            <div>
+              <h2 className="text-lg font-bold mb-4">Enlaces Rápidos</h2>
+              <ul className="space-y-2">
+                {menuItems.map(item => (
+                  <li key={item.label}>
+                    <Link 
+                      to={item.href}
+                      className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            {/* Column 3: Legal */}
+            <div>
+              <h2 className="text-lg font-bold mb-4">Políticas y Legalidad</h2>
+              <ul className="space-y-2">
+                <li>
+                  <Link 
+                    to="/terms" 
+                    className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    Términos y Condiciones
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    to="/privacy" 
+                    className="text-sm text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    Política de Privacidad
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </footer>
+
       {/* Username Popup */}
-      {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {showPopup && session && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
             <h2 className="text-2xl font-bold text-black mb-4">¡Bienvenido!</h2>
             <p className="text-gray-600 mb-6">
@@ -459,10 +591,12 @@ const Landing = () => {
               </Button>
             </div>
           </div>
-        </div>}
+        </div>
+      )}
 
       {/* Pricing Popup */}
-      {showPricingPopup && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {showPricingPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold text-black">Planes Disponibles</h2>
@@ -515,13 +649,21 @@ const Landing = () => {
               </div>
             </div>
           </div>
-        </div>}
+        </div>
+      )}
 
       {/* Auth Dialog */}
-      <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({
-      ...authDialog,
-      isOpen: false
-    })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
-    </div>;
+      <AuthDialog 
+        isOpen={authDialog.isOpen} 
+        onClose={() => setAuthDialog({
+          ...authDialog,
+          isOpen: false
+        })} 
+        defaultMode={authDialog.mode} 
+        onSuccess={handleAuthSuccess} 
+      />
+    </div>
+  );
 };
+
 export default Landing;
