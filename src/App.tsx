@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from './components/ui/toaster';
@@ -72,7 +73,7 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           
           {/* Protected routes */}
-          <Route path="/app/*" element={user ? <Index />} : <Navigate to="/auth/login" />} />
+          <Route path="/app/*" element={user ? <Index /> : <Navigate to="/auth/login" />} />
           
           {/* Not found */}
           <Route path="*" element={<NotFound />} />
