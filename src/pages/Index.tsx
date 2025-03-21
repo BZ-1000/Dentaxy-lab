@@ -1,9 +1,12 @@
+
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import { useEffect, useState } from "react";
+
 const Index = () => {
   const [offset, setOffset] = useState(0);
+  
   useEffect(() => {
     const handleScroll = () => {
       setOffset(window.pageYOffset);
@@ -13,6 +16,7 @@ const Index = () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+  
   return <div className="min-h-screen">
       {/* Hero Section */}
       <div className="min-h-screen relative overflow-hidden">
@@ -29,9 +33,9 @@ const Index = () => {
               <div className="w-12 h-12">
                 <img src="/lovable-uploads/5636450b-9d56-40a0-b095-dd830e161077.png" alt="Dental Logo" className="w-full h-full object-contain" />
               </div>
-              <div className="text-white font-mplus text-justify">
-                <div className="text-lg font-semibold leading-tight">DENTAL BASICS</div>
-                <div className="text-lg font-semibold leading-tight">ACADEMY</div>
+              <div className="text-white font-mplus text-xs sm:text-sm md:text-base">
+                <div className="font-medium leading-tight tracking-wide">DENTAL BASICS</div>
+                <div className="font-medium leading-tight tracking-wide">ACADEMY</div>
               </div>
             </div>
 
@@ -57,4 +61,5 @@ const Index = () => {
       <div className="h-24" /> {/* Spacer for dock */}
     </div>;
 };
+
 export default Index;

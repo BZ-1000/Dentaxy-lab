@@ -78,11 +78,11 @@ export const DesktopSidebar = ({
   className,
   children,
   ...props
-}: React.ComponentProps<typeof motion.div>) => {
+}: React.ComponentPropsWithoutRef<typeof motion.div>) => {
   const { open, setOpen, animate } = useSidebar();
 
-  // Fixed the type issue by using explicit width type
-  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
+  // Use string type to ensure correct typing
+  const sidebarWidth: string = animate ? (open ? "300px" : "60px") : "300px";
 
   return (
     <motion.div
@@ -107,7 +107,7 @@ export const MobileSidebar = ({
   className,
   children,
   ...props
-}: React.ComponentProps<typeof motion.div>) => {
+}: React.ComponentPropsWithoutRef<typeof motion.div>) => {
   const { open, setOpen } = useSidebar();
 
   return (
