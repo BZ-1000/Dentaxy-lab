@@ -185,7 +185,7 @@ export const Logo = ({
 }) => {
   return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
       {children}
-      <div className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</div>
+      <div className="whitespace-pre text-base font-medium text-gray-700">Dental Basics Academy</div>
     </div>;
 };
 
