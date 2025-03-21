@@ -1,7 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Toaster } from 'sonner';
 import Index from './pages/Index';
 import Landing from './pages/Landing';
 import NotFound from './pages/NotFound';
@@ -9,13 +8,6 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import AuthCallback from './pages/auth/callback';
-import TermsAndConditions from './pages/policies/TermsAndConditions';
-import PrivacyPolicy from './pages/policies/PrivacyPolicy';
-import AboutUs from './pages/AboutUs';
-import HowItWorks from './pages/HowItWorks';
-import Benefits from './pages/Benefits';
-import Plans from './pages/Plans';
-import Contact from './pages/Contact';
 import { supabase } from './integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
 import './App.css';
@@ -52,40 +44,21 @@ function App() {
   };
 
   return (
-    <>
-      <Toaster />
-      <Router>
-        <Routes>
-          {/* Public routes */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/about" element={<AboutUs />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/benefits" element={<Benefits />} />
-          <Route path="/plans" element={<Plans />} />
-          <Route path="/contact" element={<Contact />} />
-          
-          {/* Auth routes */}
-          <Route path="/auth/login" element={session ? <Navigate to="/app" replace /> : <Login />} />
-          <Route path="/auth/register" element={session ? <Navigate to="/app" replace /> : <Register />} />
-          <Route path="/auth/verify-email" element={<VerifyEmail />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          
-          {/* Policy pages */}
-          <Route path="/terms" element={<TermsAndConditions />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          
-          {/* Protected routes - Note the fixed syntax with proper parentheses */}
-          <Route path="/app" element={
-            <ProtectedRoute>
-              <Index />
-            </ProtectedRoute>
-          } />
-          
-          {/* Not found */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/app" element={
+          <ProtectedRoute>
+            <Index />
+          </ProtectedRoute>
+        } />
+        <Route path="/auth/login" element={session ? <Navigate to="/app" replace /> : <Login />} />
+        <Route path="/auth/register" element={session ? <Navigate to="/app" replace /> : <Register />} />
+        <Route path="/auth/verify-email" element={<VerifyEmail />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </Router>
   );
 }
 
