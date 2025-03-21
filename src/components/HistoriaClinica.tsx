@@ -17,23 +17,8 @@ import ExamenCabeza from './ExamenCabeza';
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import { useToast } from '@/components/ui/use-toast';
 import { useGeminiContext } from '@/contexts/GeminiContext';
-import { FormDataState } from '@/types/historiaClinica';
+import { FormDataState, FormSection } from '@/types/historiaClinica';
 import { useAuth } from '@/hooks/useAuth';
-
-// Definir FormSection aquí temporalmente hasta que actualicemos los tipos
-type FormSection = 
-  | 'informacionPrincipal'
-  | 'padecimientoActual'
-  | 'antecedentesHeredoFamiliares'
-  | 'antecedentesPersonalesPatologicos'
-  | 'antecedentesPersonalesNoPatologicos'
-  | 'antecedentesAlergicos'
-  | 'antecedentesQuirurgicos'
-  | 'antecedentesHemorragicos'
-  | 'interrogatorioSistemas'
-  | 'exploracionFisica'
-  | 'examenCabeza'
-  | 'sidebarOnly';
 
 const HistoriaClinica: React.FC = () => {
   const { toast } = useToast();
@@ -175,8 +160,8 @@ const HistoriaClinica: React.FC = () => {
       case 'antecedentesQuirurgicos':
         return (
           <AntecedentesQuirurgicos 
-            antecedentes={formData.antecedentesQuirurgicos}
-            onChange={handleAntecedenteQuirurgicoChange}
+            formData={formData}
+            handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange}
           />
         );
       case 'antecedentesHemorragicos':
@@ -196,8 +181,8 @@ const HistoriaClinica: React.FC = () => {
       case 'exploracionFisica':
         return (
           <ExploracionFisica 
-            exploracion={formData.exploracionFisica}
-            onChange={handleExploracionFisicaChange}
+            formData={formData}
+            handleExploracionFisicaChange={handleExploracionFisicaChange}
           />
         );
       case 'examenCabeza':
