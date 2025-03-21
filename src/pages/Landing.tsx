@@ -9,30 +9,22 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
-
-const menuItems = [
-  {
-    label: "Nosotros",
-    href: "/about"
-  },
-  {
-    label: "Cómo Funciona",
-    href: "/how-it-works"
-  },
-  {
-    label: "Beneficios",
-    href: "/benefits"
-  },
-  {
-    label: "Planes y Precios",
-    href: "/plans"
-  },
-  {
-    label: "Contacto",
-    href: "/contact"
-  }
-];
-
+const menuItems = [{
+  label: "Nosotros",
+  href: "/about"
+}, {
+  label: "Cómo Funciona",
+  href: "/how-it-works"
+}, {
+  label: "Beneficios",
+  href: "/benefits"
+}, {
+  label: "Planes y Precios",
+  href: "/plans"
+}, {
+  label: "Contacto",
+  href: "/contact"
+}];
 const LoadingScreen = ({
   visible
 }) => {
@@ -60,7 +52,6 @@ const LoadingScreen = ({
       </div>
     </div>;
 };
-
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -80,7 +71,6 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
-
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -116,7 +106,6 @@ const Landing = () => {
       subscription.unsubscribe();
     };
   }, []);
-
   const checkUsername = async (userId: string) => {
     try {
       const {
@@ -135,7 +124,6 @@ const Landing = () => {
       console.error('Error checking username:', error);
     }
   };
-
   const checkUserPlan = async (userId: string) => {
     try {
       const {
@@ -151,7 +139,6 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
-
   const handleSaveUsername = async () => {
     if (!session || !username.trim()) {
       toast.error('Por favor ingresa un nombre de usuario');
@@ -176,7 +163,6 @@ const Landing = () => {
       setLoading(false);
     }
   };
-
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -201,35 +187,30 @@ const Landing = () => {
       toast.error('Error al activar el plan');
     }
   };
-
   const handleItemClick = (label: string) => {
     setActiveItem(label);
     if (label === "perfil." && session) {
       setShowDropdown(!showDropdown);
     }
   };
-
   const handleLogin = () => {
     setAuthDialog({
       isOpen: true,
       mode: "login"
     });
   };
-
   const handleRegister = () => {
     setAuthDialog({
       isOpen: true,
       mode: "register"
     });
   };
-
   const handleAuthSuccess = () => {
     setAuthDialog({
       isOpen: false,
       mode: "login"
     });
   };
-
   const handleLogout = async () => {
     const {
       error
@@ -242,12 +223,10 @@ const Landing = () => {
     setHasBetaPlan(false);
     toast.success('Sesión cerrada exitosamente');
   };
-
   const handleChangeUsername = () => {
     setShowPopup(true);
     setShowDropdown(false);
   };
-
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -263,7 +242,6 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
-
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
       nutricionales: {
@@ -339,7 +317,6 @@ const Landing = () => {
       }
     }
   });
-
   const handleAntecedentePatologicoChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -349,9 +326,7 @@ const Landing = () => {
       }
     }));
   };
-
   if (loading) return <LoadingScreen visible={loading} />;
-
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shadow-sm">
@@ -362,16 +337,9 @@ const Landing = () => {
 
         {/* Main horizontal navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          {menuItems.map(item => (
-            <Link 
-              key={item.label} 
-              to={item.href} 
-              className={`text-gray-700 hover:text-blue-600 transition-colors text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`}
-              onClick={() => setActiveItem(item.label)}
-            >
+          {menuItems.map(item => <Link key={item.label} to={item.href} className={`text-gray-700 hover:text-blue-600 transition-colors text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`} onClick={() => setActiveItem(item.label)}>
               {item.label}
-            </Link>
-          ))}
+            </Link>)}
         </div>
 
         {/* Auth buttons */}
@@ -412,16 +380,9 @@ const Landing = () => {
       {/* Mobile Menu */}
       {isMobile && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
           <div className="flex justify-around">
-            {menuItems.map(item => (
-              <Link 
-                key={item.label} 
-                to={item.href}
-                className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}
-                onClick={() => setActiveItem(item.label)}
-              >
+            {menuItems.map(item => <Link key={item.label} to={item.href} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`} onClick={() => setActiveItem(item.label)}>
                 {item.label}
-              </Link>
-            ))}
+              </Link>)}
           </div>
           {showDropdown && <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
               {session ? <>
@@ -471,22 +432,19 @@ const Landing = () => {
                 🔽 Demostracion de redacción automatica...
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <AntecedentesPersonalesPatologicos 
-                formData={{
-                  antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-                  padecimientoActual: {}, 
-                  antecedentesHeredoFamiliares: {},
-                  antecedentesPersonalesNoPatologicos: {},
-                  antecedentesAlergicos: {},
-                  antecedentesHemorragicos: {},
-                  antecedentesQuirurgicos: {},
-                  interrogatorioSistemas: {},
-                  informacionPrincipal: {},
-                  exploracionFisica: {},
-                  examenCabeza: {}
-                }} 
-                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
-              />
+              <AntecedentesPersonalesPatologicos formData={{
+              antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+              padecimientoActual: {},
+              antecedentesHeredoFamiliares: {},
+              antecedentesPersonalesNoPatologicos: {},
+              antecedentesAlergicos: {},
+              antecedentesHemorragicos: {},
+              antecedentesQuirurgicos: {},
+              interrogatorioSistemas: {},
+              informacionPrincipal: {},
+              exploracionFisica: {},
+              examenCabeza: {}
+            }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
           </div>
         </div>
@@ -503,19 +461,15 @@ const Landing = () => {
                 <h3 className="text-lg font-semibold text-gray-800">Dentaxy</h3>
               </div>
               <p className="text-sm text-gray-500">Dental Basics Academy</p>
-              <p className="text-sm text-gray-500">© 2025 Dentaxy.ai & Dentaxy.com</p>
+              <p className="text-sm  text-gray-500">@dentalbasicsacademy</p>
               <div className="mt-4 flex">
-                <a 
-                  href="https://instagram.com/dentalbasicsacademy" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="block animate-wiggle"
-                >
-                  <img 
-                    src="/lovable-uploads/caf6610c-f882-4ea5-a313-6d48cb3c6ee4.png" 
-                    alt="Instagram" 
-                    className="h-8 w-8 hover:scale-110 transition-transform"
-                  />
+                <a href="https://instagram.com/dentalbasicsacademy" target="_blank" rel="noopener noreferrer" className="hover:transform" aria-label="Síguenos en Instagram">
+                  <div className="flex items-center justify-center animate-bounce" style={{
+                  animationDuration: '2s',
+                  animationIterationCount: 'infinite'
+                }}>
+                    <Instagram className="h-5 w-5 text-gray-600 hover:text-pink-500 transition-colors" />
+                  </div>
                 </a>
               </div>
             </div>
@@ -524,16 +478,11 @@ const Landing = () => {
             <div>
               <h3 className="text-sm font-medium text-gray-800 mb-4">Enlaces</h3>
               <ul className="space-y-2">
-                {menuItems.map((item) => (
-                  <li key={item.label}>
-                    <Link 
-                      to={item.href} 
-                      className="text-gray-500 hover:text-gray-800 transition-colors text-sm"
-                    >
+                {menuItems.map(item => <li key={item.label}>
+                    <Link to={item.href} className="text-gray-500 hover:text-gray-800 transition-colors text-sm">
                       {item.label}
                     </Link>
-                  </li>
-                ))}
+                  </li>)}
               </ul>
             </div>
             
@@ -542,18 +491,12 @@ const Landing = () => {
               <h3 className="text-sm font-medium text-gray-800 mb-4">Legal</h3>
               <ul className="space-y-2">
                 <li>
-                  <Link 
-                    to="/terms" 
-                    className="text-gray-500 hover:text-gray-800 transition-colors text-sm"
-                  >
+                  <Link to="/terms" className="text-gray-500 hover:text-gray-800 transition-colors text-sm">
                     Términos y Condiciones
                   </Link>
                 </li>
                 <li>
-                  <Link 
-                    to="/privacy" 
-                    className="text-gray-500 hover:text-gray-800 transition-colors text-sm"
-                  >
+                  <Link to="/privacy" className="text-gray-500 hover:text-gray-800 transition-colors text-sm">
                     Política de Privacidad
                   </Link>
                 </li>
@@ -561,46 +504,15 @@ const Landing = () => {
             </div>
           </div>
           
-          <div className="mt-10 pt-6 border-t border-gray-100 relative">
-            <div className="absolute bottom-0 right-0 mb-2 mr-6">
-              <a 
-                href="https://instagram.com/dentalbasicsacademy" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block animate-wiggle"
-              >
-                <img 
-                  src="/lovable-uploads/caf6610c-f882-4ea5-a313-6d48cb3c6ee4.png" 
-                  alt="Instagram" 
-                  className="h-8 w-8 hover:scale-110 transition-transform"
-                />
-              </a>
-            </div>
-            <p className="text-gray-400 text-xs text-center">Transformando la experiencia odontológica con inteligencia artificial</p>
+          <div className="mt-10 pt-6 border-t border-gray-100 text-center">
+            <p className="text-gray-400 text-xs">Transformando la experiencia odontológica con inteligencia artificial</p>
           </div>
         </div>
       </footer>
 
       {/* Username Popup */}
       {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-            <h2 className="text-2xl font-bold text-black mb-4">¡Bienvenido!</h2>
-            <p className="text-gray-600 mb-6">
-              Por favor, ingresa tu nombre de usuario para continuar.
-            </p>
-            <div className="space-y-4">
-              <Input type="text" placeholder="Nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="bg-white border-gray-300" />
-              <Button onClick={handleSaveUsername} className="w-full bg-blue-600 text-white hover:bg-blue-700" disabled={loading}>
-                {loading ? <span className="flex items-center gap-2">
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                    Guardando...
-                  </span> : <span className="flex items-center gap-2">
-                    <Save className="h-4 w-4" />
-                    Guardar
-                  </span>}
-              </Button>
-            </div>
-          </div>
+          
         </div>}
 
       {/* Pricing Popup */}
@@ -661,10 +573,9 @@ const Landing = () => {
 
       {/* Auth Dialog */}
       <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({
-        ...authDialog,
-        isOpen: false
-      })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
+      ...authDialog,
+      isOpen: false
+    })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
     </div>;
 };
-
 export default Landing;
