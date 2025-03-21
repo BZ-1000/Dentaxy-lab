@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Index from './pages/Index';
 import Landing from './pages/Landing';
 import NotFound from './pages/NotFound';
@@ -19,6 +19,13 @@ import { supabase } from './integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
 import './App.css';
 
+// Loading component to show during authentication check
+const LoadingScreen = () => (
+  <div className="min-h-screen flex items-center justify-center">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+  </div>
+);
+
 function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,13 +33,18 @@ function App() {
   useEffect(() => {
     // First set up auth state listener to catch events
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed:", _event, session ? "User authenticated" : "No session");
       setSession(session);
       setLoading(false);
     });
 
     // Then check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Initial session check:", session ? "Session found" : "No session found");
       setSession(session);
+      setLoading(false);
+    }).catch(error => {
+      console.error("Error checking session:", error);
       setLoading(false);
     });
 
@@ -41,18 +53,25 @@ function App() {
 
   // Protected route component
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+    const location = useLocation();
+    
     if (loading) {
-      return <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>;
+      return <LoadingScreen />;
     }
     
     if (!session) {
-      return <Navigate to="/" replace />;
+      // Save the attempted URL to redirect back after login
+      localStorage.setItem('redirectAfterLogin', location.pathname);
+      return <Navigate to="/auth/login" replace />;
     }
     
     return <>{children}</>;
   };
+
+  // Render loading screen while initial authentication check is in progress
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Router>

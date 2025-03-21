@@ -140,8 +140,9 @@ const HistoriaClinica = () => {
               handleExploracionFisicaChange={handleExploracionFisicaChange}
             />
 
+            {/* Fixed the ExamenCabeza component props */}
             <ExamenCabeza
-              formData={formData}
+              examenCabeza={formData.examenCabeza}
               handleExamenCabezaChange={handleExamenCabezaChange}
             />
 
