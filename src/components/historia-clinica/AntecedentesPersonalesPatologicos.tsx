@@ -188,10 +188,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
       return `El paciente niega antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()} (se interrogó específicamente por ${enfermedadesComunes[categoria]}).`;
     }
 
-    if (categoriaData.otra && categoriaData.otraDescripcion) {
-      return `El paciente refiere presentar antecedentes de ${categoriaData.otraDescripcion} como padecimiento ${getTituloCategoria(categoria).toLowerCase()}.`;
-    }
-
     const opcionesSeleccionadas = Object.entries(categoriaData)
       .filter(([key, value]) =>
         key !== 'ninguna' &&
@@ -201,11 +197,28 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
       )
       .map(([key]) => getNombreOpcion(key, categoria));
 
+    let redaccion = "";
+
     if (opcionesSeleccionadas.length > 0) {
-      return `El paciente refiere presentar antecedentes de ${opcionesSeleccionadas.join(', ')} como padecimiento(s) ${getTituloCategoria(categoria).toLowerCase()}.`;
+      redaccion += `El paciente refiere presentar antecedentes de ${opcionesSeleccionadas.join(', ')}`;
     }
 
-    return `No se reportan antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()}.`;
+    if (categoriaData.otra && categoriaData.otraDescripcion) {
+      if (redaccion) {
+        redaccion += ` y ${categoriaData.otraDescripcion}`;
+      } else {
+        redaccion += `El paciente refiere presentar antecedentes de ${categoriaData.otraDescripcion}`;
+      }
+      redaccion += ` como padecimiento(s) ${getTituloCategoria(categoria).toLowerCase()}.`;
+    } else if (redaccion) {
+      redaccion += ` como padecimiento(s) ${getTituloCategoria(categoria).toLowerCase()}.`;
+    }
+
+    if (!redaccion) {
+      redaccion = `No se reportan antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()}.`;
+    }
+
+    return redaccion;
   };
 
   const getTituloCategoria = (categoria: string) => {
@@ -429,6 +442,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
                 onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
                 className="w-full"
+                onFocus={(e) => e.target.select()} // Mantener el foco
               />
             </div>
           )}
