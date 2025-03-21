@@ -10,7 +10,19 @@ import VerifyEmail from './pages/auth/VerifyEmail';
 import AuthCallback from './pages/auth/callback';
 import { supabase } from './integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
+import { Toaster } from './components/ui/toaster';
 import './App.css';
+
+// Páginas del menú principal
+import About from './pages/about/About';
+import HowItWorks from './pages/how-it-works/HowItWorks';
+import Benefits from './pages/benefits/Benefits';
+import Plans from './pages/plans/Plans';
+import Contact from './pages/contact/Contact';
+
+// Páginas de políticas
+import TermsAndConditions from './pages/policies/TermsAndConditions';
+import PrivacyPolicy from './pages/policies/PrivacyPolicy';
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -44,21 +56,42 @@ function App() {
   };
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/app" element={
-          <ProtectedRoute>
-            <Index />
-          </ProtectedRoute>
-        } />
-        <Route path="/auth/login" element={session ? <Navigate to="/app" replace /> : <Login />} />
-        <Route path="/auth/register" element={session ? <Navigate to="/app" replace /> : <Register />} />
-        <Route path="/auth/verify-email" element={<VerifyEmail />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+    <>
+      <Toaster />
+      <Router>
+        <Routes>
+          {/* Página de inicio */}
+          <Route path="/" element={<Landing />} />
+          
+          {/* Páginas del menú principal */}
+          <Route path="/about" element={<About />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/benefits" element={<Benefits />} />
+          <Route path="/plans" element={<Plans />} />
+          <Route path="/contact" element={<Contact />} />
+          
+          {/* Páginas de políticas */}
+          <Route path="/terms" element={<TermsAndConditions />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          
+          {/* Autenticación */}
+          <Route path="/auth/login" element={session ? <Navigate to="/app" replace /> : <Login />} />
+          <Route path="/auth/register" element={session ? <Navigate to="/app" replace /> : <Register />} />
+          <Route path="/auth/verify-email" element={<VerifyEmail />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          
+          {/* App protegida */}
+          <Route path="/app" element={
+            <ProtectedRoute>
+              <Index />
+            </ProtectedRoute>
+          } />
+          
+          {/* 404 - No encontrado */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
 
