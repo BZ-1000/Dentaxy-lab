@@ -10,6 +10,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { Checkbox } from "@/components/ui/checkbox";
+import { Typewriter } from "@/components/ui/typewriter-text";
 import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza, InterrogatorioSistemas, InformacionPrincipal } from '@/types/historiaClinica';
 
 // Types for missing imports
@@ -506,7 +507,15 @@ const Landing = () => {
       <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto py-[4px]">
         <div className="text-center w-full">
           <h1 className="mb-5 font-black text-black text-5xl text-center sm:text-8xl">
-            DENTAXY.ai
+            DENTAXY
+            <Typewriter 
+              text={[".ai", ".com"]} 
+              speed={100} 
+              deleteSpeed={80} 
+              delay={1500}
+              loop={true}
+              className="text-blue-500"
+            />
           </h1>
 
           <div className="mb-5">
