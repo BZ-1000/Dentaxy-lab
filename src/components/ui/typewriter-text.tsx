@@ -92,9 +92,9 @@ export function Typewriter({
   ]);
  
   return (
-    <span className={className}>
+    <span className={`text-justify ${className || ""}`}>
       {displayText}
-      {cursor && <span className="animate-pulse">{cursor}</span>}
+      {cursor && <span className="animate-pulse opacity-70">{cursor}</span>}
     </span>
   );
 }
