@@ -312,11 +312,12 @@ const Landing = () => {
     }));
   };
 
-  // New function to handle Instagram icon click
+  // Function to handle Instagram icon click
   const handleInstagramClick = () => {
     window.open('https://instagram.com/dentalbasicsacademy', '_blank');
   };
   
+  // Updated function to handle saving username
   const handleSaveUsername = async () => {
     if (!username.trim() || !acceptTerms || !acceptPrivacy) {
       toast.error('Por favor complete todos los campos requeridos');
@@ -329,6 +330,25 @@ const Landing = () => {
         throw new Error('No session found');
       }
       
+      // First check if username already exists
+      const { data: existingUser, error: checkError } = await supabase
+        .from('user_profiles')
+        .select('username')
+        .eq('username', username.trim())
+        .neq('id', session.user.id)
+        .single();
+      
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+      
+      if (existingUser) {
+        toast.error('Este nombre de usuario ya está en uso');
+        setLoading(false);
+        return;
+      }
+      
+      // If username doesn't exist, proceed with upsert
       const { error } = await supabase
         .from('user_profiles')
         .upsert({
