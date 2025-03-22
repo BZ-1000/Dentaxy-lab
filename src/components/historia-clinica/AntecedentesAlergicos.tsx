@@ -36,7 +36,14 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
-            <h3 className="text-lg font-semibold">Antecedentes Alérgicos</h3>
+            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
+              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm bg-blue-500 text-white shadow-md">
+                Formulario
+              </button>
+              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm text-gray-700 dark:text-gray-300">
+                Redacción IA
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
