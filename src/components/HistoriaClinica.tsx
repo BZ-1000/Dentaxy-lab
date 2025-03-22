@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -29,6 +28,8 @@ import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
 import { useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
+import { getInitialFormState } from '@/utils/initialFormState';
+
 const HistoriaClinica = () => {
   const {
     theme
@@ -66,7 +67,8 @@ const HistoriaClinica = () => {
     toggleService,
     generarResumen,
     guardarFormulario,
-    cargarFormulario
+    cargarFormulario,
+    resetFormulario
   } = useHistoriaClinica();
 
   // Efecto para guardar automáticamente cuando cambia el formulario y hay un paciente seleccionado
@@ -75,11 +77,18 @@ const HistoriaClinica = () => {
       guardarFormulario(formData, pacienteActual);
     }
   }, [formData, pacienteActual, guardarFormulario]);
+  
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
     cargarFormulario(null); // Cargar formulario vacío
   };
+  
+  const handleResetFormulario = () => {
+    setPacienteActual('');
+    resetFormulario();
+  };
+  
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       toast({
@@ -96,17 +105,26 @@ const HistoriaClinica = () => {
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
+  
   return <div className={`${theme} min-h-screen w-full flex`}>
-      <FormulariosSidebar onCargarFormulario={(data, nombre) => {
-      cargarFormulario(data);
-      setPacienteActual(nombre);
-      setNombrePaciente(nombre);
-    }} onGuardarFormulario={nombre => {
-      guardarFormulario(formData, nombre);
-      setPacienteActual(nombre);
-    }} onCerrarFormulario={handleLimpiarFormulario} pacienteActual={pacienteActual} />
+      <FormulariosSidebar 
+        onCargarFormulario={(data, nombre) => {
+          cargarFormulario(data);
+          setPacienteActual(nombre);
+          setNombrePaciente(nombre);
+        }} 
+        onGuardarFormulario={nombre => {
+          guardarFormulario(formData, nombre);
+          setPacienteActual(nombre);
+        }} 
+        onCerrarFormulario={handleLimpiarFormulario} 
+        onResetFormulario={handleResetFormulario}
+        pacienteActual={pacienteActual} 
+      />
       
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
+        
+        
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-2">Formulario IA</h1>
@@ -139,9 +157,9 @@ const HistoriaClinica = () => {
                   Formulario actual: {pacienteActual}
                 </div>
                 <button 
-                  onClick={handleLimpiarFormulario} 
+                  onClick={handleResetFormulario} 
                   className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" 
-                  aria-label="Limpiar formulario"
+                  aria-label="Resetear formulario"
                 >
                   <X className="w-3 h-3" />
                 </button>
