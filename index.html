@@ -8,13 +8,6 @@
     <meta name="description" content="Lovable Generated Project" />
     <meta name="author" content="Lovable" />
     <meta property="og:image" content="/og-image.png" />
-    <!-- Security Meta Tags -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.gpteng.co 'unsafe-inline' 'unsafe-eval'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://tlgofrhdhfklmjioearg.supabase.co; frame-src 'self';">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Referrer-Policy" content="no-referrer">
-    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()">
-    <meta name="robots" content="noindex, nofollow">
     <link rel="icon" type="image/png" href="/lovable-uploads/7898fc25-0e62-40e1-a139-6582324afb27.png" />
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=Knewave&display=swap" rel="stylesheet">
   </head>
@@ -23,68 +16,5 @@
     <div id="root"></div>
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
-    
-    <!-- Anti-debugging script -->
-    <script>
-      // Disable right-click menu
-      document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        return false;
-      });
-      
-      // Disable keyboard shortcuts for developer tools
-      document.addEventListener('keydown', function(e) {
-        // F12 key
-        if (e.keyCode === 123) {
-          e.preventDefault();
-          return false;
-        }
-        
-        // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
-        if (e.ctrlKey && 
-            (e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67))) {
-          e.preventDefault();
-          return false;
-        }
-      });
-      
-      // Detection for console opening
-      (function() {
-        const devtoolsDetector = {
-          isOpen: false,
-          orientation: null
-        };
-        
-        const threshold = 160;
-        const emitEvent = function(isOpen, orientation) {
-          window.dispatchEvent(new CustomEvent('devtoolschange', {
-            detail: {
-              isOpen: isOpen,
-              orientation: orientation
-            }
-          }));
-        };
-        
-        setInterval(function() {
-          const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-          const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-          
-          if (widthThreshold || heightThreshold) {
-            if (!devtoolsDetector.isOpen) {
-              devtoolsDetector.isOpen = true;
-              devtoolsDetector.orientation = widthThreshold ? 'vertical' : 'horizontal';
-              console.clear();
-              console.log('%c⚠️ Warning: Developer Tools Detected', 'color: red; font-size: 30px; font-weight: bold;');
-              console.log('%cThis is a secure application. Inspecting or modifying this code may violate applicable laws.', 'color: red; font-size: 16px;');
-            }
-          } else {
-            if (devtoolsDetector.isOpen) {
-              devtoolsDetector.isOpen = false;
-              devtoolsDetector.orientation = null;
-            }
-          }
-        }, 500);
-      })();
-    </script>
   </body>
 </html>

@@ -13,6 +13,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza, InterrogatorioSistemas, InformacionPrincipal } from '@/types/historiaClinica';
 
+// Types for missing imports
+type InterrogatorioSistemas = any;
+type InformacionPrincipal = any;
+
 const menuItems = [{
   label: "Nosotros",
   href: "/about"
