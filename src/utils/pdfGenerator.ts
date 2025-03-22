@@ -135,7 +135,7 @@ export const generatePDF = (formData: FormDataState, nombrePaciente: string) => 
   const { antecedentesPersonalesNoPatologicos } = formData;
   
   // Vivienda
-  doc.text(`Vivienda: ${antecedentesPersonalesNoPatologicos.vivienda.tipo || 'No especificada'}`, 14, yPos);
+  doc.text(`Vivienda: ${antecedentesPersonalesNoPatologicos.tipoVivienda || 'No especificada'}`, 14, yPos);
   yPos += 7;
   
   // Servicios
@@ -143,24 +143,18 @@ export const generatePDF = (formData: FormDataState, nombrePaciente: string) => 
   doc.text(`Servicios: ${servicios || 'Ninguno especificado'}`, 14, yPos);
   yPos += 7;
   
-  // Alimentación
-  const alimentacion = antecedentesPersonalesNoPatologicos.alimentacion.descripcion;
-  if (alimentacion) {
-    doc.text('Alimentación:', 14, yPos);
+  // Condición Calle
+  const condicionCalle = antecedentesPersonalesNoPatologicos.condicionCalle;
+  if (condicionCalle) {
+    doc.text(`Condición de calle: ${condicionCalle}`, 14, yPos);
     yPos += 7;
-    const alimentacionLines = doc.splitTextToSize(alimentacion, 180);
-    doc.text(alimentacionLines, 20, yPos);
-    yPos += alimentacionLines.length * 7;
   }
   
-  // Hábitos higiénicos
-  const habitosHigienicos = antecedentesPersonalesNoPatologicos.habitosHigienicos.descripcion;
-  if (habitosHigienicos) {
-    doc.text('Hábitos higiénicos:', 14, yPos);
+  // Frecuencia Baño
+  const frecuenciaBano = antecedentesPersonalesNoPatologicos.frecuenciaBano;
+  if (frecuenciaBano) {
+    doc.text(`Frecuencia de baño: ${frecuenciaBano}`, 14, yPos);
     yPos += 7;
-    const habitosLines = doc.splitTextToSize(habitosHigienicos, 180);
-    doc.text(habitosLines, 20, yPos);
-    yPos += habitosLines.length * 7;
   }
   
   // Check if we need a new page for Antecedentes Patológicos
@@ -182,11 +176,11 @@ export const generatePDF = (formData: FormDataState, nombrePaciente: string) => 
   const categories = [
     { name: 'Nutricionales', data: antecedentesPersonalesPatologicos.nutricionales },
     { name: 'Cardíacos', data: antecedentesPersonalesPatologicos.cardiacos },
-    { name: 'Alérgicos', data: antecedentesPersonalesPatologicos.alergicos },
-    { name: 'Traumáticos', data: antecedentesPersonalesPatologicos.traumaticos },
-    { name: 'Quirúrgicos', data: antecedentesPersonalesPatologicos.quirurgicos },
-    { name: 'Transfusionales', data: antecedentesPersonalesPatologicos.transfusionales },
-    { name: 'Infecto-Contagiosos', data: antecedentesPersonalesPatologicos.infectoContagiosos },
+    { name: 'Hepáticos', data: antecedentesPersonalesPatologicos.hepaticos },
+    { name: 'Enfermedades de Transmisión Sexual', data: antecedentesPersonalesPatologicos.enfermedadesTransmisionSexual },
+    { name: 'Enfermedades Eruptivas', data: antecedentesPersonalesPatologicos.enfermedadesEruptivas },
+    { name: 'Pulmonares', data: antecedentesPersonalesPatologicos.pulmonares },
+    { name: 'Infecciosas y Parasitarias', data: antecedentesPersonalesPatologicos.infecciosasParasitarias },
     { name: 'Otros padecimientos', data: antecedentesPersonalesPatologicos.otrosPadecimientos }
   ];
   

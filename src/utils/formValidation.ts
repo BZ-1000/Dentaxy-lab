@@ -49,7 +49,7 @@ export const validateAntecedentesPersonalesNoPatologicos = (formData: FormDataSt
   const missingFields = [];
   const { antecedentesPersonalesNoPatologicos } = formData;
 
-  if (!antecedentesPersonalesNoPatologicos.vivienda.tipo) {
+  if (!antecedentesPersonalesNoPatologicos.tipoVivienda) {
     missingFields.push("Tipo de vivienda");
   }
   
@@ -57,12 +57,12 @@ export const validateAntecedentesPersonalesNoPatologicos = (formData: FormDataSt
     missingFields.push("Servicios básicos");
   }
   
-  if (!antecedentesPersonalesNoPatologicos.alimentacion.descripcion) {
-    missingFields.push("Descripción de alimentación");
+  if (!antecedentesPersonalesNoPatologicos.condicionCalle) {
+    missingFields.push("Descripción de condición de calle");
   }
   
-  if (!antecedentesPersonalesNoPatologicos.habitosHigienicos.descripcion) {
-    missingFields.push("Descripción de hábitos higiénicos");
+  if (!antecedentesPersonalesNoPatologicos.frecuenciaBano) {
+    missingFields.push("Descripción de frecuencia de baño");
   }
 
   return missingFields;
@@ -75,8 +75,8 @@ export const validateAntecedentesPersonalesPatologicos = (formData: FormDataStat
   
   // Check that at least one condition is selected in any category
   const categories = [
-    'nutricionales', 'cardiacos', 'alergicos', 'traumaticos', 
-    'quirurgicos', 'transfusionales', 'infectoContagiosos', 'otrosPadecimientos'
+    'nutricionales', 'cardiacos', 'hepaticos', 'enfermedadesTransmisionSexual', 
+    'enfermedadesEruptivas', 'pulmonares', 'infecciosasParasitarias', 'otrosPadecimientos'
   ];
   
   let hasAnyCondition = false;

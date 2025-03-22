@@ -337,7 +337,7 @@ export const useHistoriaClinica = () => {
     }));
   };
 
-  const handleDiagnosticoChange = (part: string, value: string | boolean) => {
+  const handleDiagnosticoChange = (part: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       diagnostico: {
@@ -347,7 +347,7 @@ export const useHistoriaClinica = () => {
     }));
   };
 
-  const handlePronosticoChange = (part: string, value: string | boolean) => {
+  const handlePronosticoChange = (part: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       pronostico: {
