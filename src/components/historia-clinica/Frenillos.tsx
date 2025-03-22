@@ -67,7 +67,7 @@ const Frenillos: React.FC<FrenillosProps> = ({
 
         {!isMinimized && (
           <div className="p-6 flex items-center justify-center">
-            <h1 className="text-4xl font-bold text-gray-400 dark:text-gray-500">Próximamente</h1>
+            <p className="text-2xl font-light text-gray-400 dark:text-gray-500">Próximamente</p>
           </div>
         )}
       </Card>
