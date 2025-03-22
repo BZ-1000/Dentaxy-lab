@@ -470,6 +470,8 @@ const Landing = () => {
                 <h3 className="text-lg font-semibold text-gray-800">Dentaxy</h3>
               </div>
               <p className="text-sm text-gray-500">Dental Basics Academy</p>
+              <p className="text-xs text-gray-400">© 2025 Dentaxy.ai Todos los derechos reservados.</p>
+              <p className="text-xs text-gray-400">© 2025 Dentaxy.com Todos los derechos reservados.</p>
               <div className="flex items-center">
                 <a 
                   href="https://instagram.com/dentalbasicsacademy" 
@@ -532,7 +534,20 @@ const Landing = () => {
 
       {/* Username Popup */}
       {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-          
+          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+            <h2 className="text-2xl font-bold text-black mb-6">
+              Actualizar nombre de usuario
+            </h2>
+            <Input type="text" placeholder="Nuevo nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="mb-4" />
+            <div className="flex justify-end gap-4">
+              <Button variant="ghost" onClick={() => setShowPopup(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveUsername} disabled={loading}>
+                {loading ? "Guardando..." : "Guardar"}
+              </Button>
+            </div>
+          </div>
         </div>}
 
       {/* Pricing Popup */}
