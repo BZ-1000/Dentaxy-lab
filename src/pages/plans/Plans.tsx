@@ -14,6 +14,7 @@ const PlanCard = ({
   comingSoon = false,
   onClick,
   originalPrice,
+  priceDescription,
 } : { 
   title: string, 
   price: string, 
@@ -23,6 +24,7 @@ const PlanCard = ({
   comingSoon?: boolean,
   onClick?: () => void,
   originalPrice?: string,
+  priceDescription?: string,
 }) => (
   <div className={`bg-white p-6 rounded-lg shadow-sm border ${isPopular ? 'border-blue-400 ring-2 ring-blue-200' : 'border-gray-200'} relative ${comingSoon ? 'opacity-70' : ''}`}>
     {isPopular && (
@@ -38,7 +40,10 @@ const PlanCard = ({
     <h3 className="text-xl font-bold mb-2 text-gray-800 mt-2">{title}</h3>
     <div className="mb-4">
       {originalPrice && (
-        <span className="text-xl font-medium line-through text-gray-400 mr-2">{originalPrice}</span>
+        <>
+          <span className="text-xl font-medium line-through text-gray-400 mr-2">{originalPrice}</span>
+          {priceDescription && <div className="text-xs text-gray-500 mb-1">{priceDescription}</div>}
+        </>
       )}
       <span className="text-3xl font-bold">{price}</span>
       {!comingSoon && price !== "Gratis" && <span className="text-gray-600">/mes</span>}
@@ -113,6 +118,7 @@ const Plans = () => {
             title="Plan Básico"
             price="$119"
             originalPrice="$299"
+            priceDescription="Precio sugerido en otras plataformas de IA"
             features={[
               "Todas las funciones del plan Beta",
               "Sin límite de historiales",
@@ -125,8 +131,9 @@ const Plans = () => {
           
           <PlanCard 
             title="Plan Premium"
-            price="$199"
+            price="$249"
             originalPrice="$499"
+            priceDescription="Precio sugerido en otras plataformas de IA"
             features={[
               "Todas las funciones del plan Básico",
               "IA avanzada para diagnósticos y pronósticos",
