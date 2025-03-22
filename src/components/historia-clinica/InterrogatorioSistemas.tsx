@@ -24,6 +24,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
   const [displayedText, setDisplayedText] = useState("");
   const [copied, setCopied] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -67,6 +68,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
     setShowForm(false);
     setProgress(0);
     setDisplayedText("");
+    setIsTyping(true);
   };
 
   const limpiarFormulario = () => {
@@ -77,6 +79,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
     setDisplayedText("");
     setShowForm(true);
     setProgress(0);
+    setIsTyping(false);
   };
 
   const handleCopy = async () => {
@@ -89,7 +92,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
 
   // Efecto para la animación de escritura
   useEffect(() => {
-    if (!showForm && redaccion) {
+    if (!showForm && redaccion && isTyping) {
       let index = 0;
       const speed = 5; // Velocidad de escritura (más bajo = más rápido)
       
@@ -101,12 +104,13 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
         } else {
           clearInterval(interval);
           setProgress(100);
+          setIsTyping(false);
         }
       }, speed);
       
       return () => clearInterval(interval);
     }
-  }, [redaccion, showForm]);
+  }, [redaccion, showForm, isTyping]);
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
@@ -236,7 +240,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 <Textarea
                   value={displayedText}
                   readOnly
-                  className="min-h-[300px] text-sm bg-white/50 dark:bg-gray-800/50 whitespace-pre-wrap"
+                  className="min-h-[300px] text-sm bg-white/50 dark:bg-gray-800/50 whitespace-pre-wrap cursor-default"
                 />
               </div>
 
