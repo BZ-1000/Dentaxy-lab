@@ -359,8 +359,8 @@ const Landing = () => {
         
       if (error) throw error;
       
-      setShowPopup(false);
       toast.success('Nombre de usuario guardado exitosamente');
+      setShowPopup(false); // Ensure popup closes after successful save
     } catch (error: any) {
       console.error('Error saving username:', error);
       toast.error('Error al guardar nombre de usuario: ' + error.message);
