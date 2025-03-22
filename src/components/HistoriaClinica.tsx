@@ -235,7 +235,7 @@ const HistoriaClinica = () => {
             <Pronostico formData={formData} handlePronosticoChange={handlePronosticoChange} />
 
             <div className="flex justify-center pt-6">
-              <Button onClick={handleGeneratePDF} disabled={isGenerating} className="text-slate-50 bg-[#ff0000]">
+              <Button onClick={handleGeneratePDF} disabled={isGenerating} className="text-slate-50 bg-[#ff0000] font-normal">
                 {isGenerating ? <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Generando PDF...
