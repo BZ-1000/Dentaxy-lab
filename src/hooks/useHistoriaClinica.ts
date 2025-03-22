@@ -255,6 +255,107 @@ export const useHistoriaClinica = () => {
       }
     }));
   };
+  
+  // New handlers for the added sections
+  const handleArticulacionCraneomandibularChange = (part: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      articulacionCraneomandibular: {
+        ...prev.articulacionCraneomandibular,
+        [part]: value
+      }
+    }));
+  };
+
+  const handleExamenCuelloChange = (part: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      examenCuello: {
+        ...prev.examenCuello,
+        [part]: value
+      }
+    }));
+  };
+
+  const handleExamenIntrabucalChange = (part: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      examenIntrabucal: {
+        ...prev.examenIntrabucal,
+        [part]: value
+      }
+    }));
+  };
+
+  const handleGlandulasSalivalesChange = (part: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      glandulasSalivales: {
+        ...prev.glandulasSalivales,
+        [part]: value
+      }
+    }));
+  };
+
+  const handleOclusionChange = (part: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      oclusion: {
+        ...prev.oclusion,
+        [part]: value
+      }
+    }));
+  };
+
+  const handleRelacionDientesChange = (part: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      relacionDientes: {
+        ...prev.relacionDientes,
+        [part]: value
+      }
+    }));
+  };
+
+  const handleLineaMediaChange = (part: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      lineaMedia: {
+        ...prev.lineaMedia,
+        [part]: value
+      }
+    }));
+  };
+
+  const handleFrenillosChange = (part: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      frenillos: {
+        ...prev.frenillos,
+        [part]: value
+      }
+    }));
+  };
+
+  const handleDiagnosticoChange = (part: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      diagnostico: {
+        ...prev.diagnostico,
+        [part]: value
+      }
+    }));
+  };
+
+  const handlePronosticoChange = (part: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      pronostico: {
+        ...prev.pronostico,
+        [part]: value
+      }
+    }));
+  };
 
   const generarResumen = async () => {
     try {
@@ -339,6 +440,16 @@ export const useHistoriaClinica = () => {
     handleInterrogatorioChange,
     handleExploracionFisicaChange,
     handleExamenCabezaChange,
+    handleArticulacionCraneomandibularChange,
+    handleExamenCuelloChange,
+    handleExamenIntrabucalChange,
+    handleGlandulasSalivalesChange,
+    handleOclusionChange,
+    handleRelacionDientesChange,
+    handleLineaMediaChange,
+    handleFrenillosChange,
+    handleDiagnosticoChange,
+    handlePronosticoChange,
     toggleService,
     generarResumen,
     guardarFormulario,

@@ -203,6 +203,83 @@ export const getInitialFormState = (): FormDataState => ({
     boca: "",
     atm: ""
   },
+  // Add new sections
+  articulacionCraneomandibular: {
+    sinHallazgos: false,
+    aperturaBucal: "",
+    movimientoLateral: "",
+    chasquidos: false,
+    crepitacion: false,
+    dolor: false,
+    observaciones: ""
+  },
+  examenCuello: {
+    sinHallazgos: false,
+    gangliosLinfaticos: "",
+    musculatura: "",
+    tiroides: "",
+    movilidad: "",
+    observaciones: ""
+  },
+  examenIntrabucal: {
+    sinHallazgos: false,
+    lengua: "",
+    paladarDuro: "",
+    paladarBlando: "",
+    mucosaYugal: "",
+    pisoBoca: "",
+    encias: "",
+    dientes: "",
+    observaciones: ""
+  },
+  glandulasSalivales: {
+    sinHallazgos: false,
+    parotida: "",
+    submaxilar: "",
+    sublingual: "",
+    secrecion: "",
+    observaciones: ""
+  },
+  oclusion: {
+    sinHallazgos: false,
+    clasificacionAngle: "",
+    overjet: "",
+    overbite: "",
+    mordidaCruzada: false,
+    mordidaAbierta: false,
+    observaciones: ""
+  },
+  relacionDientes: {
+    sinHallazgos: false,
+    relacionMolar: "",
+    relacionCanina: "",
+    apiñamiento: false,
+    diastemas: false,
+    observaciones: ""
+  },
+  lineaMedia: {
+    sinHallazgos: false,
+    coincidente: false,
+    desviacion: "",
+    observaciones: ""
+  },
+  frenillos: {
+    sinHallazgos: false,
+    labialSuperior: "",
+    labialInferior: "",
+    lingual: "",
+    observaciones: ""
+  },
+  diagnostico: {
+    principal: "",
+    secundarios: "",
+    observaciones: ""
+  },
+  pronostico: {
+    general: "",
+    particular: "",
+    observaciones: ""
+  },
   serviciosDomiciliarios: '',
   pisosVivienda: '',
   materialVivienda: '',

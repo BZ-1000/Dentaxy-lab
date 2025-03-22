@@ -1,3 +1,4 @@
+
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -204,6 +205,102 @@ export interface ExamenCabeza {
   [key: string]: boolean | string;
 }
 
+export interface ArticulacionCraneomandibular {
+  sinHallazgos?: boolean;
+  aperturaBucal?: string;
+  movimientoLateral?: string;
+  chasquidos?: boolean;
+  crepitacion?: boolean;
+  dolor?: boolean;
+  observaciones?: string;
+  [key: string]: boolean | string | undefined;
+}
+
+export interface ExamenCuello {
+  sinHallazgos?: boolean;
+  gangliosLinfaticos?: string;
+  musculatura?: string;
+  tiroides?: string;
+  movilidad?: string;
+  observaciones?: string;
+  [key: string]: boolean | string | undefined;
+}
+
+export interface ExamenIntrabucal {
+  sinHallazgos?: boolean;
+  lengua?: string;
+  paladarDuro?: string;
+  paladarBlando?: string;
+  mucosaYugal?: string;
+  pisoBoca?: string;
+  encias?: string;
+  dientes?: string;
+  observaciones?: string;
+  [key: string]: boolean | string | undefined;
+}
+
+export interface GlandulasSalivales {
+  sinHallazgos?: boolean;
+  parotida?: string;
+  submaxilar?: string;
+  sublingual?: string;
+  secrecion?: string;
+  observaciones?: string;
+  [key: string]: boolean | string | undefined;
+}
+
+export interface Oclusion {
+  sinHallazgos?: boolean;
+  clasificacionAngle?: string;
+  overjet?: string;
+  overbite?: string;
+  mordidaCruzada?: boolean;
+  mordidaAbierta?: boolean;
+  observaciones?: string;
+  [key: string]: boolean | string | undefined;
+}
+
+export interface RelacionDientes {
+  sinHallazgos?: boolean;
+  relacionMolar?: string;
+  relacionCanina?: string;
+  apiñamiento?: boolean;
+  diastemas?: boolean;
+  observaciones?: string;
+  [key: string]: boolean | string | undefined;
+}
+
+export interface LineaMedia {
+  sinHallazgos?: boolean;
+  coincidente?: boolean;
+  desviacion?: string;
+  observaciones?: string;
+  [key: string]: boolean | string | undefined;
+}
+
+export interface Frenillos {
+  sinHallazgos?: boolean;
+  labialSuperior?: string;
+  labialInferior?: string;
+  lingual?: string;
+  observaciones?: string;
+  [key: string]: boolean | string | undefined;
+}
+
+export interface Diagnostico {
+  principal?: string;
+  secundarios?: string;
+  observaciones?: string;
+  [key: string]: string | undefined;
+}
+
+export interface Pronostico {
+  general?: string;
+  particular?: string;
+  observaciones?: string;
+  [key: string]: string | undefined;
+}
+
 export interface HigieneBucal {
   frecuenciaCepillado: string;
   usoHiloDental: string;
@@ -241,6 +338,16 @@ export interface FormDataState {
   };
   exploracionFisica: ExploracionFisica;
   examenCabeza: ExamenCabeza;
+  articulacionCraneomandibular: ArticulacionCraneomandibular;
+  examenCuello: ExamenCuello;
+  examenIntrabucal: ExamenIntrabucal;
+  glandulasSalivales: GlandulasSalivales;
+  oclusion: Oclusion;
+  relacionDientes: RelacionDientes;
+  lineaMedia: LineaMedia;
+  frenillos: Frenillos;
+  diagnostico: Diagnostico;
+  pronostico: Pronostico;
   serviciosDomiciliarios: string;
   pisosVivienda: string;
   materialVivienda: string;

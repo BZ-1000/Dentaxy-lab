@@ -10,6 +10,16 @@ import AntecedentesHemorragicos from './historia-clinica/AntecedentesHemorragico
 import InterrogatorioSistemas from './historia-clinica/InterrogatorioSistemas';
 import ExploracionFisica from './historia-clinica/ExploracionFisica';
 import ExamenCabeza from './historia-clinica/ExamenCabeza';
+import ArticulacionCraneomandibular from './historia-clinica/ArticulacionCraneomandibular';
+import ExamenCuello from './historia-clinica/ExamenCuello';
+import ExamenIntrabucal from './historia-clinica/ExamenIntrabucal';
+import GlandulasSalivales from './historia-clinica/GlandulasSalivales';
+import Oclusion from './historia-clinica/Oclusion';
+import RelacionDientes from './historia-clinica/RelacionDientes';
+import LineaMedia from './historia-clinica/LineaMedia';
+import Frenillos from './historia-clinica/Frenillos';
+import Diagnostico from './historia-clinica/Diagnostico';
+import Pronostico from './historia-clinica/Pronostico';
 import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
 import { Button } from "@/components/ui/button";
 import { useTheme } from '@/hooks/use-theme';
@@ -39,6 +49,16 @@ const HistoriaClinica = () => {
     handleInterrogatorioChange,
     handleExploracionFisicaChange,
     handleExamenCabezaChange,
+    handleArticulacionCraneomandibularChange,
+    handleExamenCuelloChange,
+    handleExamenIntrabucalChange,
+    handleGlandulasSalivalesChange,
+    handleOclusionChange,
+    handleRelacionDientesChange,
+    handleLineaMediaChange,
+    handleFrenillosChange,
+    handleDiagnosticoChange,
+    handlePronosticoChange,
     toggleService,
     generarResumen,
     guardarFormulario,
@@ -143,6 +163,56 @@ const HistoriaClinica = () => {
             <ExamenCabeza
               formData={formData}
               handleExamenCabezaChange={handleExamenCabezaChange}
+            />
+            
+            <ArticulacionCraneomandibular
+              formData={formData}
+              handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange}
+            />
+            
+            <ExamenCuello
+              formData={formData}
+              handleExamenCuelloChange={handleExamenCuelloChange}
+            />
+            
+            <ExamenIntrabucal
+              formData={formData}
+              handleExamenIntrabucalChange={handleExamenIntrabucalChange}
+            />
+            
+            <GlandulasSalivales
+              formData={formData}
+              handleGlandulasSalivalesChange={handleGlandulasSalivalesChange}
+            />
+            
+            <Oclusion
+              formData={formData}
+              handleOclusionChange={handleOclusionChange}
+            />
+            
+            <RelacionDientes
+              formData={formData}
+              handleRelacionDientesChange={handleRelacionDientesChange}
+            />
+            
+            <LineaMedia
+              formData={formData}
+              handleLineaMediaChange={handleLineaMediaChange}
+            />
+            
+            <Frenillos
+              formData={formData}
+              handleFrenillosChange={handleFrenillosChange}
+            />
+            
+            <Diagnostico
+              formData={formData}
+              handleDiagnosticoChange={handleDiagnosticoChange}
+            />
+            
+            <Pronostico
+              formData={formData}
+              handlePronosticoChange={handlePronosticoChange}
             />
 
             <div className="flex justify-center pt-6">
