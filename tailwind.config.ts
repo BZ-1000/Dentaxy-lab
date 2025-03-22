@@ -101,6 +101,11 @@ export default {
           '30%': { transform: 'rotateZ(6deg)' },
           '35%': { transform: 'rotateZ(-4deg)' },
           '40%, 100%': { transform: 'rotateZ(0)' }
+        },
+        scaleClick: {
+          '0%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.2)' },
+          '100%': { transform: 'scale(1)' }
         }
       },
       animation: {
@@ -109,7 +114,8 @@ export default {
         float: "float 3s ease-in-out infinite",
         glow: "glow 3s ease-in-out infinite",
         rainbow: "rainbow var(--speed, 2s) infinite linear",
-        wiggle: 'wiggle 2s linear infinite'
+        wiggle: 'wiggle 2s linear infinite',
+        scaleClick: 'scaleClick 0.5s ease-in-out'
       },
     },
   },

@@ -328,6 +328,12 @@ const Landing = () => {
       }
     }));
   };
+
+  // New function to handle Instagram icon click
+  const handleInstagramClick = () => {
+    window.open('https://instagram.com/dentalbasicsacademy', '_blank');
+  };
+  
   if (loading) return <LoadingScreen visible={loading} />;
   
   return <div className="min-h-screen w-full bg-white apple-minimalist">
@@ -465,13 +471,26 @@ const Landing = () => {
               </div>
               <p className="text-sm text-gray-500">Dental Basics Academy</p>
               <div className="flex items-center">
-                <img 
-                  src="/lovable-uploads/d122138d-9f75-4331-a81b-fd93b1b2e542.png" 
-                  alt="Instagram" 
-                  className="h-6 w-6 mr-2 animate-wiggle" 
-                  style={{ transformOrigin: 'center' }}
-                />
-                <span className="text-sm text-gray-500">@dentalbasicsacademy</span>
+                <a 
+                  href="https://instagram.com/dentalbasicsacademy" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  onClick={(e) => {
+                    e.currentTarget.classList.add('animate-scaleClick');
+                    setTimeout(() => {
+                      e.currentTarget.classList.remove('animate-scaleClick');
+                    }, 500);
+                  }}
+                  className="flex items-center hover:cursor-pointer transition-transform"
+                >
+                  <img 
+                    src="/lovable-uploads/d122138d-9f75-4331-a81b-fd93b1b2e542.png" 
+                    alt="Instagram" 
+                    className="h-6 w-6 mr-2 animate-wiggle" 
+                    style={{ transformOrigin: 'center' }}
+                  />
+                  <span className="text-sm text-gray-500">@dentalbasicsacademy</span>
+                </a>
               </div>
             </div>
             
