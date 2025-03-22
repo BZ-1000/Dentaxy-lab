@@ -1,12 +1,17 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Clock, FileText, Shield, Brain, Users } from 'lucide-react';
 import BottomMenu from '@/components/BottomMenu';
-
-const BenefitCard = ({ icon: Icon, title, description }: { icon: any, title: string, description: string }) => (
-  <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+const BenefitCard = ({
+  icon: Icon,
+  title,
+  description
+}: {
+  icon: any;
+  title: string;
+  description: string;
+}) => <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
     <div className="flex items-center mb-4">
       <div className="bg-blue-100 p-3 rounded-full mr-4">
         <Icon className="h-6 w-6 text-blue-600" />
@@ -14,40 +19,30 @@ const BenefitCard = ({ icon: Icon, title, description }: { icon: any, title: str
       <h3 className="text-xl font-semibold text-gray-800">{title}</h3>
     </div>
     <p className="text-gray-600">{description}</p>
-  </div>
-);
-
+  </div>;
 const Benefits = () => {
-  const benefits = [
-    {
-      icon: Clock,
-      title: "Ahorro de tiempo",
-      description: "Reduce hasta un 70% el tiempo dedicado a la documentación clínica, permitiéndote atender a más pacientes o mejorar tu calidad de vida."
-    },
-    {
-      icon: FileText,
-      title: "Documentación profesional",
-      description: "Genera historiales clínicos completos y bien estructurados que cumplen con todos los estándares profesionales y legales."
-    },
-    {
-      icon: Shield,
-      title: "Seguridad y cumplimiento",
-      description: "Plataforma diseñada con los más altos estándares de seguridad, garantizando la protección de los datos sensibles de tus pacientes."
-    },
-    {
-      icon: Brain,
-      title: "IA especializada",
-      description: "Nuestra inteligencia artificial está entrenada específicamente para odontología, comprendiendo terminología y procedimientos específicos."
-    },
-    {
-      icon: Users,
-      title: "Mejora la experiencia del paciente",
-      description: "Dedica más tiempo a la atención personal y menos a la documentación, mejorando la satisfacción y fidelización de tus pacientes."
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-white">
+  const benefits = [{
+    icon: Clock,
+    title: "Ahorro de tiempo",
+    description: "Reduce hasta un 70% el tiempo dedicado a la documentación clínica, permitiéndote atender a más pacientes o mejorar tu calidad de vida."
+  }, {
+    icon: FileText,
+    title: "Documentación profesional",
+    description: "Genera historiales clínicos completos y bien estructurados que cumplen con todos los estándares profesionales y legales."
+  }, {
+    icon: Shield,
+    title: "Seguridad y cumplimiento",
+    description: "Plataforma diseñada con los más altos estándares de seguridad, garantizando la protección de los datos sensibles de tus pacientes."
+  }, {
+    icon: Brain,
+    title: "IA especializada",
+    description: "Nuestra inteligencia artificial está entrenada específicamente para odontología, comprendiendo terminología y procedimientos específicos."
+  }, {
+    icon: Users,
+    title: "Mejora la experiencia del paciente",
+    description: "Dedica más tiempo a la atención personal y menos a la documentación, mejorando la satisfacción y fidelización de tus pacientes."
+  }];
+  return <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
         <Link to="/" className="flex items-center gap-2">
@@ -73,14 +68,7 @@ const Benefits = () => {
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {benefits.map((benefit, index) => (
-            <BenefitCard 
-              key={index}
-              icon={benefit.icon}
-              title={benefit.title}
-              description={benefit.description}
-            />
-          ))}
+          {benefits.map((benefit, index) => <BenefitCard key={index} icon={benefit.icon} title={benefit.title} description={benefit.description} />)}
         </div>
         
         <div className="bg-blue-50 p-8 rounded-lg border border-blue-100 mb-10">
@@ -95,7 +83,7 @@ const Benefits = () => {
             <p className="italic text-blue-700">
               "DENTAXY.ai ha transformado mi consulta, permitiéndome dedicar más tiempo a mis pacientes y menos a papeleo."
             </p>
-            <p className="mt-2 font-medium text-gray-800">Dr. Carlos Mendoza, Odontólogo</p>
+            <p className="mt-2 font-medium text-gray-800">Dr.anonimo</p>
           </div>
         </div>
         
@@ -109,8 +97,6 @@ const Benefits = () => {
       </div>
       
       <BottomMenu />
-    </div>
-  );
+    </div>;
 };
-
 export default Benefits;
