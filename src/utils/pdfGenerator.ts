@@ -78,10 +78,18 @@ export const generatePDF = (formData: FormDataState, nombrePaciente: string) => 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(12);
   
+  // Safely check and iterate through familiares
   const familiares = ['padre', 'madre', 'abuelos', 'hermanos', 'tios'];
+  const antecedentesHeredoFamiliares = formData.antecedentesHeredoFamiliares || {};
   
   for (const familiar of familiares) {
-    const data = formData.antecedentesHeredoFamiliares[familiar];
+    const data = antecedentesHeredoFamiliares[familiar] || { condiciones: {}, finado: false };
+    
+    // Safely check if condiciones exists
+    if (!data.condiciones) {
+      data.condiciones = {};
+    }
+    
     const condiciones = Object.entries(data.condiciones)
       .filter(([key, value]) => value && key !== 'otras')
       .map(([key]) => key);
@@ -139,8 +147,8 @@ export const generatePDF = (formData: FormDataState, nombrePaciente: string) => 
   yPos += 7;
   
   // Servicios
-  const servicios = antecedentesPersonalesNoPatologicos.servicios.join(', ');
-  doc.text(`Servicios: ${servicios || 'Ninguno especificado'}`, 14, yPos);
+  const servicios = antecedentesPersonalesNoPatologicos.servicios?.join(', ') || 'Ninguno especificado';
+  doc.text(`Servicios: ${servicios}`, 14, yPos);
   yPos += 7;
   
   // Condición Calle
@@ -173,46 +181,53 @@ export const generatePDF = (formData: FormDataState, nombrePaciente: string) => 
   doc.setFontSize(12);
   
   const { antecedentesPersonalesPatologicos } = formData;
-  const categories = [
-    { name: 'Nutricionales', data: antecedentesPersonalesPatologicos.nutricionales },
-    { name: 'Cardíacos', data: antecedentesPersonalesPatologicos.cardiacos },
-    { name: 'Hepáticos', data: antecedentesPersonalesPatologicos.hepaticos },
-    { name: 'Enfermedades de Transmisión Sexual', data: antecedentesPersonalesPatologicos.enfermedadesTransmisionSexual },
-    { name: 'Enfermedades Eruptivas', data: antecedentesPersonalesPatologicos.enfermedadesEruptivas },
-    { name: 'Pulmonares', data: antecedentesPersonalesPatologicos.pulmonares },
-    { name: 'Infecciosas y Parasitarias', data: antecedentesPersonalesPatologicos.infecciosasParasitarias },
-    { name: 'Otros padecimientos', data: antecedentesPersonalesPatologicos.otrosPadecimientos }
-  ];
-  
-  categories.forEach(category => {
-    const conditions = Object.entries(category.data)
-      .filter(([key, value]) => value === true && key !== 'otra')
-      .map(([key]) => key);
+  if (antecedentesPersonalesPatologicos) {
+    const categories = [
+      { name: 'Nutricionales', data: antecedentesPersonalesPatologicos.nutricionales || {} },
+      { name: 'Cardíacos', data: antecedentesPersonalesPatologicos.cardiacos || {} },
+      { name: 'Hepáticos', data: antecedentesPersonalesPatologicos.hepaticos || {} },
+      { name: 'Enfermedades de Transmisión Sexual', data: antecedentesPersonalesPatologicos.enfermedadesTransmisionSexual || {} },
+      { name: 'Enfermedades Eruptivas', data: antecedentesPersonalesPatologicos.enfermedadesEruptivas || {} },
+      { name: 'Pulmonares', data: antecedentesPersonalesPatologicos.pulmonares || {} },
+      { name: 'Infecciosas y Parasitarias', data: antecedentesPersonalesPatologicos.infecciosasParasitarias || {} },
+      { name: 'Otros padecimientos', data: antecedentesPersonalesPatologicos.otrosPadecimientos || {} }
+    ];
     
-    if (category.data.otra && category.data.otraDescripcion) {
-      conditions.push(`Otra: ${category.data.otraDescripcion}`);
-    }
-    
-    if (conditions.length > 0) {
-      doc.setFont('helvetica', 'bold');
-      doc.text(category.name + ':', 14, yPos);
-      yPos += 7;
+    categories.forEach(category => {
+      // Safe check for data
+      if (!category.data) {
+        category.data = {};
+      }
       
-      doc.setFont('helvetica', 'normal');
-      conditions.forEach(condition => {
-        doc.text(`- ${condition}`, 20, yPos);
+      const conditions = Object.entries(category.data)
+        .filter(([key, value]) => value === true && key !== 'otra')
+        .map(([key]) => key);
+      
+      if (category.data.otra && category.data.otraDescripcion) {
+        conditions.push(`Otra: ${category.data.otraDescripcion}`);
+      }
+      
+      if (conditions.length > 0) {
+        doc.setFont('helvetica', 'bold');
+        doc.text(category.name + ':', 14, yPos);
         yPos += 7;
-      });
+        
+        doc.setFont('helvetica', 'normal');
+        conditions.forEach(condition => {
+          doc.text(`- ${condition}`, 20, yPos);
+          yPos += 7;
+        });
+        
+        yPos += 3;
+      }
       
-      yPos += 3;
-    }
-    
-    // Check if we need a new page
-    if (yPos > 270) {
-      doc.addPage();
-      yPos = 20;
-    }
-  });
+      // Check if we need a new page
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+    });
+  }
   
   // Add more sections as needed...
   
@@ -220,3 +235,4 @@ export const generatePDF = (formData: FormDataState, nombrePaciente: string) => 
   const filename = `Historia_Clinica_${nombrePaciente.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
   doc.save(filename);
 };
+

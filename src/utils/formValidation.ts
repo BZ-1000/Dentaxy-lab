@@ -18,7 +18,7 @@ export const validatePadecimientoActual = (formData: FormDataState) => {
     if (!dolor.frecuencia) missingFields.push("Frecuencia del dolor");
     if (!dolor.caracter) missingFields.push("Carácter del dolor");
     if (!dolor.intensidad) missingFields.push("Intensidad del dolor");
-    if (!dolor.localizacion.descripcion) missingFields.push("Localización del dolor");
+    if (!dolor.localizacion?.descripcion) missingFields.push("Localización del dolor");
     if (!dolor.atenuacion) missingFields.push("Factores de atenuación del dolor");
   }
 
