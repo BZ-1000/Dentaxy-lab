@@ -408,11 +408,6 @@ export const useHistoriaClinica = () => {
     });
   };
 
-  const resetFormulario = () => {
-    setFormData(getInitialFormState());
-    setResumen('');
-  };
-
   const guardarFormulario = (data: FormDataState, nombre: string) => {
     if (!nombre.trim()) return;
     localStorage.setItem(`formulario_${nombre}`, JSON.stringify(data));
@@ -458,7 +453,6 @@ export const useHistoriaClinica = () => {
     toggleService,
     generarResumen,
     guardarFormulario,
-    cargarFormulario,
-    resetFormulario
+    cargarFormulario
   };
 };
