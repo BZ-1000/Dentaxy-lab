@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -204,7 +205,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                         value={formData.examenCabeza?.[parte.id] || ''}
                         onChange={(e) => handleExamenCabezaChange(parte.id, e.target.value)}
                         placeholder={`Describa los hallazgos en ${parte.name.toLowerCase()}`}
-                        className="mt-2 min-h-[120px]"
+                        className="mt-2 min-h-[120px] text-justify"
                       />
                     </TabsContent>
                   ))}
@@ -262,17 +263,17 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                   <div className="progress-bar" style={{
                     height: '8px', 
                     backgroundColor: '#34c759',
-                    transition: 'width 1s ease-in-out', // Slowed down from 0.5s to 1s
+                    transition: 'width 1.5s ease-in-out', // Slowed down from 1s to 1.5s
                     width: `${progress}%`,
                     borderRadius: '12px'
                   }}></div>
                 </div>
                 
-                <div className="min-h-[200px] p-3 text-sm bg-white/50 dark:bg-gray-800/50 whitespace-pre-wrap rounded border border-gray-200 dark:border-gray-700">
+                <div className="min-h-[200px] p-3 text-sm bg-white/50 dark:bg-gray-800/50 whitespace-pre-wrap rounded border border-gray-200 dark:border-gray-700 text-justify">
                   <Typewriter 
                     text={redaccion}
-                    speed={15} // Slowed down from 5 to 15 for better visual effect
-                    cursor={null}
+                    speed={20} // Slowed down from 15 to 20 for better visual effect
+                    cursor="|"
                     onComplete={handleTypingComplete}
                     className="whitespace-pre-wrap"
                   />

@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -14,14 +15,14 @@ export interface TypewriterProps {
 }
 export function Typewriter({
   text,
-  speed = 120,
-  // Slowed down from 100 to 120
+  speed = 150,
+  // Slowed down even more from 120 to 150
   cursor = "|",
   loop = false,
-  deleteSpeed = 80,
-  // Slowed down from 50 to 80
-  delay = 2000,
-  // Increased from 1500 to 2000
+  deleteSpeed = 100,
+  // Slowed down even more from 80 to 100
+  delay = 2500,
+  // Increased from 2000 to 2500
   className,
   onComplete
 }: TypewriterProps) {
@@ -69,8 +70,8 @@ export function Typewriter({
     }, isDeleting ? deleteSpeed : speed);
     return () => clearTimeout(timeout);
   }, [currentIndex, isDeleting, currentText, loop, speed, deleteSpeed, delay, displayText, text, textArray, textArrayIndex, onComplete, isComplete]);
-  return <span className="text-justify">
+  return <span className={`text-justify whitespace-pre-wrap ${className || ""}`}>
       {displayText}
-      {cursor && <span className="animate-pulse opacity-70">{cursor}</span>}
+      {cursor && <span className="animate-pulse opacity-80 ml-0.5">{cursor}</span>}
     </span>;
 }
