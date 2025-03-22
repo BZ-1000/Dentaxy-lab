@@ -17,17 +17,15 @@ import type {
   AntecedentesAlergicos,
   AntecedentesHemorragicos,
   AntecedentesQuirurgicos,
-  InterrogatorioSistemas,
-  InformacionPrincipal,
   ExploracionFisica,
-  ExamenCabeza
+  ExamenCabeza,
+  InterrogatorioSistemas,
+  InformacionPrincipal
 } from '@/types/historiaClinica';
 
-// Fix for the missing type imports
-// type InterrogatorioSistemas = any;
-// type InformacionPrincipal = any;
-// type ExploracionFisica = any;
-// type ExamenCabeza = any;
+// Types for missing imports
+type InterrogatorioSistemas = any;
+type InformacionPrincipal = any;
 
 const menuItems = [{
   label: "Nosotros",
@@ -335,7 +333,7 @@ const Landing = () => {
     window.open('https://instagram.com/dentalbasicsacademy', '_blank');
   };
   
-  // Completely fixed handleSaveUsername function to ensure popup closes after save
+  // Fixed handleSaveUsername function to properly handle username existence
   const handleSaveUsername = async () => {
     if (!username.trim() || !acceptTerms || !acceptPrivacy) {
       toast.error('Por favor complete todos los campos requeridos');
@@ -349,22 +347,40 @@ const Landing = () => {
       
       setLoading(true);
       
-      // First, we'll simply try to update the profile if it exists
-      const { data, error: updateError } = await supabase
+      // Check if the username already exists (belonging to a different user)
+      const { data: existingUser, error: checkError } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('username', username.trim())
+        .neq('id', session.user.id) // Exclude current user
+        .single();
+      
+      // If there's a user with this username already
+      if (existingUser) {
+        toast.error('Este nombre de usuario ya está en uso. Por favor, intente con otro nombre.', {
+          duration: 5000,
+        });
+        setLoading(false);
+        return;
+      }
+      
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "no rows returned" which is good
+        console.error('Error checking username:', checkError);
+        toast.error('Error al verificar la disponibilidad del nombre de usuario');
+        setLoading(false);
+        return;
+      }
+      
+      // Try to update first
+      const { error: updateError } = await supabase
         .from('user_profiles')
         .update({ username: username.trim() })
         .eq('id', session.user.id);
       
-      // If update failed (profile might not exist), try inserting a new profile
+      // If update fails (likely because the profile doesn't exist yet), insert new profile
       if (updateError) {
-        if (updateError.code === '23505') {
-          // This is the duplicate key error for username
-          toast.error('Este nombre de usuario ya está en uso');
-          setLoading(false);
-          return;
-        }
+        console.log('Update failed, trying insert:', updateError);
         
-        // Try inserting instead (profile might not exist yet)
         const { error: insertError } = await supabase
           .from('user_profiles')
           .insert({
@@ -374,24 +390,26 @@ const Landing = () => {
           });
           
         if (insertError) {
-          if (insertError.code === '23505') {
-            toast.error('Este nombre de usuario ya está en uso');
-            setLoading(false);
-            return;
-          }
-          throw insertError;
+          console.error('Insert error:', insertError);
+          toast.error('Error al guardar nombre de usuario');
+          setLoading(false);
+          return;
         }
       }
       
+      // Success path - username was saved
       toast.success('Nombre de usuario guardado exitosamente');
+      console.log('Username saved successfully, closing popup');
       
-      // Make sure to close the popup
-      setShowPopup(false);
+      // Close the popup with a small delay to ensure state updates properly
+      setTimeout(() => {
+        setShowPopup(false);
+        setLoading(false);
+      }, 500);
       
     } catch (error: any) {
       console.error('Error saving username:', error);
       toast.error('Error al guardar nombre de usuario: ' + (error.message || 'Error desconocido'));
-    } finally {
       setLoading(false);
     }
   };
