@@ -75,6 +75,41 @@ export interface AntecedentesPersonalesNoPatologicos {
     cena: string;
   };
   ayunoProlongado: string;
+  
+  // Adding new fields needed by the component
+  vivienda: {
+    tipo: string;
+    habitantes: string;
+    cuartos: string;
+  };
+  alimentacion: {
+    tiempos: string;
+    calidad: string;
+  };
+  habitosHigienicos: {
+    bañoDiario: string;
+    lavadoDental: string;
+    cambioCepillo: string;
+  };
+  adicciones: {
+    alcohol: {
+      consume: boolean;
+      frecuencia: string;
+      ultimoConsumo: string;
+    };
+    tabaco: {
+      consume: boolean;
+      frecuencia: string;
+      cantidadDiaria: string;
+      tiempoConsumo: string;
+    };
+    drogas: {
+      consume: boolean;
+      tipo: string;
+      frecuencia: string;
+      ultimoConsumo: string;
+    };
+  };
 }
 
 export interface CondicionPatologica {
@@ -134,6 +169,16 @@ export interface AntecedentesPersonalesPatologicos {
   otrosPadecimientos: CondicionPatologica & {
     especificar?: boolean;
   };
+  
+  // Adding new fields needed by the component
+  enfermedadesTrasmisibles: boolean;
+  enfermedadesNoTrasmisibles: boolean;
+  tratamientoActual: boolean;
+  cualTratamiento: string;
+  hospitalizacionesPrevias: boolean;
+  razonHospitalizacion: string;
+  transfusionesSanguineas: boolean;
+  razonTransfusion: string;
 }
 
 export interface AntecedentesAlergicos {
