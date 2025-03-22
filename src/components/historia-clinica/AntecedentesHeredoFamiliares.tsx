@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
 import './AntecedentesHeredoFamiliares.css';
+import { ConfirmationAlert } from "@/components/ui/confirmation-alert";
 
 interface AntecedentesHeredoFamiliaresProps {
   formData: FormDataState;
@@ -151,7 +152,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   const [copied, setCopied] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
   const [progress, setProgress] = useState(0);
-  const [showModal, setShowModal] = useState(false);
+  const [alertOpen, setAlertOpen] = useState(false);
   const [missingFamiliares, setMissingFamiliares] = useState<string[]>([]);
   const redaccionRef = useRef(null);
 
@@ -179,12 +180,15 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     setIsMaximized(false);
   };
 
-  const generarRedaccionIA = () => {
+  const validarYGenerarRedaccion = () => {
     if (missingFamiliares.length > 0) {
-      setShowModal(true);
-      return;
+      setAlertOpen(true);
+    } else {
+      generarRedaccionIA();
     }
+  };
 
+  const generarRedaccionIA = () => {
     const textoGenerado = familiares.map(familiar => {
       const familiarKey = getFamiliarKey(familiar);
       const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
@@ -462,7 +466,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   
             {!showRedaccion && (
               <div className="p-6 flex justify-center gap-4">
-                <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
+                <Button onClick={validarYGenerarRedaccion} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
                   <span>Generar Redacción IA</span>
                 </Button>
                 <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
@@ -475,22 +479,23 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         )}
       </Card>
   
-      {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Faltan datos</h2>
-            <p className="mb-4">Por favor, selecciona al menos una opción para los siguientes familiares:</p>
-            <ul className="list-disc list-inside mb-4">
+      <ConfirmationAlert
+        open={alertOpen}
+        onOpenChange={setAlertOpen}
+        title="Faltan datos por completar"
+        description={
+          <div>
+            <p className="mb-2">Aún faltan datos para los siguientes familiares:</p>
+            <ul className="list-disc pl-5 space-y-1">
               {missingFamiliares.map((familiar, index) => (
-                <li key={index}>{familiar}</li>
+                <li key={index} className="text-red-500">{familiar}</li>
               ))}
             </ul>
-            <Button onClick={() => setShowModal(false)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full">
-              Cerrar
-            </Button>
+            <p className="mt-2">Es importante completar la información de todos los familiares para generar una historia clínica completa. ¿Desea continuar sin completar esta información?</p>
           </div>
-        </div>
-      )}
+        }
+        onConfirm={generarRedaccionIA}
+      />
     </div>
   );  
 };
