@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -44,7 +43,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const handleSinHallazgosChange = () => {
     const newValue = !sinHallazgos;
     setSinHallazgos(newValue);
-    // Pass boolean directly as intended by the prop type
+    // Convert boolean to boolean to fix type error
     handleExamenCabezaChange("sinHallazgos", newValue);
     
     if (newValue) {
@@ -89,7 +88,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
 
   const limpiarFormulario = () => {
     setSinHallazgos(false);
-    handleExamenCabezaChange("sinHallazgos", "false");
+    handleExamenCabezaChange("sinHallazgos", false);
     
     partesCabeza.forEach(parte => {
       handleExamenCabezaChange(parte.id, "");
@@ -108,6 +107,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     }, 2000);
   };
 
+  
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>

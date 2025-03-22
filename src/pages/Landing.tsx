@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Checkbox } from "@/components/ui/checkbox";
+import { AntecedentesPersonalesPatologicos } from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import type { 
   PadecimientoActual, 
   AntecedentesHeredoFamiliares, 

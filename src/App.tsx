@@ -10,7 +10,7 @@ import VerifyEmail from './pages/auth/VerifyEmail';
 import AuthCallback from './pages/auth/callback';
 import { supabase } from './integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
-import { Toaster } from './components/ui/sonner';
+import { Toaster } from 'sonner';
 import './App.css';
 
 // Páginas del menú principal
@@ -57,7 +57,7 @@ function App() {
 
   return (
     <Router>
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="top-right" duration={5000} />
       <Routes>
         {/* Página de inicio */}
         <Route path="/" element={<Landing />} />
