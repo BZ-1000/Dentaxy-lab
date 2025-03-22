@@ -23,6 +23,12 @@ import type {
   ExamenCabeza
 } from '@/types/historiaClinica';
 
+// Fix for the missing type imports
+// type InterrogatorioSistemas = any;
+// type InformacionPrincipal = any;
+// type ExploracionFisica = any;
+// type ExamenCabeza = any;
+
 const menuItems = [{
   label: "Nosotros",
   href: "/about"
@@ -329,7 +335,7 @@ const Landing = () => {
     window.open('https://instagram.com/dentalbasicsacademy', '_blank');
   };
   
-  // Completely revised handleSaveUsername function to fix the username update issue
+  // Completely fixed handleSaveUsername function to ensure popup closes after save
   const handleSaveUsername = async () => {
     if (!username.trim() || !acceptTerms || !acceptPrivacy) {
       toast.error('Por favor complete todos los campos requeridos');
@@ -343,41 +349,22 @@ const Landing = () => {
       
       setLoading(true);
       
-      // Check if username already exists for OTHER users
-      const { data: existingUser, error: checkError } = await supabase
+      // First, we'll simply try to update the profile if it exists
+      const { data, error: updateError } = await supabase
         .from('user_profiles')
-        .select('username')
-        .eq('username', username.trim())
-        .neq('id', session.user.id) // Exclude current user from check
-        .maybeSingle();
+        .update({ username: username.trim() })
+        .eq('id', session.user.id);
       
-      if (checkError) {
-        console.error('Error checking username:', checkError);
-        throw new Error('Error al verificar disponibilidad del nombre de usuario');
-      }
-      
-      if (existingUser) {
-        toast.error('Este nombre de usuario ya está en uso');
-        setLoading(false);
-        return;
-      }
-      
-      // Get current profile to check if it exists
-      const { data: currentProfile } = await supabase
-        .from('user_profiles')
-        .select('id')
-        .eq('id', session.user.id)
-        .maybeSingle();
-      
-      // If profile exists, update it, otherwise insert new profile
-      if (currentProfile) {
-        const { error: updateError } = await supabase
-          .from('user_profiles')
-          .update({ username: username.trim() })
-          .eq('id', session.user.id);
-          
-        if (updateError) throw updateError;
-      } else {
+      // If update failed (profile might not exist), try inserting a new profile
+      if (updateError) {
+        if (updateError.code === '23505') {
+          // This is the duplicate key error for username
+          toast.error('Este nombre de usuario ya está en uso');
+          setLoading(false);
+          return;
+        }
+        
+        // Try inserting instead (profile might not exist yet)
         const { error: insertError } = await supabase
           .from('user_profiles')
           .insert({
@@ -386,11 +373,21 @@ const Landing = () => {
             created_at: new Date().toISOString()
           });
           
-        if (insertError) throw insertError;
+        if (insertError) {
+          if (insertError.code === '23505') {
+            toast.error('Este nombre de usuario ya está en uso');
+            setLoading(false);
+            return;
+          }
+          throw insertError;
+        }
       }
       
       toast.success('Nombre de usuario guardado exitosamente');
-      setShowPopup(false); // Close popup after successful save
+      
+      // Make sure to close the popup
+      setShowPopup(false);
+      
     } catch (error: any) {
       console.error('Error saving username:', error);
       toast.error('Error al guardar nombre de usuario: ' + (error.message || 'Error desconocido'));
