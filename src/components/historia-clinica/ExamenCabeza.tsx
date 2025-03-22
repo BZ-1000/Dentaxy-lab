@@ -1,13 +1,8 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
+import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
-import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
 
 interface ExamenCabezaProps {
   formData: FormDataState;
@@ -20,12 +15,6 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
-  const [showForm, setShowForm] = useState(true);
-  const [sinHallazgos, setSinHallazgos] = useState(formData.examenCabeza?.sinHallazgos || false);
-  const [redaccion, setRedaccion] = useState("");
-  const [displayedText, setDisplayedText] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [progress, setProgress] = useState(0);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -42,115 +31,12 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     setIsMaximized(false);
   };
 
-  const handleSinHallazgosChange = () => {
-    const newValue = !sinHallazgos;
-    setSinHallazgos(newValue);
-    // Pass boolean directly as intended by the prop type
-    handleExamenCabezaChange("sinHallazgos", newValue);
-    
-    if (newValue) {
-      // Clear all sections if no findings
-      partesCabeza.forEach(parte => {
-        handleExamenCabezaChange(parte.id, "");
-      });
-    }
-  };
-
-  const partesCabeza = [
-    { id: "craneo", name: "Cráneo" },
-    { id: "cara", name: "Cara" },
-    { id: "ojos", name: "Ojos" },
-    { id: "oidos", name: "Oídos" },
-    { id: "nariz", name: "Nariz" },
-    { id: "boca", name: "Boca" },
-    { id: "atm", name: "ATM" }
-  ];
-
-  const generarRedaccionIA = () => {
-    if (sinHallazgos) {
-      setRedaccion("Examen de cabeza: A la inspección y palpación, no se observan hallazgos patológicos en cráneo, cara, ojos, oídos, nariz, boca o articulación temporomandibular. Estructuras normales en forma, tamaño y función.");
-    } else {
-      let texto = "Examen de cabeza:\n\n";
-      
-      partesCabeza.forEach(parte => {
-        const valor = formData.examenCabeza?.[parte.id] || "";
-        if (valor) {
-          texto += `${parte.name}: ${valor}\n`;
-        } else {
-          texto += `${parte.name}: Sin hallazgos patológicos. Normocéfalo.\n`;
-        }
-      });
-
-      setRedaccion(texto);
-    }
-    
-    setShowForm(false);
-    setProgress(0);
-    setDisplayedText("");
-  };
-
-  const limpiarFormulario = () => {
-    setSinHallazgos(false);
-    handleExamenCabezaChange("sinHallazgos", false);
-    
-    partesCabeza.forEach(parte => {
-      handleExamenCabezaChange(parte.id, "");
-    });
-    
-    setRedaccion("");
-    setDisplayedText("");
-    setShowForm(true);
-    setProgress(0);
-  };
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(redaccion);
-    setCopied(true);
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
-  };
-
-  // Efecto para la animación de escritura
-  useEffect(() => {
-    if (!showForm && redaccion) {
-      let index = 0;
-      const speed = 5; // Velocidad de escritura (más bajo = más rápido)
-      
-      const interval = setInterval(() => {
-        if (index < redaccion.length) {
-          setDisplayedText(redaccion.substring(0, index + 1));
-          setProgress(Math.round((index / redaccion.length) * 100));
-          index++;
-        } else {
-          clearInterval(interval);
-          setProgress(100);
-        }
-      }, speed);
-      
-      return () => clearInterval(interval);
-    }
-  }, [redaccion, showForm]);
-
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button
-                onClick={() => setShowForm(true)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Formulario
-              </button>
-              <button
-                onClick={() => setShowForm(false)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Redacción IA
-              </button>
-            </div>
+            <h3 className="text-lg font-semibold">Examen de Cabeza</h3>
           </div>
 
           <div className="flex items-center gap-2">
@@ -172,137 +58,11 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
           </h2>
         </div>
 
-        {!isMinimized && <div className="p-6">
-          {showForm ? (
-            <div className="space-y-6">
-              <div
-                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
-                onClick={handleSinHallazgosChange}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Label className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                      Sin hallazgos patológicos en cabeza
-                    </Label>
-                  </div>
-                  <Switch
-                    id="sin-hallazgos"
-                    checked={sinHallazgos}
-                    onCheckedChange={handleSinHallazgosChange}
-                    className="data-[state=checked]:bg-blue-500"
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                </div>
-                {sinHallazgos && (
-                  <p className="text-xs text-blue-600 dark:text-blue-400 mt-2 ml-7">
-                    No es necesario rellenar las secciones individuales del examen de cabeza.
-                  </p>
-                )}
-              </div>
-
-              {!sinHallazgos && (
-                <Tabs defaultValue={partesCabeza[0].id} className="w-full">
-                  <TabsList className="grid grid-cols-3 md:grid-cols-7">
-                    {partesCabeza.map(parte => (
-                      <TabsTrigger key={parte.id} value={parte.id}>
-                        {parte.name}
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                  
-                  {partesCabeza.map(parte => (
-                    <TabsContent key={parte.id} value={parte.id} className="p-4 border rounded-md mt-4">
-                      <Label htmlFor={`cabeza-${parte.id}`} className="text-gray-700 dark:text-gray-300 font-medium">
-                        {parte.name}
-                      </Label>
-                      <Textarea
-                        id={`cabeza-${parte.id}`}
-                        value={formData.examenCabeza?.[parte.id] || ''}
-                        onChange={(e) => handleExamenCabezaChange(parte.id, e.target.value)}
-                        placeholder={`Describa los hallazgos en ${parte.name.toLowerCase()}`}
-                        className="mt-2 min-h-[120px]"
-                      />
-                    </TabsContent>
-                  ))}
-                </Tabs>
-              )}
-
-              <div className="flex justify-center gap-4 mt-6">
-                <Button
-                  onClick={generarRedaccionIA}
-                  className="bg-blue-500 hover:bg-blue-600 text-white"
-                >
-                  Generar Redacción IA
-                </Button>
-                <Button
-                  onClick={limpiarFormulario}
-                  variant="outline"
-                  className="border-gray-300 text-gray-700 dark:text-gray-300"
-                >
-                  Limpiar Formulario
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="flex justify-between items-center mb-2">
-                  <h4 className="text-lg font-semibold">Redacción</h4>
-                  <button
-                    onClick={handleCopy}
-                    className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                  >
-                    {copied ? (
-                      <>
-                        <CheckCircle className="w-4 h-4" />
-                        <span>Copiado</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4" />
-                        <span>Copiar</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-                
-                {/* Barra de progreso para la animación */}
-                <div className="progress-bar-container" style={{
-                  width: '100%', 
-                  backgroundColor: '#d3d3d3', 
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  marginBottom: '1rem',
-                  boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'
-                }}>
-                  <div className="progress-bar" style={{
-                    height: '8px', 
-                    backgroundColor: '#34c759',
-                    transition: 'width 0.005s ease-in-out',
-                    width: `${progress}%`,
-                    borderRadius: '12px'
-                  }}></div>
-                </div>
-                
-                <Textarea
-                  value={displayedText}
-                  readOnly
-                  className="min-h-[200px] text-sm bg-white/50 dark:bg-gray-800/50 whitespace-pre-wrap"
-                />
-              </div>
-
-              <div className="flex justify-center">
-                <Button
-                  onClick={() => setShowForm(true)}
-                  variant="outline"
-                  className="border-gray-300 text-gray-700 dark:text-gray-300"
-                >
-                  Volver al Formulario
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>}
+        {!isMinimized && (
+          <div className="p-6 flex items-center justify-center">
+            <h1 className="text-4xl font-bold text-gray-400 dark:text-gray-500">Próximamente</h1>
+          </div>
+        )}
       </Card>
     </div>
   );
