@@ -317,6 +317,23 @@ export interface Alimentacion {
   consumoNutritivo: string;
 }
 
+// Add the missing interfaces needed for Landing.tsx
+export interface InterrogatorioSistemas {
+  [key: string]: string;
+  cardiovascular?: string;
+  respiratorio?: string;
+  digestivo?: string;
+  urinario?: string;
+  musculoEsqueletico?: string;
+  nervioso?: string;
+  endocrino?: string;
+  tegumentario?: string;
+}
+
+export interface InformacionPrincipal {
+  [key: string]: string | undefined;
+}
+
 export interface FormDataState {
   padecimientoActual: PadecimientoActual;
   antecedentesHeredoFamiliares: AntecedentesHeredoFamiliares;
@@ -325,17 +342,7 @@ export interface FormDataState {
   antecedentesAlergicos: AntecedentesAlergicos;
   antecedentesQuirurgicos: AntecedentesQuirurgicos;
   antecedentesHemorragicos: AntecedentesHemorragicos;
-  interrogatorioSistemas: {
-    [key: string]: string;
-    cardiovascular?: string;
-    respiratorio?: string;
-    digestivo?: string;
-    urinario?: string;
-    musculoEsqueletico?: string;
-    nervioso?: string;
-    endocrino?: string;
-    tegumentario?: string;
-  };
+  interrogatorioSistemas: InterrogatorioSistemas;
   exploracionFisica: ExploracionFisica;
   examenCabeza: ExamenCabeza;
   articulacionCraneomandibular: ArticulacionCraneomandibular;
@@ -371,4 +378,5 @@ export interface FormDataState {
   temperatura: string;
   diagnosticos: string;
   pronosticos: string;
+  informacionPrincipal?: InformacionPrincipal;
 }
