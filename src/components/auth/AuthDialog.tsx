@@ -1,5 +1,5 @@
 
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,11 +29,25 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
 
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
+        
+        if (error) {
+          console.error('Error al iniciar sesión:', error);
+          
+          // Mensajes específicos para diferentes errores
+          if (error.message.includes('Invalid login credentials')) {
+            toast.error('Credenciales inválidas. Por favor verifica tu email y contraseña.');
+          } else if (error.message.includes('Email not confirmed')) {
+            toast.error('Email no confirmado. Por favor verifica tu bandeja de entrada para confirmar tu email.');
+          } else {
+            toast.error(`Error al iniciar sesión: ${error.message}`);
+          }
+          throw error;
+        }
+        
         toast.success("¡Bienvenido de vuelta!");
         onSuccess();
       } else {
@@ -41,20 +55,42 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
         const redirectUrl = `${window.location.origin}/auth/callback`;
         console.log("Redirect URL:", redirectUrl);
         
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: redirectUrl
           }
         });
-        if (error) throw error;
-        toast.success("¡Cuenta creada exitosamente! Hemos enviado un correo de verificación a tu email.");
-        setMode("login");
+        
+        if (error) {
+          console.error('Error al registrarse:', error);
+          
+          // Mensajes de error específicos
+          if (error.message.includes('already registered')) {
+            toast.error('Este correo ya está registrado. Por favor inicia sesión.');
+          } else if (error.message.includes('Password should be')) {
+            toast.error('La contraseña debe tener al menos 6 caracteres.');
+          } else {
+            toast.error(`Error al registrarse: ${error.message}`);
+          }
+          throw error;
+        }
+        
+        if (data?.user?.identities?.length === 0) {
+          // El usuario ya existe pero no ha iniciado sesión
+          toast.error('Este correo ya está registrado. Por favor inicia sesión.');
+          setMode("login");
+        } else {
+          toast.success("¡Cuenta creada exitosamente! Hemos enviado un correo de verificación a tu email.", {
+            duration: 6000,
+          });
+          setMode("login");
+        }
       }
       onClose();
     } catch (error: any) {
-      toast.error(`Error de autenticación: ${error.message}`);
+      console.error('Error de autenticación:', error);
     } finally {
       setLoading(false);
     }
@@ -75,8 +111,16 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
           }
         }
       });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Error al autenticarse con Google:', error);
+        toast.error(`Error al autenticarse con Google: ${error.message}`);
+        throw error;
+      }
+      
+      toast.success("Redirigiendo a Google para autenticación...");
     } catch (error: any) {
+      console.error('Error de autenticación con Google:', error);
       toast.error(`Error de autenticación con Google: ${error.message}`);
     }
   };
@@ -84,10 +128,11 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="w-full max-w-md space-y-6 rounded-xl border border-gray-200 bg-white p-6 text-gray-800 shadow-lg">
+        <DialogTitle className="text-center text-3xl font-bold tracking-tight text-gray-900">
+          {mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
+        </DialogTitle>
+        
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-            {mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
-          </h2>
           {mode === "register" && (
             <p className="mt-2 text-sm text-gray-600">
               Únete al equipo Dental Basics Academy IA

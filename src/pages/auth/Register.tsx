@@ -35,15 +35,29 @@ const Register = () => {
       });
 
       if (error) {
-        toast.error(error.message);
         console.error('Error al registrarse:', error);
+        
+        // Mensajes de error específicos
+        if (error.message.includes('already registered')) {
+          toast.error('Este correo ya está registrado. Por favor inicia sesión.');
+        } else if (error.message.includes('Password should be')) {
+          toast.error('La contraseña debe tener al menos 6 caracteres.');
+        } else {
+          toast.error(`Error al registrarse: ${error.message}`);
+        }
+      } else if (data?.user?.identities?.length === 0) {
+        // El usuario ya existe pero no ha iniciado sesión
+        toast.error('Este correo ya está registrado. Por favor inicia sesión.');
+        setTimeout(() => navigate('/auth/login'), 2000);
       } else {
-        toast.success('¡Registro exitoso! Por favor, verifica tu correo electrónico.');
+        toast.success('¡Registro exitoso! Por favor, verifica tu correo electrónico.', {
+          duration: 6000,
+        });
         navigate('/auth/verify-email', { state: { email } });
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error al registrarse');
       console.error('Error inesperado:', error);
+      toast.error(error.message || 'Error al registrarse');
     } finally {
       setLoading(false);
     }
@@ -63,12 +77,14 @@ const Register = () => {
       });
 
       if (error) {
-        toast.error(error.message);
         console.error('Error al registrarse con Google:', error);
+        toast.error(`Error al registrarse con Google: ${error.message}`);
+      } else {
+        toast.success('Redirigiendo a Google para registrarse...');
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error al registrarse con Google');
       console.error('Error inesperado:', error);
+      toast.error(error.message || 'Error al registrarse con Google');
     }
   };
 

@@ -12,8 +12,14 @@ export default function VerifyEmail() {
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [type, setType] = useState<string>('email');
+  const [email, setEmail] = useState<string>('');
 
   useEffect(() => {
+    // Get email from location state if available
+    if (location.state && location.state.email) {
+      setEmail(location.state.email);
+    }
+
     const handleVerification = async () => {
       try {
         const params = new URLSearchParams(location.search);
@@ -23,26 +29,33 @@ export default function VerifyEmail() {
         console.log('Verification params:', { token: tokenValue, type: typeValue });
         
         if (!tokenValue) {
-          setError('Enlace de verificación inválido. Por favor, solicita un nuevo correo de verificación.');
+          // If no token in URL, this is just the verify email page without verification
           setVerifying(false);
           return;
         }
 
         setToken(tokenValue);
         setType(typeValue);
-        setVerifying(false);
+        
+        // If we have a token, try to verify immediately
+        if (tokenValue) {
+          await handleConfirmEmail(tokenValue, typeValue);
+        } else {
+          setVerifying(false);
+        }
       } catch (error: any) {
         console.error('Error de verificación:', error);
         setError(error.message);
         setVerifying(false);
+        toast.error(`Error de verificación: ${error.message}`);
       }
     };
 
     handleVerification();
   }, [location.search]);
 
-  const handleConfirmEmail = async () => {
-    if (!token) {
+  const handleConfirmEmail = async (tokenValue: string = token || '', typeValue: string = type) => {
+    if (!tokenValue) {
       toast.error('No se encontró el token de verificación');
       return;
     }
@@ -52,8 +65,8 @@ export default function VerifyEmail() {
       
       // Use verifyOtp directly here instead of redirecting
       const { error } = await supabase.auth.verifyOtp({
-        token_hash: token,
-        type: type as any,
+        token_hash: tokenValue,
+        type: typeValue as any,
       });
       
       if (error) {
@@ -64,16 +77,52 @@ export default function VerifyEmail() {
         return;
       }
       
-      toast.success('Correo verificado correctamente');
+      toast.success('Correo verificado correctamente. ¡Bienvenido a Dental Basics Academy!');
       // Redirect to landing page after successful verification
-      navigate('/');
+      setTimeout(() => navigate('/'), 2000);
     } catch (err: any) {
       console.error('Error en verificación:', err);
       setError(err.message);
       setVerifying(false);
-      toast.error('Error inesperado durante la verificación');
+      toast.error('Error inesperado durante la verificación: ' + err.message);
     }
   };
+
+  // If we're just showing the "check your email" page
+  if (!token && !error && !verifying) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-800 to-black p-4">
+        <div className="w-full max-w-md space-y-8 rounded-xl border border-white/10 bg-black/50 p-8 backdrop-blur-xl text-white">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold mb-2">Dental Basics Academy IA</h1>
+            <h2 className="text-2xl font-semibold mb-6">Verifica tu correo electrónico</h2>
+            
+            <div className="text-center mb-8">
+              <div className="text-blue-500 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                <h3 className="text-xl font-medium mt-2">Revisa tu bandeja de entrada</h3>
+              </div>
+              <p className="mb-6">
+                Hemos enviado un enlace de verificación a{" "}
+                <span className="font-semibold">{email || "tu correo electrónico"}</span>
+              </p>
+              <p className="text-sm opacity-80 mb-6">
+                Haz clic en el enlace de ese correo para activar tu cuenta. Si no lo encuentras, revisa tu carpeta de spam.
+              </p>
+              <Button 
+                onClick={() => navigate('/auth/login')} 
+                className="bg-blue-500 text-white hover:bg-blue-600 mt-4"
+              >
+                Volver a Iniciar Sesión
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-blue-800 to-black p-4">
@@ -109,7 +158,7 @@ export default function VerifyEmail() {
                 <h3 className="text-xl font-medium mt-2">Confirma tu Correo Electrónico</h3>
               </div>
               <p className="mb-6">Estás a un paso de completar la verificación de tu correo electrónico.</p>
-              <Button onClick={handleConfirmEmail} className="bg-blue-500 text-white hover:bg-blue-600 mb-4 w-full">
+              <Button onClick={() => handleConfirmEmail()} className="bg-blue-500 text-white hover:bg-blue-600 mb-4 w-full">
                 Confirmar mi Correo
               </Button>
               <p className="text-sm opacity-80">Al confirmar, verificarás tu cuenta y podrás acceder a todas las funcionalidades de Dental Basics Academy IA.</p>

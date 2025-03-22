@@ -25,15 +25,23 @@ const Login = () => {
       });
 
       if (error) {
-        toast.error(error.message);
         console.error('Error al iniciar sesión:', error);
+        
+        // Mensajes específicos para diferentes errores
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('Credenciales inválidas. Por favor verifica tu email y contraseña.');
+        } else if (error.message.includes('Email not confirmed')) {
+          toast.error('Email no confirmado. Por favor verifica tu bandeja de entrada para confirmar tu email.');
+        } else {
+          toast.error(`Error al iniciar sesión: ${error.message}`);
+        }
       } else if (data.session) {
         toast.success('¡Inicio de sesión exitoso!');
         navigate('/app');
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error al iniciar sesión');
       console.error('Error inesperado:', error);
+      toast.error(error.message || 'Error al iniciar sesión');
     } finally {
       setLoading(false);
     }
@@ -41,10 +49,13 @@ const Login = () => {
 
   const handleGoogleLogin = async () => {
     try {
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      console.log("Google redirect URL:", redirectUrl);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent'
@@ -53,12 +64,14 @@ const Login = () => {
       });
 
       if (error) {
-        toast.error(error.message);
         console.error('Error al iniciar sesión con Google:', error);
+        toast.error(`Error al iniciar sesión con Google: ${error.message}`);
+      } else {
+        toast.success('Redirigiendo a Google para iniciar sesión...');
       }
     } catch (error: any) {
-      toast.error(error.message || 'Error al iniciar sesión con Google');
       console.error('Error inesperado:', error);
+      toast.error(error.message || 'Error al iniciar sesión con Google');
     }
   };
 
