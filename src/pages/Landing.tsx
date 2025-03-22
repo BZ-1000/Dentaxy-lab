@@ -7,8 +7,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
+import type { Database } from '@/types/supabase';
+import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { Checkbox } from "@/components/ui/checkbox";
-import { AntecedentesPersonalesPatologicos } from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import type { 
   PadecimientoActual, 
   AntecedentesHeredoFamiliares, 
@@ -17,12 +18,14 @@ import type {
   AntecedentesHemorragicos,
   AntecedentesQuirurgicos,
   ExploracionFisica,
-  ExamenCabeza
+  ExamenCabeza,
+  InterrogatorioSistemas,
+  InformacionPrincipal
 } from '@/types/historiaClinica';
 
-// Create local types for the missing imports
-type LocalInterrogatorioSistemas = any;
-type LocalInformacionPrincipal = any;
+// Types for missing imports
+type InterrogatorioSistemas = any;
+type InformacionPrincipal = any;
 
 const menuItems = [{
   label: "Nosotros",
@@ -40,7 +43,6 @@ const menuItems = [{
   label: "Contacto",
   href: "/contact"
 }];
-
 const LoadingScreen = ({
   visible
 }) => {
@@ -93,9 +95,6 @@ const Landing = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   
-  // Add state to track if the username check has been performed
-  const [usernameCheckDone, setUsernameCheckDone] = useState(false);
-  
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -131,23 +130,17 @@ const Landing = () => {
       subscription.unsubscribe();
     };
   }, []);
-  
   const checkUsername = async (userId: string) => {
-    if (usernameCheckDone) return; // Skip if the check has already been performed
-    
     try {
       const {
         data,
         error
       } = await supabase.from('user_profiles').select('id, username, created_at').eq('id', userId).single();
-      
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
-      
       if (data?.username) {
         setUsername(data.username);
-        setUsernameCheckDone(true); // Mark check as done if username exists
       } else {
         setShowPopup(true);
       }
@@ -155,7 +148,6 @@ const Landing = () => {
       console.error('Error checking username:', error);
     }
   };
-  
   const checkUserPlan = async (userId: string) => {
     try {
       const {
@@ -196,35 +188,30 @@ const Landing = () => {
       toast.error('Error al activar el plan');
     }
   };
-  
   const handleItemClick = (label: string) => {
     setActiveItem(label);
     if (label === "perfil." && session) {
       setShowDropdown(!showDropdown);
     }
   };
-  
   const handleLogin = () => {
     setAuthDialog({
       isOpen: true,
       mode: "login"
     });
   };
-  
   const handleRegister = () => {
     setAuthDialog({
       isOpen: true,
       mode: "register"
     });
   };
-  
   const handleAuthSuccess = () => {
     setAuthDialog({
       isOpen: false,
       mode: "login"
     });
   };
-  
   const handleLogout = async () => {
     const {
       error
@@ -235,15 +222,12 @@ const Landing = () => {
     setSession(null);
     setShowDropdown(false);
     setHasBetaPlan(false);
-    setUsernameCheckDone(false); // Reset the username check flag on logout
     toast.success('Sesión cerrada exitosamente');
   };
-  
   const handleChangeUsername = () => {
     setShowPopup(true);
     setShowDropdown(false);
   };
-  
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -259,7 +243,6 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
-  
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
       nutricionales: {
@@ -335,7 +318,6 @@ const Landing = () => {
       }
     }
   });
-  
   const handleAntecedentePatologicoChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -345,11 +327,13 @@ const Landing = () => {
       }
     }));
   };
-  
+
+  // Function to handle Instagram icon click
   const handleInstagramClick = () => {
     window.open('https://instagram.com/dentalbasicsacademy', '_blank');
   };
   
+  // Fixed handleSaveUsername function to properly handle username existence
   const handleSaveUsername = async () => {
     if (!username.trim() || !acceptTerms || !acceptPrivacy) {
       toast.error('Por favor complete todos los campos requeridos');
@@ -416,9 +400,6 @@ const Landing = () => {
       // Success path - username was saved
       toast.success('Nombre de usuario guardado exitosamente');
       console.log('Username saved successfully, closing popup');
-      
-      // Set username check as done to prevent popup from showing again
-      setUsernameCheckDone(true);
       
       // Close the popup with a small delay to ensure state updates properly
       setTimeout(() => {
@@ -549,8 +530,8 @@ const Landing = () => {
                   antecedentesAlergicos: {} as AntecedentesAlergicos,
                   antecedentesHemorragicos: {} as AntecedentesHemorragicos,
                   antecedentesQuirurgicos: {} as AntecedentesQuirurgicos,
-                  interrogatorioSistemas: {} as LocalInterrogatorioSistemas,
-                  informacionPrincipal: {} as LocalInformacionPrincipal,
+                  interrogatorioSistemas: {} as InterrogatorioSistemas,
+                  informacionPrincipal: {} as InformacionPrincipal,
                   exploracionFisica: {} as ExploracionFisica,
                   examenCabeza: {} as ExamenCabeza
                 }} 
@@ -561,7 +542,7 @@ const Landing = () => {
         </div>
       </div>
 
-      {/* Footer */}
+      {/* Apple Style Footer */}
       <footer className="bg-white py-12 border-t border-gray-200">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
