@@ -1,5 +1,5 @@
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
   const [showForm, setShowForm] = useState(true);
   const [sinQuirurgicos, setSinQuirurgicos] = useState(formData.antecedentesQuirurgicos?.sinQuirurgicos || false);
   const [redaccion, setRedaccion] = useState("");
-  const [displayedText, setDisplayedText] = useState("");
   const [copied, setCopied] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -114,8 +113,7 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
     }
     
     setShowForm(false);
-    setProgress(0);
-    setDisplayedText("");
+    setProgress(100);
   };
 
   const limpiarFormulario = () => {
@@ -125,7 +123,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
     handleAntecedenteQuirurgicoChange("hospitalizacionesPrevias", "");
     handleAntecedenteQuirurgicoChange("complicacionesAnestesicas", "");
     setRedaccion("");
-    setDisplayedText("");
     setShowForm(true);
     setProgress(0);
   };
@@ -137,27 +134,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
       setCopied(false);
     }, 2000);
   };
-
-  // Efecto para la animación de escritura
-  useEffect(() => {
-    if (!showForm && redaccion) {
-      let index = 0;
-      const speed = 5; // Velocidad de escritura (más bajo = más rápido)
-      
-      const interval = setInterval(() => {
-        if (index < redaccion.length) {
-          setDisplayedText(redaccion.substring(0, index + 1));
-          setProgress(Math.round((index / redaccion.length) * 100));
-          index++;
-        } else {
-          clearInterval(interval);
-          setProgress(100);
-        }
-      }, speed);
-      
-      return () => clearInterval(interval);
-    }
-  }, [redaccion, showForm]);
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
@@ -354,27 +330,8 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                     )}
                   </button>
                 </div>
-                
-                {/* Barra de progreso para la animación */}
-                <div className="progress-bar-container" style={{
-                  width: '100%', 
-                  backgroundColor: '#d3d3d3', 
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  marginBottom: '1rem',
-                  boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'
-                }}>
-                  <div className="progress-bar" style={{
-                    height: '8px', 
-                    backgroundColor: '#34c759',
-                    transition: 'width 0.005s ease-in-out',
-                    width: `${progress}%`,
-                    borderRadius: '12px'
-                  }}></div>
-                </div>
-                
                 <Textarea
-                  value={displayedText}
+                  value={redaccion}
                   readOnly
                   className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
                 />
