@@ -10,23 +10,11 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { Checkbox } from "@/components/ui/checkbox";
-import type { 
-  PadecimientoActual, 
-  AntecedentesHeredoFamiliares, 
-  AntecedentesPersonalesNoPatologicos,
-  AntecedentesAlergicos,
-  AntecedentesHemorragicos,
-  AntecedentesQuirurgicos,
-  ExploracionFisica,
-  ExamenCabeza,
-  InterrogatorioSistemas,
-  InformacionPrincipal
-} from '@/types/historiaClinica';
+import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza, InterrogatorioSistemas, InformacionPrincipal } from '@/types/historiaClinica';
 
 // Types for missing imports
 type InterrogatorioSistemas = any;
 type InformacionPrincipal = any;
-
 const menuItems = [{
   label: "Nosotros",
   href: "/about"
@@ -70,7 +58,6 @@ const LoadingScreen = ({
       </div>
     </div>;
 };
-
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -90,11 +77,10 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
-  
+
   // Add new state for terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
-  
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -163,7 +149,6 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
-  
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -332,63 +317,59 @@ const Landing = () => {
   const handleInstagramClick = () => {
     window.open('https://instagram.com/dentalbasicsacademy', '_blank');
   };
-  
+
   // Fixed handleSaveUsername function to properly handle username existence
   const handleSaveUsername = async () => {
     if (!username.trim() || !acceptTerms || !acceptPrivacy) {
       toast.error('Por favor complete todos los campos requeridos');
       return;
     }
-
     try {
       if (!session) {
         throw new Error('No session found');
       }
-      
       setLoading(true);
-      
+
       // Check if the username already exists (belonging to a different user)
-      const { data: existingUser, error: checkError } = await supabase
-        .from('user_profiles')
-        .select('id')
-        .eq('username', username.trim())
-        .neq('id', session.user.id) // Exclude current user
-        .single();
-      
+      const {
+        data: existingUser,
+        error: checkError
+      } = await supabase.from('user_profiles').select('id').eq('username', username.trim()).neq('id', session.user.id) // Exclude current user
+      .single();
+
       // If there's a user with this username already
       if (existingUser) {
         toast.error('Este nombre de usuario ya está en uso. Por favor, intente con otro nombre.', {
-          duration: 5000,
+          duration: 5000
         });
         setLoading(false);
         return;
       }
-      
-      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 is "no rows returned" which is good
+      if (checkError && checkError.code !== 'PGRST116') {
+        // PGRST116 is "no rows returned" which is good
         console.error('Error checking username:', checkError);
         toast.error('Error al verificar la disponibilidad del nombre de usuario');
         setLoading(false);
         return;
       }
-      
+
       // Try to update first
-      const { error: updateError } = await supabase
-        .from('user_profiles')
-        .update({ username: username.trim() })
-        .eq('id', session.user.id);
-      
+      const {
+        error: updateError
+      } = await supabase.from('user_profiles').update({
+        username: username.trim()
+      }).eq('id', session.user.id);
+
       // If update fails (likely because the profile doesn't exist yet), insert new profile
       if (updateError) {
         console.log('Update failed, trying insert:', updateError);
-        
-        const { error: insertError } = await supabase
-          .from('user_profiles')
-          .insert({
-            id: session.user.id,
-            username: username.trim(),
-            created_at: new Date().toISOString()
-          });
-          
+        const {
+          error: insertError
+        } = await supabase.from('user_profiles').insert({
+          id: session.user.id,
+          username: username.trim(),
+          created_at: new Date().toISOString()
+        });
         if (insertError) {
           console.error('Insert error:', insertError);
           toast.error('Error al guardar nombre de usuario');
@@ -396,26 +377,23 @@ const Landing = () => {
           return;
         }
       }
-      
+
       // Success path - username was saved
       toast.success('Nombre de usuario guardado exitosamente');
       console.log('Username saved successfully, closing popup');
-      
+
       // Close the popup with a small delay to ensure state updates properly
       setTimeout(() => {
         setShowPopup(false);
         setLoading(false);
       }, 500);
-      
     } catch (error: any) {
       console.error('Error saving username:', error);
       toast.error('Error al guardar nombre de usuario: ' + (error.message || 'Error desconocido'));
       setLoading(false);
     }
   };
-  
   if (loading && !mounted) return <LoadingScreen visible={loading} />;
-  
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shadow-sm">
@@ -497,7 +475,7 @@ const Landing = () => {
         </div>}
 
       {/* Main Content */}
-      <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto">
+      <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto py-[4px]">
         <div className="text-center w-full">
           <h1 className="mb-5 font-black text-black text-5xl text-center sm:text-8xl">
             DENTAXY.ai
@@ -521,22 +499,19 @@ const Landing = () => {
                 🔽 Demostracion de redacción automatica...
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <AntecedentesPersonalesPatologicos 
-                formData={{
-                  antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-                  padecimientoActual: {} as PadecimientoActual,
-                  antecedentesHeredoFamiliares: {} as AntecedentesHeredoFamiliares,
-                  antecedentesPersonalesNoPatologicos: {} as AntecedentesPersonalesNoPatologicos,
-                  antecedentesAlergicos: {} as AntecedentesAlergicos,
-                  antecedentesHemorragicos: {} as AntecedentesHemorragicos,
-                  antecedentesQuirurgicos: {} as AntecedentesQuirurgicos,
-                  interrogatorioSistemas: {} as InterrogatorioSistemas,
-                  informacionPrincipal: {} as InformacionPrincipal,
-                  exploracionFisica: {} as ExploracionFisica,
-                  examenCabeza: {} as ExamenCabeza
-                }} 
-                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
-              />
+              <AntecedentesPersonalesPatologicos formData={{
+              antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+              padecimientoActual: {} as PadecimientoActual,
+              antecedentesHeredoFamiliares: {} as AntecedentesHeredoFamiliares,
+              antecedentesPersonalesNoPatologicos: {} as AntecedentesPersonalesNoPatologicos,
+              antecedentesAlergicos: {} as AntecedentesAlergicos,
+              antecedentesHemorragicos: {} as AntecedentesHemorragicos,
+              antecedentesQuirurgicos: {} as AntecedentesQuirurgicos,
+              interrogatorioSistemas: {} as InterrogatorioSistemas,
+              informacionPrincipal: {} as InformacionPrincipal,
+              exploracionFisica: {} as ExploracionFisica,
+              examenCabeza: {} as ExamenCabeza
+            }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
           </div>
         </div>
@@ -556,24 +531,15 @@ const Landing = () => {
               <p className="text-xs text-gray-400">© 2025 Dentaxy.ai Todos los derechos reservados.</p>
               <p className="text-xs text-gray-400">© 2025 Dentaxy.com Todos los derechos reservados.</p>
               <div className="flex items-center">
-                <a 
-                  href="https://instagram.com/dentalbasicsacademy" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  onClick={(e) => {
-                    e.currentTarget.classList.add('animate-scaleClick');
-                    setTimeout(() => {
-                      e.currentTarget.classList.remove('animate-scaleClick');
-                    }, 500);
-                  }}
-                  className="flex items-center hover:cursor-pointer transition-transform"
-                >
-                  <img 
-                    src="/lovable-uploads/d122138d-9f75-4331-a81b-fd93b1b2e542.png" 
-                    alt="Instagram" 
-                    className="h-6 w-6 mr-2 animate-wiggle" 
-                    style={{ transformOrigin: 'center' }}
-                  />
+                <a href="https://instagram.com/dentalbasicsacademy" target="_blank" rel="noopener noreferrer" onClick={e => {
+                e.currentTarget.classList.add('animate-scaleClick');
+                setTimeout(() => {
+                  e.currentTarget.classList.remove('animate-scaleClick');
+                }, 500);
+              }} className="flex items-center hover:cursor-pointer transition-transform">
+                  <img src="/lovable-uploads/d122138d-9f75-4331-a81b-fd93b1b2e542.png" alt="Instagram" className="h-6 w-6 mr-2 animate-wiggle" style={{
+                  transformOrigin: 'center'
+                }} />
                   <span className="text-sm text-gray-500">@dentalbasicsacademy</span>
                 </a>
               </div>
@@ -625,39 +591,19 @@ const Landing = () => {
             Para comenzar a utilizar nuestra plataforma, por favor ingresa tu nombre de usuario.
           </p>
           
-          <Input 
-            type="text" 
-            placeholder="Ingresa tu nombre de usuario" 
-            value={username} 
-            onChange={e => setUsername(e.target.value)} 
-            className="mb-6" 
-          />
+          <Input type="text" placeholder="Ingresa tu nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="mb-6" />
           
           <div className="space-y-3 mb-6">
             <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="terms" 
-                checked={acceptTerms}
-                onCheckedChange={(checked) => setAcceptTerms(checked === true)}
-              />
-              <label
-                htmlFor="terms"
-                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
+              <Checkbox id="terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked === true)} />
+              <label htmlFor="terms" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 Acepto los <Link to="/terms" className="text-blue-600 hover:underline" target="_blank">Términos y Condiciones</Link>
               </label>
             </div>
             
             <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="privacy" 
-                checked={acceptPrivacy}
-                onCheckedChange={(checked) => setAcceptPrivacy(checked === true)}
-              />
-              <label
-                htmlFor="privacy"
-                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
+              <Checkbox id="privacy" checked={acceptPrivacy} onCheckedChange={checked => setAcceptPrivacy(checked === true)} />
+              <label htmlFor="privacy" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                 Acepto la <Link to="/privacy" className="text-blue-600 hover:underline" target="_blank">Política de Privacidad</Link>
               </label>
             </div>
@@ -667,11 +613,7 @@ const Landing = () => {
             <Button variant="ghost" onClick={() => setShowPopup(false)}>
               Cancelar
             </Button>
-            <Button 
-              onClick={handleSaveUsername} 
-              disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy}
-              className={`${(!acceptTerms || !acceptPrivacy || !username.trim()) ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
+            <Button onClick={handleSaveUsername} disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy} className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
               {loading ? "Guardando..." : "Guardar"}
             </Button>
           </div>
@@ -741,5 +683,4 @@ const Landing = () => {
     })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
     </div>;
 };
-
 export default Landing;
