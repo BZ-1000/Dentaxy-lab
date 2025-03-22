@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ interface FormulariosSidebarProps {
   onCargarFormulario: (data: FormDataState, nombre: string) => void;
   onGuardarFormulario: (nombre: string) => void;
   onCerrarFormulario: () => void;
+  onResetFormulario: () => void;
   pacienteActual: string;
 }
 
@@ -21,6 +23,7 @@ const FormulariosSidebar = ({
   onCargarFormulario,
   onGuardarFormulario,
   onCerrarFormulario,
+  onResetFormulario,
   pacienteActual
 }: FormulariosSidebarProps) => {
   const [nombrePaciente, setNombrePaciente] = useState('');
@@ -143,10 +146,10 @@ const FormulariosSidebar = ({
 
   const handleQuitarNombre = () => {
     setNombrePaciente('');
-    onCerrarFormulario();
+    onResetFormulario();
     toast({
       title: "Formulario reseteado",
-      description: "El formulario ha sido reseteado y el nombre del paciente eliminado."
+      description: "El formulario ha sido reseteado al estado inicial."
     });
   };
 
