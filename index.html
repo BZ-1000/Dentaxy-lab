@@ -16,6 +16,32 @@
         window.location.href = 'about:blank';
       }
       
+      // Redirect if the URL starts with "view-source:"
+      if (window.location.protocol === 'view-source:') {
+        window.location.href = 'about:blank';
+      }
+      
+      // Additional protection for view-source
+      document.addEventListener('keydown', function(e) {
+        // Prevent Ctrl+U (view source)
+        if (e.ctrlKey && (e.keyCode === 85 || e.which === 85)) {
+          e.preventDefault();
+          return false;
+        }
+        
+        // Prevent F12 (developer tools)
+        if (e.keyCode === 123 || e.which === 123) {
+          e.preventDefault();
+          return false;
+        }
+      });
+      
+      // Disable right-click
+      document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+        return false;
+      });
+      
       // Basic anti-debugging
       setInterval(function() {
         debugger;
