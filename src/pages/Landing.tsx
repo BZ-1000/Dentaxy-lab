@@ -10,6 +10,18 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { Checkbox } from "@/components/ui/checkbox";
+import type { 
+  PadecimientoActual, 
+  AntecedentesHeredoFamiliares, 
+  AntecedentesPersonalesNoPatologicos,
+  AntecedentesAlergicos,
+  AntecedentesHemorragicos,
+  AntecedentesQuirurgicos,
+  InterrogatorioSistemas,
+  InformacionPrincipal,
+  ExploracionFisica,
+  ExamenCabeza
+} from '@/types/historiaClinica';
 
 const menuItems = [{
   label: "Nosotros",
@@ -317,28 +329,30 @@ const Landing = () => {
     window.open('https://instagram.com/dentalbasicsacademy', '_blank');
   };
   
-  // Updated function to handle saving username with proper error handling and state updates
+  // Fixed saveUsername function with proper error handling
   const handleSaveUsername = async () => {
     if (!username.trim() || !acceptTerms || !acceptPrivacy) {
       toast.error('Por favor complete todos los campos requeridos');
       return;
     }
 
-    setLoading(true);
     try {
       if (!session) {
         throw new Error('No session found');
       }
+      
+      setLoading(true);
       
       // First check if username already exists
       const { data: existingUser, error: checkError } = await supabase
         .from('user_profiles')
         .select('username')
         .eq('username', username.trim())
-        .neq('id', session.user.id)
-        .single();
+        .neq('id', session.user.id) // Exclude current user from check
+        .maybeSingle();
       
       if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking username:', checkError);
         throw checkError;
       }
       
@@ -360,7 +374,7 @@ const Landing = () => {
       if (error) throw error;
       
       toast.success('Nombre de usuario guardado exitosamente');
-      setShowPopup(false); // Ensure popup closes after successful save
+      setShowPopup(false); // Close popup after successful save
     } catch (error: any) {
       console.error('Error saving username:', error);
       toast.error('Error al guardar nombre de usuario: ' + error.message);
@@ -369,7 +383,7 @@ const Landing = () => {
     }
   };
   
-  if (loading) return <LoadingScreen visible={loading} />;
+  if (loading && !mounted) return <LoadingScreen visible={loading} />;
   
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
@@ -476,19 +490,22 @@ const Landing = () => {
                 🔽 Demostracion de redacción automatica...
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <AntecedentesPersonalesPatologicos formData={{
-              antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-              padecimientoActual: {},
-              antecedentesHeredoFamiliares: {},
-              antecedentesPersonalesNoPatologicos: {},
-              antecedentesAlergicos: {},
-              antecedentesHemorragicos: {},
-              antecedentesQuirurgicos: {},
-              interrogatorioSistemas: {},
-              informacionPrincipal: {},
-              exploracionFisica: {},
-              examenCabeza: {}
-            }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
+              <AntecedentesPersonalesPatologicos 
+                formData={{
+                  antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+                  padecimientoActual: {} as PadecimientoActual,
+                  antecedentesHeredoFamiliares: {} as AntecedentesHeredoFamiliares,
+                  antecedentesPersonalesNoPatologicos: {} as AntecedentesPersonalesNoPatologicos,
+                  antecedentesAlergicos: {} as AntecedentesAlergicos,
+                  antecedentesHemorragicos: {} as AntecedentesHemorragicos,
+                  antecedentesQuirurgicos: {} as AntecedentesQuirurgicos,
+                  interrogatorioSistemas: {} as InterrogatorioSistemas,
+                  informacionPrincipal: {} as InformacionPrincipal,
+                  exploracionFisica: {} as ExploracionFisica,
+                  examenCabeza: {} as ExamenCabeza
+                }} 
+                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
+              />
             </div>
           </div>
         </div>
