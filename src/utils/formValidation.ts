@@ -31,13 +31,21 @@ export const validateAntecedentesHeredoFamiliares = (formData: FormDataState) =>
   const familiares = ['padre', 'madre', 'abuelos', 'hermanos', 'tios'];
   
   for (const familiar of familiares) {
-    const data = formData.antecedentesHeredoFamiliares[familiar];
-    
-    // Check if at least one condition is selected for each familiar
-    const hasAnyCondition = Object.values(data.condiciones).some(value => value);
-    
-    if (!hasAnyCondition) {
-      missingFields.push(`Condiciones de ${familiar}`);
+    // Check if the familiar exists in the formData
+    if (formData.antecedentesHeredoFamiliares && 
+        formData.antecedentesHeredoFamiliares[familiar] && 
+        formData.antecedentesHeredoFamiliares[familiar].condiciones) {
+        
+      const data = formData.antecedentesHeredoFamiliares[familiar];
+      
+      // Check if at least one condition is selected for each familiar
+      const hasAnyCondition = Object.values(data.condiciones).some(value => value);
+      
+      if (!hasAnyCondition) {
+        missingFields.push(`Condiciones de ${familiar}`);
+      }
+    } else {
+      missingFields.push(`Información de ${familiar}`);
     }
   }
 
@@ -53,7 +61,7 @@ export const validateAntecedentesPersonalesNoPatologicos = (formData: FormDataSt
     missingFields.push("Tipo de vivienda");
   }
   
-  if (antecedentesPersonalesNoPatologicos.servicios.length === 0) {
+  if (!antecedentesPersonalesNoPatologicos.servicios || antecedentesPersonalesNoPatologicos.servicios.length === 0) {
     missingFields.push("Servicios básicos");
   }
   
@@ -82,10 +90,15 @@ export const validateAntecedentesPersonalesPatologicos = (formData: FormDataStat
   let hasAnyCondition = false;
   
   for (const category of categories) {
-    const categoryData = antecedentesPersonalesPatologicos[category];
-    if (categoryData && Object.values(categoryData).some(value => value === true)) {
-      hasAnyCondition = true;
-      break;
+    if (antecedentesPersonalesPatologicos && 
+        antecedentesPersonalesPatologicos[category] &&
+        typeof antecedentesPersonalesPatologicos[category] === 'object') {
+        
+      const categoryData = antecedentesPersonalesPatologicos[category];
+      if (categoryData && Object.values(categoryData).some(value => value === true)) {
+        hasAnyCondition = true;
+        break;
+      }
     }
   }
   
