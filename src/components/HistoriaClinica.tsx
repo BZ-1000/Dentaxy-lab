@@ -22,15 +22,19 @@ import Diagnostico from './historia-clinica/Diagnostico';
 import Pronostico from './historia-clinica/Pronostico';
 import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useTheme } from '@/hooks/use-theme';
-import { Loader2, X } from "lucide-react";
+import { Loader2, X, Save, User } from "lucide-react";
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
 import { useState, useEffect } from 'react';
+import { toast } from "@/hooks/use-toast";
 
 const HistoriaClinica = () => {
   const { theme } = useTheme();
   const [pacienteActual, setPacienteActual] = useState<string>('');
+  const [nombrePaciente, setNombrePaciente] = useState<string>('');
+  
   const {
     formData,
     resumen,
@@ -74,7 +78,27 @@ const HistoriaClinica = () => {
 
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
+    setNombrePaciente('');
     cargarFormulario(null); // Cargar formulario vacío
+  };
+  
+  const handleGuardarFormulario = () => {
+    if (!nombrePaciente.trim()) {
+      toast({
+        title: "Error",
+        description: "Por favor ingrese el nombre del paciente",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    guardarFormulario(formData, nombrePaciente);
+    setPacienteActual(nombrePaciente);
+    
+    toast({
+      title: "Formulario guardado",
+      description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
+    });
   };
 
   return (
@@ -83,8 +107,12 @@ const HistoriaClinica = () => {
         onCargarFormulario={(data, nombre) => {
           cargarFormulario(data);
           setPacienteActual(nombre);
+          setNombrePaciente(nombre);
         }}
-        onGuardarFormulario={(nombre) => guardarFormulario(formData, nombre)}
+        onGuardarFormulario={(nombre) => {
+          guardarFormulario(formData, nombre);
+          setPacienteActual(nombre);
+        }}
         onCerrarFormulario={handleLimpiarFormulario}
         pacienteActual={pacienteActual}
       />
@@ -93,21 +121,52 @@ const HistoriaClinica = () => {
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-2">Formulario IA</h1>
-            <p className="text-sm text-gray-500 mb-8">
+            <p className="text-sm text-gray-500 mb-6">
               (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)
             </p>
-            {pacienteActual && (
-              <div className="text-sm text-primary mb-4 flex items-center justify-center gap-2">
-                Formulario del paciente: {pacienteActual}
-                <button 
-                  onClick={handleLimpiarFormulario} 
-                  className="text-red-500 hover:text-red-700 transition-colors focus:outline-none"
-                  aria-label="Limpiar formulario"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+            
+            {/* Nuevo componente de nombre de paciente con estilo Apple minimalista */}
+            <div className="max-w-lg mx-auto mb-8">
+              <div className="backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative flex-1">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <User className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <Input
+                      value={nombrePaciente}
+                      onChange={(e) => setNombrePaciente(e.target.value)}
+                      placeholder="Nombre del paciente"
+                      className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    />
+                  </div>
+                  <Button 
+                    onClick={handleGuardarFormulario} 
+                    disabled={!nombrePaciente.trim()}
+                    className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span className="text-sm font-medium">Guardar</span>
+                  </Button>
+                  
+                  {pacienteActual && (
+                    <button 
+                      onClick={handleLimpiarFormulario} 
+                      className="text-red-500 hover:text-red-700 transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                      aria-label="Limpiar formulario"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                
+                {pacienteActual && (
+                  <div className="mt-2 text-xs text-blue-500 dark:text-blue-400 font-medium">
+                    Formulario actual: {pacienteActual}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
 
           <div className="space-y-6">

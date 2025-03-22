@@ -8,12 +8,14 @@ import { useTheme } from '@/hooks/use-theme';
 import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@/components/ui/modern-sidebar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+
 interface FormulariosSidebarProps {
   onCargarFormulario: (data: FormDataState, nombre: string) => void;
   onGuardarFormulario: (nombre: string) => void;
   onCerrarFormulario: () => void;
   pacienteActual: string;
 }
+
 const FormulariosSidebar = ({
   onCargarFormulario,
   onGuardarFormulario,
@@ -25,15 +27,15 @@ const FormulariosSidebar = ({
     nombre: string;
     data: FormDataState;
   }[]>([]);
-  const {
-    theme
-  } = useTheme();
+  
+  const { theme } = useTheme();
   const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [accionFormulario, setAccionFormulario] = useState<'eliminar' | 'renombrar' | 'compartir' | null>(null);
   const [formularioSeleccionado, setFormularioSeleccionado] = useState<string | null>(null);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
+
   const loadSavedForms = () => {
     const savedForms: {
       nombre: string;
@@ -52,9 +54,11 @@ const FormulariosSidebar = ({
     }
     setFormularios(savedForms);
   };
+
   useEffect(() => {
     loadSavedForms();
   }, []);
+
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       return;
@@ -67,6 +71,7 @@ const FormulariosSidebar = ({
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
+
   const handleEliminarFormulario = () => {
     if (!formularioSeleccionado) return;
     localStorage.removeItem(`formulario_${formularioSeleccionado}`);
@@ -80,6 +85,7 @@ const FormulariosSidebar = ({
       description: `El formulario de ${formularioSeleccionado} ha sido eliminado.`
     });
   };
+
   const handleRenombrarFormulario = () => {
     if (!formularioSeleccionado || !nuevoNombre.trim()) return;
     const oldData = localStorage.getItem(`formulario_${formularioSeleccionado}`);
@@ -98,6 +104,7 @@ const FormulariosSidebar = ({
       });
     }
   };
+
   const handleCompartirFormulario = () => {
     if (!formularioSeleccionado || !emailCompartir.trim()) return;
     toast({
@@ -106,6 +113,7 @@ const FormulariosSidebar = ({
     });
     setDialogOpen(false);
   };
+
   const handleFormularioAction = (action: 'eliminar' | 'renombrar' | 'compartir', nombre: string) => {
     setAccionFormulario(action);
     setFormularioSeleccionado(nombre);
@@ -117,6 +125,7 @@ const FormulariosSidebar = ({
     setEmailCompartir('');
     setDialogOpen(true);
   };
+
   const handleQuitarNombre = () => {
     setNombrePaciente('');
     onCerrarFormulario();
@@ -125,6 +134,7 @@ const FormulariosSidebar = ({
       description: "El formulario ha sido reseteado y el nombre del paciente eliminado."
     });
   };
+
   return (
     <div className="">
       <div className="sticky top-0 h-screen">
