@@ -12,15 +12,17 @@ const PlanCard = ({
   isPopular = false,
   buttonText = "Seleccionar plan",
   comingSoon = false,
-  onClick
-}: { 
+  onClick,
+  originalPrice,
+} : { 
   title: string, 
   price: string, 
   features: string[], 
   isPopular?: boolean,
   buttonText?: string,
   comingSoon?: boolean,
-  onClick?: () => void 
+  onClick?: () => void,
+  originalPrice?: string,
 }) => (
   <div className={`bg-white p-6 rounded-lg shadow-sm border ${isPopular ? 'border-blue-400 ring-2 ring-blue-200' : 'border-gray-200'} relative ${comingSoon ? 'opacity-70' : ''}`}>
     {isPopular && (
@@ -35,6 +37,9 @@ const PlanCard = ({
     )}
     <h3 className="text-xl font-bold mb-2 text-gray-800 mt-2">{title}</h3>
     <div className="mb-4">
+      {originalPrice && (
+        <span className="text-xl font-medium line-through text-gray-400 mr-2">{originalPrice}</span>
+      )}
       <span className="text-3xl font-bold">{price}</span>
       {!comingSoon && price !== "Gratis" && <span className="text-gray-600">/mes</span>}
     </div>
@@ -106,23 +111,26 @@ const Plans = () => {
           
           <PlanCard 
             title="Plan Básico"
-            price="$29.99"
+            price="$119"
+            originalPrice="$299"
             features={[
               "Todas las funciones del plan Beta",
               "Sin límite de historiales",
               "Plantillas personalizadas",
               "Exportación de documentos",
-              "Soporte estándar"
+              "Redacción estándar"
             ]}
             comingSoon={true}
           />
           
           <PlanCard 
             title="Plan Premium"
-            price="$49.99"
+            price="$199"
+            originalPrice="$499"
             features={[
               "Todas las funciones del plan Básico",
-              "IA avanzada para diagnósticos",
+              "IA avanzada para diagnósticos y pronósticos",
+              "IA avanzada para redacción de notas de actividad y notas de evolución",
               "Integración con sistemas de gestión",
               "Análisis y reportes avanzados",
               "Soporte premium 24/7"
