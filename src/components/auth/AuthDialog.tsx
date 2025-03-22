@@ -80,22 +80,47 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-md space-y-8 rounded-xl border border-white/10 bg-black/95 p-6 text-white backdrop-blur-xl">
+      <DialogContent className="w-full max-w-md space-y-6 rounded-xl border border-gray-200 bg-white p-6 text-gray-800 shadow-lg">
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
             {mode === "login" ? "Iniciar Sesión" : "Crear Cuenta"}
           </h2>
           {mode === "register" && (
-            <p className="mt-2 text-sm text-white/70">
+            <p className="mt-2 text-sm text-gray-600">
               Únete al equipo Dental Basics Academy IA
             </p>
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        {/* Google login button moved to the top */}
+        <Button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 flex items-center justify-center gap-2 py-5"
+        >
+          <img
+            src="https://www.google.com/favicon.ico"
+            className="h-5 w-5"
+            alt="Google"
+          />
+          <span className="font-medium">
+            {mode === "login" ? "Iniciar sesión con Google" : "Registrarse con Google"}
+          </span>
+        </Button>
+
+        <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-gray-200" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-2 text-gray-500">O continuar con email</span>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="email" className="text-white">
+              <Label htmlFor="email" className="text-gray-700">
                 Email
               </Label>
               <Input
@@ -103,14 +128,14 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 bg-white/10 text-white"
+                className="mt-1 bg-gray-50 border-gray-200 text-gray-900"
                 placeholder="tu@email.com"
                 required
               />
             </div>
 
             <div>
-              <Label htmlFor="password" className="text-white">
+              <Label htmlFor="password" className="text-gray-700">
                 Contraseña
               </Label>
               <Input
@@ -118,7 +143,7 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 bg-white/10 text-white"
+                className="mt-1 bg-gray-50 border-gray-200 text-gray-900"
                 required
               />
             </div>
@@ -126,7 +151,7 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
 
           <Button
             type="submit"
-            className="w-full bg-white text-black hover:bg-white/90"
+            className="w-full bg-blue-600 text-white hover:bg-blue-700"
             disabled={loading}
           >
             {loading
@@ -137,35 +162,13 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
               ? "Iniciar Sesión"
               : "Crear Cuenta"}
           </Button>
-
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-white/20" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="bg-black px-2 text-white">O continuar con</span>
-            </div>
-          </div>
-
-          <Button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="w-full border border-white/20 bg-transparent text-white hover:bg-white/10"
-          >
-            <img
-              src="https://www.google.com/favicon.ico"
-              className="mr-2 h-4 w-4"
-              alt="Google"
-            />
-            Google
-          </Button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-white/60">
+        <p className="text-center text-sm text-gray-600">
           {mode === "login" ? "¿No tienes una cuenta?" : "¿Ya tienes una cuenta?"}{" "}
           <button
             onClick={() => setMode(mode === "login" ? "register" : "login")}
-            className="font-medium text-white hover:text-white/90"
+            className="font-medium text-blue-600 hover:text-blue-800"
             type="button"
           >
             {mode === "login" ? "Regístrate" : "Inicia Sesión"}
