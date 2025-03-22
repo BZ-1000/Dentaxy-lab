@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -114,7 +115,7 @@ const HistoriaClinica = () => {
             </p>
             
             {/* Componente de nombre de paciente con estilo Apple minimalista */}
-            <div className="max-w-lg mx-auto mb-8">
+            <div className="max-w-lg mx-auto mb-2">
               <div className="backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
                 <div className="flex items-center gap-3">
                   <div className="relative flex-1">
@@ -128,17 +129,24 @@ const HistoriaClinica = () => {
                     <span className="text-sm font-medium">Guardar</span>
                   </Button>
                 </div>
-                
-                {pacienteActual && <div className="flex items-center justify-between mt-2">
-                    <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
-                      Formulario actual: {pacienteActual}
-                    </div>
-                    <button onClick={handleLimpiarFormulario} className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Limpiar formulario">
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>}
               </div>
             </div>
+            
+            {/* Componente separado para mostrar el paciente actual */}
+            {pacienteActual && (
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
+                  Formulario actual: {pacienteActual}
+                </div>
+                <button 
+                  onClick={handleLimpiarFormulario} 
+                  className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" 
+                  aria-label="Limpiar formulario"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="space-y-6">
