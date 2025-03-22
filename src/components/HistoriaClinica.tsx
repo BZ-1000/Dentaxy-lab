@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -23,18 +24,30 @@ import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTheme } from '@/hooks/use-theme';
-import { Loader2, X, Save, User } from "lucide-react";
+import { Loader2, X, Save, User, FileText } from "lucide-react";
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
 import { useState, useEffect } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { getInitialFormState } from '@/utils/initialFormState';
+import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
+import { 
+  validatePadecimientoActual, 
+  validateAntecedentesHeredoFamiliares,
+  validateAntecedentesPersonalesNoPatologicos,
+  validateAntecedentesPersonalesPatologicos
+} from '@/utils/formValidation';
+import { generatePDF } from '@/utils/pdfGenerator';
+
 const HistoriaClinica = () => {
   const {
     theme
   } = useTheme();
   const [pacienteActual, setPacienteActual] = useState<string>('');
   const [nombrePaciente, setNombrePaciente] = useState<string>('');
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
+  
   const {
     formData,
     resumen,
@@ -76,15 +89,18 @@ const HistoriaClinica = () => {
       guardarFormulario(formData, pacienteActual);
     }
   }, [formData, pacienteActual, guardarFormulario]);
+  
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
     cargarFormulario(null); // Cargar formulario vacío
   };
+  
   const handleResetFormulario = () => {
     setPacienteActual('');
     resetFormulario();
   };
+  
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       toast({
@@ -101,6 +117,57 @@ const HistoriaClinica = () => {
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
+
+  const validateForm = () => {
+    // Validate required sections
+    const padecimientoFields = validatePadecimientoActual(formData);
+    const heredoFamiliaresFields = validateAntecedentesHeredoFamiliares(formData);
+    const noPatologicosFields = validateAntecedentesPersonalesNoPatologicos(formData);
+    const patologicosFields = validateAntecedentesPersonalesPatologicos(formData);
+    
+    // Combine all missing fields
+    const allMissingFields = [
+      ...padecimientoFields,
+      ...heredoFamiliaresFields,
+      ...noPatologicosFields,
+      ...patologicosFields
+    ];
+    
+    return allMissingFields;
+  };
+
+  const handleGeneratePDF = () => {
+    // Validate form first
+    const missing = validateForm();
+    
+    if (missing.length > 0) {
+      setMissingFields(missing);
+      setAlertOpen(true);
+    } else {
+      generatePDFDocument();
+    }
+  };
+
+  const generatePDFDocument = () => {
+    try {
+      const patientName = nombrePaciente || pacienteActual || 'Paciente';
+      generatePDF(formData, patientName);
+      
+      toast({
+        title: "PDF Generado",
+        description: "La Historia Clínica ha sido generada exitosamente.",
+      });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      
+      toast({
+        title: "Error",
+        description: "No se pudo generar el PDF. Por favor, intente nuevamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar onCargarFormulario={(data, nombre) => {
       cargarFormulario(data);
@@ -192,16 +259,32 @@ const HistoriaClinica = () => {
             <Pronostico formData={formData} handlePronosticoChange={handlePronosticoChange} />
 
             <div className="flex justify-center pt-6">
-              <Button onClick={generarResumen} disabled={isGenerating} className="text-slate-50 bg-emerald-500 hover:bg-emerald-400">
+              <Button onClick={handleGeneratePDF} disabled={isGenerating} className="text-slate-50 bg-emerald-500 hover:bg-emerald-400">
                 {isGenerating ? <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generando Historia Clínica...
-                  </> : 'Generar Historia Clínica con IA'}
+                    Generando PDF...
+                  </> : <>
+                    <FileText className="mr-2 h-4 w-4" />
+                    Generar Historia Clínica en PDF
+                  </>}
               </Button>
             </div>
           </div>
         </div>
       </div>
+      
+      <ConfirmationAlert
+        isOpen={alertOpen}
+        onClose={() => setAlertOpen(false)}
+        onConfirm={() => {
+          setAlertOpen(false);
+          generatePDFDocument();
+        }}
+        title="Formulario incompleto"
+        description="Hay campos sin completar en el formulario."
+        missingFields={missingFields}
+      />
+      
       <Toaster />
     </div>;
 };
