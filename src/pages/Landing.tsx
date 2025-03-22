@@ -7,14 +7,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
-import type { Database } from '@/types/supabase';
-import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { Checkbox } from "@/components/ui/checkbox";
 import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza, InterrogatorioSistemas, InformacionPrincipal } from '@/types/historiaClinica';
+import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 
-// Types for missing imports
+// Define missing types 
 type InterrogatorioSistemas = any;
 type InformacionPrincipal = any;
+
 const menuItems = [{
   label: "Nosotros",
   href: "/about"
@@ -85,7 +85,7 @@ const Landing = () => {
     const timer = setTimeout(() => {
       setLoading(false);
       setMounted(true);
-    }, 5000); // Tiempo de carga de 5 segundos
+    }, 5000);
 
     const getSession = async () => {
       const {
@@ -95,45 +95,65 @@ const Landing = () => {
       } = await supabase.auth.getSession();
       setSession(session);
       if (session) {
-        checkUsername(session.user.id);
+        await checkUsername(session.user.id);
         checkUserPlan(session.user.id);
       }
     };
+    
     getSession();
+    
     const {
       data: {
         subscription
       }
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSession(session);
       if (session) {
-        checkUsername(session.user.id);
+        await checkUsername(session.user.id);
         checkUserPlan(session.user.id);
       }
     });
+    
     return () => {
       clearTimeout(timer);
       subscription.unsubscribe();
     };
   }, []);
+
   const checkUsername = async (userId: string) => {
     try {
-      const {
-        data,
-        error
-      } = await supabase.from('user_profiles').select('id, username, created_at').eq('id', userId).single();
+      // First check localStorage to see if we already have username information
+      const storedUsername = localStorage.getItem(`username_${userId}`);
+      if (storedUsername) {
+        setUsername(storedUsername);
+        setShowPopup(false); // Don't show popup if we already have the username
+        return;
+      }
+      
+      // If not in localStorage, check database
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, username, created_at')
+        .eq('id', userId)
+        .single();
+        
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
+      
       if (data?.username) {
         setUsername(data.username);
+        // Store in localStorage for future reference
+        localStorage.setItem(`username_${userId}`, data.username);
+        setShowPopup(false); // Don't show popup since we found username
       } else {
-        setShowPopup(true);
+        setShowPopup(true); // Only show popup if no username found
       }
     } catch (error) {
       console.error('Error checking username:', error);
     }
   };
+
   const checkUserPlan = async (userId: string) => {
     try {
       const {
@@ -324,18 +344,21 @@ const Landing = () => {
       toast.error('Por favor complete todos los campos requeridos');
       return;
     }
+    
     try {
       if (!session) {
         throw new Error('No session found');
       }
+      
       setLoading(true);
 
       // Check if the username already exists (belonging to a different user)
-      const {
-        data: existingUser,
-        error: checkError
-      } = await supabase.from('user_profiles').select('id').eq('username', username.trim()).neq('id', session.user.id) // Exclude current user
-      .single();
+      const { data: existingUser, error: checkError } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('username', username.trim())
+        .neq('id', session.user.id) // Exclude current user
+        .single();
 
       // If there's a user with this username already
       if (existingUser) {
@@ -345,6 +368,7 @@ const Landing = () => {
         setLoading(false);
         return;
       }
+      
       if (checkError && checkError.code !== 'PGRST116') {
         // PGRST116 is "no rows returned" which is good
         console.error('Error checking username:', checkError);
@@ -354,22 +378,24 @@ const Landing = () => {
       }
 
       // Try to update first
-      const {
-        error: updateError
-      } = await supabase.from('user_profiles').update({
-        username: username.trim()
-      }).eq('id', session.user.id);
+      const { error: updateError } = await supabase
+        .from('user_profiles')
+        .update({
+          username: username.trim()
+        })
+        .eq('id', session.user.id);
 
       // If update fails (likely because the profile doesn't exist yet), insert new profile
       if (updateError) {
         console.log('Update failed, trying insert:', updateError);
-        const {
-          error: insertError
-        } = await supabase.from('user_profiles').insert({
-          id: session.user.id,
-          username: username.trim(),
-          created_at: new Date().toISOString()
-        });
+        const { error: insertError } = await supabase
+          .from('user_profiles')
+          .insert({
+            id: session.user.id,
+            username: username.trim(),
+            created_at: new Date().toISOString()
+          });
+          
         if (insertError) {
           console.error('Insert error:', insertError);
           toast.error('Error al guardar nombre de usuario');
@@ -378,6 +404,9 @@ const Landing = () => {
         }
       }
 
+      // Store username in localStorage to prevent future prompts
+      localStorage.setItem(`username_${session.user.id}`, username.trim());
+      
       // Success path - username was saved
       toast.success('Nombre de usuario guardado exitosamente');
       console.log('Username saved successfully, closing popup');
@@ -393,6 +422,7 @@ const Landing = () => {
       setLoading(false);
     }
   };
+
   if (loading && !mounted) return <LoadingScreen visible={loading} />;
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}

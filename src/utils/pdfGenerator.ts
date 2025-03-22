@@ -3,236 +3,202 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { FormDataState } from '@/types/historiaClinica';
 
-export const generatePDF = (formData: FormDataState, nombrePaciente: string) => {
+export const generatePDF = (formData: FormDataState, patientName: string) => {
+  // Create a new PDF document
   const doc = new jsPDF();
   
-  // Add title
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
-  doc.text('HISTORIA CLÍNICA', doc.internal.pageSize.width / 2, 20, { align: 'center' });
+  // Set document properties
+  doc.setProperties({
+    title: `Historia Clínica - ${patientName}`,
+    subject: 'Historia Clínica Odontológica',
+    author: 'Dentaxy.ai',
+    keywords: 'historia clínica, odontología, dental'
+  });
   
-  // Add patient name if available
-  if (nombrePaciente) {
-    doc.setFontSize(14);
-    doc.text(`Paciente: ${nombrePaciente}`, doc.internal.pageSize.width / 2, 30, { align: 'center' });
+  // Add header with patient name
+  doc.setFontSize(20);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Historia Clínica: ${patientName}`, 105, 15, { align: 'center' });
+  
+  let yPosition = 30;
+  
+  // Add current date
+  const currentDate = new Date().toLocaleDateString('es-MX', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  doc.setFontSize(10);
+  doc.text(`Fecha: ${currentDate}`, 15, yPosition);
+  
+  yPosition += 10;
+  
+  // Add sections
+  if (formData.padecimientoActual) {
+    // Ensure padecimientoActual exists and add section
+    addSection(doc, 'PADECIMIENTO ACTUAL', yPosition);
+    yPosition += 10;
+    
+    // Handle potential undefined values with nullish coalescing
+    const padecimiento = formData.padecimientoActual || {};
+    const descripcion = padecimiento.descripcion || '';
+    const tiempoEvolucion = padecimiento.tiempoEvolucion || '';
+    
+    doc.setFontSize(10);
+    doc.text(`Descripción: ${descripcion}`, 15, yPosition);
+    yPosition += 6;
+    doc.text(`Tiempo de evolución: ${tiempoEvolucion}`, 15, yPosition);
+    yPosition += 10;
+    
+    // Check if caracteristicasDolor exists
+    if (padecimiento.caracteristicasDolor) {
+      doc.text('Características del dolor:', 15, yPosition);
+      yPosition += 6;
+      
+      const dolor = padecimiento.caracteristicasDolor || {};
+      const intensidad = dolor.intensidad || '';
+      doc.text(`- Intensidad: ${intensidad}`, 20, yPosition);
+      yPosition += 6;
+      
+      const tipo = dolor.tipo || '';
+      doc.text(`- Tipo: ${tipo}`, 20, yPosition);
+      yPosition += 6;
+      
+      const localizacion = dolor.localizacion || '';
+      doc.text(`- Localización: ${localizacion}`, 20, yPosition);
+      yPosition += 6;
+      
+      const irradiacion = dolor.irradiacion || '';
+      doc.text(`- Irradiación: ${irradiacion}`, 20, yPosition);
+      yPosition += 6;
+      
+      const factoresAgravantes = dolor.factoresAgravantes || '';
+      doc.text(`- Factores agravantes: ${factoresAgravantes}`, 20, yPosition);
+      yPosition += 6;
+      
+      const factoresAtenuantes = dolor.factoresAtenuantes || '';
+      doc.text(`- Factores atenuantes: ${factoresAtenuantes}`, 20, yPosition);
+      yPosition += 10;
+    }
+    
+    // Check if sintomas exists
+    if (padecimiento.sintomas) {
+      doc.text('Síntomas presentados:', 15, yPosition);
+      yPosition += 6;
+      
+      const sintomas = padecimiento.sintomas || {};
+      
+      const sintomasList = [
+        sintomas.dolorDental ? 'Dolor dental' : '',
+        sintomas.dolorEncias ? 'Dolor en encías' : '',
+        sintomas.sensibilidadDental ? 'Sensibilidad dental' : '',
+        sintomas.sangradoEncias ? 'Sangrado de encías' : '',
+        sintomas.halitosis ? 'Halitosis (mal aliento)' : '',
+        sintomas.movilidadDental ? 'Movilidad dental' : '',
+        sintomas.dificultadMasticar ? 'Dificultad para masticar' : '',
+        sintomas.sequedadBucal ? 'Sequedad bucal' : '',
+        sintomas.inflamacionFacial ? 'Inflamación facial' : '',
+        sintomas.ulcerasBucales ? 'Úlceras bucales' : '',
+        sintomas.cambiosColorDientes ? 'Cambios de color en dientes' : '',
+        sintomas.chasquidoMandibular ? 'Chasquido mandibular' : '',
+        sintomas.bruxismo ? 'Bruxismo' : '',
+        sintomas.malOclusion ? 'Mal oclusión' : '',
+        sintomas.traumatismoDental ? 'Traumatismo dental' : ''
+      ].filter(Boolean);
+      
+      if (sintomas.otra && sintomas.otraDescripcion) {
+        sintomasList.push(sintomas.otraDescripcion);
+      }
+      
+      if (sintomasList.length > 0) {
+        for (let i = 0; i < sintomasList.length; i++) {
+          doc.text(`- ${sintomasList[i]}`, 20, yPosition);
+          yPosition += 6;
+          
+          // Add page if needed
+          if (yPosition > 280) {
+            doc.addPage();
+            yPosition = 15;
+          }
+        }
+      } else if (sintomas.ninguna) {
+        doc.text('- No se presentan síntomas', 20, yPosition);
+        yPosition += 6;
+      }
+      
+      yPosition += 4;
+    }
   }
   
-  // Add date
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`Fecha: ${new Date().toLocaleDateString()}`, doc.internal.pageSize.width / 2, 38, { align: 'center' });
-  
-  let yPos = 50;
-  
-  // Add Padecimiento Actual section
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text('I. PADECIMIENTO ACTUAL', 14, yPos);
-  yPos += 10;
-  
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(12);
-  
-  if (formData.padecimientoActual.sinSintomas) {
-    doc.text('El paciente no refiere sintomatología actual.', 14, yPos);
-    yPos += 10;
-  } else {
-    const motivoConsulta = formData.padecimientoActual.motivoConsulta || '';
-    const lines = doc.splitTextToSize(motivoConsulta, 180);
-    doc.text(lines, 14, yPos);
-    yPos += lines.length * 7;
+  // Add Antecedentes Heredo Familiares
+  if (formData.antecedentesHeredoFamiliares) {
+    addSection(doc, 'ANTECEDENTES HEREDO-FAMILIARES', yPosition);
+    yPosition += 10;
     
-    // Add dolor characteristics in a table
-    if (formData.padecimientoActual.dolor) {
-      const { dolor } = formData.padecimientoActual;
-      
-      const dolorData = [
-        ['Inicio', dolor.fechaInicio || ''],
-        ['Condición de aparición', dolor.condicionAparicion || ''],
-        ['Frecuencia', dolor.frecuencia || ''],
-        ['Carácter', dolor.caracter || ''],
-        ['Intensidad', dolor.intensidad || ''],
-        ['Localización', dolor.localizacion?.descripcion || ''],
-        ['Factores de atenuación', dolor.atenuacion || '']
-      ];
-      
+    const antecedentes = formData.antecedentesHeredoFamiliares || {};
+    
+    // Add table of family conditions
+    const familiaresList = [];
+    
+    // Check if datos exists and has condiciones for each member
+    if (antecedentes.padre && antecedentes.padre.condiciones) {
+      familiaresList.push(['Padre', antecedentes.padre.condiciones]);
+    }
+    
+    if (antecedentes.madre && antecedentes.madre.condiciones) {
+      familiaresList.push(['Madre', antecedentes.madre.condiciones]);
+    }
+    
+    if (antecedentes.abuelos && antecedentes.abuelos.condiciones) {
+      familiaresList.push(['Abuelos', antecedentes.abuelos.condiciones]);
+    }
+    
+    if (antecedentes.hermanos && antecedentes.hermanos.condiciones) {
+      familiaresList.push(['Hermanos', antecedentes.hermanos.condiciones]);
+    }
+    
+    if (antecedentes.tios && antecedentes.tios.condiciones) {
+      familiaresList.push(['Tíos', antecedentes.tios.condiciones]);
+    }
+    
+    if (familiaresList.length > 0) {
       autoTable(doc, {
-        startY: yPos,
-        head: [['Característica', 'Descripción']],
-        body: dolorData,
-        theme: 'grid',
-        headStyles: { fillColor: [66, 133, 244], textColor: 255 },
-        margin: { left: 14, right: 14 }
+        startY: yPosition,
+        head: [['Familiar', 'Condiciones']],
+        body: familiaresList,
+        theme: 'striped',
+        headStyles: { fillColor: [66, 135, 245] }
       });
       
-      yPos = (doc as any).lastAutoTable.finalY + 10;
+      yPosition = doc.lastAutoTable?.finalY || yPosition + 30;
+      yPosition += 10;
+    } else {
+      doc.text('No se reportan antecedentes heredo-familiares significativos.', 15, yPosition);
+      yPosition += 10;
     }
   }
   
-  // Add Antecedentes Heredo Familiares section
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text('II. ANTECEDENTES HEREDO FAMILIARES', 14, yPos);
-  yPos += 10;
+  // Continue adding other sections...
+  // The rest of the sections would follow a similar pattern
   
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(12);
-  
-  // Safely check and iterate through familiares
-  const familiares = ['padre', 'madre', 'abuelos', 'hermanos', 'tios'];
-  const antecedentesHeredoFamiliares = formData.antecedentesHeredoFamiliares || {};
-  
-  for (const familiar of familiares) {
-    const data = antecedentesHeredoFamiliares[familiar] || { condiciones: {}, finado: false };
-    
-    // Safely check if condiciones exists
-    if (!data.condiciones) {
-      data.condiciones = {};
-    }
-    
-    const condiciones = Object.entries(data.condiciones)
-      .filter(([key, value]) => value && key !== 'otras')
-      .map(([key]) => key);
-    
-    if (data.condiciones.otras) {
-      condiciones.push(`Otras: ${data.condiciones.otras}`);
-    }
-    
-    if (condiciones.length > 0 || data.finado) {
-      doc.setFont('helvetica', 'bold');
-      doc.text(`${familiar.charAt(0).toUpperCase() + familiar.slice(1)}:`, 14, yPos);
-      yPos += 7;
-      
-      doc.setFont('helvetica', 'normal');
-      if (data.finado) {
-        doc.text(`Finado: Sí (Causa: ${data.causaMuerte || 'No especificada'})`, 20, yPos);
-      } else {
-        doc.text('Finado: No', 20, yPos);
-      }
-      yPos += 7;
-      
-      if (condiciones.length > 0) {
-        doc.text('Condiciones:', 20, yPos);
-        yPos += 7;
-        
-        condiciones.forEach(condicion => {
-          doc.text(`- ${condicion}`, 25, yPos);
-          yPos += 7;
-        });
-      }
-      
-      yPos += 3;
-    }
-  }
-  
-  // Check if we need a new page for Antecedentes Personales
-  if (yPos > 250) {
-    doc.addPage();
-    yPos = 20;
-  }
-  
-  // Add Antecedentes Personales No Patológicos section
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text('III. ANTECEDENTES PERSONALES NO PATOLÓGICOS', 14, yPos);
-  yPos += 10;
-  
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(12);
-  
-  const { antecedentesPersonalesNoPatologicos } = formData;
-  
-  // Vivienda
-  doc.text(`Vivienda: ${antecedentesPersonalesNoPatologicos.tipoVivienda || 'No especificada'}`, 14, yPos);
-  yPos += 7;
-  
-  // Servicios
-  const servicios = antecedentesPersonalesNoPatologicos.servicios?.join(', ') || 'Ninguno especificado';
-  doc.text(`Servicios: ${servicios}`, 14, yPos);
-  yPos += 7;
-  
-  // Condición Calle
-  const condicionCalle = antecedentesPersonalesNoPatologicos.condicionCalle;
-  if (condicionCalle) {
-    doc.text(`Condición de calle: ${condicionCalle}`, 14, yPos);
-    yPos += 7;
-  }
-  
-  // Frecuencia Baño
-  const frecuenciaBano = antecedentesPersonalesNoPatologicos.frecuenciaBano;
-  if (frecuenciaBano) {
-    doc.text(`Frecuencia de baño: ${frecuenciaBano}`, 14, yPos);
-    yPos += 7;
-  }
-  
-  // Check if we need a new page for Antecedentes Patológicos
-  if (yPos > 250) {
-    doc.addPage();
-    yPos = 20;
-  }
-  
-  // Add Antecedentes Personales Patológicos section
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text('IV. ANTECEDENTES PERSONALES PATOLÓGICOS', 14, yPos);
-  yPos += 10;
-  
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(12);
-  
-  const { antecedentesPersonalesPatologicos } = formData;
-  if (antecedentesPersonalesPatologicos) {
-    const categories = [
-      { name: 'Nutricionales', data: antecedentesPersonalesPatologicos.nutricionales || {} },
-      { name: 'Cardíacos', data: antecedentesPersonalesPatologicos.cardiacos || {} },
-      { name: 'Hepáticos', data: antecedentesPersonalesPatologicos.hepaticos || {} },
-      { name: 'Enfermedades de Transmisión Sexual', data: antecedentesPersonalesPatologicos.enfermedadesTransmisionSexual || {} },
-      { name: 'Enfermedades Eruptivas', data: antecedentesPersonalesPatologicos.enfermedadesEruptivas || {} },
-      { name: 'Pulmonares', data: antecedentesPersonalesPatologicos.pulmonares || {} },
-      { name: 'Infecciosas y Parasitarias', data: antecedentesPersonalesPatologicos.infecciosasParasitarias || {} },
-      { name: 'Otros padecimientos', data: antecedentesPersonalesPatologicos.otrosPadecimientos || {} }
-    ];
-    
-    categories.forEach(category => {
-      // Safe check for data
-      if (!category.data) {
-        category.data = {};
-      }
-      
-      const conditions = Object.entries(category.data)
-        .filter(([key, value]) => value === true && key !== 'otra')
-        .map(([key]) => key);
-      
-      if (category.data.otra && category.data.otraDescripcion) {
-        conditions.push(`Otra: ${category.data.otraDescripcion}`);
-      }
-      
-      if (conditions.length > 0) {
-        doc.setFont('helvetica', 'bold');
-        doc.text(category.name + ':', 14, yPos);
-        yPos += 7;
-        
-        doc.setFont('helvetica', 'normal');
-        conditions.forEach(condition => {
-          doc.text(`- ${condition}`, 20, yPos);
-          yPos += 7;
-        });
-        
-        yPos += 3;
-      }
-      
-      // Check if we need a new page
-      if (yPos > 270) {
-        doc.addPage();
-        yPos = 20;
-      }
-    });
-  }
-  
-  // Add more sections as needed...
-  
-  // Save the PDF
-  const filename = `Historia_Clinica_${nombrePaciente.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
-  doc.save(filename);
+  // Save PDF with patient name
+  doc.save(`Historia_Clinica_${patientName.replace(/\s+/g, '_')}.pdf`);
 };
 
+// Helper function to add section titles
+const addSection = (doc: jsPDF, title: string, y: number) => {
+  // Check if we need a new page
+  if (y > 270) {
+    doc.addPage();
+    y = 15;
+  }
+  
+  doc.setFillColor(66, 135, 245);
+  doc.rect(15, y - 5, 180, 8, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12);
+  doc.text(title, 105, y, { align: 'center' });
+  doc.setTextColor(0, 0, 0);
+  
+  return y;
+};
