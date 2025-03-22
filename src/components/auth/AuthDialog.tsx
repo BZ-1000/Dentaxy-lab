@@ -6,6 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase, getURL } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Link } from "react-router-dom";
+import { Check, User, Lock } from "lucide-react";
 
 interface AuthDialogProps {
   isOpen: boolean;
@@ -92,7 +95,7 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
           )}
         </div>
 
-        {/* Google login button moved to the top */}
+        {/* Google login button moved to the top of the form */}
         <Button
           type="button"
           onClick={handleGoogleLogin}
@@ -120,8 +123,8 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-4">
             <div>
-              <Label htmlFor="email" className="text-gray-700">
-                Email
+              <Label htmlFor="email" className="text-gray-700 flex items-center gap-2">
+                <User className="h-4 w-4" /> Email
               </Label>
               <Input
                 id="email"
@@ -135,8 +138,8 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
             </div>
 
             <div>
-              <Label htmlFor="password" className="text-gray-700">
-                Contraseña
+              <Label htmlFor="password" className="text-gray-700 flex items-center gap-2">
+                <Lock className="h-4 w-4" /> Contraseña
               </Label>
               <Input
                 id="password"

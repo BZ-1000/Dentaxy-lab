@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
+import { Checkbox } from "@/components/ui/checkbox";
 
 const menuItems = [{
   label: "Nosotros",
@@ -68,11 +69,16 @@ const Landing = () => {
   });
   const [username, setUsername] = useState<string>("");
   const [showPopup, setShowPopup] = useState<boolean>(false);
-  const [showPricingPopup, setShowPricingPopup] = useState<boolean>(false);
+  const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [session, setSession] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
+  
+  // Add new state for terms acceptance
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -141,30 +147,7 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
-  const handleSaveUsername = async () => {
-    if (!session || !username.trim()) {
-      toast.error('Por favor ingresa un nombre de usuario');
-      return;
-    }
-    setLoading(true);
-    try {
-      const {
-        error
-      } = await supabase.from('user_profiles').upsert([{
-        id: session.user.id,
-        username: username.trim()
-      }], {
-        onConflict: 'id'
-      });
-      if (error) throw error;
-      setShowPopup(false);
-      toast.success('¡Nombre de usuario guardado exitosamente!');
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -532,23 +515,68 @@ const Landing = () => {
         </div>
       </footer>
 
-      {/* Username Popup */}
+      {/* Username Popup - Updated with welcome message and terms checkboxes */}
       {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-            <h2 className="text-2xl font-bold text-black mb-6">
-              Actualizar nombre de usuario
-            </h2>
-            <Input type="text" placeholder="Nuevo nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="mb-4" />
-            <div className="flex justify-end gap-4">
-              <Button variant="ghost" onClick={() => setShowPopup(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleSaveUsername} disabled={loading}>
-                {loading ? "Guardando..." : "Guardar"}
-              </Button>
+        <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+          <h2 className="text-2xl font-bold text-black mb-2">
+            ¡Bienvenido a Dental Basics Academy!
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Para comenzar a utilizar nuestra plataforma, por favor ingresa tu nombre de usuario.
+          </p>
+          
+          <Input 
+            type="text" 
+            placeholder="Ingresa tu nombre de usuario" 
+            value={username} 
+            onChange={e => setUsername(e.target.value)} 
+            className="mb-6" 
+          />
+          
+          <div className="space-y-3 mb-6">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="terms" 
+                checked={acceptTerms}
+                onCheckedChange={(checked) => setAcceptTerms(checked === true)}
+              />
+              <label
+                htmlFor="terms"
+                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Acepto los <Link to="/terms" className="text-blue-600 hover:underline" target="_blank">Términos y Condiciones</Link>
+              </label>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="privacy" 
+                checked={acceptPrivacy}
+                onCheckedChange={(checked) => setAcceptPrivacy(checked === true)}
+              />
+              <label
+                htmlFor="privacy"
+                className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Acepto la <Link to="/privacy" className="text-blue-600 hover:underline" target="_blank">Política de Privacidad</Link>
+              </label>
             </div>
           </div>
-        </div>}
+          
+          <div className="flex justify-end gap-4">
+            <Button variant="ghost" onClick={() => setShowPopup(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              onClick={handleSaveUsername} 
+              disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy}
+              className={`${(!acceptTerms || !acceptPrivacy || !username.trim()) ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {loading ? "Guardando..." : "Guardar"}
+            </Button>
+          </div>
+        </div>
+      </div>}
 
       {/* Pricing Popup */}
       {showPricingPopup && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
