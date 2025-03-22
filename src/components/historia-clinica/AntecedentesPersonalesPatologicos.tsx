@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { AlertCircle, EyeOff, Eye } from "lucide-react";
+import { Typewriter } from "@/components/ui/typewriter-text";
 
 interface AntecedentesPersonalesPatologicosProps {
   formData: FormDataState;
@@ -37,6 +38,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [previousFormState, setPreviousFormState] = useState(null);
+  const [isTyping, setIsTyping] = useState<Record<string, boolean>>({});
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -131,26 +133,16 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     setShowForm(false);
     setProgress(100);
 
+    // Set up typing animation for each category
+    const newIsTyping = Object.keys(nuevasRedacciones).reduce((acc, key) => {
+      acc[key] = true;
+      return acc;
+    }, {} as Record<string, boolean>);
+    
+    setIsTyping(newIsTyping);
+
     // Autoscroll to the top
     redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
-
-    // Animate writing
-    Object.keys(nuevasRedacciones).forEach(categoria => {
-      escribirTexto(document.getElementById(categoria), nuevasRedacciones[categoria], 50);
-    });
-  };
-
-  const escribirTexto = (elemento: HTMLElement | null, texto: string, velocidad: number) => {
-    if (!elemento) return;
-    let i = 0;
-    const intervalo = setInterval(() => {
-      if (i < texto.length) {
-        elemento.innerHTML += texto.charAt(i);
-        i++;
-      } else {
-        clearInterval(intervalo);
-      }
-    }, velocidad);
   };
 
   const generarRedaccionPorCategoria = (categoria: string) => {
@@ -303,6 +295,13 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
       ...prev,
       [section]: false
     })), 2000);
+  };
+
+  const handleTypingComplete = (section: string) => {
+    setIsTyping(prev => ({
+      ...prev,
+      [section]: false
+    }));
   };
 
   const limpiarFormulario = () => {
@@ -666,13 +665,15 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      id="nutricionales"
-                      value={redacciones.nutricionales}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    <div className="min-h-[100px] p-3 text-sm bg-white/50 dark:bg-gray-800/50 rounded border border-gray-200 dark:border-gray-700">
+                      <Typewriter 
+                        text={redacciones.nutricionales}
+                        speed={5}
+                        cursor={null}
+                        onComplete={() => handleTypingComplete('nutricionales')}
+                        className="whitespace-pre-wrap"
+                      />
+                    </div>
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -695,13 +696,15 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      id="cardiacos"
-                      value={redacciones.cardiacos}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    <div className="min-h-[100px] p-3 text-sm bg-white/50 dark:bg-gray-800/50 rounded border border-gray-200 dark:border-gray-700">
+                      <Typewriter 
+                        text={redacciones.cardiacos}
+                        speed={5}
+                        cursor={null}
+                        onComplete={() => handleTypingComplete('cardiacos')}
+                        className="whitespace-pre-wrap"
+                      />
+                    </div>
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -724,177 +727,16 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      id="hepaticos"
-                      value={redacciones.hepaticos}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    <div className="min-h-[100px] p-3 text-sm bg-white/50 dark:bg-gray-800/50 rounded border border-gray-200 dark:border-gray-700">
+                      <Typewriter 
+                        text={redacciones.hepaticos}
+                        speed={5}
+                        cursor={null}
+                        onComplete={() => handleTypingComplete('hepaticos')}
+                        className="whitespace-pre-wrap"
+                      />
+                    </div>
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="text-lg font-semibold">Enfermedades de Transmisión Sexual</h4>
-                      <button
-                        onClick={() => handleCopy('enfermedadesTransmisionSexual')}
-                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                      >
-                        {copied.enfermedadesTransmisionSexual ? (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Copiado</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span>Copiar</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <Textarea
-                      id="enfermedadesTransmisionSexual"
-                      value={redacciones.enfermedadesTransmisionSexual}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
-                  </div>
-
-                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="text-lg font-semibold">Enfermedades Eruptivas de la Infancia</h4>
-                      <button
-                        onClick={() => handleCopy('enfermedadesEruptivas')}
-                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                      >
-                        {copied.enfermedadesEruptivas ? (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Copiado</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span>Copiar</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <Textarea
-                      id="enfermedadesEruptivas"
-                      value={redacciones.enfermedadesEruptivas}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
-                  </div>
-
-                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="text-lg font-semibold">Pulmonares</h4>
-                      <button
-                        onClick={() => handleCopy('pulmonares')}
-                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                      >
-                        {copied.pulmonares ? (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Copiado</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span>Copiar</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <Textarea
-                      id="pulmonares"
-                      value={redacciones.pulmonares}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
-                  </div>
-
-                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="text-lg font-semibold">Enfermedades Infecciosas y Parasitarias</h4>
-                      <button
-                        onClick={() => handleCopy('infecciosasParasitarias')}
-                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                      >
-                        {copied.infecciosasParasitarias ? (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Copiado</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span>Copiar</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <Textarea
-                      id="infecciosasParasitarias"
-                      value={redacciones.infecciosasParasitarias}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
-                  </div>
-
-                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="text-lg font-semibold">Otros Padecimientos Sistémicos</h4>
-                      <button
-                        onClick={() => handleCopy('otrosPadecimientos')}
-                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                      >
-                        {copied.otrosPadecimientos ? (
-                          <>
-                            <CheckCircle className="w-4 h-4" />
-                            <span>Copiado</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-4 h-4" />
-                            <span>Copiar</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <Textarea
-                      id="otrosPadecimientos"
-                      value={redacciones.otrosPadecimientos}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
-                  </div>
-
-                  <div className="flex justify-center">
-                    <Button
-                      onClick={() => setShowForm(true)}
-                      variant="outline"
-                      className="border-gray-300 text-gray-700 dark:text-gray-300"
-                    >
-                      Volver al Formulario
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </div>}
-      </Card>
-    </div>
-  );
-};
-
-export default AntecedentesPersonalesPatologicos;
+                    <div className="flex justify

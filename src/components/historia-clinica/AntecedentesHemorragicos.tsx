@@ -8,6 +8,7 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Typewriter } from "@/components/ui/typewriter-text";
 
 interface AntecedentesHemorragicosProps {
   formData: FormDataState;
@@ -25,6 +26,7 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
   const [redaccion, setRedaccion] = useState("");
   const [copied, setCopied] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [isTypingComplete, setIsTypingComplete] = useState(false);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -94,7 +96,8 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
     }
     
     setShowForm(false);
-    setProgress(100);
+    setProgress(0);
+    setIsTypingComplete(false);
   };
 
   const limpiarFormulario = () => {
@@ -108,6 +111,7 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
     setRedaccion("");
     setShowForm(true);
     setProgress(0);
+    setIsTypingComplete(false);
   };
 
   const handleCopy = async () => {
@@ -116,6 +120,11 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
     setTimeout(() => {
       setCopied(false);
     }, 2000);
+  };
+
+  const handleTypingComplete = () => {
+    setProgress(100);
+    setIsTypingComplete(true);
   };
 
   const HemorragiaItem = ({ label, value, field }: { label: string, value: string, field: string }) => (
@@ -280,11 +289,34 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                     )}
                   </button>
                 </div>
-                <Textarea
-                  value={redaccion}
-                  readOnly
-                  className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                />
+                
+                {/* Barra de progreso para la animación */}
+                <div className="progress-bar-container" style={{
+                  width: '100%', 
+                  backgroundColor: '#d3d3d3', 
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  marginBottom: '1rem',
+                  boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'
+                }}>
+                  <div className="progress-bar" style={{
+                    height: '8px', 
+                    backgroundColor: '#34c759',
+                    transition: 'width 0.5s ease-in-out',
+                    width: `${progress}%`,
+                    borderRadius: '12px'
+                  }}></div>
+                </div>
+                
+                <div className="min-h-[100px] p-3 text-sm bg-white/50 dark:bg-gray-800/50 whitespace-pre-wrap rounded border border-gray-200 dark:border-gray-700">
+                  <Typewriter 
+                    text={redaccion}
+                    speed={5}
+                    cursor={null}
+                    onComplete={handleTypingComplete}
+                    className="whitespace-pre-wrap"
+                  />
+                </div>
               </div>
 
               <div className="flex justify-center">
