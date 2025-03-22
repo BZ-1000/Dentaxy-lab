@@ -17,11 +17,11 @@ export interface TypewriterProps {
  
 export function Typewriter({
   text,
-  speed = 100,
+  speed = 120, // Slowed down from 100 to 120
   cursor = "|",
   loop = false,
-  deleteSpeed = 50,
-  delay = 1500,
+  deleteSpeed = 80, // Slowed down from 50 to 80
+  delay = 2000, // Increased from 1500 to 2000
   className,
   onComplete,
 }: TypewriterProps) {
@@ -92,7 +92,7 @@ export function Typewriter({
   ]);
  
   return (
-    <span className={`text-justify ${className || ""}`}>
+    <span className={`text-justify whitespace-pre-wrap ${className || ""}`}>
       {displayText}
       {cursor && <span className="animate-pulse opacity-70">{cursor}</span>}
     </span>
