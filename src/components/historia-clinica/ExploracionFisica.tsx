@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
   const [isMaximized, setIsMaximized] = useState(false);
   const [showForm, setShowForm] = useState(true);
   const [redaccion, setRedaccion] = useState("");
+  const [displayedText, setDisplayedText] = useState("");
   const [copied, setCopied] = useState(false);
   const [progress, setProgress] = useState(0);
 
@@ -85,7 +86,8 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
 
     setRedaccion(texto);
     setShowForm(false);
-    setProgress(100);
+    setProgress(0);
+    setDisplayedText("");
   };
 
   const limpiarFormulario = () => {
@@ -99,6 +101,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
     });
     
     setRedaccion("");
+    setDisplayedText("");
     setShowForm(true);
     setProgress(0);
   };
@@ -110,6 +113,27 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
       setCopied(false);
     }, 2000);
   };
+
+  // Efecto para la animación de escritura
+  useEffect(() => {
+    if (!showForm && redaccion) {
+      let index = 0;
+      const speed = 5; // Velocidad de escritura (más bajo = más rápido)
+      
+      const interval = setInterval(() => {
+        if (index < redaccion.length) {
+          setDisplayedText(redaccion.substring(0, index + 1));
+          setProgress(Math.round((index / redaccion.length) * 100));
+          index++;
+        } else {
+          clearInterval(interval);
+          setProgress(100);
+        }
+      }, speed);
+      
+      return () => clearInterval(interval);
+    }
+  }, [redaccion, showForm]);
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
@@ -290,8 +314,27 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     )}
                   </button>
                 </div>
+                
+                {/* Barra de progreso para la animación */}
+                <div className="progress-bar-container" style={{
+                  width: '100%', 
+                  backgroundColor: '#d3d3d3', 
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                  marginBottom: '1rem',
+                  boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'
+                }}>
+                  <div className="progress-bar" style={{
+                    height: '8px', 
+                    backgroundColor: '#34c759',
+                    transition: 'width 0.005s ease-in-out',
+                    width: `${progress}%`,
+                    borderRadius: '12px'
+                  }}></div>
+                </div>
+                
                 <Textarea
-                  value={redaccion}
+                  value={displayedText}
                   readOnly
                   className="min-h-[300px] text-sm bg-white/50 dark:bg-gray-800/50 whitespace-pre-wrap"
                 />
