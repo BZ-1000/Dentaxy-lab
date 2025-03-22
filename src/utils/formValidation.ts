@@ -25,31 +25,10 @@ export const validatePadecimientoActual = (formData: FormDataState) => {
   return missingFields;
 };
 
-// Validates Antecedentes Heredo Familiares section
+// Validates Antecedentes Heredo Familiares section - Modified to not require these fields
 export const validateAntecedentesHeredoFamiliares = (formData: FormDataState) => {
-  const missingFields = [];
-  const familiares = ['padre', 'madre', 'abuelos', 'hermanos', 'tios'];
-  
-  for (const familiar of familiares) {
-    // Check if the familiar exists in the formData
-    if (formData.antecedentesHeredoFamiliares && 
-        formData.antecedentesHeredoFamiliares[familiar] && 
-        formData.antecedentesHeredoFamiliares[familiar].condiciones) {
-        
-      const data = formData.antecedentesHeredoFamiliares[familiar];
-      
-      // Check if at least one condition is selected for each familiar
-      const hasAnyCondition = Object.values(data.condiciones).some(value => value);
-      
-      if (!hasAnyCondition) {
-        missingFields.push(`Condiciones de ${familiar}`);
-      }
-    } else {
-      missingFields.push(`Información de ${familiar}`);
-    }
-  }
-
-  return missingFields;
+  // Return empty array to not require any validations for heredo familiares
+  return [];
 };
 
 // Validates Antecedentes Personales No Patológicos section
