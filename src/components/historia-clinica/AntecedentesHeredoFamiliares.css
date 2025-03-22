@@ -1,21 +1,9 @@
-
 .justify-text {
     text-align: justify;
-}
+  }
   
-.highlight-note {
+  .highlight-note {
     color: red;
     font-weight: bold;
-}
-
-/* Better text justification with proper spacing */
-.text-justify {
-    text-align: justify;
-    hyphens: auto;
-}
-
-/* Improve typewriter animation container */
-.typewriter-container {
-    line-height: 1.6;
-    letter-spacing: 0.2px;
-}
+  }
+  

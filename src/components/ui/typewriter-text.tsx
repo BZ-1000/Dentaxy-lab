@@ -1,77 +1,78 @@
-
 "use client";
 
-import * as React from "react";
+import * as React from "react"
 import { useEffect, useState } from "react";
+ 
 export interface TypewriterProps {
   text: string | string[];
   speed?: number;
-  cursor?: string | null;
+  cursor?: string;
   loop?: boolean;
   deleteSpeed?: number;
   delay?: number;
   className?: string;
-  onComplete?: () => void;
 }
+ 
 export function Typewriter({
   text,
-  speed = 150,
-  // Slowed down even more from 120 to 150
+  speed = 100,
   cursor = "|",
   loop = false,
-  deleteSpeed = 100,
-  // Slowed down even more from 80 to 100
-  delay = 2500,
-  // Increased from 2000 to 2500
+  deleteSpeed = 50,
+  delay = 1500,
   className,
-  onComplete
 }: TypewriterProps) {
   const [displayText, setDisplayText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [textArrayIndex, setTextArrayIndex] = useState(0);
-  const [isComplete, setIsComplete] = useState(false);
-
+ 
   // Validate and process input text
   const textArray = Array.isArray(text) ? text : [text];
   const currentText = textArray[textArrayIndex] || "";
+ 
   useEffect(() => {
     if (!currentText) return;
-
-    // Reset when text changes
-    if (typeof text === 'string' && text !== displayText && isComplete) {
-      setDisplayText("");
-      setCurrentIndex(0);
-      setIsComplete(false);
-    }
-    const timeout = setTimeout(() => {
-      if (!isDeleting) {
-        if (currentIndex < currentText.length) {
-          setDisplayText(prev => prev + currentText[currentIndex]);
-          setCurrentIndex(prev => prev + 1);
-        } else {
-          if (onComplete && !isComplete) {
-            setIsComplete(true);
-            onComplete();
-          }
-          if (loop) {
+ 
+    const timeout = setTimeout(
+      () => {
+        if (!isDeleting) {
+          if (currentIndex < currentText.length) {
+            setDisplayText((prev) => prev + currentText[currentIndex]);
+            setCurrentIndex((prev) => prev + 1);
+          } else if (loop) {
             setTimeout(() => setIsDeleting(true), delay);
           }
-        }
-      } else {
-        if (displayText.length > 0) {
-          setDisplayText(prev => prev.slice(0, -1));
         } else {
-          setIsDeleting(false);
-          setCurrentIndex(0);
-          setTextArrayIndex(prev => (prev + 1) % textArray.length);
+          if (displayText.length > 0) {
+            setDisplayText((prev) => prev.slice(0, -1));
+          } else {
+            setIsDeleting(false);
+            setCurrentIndex(0);
+            setTextArrayIndex((prev) => (prev + 1) % textArray.length);
+          }
         }
-      }
-    }, isDeleting ? deleteSpeed : speed);
+      },
+      isDeleting ? deleteSpeed : speed,
+    );
+ 
     return () => clearTimeout(timeout);
-  }, [currentIndex, isDeleting, currentText, loop, speed, deleteSpeed, delay, displayText, text, textArray, textArrayIndex, onComplete, isComplete]);
-  return <span className={`text-justify whitespace-pre-wrap ${className || ""}`}>
+  }, [
+    currentIndex,
+    isDeleting,
+    currentText,
+    loop,
+    speed,
+    deleteSpeed,
+    delay,
+    displayText,
+    text,
+  ]);
+ 
+  return (
+    <span className={className}>
       {displayText}
-      {cursor && <span className="animate-pulse opacity-80 ml-0.5">{cursor}</span>}
-    </span>;
+      <span className="animate-pulse">{cursor}</span>
+    </span>
+  );
 }

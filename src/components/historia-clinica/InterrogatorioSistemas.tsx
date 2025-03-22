@@ -7,7 +7,6 @@ import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Typewriter } from "@/components/ui/typewriter-text";
 
 interface InterrogatorioSistemasProps {
   formData: FormDataState;
@@ -24,7 +23,6 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
   const [redaccion, setRedaccion] = useState("");
   const [copied, setCopied] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [isTypingComplete, setIsTypingComplete] = useState(false);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -66,8 +64,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
 
     setRedaccion(texto);
     setShowForm(false);
-    setProgress(0);
-    setIsTypingComplete(false);
+    setProgress(100);
   };
 
   const limpiarFormulario = () => {
@@ -77,7 +74,6 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
     setRedaccion("");
     setShowForm(true);
     setProgress(0);
-    setIsTypingComplete(false);
   };
 
   const handleCopy = async () => {
@@ -86,11 +82,6 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
     setTimeout(() => {
       setCopied(false);
     }, 2000);
-  };
-
-  const handleTypingComplete = () => {
-    setProgress(100);
-    setIsTypingComplete(true);
   };
 
   return (
@@ -199,34 +190,11 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                     )}
                   </button>
                 </div>
-                
-                {/* Barra de progreso para la animación */}
-                <div className="progress-bar-container" style={{
-                  width: '100%', 
-                  backgroundColor: '#d3d3d3', 
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  marginBottom: '1rem',
-                  boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'
-                }}>
-                  <div className="progress-bar" style={{
-                    height: '8px', 
-                    backgroundColor: '#34c759',
-                    transition: 'width 0.5s ease-in-out',
-                    width: `${progress}%`,
-                    borderRadius: '12px'
-                  }}></div>
-                </div>
-                
-                <div className="min-h-[300px] p-3 text-sm bg-white/50 dark:bg-gray-800/50 whitespace-pre-wrap rounded border border-gray-200 dark:border-gray-700">
-                  <Typewriter 
-                    text={redaccion}
-                    speed={5}
-                    cursor={null}
-                    onComplete={handleTypingComplete}
-                    className="whitespace-pre-wrap"
-                  />
-                </div>
+                <Textarea
+                  value={redaccion}
+                  readOnly
+                  className="min-h-[300px] text-sm bg-white/50 dark:bg-gray-800/50 whitespace-pre-wrap"
+                />
               </div>
 
               <div className="flex justify-center">

@@ -8,7 +8,6 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from "@/components/ui/switch";
-import { Typewriter } from "@/components/ui/typewriter-text";
 
 interface ExamenCabezaProps {
   formData: FormDataState;
@@ -24,9 +23,9 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const [showForm, setShowForm] = useState(true);
   const [sinHallazgos, setSinHallazgos] = useState(formData.examenCabeza?.sinHallazgos || false);
   const [redaccion, setRedaccion] = useState("");
+  const [displayedText, setDisplayedText] = useState("");
   const [copied, setCopied] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [isTypingComplete, setIsTypingComplete] = useState(false);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -87,7 +86,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     
     setShowForm(false);
     setProgress(0);
-    setIsTypingComplete(false);
+    setDisplayedText("");
   };
 
   const limpiarFormulario = () => {
@@ -99,9 +98,9 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     });
     
     setRedaccion("");
+    setDisplayedText("");
     setShowForm(true);
     setProgress(0);
-    setIsTypingComplete(false);
   };
 
   const handleCopy = async () => {
@@ -112,10 +111,26 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     }, 2000);
   };
 
-  const handleTypingComplete = () => {
-    setProgress(100);
-    setIsTypingComplete(true);
-  };
+  // Efecto para la animación de escritura
+  useEffect(() => {
+    if (!showForm && redaccion) {
+      let index = 0;
+      const speed = 5; // Velocidad de escritura (más bajo = más rápido)
+      
+      const interval = setInterval(() => {
+        if (index < redaccion.length) {
+          setDisplayedText(redaccion.substring(0, index + 1));
+          setProgress(Math.round((index / redaccion.length) * 100));
+          index++;
+        } else {
+          clearInterval(interval);
+          setProgress(100);
+        }
+      }, speed);
+      
+      return () => clearInterval(interval);
+    }
+  }, [redaccion, showForm]);
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
@@ -205,7 +220,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                         value={formData.examenCabeza?.[parte.id] || ''}
                         onChange={(e) => handleExamenCabezaChange(parte.id, e.target.value)}
                         placeholder={`Describa los hallazgos en ${parte.name.toLowerCase()}`}
-                        className="mt-2 min-h-[120px] text-justify"
+                        className="mt-2 min-h-[120px]"
                       />
                     </TabsContent>
                   ))}
@@ -263,21 +278,17 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                   <div className="progress-bar" style={{
                     height: '8px', 
                     backgroundColor: '#34c759',
-                    transition: 'width 1.5s ease-in-out', // Slowed down from 1s to 1.5s
+                    transition: 'width 0.005s ease-in-out',
                     width: `${progress}%`,
                     borderRadius: '12px'
                   }}></div>
                 </div>
                 
-                <div className="min-h-[200px] p-3 text-sm bg-white/50 dark:bg-gray-800/50 whitespace-pre-wrap rounded border border-gray-200 dark:border-gray-700 text-justify">
-                  <Typewriter 
-                    text={redaccion}
-                    speed={20} // Slowed down from 15 to 20 for better visual effect
-                    cursor="|"
-                    onComplete={handleTypingComplete}
-                    className="whitespace-pre-wrap"
-                  />
-                </div>
+                <Textarea
+                  value={displayedText}
+                  readOnly
+                  className="min-h-[200px] text-sm bg-white/50 dark:bg-gray-800/50 whitespace-pre-wrap"
+                />
               </div>
 
               <div className="flex justify-center">
