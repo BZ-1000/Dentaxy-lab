@@ -512,7 +512,7 @@ const Landing = () => {
               text={[".ai", ".com"]} 
               speed={100} 
               deleteSpeed={80} 
-              delay={1500}
+              delay={3000}
               loop={true}
               className="text-blue-500"
             />
