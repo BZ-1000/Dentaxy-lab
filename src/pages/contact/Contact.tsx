@@ -52,8 +52,8 @@ const Contact = () => {
     {
       icon: Instagram,
       title: "Instagram",
-      details: "@dentaxy.ai",
-      link: "https://instagram.com/dentaxy.ai"
+      details: "@dentalbasicsacademy",
+      link: "https://instagram.com/dentalbasicsacademy"
     },
     {
       icon: MapPin,
