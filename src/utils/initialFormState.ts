@@ -58,41 +58,7 @@ export const getInitialFormState = (): FormDataState => ({
       almuerzo: "",
       cena: ""
     },
-    ayunoProlongado: "",
-    // Add the new fields
-    vivienda: {
-      tipo: "",
-      habitantes: "",
-      cuartos: ""
-    },
-    alimentacion: {
-      tiempos: "",
-      calidad: ""
-    },
-    habitosHigienicos: {
-      bañoDiario: "",
-      lavadoDental: "",
-      cambioCepillo: ""
-    },
-    adicciones: {
-      alcohol: {
-        consume: false,
-        frecuencia: "",
-        ultimoConsumo: ""
-      },
-      tabaco: {
-        consume: false,
-        frecuencia: "",
-        cantidadDiaria: "",
-        tiempoConsumo: ""
-      },
-      drogas: {
-        consume: false,
-        tipo: "",
-        frecuencia: "",
-        ultimoConsumo: ""
-      }
-    }
+    ayunoProlongado: ""
   },
   antecedentesPersonalesPatologicos: {
     sinPatologia: false,
@@ -167,16 +133,7 @@ export const getInitialFormState = (): FormDataState => ({
       ninguna: false,
       otra: false,
       otraDescripcion: ""
-    },
-    // Add the new fields
-    enfermedadesTrasmisibles: false,
-    enfermedadesNoTrasmisibles: false,
-    tratamientoActual: false,
-    cualTratamiento: "",
-    hospitalizacionesPrevias: false,
-    razonHospitalizacion: "",
-    transfusionesSanguineas: false,
-    razonTransfusion: ""
+    }
   },
   antecedentesAlergicos: {
     medicamentos: {

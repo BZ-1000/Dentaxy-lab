@@ -1,71 +1,42 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
+import { Minus, Maximize2, X, Copy, CheckCircle } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
-import { ConfirmationAlert } from "@/components/ui/confirmation-alert";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { AlertCircle, EyeOff, Eye } from "lucide-react";
 
 interface AntecedentesPersonalesPatologicosProps {
   formData: FormDataState;
   handleAntecedentePatologicoChange: (field: string, value: any) => void;
 }
 
-const AntecedentesPersonalesPatologicos = ({ 
-  formData, 
-  handleAntecedentePatologicoChange 
-}: AntecedentesPersonalesPatologicosProps) => {
+const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologicosProps> = ({
+  formData,
+  handleAntecedentePatologicoChange
+}) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
-  const [showRedaccion, setShowRedaccion] = useState(false);
-  const [redaccionIA, setRedaccionIA] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [displayedText, setDisplayedText] = useState("");
+  const [showForm, setShowForm] = useState(true);
+  const [sinPatologia, setSinPatologia] = useState(formData.antecedentesPersonalesPatologicos?.sinPatologia || false);
+  const [redacciones, setRedacciones] = useState({
+    nutricionales: "",
+    cardiacos: "",
+    hepaticos: "",
+    enfermedadesTransmisionSexual: "",
+    enfermedadesEruptivas: "",
+    pulmonares: "",
+    infecciosasParasitarias: "",
+    otrosPadecimientos: ""
+  });
+  const [copied, setCopied] = useState<Record<string, boolean>>({});
+  const formRef = useRef<HTMLDivElement>(null);
+  const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [camposFaltantes, setCamposFaltantes] = useState<string[]>([]);
-  const redaccionRef = useRef(null);
-
-  const enfermedadesTrasmisibles = [
-    { id: 'hepatitisA', label: 'Hepatitis A' },
-    { id: 'hepatitisB', label: 'Hepatitis B' },
-    { id: 'hepatitisC', label: 'Hepatitis C' },
-    { id: 'vih', label: 'VIH' },
-    { id: 'tuberculosis', label: 'Tuberculosis' },
-    { id: 'gonorrea', label: 'Gonorrea' },
-    { id: 'sifilis', label: 'Sífilis' },
-    { id: 'influenza', label: 'Influenza' },
-    { id: 'covid19', label: 'COVID-19' },
-  ];
-
-  const enfermedadesNoTrasmisibles = [
-    { id: 'diabetesMellitus', label: 'Diabetes Mellitus' },
-    { id: 'hipertensionArterial', label: 'Hipertensión Arterial' },
-    { id: 'cardiopatias', label: 'Cardiopatías' },
-    { id: 'nefropatias', label: 'Nefropatías' },
-    { id: 'endocrinopatias', label: 'Endocrinopatías' },
-    { id: 'trastornosInmunologicos', label: 'Trastornos Inmunológicos' },
-    { id: 'trastornosHematologicos', label: 'Trastornos Hematológicos' },
-    { id: 'trastornosNeurologicos', label: 'Trastornos Neurológicos' },
-    { id: 'sindromeConvulsivo', label: 'Síndrome Convulsivo' },
-    { id: 'trastornosGastrointestinales', label: 'Trastornos Gastrointestinales' },
-    { id: 'trastornosPsiquiatricos', label: 'Trastornos Psiquiátricos' },
-    { id: 'cancer', label: 'Cáncer' },
-  ];
-
-  const enfermedadesActuales = Object.entries(formData.antecedentesPersonalesPatologicos.enfermedadesTrasmisibles)
-    .filter(([_, value]) => value === true)
-    .map(([key]) => {
-      return enfermedadesTrasmisibles.find(e => e.id === key)?.label || key;
-    });
-
-  const enfermedadesCronicas = Object.entries(formData.antecedentesPersonalesPatologicos.enfermedadesNoTrasmisibles)
-    .filter(([_, value]) => value === true)
-    .map(([key]) => {
-      return enfermedadesNoTrasmisibles.find(e => e.id === key)?.label || key;
-    });
+  const [previousFormState, setPreviousFormState] = useState(null);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -82,154 +53,411 @@ const AntecedentesPersonalesPatologicos = ({
     setIsMaximized(false);
   };
 
-  const validarFormulario = () => {
-    const faltantes = [];
-    const app = formData.antecedentesPersonalesPatologicos;
-    
-    // Validar si hay enfermedades seleccionadas
-    const tieneEnfermedadesTrasmisibles = Object.values(app.enfermedadesTrasmisibles).some(value => value === true);
-    const tieneEnfermedadesNoTrasmisibles = Object.values(app.enfermedadesNoTrasmisibles).some(value => value === true);
-    
-    // Si tiene ambas como false pero existe tratamiento actual
-    if (!tieneEnfermedadesTrasmisibles && !tieneEnfermedadesNoTrasmisibles && app.tratamientoActual) {
-      faltantes.push('Enfermedades (si recibe tratamiento debe seleccionar al menos una enfermedad)');
+  const handleSinPatologiaChange = () => {
+    const newValue = !sinPatologia;
+    setSinPatologia(newValue);
+    handleAntecedentePatologicoChange("sinPatologia", newValue);
+
+    if (newValue) {
+      // Clear other fields when "sin patologia" is selected
+      handleAntecedentePatologicoChange("nutricionales", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("cardiacos", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("hepaticos", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("enfermedadesTransmisionSexual", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("enfermedadesEruptivas", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("pulmonares", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("infecciosasParasitarias", { ninguna: true, otra: false, otraDescripcion: '' });
+      handleAntecedentePatologicoChange("otrosPadecimientos", { ninguna: true, otra: false, otraDescripcion: '' });
+    } else {
+      // Restore previous state if available
+      if (previousFormState) {
+        Object.keys(previousFormState).forEach(categoria => {
+          handleAntecedentePatologicoChange(categoria, previousFormState[categoria]);
+        });
+      }
     }
-    
-    // Si hay enfermedades seleccionadas pero no se ha indicado si está en tratamiento
-    if ((tieneEnfermedadesTrasmisibles || tieneEnfermedadesNoTrasmisibles) && app.tratamientoActual === "") {
-      faltantes.push('Tratamiento médico actual (indique si está recibiendo tratamiento)');
-    }
-    
-    return faltantes;
   };
 
-  const validarYGenerarRedaccion = () => {
-    const camposFaltantes = validarFormulario();
-    
-    if (camposFaltantes.length > 0) {
-      setCamposFaltantes(camposFaltantes);
-      setAlertOpen(true);
+  const seleccionarOpcion = (categoria: string, opcion: string, valor: boolean) => {
+    if (opcion === 'ninguna' && valor) {
+      const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
+      Object.keys(categoriasActualizadas).forEach(key => {
+        if (key !== 'ninguna' && key !== 'otra' && key !== 'otraDescripcion') {
+          categoriasActualizadas[key] = false;
+        }
+      });
+      categoriasActualizadas.ninguna = true;
+      categoriasActualizadas.otra = false;
+      categoriasActualizadas.otraDescripcion = '';
+      handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
+    } else if (opcion !== 'ninguna' && opcion !== 'otra' && opcion !== 'otraDescripcion' && valor) {
+      const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
+      categoriasActualizadas[opcion] = valor;
+      categoriasActualizadas.ninguna = false;
+      handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
+    } else if (opcion === 'otra' && valor) {
+      const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
+      categoriasActualizadas.otra = valor;
+      categoriasActualizadas.ninguna = false;
+      handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
     } else {
-      generarRedaccionIA();
+      const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
+      categoriasActualizadas[opcion] = valor;
+      handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
     }
+  };
+
+  const handleOtraDescripcionChange = (categoria: string, valor: string) => {
+    const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
+    categoriasActualizadas.otra = true;
+    categoriasActualizadas.otraDescripcion = valor;
+    categoriasActualizadas.ninguna = false;
+    handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
   };
 
   const generarRedaccionIA = () => {
-    const app = formData.antecedentesPersonalesPatologicos;
-    
-    // Primera parte - Introducción general
-    let introduccion = '';
-    
-    const tieneEnfermedadesTrasmisibles = Object.values(app.enfermedadesTrasmisibles).some(value => value === true);
-    const tieneEnfermedadesNoTrasmisibles = Object.values(app.enfermedadesNoTrasmisibles).some(value => value === true);
-    
-    if (!tieneEnfermedadesTrasmisibles && !tieneEnfermedadesNoTrasmisibles) {
-      introduccion = 'El paciente niega antecedentes personales patológicos. No refiere diagnóstico de enfermedades transmisibles ni crónico-degenerativas.';
-    } else {
-      introduccion = 'El paciente refiere los siguientes antecedentes personales patológicos:';
-    }
-    
-    // Segunda parte - Enfermedades transmisibles
-    let trasmisiblesTexto = '';
-    if (tieneEnfermedadesTrasmisibles) {
-      trasmisiblesTexto = '\n\nEnfermedades transmisibles: ' + enfermedadesActuales.join(', ') + '.';
-    }
-    
-    // Tercera parte - Enfermedades crónico-degenerativas
-    let cronicasTexto = '';
-    if (tieneEnfermedadesNoTrasmisibles) {
-      cronicasTexto = '\n\nEnfermedades crónico-degenerativas: ' + enfermedadesCronicas.join(', ') + '.';
-    }
-    
-    // Cuarta parte - Tratamiento actual
-    let tratamientoTexto = '';
-    if (app.tratamientoActual) {
-      tratamientoTexto = '\n\nActualmente ' + (app.tratamientoActual === 'Si' ? 'recibe tratamiento médico' : 'no recibe tratamiento médico') + '.';
-      
-      if (app.tratamientoActual === 'Si' && app.cualTratamiento) {
-        tratamientoTexto += ' ' + app.cualTratamiento + '.';
+    const nuevasRedacciones = {
+      nutricionales: generarRedaccionPorCategoria('nutricionales'),
+      cardiacos: generarRedaccionPorCategoria('cardiacos'),
+      hepaticos: generarRedaccionPorCategoria('hepaticos'),
+      enfermedadesTransmisionSexual: generarRedaccionPorCategoria('enfermedadesTransmisionSexual'),
+      enfermedadesEruptivas: generarRedaccionPorCategoria('enfermedadesEruptivas'),
+      pulmonares: generarRedaccionPorCategoria('pulmonares'),
+      infecciosasParasitarias: generarRedaccionPorCategoria('infecciosasParasitarias'),
+      otrosPadecimientos: generarRedaccionPorCategoria('otrosPadecimientos')
+    };
+
+    setRedacciones(nuevasRedacciones);
+    setShowForm(false);
+    setProgress(100);
+
+    // Autoscroll to the top
+    redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
+
+    // Animate writing
+    Object.keys(nuevasRedacciones).forEach(categoria => {
+      escribirTexto(document.getElementById(categoria), nuevasRedacciones[categoria], 50);
+    });
+  };
+
+  const escribirTexto = (elemento: HTMLElement | null, texto: string, velocidad: number) => {
+    if (!elemento) return;
+    let i = 0;
+    const intervalo = setInterval(() => {
+      if (i < texto.length) {
+        elemento.innerHTML += texto.charAt(i);
+        i++;
+      } else {
+        clearInterval(intervalo);
       }
+    }, velocidad);
+  };
+
+  const generarRedaccionPorCategoria = (categoria: string) => {
+    if (sinPatologia) {
+      const enfermedadesComunes = {
+        nutricionales: "anorexia, bulimia, sobrepeso, obesidad",
+        cardiacos: "enfermedad coronaria, arritmias, defectos cardíacos congénitos",
+        hepaticos: "hepatitis A, B, C, hígado graso, cirrosis",
+        enfermedadesTransmisionSexual: "VIH/SIDA, sífilis, gonorrea, herpes genital, VPH",
+        enfermedadesEruptivas: "sarampión, rubéola, escarlatina, varicela, paperas",
+        pulmonares: "neumonía, bronquitis, asma, EPOC",
+        infecciosasParasitarias: "fiebre tifoidea, tuberculosis, amibiasis, giardiasis, ascariasis",
+        otrosPadecimientos: "otras enfermedades sistémicas"
+      };
+
+      return `El paciente niega antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()} (se interrogó específicamente por ${enfermedadesComunes[categoria]}).`;
     }
-    
-    // Quinta parte - Hospitalizaciones previas
-    let hospitalizacionesTexto = '';
-    if (app.hospitalizacionesPrevias) {
-      hospitalizacionesTexto = '\n\nHospitalizaciones previas: ' + (app.hospitalizacionesPrevias === 'Si' ? 'Sí' : 'No') + '.';
-      
-      if (app.hospitalizacionesPrevias === 'Si' && app.razonHospitalizacion) {
-        hospitalizacionesTexto += ' Razón: ' + app.razonHospitalizacion + '.';
+
+    const categoriaData = formData.antecedentesPersonalesPatologicos[categoria];
+
+    if (!categoriaData) return "No hay datos disponibles.";
+
+    if (categoriaData.ninguna) {
+      const enfermedadesComunes = {
+        nutricionales: "anorexia, bulimia, sobrepeso, obesidad",
+        cardiacos: "enfermedad coronaria, arritmias, defectos cardíacos congénitos",
+        hepaticos: "hepatitis A, B, C, hígado graso, cirrosis",
+        enfermedadesTransmisionSexual: "VIH/SIDA, sífilis, gonorrea, herpes genital, VPH",
+        enfermedadesEruptivas: "sarampión, rubéola, escarlatina, varicela, paperas",
+        pulmonares: "neumonía, bronquitis, asma, EPOC",
+        infecciosasParasitarias: "fiebre tifoidea, tuberculosis, amibiasis, giardiasis, ascariasis",
+        otrosPadecimientos: "otras enfermedades sistémicas"
+      };
+
+      return `El paciente niega antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()} (se interrogó específicamente por ${enfermedadesComunes[categoria]}).`;
+    }
+
+    const opcionesSeleccionadas = Object.entries(categoriaData)
+      .filter(([key, value]) =>
+        key !== 'ninguna' &&
+        key !== 'otra' &&
+        key !== 'otraDescripcion' &&
+        value === true
+      )
+      .map(([key]) => getNombreOpcion(key, categoria));
+
+    let redaccion = "";
+
+    if (opcionesSeleccionadas.length > 0) {
+      redaccion += `El paciente refiere presentar antecedentes de ${opcionesSeleccionadas.join(', ')}`;
+    }
+
+    if (categoriaData.otra && categoriaData.otraDescripcion) {
+      if (redaccion) {
+        redaccion += ` y ${categoriaData.otraDescripcion}`;
+      } else {
+        redaccion += `El paciente refiere presentar antecedentes de ${categoriaData.otraDescripcion}`;
       }
+      redaccion += ` como padecimiento(s) ${getTituloCategoria(categoria).toLowerCase()}.`;
+    } else if (redaccion) {
+      redaccion += ` como padecimiento(s) ${getTituloCategoria(categoria).toLowerCase()}.`;
     }
-    
-    // Sexta parte - Transfusiones sanguíneas
-    let transfusionesTexto = '';
-    if (app.transfusionesSanguineas) {
-      transfusionesTexto = '\n\nTransfusiones sanguíneas: ' + (app.transfusionesSanguineas === 'Si' ? 'Sí' : 'No') + '.';
-      
-      if (app.transfusionesSanguineas === 'Si' && app.razonTransfusion) {
-        transfusionesTexto += ' Razón: ' + app.razonTransfusion + '.';
+
+    if (!redaccion) {
+      redaccion = `No se reportan antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()}.`;
+    }
+
+    return redaccion;
+  };
+
+  const getTituloCategoria = (categoria: string) => {
+    const titulos = {
+      nutricionales: "Nutricionales",
+      cardiacos: "Cardíacos",
+      hepaticos: "Hepáticos",
+      enfermedadesTransmisionSexual: "Enfermedades de Transmisión Sexual",
+      enfermedadesEruptivas: "Enfermedades Eruptivas de la Infancia",
+      pulmonares: "Pulmonares",
+      infecciosasParasitarias: "Enfermedades Infecciosas y Parasitarias",
+      otrosPadecimientos: "Otros Padecimientos Sistémicos"
+    };
+
+    return titulos[categoria] || categoria;
+  };
+
+  const getNombreOpcion = (opcion: string, categoria: string) => {
+    const opciones = {
+      nutricionales: {
+        anorexia: "Anorexia",
+        bulimia: "Bulimia",
+        sobrepeso: "Sobrepeso",
+        obesidad: "Obesidad"
+      },
+      cardiacos: {
+        enfermedadCoronaria: "Enfermedad coronaria",
+        arritmias: "Arritmias",
+        defectosCardiacosCongenitos: "Defectos cardíacos congénitos"
+      },
+      hepaticos: {
+        hepatitisA: "Hepatitis A",
+        hepatitisB: "Hepatitis B",
+        hepatitisC: "Hepatitis C",
+        higadoGraso: "Hígado graso",
+        cirrosis: "Cirrosis"
+      },
+      enfermedadesTransmisionSexual: {
+        vih: "VIH/SIDA",
+        sifilis: "Sífilis",
+        gonorrea: "Gonorrea",
+        herpesGenital: "Herpes genital",
+        vph: "Virus del Papiloma Humano (VPH)"
+      },
+      enfermedadesEruptivas: {
+        sarampion: "Sarampión",
+        rubeola: "Rubéola",
+        escarlatina: "Escarlatina",
+        varicela: "Varicela",
+        paperas: "Parotiditis (paperas)"
+      },
+      pulmonares: {
+        neumonia: "Neumonía",
+        bronquitis: "Bronquitis",
+        asma: "Asma",
+        epoc: "Enfermedad Pulmonar Obstructiva Crónica (EPOC)"
+      },
+      infecciosasParasitarias: {
+        fiebreTifoidea: "Fiebre tifoidea",
+        tuberculosis: "Tuberculosis",
+        amibiasis: "Amibiasis",
+        giardiasis: "Giardiasis",
+        ascariasis: "Ascariasis"
       }
-    }
-    
-    // Combinar todas las partes
-    const redaccionFinal = `${introduccion}${trasmisiblesTexto}${cronicasTexto}${tratamientoTexto}${hospitalizacionesTexto}${transfusionesTexto}`;
-    
-    setRedaccionIA(redaccionFinal);
-    setShowRedaccion(true);
-    
-    setTimeout(() => {
-      redaccionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => {
-        window.scrollBy(0, -200);
-      }, 300);
-    }, 100);
+    };
+
+    return opciones[categoria]?.[opcion] || opcion;
+  };
+
+  const adjustTextareaHeight = (element: HTMLTextAreaElement) => {
+    element.style.height = "auto";
+    element.style.height = element.scrollHeight + "px";
+  };
+
+  const handleCopy = (section: string) => {
+    navigator.clipboard.writeText(redacciones[section]);
+    setCopied(prev => ({
+      ...prev,
+      [section]: true
+    }));
+    setTimeout(() => setCopied(prev => ({
+      ...prev,
+      [section]: false
+    })), 2000);
   };
 
   const limpiarFormulario = () => {
-    // Limpiar enfermedades transmisibles
-    enfermedadesTrasmisibles.forEach(enfermedad => {
-      handleAntecedentePatologicoChange(`enfermedadesTrasmisibles.${enfermedad.id}`, false);
-    });
-    
-    // Limpiar enfermedades no transmisibles
-    enfermedadesNoTrasmisibles.forEach(enfermedad => {
-      handleAntecedentePatologicoChange(`enfermedadesNoTrasmisibles.${enfermedad.id}`, false);
-    });
-    
-    // Limpiar otros campos
-    handleAntecedentePatologicoChange('tratamientoActual', '');
-    handleAntecedentePatologicoChange('cualTratamiento', '');
-    handleAntecedentePatologicoChange('hospitalizacionesPrevias', '');
-    handleAntecedentePatologicoChange('razonHospitalizacion', '');
-    handleAntecedentePatologicoChange('transfusionesSanguineas', '');
-    handleAntecedentePatologicoChange('razonTransfusion', '');
-    
-    setRedaccionIA("");
-    setShowRedaccion(false);
-  };
+    const categoriasIniciales = ['nutricionales', 'cardiacos', 'hepaticos', 'enfermedadesTransmisionSexual',
+                              'enfermedadesEruptivas', 'pulmonares', 'infecciosasParasitarias', 'otrosPadecimientos'];
 
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(redaccionIA);
-    setCopied(true);
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
-  };
+    categoriasIniciales.forEach(categoria => {
+      const categoriasLimpias = {
+        ninguna: false,
+        otra: false,
+        otraDescripcion: ''
+      };
 
-  useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < redaccionIA.length) {
-        setDisplayedText(redaccionIA.substring(0, index + 1));
-        setProgress((index / redaccionIA.length) * 100);
-        index++;
-      } else {
-        clearInterval(interval);
+      if (categoria === 'nutricionales') {
+        categoriasLimpias['anorexia'] = false;
+        categoriasLimpias['bulimia'] = false;
+        categoriasLimpias['sobrepeso'] = false;
+        categoriasLimpias['obesidad'] = false;
+      } else if (categoria === 'cardiacos') {
+        categoriasLimpias['enfermedadCoronaria'] = false;
+        categoriasLimpias['arritmias'] = false;
+        categoriasLimpias['defectosCardiacosCongenitos'] = false;
+      } else if (categoria === 'hepaticos') {
+        categoriasLimpias['hepatitisA'] = false;
+        categoriasLimpias['hepatitisB'] = false;
+        categoriasLimpias['hepatitisC'] = false;
+        categoriasLimpias['higadoGraso'] = false;
+        categoriasLimpias['cirrosis'] = false;
+      } else if (categoria === 'enfermedadesTransmisionSexual') {
+        categoriasLimpias['vih'] = false;
+        categoriasLimpias['sifilis'] = false;
+        categoriasLimpias['gonorrea'] = false;
+        categoriasLimpias['herpesGenital'] = false;
+        categoriasLimpias['vph'] = false;
+      } else if (categoria === 'enfermedadesEruptivas') {
+        categoriasLimpias['sarampion'] = false;
+        categoriasLimpias['rubeola'] = false;
+        categoriasLimpias['escarlatina'] = false;
+        categoriasLimpias['varicela'] = false;
+        categoriasLimpias['paperas'] = false;
+      } else if (categoria === 'pulmonares') {
+        categoriasLimpias['neumonia'] = false;
+        categoriasLimpias['bronquitis'] = false;
+        categoriasLimpias['asma'] = false;
+        categoriasLimpias['epoc'] = false;
+      } else if (categoria === 'infecciosasParasitarias') {
+        categoriasLimpias['fiebreTifoidea'] = false;
+        categoriasLimpias['tuberculosis'] = false;
+        categoriasLimpias['amibiasis'] = false;
+        categoriasLimpias['giardiasis'] = false;
+        categoriasLimpias['ascariasis'] = false;
       }
-    }, 15);
 
-    return () => clearInterval(interval);
-  }, [redaccionIA]);
+      handleAntecedentePatologicoChange(categoria, categoriasLimpias);
+    });
+
+    setShowForm(true);
+    setRedacciones({
+      nutricionales: "",
+      cardiacos: "",
+      hepaticos: "",
+      enfermedadesTransmisionSexual: "",
+      enfermedadesEruptivas: "",
+      pulmonares: "",
+      infecciosasParasitarias: "",
+      otrosPadecimientos: ""
+    });
+    setProgress(0);
+    setSinPatologia(false);
+  };
+
+  const OpcionPatologica = ({
+    categoria,
+    valor,
+    etiqueta
+  }: {
+    categoria: string,
+    valor: string,
+    etiqueta: string
+  }) => {
+    const isChecked = formData.antecedentesPersonalesPatologicos[categoria]?.[valor] || false;
+
+    return (
+      <button
+        type="button"
+        onClick={() => seleccionarOpcion(categoria, valor, !isChecked)}
+        className={`px-3 py-1.5 rounded-md text-xs transition-all ${
+          isChecked
+            ? "bg-blue-500 text-white shadow-md"
+            : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+        }`}
+      >
+        {etiqueta}
+      </button>
+    );
+  };
+
+  const CategoriaPatologica = ({
+    categoria,
+    titulo,
+    opciones
+  }: {
+    categoria: string,
+    titulo: string,
+    opciones: { valor: string, etiqueta: string }[]
+  }) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, [formData.antecedentesPersonalesPatologicos[categoria]?.otra]);
+
+    return (
+      <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia ? "hidden" : ""}`}>
+        <h4 className="text-lg font-semibold mb-3">{titulo}</h4>
+
+        <div className="flex flex-wrap gap-2">
+          {opciones.map(opcion => (
+            <OpcionPatologica
+              key={opcion.valor}
+              categoria={categoria}
+              valor={opcion.valor}
+              etiqueta={opcion.etiqueta}
+            />
+          ))}
+
+          <OpcionPatologica
+            categoria={categoria}
+            valor="ninguna"
+            etiqueta="Ninguna"
+          />
+
+          <OpcionPatologica
+            categoria={categoria}
+            valor="otra"
+            etiqueta="Otra"
+          />
+
+          {formData.antecedentesPersonalesPatologicos[categoria]?.otra && (
+            <div className="w-full mt-2">
+              <Input
+                placeholder="Especificar otra condición..."
+                value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
+                onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
+                className="w-full"
+                ref={inputRef}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
@@ -238,14 +466,14 @@ const AntecedentesPersonalesPatologicos = ({
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
               <button
-                onClick={() => setShowRedaccion(false)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+                onClick={() => setShowForm(true)}
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
                 Formulario
               </button>
               <button
-                onClick={() => setShowRedaccion(true)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+                onClick={() => setShowForm(false)}
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
                 Redacción IA
               </button>
@@ -253,284 +481,418 @@ const AntecedentesPersonalesPatologicos = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
+            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
               <Minus className="w-4 h-4" />
             </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" aria-label={isMaximized ? "Restaurar" : "Maximizar"}>
+            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
               <Maximize2 className="w-4 h-4" />
             </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" aria-label="Cerrar">
+            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
               <X className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        <div className="flex justify-start px-6 py-2">
+        <div ref={redaccionesRef} className="flex justify-start px-6 py-2">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">IV.</span> ANTECEDENTES PERSONALES PATOLÓGICOS
           </h2>
         </div>
 
-        {!isMinimized && (
-          <>
-            {showRedaccion ? (
-              <div ref={redaccionRef} className="p-6">
-                <label className="font-mono text-sm font-medium text-gray-800">
-                  Redacción IA...
-                </label>
-                <div
-                  className="progress-bar-container"
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#d3d3d3',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    marginBottom: '1rem',
-                    boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)',
-                  }}
-                >
-                  <div
-                    className="progress-bar"
-                    style={{
-                      height: '8px',
-                      backgroundColor: '#34c759',
-                      transition: 'width 0.015s ease-in-out',
-                      width: `${progress}%`,
-                      borderRadius: '12px',
-                    }}
-                  ></div>
+        {!isMinimized && <div className="p-6" ref={formRef}>
+          {showForm ? (
+            <div className="space-y-6">
+              <div
+                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
+                onClick={handleSinPatologiaChange}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-blue-500" />
+                    <Label className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
+                      Paciente sin patologías
+                      {sinPatologia ? (
+                        <span className="ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <EyeOff className="h-3 w-3" />
+                          Secciones ocultas
+                        </span>
+                      ) : (
+                        <span className="ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <Eye className="h-3 w-3" />
+                          Secciones visibles
+                        </span>
+                      )}
+                    </Label>
+                  </div>
+                  <Switch
+                    id="sin-patologia"
+                    checked={sinPatologia}
+                    onCheckedChange={handleSinPatologiaChange}
+                    className="data-[state=checked]:bg-blue-500"
+                    onClick={(e) => e.stopPropagation()}
+                  />
                 </div>
-                <div
-                  className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 rounded-md"
-                  style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-                >
-                  {displayedText}
-                </div>
+              </div>
 
+              {!sinPatologia && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <CategoriaPatologica
+                    categoria="nutricionales"
+                    titulo="Nutricionales"
+                    opciones={[
+                      { valor: "anorexia", etiqueta: "Anorexia" },
+                      { valor: "bulimia", etiqueta: "Bulimia" },
+                      { valor: "sobrepeso", etiqueta: "Sobrepeso" },
+                      { valor: "obesidad", etiqueta: "Obesidad" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="cardiacos"
+                    titulo="Cardíacos"
+                    opciones={[
+                      { valor: "enfermedadCoronaria", etiqueta: "Enfermedad coronaria" },
+                      { valor: "arritmias", etiqueta: "Arritmias" },
+                      { valor: "defectosCardiacosCongenitos", etiqueta: "Defectos cardíacos congénitos" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="hepaticos"
+                    titulo="Hepáticos"
+                    opciones={[
+                      { valor: "hepatitisA", etiqueta: "Hepatitis A" },
+                      { valor: "hepatitisB", etiqueta: "Hepatitis B" },
+                      { valor: "hepatitisC", etiqueta: "Hepatitis C" },
+                      { valor: "higadoGraso", etiqueta: "Hígado graso" },
+                      { valor: "cirrosis", etiqueta: "Cirrosis" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="enfermedadesTransmisionSexual"
+                    titulo="Enfermedades de Transmisión Sexual"
+                    opciones={[
+                      { valor: "vih", etiqueta: "VIH/SIDA" },
+                      { valor: "sifilis", etiqueta: "Sífilis" },
+                      { valor: "gonorrea", etiqueta: "Gonorrea" },
+                      { valor: "herpesGenital", etiqueta: "Herpes genital" },
+                      { valor: "vph", etiqueta: "VPH" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="enfermedadesEruptivas"
+                    titulo="Enfermedades Eruptivas de la Infancia"
+                    opciones={[
+                      { valor: "sarampion", etiqueta: "Sarampión" },
+                      { valor: "rubeola", etiqueta: "Rubéola" },
+                      { valor: "escarlatina", etiqueta: "Escarlatina" },
+                      { valor: "varicela", etiqueta: "Varicela" },
+                      { valor: "paperas", etiqueta: "Parotiditis (paperas)" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="pulmonares"
+                    titulo="Pulmonares"
+                    opciones={[
+                      { valor: "neumonia", etiqueta: "Neumonía" },
+                      { valor: "bronquitis", etiqueta: "Bronquitis" },
+                      { valor: "asma", etiqueta: "Asma" },
+                      { valor: "epoc", etiqueta: "EPOC" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="infecciosasParasitarias"
+                    titulo="Enfermedades Infecciosas y Parasitarias"
+                    opciones={[
+                      { valor: "fiebreTifoidea", etiqueta: "Fiebre tifoidea" },
+                      { valor: "tuberculosis", etiqueta: "Tuberculosis" },
+                      { valor: "amibiasis", etiqueta: "Amibiasis" },
+                      { valor: "giardiasis", etiqueta: "Giardiasis" },
+                      { valor: "ascariasis", etiqueta: "Ascariasis" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="otrosPadecimientos"
+                    titulo="Otros Padecimientos Sistémicos"
+                    opciones={[
+                      { valor: "especificar", etiqueta: "Especificar" }
+                    ]}
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-center gap-4 mt-6">
                 <Button
-                  onClick={handleCopy}
-                  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
+                  onClick={generarRedaccionIA}
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
-                  <Copy className="w-4 h-4" />
-                  <span>Copiar Redacción</span>
-                  {copied && (
-                    <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>Copiado</span>
-                    </div>
-                  )}
+                  Generar Redacción IA
+                </Button>
+                <Button
+                  onClick={limpiarFormulario}
+                  variant="outline"
+                  className="border-gray-300 text-gray-700 dark:text-gray-300"
+                >
+                  Limpiar Formulario
                 </Button>
               </div>
-            ) : (
-              <div className="p-6 space-y-6">
-                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">Enfermedades Transmisibles</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {enfermedadesTrasmisibles.map((enfermedad) => (
-                      <div key={enfermedad.id} className="flex items-center space-x-2">
-                        <Switch
-                          id={`et-${enfermedad.id}`}
-                          checked={formData.antecedentesPersonalesPatologicos.enfermedadesTrasmisibles[enfermedad.id] || false}
-                          onCheckedChange={(checked) => handleAntecedentePatologicoChange(`enfermedadesTrasmisibles.${enfermedad.id}`, checked)}
-                        />
-                        <label
-                          htmlFor={`et-${enfermedad.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {enfermedad.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">Enfermedades Crónico-Degenerativas</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {enfermedadesNoTrasmisibles.map((enfermedad) => (
-                      <div key={enfermedad.id} className="flex items-center space-x-2">
-                        <Switch
-                          id={`ent-${enfermedad.id}`}
-                          checked={formData.antecedentesPersonalesPatologicos.enfermedadesNoTrasmisibles[enfermedad.id] || false}
-                          onCheckedChange={(checked) => handleAntecedentePatologicoChange(`enfermedadesNoTrasmisibles.${enfermedad.id}`, checked)}
-                        />
-                        <label
-                          htmlFor={`ent-${enfermedad.id}`}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {enfermedad.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-                  <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-4">Información Adicional</h3>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">¿Recibe tratamiento médico actualmente?</label>
-                      <div className="flex space-x-4">
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            id="tratamiento-si"
-                            name="tratamiento"
-                            value="Si"
-                            checked={formData.antecedentesPersonalesPatologicos.tratamientoActual === 'Si'}
-                            onChange={() => handleAntecedentePatologicoChange('tratamientoActual', 'Si')}
-                            className="mr-2"
-                          />
-                          <label htmlFor="tratamiento-si">Sí</label>
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            id="tratamiento-no"
-                            name="tratamiento"
-                            value="No"
-                            checked={formData.antecedentesPersonalesPatologicos.tratamientoActual === 'No'}
-                            onChange={() => handleAntecedentePatologicoChange('tratamientoActual', 'No')}
-                            className="mr-2"
-                          />
-                          <label htmlFor="tratamiento-no">No</label>
-                        </div>
-                      </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {progress === 100 && (
+                <>
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Nutricionales</h4>
+                      <button
+                        onClick={() => handleCopy('nutricionales')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.nutricionales ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
                     </div>
-                    
-                    {formData.antecedentesPersonalesPatologicos.tratamientoActual === 'Si' && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">¿Cuál tratamiento?</label>
-                        <Textarea
-                          placeholder="Describa el tratamiento médico actual..."
-                          value={formData.antecedentesPersonalesPatologicos.cualTratamiento}
-                          onChange={(e) => handleAntecedentePatologicoChange('cualTratamiento', e.target.value)}
-                          className="w-full min-h-[80px]"
-                        />
-                      </div>
-                    )}
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">¿Hospitalizaciones previas?</label>
-                      <div className="flex space-x-4">
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            id="hospitalizacion-si"
-                            name="hospitalizacion"
-                            value="Si"
-                            checked={formData.antecedentesPersonalesPatologicos.hospitalizacionesPrevias === 'Si'}
-                            onChange={() => handleAntecedentePatologicoChange('hospitalizacionesPrevias', 'Si')}
-                            className="mr-2"
-                          />
-                          <label htmlFor="hospitalizacion-si">Sí</label>
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            id="hospitalizacion-no"
-                            name="hospitalizacion"
-                            value="No"
-                            checked={formData.antecedentesPersonalesPatologicos.hospitalizacionesPrevias === 'No'}
-                            onChange={() => handleAntecedentePatologicoChange('hospitalizacionesPrevias', 'No')}
-                            className="mr-2"
-                          />
-                          <label htmlFor="hospitalizacion-no">No</label>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {formData.antecedentesPersonalesPatologicos.hospitalizacionesPrevias === 'Si' && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Razón de la hospitalización:</label>
-                        <Textarea
-                          placeholder="Describa la razón de la hospitalización..."
-                          value={formData.antecedentesPersonalesPatologicos.razonHospitalizacion}
-                          onChange={(e) => handleAntecedentePatologicoChange('razonHospitalizacion', e.target.value)}
-                          className="w-full min-h-[80px]"
-                        />
-                      </div>
-                    )}
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">¿Transfusiones sanguíneas?</label>
-                      <div className="flex space-x-4">
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            id="transfusion-si"
-                            name="transfusion"
-                            value="Si"
-                            checked={formData.antecedentesPersonalesPatologicos.transfusionesSanguineas === 'Si'}
-                            onChange={() => handleAntecedentePatologicoChange('transfusionesSanguineas', 'Si')}
-                            className="mr-2"
-                          />
-                          <label htmlFor="transfusion-si">Sí</label>
-                        </div>
-                        <div className="flex items-center">
-                          <input
-                            type="radio"
-                            id="transfusion-no"
-                            name="transfusion"
-                            value="No"
-                            checked={formData.antecedentesPersonalesPatologicos.transfusionesSanguineas === 'No'}
-                            onChange={() => handleAntecedentePatologicoChange('transfusionesSanguineas', 'No')}
-                            className="mr-2"
-                          />
-                          <label htmlFor="transfusion-no">No</label>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {formData.antecedentesPersonalesPatologicos.transfusionesSanguineas === 'Si' && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Razón de la transfusión:</label>
-                        <Textarea
-                          placeholder="Describa la razón de la transfusión..."
-                          value={formData.antecedentesPersonalesPatologicos.razonTransfusion}
-                          onChange={(e) => handleAntecedentePatologicoChange('razonTransfusion', e.target.value)}
-                          className="w-full min-h-[80px]"
-                        />
-                      </div>
-                    )}
+                    <Textarea
+                      id="nutricionales"
+                      value={redacciones.nutricionales}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
                   </div>
-                </div>
-              </div>
-            )}
 
-            {!showRedaccion && (
-              <div className="p-6 flex justify-center gap-4">
-                <Button onClick={validarYGenerarRedaccion} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
-                  <span>Generar Redacción IA</span>
-                </Button>
-                <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
-                  <Eraser className="w-4 h-4" />
-                  <span>Limpiar Formulario</span>
-                </Button>
-              </div>
-            )}
-          </>
-        )}
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Cardíacos</h4>
+                      <button
+                        onClick={() => handleCopy('cardiacos')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.cardiacos ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="cardiacos"
+                      value={redacciones.cardiacos}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Hepáticos</h4>
+                      <button
+                        onClick={() => handleCopy('hepaticos')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.hepaticos ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="hepaticos"
+                      value={redacciones.hepaticos}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Enfermedades de Transmisión Sexual</h4>
+                      <button
+                        onClick={() => handleCopy('enfermedadesTransmisionSexual')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.enfermedadesTransmisionSexual ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="enfermedadesTransmisionSexual"
+                      value={redacciones.enfermedadesTransmisionSexual}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Enfermedades Eruptivas de la Infancia</h4>
+                      <button
+                        onClick={() => handleCopy('enfermedadesEruptivas')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.enfermedadesEruptivas ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="enfermedadesEruptivas"
+                      value={redacciones.enfermedadesEruptivas}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Pulmonares</h4>
+                      <button
+                        onClick={() => handleCopy('pulmonares')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.pulmonares ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="pulmonares"
+                      value={redacciones.pulmonares}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Enfermedades Infecciosas y Parasitarias</h4>
+                      <button
+                        onClick={() => handleCopy('infecciosasParasitarias')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.infecciosasParasitarias ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="infecciosasParasitarias"
+                      value={redacciones.infecciosasParasitarias}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Otros Padecimientos Sistémicos</h4>
+                      <button
+                        onClick={() => handleCopy('otrosPadecimientos')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.otrosPadecimientos ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="otrosPadecimientos"
+                      value={redacciones.otrosPadecimientos}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="flex justify-center">
+                    <Button
+                      onClick={() => setShowForm(true)}
+                      variant="outline"
+                      className="border-gray-300 text-gray-700 dark:text-gray-300"
+                    >
+                      Volver al Formulario
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>}
       </Card>
-      
-      <ConfirmationAlert
-        open={alertOpen}
-        onOpenChange={setAlertOpen}
-        title="Información incompleta"
-        description={
-          <div>
-            <p className="mb-2">Se han detectado las siguientes inconsistencias en la información:</p>
-            <ul className="list-disc pl-5 space-y-1">
-              {camposFaltantes.map((campo, index) => (
-                <li key={index} className="text-red-500">{campo}</li>
-              ))}
-            </ul>
-            <p className="mt-2">¿Desea continuar aún con esta información incompleta?</p>
-          </div>
-        }
-        onConfirm={generarRedaccionIA}
-      />
     </div>
   );
 };

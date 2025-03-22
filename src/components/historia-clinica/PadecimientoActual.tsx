@@ -8,9 +8,6 @@ import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
-import { ConfirmationAlert } from "@/components/ui/confirmation-alert";
-import { AlertDialog, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-
 interface PadecimientoActualProps {
   formData: {
     padecimientoActual: {
@@ -36,7 +33,6 @@ interface PadecimientoActualProps {
   handleDolorChange: (field: string, value: any) => void;
   handleSinSintomasChange: (checked: boolean) => void;
 }
-
 function revisarRedaccion(text: string): string {
   let textoCorregido = text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
   const frasesRedundantes = [{
@@ -74,7 +70,6 @@ function revisarRedaccion(text: string): string {
   textoCorregido = textoCorregido.replace(/provocado por/gi, 'provocada por').replace(/aparece en/gi, 'aparece cuando').replace(/se ha observado que/gi, 'se observa que').replace(/presenta un dolor/gi, 'manifiesta dolor').replace(/tiene dolor/gi, 'presenta dolor').replace(/el dolor es/gi, 'el dolor se caracteriza por ser');
   return textoCorregido;
 }
-
 function formatearTexto(text: string): string {
   let textoFormateado = text.replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>').replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
   const sections = textoFormateado.split('<strong>Historia del padecimiento:</strong>');
@@ -86,7 +81,6 @@ function formatearTexto(text: string): string {
   textoFormateado = textoFormateado.replace(/\n\s*\n\s*\n/g, '\n\n');
   return textoFormateado;
 }
-
 const PadecimientoActual = ({
   formData,
   handlePadecimientoChange,
@@ -101,15 +95,11 @@ const PadecimientoActual = ({
   const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
   const [showCausasProvocado, setShowCausasProvocado] = useState(formData.padecimientoActual.dolor.condicionAparicion === 'provocado');
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [camposFaltantes, setCamposFaltantes] = useState<string[]>([]);
   const redaccionRef = useRef(null);
-  
   const defaultMotivoConsulta = "El paciente acude a consulta por ";
   const motivosEjemplo = ["dolor dental intenso en molar superior derecho...", "sangrado de encías al cepillarse...", "revisión y limpieza dental de rutina...", "sensibilidad al frío y calor en dientes anteriores...", "inflamación y dolor en zona de muelas del juicio...", "aplicación de resina en diente fracturado...", "evaluación para tratamiento de ortodoncia...", "manchas oscuras en los dientes frontales...", "mal aliento persistente...", "dolor al masticar alimentos..."];
   const defaultCausaProvocado = "Provocado con ";
   const causasProvocadoEjemplo = ["alimentos fríos o helados en contacto con el diente...", "la presión durante la masticación de alimentos duros...", "bebidas calientes que generan dolor inmediato...", "el cepillado en la zona vestibular de los premolares...", "dulces y alimentos azucarados que desencadenan molestias..."];
-  
   useEffect(() => {
     if (!formData.padecimientoActual.motivoConsulta) {
       handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
@@ -118,86 +108,22 @@ const PadecimientoActual = ({
       handleDolorChange("causaProvocado", defaultCausaProvocado);
     }
   }, []);
-
-  const validarFormulario = () => {
-    const faltantes = [];
-    
-    // Verificar que el motivo de consulta no esté vacío o sea solo el texto predeterminado
-    if (!formData.padecimientoActual.motivoConsulta || 
-        formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta) {
-      faltantes.push("Motivo de consulta");
-    }
-    
-    // Si no tiene síntomas, no es necesario validar más campos
-    if (!formData.padecimientoActual.sinSintomas) {
-      // Validar campos de dolor
-      const { dolor } = formData.padecimientoActual;
-      
-      if (!dolor.fechaInicio) {
-        faltantes.push("Fecha de inicio del dolor");
-      }
-      
-      if (!dolor.condicionAparicion) {
-        faltantes.push("Condición de aparición del dolor");
-      }
-      
-      if (!dolor.frecuencia) {
-        faltantes.push("Frecuencia del dolor");
-      }
-      
-      if (!dolor.caracter) {
-        faltantes.push("Carácter del dolor");
-      }
-      
-      if (!dolor.intensidad) {
-        faltantes.push("Intensidad del dolor");
-      }
-      
-      if (!dolor.localizacion.descripcion) {
-        faltantes.push("Localización del dolor");
-      }
-      
-      // Verificar causaProvocado solo si la condición es "provocado"
-      if (dolor.condicionAparicion === 'provocado' && 
-          (!dolor.causaProvocado || dolor.causaProvocado === defaultCausaProvocado)) {
-        faltantes.push("Causa del dolor provocado");
-      }
-    }
-    
-    return faltantes;
-  };
-
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
   };
-  
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
     setIsMinimized(false);
   };
-  
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
   };
-  
-  const generarRedaccionConValidacion = () => {
-    const camposFaltantes = validarFormulario();
-    
-    if (camposFaltantes.length > 0) {
-      setCamposFaltantes(camposFaltantes);
-      setAlertOpen(true);
-    } else {
-      generarRedaccionIA();
-    }
-  };
-  
   const generarRedaccionIA = () => {
     const motivoConsulta = formData.padecimientoActual.motivoConsulta.trim();
     const sinSintomas = formData.padecimientoActual.sinSintomas;
     let textoGenerado = "";
-    
     if (sinSintomas) {
       textoGenerado = `Motivo de consulta:
 ${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
@@ -214,28 +140,22 @@ Actualmente no refiere sintomatología`;
         atenuacion,
         causaProvocado
       } = formData.padecimientoActual.dolor;
-      
       textoGenerado = `Motivo de consulta:
 ${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
 
 Historia del padecimiento:
 El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'}`;
-      
       if (condicionAparicion === 'provocado' && causaProvocado) {
         textoGenerado += `, siendo provocado específicamente por ${causaProvocado}`;
       }
-      
       if (atenuacion) {
         textoGenerado += `. Se ha observado que ${atenuacion}`;
       }
     }
-    
     const textoRevisado = revisarRedaccion(textoGenerado);
     const textoFinal = formatearTexto(textoRevisado);
-    
     setRedaccionIA(textoFinal);
     setShowRedaccion(true);
-    
     setTimeout(() => {
       redaccionRef.current?.scrollIntoView({
         behavior: 'smooth',
@@ -246,7 +166,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
       }, 300);
     }, 100);
   };
-
   const limpiarFormulario = () => {
     handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
     handlePadecimientoChange("historiaPadecimiento", "");
@@ -266,7 +185,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     setShowRedaccion(false);
     setShowCausasProvocado(false);
   };
-
   const handleCopy = async () => {
     await navigator.clipboard.writeText(redaccionIA);
     setCopied(true);
@@ -274,7 +192,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
       setCopied(false);
     }, 2000);
   };
-
   useEffect(() => {
     let index = 0;
     const interval = setInterval(() => {
@@ -286,10 +203,8 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
         clearInterval(interval);
       }
     }, 15);
-
     return () => clearInterval(interval);
   }, [redaccionIA]);
-
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -404,7 +319,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
           </div>}
 
         {!showRedaccion && <div className="p-6 flex justify-center gap-4">
-            <Button onClick={generarRedaccionConValidacion} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
+            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
               <span>Generar Redacción IA</span>
             </Button>
             <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
@@ -413,25 +328,6 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
             </Button>
           </div>}
       </Card>
-
-      <ConfirmationAlert
-        open={alertOpen}
-        onOpenChange={setAlertOpen}
-        title="Faltan datos por completar"
-        description={
-          <div>
-            <p className="mb-2">Para generar una redacción completa y precisa, se recomienda completar los siguientes campos:</p>
-            <ul className="list-disc pl-5 space-y-1">
-              {camposFaltantes.map((campo, index) => (
-                <li key={index} className="text-red-500">{campo}</li>
-              ))}
-            </ul>
-            <p className="mt-2">¿Desea continuar con la generación de la redacción sin completar estos campos?</p>
-          </div>
-        }
-        onConfirm={generarRedaccionIA}
-      />
     </div>;
 };
-
 export default PadecimientoActual;
