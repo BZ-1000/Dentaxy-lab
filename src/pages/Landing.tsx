@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle } from 'lucide-react';
@@ -10,7 +11,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { Checkbox } from "@/components/ui/checkbox";
-import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza, InterrogatorioSistemas, InformacionPrincipal } from '@/types/historiaClinica';
+import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza } from '@/types/historiaClinica';
 
 // Types for missing imports
 type InterrogatorioSistemas = any;
@@ -517,7 +518,7 @@ const Landing = () => {
           </div>
 
           <div className="mb-12">
-            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle hover:scale-110 transition-transform">
+            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-emerald-400 text-xl font-bold bg-emerald-500 text-gray-50 animate-wiggle transform transition-all duration-300 hover:scale-125">
               PRUEBA BETA
             </button>
           </div>
