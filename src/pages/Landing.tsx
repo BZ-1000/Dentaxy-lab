@@ -317,6 +317,38 @@ const Landing = () => {
     window.open('https://instagram.com/dentalbasicsacademy', '_blank');
   };
   
+  const handleSaveUsername = async () => {
+    if (!username.trim() || !acceptTerms || !acceptPrivacy) {
+      toast.error('Por favor complete todos los campos requeridos');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (!session) {
+        throw new Error('No session found');
+      }
+      
+      const { error } = await supabase
+        .from('user_profiles')
+        .upsert({
+          id: session.user.id,
+          username: username.trim(),
+          created_at: new Date().toISOString()
+        });
+        
+      if (error) throw error;
+      
+      setShowPopup(false);
+      toast.success('Nombre de usuario guardado exitosamente');
+    } catch (error: any) {
+      console.error('Error saving username:', error);
+      toast.error('Error al guardar nombre de usuario: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
   if (loading) return <LoadingScreen visible={loading} />;
   
   return <div className="min-h-screen w-full bg-white apple-minimalist">
