@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Mail, Phone, MapPin, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, Instagram } from 'lucide-react';
 import BottomMenu from '@/components/BottomMenu';
 
 const Contact = () => {
@@ -46,19 +46,19 @@ const Contact = () => {
     {
       icon: Mail,
       title: "Email",
-      details: "soporte@dentaxy.ai",
-      link: "mailto:soporte@dentaxy.ai"
+      details: "dentalbasicsacademy@dentaxy.com",
+      link: "mailto:dentalbasicsacademy@dentaxy.com"
     },
     {
-      icon: Phone,
-      title: "Teléfono",
-      details: "+52 555 123 4567",
-      link: "tel:+525551234567"
+      icon: Instagram,
+      title: "Instagram",
+      details: "@dentaxy.ai",
+      link: "https://instagram.com/dentaxy.ai"
     },
     {
       icon: MapPin,
       title: "Oficinas",
-      details: "Ciudad de México, México",
+      details: "Guadalupe, Zacatecas",
       link: "https://maps.google.com"
     }
   ];
