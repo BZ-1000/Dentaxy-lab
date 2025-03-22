@@ -15,6 +15,7 @@ import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPers
 // Types for missing imports
 type InterrogatorioSistemas = any;
 type InformacionPrincipal = any;
+
 const menuItems = [{
   label: "Nosotros",
   href: "/about"
@@ -58,6 +59,7 @@ const LoadingScreen = ({
       </div>
     </div>;
 };
+
 const Landing = () => {
   const navigate = useNavigate();
   const [mounted, setMounted] = useState(false);
@@ -81,7 +83,14 @@ const Landing = () => {
   // Add new state for terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  
   useEffect(() => {
+    // Load username from localStorage first
+    const storedUsername = localStorage.getItem('dentaxy_username');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+
     const timer = setTimeout(() => {
       setLoading(false);
       setMounted(true);
@@ -116,8 +125,17 @@ const Landing = () => {
       subscription.unsubscribe();
     };
   }, []);
+  
   const checkUsername = async (userId: string) => {
     try {
+      // Check if we already have the username in localStorage
+      const storedUsername = localStorage.getItem('dentaxy_username');
+      if (storedUsername) {
+        setUsername(storedUsername);
+        setShowPopup(false);
+        return;
+      }
+
       const {
         data,
         error
@@ -127,6 +145,9 @@ const Landing = () => {
       }
       if (data?.username) {
         setUsername(data.username);
+        // Store username in localStorage to avoid future prompts
+        localStorage.setItem('dentaxy_username', data.username);
+        setShowPopup(false);
       } else {
         setShowPopup(true);
       }
@@ -134,6 +155,7 @@ const Landing = () => {
       console.error('Error checking username:', error);
     }
   };
+  
   const checkUserPlan = async (userId: string) => {
     try {
       const {
@@ -209,10 +231,12 @@ const Landing = () => {
     setHasBetaPlan(false);
     toast.success('Sesión cerrada exitosamente');
   };
+
   const handleChangeUsername = () => {
     setShowPopup(true);
     setShowDropdown(false);
   };
+  
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -378,6 +402,9 @@ const Landing = () => {
         }
       }
 
+      // Save username to localStorage to prevent future prompts
+      localStorage.setItem('dentaxy_username', username.trim());
+
       // Success path - username was saved
       toast.success('Nombre de usuario guardado exitosamente');
       console.log('Username saved successfully, closing popup');
@@ -393,6 +420,7 @@ const Landing = () => {
       setLoading(false);
     }
   };
+  
   if (loading && !mounted) return <LoadingScreen visible={loading} />;
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
@@ -683,4 +711,5 @@ const Landing = () => {
     })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
     </div>;
 };
+
 export default Landing;
