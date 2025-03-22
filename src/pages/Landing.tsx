@@ -510,9 +510,9 @@ const Landing = () => {
             DENTAXY
             <Typewriter 
               text={[".ai", ".com"]} 
-              speed={100} 
-              deleteSpeed={80} 
-              delay={1500}
+              speed={250}         // Slowed down from 100 to 250
+              deleteSpeed={180}   // Slowed down from 80 to 180
+              delay={2000}        // Increased delay from 1500 to 2000
               loop={true}
               className="text-blue-500"
             />
