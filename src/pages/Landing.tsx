@@ -329,7 +329,7 @@ const Landing = () => {
     window.open('https://instagram.com/dentalbasicsacademy', '_blank');
   };
   
-  // Fixed saveUsername function with proper error handling
+  // Completely revised handleSaveUsername function to fix the username update issue
   const handleSaveUsername = async () => {
     if (!username.trim() || !acceptTerms || !acceptPrivacy) {
       toast.error('Por favor complete todos los campos requeridos');
@@ -343,7 +343,7 @@ const Landing = () => {
       
       setLoading(true);
       
-      // First check if username already exists
+      // Check if username already exists for OTHER users
       const { data: existingUser, error: checkError } = await supabase
         .from('user_profiles')
         .select('username')
@@ -351,9 +351,9 @@ const Landing = () => {
         .neq('id', session.user.id) // Exclude current user from check
         .maybeSingle();
       
-      if (checkError && checkError.code !== 'PGRST116') {
+      if (checkError) {
         console.error('Error checking username:', checkError);
-        throw checkError;
+        throw new Error('Error al verificar disponibilidad del nombre de usuario');
       }
       
       if (existingUser) {
@@ -362,22 +362,38 @@ const Landing = () => {
         return;
       }
       
-      // If username doesn't exist, proceed with upsert
-      const { error } = await supabase
+      // Get current profile to check if it exists
+      const { data: currentProfile } = await supabase
         .from('user_profiles')
-        .upsert({
-          id: session.user.id,
-          username: username.trim(),
-          created_at: new Date().toISOString()
-        });
-        
-      if (error) throw error;
+        .select('id')
+        .eq('id', session.user.id)
+        .maybeSingle();
+      
+      // If profile exists, update it, otherwise insert new profile
+      if (currentProfile) {
+        const { error: updateError } = await supabase
+          .from('user_profiles')
+          .update({ username: username.trim() })
+          .eq('id', session.user.id);
+          
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('user_profiles')
+          .insert({
+            id: session.user.id,
+            username: username.trim(),
+            created_at: new Date().toISOString()
+          });
+          
+        if (insertError) throw insertError;
+      }
       
       toast.success('Nombre de usuario guardado exitosamente');
       setShowPopup(false); // Close popup after successful save
     } catch (error: any) {
       console.error('Error saving username:', error);
-      toast.error('Error al guardar nombre de usuario: ' + error.message);
+      toast.error('Error al guardar nombre de usuario: ' + (error.message || 'Error desconocido'));
     } finally {
       setLoading(false);
     }
