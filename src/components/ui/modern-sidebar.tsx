@@ -93,7 +93,7 @@ export const DesktopSidebar = ({
       animate={{
         width: sidebarWidth
       }}
-      style={{ width: sidebarWidth }}
+      style={{ width: sidebarWidth as string }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       {...props}

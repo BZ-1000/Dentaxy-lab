@@ -1,14 +1,12 @@
-
-import type { Config } from "tailwindcss";
-
-export default {
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   darkMode: ["class"],
   content: [
-    "./pages/**/*.{ts,tsx}",
-    "./components/**/*.{ts,tsx}",
-    "./app/**/*.{ts,tsx}",
-    "./src/**/*.{ts,tsx}",
-  ],
+    './pages/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}',
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}',
+	],
   prefix: "",
   theme: {
     container: {
@@ -19,28 +17,19 @@ export default {
       },
     },
     extend: {
-      fontFamily: {
-        'mplus': ['"M PLUS 1p"', 'serif'],
-        'knewave': ['"Knewave"', 'serif'],
-      },
       colors: {
-        "color-1": "hsl(var(--color-1))",
-        "color-2": "hsl(var(--color-2))",
-        "color-3": "hsl(var(--color-3))",
-        "color-4": "hsl(var(--color-4))",
-        "color-5": "hsl(var(--color-5))",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#2563EB",
-          foreground: "#FFFFFF",
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
-          DEFAULT: "#4ADE80",
-          foreground: "#FFFFFF",
+          DEFAULT: "hsl(var(--secondary))",
+          foreground: "hsl(var(--secondary-foreground))",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
@@ -62,6 +51,12 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        sidebar: "hsl(var(--sidebar))",
+        "sidebar-foreground": "hsl(var(--sidebar-foreground))",
+        "sidebar-border": "hsl(var(--sidebar-border))",
+        "sidebar-ring": "hsl(var(--sidebar-ring))",
+        "sidebar-accent": "hsl(var(--sidebar-accent))",
+        "sidebar-accent-foreground": "hsl(var(--sidebar-accent-foreground))",
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -77,47 +72,17 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        float: {
-          "0%, 100%": { transform: "translateY(0)" },
-          "50%": { transform: "translateY(-10px)" },
-        },
-        glow: {
-          "0%, 100%": {
-            textShadow: "0 0 30px rgba(37,99,235,0.5), 0 0 60px rgba(37,99,235,0.3)",
-          },
-          "50%": {
-            textShadow: "0 0 15px rgba(37,99,235,0.5), 0 0 30px rgba(37,99,235,0.3)",
-          },
-        },
-        rainbow: {
-          "0%": { "background-position": "0%" },
-          "100%": { "background-position": "200%" },
-        },
         wiggle: {
-          '0%, 7%': { transform: 'rotateZ(0)' },
-          '15%': { transform: 'rotateZ(-15deg)' },
-          '20%': { transform: 'rotateZ(10deg)' },
-          '25%': { transform: 'rotateZ(-10deg)' },
-          '30%': { transform: 'rotateZ(6deg)' },
-          '35%': { transform: 'rotateZ(-4deg)' },
-          '40%, 100%': { transform: 'rotateZ(0)' }
+          '0%, 100%': { transform: 'rotate(-3deg)' },
+          '50%': { transform: 'rotate(3deg)' },
         },
-        scaleClick: {
-          '0%': { transform: 'scale(1)' },
-          '50%': { transform: 'scale(1.2)' },
-          '100%': { transform: 'scale(1)' }
-        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        float: "float 3s ease-in-out infinite",
-        glow: "glow 3s ease-in-out infinite",
-        rainbow: "rainbow var(--speed, 2s) infinite linear",
-        wiggle: 'wiggle 2s linear infinite',
-        scaleClick: 'scaleClick 0.5s ease-in-out'
+        "wiggle": "wiggle 3s ease-in-out infinite", // Slowed down from original timing
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+}
