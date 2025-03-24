@@ -537,18 +537,18 @@ const Landing = () => {
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
               <AntecedentesPersonalesPatologicos formData={{
-              antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-              padecimientoActual: {} as PadecimientoActual,
-              antecedentesHeredoFamiliares: {} as AntecedentesHeredoFamiliares,
-              antecedentesPersonalesNoPatologicos: {} as AntecedentesPersonalesNoPatologicos,
-              antecedentesAlergicos: {} as AntecedentesAlergicos,
-              antecedentesHemorragicos: {} as AntecedentesHemorragicos,
-              antecedentesQuirurgicos: {} as AntecedentesQuirurgicos,
-              interrogatorioSistemas: {} as InterrogatorioSistemas,
-              informacionPrincipal: {} as InformacionPrincipal,
-              exploracionFisica: {} as ExploracionFisica,
-              examenCabeza: {} as ExamenCabeza
-            }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
+                antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+                padecimientoActual: {} as PadecimientoActual,
+                antecedentesHeredoFamiliares: {} as AntecedentesHeredoFamiliares,
+                antecedentesPersonalesNoPatologicos: {} as AntecedentesPersonalesNoPatologicos,
+                antecedentesAlergicos: {} as AntecedentesAlergicos,
+                antecedentesHemorragicos: {} as AntecedentesHemorragicos,
+                antecedentesQuirurgicos: {} as AntecedentesQuirurgicos,
+                interrogatorioSistemas: {} as InterrogatorioSistemas,
+                informacionPrincipal: {} as InformacionPrincipal,
+                exploracionFisica: {} as ExploracionFisica,
+                examenCabeza: {} as ExamenCabeza
+              }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
           </div>
         </div>
