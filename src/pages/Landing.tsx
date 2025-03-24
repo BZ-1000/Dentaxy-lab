@@ -35,43 +35,28 @@ const menuItems = [{
 }];
 
 const LoadingScreen = ({
-  visible
+  visible,
+  onComplete
 }) => {
   const [displayText, setDisplayText] = useState('');
   const [typingComplete, setTypingComplete] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
   const fullText = "Dental Basics Academy";
   
-  useEffect(() => {
-    let currentIndex = 0;
-    const interval = setInterval(() => {
-      if (currentIndex <= fullText.length) {
-        setDisplayText(fullText.slice(0, currentIndex));
-        currentIndex++;
-      } else {
-        clearInterval(interval);
-        setTypingComplete(true);
-        
-        // After typing is complete, add a delay before starting fade-out
-        setTimeout(() => {
-          setFadeOut(true);
-        }, 1000); // 1 second delay after typing completes
-      }
-    }, 70); // Velocidad de escritura
+  const handleTypingComplete = () => {
+    setTypingComplete(true);
+    onComplete(); // Immediately call onComplete when typing finishes
+  };
 
-    return () => clearInterval(interval);
-  }, []);
-
-  // Combine the transition classes with the visibility classes
-  const screenClasses = `fixed inset-0 flex flex-col items-center justify-center bg-white fade-transition ${visible ? (fadeOut ? 'hidden' : 'visible') : 'hidden'}`;
-  
   return (
-    <div className={screenClasses}>
+    <div className={`fixed inset-0 flex flex-col items-center justify-center bg-white ${visible ? 'visible' : 'hidden'}`}>
       <div className="flex items-center space-x-4">
         <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-16 w-16" />
         <h1 className="text-xl sm:text-3xl font-bold text-black text-center">
-          {displayText}
-          {!typingComplete && <span className="animate-pulse">|</span>}
+          <Typewriter 
+            text={fullText} 
+            speed={70}
+            onComplete={handleTypingComplete}
+          />
         </h1>
       </div>
     </div>
@@ -109,10 +94,7 @@ const Landing = () => {
       setUsername(storedUsername);
     }
 
-    const timer = setTimeout(() => {
-      setLoading(false);
-      setMounted(true);
-    }, 5000); // Tiempo de carga de 5 segundos
+    setMounted(true);
 
     const getSession = async () => {
       const {
@@ -139,10 +121,14 @@ const Landing = () => {
       }
     });
     return () => {
-      clearTimeout(timer);
       subscription.unsubscribe();
     };
   }, []);
+  
+  // Handle loading screen completion
+  const handleLoadingComplete = () => {
+    setLoading(false);
+  };
   
   const checkUsername = async (userId: string) => {
     try {
@@ -439,7 +425,8 @@ const Landing = () => {
     }
   };
   
-  if (loading && !mounted) return <LoadingScreen visible={loading} />;
+  if (loading && mounted) return <LoadingScreen visible={loading} onComplete={handleLoadingComplete} />;
+  
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shadow-sm">

@@ -12,6 +12,7 @@ export interface TypewriterProps {
   deleteSpeed?: number;
   delay?: number;
   className?: string;
+  onComplete?: () => void; // Add callback for when typing completes
 }
  
 export function Typewriter({
@@ -22,6 +23,7 @@ export function Typewriter({
   deleteSpeed = 50,
   delay = 12000,
   className,
+  onComplete,
 }: TypewriterProps) {
   const [displayText, setDisplayText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -42,7 +44,14 @@ export function Typewriter({
             setDisplayText((prev) => prev + currentText[currentIndex]);
             setCurrentIndex((prev) => prev + 1);
           } else if (loop) {
+            // Call onComplete when typing is done before starting deletion
+            if (onComplete && !isDeleting) {
+              onComplete();
+            }
             setTimeout(() => setIsDeleting(true), delay);
+          } else if (onComplete && currentIndex === currentText.length) {
+            // For non-looping text, call onComplete when finished
+            onComplete();
           }
         } else {
           if (displayText.length > 0) {
@@ -68,6 +77,7 @@ export function Typewriter({
     delay,
     displayText,
     text,
+    onComplete,
   ]);
  
   return (
