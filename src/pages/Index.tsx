@@ -1,18 +1,26 @@
+
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import { useEffect, useState } from "react";
+
 const Index = () => {
   const [offset, setOffset] = useState(0);
+  
   useEffect(() => {
     const handleScroll = () => {
       setOffset(window.pageYOffset);
     };
     window.addEventListener('scroll', handleScroll);
+    
+    // Actualizar el título de la página
+    document.title = "DENTAXY.ai";
+    
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+  
   return <div className="min-h-screen">
       {/* Hero Section */}
       <div className="min-h-screen relative overflow-hidden">
