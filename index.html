@@ -21,6 +21,24 @@
         debugger;
       }, 100);
     </script>
+    <style>
+      /* Add fade transition animation */
+      .fade-transition {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 1.5s ease-out, visibility 1.5s ease-out;
+      }
+      
+      .fade-transition.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+      
+      .fade-transition.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+    </style>
   </head>
 
   <body>
