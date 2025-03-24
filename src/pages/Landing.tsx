@@ -34,12 +34,14 @@ const menuItems = [{
   href: "/contact"
 }];
 
-const LoadingScreen = ({ visible }) => {
+const LoadingScreen = ({
+  visible
+}) => {
   const [displayText, setDisplayText] = useState('');
   const [typingComplete, setTypingComplete] = useState(false);
-  const [slideUp, setSlideUp] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
   const fullText = "Dental Basics Academy";
-
+  
   useEffect(() => {
     let currentIndex = 0;
     const interval = setInterval(() => {
@@ -49,10 +51,10 @@ const LoadingScreen = ({ visible }) => {
       } else {
         clearInterval(interval);
         setTypingComplete(true);
-
-        // After typing is complete, add a delay before starting slide-up
+        
+        // After typing is complete, add a delay before starting fade-out
         setTimeout(() => {
-          setSlideUp(true);
+          setFadeOut(true);
         }, 1000); // 1 second delay after typing completes
       }
     }, 70); // Velocidad de escritura
@@ -60,39 +62,8 @@ const LoadingScreen = ({ visible }) => {
     return () => clearInterval(interval);
   }, []);
 
-  // Combine the transition classes with the visibility classes
-  const screenClasses = `fixed inset-0 flex flex-col items-center justify-center bg-white slide-up-transition ${visible ? (slideUp ? 'slide-up' : 'visible') : 'hidden'}`;
-
   return (
-    <div className={screenClasses}>
-      <p className="text-center text-2xl">{displayText}</p>
-    </div>
-  );
-};
-
-// CSS for the slide-up transition
-const styles = ` 
-  .slide-up-transition {
-    transition: transform 0.5s ease-in-out;
-  }
-
-  .slide-up {
-    transform: translateY(-100%);
-  }
-
-  .visible {
-    transform: translateY(0);
-  }
-
-  .hidden {
-    display: none;
-  }
-`;
-
-// Add the styles to your CSS or styled-components
-
-  return (
-    <div className={screenClasses}>
+    <div className={`fixed inset-0 flex flex-col items-center justify-center bg-white fade-transition ${visible ? (fadeOut ? 'hidden' : 'visible') : 'hidden'}`}>
       <div className="flex items-center space-x-4">
         <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-16 w-16" />
         <h1 className="text-xl sm:text-3xl font-bold text-black text-center">
