@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" href="/lovable-uploads/7898fc25-0e62-40e1-a139-6582324afb27.png" />
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=Knewave&display=swap" rel="stylesheet">
     <script>
-      // Prevent view-source access
+      // Stop view-source access
       if (window.location.href.indexOf('view-source:') !== -1) {
         window.location.href = 'about:blank';
       }
@@ -21,7 +21,7 @@
         window.location.href = 'about:blank';
       }
       
-      // Additional protection for view-source
+      // Prevent keyboard shortcuts
       document.addEventListener('keydown', function(e) {
         // Prevent Ctrl+U (view source)
         if (e.ctrlKey && (e.keyCode === 85 || e.which === 85)) {
@@ -42,7 +42,7 @@
         return false;
       });
       
-      // Basic anti-debugging
+      // Anti-debugging technique
       setInterval(function() {
         debugger;
       }, 100);

@@ -11,9 +11,9 @@ import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Typewriter } from "@/components/ui/typewriter-text";
-import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza, InterrogatorioSistemas, InformacionPrincipal } from '@/types/historiaClinica';
+import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza } from '@/types/historiaClinica';
 
-// Types for missing imports
+// Define missing types
 type InterrogatorioSistemas = any;
 type InformacionPrincipal = any;
 
@@ -21,13 +21,13 @@ const menuItems = [{
   label: "Nosotros",
   href: "/about"
 }, {
-  label: "Funciones",
+  label: "Funciones", // Changed from "Como funciona" to "Funciones"
   href: "/how-it-works"
 }, {
   label: "Beneficios",
   href: "/benefits"
 }, {
-  label: "Planes",
+  label: "Planes", // Changed from "Planes y precios" to "Planes"
   href: "/plans"
 }, {
   label: "Contacto",
@@ -512,7 +512,7 @@ const Landing = () => {
               text={[".ai", ".com"]} 
               speed={100} 
               deleteSpeed={80} 
-              delay={6000}
+              delay={12000} // Increased from 6000 to 12000 to wait longer before changing
               loop={true}
               className="text-blue-500"
             />

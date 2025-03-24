@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react"
@@ -19,7 +20,7 @@ export function Typewriter({
   cursor = "|",
   loop = false,
   deleteSpeed = 50,
-  delay = 1500,
+  delay = 1500, // This is the default value, will be overridden in the component usage
   className,
 }: TypewriterProps) {
   const [displayText, setDisplayText] = useState("");

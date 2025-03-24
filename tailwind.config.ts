@@ -1,3 +1,4 @@
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ["class"],
@@ -80,7 +81,7 @@ module.exports = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "wiggle": "wiggle 3s ease-in-out infinite", // Slowed down from original timing
+        "wiggle": "wiggle 6s ease-in-out infinite", // Changed from 3s to 6s to slow it down
       },
     },
   },
