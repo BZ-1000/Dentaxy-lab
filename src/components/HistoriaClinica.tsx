@@ -35,6 +35,7 @@ import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
 
 const HistoriaClinica = () => {
+  
   const {
     theme
   } = useTheme();
@@ -78,22 +79,28 @@ const HistoriaClinica = () => {
   } = useHistoriaClinica();
 
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
   const pdfSectionsRef = useRef<{[key: string]: string}>({});
+  
+  
   
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
     }
   }, [formData, pacienteActual, guardarFormulario]);
+  
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
     cargarFormulario(null); // Cargar formulario vacío
   };
+  
   const handleResetFormulario = () => {
     setPacienteActual('');
     resetFormulario();
   };
+  
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       toast({
@@ -110,6 +117,7 @@ const HistoriaClinica = () => {
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
+  
   const validateForm = () => {
     const padecimientoFields = validatePadecimientoActual(formData);
     const heredoFamiliaresFields = validateAntecedentesHeredoFamiliares(formData);
@@ -122,18 +130,25 @@ const HistoriaClinica = () => {
   
   const collectAllRedactions = async () => {
     const sectionsRefs = document.querySelectorAll('[data-section-redaction]');
+    const totalSections = sectionsRefs.length;
+    let processedSections = 0;
     
     pdfSectionsRef.current = {};
     
+    // For each section with a "Generar Redacción IA" button
     for (const sectionRef of Array.from(sectionsRefs)) {
       const sectionName = sectionRef.getAttribute('data-section-name') || '';
-      const generateButton = sectionRef.querySelector('button');
+      const generateButton = sectionRef.querySelector('button:contains("Generar Redacción IA")') || 
+                            sectionRef.querySelector('button:contains("Generar")');
       
       if (generateButton) {
+        // Click the button to generate the redaction
         generateButton.click();
         
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // Wait for content to be generated
+        await new Promise(resolve => setTimeout(resolve, 500));
         
+        // Find the redaction content
         const redactionContent = sectionRef.querySelector('[data-redaction-content]');
         if (redactionContent) {
           const text = redactionContent.innerHTML;
@@ -141,6 +156,10 @@ const HistoriaClinica = () => {
             pdfSectionsRef.current[sectionName] = text;
           }
         }
+        
+        // Update progress
+        processedSections++;
+        setPdfGenerationProgress(Math.round((processedSections / totalSections) * 100));
       }
     }
     
@@ -160,9 +179,12 @@ const HistoriaClinica = () => {
   const generatePDFDocument = async () => {
     try {
       setIsGeneratingPDF(true);
+      setPdfGenerationProgress(0);
       
+      // Extract all AI-generated content from all sections
       const allRedactions = await collectAllRedactions();
       
+      // Generate the PDF with the collected redactions
       const patientName = nombrePaciente || pacienteActual || 'Paciente';
       generatePDF(formData, patientName, allRedactions);
       
@@ -182,6 +204,7 @@ const HistoriaClinica = () => {
     }
   };
   
+  // Main component render
   return <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar onCargarFormulario={(data, nombre) => {
       cargarFormulario(data);
@@ -232,6 +255,7 @@ const HistoriaClinica = () => {
           </div>
 
           <div className="space-y-6">
+            
             <PadecimientoActual formData={formData} handlePadecimientoChange={handlePadecimientoChange} handleDolorChange={handleDolorChange} handleSinSintomasChange={handleSinSintomasChange} />
             
             <AntecedentesHeredoFamiliares formData={formData} handleFamiliarChange={handleFamiliarChange} handleCondicionChange={handleCondicionChange} />
@@ -292,7 +316,10 @@ const HistoriaClinica = () => {
       generatePDFDocument();
     }} title="Formulario incompleto" description="Hay campos sin completar en el formulario." missingFields={missingFields} />
       
-      {isGeneratingPDF && <LoadingOverlay message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." />}
+      {isGeneratingPDF && <LoadingOverlay 
+        message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." 
+        progress={pdfGenerationProgress}
+      />}
       
       <Toaster />
     </div>;
