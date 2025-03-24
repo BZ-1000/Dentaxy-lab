@@ -71,7 +71,7 @@ const LoadingScreen = ({ visible }) => {
 };
 
 // CSS for the slide-up transition
-const styles = `
+const styles = ` 
   .slide-up-transition {
     transition: transform 0.5s ease-in-out;
   }
