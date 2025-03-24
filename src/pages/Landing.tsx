@@ -62,8 +62,11 @@ const LoadingScreen = ({
     return () => clearInterval(interval);
   }, []);
 
+  // Combine the transition classes with the visibility classes
+  const screenClasses = `fixed inset-0 flex flex-col items-center justify-center bg-white fade-transition ${visible ? (fadeOut ? 'hidden' : 'visible') : 'hidden'}`;
+  
   return (
-    <div className={`fixed inset-0 flex flex-col items-center justify-center bg-white fade-transition ${visible ? (fadeOut ? 'hidden' : 'visible') : 'hidden'}`}>
+    <div className={screenClasses}>
       <div className="flex items-center space-x-4">
         <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-16 w-16" />
         <h1 className="text-xl sm:text-3xl font-bold text-black text-center">
