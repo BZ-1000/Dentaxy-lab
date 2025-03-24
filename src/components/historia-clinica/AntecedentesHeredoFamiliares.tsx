@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -89,7 +90,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
         <span className="font-semibold text-base text-center col-span-1 text-gray-700">{familiar}</span>
         {!familiarData.vivoSano && (
           <button
-            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
+            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm md:text-sm sm:text-xs font-medium col-span-1 ${
               familiarData.finado ? "bg-red-600 text-white" : "bg-white text-gray-700 border-gray-300"
             }`}
             onClick={handleFinado}
@@ -99,7 +100,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
         )}
         {!familiarData.finado && (
           <button
-            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium ${
+            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm md:text-sm sm:text-xs font-medium ${
               familiarData.vivoSano ? "bg-green-600 text-white col-span-7" : "bg-white text-gray-700 border-gray-300 col-span-1"
             }`}
             onClick={handleVivoSano}
@@ -113,7 +114,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
             return (
               <button
                 key={cond}
-                className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
+                className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm md:text-sm sm:text-xs font-medium col-span-1 ${
                   familiarData.condiciones[condKey] ? "bg-blue-600 text-white" : "bg-white text-gray-700 border-gray-300"
                 }`}
                 onClick={() => handleCondicionChange(familiarKey, condKey, !familiarData.condiciones[condKey])}
