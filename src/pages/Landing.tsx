@@ -11,9 +11,9 @@ import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Typewriter } from "@/components/ui/typewriter-text";
-import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza } from '@/types/historiaClinica';
+import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza, InterrogatorioSistemas, InformacionPrincipal } from '@/types/historiaClinica';
 
-// Define missing types
+// Types for missing imports
 type InterrogatorioSistemas = any;
 type InformacionPrincipal = any;
 
@@ -21,13 +21,13 @@ const menuItems = [{
   label: "Nosotros",
   href: "/about"
 }, {
-  label: "Funciones", // Changed from "Como funciona" to "Funciones"
+  label: "Cómo Funciona",
   href: "/how-it-works"
 }, {
   label: "Beneficios",
   href: "/benefits"
 }, {
-  label: "Planes", // Changed from "Planes y precios" to "Planes"
+  label: "Planes y Precios",
   href: "/plans"
 }, {
   label: "Contacto",
@@ -512,7 +512,7 @@ const Landing = () => {
               text={[".ai", ".com"]} 
               speed={100} 
               deleteSpeed={80} 
-              delay={12000} // Increased from 6000 to 12000 to wait longer before changing
+              delay={3000}
               loop={true}
               className="text-blue-500"
             />
@@ -537,18 +537,18 @@ const Landing = () => {
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
               <AntecedentesPersonalesPatologicos formData={{
-                antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-                padecimientoActual: {} as PadecimientoActual,
-                antecedentesHeredoFamiliares: {} as AntecedentesHeredoFamiliares,
-                antecedentesPersonalesNoPatologicos: {} as AntecedentesPersonalesNoPatologicos,
-                antecedentesAlergicos: {} as AntecedentesAlergicos,
-                antecedentesHemorragicos: {} as AntecedentesHemorragicos,
-                antecedentesQuirurgicos: {} as AntecedentesQuirurgicos,
-                interrogatorioSistemas: {} as InterrogatorioSistemas,
-                informacionPrincipal: {} as InformacionPrincipal,
-                exploracionFisica: {} as ExploracionFisica,
-                examenCabeza: {} as ExamenCabeza
-              }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
+              antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+              padecimientoActual: {} as PadecimientoActual,
+              antecedentesHeredoFamiliares: {} as AntecedentesHeredoFamiliares,
+              antecedentesPersonalesNoPatologicos: {} as AntecedentesPersonalesNoPatologicos,
+              antecedentesAlergicos: {} as AntecedentesAlergicos,
+              antecedentesHemorragicos: {} as AntecedentesHemorragicos,
+              antecedentesQuirurgicos: {} as AntecedentesQuirurgicos,
+              interrogatorioSistemas: {} as InterrogatorioSistemas,
+              informacionPrincipal: {} as InformacionPrincipal,
+              exploracionFisica: {} as ExploracionFisica,
+              examenCabeza: {} as ExamenCabeza
+            }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
           </div>
         </div>

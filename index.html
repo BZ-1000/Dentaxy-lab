@@ -11,38 +11,12 @@
     <link rel="icon" type="image/png" href="/lovable-uploads/7898fc25-0e62-40e1-a139-6582324afb27.png" />
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=Knewave&display=swap" rel="stylesheet">
     <script>
-      // Stop view-source access
+      // Prevent view-source access
       if (window.location.href.indexOf('view-source:') !== -1) {
         window.location.href = 'about:blank';
       }
       
-      // Redirect if the URL starts with "view-source:"
-      if (window.location.protocol === 'view-source:') {
-        window.location.href = 'about:blank';
-      }
-      
-      // Prevent keyboard shortcuts
-      document.addEventListener('keydown', function(e) {
-        // Prevent Ctrl+U (view source)
-        if (e.ctrlKey && (e.keyCode === 85 || e.which === 85)) {
-          e.preventDefault();
-          return false;
-        }
-        
-        // Prevent F12 (developer tools)
-        if (e.keyCode === 123 || e.which === 123) {
-          e.preventDefault();
-          return false;
-        }
-      });
-      
-      // Disable right-click
-      document.addEventListener('contextmenu', function(e) {
-        e.preventDefault();
-        return false;
-      });
-      
-      // Anti-debugging technique
+      // Basic anti-debugging
       setInterval(function() {
         debugger;
       }, 100);
