@@ -26,12 +26,14 @@ import { useTheme } from '@/hooks/use-theme';
 import { Loader2, X, Save, User, FileText } from "lucide-react";
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { getInitialFormState } from '@/utils/initialFormState';
 import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
 import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
 import { generatePDF } from '@/utils/pdfGenerator';
+import LoadingOverlay from './historia-clinica/LoadingOverlay';
+
 const HistoriaClinica = () => {
   const {
     theme
@@ -75,7 +77,9 @@ const HistoriaClinica = () => {
     resetFormulario
   } = useHistoriaClinica();
 
-  // Efecto para guardar automáticamente cuando cambia el formulario y hay un paciente seleccionado
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const pdfSectionsRef = useRef<{[key: string]: string}>({});
+  
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
@@ -107,18 +111,43 @@ const HistoriaClinica = () => {
     });
   };
   const validateForm = () => {
-    // Validate required sections
     const padecimientoFields = validatePadecimientoActual(formData);
     const heredoFamiliaresFields = validateAntecedentesHeredoFamiliares(formData);
     const noPatologicosFields = validateAntecedentesPersonalesNoPatologicos(formData);
     const patologicosFields = validateAntecedentesPersonalesPatologicos(formData);
 
-    // Combine all missing fields
     const allMissingFields = [...padecimientoFields, ...heredoFamiliaresFields, ...noPatologicosFields, ...patologicosFields];
     return allMissingFields;
   };
+  
+  const collectAllRedactions = async () => {
+    const sectionsRefs = document.querySelectorAll('[data-section-redaction]');
+    
+    pdfSectionsRef.current = {};
+    
+    for (const sectionRef of Array.from(sectionsRefs)) {
+      const sectionName = sectionRef.getAttribute('data-section-name') || '';
+      const generateButton = sectionRef.querySelector('button');
+      
+      if (generateButton) {
+        generateButton.click();
+        
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        const redactionContent = sectionRef.querySelector('[data-redaction-content]');
+        if (redactionContent) {
+          const text = redactionContent.innerHTML;
+          if (text && text.trim()) {
+            pdfSectionsRef.current[sectionName] = text;
+          }
+        }
+      }
+    }
+    
+    return pdfSectionsRef.current;
+  };
+  
   const handleGeneratePDF = () => {
-    // Validate form first
     const missing = validateForm();
     if (missing.length > 0) {
       setMissingFields(missing);
@@ -127,10 +156,16 @@ const HistoriaClinica = () => {
       generatePDFDocument();
     }
   };
-  const generatePDFDocument = () => {
+  
+  const generatePDFDocument = async () => {
     try {
+      setIsGeneratingPDF(true);
+      
+      const allRedactions = await collectAllRedactions();
+      
       const patientName = nombrePaciente || pacienteActual || 'Paciente';
-      generatePDF(formData, patientName);
+      generatePDF(formData, patientName, allRedactions);
+      
       toast({
         title: "PDF Generado",
         description: "La Historia Clínica ha sido generada exitosamente."
@@ -142,8 +177,11 @@ const HistoriaClinica = () => {
         description: "No se pudo generar el PDF. Por favor, intente nuevamente.",
         variant: "destructive"
       });
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
+  
   return <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar onCargarFormulario={(data, nombre) => {
       cargarFormulario(data);
@@ -235,8 +273,8 @@ const HistoriaClinica = () => {
             <Pronostico formData={formData} handlePronosticoChange={handlePronosticoChange} />
 
             <div className="flex justify-center pt-6">
-              <Button onClick={handleGeneratePDF} disabled={isGenerating} className="text-slate-50 bg-[#ff0000] font-normal">
-                {isGenerating ? <>
+              <Button onClick={handleGeneratePDF} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] font-normal">
+                {isGeneratingPDF ? <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Generando PDF...
                   </> : <>
@@ -253,6 +291,8 @@ const HistoriaClinica = () => {
       setAlertOpen(false);
       generatePDFDocument();
     }} title="Formulario incompleto" description="Hay campos sin completar en el formulario." missingFields={missingFields} />
+      
+      {isGeneratingPDF && <LoadingOverlay message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." />}
       
       <Toaster />
     </div>;

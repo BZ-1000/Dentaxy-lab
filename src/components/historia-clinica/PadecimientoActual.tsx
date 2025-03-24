@@ -205,7 +205,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     }, 15);
     return () => clearInterval(interval);
   }, [redaccionIA]);
-  return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
+  return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="padecimientoActual">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
@@ -260,7 +260,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
           whiteSpace: 'pre-wrap'
         }} dangerouslySetInnerHTML={{
           __html: displayedText
-        }} />
+        }} data-redaction-content />
             <Button onClick={handleCopy} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative">
               <Copy className="w-4 h-4" />
               <span>Copiar Redacción</span>
