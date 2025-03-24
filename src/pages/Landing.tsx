@@ -21,13 +21,13 @@ const menuItems = [{
   label: "Nosotros",
   href: "/about"
 }, {
-  label: "Cómo Funciona",
+  label: "Funciones",
   href: "/how-it-works"
 }, {
   label: "Beneficios",
   href: "/benefits"
 }, {
-  label: "Planes y Precios",
+  label: "Planes",
   href: "/plans"
 }, {
   label: "Contacto",
@@ -47,7 +47,7 @@ const LoadingScreen = ({
       } else {
         clearInterval(interval);
       }
-    }, 100); // Velocidad de escritura
+    }, 90); // Velocidad de escritura
 
     return () => clearInterval(interval);
   }, []);
@@ -512,7 +512,7 @@ const Landing = () => {
               text={[".ai", ".com"]} 
               speed={100} 
               deleteSpeed={80} 
-              delay={3000}
+              delay={5000}
               loop={true}
               className="text-blue-500"
             />
