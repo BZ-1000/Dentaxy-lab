@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -143,7 +144,7 @@ const HistoriaClinica = () => {
       
       if (generateButton) {
         // Click the button to generate the redaction
-        generateButton.click();
+        (generateButton as HTMLElement).click();
         
         // Wait for content to be generated
         await new Promise(resolve => setTimeout(resolve, 500));

@@ -1,6 +1,5 @@
 
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 import { FormDataState } from '@/types/historiaClinica';
 
 export const generatePDF = (
@@ -39,27 +38,30 @@ export const generatePDF = (
   };
   
   // Function to add a section with title
-  const addSectionFromRedaction = (title: string, sectionKey: string) => {
-    if (!sectionRedactions[sectionKey]) return;
+  const addSection = (title: string, content: string) => {
+    if (!content) return;
     
-    checkNewPage(30);
+    // Clean up HTML tags from content
+    const cleanText = content.replace(/<\/?[^>]+(>|$)/g, "");
+    const lines = doc.splitTextToSize(cleanText, 180);
     
+    // Check if we need a new page (title + content + spacing)
+    checkNewPage(10 + lines.length * 7 + 10);
+    
+    // Add section title
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(14);
+    doc.setFontSize(12);
     doc.text(title, 14, yPos);
     yPos += 10;
     
+    // Add section content
     doc.setFont('helvetica', 'normal');
-    doc.setFontSize(12);
-    
-    // Clean up HTML tags from redaction content
-    const cleanText = sectionRedactions[sectionKey].replace(/<\/?[^>]+(>|$)/g, "");
-    const lines = doc.splitTextToSize(cleanText, 180);
+    doc.setFontSize(10);
     doc.text(lines, 14, yPos);
-    yPos += lines.length * 7 + 10;
+    yPos += lines.length * 6 + 10;
   };
   
-  // Define all section titles and their keys
+  // Define all sections with their titles and content
   const sections = [
     { title: 'I. PADECIMIENTO ACTUAL', key: 'padecimientoActual' },
     { title: 'II. ANTECEDENTES HEREDO FAMILIARES', key: 'antecedentesHeredoFamiliares' },
@@ -83,9 +85,12 @@ export const generatePDF = (
     { title: 'XX. PRONÓSTICO', key: 'pronostico' }
   ];
   
-  // Add all sections from redactions
+  // Add each section to the PDF if it has content
   sections.forEach(section => {
-    addSectionFromRedaction(section.title, section.key);
+    const content = sectionRedactions[section.key];
+    if (content) {
+      addSection(section.title, content);
+    }
   });
   
   // Save the PDF
