@@ -21,7 +21,7 @@ export function Typewriter({
   cursor = "|",
   loop = false,
   deleteSpeed = 50,
-  delay = 12000,
+  delay = 1000,
   className,
   onComplete,
 }: TypewriterProps) {
