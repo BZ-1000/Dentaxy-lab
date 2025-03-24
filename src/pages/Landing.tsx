@@ -33,15 +33,11 @@ const menuItems = [{
   label: "Contacto",
   href: "/contact"
 }];
-
 const LoadingScreen = ({
   visible
 }) => {
   const [displayText, setDisplayText] = useState('');
-  const [typingComplete, setTypingComplete] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
   const fullText = "Dental Basics Academy";
-  
   useEffect(() => {
     let currentIndex = 0;
     const interval = setInterval(() => {
@@ -50,29 +46,19 @@ const LoadingScreen = ({
         currentIndex++;
       } else {
         clearInterval(interval);
-        setTypingComplete(true);
-        
-        // After typing is complete, add a delay before starting fade-out
-        setTimeout(() => {
-          setFadeOut(true);
-        }, 1000); // 1 second delay after typing completes
       }
     }, 70); // Velocidad de escritura
 
     return () => clearInterval(interval);
   }, []);
-
-  return (
-    <div className={`fixed inset-0 flex flex-col items-center justify-center bg-white fade-transition ${visible ? (fadeOut ? 'hidden' : 'visible') : 'hidden'}`}>
+  return <div className={`flex flex-col items-center justify-center h-screen bg-white transition-opacity duration-2000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
       <div className="flex items-center space-x-4">
         <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-16 w-16" />
         <h1 className="text-xl sm:text-3xl font-bold text-black text-center">
           {displayText}
-          {!typingComplete && <span className="animate-pulse">|</span>}
         </h1>
       </div>
-    </div>
-  );
+    </div>;
 };
 
 const Landing = () => {
@@ -526,7 +512,7 @@ const Landing = () => {
               text={[".ai", ".com"]} 
               speed={100} 
               deleteSpeed={80} 
-              delay={12000}
+              delay={5000}
               loop={true}
               className="text-blue-500"
             />
