@@ -19,9 +19,6 @@ export default {
       },
     },
     extend: {
-      screens: {
-        'xs': '480px',
-      },
       fontFamily: {
         'mplus': ['"M PLUS 1p"', 'serif'],
         'knewave': ['"Knewave"', 'serif'],
