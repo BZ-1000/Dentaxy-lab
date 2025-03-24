@@ -34,14 +34,12 @@ const menuItems = [{
   href: "/contact"
 }];
 
-const LoadingScreen = ({
-  visible
-}) => {
+const LoadingScreen = ({ visible }) => {
   const [displayText, setDisplayText] = useState('');
   const [typingComplete, setTypingComplete] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
+  const [slideUp, setSlideUp] = useState(false);
   const fullText = "Dental Basics Academy";
-  
+
   useEffect(() => {
     let currentIndex = 0;
     const interval = setInterval(() => {
@@ -51,10 +49,10 @@ const LoadingScreen = ({
       } else {
         clearInterval(interval);
         setTypingComplete(true);
-        
-        // After typing is complete, add a delay before starting fade-out
+
+        // After typing is complete, add a delay before starting slide-up
         setTimeout(() => {
-          setFadeOut(true);
+          setSlideUp(true);
         }, 1000); // 1 second delay after typing completes
       }
     }, 70); // Velocidad de escritura
@@ -63,8 +61,36 @@ const LoadingScreen = ({
   }, []);
 
   // Combine the transition classes with the visibility classes
-  const screenClasses = `fixed inset-0 flex flex-col items-center justify-center bg-white fade-transition ${visible ? (fadeOut ? 'hidden' : 'visible') : 'hidden'}`;
-  
+  const screenClasses = `fixed inset-0 flex flex-col items-center justify-center bg-white slide-up-transition ${visible ? (slideUp ? 'slide-up' : 'visible') : 'hidden'}`;
+
+  return (
+    <div className={screenClasses}>
+      <p className="text-center text-2xl">{displayText}</p>
+    </div>
+  );
+};
+
+// CSS for the slide-up transition
+const styles = `
+  .slide-up-transition {
+    transition: transform 0.5s ease-in-out;
+  }
+
+  .slide-up {
+    transform: translateY(-100%);
+  }
+
+  .visible {
+    transform: translateY(0);
+  }
+
+  .hidden {
+    display: none;
+  }
+`;
+
+// Add the styles to your CSS or styled-components
+
   return (
     <div className={screenClasses}>
       <div className="flex items-center space-x-4">
