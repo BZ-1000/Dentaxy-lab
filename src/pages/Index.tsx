@@ -41,7 +41,7 @@ const Index = () => {
               <span className="text-blue-300">IA</span>
             </h1>
             
-            <Typewriter text={["Bienvenido a nuestra Historia clínica inteligente", "Registra Más...", "Escribe Menos..."]} speed={100} loop={true} className="text-xl md:text-2xl text-blue-100 mb-12" />
+            <Typewriter text={["Bienvenido a nuestra Historia clínica inteligente", "Registra Más...", "Escribe Menos..."]} speed={50} loop={true} className="text-xl md:text-2xl text-blue-100 mb-12" />
           </div>
         </div>
       </div>
