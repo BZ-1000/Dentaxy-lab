@@ -1,7 +1,5 @@
 
 import { useTheme } from "@/hooks/use-theme";
-import { useState, useEffect } from "react";
-import { Typewriter } from "@/components/ui/typewriter-text";
 
 interface ResumenHistoriaClinicaProps {
   resumen: string;
@@ -9,13 +7,6 @@ interface ResumenHistoriaClinicaProps {
 
 const ResumenHistoriaClinica = ({ resumen }: ResumenHistoriaClinicaProps) => {
   const { theme } = useTheme();
-  const [isTyping, setIsTyping] = useState(false);
-
-  useEffect(() => {
-    if (resumen) {
-      setIsTyping(true);
-    }
-  }, [resumen]);
 
   if (!resumen) return null;
 
@@ -27,17 +18,7 @@ const ResumenHistoriaClinica = ({ resumen }: ResumenHistoriaClinicaProps) => {
         </h2>
         <div className="prose dark:prose-invert max-w-none">
           <pre className={`whitespace-pre-line ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} p-6 rounded-lg text-sm transition-colors duration-200`}>
-            {isTyping ? (
-              <Typewriter 
-                text={resumen} 
-                speed={5}
-                cursor=""
-                delay={10}
-                onComplete={() => setIsTyping(false)}
-              />
-            ) : (
-              resumen
-            )}
+            {resumen}
           </pre>
         </div>
       </div>
