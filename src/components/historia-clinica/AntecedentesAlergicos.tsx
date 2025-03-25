@@ -2,6 +2,11 @@
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormDataState } from '@/types/historiaClinica';
 
 interface AntecedentesAlergicosProps {
@@ -29,6 +34,30 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
+  };
+
+  const handleAntecedenteAlergicoChange = (field: string, value: any) => {
+    if (!onChange) return;
+    
+    if (field.includes('.')) {
+      const [parent, child] = field.split('.');
+      onChange({
+        antecedentesAlergicos: {
+          ...formData.antecedentesAlergicos,
+          [parent]: {
+            ...formData.antecedentesAlergicos?.[parent],
+            [child]: value
+          }
+        }
+      });
+    } else {
+      onChange({
+        antecedentesAlergicos: {
+          ...formData.antecedentesAlergicos,
+          [field]: value
+        }
+      });
+    }
   };
 
   return (
@@ -66,8 +95,112 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
         </div>
 
         {!isMinimized && (
-          <div className="p-6 flex items-center justify-center">
-            <h1 className="text-4xl font-bold text-gray-400 dark:text-gray-500">Próximamente</h1>
+          <div className="p-6 space-y-6">
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+              <h3 className="text-lg font-medium mb-4">Medicamentos</h3>
+              
+              <div className="flex items-center space-x-4 mb-4">
+                <Switch 
+                  id="es_alergico_medicamentos" 
+                  checked={formData.antecedentesAlergicos?.medicamentos?.es_alergico || false}
+                  onCheckedChange={(checked) => handleAntecedenteAlergicoChange('medicamentos.es_alergico', checked)}
+                />
+                <Label htmlFor="es_alergico_medicamentos">Alergia a medicamentos</Label>
+              </div>
+              
+              {formData.antecedentesAlergicos?.medicamentos?.es_alergico && (
+                <div className="space-y-4 pl-10">
+                  <div className="grid grid-cols-1 gap-4">
+                    <div>
+                      <Label>¿Cuáles?</Label>
+                      <Textarea 
+                        value={formData.antecedentesAlergicos?.medicamentos?.cuales || ''}
+                        onChange={(e) => handleAntecedenteAlergicoChange('medicamentos.cuales', e.target.value)}
+                        placeholder="Escriba los medicamentos a los que es alérgico"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label>Tipo de reacción</Label>
+                      <Input 
+                        value={formData.antecedentesAlergicos?.medicamentos?.tipo_reaccion || ''}
+                        onChange={(e) => handleAntecedenteAlergicoChange('medicamentos.tipo_reaccion', e.target.value)}
+                        placeholder="Ej. Erupción cutánea, dificultad para respirar"
+                      />
+                    </div>
+                    
+                    <div>
+                      <Label>Severidad</Label>
+                      <Select 
+                        value={formData.antecedentesAlergicos?.medicamentos?.severidad || ''}
+                        onValueChange={(value) => handleAntecedenteAlergicoChange('medicamentos.severidad', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccione la severidad" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="leve">Leve</SelectItem>
+                          <SelectItem value="moderada">Moderada</SelectItem>
+                          <SelectItem value="severa">Severa</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+              <h3 className="text-lg font-medium mb-4">Alimentos</h3>
+              
+              <div className="flex items-center space-x-4 mb-4">
+                <Switch 
+                  id="es_alergico_alimentos" 
+                  checked={formData.antecedentesAlergicos?.alimentos?.es_alergico || false}
+                  onCheckedChange={(checked) => handleAntecedenteAlergicoChange('alimentos.es_alergico', checked)}
+                />
+                <Label htmlFor="es_alergico_alimentos">Alergia a alimentos</Label>
+              </div>
+              
+              {formData.antecedentesAlergicos?.alimentos?.es_alergico && (
+                <div className="space-y-4 pl-10">
+                  <div>
+                    <Label>¿Cuáles?</Label>
+                    <Textarea 
+                      value={formData.antecedentesAlergicos?.alimentos?.cuales || ''}
+                      onChange={(e) => handleAntecedenteAlergicoChange('alimentos.cuales', e.target.value)}
+                      placeholder="Escriba los alimentos a los que es alérgico"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+              <h3 className="text-lg font-medium mb-4">Látex</h3>
+              
+              <div className="flex items-center space-x-4 mb-4">
+                <Switch 
+                  id="es_alergico_latex" 
+                  checked={formData.antecedentesAlergicos?.latex?.es_alergico || false}
+                  onCheckedChange={(checked) => handleAntecedenteAlergicoChange('latex.es_alergico', checked)}
+                />
+                <Label htmlFor="es_alergico_latex">Alergia al látex</Label>
+              </div>
+              
+              {formData.antecedentesAlergicos?.latex?.es_alergico && (
+                <div className="space-y-4 pl-10">
+                  <div>
+                    <Label>Descripción de la reacción</Label>
+                    <Textarea 
+                      value={formData.antecedentesAlergicos?.latex?.descripcion_reaccion || ''}
+                      onChange={(e) => handleAntecedenteAlergicoChange('latex.descripcion_reaccion', e.target.value)}
+                      placeholder="Describa la reacción alérgica al látex"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </Card>

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -95,7 +94,9 @@ const PadecimientoActual = ({
   const [displayedText, setDisplayedText] = useState("");
   const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
-  const [showCausasProvocado, setShowCausasProvocado] = useState(formData.padecimientoActual.dolor.condicionAparicion === 'provocado');
+  const [showCausasProvocado, setShowCausasProvocado] = useState(
+    formData.padecimientoActual?.dolor?.condicionAparicion === 'provocado'
+  );
   const redaccionRef = useRef(null);
   const defaultMotivoConsulta = "El paciente acude a consulta por ";
   const motivosEjemplo = ["dolor dental intenso en molar superior derecho...", "sangrado de encías al cepillarse...", "revisión y limpieza dental de rutina...", "sensibilidad al frío y calor en dientes anteriores...", "inflamación y dolor en zona de muelas del juicio...", "aplicación de resina en diente fracturado...", "evaluación para tratamiento de ortodoncia...", "manchas oscuras en los dientes frontales...", "mal aliento persistente...", "dolor al masticar alimentos..."];
@@ -103,10 +104,14 @@ const PadecimientoActual = ({
   const causasProvocadoEjemplo = ["alimentos fríos o helados en contacto con el diente...", "la presión durante la masticación de alimentos duros...", "bebidas calientes que generan dolor inmediato...", "el cepillado en la zona vestibular de los premolares...", "dulces y alimentos azucarados que desencadenan molestias..."];
 
   useEffect(() => {
-    if (!formData.padecimientoActual.motivoConsulta) {
+    // Ensure padecimientoActual and dolor exist before accessing properties
+    if (!formData.padecimientoActual?.motivoConsulta) {
       handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
     }
-    if (formData.padecimientoActual.dolor.condicionAparicion === 'provocado' && (!formData.padecimientoActual.dolor.causaProvocado || formData.padecimientoActual.dolor.causaProvocado === '')) {
+    
+    if (formData.padecimientoActual?.dolor?.condicionAparicion === 'provocado' && 
+        (!formData.padecimientoActual.dolor.causaProvocado || 
+         formData.padecimientoActual.dolor.causaProvocado === '')) {
       handleDolorChange("causaProvocado", defaultCausaProvocado);
     }
   }, []);
@@ -127,15 +132,69 @@ const PadecimientoActual = ({
   };
 
   const handlePadecimientoChange = (field: string, value: string) => {
+    // Initialize the padecimientoActual object if it doesn't exist
+    const currentPadecimiento = formData.padecimientoActual || {
+      sinSintomas: false,
+      motivoConsulta: '',
+      historiaPadecimiento: '',
+      dolor: {
+        fechaInicio: '',
+        condicionAparicion: '',
+        frecuencia: '',
+        caracter: '',
+        intensidad: '',
+        localizacion: {
+          tipo: '',
+          descripcion: ''
+        },
+        atenuacion: '',
+        causaProvocado: ''
+      }
+    };
+    
     const updatedData = {
-      ...formData.padecimientoActual,
+      ...currentPadecimiento,
       [field]: value
     };
     onChange({ padecimientoActual: updatedData });
   };
 
   const handleDolorChange = (field: string, value: any) => {
-    const updatedDolor = { ...formData.padecimientoActual.dolor };
+    // Initialize the dolor object if it doesn't exist
+    const currentPadecimiento = formData.padecimientoActual || {
+      sinSintomas: false,
+      motivoConsulta: '',
+      historiaPadecimiento: '',
+      dolor: {
+        fechaInicio: '',
+        condicionAparicion: '',
+        frecuencia: '',
+        caracter: '',
+        intensidad: '',
+        localizacion: {
+          tipo: '',
+          descripcion: ''
+        },
+        atenuacion: '',
+        causaProvocado: ''
+      }
+    };
+    
+    const currentDolor = currentPadecimiento.dolor || {
+      fechaInicio: '',
+      condicionAparicion: '',
+      frecuencia: '',
+      caracter: '',
+      intensidad: '',
+      localizacion: {
+        tipo: '',
+        descripcion: ''
+      },
+      atenuacion: '',
+      causaProvocado: ''
+    };
+    
+    const updatedDolor = { ...currentDolor };
     
     if (field === 'localizacion') {
       let localizacion;
@@ -164,15 +223,35 @@ const PadecimientoActual = ({
     
     onChange({ 
       padecimientoActual: {
-        ...formData.padecimientoActual,
+        ...currentPadecimiento,
         dolor: updatedDolor
       }
     });
   };
 
   const handleSinSintomasChange = (checked: boolean) => {
+    // Initialize the padecimientoActual object if it doesn't exist
+    const currentPadecimiento = formData.padecimientoActual || {
+      sinSintomas: false,
+      motivoConsulta: '',
+      historiaPadecimiento: '',
+      dolor: {
+        fechaInicio: '',
+        condicionAparicion: '',
+        frecuencia: '',
+        caracter: '',
+        intensidad: '',
+        localizacion: {
+          tipo: '',
+          descripcion: ''
+        },
+        atenuacion: '',
+        causaProvocado: ''
+      }
+    };
+    
     const updatedData = {
-      ...formData.padecimientoActual,
+      ...currentPadecimiento,
       sinSintomas: checked
     };
     onChange({ padecimientoActual: updatedData });
@@ -273,7 +352,8 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     return () => clearInterval(interval);
   }, [redaccionIA]);
 
-  return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="padecimientoActual">
+  return (
+    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="padecimientoActual">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
@@ -396,7 +476,8 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
             </Button>
           </div>}
       </Card>
-    </div>;
+    </div>
+  );
 };
 
 export default PadecimientoActual;
