@@ -69,25 +69,25 @@ export const generatePDF = (
   // Define all sections with their titles and content keys
   const sections = [
     { title: 'I. PADECIMIENTO ACTUAL', key: 'padecimientoActual' },
-    { title: 'II. ANTECEDENTES HEREDO FAMILIARES', key: 'antecedentesHeredoFamiliares' },
-    { title: 'III. ANTECEDENTES PERSONALES NO PATOLÓGICOS', key: 'antecedentesPersonalesNoPatologicos' },
-    { title: 'IV. ANTECEDENTES PERSONALES PATOLÓGICOS', key: 'antecedentesPersonalesPatologicos' },
-    { title: 'V. ANTECEDENTES ALÉRGICOS', key: 'antecedentesAlergicos' },
-    { title: 'VI. ANTECEDENTES QUIRÚRGICOS', key: 'antecedentesQuirurgicos' },
-    { title: 'VII. ANTECEDENTES HEMORRAGICOS', key: 'antecedentesHemorragicos' },
-    { title: 'VIII. INTERROGATORIO POR SISTEMAS', key: 'interrogatorioSistemas' },
-    { title: 'IX. EXPLORACIÓN FÍSICA', key: 'exploracionFisica' },
-    { title: 'X. EXAMEN DE CABEZA', key: 'examenCabeza' },
-    { title: 'XI. ARTICULACIÓN CRANEOMANDIBULAR', key: 'articulacionCraneomandibular' },
-    { title: 'XII. EXAMEN DE CUELLO', key: 'examenCuello' },
-    { title: 'XIII. EXAMEN INTRABUCAL', key: 'examenIntrabucal' },
-    { title: 'XIV. GLÁNDULAS SALIVALES', key: 'glandulasSalivales' },
+    { title: 'II. ANTECEDENTES HEREDO FAMILIARES', key: 'AntecedentesHeredoFamiliares' },
+    { title: 'III. ANTECEDENTES PERSONALES NO PATOLÓGICOS', key: 'AntecedentesPersonalesNoPatologicos' },
+    { title: 'IV. ANTECEDENTES PERSONALES PATOLÓGICOS', key: 'AntecedentesPersonalesPatologicos' },
+    { title: 'V. ANTECEDENTES ALÉRGICOS', key: 'AntecedentesAlergicos' },
+    { title: 'VI. ANTECEDENTES QUIRÚRGICOS', key: 'AntecedentesQuirurgicos' },
+    { title: 'VII. ANTECEDENTES HEMORRAGICOS', key: 'AntecedentesHemorragicos' },
+    { title: 'VIII. INTERROGATORIO POR SISTEMAS', key: 'InterrogatorioSistemas' },
+    { title: 'IX. EXPLORACIÓN FÍSICA', key: 'ExploracionFisica' },
+    { title: 'X. EXAMEN DE CABEZA', key: 'ExamenCabeza' },
+    { title: 'XI. ARTICULACIÓN CRANEOMANDIBULAR', key: 'ArticulacionCraneomandibular' },
+    { title: 'XII. EXAMEN DE CUELLO', key: 'ExamenCuello' },
+    { title: 'XIII. EXAMEN INTRABUCAL', key: 'ExamenIntrabucal' },
+    { title: 'XIV. GLÁNDULAS SALIVALES', key: 'GlandulasSalivales' },
     { title: 'XV. OCLUSIÓN', key: 'oclusion' },
-    { title: 'XVI. RELACIÓN DE DIENTES', key: 'relacionDientes' },
-    { title: 'XVII. LÍNEA MEDIA', key: 'lineaMedia' },
-    { title: 'XVIII. FRENILLOS', key: 'frenillos' },
-    { title: 'XIX. DIAGNÓSTICO', key: 'diagnostico' },
-    { title: 'XX. PRONÓSTICO', key: 'pronostico' }
+    { title: 'XVI. RELACIÓN DE DIENTES', key: 'RelacionDientes' },
+    { title: 'XVII. LÍNEA MEDIA', key: 'LineaMedia' },
+    { title: 'XVIII. FRENILLOS', key: 'Frenillos' },
+    { title: 'XIX. DIAGNÓSTICO', key: 'Diagnostico' },
+    { title: 'XX. PRONÓSTICO', key: 'Pronostico' }
   ];
   
   // Add each section to the PDF if it has content
