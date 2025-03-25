@@ -6,12 +6,12 @@ import { FormDataState } from '@/types/historiaClinica';
 
 interface AntecedentesAlergicosProps {
   formData: FormDataState;
-  handleAntecedenteAlergicoChange?: (field: string, value: any) => void;
+  onChange?: (data: any) => void;
 }
 
 const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
   formData,
-  handleAntecedenteAlergicoChange
+  onChange
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);

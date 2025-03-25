@@ -1,11 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from 'sonner';
+import { toast } from 'sonner';
 import { generatePDF } from '@/utils/pdfGenerator';
 import { useTheme } from '@/hooks/use-theme';
-import { useAIAssistant } from '@/hooks/use-ai-assistant';
 import { FormDataState } from '@/types/historiaClinica';
 import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
 
@@ -30,35 +30,365 @@ import LineaMedia from './historia-clinica/LineaMedia';
 import Frenillos from './historia-clinica/Frenillos';
 import Diagnostico from './historia-clinica/Diagnostico';
 import Pronostico from './historia-clinica/Pronostico';
+import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 
 const HistoriaClinica = () => {
   const { theme } = useTheme();
-  const toast = useToast();
-  const { generateRedaction } = useAIAssistant();
   const [activeTab, setActiveTab] = useState('padecimiento-actual');
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [sectionRedactions, setSectionRedactions] = useState<{ [key: string]: string }>({});
   const [formData, setFormData] = useState<FormDataState>({
-    padecimientoActual: {},
-    antecedentesHeredoFamiliares: {},
-    antecedentesPersonalesNoPatologicos: {},
-    antecedentesPersonalesPatologicos: {},
-    antecedentesAlergicos: {},
-    antecedentesQuirurgicos: {},
-    antecedentesHemorragicos: {},
+    padecimientoActual: {
+      sinSintomas: false,
+      motivoConsulta: '',
+      historiaPadecimiento: '',
+      dolor: {
+        fechaInicio: '',
+        condicionAparicion: '',
+        frecuencia: '',
+        caracter: '',
+        intensidad: '',
+        localizacion: {
+          tipo: '',
+          descripcion: ''
+        },
+        atenuacion: ''
+      }
+    },
+    antecedentesHeredoFamiliares: {
+      padre: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      },
+      madre: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      },
+      abueloPaterno: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      },
+      abuelaPaterna: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      },
+      abueloMaterno: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      },
+      abuelaMaterna: {
+        finado: false,
+        causaMuerte: '',
+        condiciones: {
+          diabetesMellitus: false,
+          hipertensionArterial: false,
+          osteoporosis: false,
+          artritisReumatoide: false,
+          parkinson: false,
+          alzheimer: false,
+          asma: false,
+          cancer: false,
+          anemia: false,
+          otras: ''
+        }
+      }
+    },
+    antecedentesPersonalesNoPatologicos: {
+      tipoVivienda: '',
+      materialVivienda: '',
+      servicios: [],
+      condicionCalle: '',
+      iluminacionCalle: '',
+      frecuenciaLimpieza: '',
+      cambioRopaCama: '',
+      hacinamiento: '',
+      promiscuidad: '',
+      mascotas: '',
+      manejoResiduos: '',
+      frecuenciaBano: '',
+      lavadoManos: [],
+      cambioRopa: '',
+      frecuenciaCepillado: '',
+      tecnicaCepillado: '',
+      auxiliaresBucales: [],
+      ultimaVisitaOdontologo: '',
+      problemasBucales: [],
+      alimentosConsumidos: [],
+      frecuenciaFrutasVerduras: '',
+      frecuenciaBebidasAzucaradas: '',
+      frecuenciaComidaChatarra: '',
+      consumoAgua: '',
+      numeroComidas: '',
+      horarioComidas: {
+        desayuno: '',
+        almuerzo: '',
+        cena: ''
+      },
+      ayunoProlongado: ''
+    },
+    antecedentesPersonalesPatologicos: {
+      nutricionales: {
+        ninguna: true,
+        otra: false,
+        otraDescripcion: '',
+        anorexia: false,
+        bulimia: false,
+        sobrepeso: false,
+        obesidad: false
+      },
+      cardiacos: {
+        ninguna: true,
+        otra: false,
+        otraDescripcion: '',
+        enfermedadCoronaria: false,
+        arritmias: false,
+        defectosCardiacosCongenitos: false
+      },
+      hepaticos: {
+        ninguna: true,
+        otra: false,
+        otraDescripcion: '',
+        hepatitisA: false,
+        hepatitisB: false,
+        hepatitisC: false,
+        higadoGraso: false,
+        cirrosis: false
+      },
+      enfermedadesTransmisionSexual: {
+        ninguna: true,
+        otra: false,
+        otraDescripcion: '',
+        vih: false,
+        sifilis: false,
+        gonorrea: false,
+        herpesGenital: false,
+        vph: false
+      },
+      enfermedadesEruptivas: {
+        ninguna: true,
+        otra: false,
+        otraDescripcion: '',
+        sarampion: false,
+        rubeola: false,
+        escarlatina: false,
+        varicela: false,
+        paperas: false
+      },
+      pulmonares: {
+        ninguna: true,
+        otra: false,
+        otraDescripcion: '',
+        neumonia: false,
+        bronquitis: false,
+        asma: false,
+        epoc: false
+      },
+      infecciosasParasitarias: {
+        ninguna: true,
+        otra: false,
+        otraDescripcion: '',
+        fiebreTifoidea: false,
+        tuberculosis: false,
+        amibiasis: false,
+        giardiasis: false,
+        ascariasis: false
+      },
+      otrosPadecimientos: {
+        ninguna: true,
+        otra: false,
+        otraDescripcion: '',
+        especificar: false
+      }
+    },
+    antecedentesAlergicos: {
+      medicamentos: {
+        es_alergico: false,
+        cuales: '',
+        tipo_reaccion: '',
+        severidad: ''
+      },
+      alimentos: {
+        es_alergico: false,
+        cuales: ''
+      },
+      latex: {
+        es_alergico: false,
+        descripcion_reaccion: ''
+      }
+    },
+    antecedentesQuirurgicos: {
+      sinQuirurgicos: true,
+      cirugiasRealizadas: [],
+      hospitalizacionesPrevias: '',
+      complicacionesAnestesicas: ''
+    },
+    antecedentesHemorragicos: {
+      sinHemorragicos: true,
+      sangradoProlongado: '',
+      hematomas: '',
+      hemorragiasEspontaneas: '',
+      transfusiones: '',
+      detallesAdicionales: ''
+    },
     interrogatorioSistemas: {},
-    exploracionFisica: {},
-    examenCabeza: {},
-    articulacionCraneomandibular: {},
-    examenCuello: {},
-    examenIntrabucal: {},
-    glandulasSalivales: {},
-    oclusion: {},
-    relacionDientes: {},
-    lineaMedia: {},
-    frenillos: {},
-    diagnostico: {},
-    pronostico: {}
+    exploracionFisica: {
+      signosVitales: {
+        ta: '',
+        fc: '',
+        fr: '',
+        temperatura: '',
+        peso: '',
+        talla: '',
+        imc: ''
+      },
+      exploracion: {}
+    },
+    examenCabeza: {
+      sinHallazgos: true,
+      craneo: '',
+      cara: '',
+      ojos: '',
+      oidos: '',
+      nariz: '',
+      boca: '',
+      atm: ''
+    },
+    articulacionCraneomandibular: {
+      sinHallazgos: true,
+      aperturaBucal: '',
+      movimientoLateral: '',
+      chasquidos: false,
+      crepitacion: false,
+      dolor: false,
+      observaciones: ''
+    },
+    examenCuello: {
+      sinHallazgos: true,
+      gangliosLinfaticos: '',
+      musculatura: '',
+      tiroides: '',
+      movilidad: '',
+      observaciones: ''
+    },
+    examenIntrabucal: {
+      sinHallazgos: true,
+      lengua: '',
+      paladarDuro: '',
+      paladarBlando: '',
+      mucosaYugal: '',
+      pisoBoca: '',
+      encias: '',
+      dientes: '',
+      observaciones: ''
+    },
+    glandulasSalivales: {
+      sinHallazgos: true,
+      parotida: '',
+      submaxilar: '',
+      sublingual: '',
+      secrecion: '',
+      observaciones: ''
+    },
+    oclusion: {
+      sinHallazgos: true,
+      clasificacionAngle: '',
+      overjet: '',
+      overbite: '',
+      mordidaCruzada: false,
+      mordidaAbierta: false,
+      observaciones: ''
+    },
+    relacionDientes: {
+      sinHallazgos: true,
+      relacionMolar: '',
+      relacionCanina: '',
+      apiñamiento: false,
+      diastemas: false,
+      observaciones: ''
+    },
+    lineaMedia: {
+      sinHallazgos: true,
+      coincidente: false,
+      desviacion: '',
+      observaciones: ''
+    },
+    frenillos: {
+      sinHallazgos: true,
+      labialSuperior: '',
+      labialInferior: '',
+      lingual: '',
+      observaciones: ''
+    },
+    diagnostico: {
+      principal: '',
+      secundarios: '',
+      observaciones: ''
+    },
+    pronostico: {
+      general: '',
+      particular: '',
+      observaciones: ''
+    }
   });
 
   const handleFormChange = (section: keyof FormDataState, data: any) => {
@@ -66,6 +396,29 @@ const HistoriaClinica = () => {
       ...prev,
       [section]: data
     }));
+  };
+
+  // Función para generar redacción para cada sección del formulario
+  const generateRedaction = async (sectionTitle: string, sectionData: any) => {
+    // Simular la generación de redacción basada en los datos de la sección
+    try {
+      // Aquí se generaría la redacción real utilizando un servicio de IA
+      // Por ahora, simplemente formateamos los datos como texto
+      let redactionText = `${sectionTitle}:\n`;
+      
+      Object.entries(sectionData).forEach(([key, value]: [string, any]) => {
+        if (typeof value === 'object' && value !== null) {
+          redactionText += `${key}: ${JSON.stringify(value)}\n`;
+        } else if (value !== undefined && value !== null && value !== '') {
+          redactionText += `${key}: ${value}\n`;
+        }
+      });
+      
+      return redactionText;
+    } catch (error) {
+      console.error(`Error generando redacción para ${sectionTitle}:`, error);
+      return null;
+    }
   };
 
   const collectAllRedactions = async () => {
@@ -155,7 +508,7 @@ const HistoriaClinica = () => {
           <CardContent className="p-4">
             <TabsContent value="padecimiento-actual">
               <PadecimientoActual
-                formData={formData.padecimientoActual}
+                formData={{padecimientoActual: formData.padecimientoActual}}
                 onChange={(data) => handleFormChange('padecimientoActual', data)}
               />
             </TabsContent>
@@ -163,28 +516,37 @@ const HistoriaClinica = () => {
             <TabsContent value="antecedentes">
               <div className="space-y-8">
                 <AntecedentesHeredoFamiliares
-                  formData={formData.antecedentesHeredoFamiliares}
+                  formData={formData}
                   onChange={(data) => handleFormChange('antecedentesHeredoFamiliares', data)}
                 />
                 <AntecedentesPersonalesNoPatologicos
-                  formData={formData.antecedentesPersonalesNoPatologicos}
-                  onChange={(data) => handleFormChange('antecedentesPersonalesNoPatologicos', data)}
+                  formData={formData}
                 />
                 <AntecedentesPersonalesPatologicos
-                  formData={formData.antecedentesPersonalesPatologicos}
-                  onChange={(data) => handleFormChange('antecedentesPersonalesPatologicos', data)}
+                  formData={formData}
                 />
                 <AntecedentesAlergicos
-                  formData={formData.antecedentesAlergicos}
-                  onChange={(data) => handleFormChange('antecedentesAlergicos', data)}
+                  formData={formData}
                 />
                 <AntecedentesQuirurgicos
-                  formData={formData.antecedentesQuirurgicos}
-                  onChange={(data) => handleFormChange('antecedentesQuirurgicos', data)}
+                  formData={formData}
+                  handleAntecedenteQuirurgicoChange={(field, value) => {
+                    const updatedData = {
+                      ...formData.antecedentesQuirurgicos,
+                      [field]: value
+                    };
+                    handleFormChange('antecedentesQuirurgicos', updatedData);
+                  }}
                 />
                 <AntecedentesHemorragicos
-                  formData={formData.antecedentesHemorragicos}
-                  onChange={(data) => handleFormChange('antecedentesHemorragicos', data)}
+                  formData={formData}
+                  handleAntecedenteHemorragicoChange={(field, value) => {
+                    const updatedData = {
+                      ...formData.antecedentesHemorragicos,
+                      [field]: value
+                    };
+                    handleFormChange('antecedentesHemorragicos', updatedData);
+                  }}
                 />
               </div>
             </TabsContent>
@@ -192,11 +554,11 @@ const HistoriaClinica = () => {
             <TabsContent value="exploracion">
               <div className="space-y-8">
                 <InterrogatorioSistemas
-                  formData={formData.interrogatorioSistemas}
+                  formData={formData}
                   onChange={(data) => handleFormChange('interrogatorioSistemas', data)}
                 />
                 <ExploracionFisica
-                  formData={formData.exploracionFisica}
+                  formData={formData}
                   onChange={(data) => handleFormChange('exploracionFisica', data)}
                 />
               </div>
@@ -205,39 +567,39 @@ const HistoriaClinica = () => {
             <TabsContent value="examenes">
               <div className="space-y-8">
                 <ExamenCabeza
-                  formData={formData.examenCabeza}
+                  formData={formData}
                   onChange={(data) => handleFormChange('examenCabeza', data)}
                 />
                 <ArticulacionCraneomandibular
-                  formData={formData.articulacionCraneomandibular}
+                  formData={formData}
                   onChange={(data) => handleFormChange('articulacionCraneomandibular', data)}
                 />
                 <ExamenCuello
-                  formData={formData.examenCuello}
+                  formData={formData}
                   onChange={(data) => handleFormChange('examenCuello', data)}
                 />
                 <ExamenIntrabucal
-                  formData={formData.examenIntrabucal}
+                  formData={formData}
                   onChange={(data) => handleFormChange('examenIntrabucal', data)}
                 />
                 <GlandulasSalivales
-                  formData={formData.glandulasSalivales}
+                  formData={formData}
                   onChange={(data) => handleFormChange('glandulasSalivales', data)}
                 />
                 <Oclusion
-                  formData={formData.oclusion}
+                  formData={formData}
                   onChange={(data) => handleFormChange('oclusion', data)}
                 />
                 <RelacionDientes
-                  formData={formData.relacionDientes}
+                  formData={formData}
                   onChange={(data) => handleFormChange('relacionDientes', data)}
                 />
                 <LineaMedia
-                  formData={formData.lineaMedia}
+                  formData={formData}
                   onChange={(data) => handleFormChange('lineaMedia', data)}
                 />
                 <Frenillos
-                  formData={formData.frenillos}
+                  formData={formData}
                   onChange={(data) => handleFormChange('frenillos', data)}
                 />
               </div>
@@ -245,14 +607,14 @@ const HistoriaClinica = () => {
 
             <TabsContent value="diagnostico">
               <Diagnostico
-                formData={formData.diagnostico}
+                formData={formData}
                 onChange={(data) => handleFormChange('diagnostico', data)}
               />
             </TabsContent>
 
             <TabsContent value="pronostico">
               <Pronostico
-                formData={formData.pronostico}
+                formData={formData}
                 onChange={(data) => handleFormChange('pronostico', data)}
               />
             </TabsContent>

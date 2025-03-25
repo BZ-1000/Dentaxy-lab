@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +9,7 @@ import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
+
 interface PadecimientoActualProps {
   formData: {
     padecimientoActual: {
@@ -29,10 +31,9 @@ interface PadecimientoActualProps {
       };
     };
   };
-  handlePadecimientoChange: (field: string, value: string) => void;
-  handleDolorChange: (field: string, value: any) => void;
-  handleSinSintomasChange: (checked: boolean) => void;
+  onChange: (data: any) => void;
 }
+
 function revisarRedaccion(text: string): string {
   let textoCorregido = text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
   const frasesRedundantes = [{
@@ -70,6 +71,7 @@ function revisarRedaccion(text: string): string {
   textoCorregido = textoCorregido.replace(/provocado por/gi, 'provocada por').replace(/aparece en/gi, 'aparece cuando').replace(/se ha observado que/gi, 'se observa que').replace(/presenta un dolor/gi, 'manifiesta dolor').replace(/tiene dolor/gi, 'presenta dolor').replace(/el dolor es/gi, 'el dolor se caracteriza por ser');
   return textoCorregido;
 }
+
 function formatearTexto(text: string): string {
   let textoFormateado = text.replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>').replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
   const sections = textoFormateado.split('<strong>Historia del padecimiento:</strong>');
@@ -81,11 +83,10 @@ function formatearTexto(text: string): string {
   textoFormateado = textoFormateado.replace(/\n\s*\n\s*\n/g, '\n\n');
   return textoFormateado;
 }
+
 const PadecimientoActual = ({
   formData,
-  handlePadecimientoChange,
-  handleDolorChange,
-  handleSinSintomasChange
+  onChange
 }: PadecimientoActualProps) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -100,6 +101,7 @@ const PadecimientoActual = ({
   const motivosEjemplo = ["dolor dental intenso en molar superior derecho...", "sangrado de encías al cepillarse...", "revisión y limpieza dental de rutina...", "sensibilidad al frío y calor en dientes anteriores...", "inflamación y dolor en zona de muelas del juicio...", "aplicación de resina en diente fracturado...", "evaluación para tratamiento de ortodoncia...", "manchas oscuras en los dientes frontales...", "mal aliento persistente...", "dolor al masticar alimentos..."];
   const defaultCausaProvocado = "Provocado con ";
   const causasProvocadoEjemplo = ["alimentos fríos o helados en contacto con el diente...", "la presión durante la masticación de alimentos duros...", "bebidas calientes que generan dolor inmediato...", "el cepillado en la zona vestibular de los premolares...", "dulces y alimentos azucarados que desencadenan molestias..."];
+
   useEffect(() => {
     if (!formData.padecimientoActual.motivoConsulta) {
       handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
@@ -108,18 +110,74 @@ const PadecimientoActual = ({
       handleDolorChange("causaProvocado", defaultCausaProvocado);
     }
   }, []);
+
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
   };
+
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
     setIsMinimized(false);
   };
+
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
   };
+
+  const handlePadecimientoChange = (field: string, value: string) => {
+    const updatedData = {
+      ...formData.padecimientoActual,
+      [field]: value
+    };
+    onChange({ padecimientoActual: updatedData });
+  };
+
+  const handleDolorChange = (field: string, value: any) => {
+    const updatedDolor = { ...formData.padecimientoActual.dolor };
+    
+    if (field === 'localizacion') {
+      let localizacion;
+      
+      if (typeof value === 'string') {
+        try {
+          if (value.startsWith('{') && value.endsWith('}')) {
+            localizacion = JSON.parse(value);
+          } else {
+            localizacion = { 
+              tipo: '',
+              descripcion: value 
+            };
+          }
+        } catch (e) {
+          localizacion = { tipo: '', descripcion: value };
+        }
+      } else if (typeof value === 'object') {
+        localizacion = value;
+      }
+      
+      updatedDolor.localizacion = localizacion;
+    } else {
+      updatedDolor[field as keyof typeof updatedDolor] = value;
+    }
+    
+    onChange({ 
+      padecimientoActual: {
+        ...formData.padecimientoActual,
+        dolor: updatedDolor
+      }
+    });
+  };
+
+  const handleSinSintomasChange = (checked: boolean) => {
+    const updatedData = {
+      ...formData.padecimientoActual,
+      sinSintomas: checked
+    };
+    onChange({ padecimientoActual: updatedData });
+  };
+
   const generarRedaccionIA = () => {
     const motivoConsulta = formData.padecimientoActual.motivoConsulta.trim();
     const sinSintomas = formData.padecimientoActual.sinSintomas;
@@ -166,25 +224,33 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
       }, 300);
     }, 100);
   };
+
   const limpiarFormulario = () => {
-    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
-    handlePadecimientoChange("historiaPadecimiento", "");
-    handleDolorChange("fechaInicio", "");
-    handleDolorChange("condicionAparicion", "");
-    handleDolorChange("frecuencia", "");
-    handleDolorChange("caracter", "");
-    handleDolorChange("intensidad", "");
-    handleDolorChange("localizacion", {
-      tipo: "",
-      descripcion: ""
+    onChange({
+      padecimientoActual: {
+        sinSintomas: false,
+        motivoConsulta: defaultMotivoConsulta,
+        historiaPadecimiento: "",
+        dolor: {
+          fechaInicio: "",
+          condicionAparicion: "",
+          frecuencia: "",
+          caracter: "",
+          intensidad: "",
+          localizacion: {
+            tipo: "",
+            descripcion: ""
+          },
+          atenuacion: "",
+          causaProvocado: defaultCausaProvocado
+        }
+      }
     });
-    handleDolorChange("atenuacion", "");
-    handleDolorChange("causaProvocado", defaultCausaProvocado);
-    handleSinSintomasChange(false);
     setRedaccionIA("");
     setShowRedaccion(false);
     setShowCausasProvocado(false);
   };
+
   const handleCopy = async () => {
     await navigator.clipboard.writeText(redaccionIA);
     setCopied(true);
@@ -192,6 +258,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
       setCopied(false);
     }, 2000);
   };
+
   useEffect(() => {
     let index = 0;
     const interval = setInterval(() => {
@@ -205,6 +272,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     }, 15);
     return () => clearInterval(interval);
   }, [redaccionIA]);
+
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="padecimientoActual">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -330,4 +398,5 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
       </Card>
     </div>;
 };
+
 export default PadecimientoActual;
