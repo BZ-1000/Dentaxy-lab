@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -209,9 +210,17 @@ const HistoriaClinica = () => {
         }
       }
       
-      // Strategy 4: Find any paragraph or text container
+      // Strategy 4: Find any paragraph or text content in the active tab panel
       if (!contentElement) {
-        contentElement = sectionElement.querySelector('p, div.text-content');
+        const activePanel = sectionElement.querySelector('[role="tabpanel"]:not([aria-hidden="true"])');
+        if (activePanel) {
+          contentElement = activePanel.querySelector('p, div.text-content, div');
+        }
+      }
+      
+      // Strategy 5: Just get the text content of the active panel itself
+      if (!contentElement) {
+        contentElement = sectionElement.querySelector('[role="tabpanel"]:not([aria-hidden="true"])');
       }
       
       if (!contentElement) {
@@ -262,32 +271,89 @@ const HistoriaClinica = () => {
       { name: 'pronostico', title: 'XX. PRONÓSTICO' }
     ];
     
-    // For simplicity, focus on the first 4 sections that we know have IA button
-    const primarySections = sectionConfigs.slice(0, 4);
-    const totalSections = primarySections.length;
-    pdfSectionsRef.current = {};
-    
     // Get all section elements
     const allSectionElements = document.querySelectorAll('[data-section-redaction="true"]');
     
     if (!allSectionElements || allSectionElements.length === 0) {
       console.error("No section elements found with data-section-redaction attribute");
-      return pdfSectionsRef.current;
+      
+      // Fallback: try to find sections by their headings
+      const sections = document.querySelectorAll('h2, h3');
+      const sectionElements: Element[] = [];
+      
+      for (const heading of sections) {
+        const text = heading.textContent || '';
+        const sectionConfig = sectionConfigs.find(config => text.includes(config.title));
+        if (sectionConfig) {
+          // Find the parent section container
+          let parent = heading.parentElement;
+          while (parent && !parent.classList.contains('space-y-6')) {
+            parent = parent.parentElement;
+          }
+          if (parent) {
+            sectionElements.push(parent);
+          }
+        }
+      }
+      
+      if (sectionElements.length > 0) {
+        console.log(`Found ${sectionElements.length} section elements using fallback method`);
+        // Process the first 4 sections (the ones with redaction buttons)
+        pdfSectionsRef.current = {};
+        
+        for (let i = 0; i < Math.min(sectionElements.length, 4); i++) {
+          const sectionConfig = sectionConfigs[i];
+          const sectionElement = sectionElements[i];
+          
+          // Generate redactions for each section
+          await generateSectionRedaction(sectionConfig.name, sectionElement);
+          
+          // Set progress
+          setPdfGenerationProgress(Math.round((i / 4) * 50));
+          
+          // Wait between sections
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+        
+        // Additional wait to ensure all content is generated
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        
+        // Collect redactions from all sections
+        for (let i = 0; i < Math.min(sectionElements.length, 4); i++) {
+          const sectionConfig = sectionConfigs[i];
+          const sectionElement = sectionElements[i];
+          
+          const content = getSectionRedaction(sectionConfig.name, sectionElement);
+          if (content) {
+            pdfSectionsRef.current[sectionConfig.name] = content;
+          }
+          
+          // Set progress
+          setPdfGenerationProgress(Math.round(50 + (i / 4) * 50));
+        }
+        
+        return pdfSectionsRef.current;
+      }
+      
+      return {};
     }
     
     console.log(`Found ${allSectionElements.length} section elements`);
+    pdfSectionsRef.current = {};
+    
+    // Process all sections (focus on first 4 which have the redaction buttons)
+    const sectionsToProcess = Math.min(allSectionElements.length, 4);
     
     // First pass: Generate all redactions
-    let processedCount = 0;
-    for (let i = 0; i < Math.min(allSectionElements.length, 4); i++) {
-      const section = primarySections[i];
+    for (let i = 0; i < sectionsToProcess; i++) {
+      const sectionConfig = sectionConfigs[i];
       const sectionElement = allSectionElements[i];
       
-      console.log(`Generating redaction for section: ${section.name}`);
-      await generateSectionRedaction(section.name, sectionElement);
+      console.log(`Generating redaction for section: ${sectionConfig.name}`);
+      await generateSectionRedaction(sectionConfig.name, sectionElement);
       
-      processedCount++;
-      setPdfGenerationProgress(Math.round((processedCount / (totalSections * 2)) * 100));
+      // Update progress
+      setPdfGenerationProgress(Math.round((i / sectionsToProcess) * 50));
       
       // Longer wait between sections
       await new Promise(resolve => setTimeout(resolve, 3000));
@@ -297,22 +363,22 @@ const HistoriaClinica = () => {
     await new Promise(resolve => setTimeout(resolve, 5000));
     
     // Second pass: Collect all redactions
-    for (let i = 0; i < Math.min(allSectionElements.length, 4); i++) {
-      const section = primarySections[i];
+    for (let i = 0; i < sectionsToProcess; i++) {
+      const sectionConfig = sectionConfigs[i];
       const sectionElement = allSectionElements[i];
       
-      console.log(`Collecting redaction for section: ${section.name}`);
-      const content = getSectionRedaction(section.name, sectionElement);
+      console.log(`Collecting redaction for section: ${sectionConfig.name}`);
+      const content = getSectionRedaction(sectionConfig.name, sectionElement);
       
       if (content) {
-        pdfSectionsRef.current[section.name] = content;
-        console.log(`Successfully collected content for ${section.name}`);
+        pdfSectionsRef.current[sectionConfig.name] = content;
+        console.log(`Successfully collected content for ${sectionConfig.name}`);
       } else {
-        console.warn(`Failed to collect content for ${section.name}`);
+        console.warn(`Failed to collect content for ${sectionConfig.name}`);
       }
       
-      processedCount++;
-      setPdfGenerationProgress(Math.round(((totalSections + processedCount) / (totalSections * 2)) * 100));
+      // Update progress
+      setPdfGenerationProgress(50 + Math.round((i / sectionsToProcess) * 50));
     }
     
     console.log("All redactions collected:", Object.keys(pdfSectionsRef.current));
@@ -337,7 +403,7 @@ const HistoriaClinica = () => {
         description: "La Historia Clínica ha sido generada exitosamente."
       });
       
-      // We're not resetting the form anymore
+      // IMPORTANT: We're NOT resetting the form anymore as requested by the user
       // Removed: resetFormulario();
       
     } catch (error) {
