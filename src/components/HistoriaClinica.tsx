@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -130,32 +129,83 @@ const HistoriaClinica = () => {
   };
   
   const collectAllRedactions = async () => {
-    const sectionsRefs = document.querySelectorAll('[data-section-redaction]');
-    const totalSections = sectionsRefs.length;
+    // Get all sections that have a "Generar Redacción IA" button
+    const sectionsWithGenerateButtons = [
+      { 
+        selector: '[data-section-redaction="true"][data-section-name="padecimientoActual"]',
+        sectionName: 'padecimientoActual' 
+      },
+      { 
+        selector: 'div:has(h2:contains("Antecedentes Heredo Familiares"))',
+        sectionName: 'antecedentesHeredoFamiliares',
+        buttonSelector: '.bg-blue-500:contains("Generar Redacción IA")'
+      },
+      { 
+        selector: 'div:has(h2:contains("ANTECEDENTES PERSONALES NO PATOLÓGICOS"))',
+        sectionName: 'antecedentesPersonalesNoPatologicos',
+        buttonSelector: '.bg-blue-500:contains("Generar Redacción IA")'
+      },
+      { 
+        selector: 'div:has(h2:contains("ANTECEDENTES PERSONALES PATOLÓGICOS"))',
+        sectionName: 'antecedentesPersonalesPatologicos',
+        buttonSelector: '.bg-blue-500:contains("Generar Redacción IA")'
+      }
+    ];
+    
+    const totalSections = sectionsWithGenerateButtons.length;
     let processedSections = 0;
     
     pdfSectionsRef.current = {};
     
-    // For each section with a "Generar Redacción IA" button
-    for (const sectionRef of Array.from(sectionsRefs)) {
-      const sectionName = sectionRef.getAttribute('data-section-name') || '';
-      // Fix the selector to use proper querySelector syntax
-      const generateButton = sectionRef.querySelector('button[class*="bg-blue-500"]') || 
-                             sectionRef.querySelector('button:nth-of-type(1)');
+    // Process each section
+    for (const section of sectionsWithGenerateButtons) {
+      // Find the section in the DOM
+      const sectionElement = document.querySelector(section.selector);
       
-      if (generateButton) {
-        // Click the button to generate the redaction
-        (generateButton as HTMLElement).click();
+      if (sectionElement) {
+        // Look for a button to generate redaction
+        let generateButton;
         
-        // Wait for content to be generated
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Use specific button selector if provided
+        if (section.buttonSelector) {
+          generateButton = sectionElement.querySelector(section.buttonSelector);
+        } else {
+          // Default button selectors
+          generateButton = sectionElement.querySelector('button.bg-blue-500:not(.hover\\:bg-blue-600)') || 
+                          sectionElement.querySelector('button:has(span:contains("Generar Redacción IA"))') ||
+                          sectionElement.querySelector('button.bg-blue-500');
+        }
         
-        // Find the redaction content
-        const redactionContent = sectionRef.querySelector('[data-redaction-content]');
-        if (redactionContent) {
-          const text = redactionContent.innerHTML;
-          if (text && text.trim()) {
-            pdfSectionsRef.current[sectionName] = text;
+        if (generateButton) {
+          // Get current tab (form vs redaction)
+          const formTab = sectionElement.querySelector('button:not(.bg-blue-500):contains("Formulario")');
+          const redactionTab = sectionElement.querySelector('button:not(.bg-blue-500):contains("Redacción IA")');
+          
+          // Remember which tab was active
+          const wasOnFormTab = formTab && !formTab.classList.contains('bg-blue-500');
+          
+          // Click to generate redaction
+          (generateButton as HTMLElement).click();
+          
+          // Wait for the redaction to be generated
+          await new Promise(resolve => setTimeout(resolve, 800));
+          
+          // Locate the generated content
+          const contentContainer = sectionElement.querySelector('[data-redaction-content]') || 
+                                  sectionElement.querySelector('.min-h-\\[200px\\]') ||
+                                  sectionElement.querySelector('div[style*="white-space: pre-wrap"]');
+          
+          if (contentContainer) {
+            // Extract the content
+            const text = contentContainer.textContent || contentContainer.innerHTML;
+            if (text && text.trim()) {
+              pdfSectionsRef.current[section.sectionName] = text;
+            }
+          }
+          
+          // If we were on the form tab before, switch back
+          if (wasOnFormTab && formTab) {
+            (formTab as HTMLElement).click();
           }
         }
         
@@ -168,6 +218,7 @@ const HistoriaClinica = () => {
     return pdfSectionsRef.current;
   };
   
+  // Update the button style to make it more prominent
   const handleGeneratePDF = () => {
     const missing = validateForm();
     if (missing.length > 0) {
@@ -178,6 +229,8 @@ const HistoriaClinica = () => {
     }
   };
   
+  
+  // Update generatePDFDocument to collect all section redactions
   const generatePDFDocument = async () => {
     try {
       setIsGeneratingPDF(true);
@@ -216,6 +269,7 @@ const HistoriaClinica = () => {
       guardarFormulario(formData, nombre);
       setPacienteActual(nombre);
     }} onCerrarFormulario={handleLimpiarFormulario} onResetFormulario={handleResetFormulario} pacienteActual={pacienteActual} />
+      
       
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
         
@@ -299,12 +353,12 @@ const HistoriaClinica = () => {
             <Pronostico formData={formData} handlePronosticoChange={handlePronosticoChange} />
 
             <div className="flex justify-center pt-6">
-              <Button onClick={handleGeneratePDF} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] font-normal">
+              <Button onClick={handleGeneratePDF} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] font-semibold text-lg px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105">
                 {isGeneratingPDF ? <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Generando PDF...
                   </> : <>
-                    <FileText className="mr-2 h-4 w-4" />
+                    <FileText className="mr-2 h-5 w-5" />
                     Generar Historia Clínica en PDF
                   </>}
               </Button>
@@ -326,4 +380,5 @@ const HistoriaClinica = () => {
       <Toaster />
     </div>;
 };
+
 export default HistoriaClinica;
