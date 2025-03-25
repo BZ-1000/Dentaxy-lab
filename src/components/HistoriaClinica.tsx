@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -226,8 +227,8 @@ const HistoriaClinica = () => {
               (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)
             </p>
             
-            {/* Componente de nombre de paciente con estilo Apple minimalista */}
-            <div className="max-w-lg mx-auto mb-2">
+            {/* Componente de nombre de paciente con estilo Apple minimalista - ahora sticky */}
+            <div className="max-w-lg mx-auto mb-2 sticky top-4 z-30">
               <div className="backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
                 <div className="flex items-center gap-3">
                   <div className="relative flex-1">
