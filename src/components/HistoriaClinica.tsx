@@ -261,7 +261,17 @@ const HistoriaClinica = () => {
       { name: 'antecedentesHemorragicos', selector: '[data-section-name="antecedentesHemorragicos"]' },
       { name: 'interrogatorioSistemas', selector: '[data-section-name="interrogatorioSistemas"]' },
       { name: 'exploracionFisica', selector: '[data-section-name="exploracionFisica"]' },
-      { name: 'examenCabeza', selector: '[data-section-name="examenCabeza"]' }
+      { name: 'examenCabeza', selector: '[data-section-name="examenCabeza"]' },
+      { name: 'articulacionCraneomandibular', selector: '[data-section-name="articulacionCraneomandibular"]' },
+      { name: 'examenCuello', selector: '[data-section-name="examenCuello"]' },
+      { name: 'examenIntrabucal', selector: '[data-section-name="examenIntrabucal"]' },
+      { name: 'glandulasSalivales', selector: '[data-section-name="glandulasSalivales"]' },
+      { name: 'oclusion', selector: '[data-section-name="oclusion"]' },
+      { name: 'relacionDientes', selector: '[data-section-name="relacionDientes"]' },
+      { name: 'lineaMedia', selector: '[data-section-name="lineaMedia"]' },
+      { name: 'frenillos', selector: '[data-section-name="frenillos"]' },
+      { name: 'diagnostico', selector: '[data-section-name="diagnostico"]' },
+      { name: 'pronostico', selector: '[data-section-name="pronostico"]' }
     ];
     
     // Total steps for progress calculation
@@ -508,55 +518,75 @@ const HistoriaClinica = () => {
               />
             </div>
             
-            <ArticulacionCraneomandibular 
-              formData={formData} 
-              handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} 
-            />
+            <div data-section-redaction="true" data-section-name="articulacionCraneomandibular">
+              <ArticulacionCraneomandibular 
+                formData={formData} 
+                handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} 
+              />
+            </div>
             
-            <ExamenCuello 
-              formData={formData} 
-              handleExamenCuelloChange={handleExamenCuelloChange} 
-            />
+            <div data-section-redaction="true" data-section-name="examenCuello">
+              <ExamenCuello 
+                formData={formData} 
+                handleExamenCuelloChange={handleExamenCuelloChange} 
+              />
+            </div>
             
-            <ExamenIntrabucal 
-              formData={formData} 
-              handleExamenIntrabucalChange={handleExamenIntrabucalChange} 
-            />
+            <div data-section-redaction="true" data-section-name="examenIntrabucal">
+              <ExamenIntrabucal 
+                formData={formData} 
+                handleExamenIntrabucalChange={handleExamenIntrabucalChange} 
+              />
+            </div>
             
-            <GlandulasSalivales 
-              formData={formData} 
-              handleGlandulasSalivalesChange={handleGlandulasSalivalesChange} 
-            />
+            <div data-section-redaction="true" data-section-name="glandulasSalivales">
+              <GlandulasSalivales 
+                formData={formData} 
+                handleGlandulasSalivalesChange={handleGlandulasSalivalesChange} 
+              />
+            </div>
             
-            <Oclusion 
-              formData={formData} 
-              handleOclusionChange={handleOclusionChange} 
-            />
+            <div data-section-redaction="true" data-section-name="oclusion">
+              <Oclusion 
+                formData={formData} 
+                handleOclusionChange={handleOclusionChange} 
+              />
+            </div>
             
-            <RelacionDientes 
-              formData={formData} 
-              handleRelacionDientesChange={handleRelacionDientesChange} 
-            />
+            <div data-section-redaction="true" data-section-name="relacionDientes">
+              <RelacionDientes 
+                formData={formData} 
+                handleRelacionDientesChange={handleRelacionDientesChange} 
+              />
+            </div>
             
-            <LineaMedia 
-              formData={formData} 
-              handleLineaMediaChange={handleLineaMediaChange} 
-            />
+            <div data-section-redaction="true" data-section-name="lineaMedia">
+              <LineaMedia 
+                formData={formData} 
+                handleLineaMediaChange={handleLineaMediaChange} 
+              />
+            </div>
             
-            <Frenillos 
-              formData={formData} 
-              handleFrenillosChange={handleFrenillosChange} 
-            />
+            <div data-section-redaction="true" data-section-name="frenillos">
+              <Frenillos 
+                formData={formData} 
+                handleFrenillosChange={handleFrenillosChange} 
+              />
+            </div>
             
-            <Diagnostico 
-              formData={formData} 
-              handleDiagnosticoChange={handleDiagnosticoChange} 
-            />
+            <div data-section-redaction="true" data-section-name="diagnostico">
+              <Diagnostico 
+                formData={formData} 
+                handleDiagnosticoChange={handleDiagnosticoChange} 
+              />
+            </div>
             
-            <Pronostico 
-              formData={formData} 
-              handlePronosticoChange={handlePronosticoChange} 
-            />
+            <div data-section-redaction="true" data-section-name="pronostico">
+              <Pronostico 
+                formData={formData} 
+                handlePronosticoChange={handlePronosticoChange} 
+              />
+            </div>
 
             <div className="flex justify-center pt-6">
               <Button 
