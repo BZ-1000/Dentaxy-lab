@@ -44,6 +44,8 @@ const HistoriaClinica = () => {
   const [nombrePaciente, setNombrePaciente] = useState<string>('');
   const [alertOpen, setAlertOpen] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
+  const [formularios, setFormularios] = useState<{nombre: string; data: any}[]>([]);
+  
   const {
     formData,
     resumen,
@@ -83,7 +85,28 @@ const HistoriaClinica = () => {
   const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
   const pdfSectionsRef = useRef<{[key: string]: string}>({});
   
+  const loadSavedForms = () => {
+    const savedForms: {
+      nombre: string;
+      data: any;
+    }[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('formulario_')) {
+        const nombre = key.replace('formulario_', '');
+        const data = JSON.parse(localStorage.getItem(key) || '{}');
+        savedForms.push({
+          nombre,
+          data
+        });
+      }
+    }
+    setFormularios(savedForms);
+  };
   
+  useEffect(() => {
+    loadSavedForms();
+  }, []);
   
   useEffect(() => {
     if (pacienteActual) {
@@ -113,6 +136,7 @@ const HistoriaClinica = () => {
     }
     guardarFormulario(formData, nombrePaciente);
     setPacienteActual(nombrePaciente);
+    loadSavedForms(); // Actualizar la lista de formularios
     toast({
       title: "Formulario guardado",
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
@@ -129,6 +153,20 @@ const HistoriaClinica = () => {
     return allMissingFields;
   };
   
+  const simulateButtonClick = (selector: string, section: HTMLElement | null) => {
+    if (!section) return null;
+  
+    // Encuentra el botón dentro de la sección utilizando el selector
+    const button = section.querySelector(selector) as HTMLButtonElement | null;
+    
+    if (button) {
+      // Simula el clic en el botón
+      button.click();
+      return true;
+    }
+    return false;
+  };
+  
   const collectAllRedactions = async () => {
     const sectionsRefs = document.querySelectorAll('[data-section-redaction]');
     const totalSections = sectionsRefs.length;
@@ -139,18 +177,20 @@ const HistoriaClinica = () => {
     // For each section with a "Generar Redacción IA" button
     for (const sectionRef of Array.from(sectionsRefs)) {
       const sectionName = sectionRef.getAttribute('data-section-name') || '';
-      // Fix the selector to use proper querySelector syntax
-      const generateButton = sectionRef.querySelector('button[class*="bg-blue-500"]') || 
-                             sectionRef.querySelector('button:nth-of-type(1)');
       
-      if (generateButton) {
-        // Click the button to generate the redaction
-        (generateButton as HTMLElement).click();
-        
-        // Wait for content to be generated
+      // Intentar encontrar y hacer clic en el botón de generación de redacción
+      let clickSuccess = simulateButtonClick('button.bg-blue-500', sectionRef as HTMLElement);
+      
+      if (!clickSuccess) {
+        // Segundo intento con otro selector
+        clickSuccess = simulateButtonClick('button:first-of-type', sectionRef as HTMLElement);
+      }
+      
+      if (clickSuccess) {
+        // Esperar a que se genere el contenido
         await new Promise(resolve => setTimeout(resolve, 500));
         
-        // Find the redaction content
+        // Buscar el contenido de la redacción
         const redactionContent = sectionRef.querySelector('[data-redaction-content]');
         if (redactionContent) {
           const text = redactionContent.innerHTML;
@@ -158,11 +198,11 @@ const HistoriaClinica = () => {
             pdfSectionsRef.current[sectionName] = text;
           }
         }
-        
-        // Update progress
-        processedSections++;
-        setPdfGenerationProgress(Math.round((processedSections / totalSections) * 100));
       }
+      
+      // Actualizar progreso
+      processedSections++;
+      setPdfGenerationProgress(Math.round((processedSections / totalSections) * 100));
     }
     
     return pdfSectionsRef.current;
@@ -208,17 +248,25 @@ const HistoriaClinica = () => {
   
   // Main component render
   return <div className={`${theme} min-h-screen w-full flex`}>
-      <FormulariosSidebar onCargarFormulario={(data, nombre) => {
-      cargarFormulario(data);
-      setPacienteActual(nombre);
-      setNombrePaciente(nombre);
-    }} onGuardarFormulario={nombre => {
-      guardarFormulario(formData, nombre);
-      setPacienteActual(nombre);
-    }} onCerrarFormulario={handleLimpiarFormulario} onResetFormulario={handleResetFormulario} pacienteActual={pacienteActual} />
+      <FormulariosSidebar 
+        onCargarFormulario={(data, nombre) => {
+          cargarFormulario(data);
+          setPacienteActual(nombre);
+          setNombrePaciente(nombre);
+        }} 
+        onGuardarFormulario={nombre => {
+          guardarFormulario(formData, nombre);
+          setPacienteActual(nombre);
+          loadSavedForms(); // Actualizar la lista después de guardar
+        }} 
+        onCerrarFormulario={handleLimpiarFormulario} 
+        onResetFormulario={handleResetFormulario} 
+        pacienteActual={pacienteActual}
+        formularios={formularios}
+        onFormulariosUpdate={loadSavedForms}
+      />
       
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
-        
         
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="text-center">
@@ -227,9 +275,9 @@ const HistoriaClinica = () => {
               (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)
             </p>
             
-            {/* Componente de nombre de paciente con estilo Apple minimalista - ahora sticky */}
+            {/* Componente de nombre de paciente con estilo Apple minimalista - mejorado para ser fijo en pantalla */}
             <div className="max-w-lg mx-auto mb-2 sticky top-4 z-30">
-              <div className="backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
+              <div className="backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-white dark:bg-gray-800 dark:border-gray-700">
                 <div className="flex items-center gap-3">
                   <div className="relative flex-1">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -314,9 +362,9 @@ const HistoriaClinica = () => {
       </div>
       
       <ConfirmationAlert isOpen={alertOpen} onClose={() => setAlertOpen(false)} onConfirm={() => {
-      setAlertOpen(false);
-      generatePDFDocument();
-    }} title="Formulario incompleto" description="Hay campos sin completar en el formulario." missingFields={missingFields} />
+        setAlertOpen(false);
+        generatePDFDocument();
+      }} title="Formulario incompleto" description="Hay campos sin completar en el formulario." missingFields={missingFields} />
       
       {isGeneratingPDF && <LoadingOverlay 
         message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." 
