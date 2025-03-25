@@ -1,3 +1,4 @@
+
 import { AIVoiceInput } from "./ai-voice-input";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -30,12 +31,18 @@ export const VoiceInput = ({ onTranscriptionComplete }: VoiceInputProps) => {
     }
   };
 
+  const handleTranscriptionComplete = (text: string) => {
+    if (text && onTranscriptionComplete) {
+      onTranscriptionComplete(text);
+    }
+  };
+
   return (
     <div className="h-full flex items-center justify-center">
       <AIVoiceInput
         onStart={handleStart}
         onStop={handleStop}
-        onTranscriptionComplete={onTranscriptionComplete}
+        onTranscriptionComplete={handleTranscriptionComplete}
         className="p-0"
       />
     </div>

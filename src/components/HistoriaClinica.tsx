@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -139,8 +138,9 @@ const HistoriaClinica = () => {
     // For each section with a "Generar Redacción IA" button
     for (const sectionRef of Array.from(sectionsRefs)) {
       const sectionName = sectionRef.getAttribute('data-section-name') || '';
-      const generateButton = sectionRef.querySelector('button:contains("Generar Redacción IA")') || 
-                            sectionRef.querySelector('button:contains("Generar")');
+      // Fix the selector to use proper querySelector syntax
+      const generateButton = sectionRef.querySelector('button[class*="bg-blue-500"]') || 
+                             sectionRef.querySelector('button:nth-of-type(1)');
       
       if (generateButton) {
         // Click the button to generate the redaction

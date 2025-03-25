@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Mic } from "lucide-react";
@@ -31,6 +32,7 @@ export function AIVoiceInput({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
   const transcriptRef = useRef<string>('');
+  const [micPermissionGranted, setMicPermissionGranted] = useState<boolean | null>(null);
 
   const stopRecording = useCallback(() => {
     if (recognitionRef.current) {
@@ -97,6 +99,7 @@ export function AIVoiceInput({
             description: "No se ha permitido el acceso al micrófono. Por favor, habilita los permisos en tu navegador.",
             variant: "destructive",
           });
+          setMicPermissionGranted(false);
           stopRecording();
         } else if (event.error === 'no-speech') {
           toast({
@@ -147,11 +150,53 @@ export function AIVoiceInput({
     };
   }, []);
 
-  const startRecording = async () => {
+  const checkMicrophonePermission = async () => {
     try {
+      // First check if permission is already granted by attempting to access
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // If we get here, permission was granted
+      setMicPermissionGranted(true);
+      
+      // Release the stream immediately, we only needed it to check permission
       stream.getTracks().forEach(track => track.stop());
+      return true;
+    } catch (error) {
+      console.error('Error al verificar permisos del micrófono:', error);
+      setMicPermissionGranted(false);
+      
+      // Show detailed toast based on error type
+      if (error instanceof DOMException) {
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          toast({
+            title: "Acceso al micrófono denegado",
+            description: "Has bloqueado el acceso al micrófono. Por favor, cambia los permisos en la configuración de tu navegador.",
+            variant: "destructive",
+          });
+        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          toast({
+            title: "Micrófono no encontrado",
+            description: "No se detectó ningún micrófono en tu dispositivo.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error de acceso al micrófono",
+            description: `${error.name}: ${error.message}`,
+            variant: "destructive",
+          });
+        }
+      }
+      return false;
+    }
+  };
 
+  const startRecording = async () => {
+    // First check microphone permission
+    const permissionGranted = await checkMicrophonePermission();
+    if (!permissionGranted) return;
+    
+    try {
       transcriptRef.current = '';
       recognitionRef.current = initializeRecognition();
       
@@ -170,10 +215,10 @@ export function AIVoiceInput({
         });
       }
     } catch (error) {
-      console.error('Error al solicitar permisos:', error);
+      console.error('Error al iniciar el reconocimiento:', error);
       toast({
-        title: "Error de permisos",
-        description: "No se pudo acceder al micrófono. Por favor, verifica los permisos en tu navegador.",
+        title: "Error de grabación",
+        description: "No se pudo iniciar la grabación. Por favor, verifica los permisos del micrófono.",
         variant: "destructive",
       });
     }

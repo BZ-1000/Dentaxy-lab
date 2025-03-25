@@ -1,6 +1,6 @@
 
 import { cn } from "@/lib/utils";
-import React, { useState, createContext, useContext } from "react";
+import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
@@ -181,7 +181,7 @@ export const SidebarLink = ({
 export const Logo = ({
   children
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) => {
   return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
       {children}
@@ -192,7 +192,7 @@ export const Logo = ({
 export const LogoIcon = ({
   children
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) => {
   return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
       {children}
