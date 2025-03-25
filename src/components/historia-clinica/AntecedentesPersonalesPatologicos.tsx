@@ -143,6 +143,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   const escribirTexto = (elemento: HTMLElement | null, texto: string, velocidad: number) => {
     if (!elemento) return;
     let i = 0;
+    elemento.innerHTML = ''; // Clear existing content
     const intervalo = setInterval(() => {
       if (i < texto.length) {
         elemento.innerHTML += texto.charAt(i);
