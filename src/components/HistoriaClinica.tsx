@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -129,150 +128,207 @@ const HistoriaClinica = () => {
     return allMissingFields;
   };
   
-  // Function to click the "Generate IA" button of a section and wait for redaction to be completed
-  const generateSectionRedaction = async (sectionSelector: string) => {
-    const section = document.querySelector(sectionSelector);
-    if (!section) return false;
-    
-    // Find the "Generar Redacción IA" button
-    const generateButtons = section.querySelectorAll('button');
-    let generateButton = null;
-    
-    for (const button of generateButtons) {
-      if (button.textContent && button.textContent.includes('Generar Redacción IA')) {
-        generateButton = button;
-        break;
+  // Improved function to click the "Generate IA" button and wait for redaction
+  const generateSectionRedaction = async (sectionName: string, sectionElement: Element) => {
+    try {
+      console.log(`Attempting to generate redaction for ${sectionName}`);
+      
+      // Find the "Generar Redacción IA" button
+      const allButtons = sectionElement.querySelectorAll('button');
+      let generateButton = null;
+      
+      for (const button of allButtons) {
+        if (button.textContent && button.textContent.includes('Generar Redacción IA')) {
+          generateButton = button;
+          break;
+        }
       }
-    }
-    
-    if (!generateButton) return false;
-    
-    // Switch to form tab if available
-    const formButtons = section.querySelectorAll('button');
-    let formButton = null;
-    
-    for (const button of formButtons) {
-      if (button.textContent && button.textContent.includes('Formulario')) {
-        formButton = button;
-        break;
+      
+      if (!generateButton) {
+        console.warn(`No 'Generar Redacción IA' button found for ${sectionName}`);
+        return false;
       }
-    }
-    
-    if (formButton) {
-      (formButton as HTMLElement).click();
-      // Small delay to ensure UI updates
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-    
-    // Click the generate button
-    (generateButton as HTMLElement).click();
-    
-    // Wait for the redaction to be generated (longer wait time)
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    
-    // Find and click redaction tab to ensure we can see the content
-    const redactionButtons = section.querySelectorAll('button');
-    let redactionButton = null;
-    
-    for (const button of redactionButtons) {
-      if (button.textContent && button.textContent.includes('Redacción IA')) {
-        redactionButton = button;
-        break;
+      
+      // First make sure we're on the form tab
+      const formTabs = sectionElement.querySelectorAll('button');
+      for (const tab of formTabs) {
+        if (tab.textContent && tab.textContent.includes('Formulario')) {
+          (tab as HTMLElement).click();
+          await new Promise(resolve => setTimeout(resolve, 300));
+          break;
+        }
       }
+      
+      // Now click the generate button
+      console.log(`Clicking 'Generar Redacción IA' button for ${sectionName}`);
+      (generateButton as HTMLElement).click();
+      
+      // Wait longer for the redaction to generate
+      await new Promise(resolve => setTimeout(resolve, 4000));
+      
+      // Switch to the redaction tab to ensure content is visible
+      const redactionTabs = sectionElement.querySelectorAll('button');
+      for (const tab of redactionTabs) {
+        if (tab.textContent && tab.textContent.includes('Redacción IA')) {
+          (tab as HTMLElement).click();
+          await new Promise(resolve => setTimeout(resolve, 300));
+          break;
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error(`Error generating ${sectionName} redaction:`, error);
+      return false;
     }
-    
-    if (redactionButton) {
-      (redactionButton as HTMLElement).click();
-      // Wait for UI update
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-    
-    return true;
   };
   
-  // Updated function to get redaction content after buttons are clicked
-  const getSectionRedaction = (sectionSelector: string, sectionName: string): string | null => {
-    const section = document.querySelector(sectionSelector);
-    if (!section) return null;
-    
-    // Find the redaction content container
-    const contentContainer = section.querySelector('[data-redaction-content]') || 
-                            section.querySelector('div[dangerouslySetInnerHTML]') ||
-                            section.querySelector('.min-h-\\[150px\\]') ||
-                            section.querySelector('.min-h-\\[200px\\]');
-    
-    if (!contentContainer) return null;
-    
-    // Extract content
-    let text = contentContainer.textContent || '';
-    
-    // If using dangerouslySetInnerHTML, try to get inner HTML
-    if (!text && contentContainer.innerHTML) {
-      text = contentContainer.innerHTML;
+  // Improved function to get redaction content with better selectors
+  const getSectionRedaction = (sectionName: string, sectionElement: Element): string | null => {
+    try {
+      // Try multiple selector strategies to find the content
+      let contentElement = null;
+      
+      // Strategy 1: Look for specific data attribute
+      contentElement = sectionElement.querySelector('[data-redaction-content]');
+      
+      // Strategy 2: Look for min-height containers (common pattern)
+      if (!contentElement) {
+        contentElement = sectionElement.querySelector('.min-h-\\[150px\\], .min-h-\\[200px\\]');
+      }
+      
+      // Strategy 3: Look for tab panels
+      if (!contentElement) {
+        const tabPanels = sectionElement.querySelectorAll('[role="tabpanel"]');
+        // Find the visible/active tab panel
+        for (const panel of tabPanels) {
+          if (panel.getAttribute('aria-hidden') !== 'true') {
+            contentElement = panel;
+            break;
+          }
+        }
+      }
+      
+      // Strategy 4: Find any paragraph or text container
+      if (!contentElement) {
+        contentElement = sectionElement.querySelector('p, div.text-content');
+      }
+      
+      if (!contentElement) {
+        console.warn(`Could not find content element for ${sectionName}`);
+        return null;
+      }
+      
+      // Get the text content
+      const text = contentElement.textContent || '';
+      const trimmed = text.trim();
+      
+      if (trimmed.length === 0) {
+        console.warn(`Empty content found for ${sectionName}`);
+        return null;
+      }
+      
+      console.log(`Found content for ${sectionName}: ${trimmed.substring(0, 30)}...`);
+      return trimmed;
+    } catch (error) {
+      console.error(`Error extracting ${sectionName} content:`, error);
+      return null;
     }
-    
-    return text;
   };
   
+  // Updated function to collect all redactions with improved section identification
   const collectAllRedactions = async () => {
+    // Define all sections with their names and indexes
     const sectionConfigs = [
-      {
-        selector: '[data-section-redaction="true"][data-section-name="padecimientoActual"]',
-        name: 'padecimientoActual'
-      },
-      {
-        selector: 'div:has(> div > h2:contains("ANTECEDENTES HEREDO FAMILIARES"))',
-        name: 'antecedentesHeredoFamiliares'
-      },
-      {
-        selector: 'div:has(> div > h2:contains("ANTECEDENTES PERSONALES NO PATOLÓGICOS"))',
-        name: 'antecedentesPersonalesNoPatologicos'
-      },
-      {
-        selector: 'div:has(> div > h2:contains("ANTECEDENTES PERSONALES PATOLÓGICOS"))',
-        name: 'antecedentesPersonalesPatologicos'
-      }
+      { name: 'padecimientoActual', title: 'I. PADECIMIENTO ACTUAL' },
+      { name: 'antecedentesHeredoFamiliares', title: 'II. ANTECEDENTES HEREDO FAMILIARES' },
+      { name: 'antecedentesPersonalesNoPatologicos', title: 'III. ANTECEDENTES PERSONALES NO PATOLÓGICOS' },
+      { name: 'antecedentesPersonalesPatologicos', title: 'IV. ANTECEDENTES PERSONALES PATOLÓGICOS' },
+      { name: 'antecedentesAlergicos', title: 'V. ANTECEDENTES ALÉRGICOS' },
+      { name: 'antecedentesQuirurgicos', title: 'VI. ANTECEDENTES QUIRÚRGICOS' },
+      { name: 'antecedentesHemorragicos', title: 'VII. ANTECEDENTES HEMORRAGICOS' },
+      { name: 'interrogatorioSistemas', title: 'VIII. INTERROGATORIO POR SISTEMAS' },
+      { name: 'exploracionFisica', title: 'IX. EXPLORACIÓN FÍSICA' },
+      { name: 'examenCabeza', title: 'X. EXAMEN DE CABEZA' },
+      { name: 'articulacionCraneomandibular', title: 'XI. ARTICULACIÓN CRANEOMANDIBULAR' },
+      { name: 'examenCuello', title: 'XII. EXAMEN DE CUELLO' },
+      { name: 'examenIntrabucal', title: 'XIII. EXAMEN INTRABUCAL' },
+      { name: 'glandulasSalivales', title: 'XIV. GLÁNDULAS SALIVALES' },
+      { name: 'oclusion', title: 'XV. OCLUSIÓN' },
+      { name: 'relacionDientes', title: 'XVI. RELACIÓN DE DIENTES' },
+      { name: 'lineaMedia', title: 'XVII. LÍNEA MEDIA' },
+      { name: 'frenillos', title: 'XVIII. FRENILLOS' },
+      { name: 'diagnostico', title: 'XIX. DIAGNÓSTICO' },
+      { name: 'pronostico', title: 'XX. PRONÓSTICO' }
     ];
     
-    const totalSections = sectionConfigs.length;
-    let processedSections = 0;
-    
+    // For simplicity, focus on the first 4 sections that we know have IA button
+    const primarySections = sectionConfigs.slice(0, 4);
+    const totalSections = primarySections.length;
     pdfSectionsRef.current = {};
     
-    // First pass: Generate all redactions by clicking buttons
-    for (const section of sectionConfigs) {
-      await generateSectionRedaction(section.selector);
-      processedSections++;
-      setPdfGenerationProgress(Math.round((processedSections / (totalSections * 2)) * 100));
+    // Get all section elements
+    const allSectionElements = document.querySelectorAll('[data-section-redaction="true"]');
+    
+    if (!allSectionElements || allSectionElements.length === 0) {
+      console.error("No section elements found with data-section-redaction attribute");
+      return pdfSectionsRef.current;
     }
     
-    // Additional wait to ensure all redactions are fully generated
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    console.log(`Found ${allSectionElements.length} section elements`);
     
-    // Second pass: Collect all redaction content
-    processedSections = 0;
-    for (const section of sectionConfigs) {
-      const redactionContent = getSectionRedaction(section.selector, section.name);
-      if (redactionContent) {
-        pdfSectionsRef.current[section.name] = redactionContent;
+    // First pass: Generate all redactions
+    let processedCount = 0;
+    for (let i = 0; i < Math.min(allSectionElements.length, 4); i++) {
+      const section = primarySections[i];
+      const sectionElement = allSectionElements[i];
+      
+      console.log(`Generating redaction for section: ${section.name}`);
+      await generateSectionRedaction(section.name, sectionElement);
+      
+      processedCount++;
+      setPdfGenerationProgress(Math.round((processedCount / (totalSections * 2)) * 100));
+      
+      // Longer wait between sections
+      await new Promise(resolve => setTimeout(resolve, 3000));
+    }
+    
+    // Additional wait to ensure all content is generated
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
+    // Second pass: Collect all redactions
+    for (let i = 0; i < Math.min(allSectionElements.length, 4); i++) {
+      const section = primarySections[i];
+      const sectionElement = allSectionElements[i];
+      
+      console.log(`Collecting redaction for section: ${section.name}`);
+      const content = getSectionRedaction(section.name, sectionElement);
+      
+      if (content) {
+        pdfSectionsRef.current[section.name] = content;
+        console.log(`Successfully collected content for ${section.name}`);
+      } else {
+        console.warn(`Failed to collect content for ${section.name}`);
       }
-      processedSections++;
-      setPdfGenerationProgress(Math.round(((totalSections + processedSections) / (totalSections * 2)) * 100));
+      
+      processedCount++;
+      setPdfGenerationProgress(Math.round(((totalSections + processedCount) / (totalSections * 2)) * 100));
     }
     
+    console.log("All redactions collected:", Object.keys(pdfSectionsRef.current));
     return pdfSectionsRef.current;
   };
   
-  // Update the generatePDFDocument function to use the new collection method
+  // Update the generatePDFDocument function to use the improved collection method
   const generatePDFDocument = async () => {
     try {
       setIsGeneratingPDF(true);
       setPdfGenerationProgress(0);
       
-      // Collect all AI-generated redactions
+      // Collect all redactions
       const allRedactions = await collectAllRedactions();
       
-      // Generate the PDF with collected redactions
+      // Generate the PDF
       const patientName = nombrePaciente || pacienteActual || 'Paciente';
       generatePDF(formData, patientName, allRedactions);
       
@@ -280,6 +336,10 @@ const HistoriaClinica = () => {
         title: "PDF Generado",
         description: "La Historia Clínica ha sido generada exitosamente."
       });
+      
+      // We're not resetting the form anymore
+      // Removed: resetFormulario();
+      
     } catch (error) {
       console.error("Error generating PDF:", error);
       toast({
@@ -292,7 +352,6 @@ const HistoriaClinica = () => {
     }
   };
   
-  // Update the handleGeneratePDF function to validate the form first
   const handleGeneratePDF = () => {
     const missing = validateForm();
     if (missing.length > 0) {
@@ -303,7 +362,7 @@ const HistoriaClinica = () => {
     }
   };
   
-  // Main component render
+  
   return <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar onCargarFormulario={(data, nombre) => {
       cargarFormulario(data);
