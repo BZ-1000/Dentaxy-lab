@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -136,19 +137,16 @@ const HistoriaClinica = () => {
         sectionName: 'padecimientoActual' 
       },
       { 
-        selector: 'div:has(h2:contains("Antecedentes Heredo Familiares"))',
-        sectionName: 'antecedentesHeredoFamiliares',
-        buttonSelector: '.bg-blue-500:contains("Generar Redacción IA")'
+        selector: '[data-section-name="antecedentesHeredoFamiliares"]',
+        sectionName: 'antecedentesHeredoFamiliares'
       },
       { 
-        selector: 'div:has(h2:contains("ANTECEDENTES PERSONALES NO PATOLÓGICOS"))',
-        sectionName: 'antecedentesPersonalesNoPatologicos',
-        buttonSelector: '.bg-blue-500:contains("Generar Redacción IA")'
+        selector: '[data-section-name="antecedentesPersonalesNoPatologicos"]',
+        sectionName: 'antecedentesPersonalesNoPatologicos'
       },
       { 
-        selector: 'div:has(h2:contains("ANTECEDENTES PERSONALES PATOLÓGICOS"))',
-        sectionName: 'antecedentesPersonalesPatologicos',
-        buttonSelector: '.bg-blue-500:contains("Generar Redacción IA")'
+        selector: '[data-section-name="antecedentesPersonalesPatologicos"]',
+        sectionName: 'antecedentesPersonalesPatologicos'
       }
     ];
     
@@ -164,40 +162,65 @@ const HistoriaClinica = () => {
       
       if (sectionElement) {
         // Look for a button to generate redaction
-        let generateButton;
+        const generateButtons = sectionElement.querySelectorAll('button');
         
-        // Use specific button selector if provided
-        if (section.buttonSelector) {
-          generateButton = sectionElement.querySelector(section.buttonSelector);
-        } else {
-          // Default button selectors
-          generateButton = sectionElement.querySelector('button.bg-blue-500:not(.hover\\:bg-blue-600)') || 
-                          sectionElement.querySelector('button:has(span:contains("Generar Redacción IA"))') ||
-                          sectionElement.querySelector('button.bg-blue-500');
+        // Find the button with "Generar Redacción IA" text
+        let generateButton = null;
+        for (const button of generateButtons) {
+          if (button.textContent && button.textContent.includes('Generar Redacción IA')) {
+            generateButton = button;
+            break;
+          }
         }
         
         if (generateButton) {
-          // Get current tab (form vs redaction)
-          const formTab = sectionElement.querySelector('button:not(.bg-blue-500):contains("Formulario")');
-          const redactionTab = sectionElement.querySelector('button:not(.bg-blue-500):contains("Redacción IA")');
+          // Get current tab buttons
+          const tabButtons = sectionElement.querySelectorAll('button');
+          let formTab = null;
+          let redactionTab = null;
           
-          // Remember which tab was active
+          // Find the form and redaction tabs
+          for (const button of tabButtons) {
+            if (button.textContent && button.textContent.includes('Formulario')) {
+              formTab = button;
+            }
+            if (button.textContent && button.textContent.includes('Redacción IA')) {
+              redactionTab = button;
+            }
+          }
+          
+          // Remember which tab was active (assuming if formTab doesn't have bg-blue-500 class, it's active)
           const wasOnFormTab = formTab && !formTab.classList.contains('bg-blue-500');
           
           // Click to generate redaction
           (generateButton as HTMLElement).click();
           
           // Wait for the redaction to be generated
-          await new Promise(resolve => setTimeout(resolve, 800));
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Make sure redaction tab is active to see content
+          if (redactionTab && !redactionTab.classList.contains('bg-blue-500')) {
+            (redactionTab as HTMLElement).click();
+            // Wait for UI to update
+            await new Promise(resolve => setTimeout(resolve, 300));
+          }
           
           // Locate the generated content
           const contentContainer = sectionElement.querySelector('[data-redaction-content]') || 
-                                  sectionElement.querySelector('.min-h-\\[200px\\]') ||
-                                  sectionElement.querySelector('div[style*="white-space: pre-wrap"]');
+                                  sectionElement.querySelector('.min-h-\\[150px\\]') ||
+                                  sectionElement.querySelector('div[style*="white-space: pre-wrap"]') ||
+                                  sectionElement.querySelector('div[dangerouslySetInnerHTML]');
           
           if (contentContainer) {
-            // Extract the content
-            const text = contentContainer.textContent || contentContainer.innerHTML;
+            // Extract the content - either from textContent or innerHTML
+            let text = contentContainer.textContent || '';
+            
+            // If container uses dangerouslySetInnerHTML, we need to get that
+            if (!text && contentContainer.getAttribute('dangerouslySetInnerHTML')) {
+              const htmlContent = contentContainer.innerHTML;
+              text = htmlContent || '';
+            }
+            
             if (text && text.trim()) {
               pdfSectionsRef.current[section.sectionName] = text;
             }
@@ -235,6 +258,34 @@ const HistoriaClinica = () => {
     try {
       setIsGeneratingPDF(true);
       setPdfGenerationProgress(0);
+      
+      // Click the "Generar Redacción IA" button in each section first
+      // This will ensure all redactions are generated before collecting them
+      const sectionsToTrigger = [
+        '[data-section-redaction="true"][data-section-name="padecimientoActual"]',
+        '[data-section-name="antecedentesHeredoFamiliares"]',
+        '[data-section-name="antecedentesPersonalesNoPatologicos"]',
+        '[data-section-name="antecedentesPersonalesPatologicos"]'
+      ];
+      
+      for (const selector of sectionsToTrigger) {
+        const section = document.querySelector(selector);
+        if (section) {
+          // Find all buttons in the section
+          const buttons = section.querySelectorAll('button');
+          
+          // Find the "Generar Redacción IA" button
+          for (const button of buttons) {
+            if (button.textContent && button.textContent.includes('Generar Redacción IA')) {
+              // Click the button to generate redaction
+              (button as HTMLElement).click();
+              // Wait for redaction to be generated
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              break;
+            }
+          }
+        }
+      }
       
       // Extract all AI-generated content from all sections
       const allRedactions = await collectAllRedactions();
