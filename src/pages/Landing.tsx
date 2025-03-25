@@ -331,6 +331,7 @@ const Landing = () => {
       }
     }
   });
+  
   const handleAntecedentePatologicoChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -540,18 +541,66 @@ const Landing = () => {
                 🔽 Demostracion de redacción automatica...
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <AntecedentesPersonalesPatologicos formData={{
-                antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-                padecimientoActual: {} as PadecimientoActual,
-                antecedentesHeredoFamiliares: {} as AntecedentesHeredoFamiliares,
-                antecedentesPersonalesNoPatologicos: {} as AntecedentesPersonalesNoPatologicos,
-                antecedentesAlergicos: {} as AntecedentesAlergicos,
-                antecedentesHemorragicos: {} as AntecedentesHemorragicos,
-                antecedentesQuirurgicos: {} as AntecedentesQuirurgicos,
-                interrogatorioSistemas: {} as InterrogatorioSistemas,
-                exploracionFisica: {} as ExploracionFisica,
-                examenCabeza: {} as ExamenCabeza
-              }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
+              <AntecedentesPersonalesPatologicos 
+        formData={{
+          antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+          padecimientoActual: {} as any,
+          antecedentesHeredoFamiliares: {} as any,
+          antecedentesPersonalesNoPatologicos: {} as any,
+          antecedentesAlergicos: {} as any,
+          antecedentesHemorragicos: {} as any,
+          antecedentesQuirurgicos: {} as any,
+          interrogatorioSistemas: {} as any,
+          exploracionFisica: {} as any,
+          examenCabeza: {} as any,
+          articulacionCraneomandibular: {} as any,
+          examenCuello: {} as any,
+          examenIntrabucal: {} as any,
+          glandulasSalivales: {} as any,
+          oclusion: {} as any,
+          relacionDientes: {} as any,
+          lineaMedia: {} as any,
+          frenillos: {} as any,
+          diagnostico: {} as any,
+          pronostico: {} as any,
+          serviciosDomiciliarios: '',
+          pisosVivienda: '',
+          materialVivienda: '',
+          materialPiso: '',
+          ventilacion: '',
+          frecuenciaLimpieza: '',
+          hacinamiento: '',
+          frecuenciaBano: '',
+          higieneBucal: {
+            frecuenciaCepillado: '',
+            usoHiloDental: '',
+            tipoCerdas: '',
+            cantidadPasta: '',
+            marcaPasta: ''
+          },
+          alimentacion: {
+            tipoDieta: '',
+            frecuenciaComidas: '',
+            tiposAlimentos: '',
+            saltaComidas: '',
+            consumoNutritivo: ''
+          },
+          grupoSanguineo: '',
+          factorRh: '',
+          inmunizaciones: '',
+          peso: '',
+          imc: '',
+          talla: '',
+          presionArterial: '',
+          pulso: '',
+          frecuenciaCardiaca: '',
+          frecuenciaRespiratoria: '',
+          temperatura: '',
+          diagnosticos: '',
+          pronosticos: ''
+        }} 
+        handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
+      />
             </div>
           </div>
         </div>

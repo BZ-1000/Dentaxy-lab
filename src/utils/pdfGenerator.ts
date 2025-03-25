@@ -66,7 +66,7 @@ export const generatePDF = (
     yPos += lines.length * 6 + 10;
   };
   
-  // Define all sections with their titles and content
+  // Define all sections with their titles and content keys
   const sections = [
     { title: 'I. PADECIMIENTO ACTUAL', key: 'padecimientoActual' },
     { title: 'II. ANTECEDENTES HEREDO FAMILIARES', key: 'antecedentesHeredoFamiliares' },
