@@ -8,6 +8,7 @@ import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
+
 interface PadecimientoActualProps {
   formData: {
     padecimientoActual: {
@@ -33,6 +34,7 @@ interface PadecimientoActualProps {
   handleDolorChange: (field: string, value: any) => void;
   handleSinSintomasChange: (checked: boolean) => void;
 }
+
 function revisarRedaccion(text: string): string {
   let textoCorregido = text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
   const frasesRedundantes = [{
@@ -70,6 +72,7 @@ function revisarRedaccion(text: string): string {
   textoCorregido = textoCorregido.replace(/provocado por/gi, 'provocada por').replace(/aparece en/gi, 'aparece cuando').replace(/se ha observado que/gi, 'se observa que').replace(/presenta un dolor/gi, 'manifiesta dolor').replace(/tiene dolor/gi, 'presenta dolor').replace(/el dolor es/gi, 'el dolor se caracteriza por ser');
   return textoCorregido;
 }
+
 function formatearTexto(text: string): string {
   let textoFormateado = text.replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>').replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
   const sections = textoFormateado.split('<strong>Historia del padecimiento:</strong>');
@@ -81,6 +84,7 @@ function formatearTexto(text: string): string {
   textoFormateado = textoFormateado.replace(/\n\s*\n\s*\n/g, '\n\n');
   return textoFormateado;
 }
+
 const PadecimientoActual = ({
   formData,
   handlePadecimientoChange,
@@ -95,11 +99,13 @@ const PadecimientoActual = ({
   const [progress, setProgress] = useState(0);
   const [copied, setCopied] = useState(false);
   const [showCausasProvocado, setShowCausasProvocado] = useState(formData.padecimientoActual.dolor.condicionAparicion === 'provocado');
+  const [isTyping, setIsTyping] = useState(false);
   const redaccionRef = useRef(null);
   const defaultMotivoConsulta = "El paciente acude a consulta por ";
   const motivosEjemplo = ["dolor dental intenso en molar superior derecho...", "sangrado de encías al cepillarse...", "revisión y limpieza dental de rutina...", "sensibilidad al frío y calor en dientes anteriores...", "inflamación y dolor en zona de muelas del juicio...", "aplicación de resina en diente fracturado...", "evaluación para tratamiento de ortodoncia...", "manchas oscuras en los dientes frontales...", "mal aliento persistente...", "dolor al masticar alimentos..."];
   const defaultCausaProvocado = "Provocado con ";
   const causasProvocadoEjemplo = ["alimentos fríos o helados en contacto con el diente...", "la presión durante la masticación de alimentos duros...", "bebidas calientes que generan dolor inmediato...", "el cepillado en la zona vestibular de los premolares...", "dulces y alimentos azucarados que desencadenan molestias..."];
+
   useEffect(() => {
     if (!formData.padecimientoActual.motivoConsulta) {
       handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
@@ -108,18 +114,22 @@ const PadecimientoActual = ({
       handleDolorChange("causaProvocado", defaultCausaProvocado);
     }
   }, []);
+
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
   };
+
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
     setIsMinimized(false);
   };
+
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
   };
+
   const generarRedaccionIA = () => {
     const motivoConsulta = formData.padecimientoActual.motivoConsulta.trim();
     const sinSintomas = formData.padecimientoActual.sinSintomas;
@@ -154,9 +164,20 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     }
     const textoRevisado = revisarRedaccion(textoGenerado);
     const textoFinal = formatearTexto(textoRevisado);
-    setRedaccionIA(textoFinal);
+    
+    // Reset state for animation
+    setDisplayedText("");
+    setProgress(0);
+    setIsTyping(true);
+    
+    // Show redaction view
     setShowRedaccion(true);
+    
+    // Set the redaction content after a small delay
     setTimeout(() => {
+      setRedaccionIA(textoFinal);
+      
+      // Scroll to the redaction area
       redaccionRef.current?.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
@@ -166,6 +187,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
       }, 300);
     }, 100);
   };
+
   const limpiarFormulario = () => {
     handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
     handlePadecimientoChange("historiaPadecimiento", "");
@@ -182,9 +204,12 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     handleDolorChange("causaProvocado", defaultCausaProvocado);
     handleSinSintomasChange(false);
     setRedaccionIA("");
+    setDisplayedText("");
     setShowRedaccion(false);
     setShowCausasProvocado(false);
+    setProgress(0);
   };
+
   const handleCopy = async () => {
     await navigator.clipboard.writeText(redaccionIA);
     setCopied(true);
@@ -192,19 +217,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
       setCopied(false);
     }, 2000);
   };
-  useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < redaccionIA.length) {
-        setDisplayedText(redaccionIA.substring(0, index + 1));
-        setProgress(index / redaccionIA.length * 100);
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 15);
-    return () => clearInterval(interval);
-  }, [redaccionIA]);
+
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="padecimientoActual">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -241,26 +254,39 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
         {showRedaccion ? <div ref={redaccionRef} className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
             <div className="progress-bar-container" style={{
-          width: '100%',
-          backgroundColor: '#d3d3d3',
-          borderRadius: '12px',
-          overflow: 'hidden',
-          marginBottom: '1rem',
-          boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'
-        }}>
+              width: '100%',
+              backgroundColor: '#d3d3d3',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              marginBottom: '1rem',
+              boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'
+            }}>
               <div className="progress-bar" style={{
-            height: '8px',
-            backgroundColor: '#34c759',
-            transition: 'width 0.015s ease-in-out',
-            width: `${progress}%`,
-            borderRadius: '12px'
-          }}></div>
+                height: '8px',
+                backgroundColor: '#34c759',
+                transition: 'width 0.015s ease-in-out',
+                width: `${progress}%`,
+                borderRadius: '12px'
+              }}></div>
             </div>
             <div className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-y-auto whitespace-pre-wrap" style={{
-          whiteSpace: 'pre-wrap'
-        }} dangerouslySetInnerHTML={{
-          __html: displayedText
-        }} data-redaction-content />
+              whiteSpace: 'pre-wrap'
+            }}>
+              {isTyping ? (
+                <Typewriter 
+                  text={redaccionIA} 
+                  speed={5}
+                  cursor=""
+                  delay={10}
+                  onComplete={() => {
+                    setIsTyping(false);
+                    setProgress(100);
+                  }}
+                />
+              ) : (
+                <div dangerouslySetInnerHTML={{__html: redaccionIA}} />
+              )}
+            </div>
             <Button onClick={handleCopy} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative">
               <Copy className="w-4 h-4" />
               <span>Copiar Redacción</span>
@@ -274,46 +300,46 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
             <div className="flex items-start gap-4">
               <div className="relative w-full">
                 <Textarea value={formData.padecimientoActual.motivoConsulta} onChange={e => {
-              const newValue = e.target.value;
-              if (!newValue.startsWith(defaultMotivoConsulta)) {
-                handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
-              } else {
-                handlePadecimientoChange("motivoConsulta", newValue);
-              }
-            }} placeholder={defaultMotivoConsulta} className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md" />
+                  const newValue = e.target.value;
+                  if (!newValue.startsWith(defaultMotivoConsulta)) {
+                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+                  } else {
+                    handlePadecimientoChange("motivoConsulta", newValue);
+                  }
+                }} placeholder={defaultMotivoConsulta} className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md" />
                 {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && <div className="absolute top-2 left-[215px] pointer-events-none">
                     <Typewriter text={motivosEjemplo} speed={50} deleteSpeed={30} delay={2000} loop={true} className="text-gray-500 italic text-base" />
                   </div>}
               </div>
               <div className="mt-2">
                 <VoiceInput onTranscriptionComplete={text => {
-              const newValue = text;
-              if (!newValue.startsWith(defaultMotivoConsulta)) {
-                handlePadecimientoChange("motivoConsulta", `${defaultMotivoConsulta} ${newValue}`);
-              } else {
-                handlePadecimientoChange("motivoConsulta", newValue);
-              }
-            }} />
+                  const newValue = text;
+                  if (!newValue.startsWith(defaultMotivoConsulta)) {
+                    handlePadecimientoChange("motivoConsulta", `${defaultMotivoConsulta} ${newValue}`);
+                  } else {
+                    handlePadecimientoChange("motivoConsulta", newValue);
+                  }
+                }} />
               </div>
             </div>
           </div>}
 
         {!isMinimized && !showRedaccion && <div className="p-6 space-y-8">
             <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={checked => {
-          handleSinSintomasChange(checked);
-          setShowCausasProvocado(false);
-        }} />
+              handleSinSintomasChange(checked);
+              setShowCausasProvocado(false);
+            }} />
             {!formData.padecimientoActual.sinSintomas && <div className="space-y-6">
                 <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
                   <h3 className="mb-6 text-xl text-gray-800 font-medium">EN CASO DE DOLOR</h3>
                   <CaracteristicasDolor dolor={formData.padecimientoActual.dolor} onDolorChange={(field, value) => {
-              handleDolorChange(field, value);
-              if (field === 'condicionAparicion' && value === 'provocado') {
-                setShowCausasProvocado(true);
-              } else if (field === 'condicionAparicion' && value !== 'provocado') {
-                setShowCausasProvocado(false);
-              }
-            }} />
+                    handleDolorChange(field, value);
+                    if (field === 'condicionAparicion' && value === 'provocado') {
+                      setShowCausasProvocado(true);
+                    } else if (field === 'condicionAparicion' && value !== 'provocado') {
+                      setShowCausasProvocado(false);
+                    }
+                  }} />
                 </div>
               </div>}
           </div>}
@@ -330,4 +356,5 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
       </Card>
     </div>;
 };
+
 export default PadecimientoActual;

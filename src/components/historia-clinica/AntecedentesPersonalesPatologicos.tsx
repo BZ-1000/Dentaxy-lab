@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -8,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { AlertCircle, EyeOff, Eye } from "lucide-react";
+import { Typewriter } from "@/components/ui/typewriter-text";
 
 interface AntecedentesPersonalesPatologicosProps {
   formData: FormDataState;
@@ -32,6 +34,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     infecciosasParasitarias: "",
     otrosPadecimientos: ""
   });
+  const [animatingTextarea, setAnimatingTextarea] = useState<Record<string, boolean>>({});
   const [copied, setCopied] = useState<Record<string, boolean>>({});
   const formRef = useRef<HTMLDivElement>(null);
   const redaccionesRef = useRef<HTMLDivElement>(null);
@@ -127,17 +130,40 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
       otrosPadecimientos: generarRedaccionPorCategoria('otrosPadecimientos')
     };
 
-    setRedacciones(nuevasRedacciones);
+    // Set empty strings first to start the animation
+    setRedacciones({
+      nutricionales: "",
+      cardiacos: "",
+      hepaticos: "",
+      enfermedadesTransmisionSexual: "",
+      enfermedadesEruptivas: "",
+      pulmonares: "",
+      infecciosasParasitarias: "",
+      otrosPadecimientos: ""
+    });
+    
+    // Mark all textareas as animating
+    setAnimatingTextarea({
+      nutricionales: true,
+      cardiacos: true,
+      hepaticos: true,
+      enfermedadesTransmisionSexual: true,
+      enfermedadesEruptivas: true,
+      pulmonares: true,
+      infecciosasParasitarias: true,
+      otrosPadecimientos: true
+    });
+    
     setShowForm(false);
     setProgress(100);
 
     // Autoscroll to the top
     redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
 
-    // Animate writing
-    Object.keys(nuevasRedacciones).forEach(categoria => {
-      escribirTexto(document.getElementById(categoria), nuevasRedacciones[categoria], 50);
-    });
+    // Delay setting the actual texts to allow animation to work
+    setTimeout(() => {
+      setRedacciones(nuevasRedacciones);
+    }, 100);
   };
 
   const escribirTexto = (elemento: HTMLElement | null, texto: string, velocidad: number) => {
@@ -667,13 +693,27 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      id="nutricionales"
-                      value={redacciones.nutricionales}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    {animatingTextarea.nutricionales ? (
+                      <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded border border-gray-200 dark:border-gray-700">
+                        <Typewriter
+                          text={redacciones.nutricionales}
+                          speed={5}
+                          cursor=""
+                          delay={10}
+                          onComplete={() => {
+                            setAnimatingTextarea(prev => ({...prev, nutricionales: false}));
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <Textarea
+                        id="nutricionales"
+                        value={redacciones.nutricionales}
+                        readOnly
+                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                      />
+                    )}
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -696,13 +736,27 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      id="cardiacos"
-                      value={redacciones.cardiacos}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    {animatingTextarea.cardiacos ? (
+                      <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded border border-gray-200 dark:border-gray-700">
+                        <Typewriter
+                          text={redacciones.cardiacos}
+                          speed={5}
+                          cursor=""
+                          delay={10}
+                          onComplete={() => {
+                            setAnimatingTextarea(prev => ({...prev, cardiacos: false}));
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <Textarea
+                        id="cardiacos"
+                        value={redacciones.cardiacos}
+                        readOnly
+                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                      />
+                    )}
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -725,13 +779,27 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      id="hepaticos"
-                      value={redacciones.hepaticos}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    {animatingTextarea.hepaticos ? (
+                      <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded border border-gray-200 dark:border-gray-700">
+                        <Typewriter
+                          text={redacciones.hepaticos}
+                          speed={5}
+                          cursor=""
+                          delay={10}
+                          onComplete={() => {
+                            setAnimatingTextarea(prev => ({...prev, hepaticos: false}));
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <Textarea
+                        id="hepaticos"
+                        value={redacciones.hepaticos}
+                        readOnly
+                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                      />
+                    )}
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -754,13 +822,27 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      id="enfermedadesTransmisionSexual"
-                      value={redacciones.enfermedadesTransmisionSexual}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    {animatingTextarea.enfermedadesTransmisionSexual ? (
+                      <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded border border-gray-200 dark:border-gray-700">
+                        <Typewriter
+                          text={redacciones.enfermedadesTransmisionSexual}
+                          speed={5}
+                          cursor=""
+                          delay={10}
+                          onComplete={() => {
+                            setAnimatingTextarea(prev => ({...prev, enfermedadesTransmisionSexual: false}));
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <Textarea
+                        id="enfermedadesTransmisionSexual"
+                        value={redacciones.enfermedadesTransmisionSexual}
+                        readOnly
+                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                      />
+                    )}
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -783,13 +865,27 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      id="enfermedadesEruptivas"
-                      value={redacciones.enfermedadesEruptivas}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    {animatingTextarea.enfermedadesEruptivas ? (
+                      <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded border border-gray-200 dark:border-gray-700">
+                        <Typewriter
+                          text={redacciones.enfermedadesEruptivas}
+                          speed={5}
+                          cursor=""
+                          delay={10}
+                          onComplete={() => {
+                            setAnimatingTextarea(prev => ({...prev, enfermedadesEruptivas: false}));
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <Textarea
+                        id="enfermedadesEruptivas"
+                        value={redacciones.enfermedadesEruptivas}
+                        readOnly
+                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                      />
+                    )}
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -812,13 +908,27 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      id="pulmonares"
-                      value={redacciones.pulmonares}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    {animatingTextarea.pulmonares ? (
+                      <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded border border-gray-200 dark:border-gray-700">
+                        <Typewriter
+                          text={redacciones.pulmonares}
+                          speed={5}
+                          cursor=""
+                          delay={10}
+                          onComplete={() => {
+                            setAnimatingTextarea(prev => ({...prev, pulmonares: false}));
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <Textarea
+                        id="pulmonares"
+                        value={redacciones.pulmonares}
+                        readOnly
+                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                      />
+                    )}
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -841,13 +951,27 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      id="infecciosasParasitarias"
-                      value={redacciones.infecciosasParasitarias}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    {animatingTextarea.infecciosasParasitarias ? (
+                      <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded border border-gray-200 dark:border-gray-700">
+                        <Typewriter
+                          text={redacciones.infecciosasParasitarias}
+                          speed={5}
+                          cursor=""
+                          delay={10}
+                          onComplete={() => {
+                            setAnimatingTextarea(prev => ({...prev, infecciosasParasitarias: false}));
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <Textarea
+                        id="infecciosasParasitarias"
+                        value={redacciones.infecciosasParasitarias}
+                        readOnly
+                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                      />
+                    )}
                   </div>
 
                   <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -870,13 +994,27 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         )}
                       </button>
                     </div>
-                    <Textarea
-                      id="otrosPadecimientos"
-                      value={redacciones.otrosPadecimientos}
-                      readOnly
-                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                    />
+                    {animatingTextarea.otrosPadecimientos ? (
+                      <div className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 p-3 rounded border border-gray-200 dark:border-gray-700">
+                        <Typewriter
+                          text={redacciones.otrosPadecimientos}
+                          speed={5}
+                          cursor=""
+                          delay={10}
+                          onComplete={() => {
+                            setAnimatingTextarea(prev => ({...prev, otrosPadecimientos: false}));
+                          }}
+                        />
+                      </div>
+                    ) : (
+                      <Textarea
+                        id="otrosPadecimientos"
+                        value={redacciones.otrosPadecimientos}
+                        readOnly
+                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                      />
+                    )}
                   </div>
 
                   <div className="flex justify-center">
