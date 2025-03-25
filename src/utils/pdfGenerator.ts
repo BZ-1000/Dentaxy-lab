@@ -91,13 +91,22 @@ export const generatePDF = (
   ];
   
   // Add each section to the PDF if it has content
+  let sectionsAdded = 0;
   sections.forEach(section => {
     const content = sectionRedactions[section.key];
     if (content) {
       console.log(`Adding section ${section.title} to PDF`);
       addSection(section.title, content);
+      sectionsAdded++;
     }
   });
+  
+  if (sectionsAdded === 0) {
+    // If no sections added, add a message about missing content
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(12);
+    doc.text("No se encontró contenido redactado para incluir en el PDF. Por favor, asegúrese de generar las redacciones de las secciones del formulario.", 14, yPos, { maxWidth: 180 });
+  }
   
   // Save the PDF
   const filename = `Historia_Clinica_${nombrePaciente.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
