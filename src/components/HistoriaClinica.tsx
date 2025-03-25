@@ -1,15 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
-import { toast } from 'sonner';
-import { generatePDF } from '@/utils/pdfGenerator';
-import { useTheme } from '@/hooks/use-theme';
-import { FormDataState } from '@/types/historiaClinica';
-import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
-import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 
-// Import all form sections
+import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
 import AntecedentesPersonalesNoPatologicos from './historia-clinica/AntecedentesPersonalesNoPatologicos';
@@ -30,14 +20,30 @@ import LineaMedia from './historia-clinica/LineaMedia';
 import Frenillos from './historia-clinica/Frenillos';
 import Diagnostico from './historia-clinica/Diagnostico';
 import Pronostico from './historia-clinica/Pronostico';
+import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useTheme } from '@/hooks/use-theme';
+import { Loader2, X, Save, User, FileText } from "lucide-react";
+import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
+import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
+import { useState, useEffect, useRef } from 'react';
+import { toast } from "@/hooks/use-toast";
+import { getInitialFormState } from '@/utils/initialFormState';
+import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
+import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
+import { generatePDF } from '@/utils/pdfGenerator';
+import LoadingOverlay from './historia-clinica/LoadingOverlay';
 
 const HistoriaClinica = () => {
-  const { theme } = useTheme();
-  const [activeTab, setActiveTab] = useState('padecimiento-actual');
-  const [nombrePaciente, setNombrePaciente] = useState('');
-  const [sectionRedactions, setSectionRedactions] = useState<{ [key: string]: string }>({});
   
-  // Get all functions and state from the useHistoriaClinica hook
+  const {
+    theme
+  } = useTheme();
+  const [pacienteActual, setPacienteActual] = useState<string>('');
+  const [nombrePaciente, setNombrePaciente] = useState<string>('');
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
   const {
     formData,
     resumen,
@@ -73,276 +79,357 @@ const HistoriaClinica = () => {
     resetFormulario
   } = useHistoriaClinica();
 
-  const handleFormChange = (section: keyof FormDataState, data: any) => {
-    if (section === 'padecimientoActual') {
-      const { padecimientoActual } = data;
-      handlePadecimientoChange('motivoConsulta', padecimientoActual.motivoConsulta || '');
-      handlePadecimientoChange('historiaPadecimiento', padecimientoActual.historiaPadecimiento || '');
-      handleSinSintomasChange(padecimientoActual.sinSintomas || false);
-      
-      // Handle dolor data separately
-      if (padecimientoActual.dolor) {
-        const { dolor } = padecimientoActual;
-        Object.entries(dolor).forEach(([key, value]) => {
-          handleDolorChange(key, value);
-        });
-      }
-    } else if (section === 'antecedentesHeredoFamiliares') {
-      // Update based on the structure returned from the component
-      Object.entries(data).forEach(([familiar, values]: [string, any]) => {
-        if (familiar === 'padre' || familiar === 'madre' || familiar === 'abueloPaterno' || 
-            familiar === 'abuelaPaterna' || familiar === 'abueloMaterno' || familiar === 'abuelaMaterna') {
-          handleFamiliarChange(familiar, 'finado', values.finado);
-          handleFamiliarChange(familiar, 'causaMuerte', values.causaMuerte);
-          
-          // Update conditions
-          if (values.condiciones) {
-            Object.entries(values.condiciones).forEach(([condition, value]: [string, any]) => {
-              handleCondicionChange(familiar, condition, value);
-            });
-          }
-        }
-      });
-    } else if (section === 'antecedentesPersonalesPatologicos') {
-      // Update using the existing handleAntecedentePatologicoChange
-      Object.entries(data).forEach(([key, value]: [string, any]) => {
-        handleAntecedentePatologicoChange(key, value);
-      });
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
+  const pdfSectionsRef = useRef<{[key: string]: string}>({});
+  
+  
+  
+  useEffect(() => {
+    if (pacienteActual) {
+      guardarFormulario(formData, pacienteActual);
     }
-    
-    // Add more section handling as needed for other components
+  }, [formData, pacienteActual, guardarFormulario]);
+  
+  const handleLimpiarFormulario = () => {
+    setPacienteActual('');
+    setNombrePaciente('');
+    cargarFormulario(null); // Cargar formulario vacío
   };
-
-  // Función para generar redacción para cada sección del formulario
-  const generateRedaction = async (sectionTitle: string, sectionData: any) => {
-    // Simular la generación de redacción basada en los datos de la sección
-    try {
-      // Aquí se generaría la redacción real utilizando un servicio de IA
-      // Por ahora, simplemente formateamos los datos como texto
-      let redactionText = `${sectionTitle}:\n`;
-      
-      Object.entries(sectionData).forEach(([key, value]: [string, any]) => {
-        if (typeof value === 'object' && value !== null) {
-          redactionText += `${key}: ${JSON.stringify(value)}\n`;
-        } else if (value !== undefined && value !== null && value !== '') {
-          redactionText += `${key}: ${value}\n`;
-        }
-      });
-      
-      return redactionText;
-    } catch (error) {
-      console.error(`Error generando redacción para ${sectionTitle}:`, error);
-      return null;
-    }
+  
+  const handleResetFormulario = () => {
+    setPacienteActual('');
+    resetFormulario();
   };
-
-  const collectAllRedactions = async () => {
-    const sections = [
-      { key: 'padecimientoActual', title: 'Padecimiento Actual' },
-      { key: 'antecedentesHeredoFamiliares', title: 'Antecedentes Heredo Familiares' },
-      { key: 'antecedentesPersonalesNoPatologicos', title: 'Antecedentes Personales No Patológicos' },
-      { key: 'antecedentesPersonalesPatologicos', title: 'Antecedentes Personales Patológicos' },
-      { key: 'antecedentesAlergicos', title: 'Antecedentes Alérgicos' },
-      { key: 'antecedentesQuirurgicos', title: 'Antecedentes Quirúrgicos' },
-      { key: 'antecedentesHemorragicos', title: 'Antecedentes Hemorrágicos' },
-      { key: 'interrogatorioSistemas', title: 'Interrogatorio por Sistemas' },
-      { key: 'exploracionFisica', title: 'Exploración Física' },
-      { key: 'examenCabeza', title: 'Examen de Cabeza' },
-      { key: 'articulacionCraneomandibular', title: 'Articulación Craneomandibular' },
-      { key: 'examenCuello', title: 'Examen de Cuello' },
-      { key: 'examenIntrabucal', title: 'Examen Intrabucal' },
-      { key: 'glandulasSalivales', title: 'Glándulas Salivales' },
-      { key: 'oclusion', title: 'Oclusión' },
-      { key: 'relacionDientes', title: 'Relación de Dientes' },
-      { key: 'lineaMedia', title: 'Línea Media' },
-      { key: 'frenillos', title: 'Frenillos' },
-      { key: 'diagnostico', title: 'Diagnóstico' },
-      { key: 'pronostico', title: 'Pronóstico' }
-    ];
-
-    const newRedactions: { [key: string]: string } = {};
-    
-    for (const section of sections) {
-      const sectionData = formData[section.key as keyof FormDataState];
-      if (Object.keys(sectionData).length > 0) {
-        try {
-          const redaction = await generateRedaction(section.title, sectionData);
-          if (redaction) {
-            newRedactions[section.key] = redaction;
-          }
-        } catch (error) {
-          console.error(`Error generating redaction for ${section.title}:`, error);
-          toast.error(`Error al generar la redacción para ${section.title}`);
-        }
-      }
-    }
-
-    return newRedactions;
-  };
-
-  const handleGeneratePDF = async () => {
+  
+  const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
-      toast.error('Por favor ingrese el nombre del paciente');
+      toast({
+        title: "Error",
+        description: "Por favor ingrese el nombre del paciente",
+        variant: "destructive"
+      });
       return;
     }
+    guardarFormulario(formData, nombrePaciente);
+    setPacienteActual(nombrePaciente);
+    toast({
+      title: "Formulario guardado",
+      description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
+    });
+  };
+  
+  const validateForm = () => {
+    const padecimientoFields = validatePadecimientoActual(formData);
+    const heredoFamiliaresFields = validateAntecedentesHeredoFamiliares(formData);
+    const noPatologicosFields = validateAntecedentesPersonalesNoPatologicos(formData);
+    const patologicosFields = validateAntecedentesPersonalesPatologicos(formData);
 
-    try {
-      const allRedactions = await collectAllRedactions();
-      setSectionRedactions(allRedactions);
-      generatePDF(formData, nombrePaciente, allRedactions);
-      toast.success('PDF generado exitosamente');
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      toast.error('Error al generar el PDF');
+    const allMissingFields = [...padecimientoFields, ...heredoFamiliaresFields, ...noPatologicosFields, ...patologicosFields];
+    return allMissingFields;
+  };
+  
+  const collectAllRedactions = async () => {
+    // Get all sections that have a "Generar Redacción IA" button
+    const sectionsWithGenerateButtons = [
+      { 
+        selector: '[data-section-redaction="true"][data-section-name="padecimientoActual"]',
+        sectionName: 'padecimientoActual' 
+      },
+      { 
+        selector: '[data-section-name="antecedentesHeredoFamiliares"]',
+        sectionName: 'antecedentesHeredoFamiliares'
+      },
+      { 
+        selector: '[data-section-name="antecedentesPersonalesNoPatologicos"]',
+        sectionName: 'antecedentesPersonalesNoPatologicos'
+      },
+      { 
+        selector: '[data-section-name="antecedentesPersonalesPatologicos"]',
+        sectionName: 'antecedentesPersonalesPatologicos'
+      }
+    ];
+    
+    const totalSections = sectionsWithGenerateButtons.length;
+    let processedSections = 0;
+    
+    pdfSectionsRef.current = {};
+    
+    // Process each section
+    for (const section of sectionsWithGenerateButtons) {
+      // Find the section in the DOM
+      const sectionElement = document.querySelector(section.selector);
+      
+      if (sectionElement) {
+        // Look for a button to generate redaction
+        const generateButtons = sectionElement.querySelectorAll('button');
+        
+        // Find the button with "Generar Redacción IA" text
+        let generateButton = null;
+        for (const button of generateButtons) {
+          if (button.textContent && button.textContent.includes('Generar Redacción IA')) {
+            generateButton = button;
+            break;
+          }
+        }
+        
+        if (generateButton) {
+          // Get current tab buttons
+          const tabButtons = sectionElement.querySelectorAll('button');
+          let formTab = null;
+          let redactionTab = null;
+          
+          // Find the form and redaction tabs
+          for (const button of tabButtons) {
+            if (button.textContent && button.textContent.includes('Formulario')) {
+              formTab = button;
+            }
+            if (button.textContent && button.textContent.includes('Redacción IA')) {
+              redactionTab = button;
+            }
+          }
+          
+          // Remember which tab was active (assuming if formTab doesn't have bg-blue-500 class, it's active)
+          const wasOnFormTab = formTab && !formTab.classList.contains('bg-blue-500');
+          
+          // Click to generate redaction
+          (generateButton as HTMLElement).click();
+          
+          // Wait for the redaction to be generated
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Make sure redaction tab is active to see content
+          if (redactionTab && !redactionTab.classList.contains('bg-blue-500')) {
+            (redactionTab as HTMLElement).click();
+            // Wait for UI to update
+            await new Promise(resolve => setTimeout(resolve, 300));
+          }
+          
+          // Locate the generated content
+          const contentContainer = sectionElement.querySelector('[data-redaction-content]') || 
+                                  sectionElement.querySelector('.min-h-\\[150px\\]') ||
+                                  sectionElement.querySelector('div[style*="white-space: pre-wrap"]') ||
+                                  sectionElement.querySelector('div[dangerouslySetInnerHTML]');
+          
+          if (contentContainer) {
+            // Extract the content - either from textContent or innerHTML
+            let text = contentContainer.textContent || '';
+            
+            // If container uses dangerouslySetInnerHTML, we need to get that
+            if (!text && contentContainer.getAttribute('dangerouslySetInnerHTML')) {
+              const htmlContent = contentContainer.innerHTML;
+              text = htmlContent || '';
+            }
+            
+            if (text && text.trim()) {
+              pdfSectionsRef.current[section.sectionName] = text;
+            }
+          }
+          
+          // If we were on the form tab before, switch back
+          if (wasOnFormTab && formTab) {
+            (formTab as HTMLElement).click();
+          }
+        }
+        
+        // Update progress
+        processedSections++;
+        setPdfGenerationProgress(Math.round((processedSections / totalSections) * 100));
+      }
+    }
+    
+    return pdfSectionsRef.current;
+  };
+  
+  // Update the button style to make it more prominent
+  const handleGeneratePDF = () => {
+    const missing = validateForm();
+    if (missing.length > 0) {
+      setMissingFields(missing);
+      setAlertOpen(true);
+    } else {
+      generatePDFDocument();
     }
   };
+  
+  
+  // Update generatePDFDocument to collect all section redactions
+  const generatePDFDocument = async () => {
+    try {
+      setIsGeneratingPDF(true);
+      setPdfGenerationProgress(0);
+      
+      // Click the "Generar Redacción IA" button in each section first
+      // This will ensure all redactions are generated before collecting them
+      const sectionsToTrigger = [
+        '[data-section-redaction="true"][data-section-name="padecimientoActual"]',
+        '[data-section-name="antecedentesHeredoFamiliares"]',
+        '[data-section-name="antecedentesPersonalesNoPatologicos"]',
+        '[data-section-name="antecedentesPersonalesPatologicos"]'
+      ];
+      
+      for (const selector of sectionsToTrigger) {
+        const section = document.querySelector(selector);
+        if (section) {
+          // Find all buttons in the section
+          const buttons = section.querySelectorAll('button');
+          
+          // Find the "Generar Redacción IA" button
+          for (const button of buttons) {
+            if (button.textContent && button.textContent.includes('Generar Redacción IA')) {
+              // Click the button to generate redaction
+              (button as HTMLElement).click();
+              // Wait for redaction to be generated
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              break;
+            }
+          }
+        }
+      }
+      
+      // Extract all AI-generated content from all sections
+      const allRedactions = await collectAllRedactions();
+      
+      // Generate the PDF with the collected redactions
+      const patientName = nombrePaciente || pacienteActual || 'Paciente';
+      generatePDF(formData, patientName, allRedactions);
+      
+      toast({
+        title: "PDF Generado",
+        description: "La Historia Clínica ha sido generada exitosamente."
+      });
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo generar el PDF. Por favor, intente nuevamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+  
+  // Main component render
+  return <div className={`${theme} min-h-screen w-full flex`}>
+      <FormulariosSidebar onCargarFormulario={(data, nombre) => {
+      cargarFormulario(data);
+      setPacienteActual(nombre);
+      setNombrePaciente(nombre);
+    }} onGuardarFormulario={nombre => {
+      guardarFormulario(formData, nombre);
+      setPacienteActual(nombre);
+    }} onCerrarFormulario={handleLimpiarFormulario} onResetFormulario={handleResetFormulario} pacienteActual={pacienteActual} />
+      
+      
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
+        
+        
+        <div className="max-w-5xl mx-auto space-y-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold mb-2">Formulario IA</h1>
+            <p className="text-sm text-gray-500 mb-6">
+              (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)
+            </p>
+            
+            {/* Componente de nombre de paciente con estilo Apple minimalista - ahora sticky */}
+            <div className="max-w-lg mx-auto mb-2 sticky top-4 z-30">
+              <div className="backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
+                <div className="flex items-center gap-3">
+                  <div className="relative flex-1">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                      <User className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <Input value={nombrePaciente} onChange={e => setNombrePaciente(e.target.value)} placeholder="Nombre del paciente" className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" />
+                  </div>
+                  <Button onClick={handleGuardarFormulario} disabled={!nombrePaciente.trim()} className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200">
+                    <Save className="h-4 w-4" />
+                    <span className="text-sm font-medium">Guardar</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Componente separado para mostrar el paciente actual */}
+            {pacienteActual && <div className="flex items-center justify-center gap-2 mb-6">
+                <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
+                  Formulario actual: {pacienteActual}
+                </div>
+                <button onClick={handleResetFormulario} className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Resetear formulario">
+                  <X className="w-3 h-3" />
+                </button>
+              </div>}
+          </div>
 
-  return (
-    <div className="container mx-auto p-4">
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Nombre del paciente"
-          value={nombrePaciente}
-          onChange={(e) => setNombrePaciente(e.target.value)}
-          className="w-full p-2 border rounded"
-        />
+          <div className="space-y-6">
+            
+            <PadecimientoActual formData={formData} handlePadecimientoChange={handlePadecimientoChange} handleDolorChange={handleDolorChange} handleSinSintomasChange={handleSinSintomasChange} />
+            
+            <AntecedentesHeredoFamiliares formData={formData} handleFamiliarChange={handleFamiliarChange} handleCondicionChange={handleCondicionChange} />
+
+            <AntecedentesPersonalesNoPatologicos formData={formData} handleAntecedenteChange={handleAntecedenteChange} toggleService={toggleService} />
+            
+            <AntecedentesPersonalesPatologicos formData={formData} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
+            
+            <AntecedentesAlergicos formData={formData} handleAntecedenteAlergicoChange={handleAntecedenteAlergicoChange} />
+
+            <AntecedentesQuirurgicos formData={formData} handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange} />
+
+            <AntecedentesHemorragicos formData={formData} handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange} />
+
+            <InterrogatorioSistemas formData={formData} handleInterrogatorioChange={handleInterrogatorioChange} />
+
+            <ExploracionFisica formData={formData} handleExploracionFisicaChange={handleExploracionFisicaChange} />
+
+            <ExamenCabeza formData={formData} handleExamenCabezaChange={handleExamenCabezaChange} />
+            
+            <ArticulacionCraneomandibular formData={formData} handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} />
+            
+            <ExamenCuello formData={formData} handleExamenCuelloChange={handleExamenCuelloChange} />
+            
+            <ExamenIntrabucal formData={formData} handleExamenIntrabucalChange={handleExamenIntrabucalChange} />
+            
+            <GlandulasSalivales formData={formData} handleGlandulasSalivalesChange={handleGlandulasSalivalesChange} />
+            
+            <Oclusion formData={formData} handleOclusionChange={handleOclusionChange} />
+            
+            <RelacionDientes formData={formData} handleRelacionDientesChange={handleRelacionDientesChange} />
+            
+            <LineaMedia formData={formData} handleLineaMediaChange={handleLineaMediaChange} />
+            
+            <Frenillos formData={formData} handleFrenillosChange={handleFrenillosChange} />
+            
+            <Diagnostico formData={formData} handleDiagnosticoChange={handleDiagnosticoChange} />
+            
+            <Pronostico formData={formData} handlePronosticoChange={handlePronosticoChange} />
+
+            <div className="flex justify-center pt-6">
+              <Button onClick={handleGeneratePDF} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] font-semibold text-lg px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105">
+                {isGeneratingPDF ? <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Generando PDF...
+                  </> : <>
+                    <FileText className="mr-2 h-5 w-5" />
+                    Generar Historia Clínica en PDF
+                  </>}
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2">
-          <TabsTrigger value="padecimiento-actual">Padecimiento Actual</TabsTrigger>
-          <TabsTrigger value="antecedentes">Antecedentes</TabsTrigger>
-          <TabsTrigger value="exploracion">Exploración</TabsTrigger>
-          <TabsTrigger value="examenes">Exámenes</TabsTrigger>
-          <TabsTrigger value="diagnostico">Diagnóstico</TabsTrigger>
-          <TabsTrigger value="pronostico">Pronóstico</TabsTrigger>
-        </TabsList>
-
-        <Card className="mt-4">
-          <CardContent className="p-4">
-            <TabsContent value="padecimiento-actual">
-              <PadecimientoActual
-                formData={{padecimientoActual: formData.padecimientoActual}}
-                onChange={(data) => handleFormChange('padecimientoActual', data)}
-              />
-            </TabsContent>
-
-            <TabsContent value="antecedentes">
-              <div className="space-y-8">
-                <AntecedentesHeredoFamiliares
-                  formData={formData}
-                  handleFamiliarChange={handleFamiliarChange}
-                  handleCondicionChange={handleCondicionChange}
-                />
-                <AntecedentesPersonalesNoPatologicos
-                  formData={formData}
-                  handleAntecedenteChange={handleAntecedenteChange}
-                  toggleService={toggleService}
-                />
-                <AntecedentesPersonalesPatologicos
-                  formData={formData}
-                  handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
-                />
-                <AntecedentesAlergicos
-                  formData={formData}
-                  onChange={handleAntecedenteAlergicoChange}
-                />
-                <AntecedentesQuirurgicos
-                  formData={formData}
-                  handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange}
-                />
-                <AntecedentesHemorragicos
-                  formData={formData}
-                  handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange}
-                />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="exploracion">
-              <div className="space-y-8">
-                <InterrogatorioSistemas
-                  formData={formData}
-                  handleInterrogatorioChange={handleInterrogatorioChange}
-                />
-                <ExploracionFisica
-                  formData={formData}
-                  handleExploracionFisicaChange={handleExploracionFisicaChange}
-                />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="examenes">
-              <div className="space-y-8">
-                <ExamenCabeza
-                  formData={formData}
-                  handleExamenCabezaChange={handleExamenCabezaChange}
-                />
-                <ArticulacionCraneomandibular
-                  formData={formData}
-                  handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange}
-                />
-                <ExamenCuello
-                  formData={formData}
-                  handleExamenCuelloChange={handleExamenCuelloChange}
-                />
-                <ExamenIntrabucal
-                  formData={formData}
-                  handleExamenIntrabucalChange={handleExamenIntrabucalChange}
-                />
-                <GlandulasSalivales
-                  formData={formData}
-                  handleGlandulasSalivalesChange={handleGlandulasSalivalesChange}
-                />
-                <Oclusion
-                  formData={formData}
-                  handleOclusionChange={handleOclusionChange}
-                />
-                <RelacionDientes
-                  formData={formData}
-                  handleRelacionDientesChange={handleRelacionDientesChange}
-                />
-                <LineaMedia
-                  formData={formData}
-                  handleLineaMediaChange={handleLineaMediaChange}
-                />
-                <Frenillos
-                  formData={formData}
-                  handleFrenillosChange={handleFrenillosChange}
-                />
-              </div>
-            </TabsContent>
-
-            <TabsContent value="diagnostico">
-              <Diagnostico
-                formData={formData}
-                handleDiagnosticoChange={handleDiagnosticoChange}
-              />
-            </TabsContent>
-
-            <TabsContent value="pronostico">
-              <Pronostico
-                formData={formData}
-                handlePronosticoChange={handlePronosticoChange}
-              />
-            </TabsContent>
-          </CardContent>
-        </Card>
-      </Tabs>
-
-      <div className="mt-6 flex justify-end">
-        <Button onClick={handleGeneratePDF}>
-          Generar PDF
-        </Button>
-      </div>
-
-      {Object.keys(sectionRedactions).length > 0 && (
-        <ResumenHistoriaClinica
-          resumen={Object.values(sectionRedactions).join('\n\n')}
-        />
-      )}
-    </div>
-  );
+      
+      <ConfirmationAlert isOpen={alertOpen} onClose={() => setAlertOpen(false)} onConfirm={() => {
+      setAlertOpen(false);
+      generatePDFDocument();
+    }} title="Formulario incompleto" description="Hay campos sin completar en el formulario." missingFields={missingFields} />
+      
+      {isGeneratingPDF && <LoadingOverlay 
+        message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." 
+        progress={pdfGenerationProgress}
+      />}
+      
+      <Toaster />
+    </div>;
 };
 
 export default HistoriaClinica;

@@ -7,8 +7,6 @@ export const generatePDF = (
   nombrePaciente: string,
   sectionRedactions: { [key: string]: string } = {}
 ) => {
-  console.log("Generating PDF with redactions:", Object.keys(sectionRedactions));
-  
   const doc = new jsPDF();
   
   // Add title
@@ -41,12 +39,9 @@ export const generatePDF = (
   
   // Function to add a section with title
   const addSection = (title: string, content: string) => {
-    if (!content) {
-      console.warn(`No content for section: ${title}`);
-      return;
-    }
+    if (!content) return;
     
-    // Clean up HTML tags from content if present
+    // Clean up HTML tags from content
     const cleanText = content.replace(/<\/?[^>]+(>|$)/g, "");
     const lines = doc.splitTextToSize(cleanText, 180);
     
@@ -66,7 +61,7 @@ export const generatePDF = (
     yPos += lines.length * 6 + 10;
   };
   
-  // Define all sections with their titles and content keys
+  // Define all sections with their titles and content
   const sections = [
     { title: 'I. PADECIMIENTO ACTUAL', key: 'padecimientoActual' },
     { title: 'II. ANTECEDENTES HEREDO FAMILIARES', key: 'antecedentesHeredoFamiliares' },
@@ -91,22 +86,12 @@ export const generatePDF = (
   ];
   
   // Add each section to the PDF if it has content
-  let sectionsAdded = 0;
   sections.forEach(section => {
     const content = sectionRedactions[section.key];
     if (content) {
-      console.log(`Adding section ${section.title} to PDF`);
       addSection(section.title, content);
-      sectionsAdded++;
     }
   });
-  
-  if (sectionsAdded === 0) {
-    // Si no se agregaron secciones, añadir un mensaje sobre contenido faltante
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(12);
-    doc.text("No se encontró contenido redactado para incluir en el PDF. Por favor, asegúrese de generar las redacciones de las secciones del formulario.", 14, yPos, { maxWidth: 180 });
-  }
   
   // Save the PDF
   const filename = `Historia_Clinica_${nombrePaciente.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
