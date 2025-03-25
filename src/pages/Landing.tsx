@@ -11,11 +11,11 @@ import type { Database } from '@/types/supabase';
 import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
 import { Checkbox } from "@/components/ui/checkbox";
 import { Typewriter } from "@/components/ui/typewriter-text";
-import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza, InterrogatorioSistemas, InformacionPrincipal } from '@/types/historiaClinica';
+import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza } from '@/types/historiaClinica';
 
-// Types for missing imports
-type InterrogatorioSistemas = any;
-type InformacionPrincipal = any;
+// Define missing types
+type InterrogatorioSistemas = Record<string, any>;
+type InformacionPrincipal = Record<string, any>;
 
 const menuItems = [{
   label: "Nosotros",
@@ -541,18 +541,17 @@ const Landing = () => {
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
               <AntecedentesPersonalesPatologicos formData={{
-              antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-              padecimientoActual: {} as PadecimientoActual,
-              antecedentesHeredoFamiliares: {} as AntecedentesHeredoFamiliares,
-              antecedentesPersonalesNoPatologicos: {} as AntecedentesPersonalesNoPatologicos,
-              antecedentesAlergicos: {} as AntecedentesAlergicos,
-              antecedentesHemorragicos: {} as AntecedentesHemorragicos,
-              antecedentesQuirurgicos: {} as AntecedentesQuirurgicos,
-              interrogatorioSistemas: {} as InterrogatorioSistemas,
-              informacionPrincipal: {} as InformacionPrincipal,
-              exploracionFisica: {} as ExploracionFisica,
-              examenCabeza: {} as ExamenCabeza
-            }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
+                antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+                padecimientoActual: {} as PadecimientoActual,
+                antecedentesHeredoFamiliares: {} as AntecedentesHeredoFamiliares,
+                antecedentesPersonalesNoPatologicos: {} as AntecedentesPersonalesNoPatologicos,
+                antecedentesAlergicos: {} as AntecedentesAlergicos,
+                antecedentesHemorragicos: {} as AntecedentesHemorragicos,
+                antecedentesQuirurgicos: {} as AntecedentesQuirurgicos,
+                interrogatorioSistemas: {} as InterrogatorioSistemas,
+                exploracionFisica: {} as ExploracionFisica,
+                examenCabeza: {} as ExamenCabeza
+              }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
             </div>
           </div>
         </div>
