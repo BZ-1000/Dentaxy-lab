@@ -2,6 +2,30 @@
 import jsPDF from 'jspdf';
 import { FormDataState } from '@/types/historiaClinica';
 
+// Mapping of section keys to their titles
+const SECTION_TITLES = {
+  padecimientoActual: 'I. PADECIMIENTO ACTUAL',
+  antecedentesHeredoFamiliares: 'II. ANTECEDENTES HEREDO FAMILIARES',
+  antecedentesPersonalesNoPatologicos: 'III. ANTECEDENTES PERSONALES NO PATOLÓGICOS',
+  antecedentesPersonalesPatologicos: 'IV. ANTECEDENTES PERSONALES PATOLÓGICOS',
+  antecedentesAlergicos: 'V. ANTECEDENTES ALÉRGICOS',
+  antecedentesQuirurgicos: 'VI. ANTECEDENTES QUIRÚRGICOS',
+  antecedentesHemorragicos: 'VII. ANTECEDENTES HEMORRAGICOS',
+  interrogatorioSistemas: 'VIII. INTERROGATORIO POR SISTEMAS',
+  exploracionFisica: 'IX. EXPLORACIÓN FÍSICA',
+  examenCabeza: 'X. EXAMEN DE CABEZA',
+  articulacionCraneomandibular: 'XI. ARTICULACIÓN CRANEOMANDIBULAR',
+  examenCuello: 'XII. EXAMEN DE CUELLO',
+  examenIntrabucal: 'XIII. EXAMEN INTRABUCAL',
+  glandulasSalivales: 'XIV. GLÁNDULAS SALIVALES',
+  oclusion: 'XV. OCLUSIÓN',
+  relacionDientes: 'XVI. RELACIÓN DE DIENTES',
+  lineaMedia: 'XVII. LÍNEA MEDIA',
+  frenillos: 'XVIII. FRENILLOS',
+  diagnostico: 'XIX. DIAGNÓSTICO',
+  pronostico: 'XX. PRONÓSTICO'
+};
+
 export const generatePDF = (
   formData: FormDataState, 
   nombrePaciente: string,
@@ -66,36 +90,11 @@ export const generatePDF = (
     yPos += lines.length * 6 + 10;
   };
   
-  // Define all sections with their titles and content keys
-  const sections = [
-    { title: 'I. PADECIMIENTO ACTUAL', key: 'padecimientoActual' },
-    { title: 'II. ANTECEDENTES HEREDO FAMILIARES', key: 'antecedentesHeredoFamiliares' },
-    { title: 'III. ANTECEDENTES PERSONALES NO PATOLÓGICOS', key: 'antecedentesPersonalesNoPatologicos' },
-    { title: 'IV. ANTECEDENTES PERSONALES PATOLÓGICOS', key: 'antecedentesPersonalesPatologicos' },
-    { title: 'V. ANTECEDENTES ALÉRGICOS', key: 'antecedentesAlergicos' },
-    { title: 'VI. ANTECEDENTES QUIRÚRGICOS', key: 'antecedentesQuirurgicos' },
-    { title: 'VII. ANTECEDENTES HEMORRAGICOS', key: 'antecedentesHemorragicos' },
-    { title: 'VIII. INTERROGATORIO POR SISTEMAS', key: 'interrogatorioSistemas' },
-    { title: 'IX. EXPLORACIÓN FÍSICA', key: 'exploracionFisica' },
-    { title: 'X. EXAMEN DE CABEZA', key: 'examenCabeza' },
-    { title: 'XI. ARTICULACIÓN CRANEOMANDIBULAR', key: 'articulacionCraneomandibular' },
-    { title: 'XII. EXAMEN DE CUELLO', key: 'examenCuello' },
-    { title: 'XIII. EXAMEN INTRABUCAL', key: 'examenIntrabucal' },
-    { title: 'XIV. GLÁNDULAS SALIVALES', key: 'glandulasSalivales' },
-    { title: 'XV. OCLUSIÓN', key: 'oclusion' },
-    { title: 'XVI. RELACIÓN DE DIENTES', key: 'relacionDientes' },
-    { title: 'XVII. LÍNEA MEDIA', key: 'lineaMedia' },
-    { title: 'XVIII. FRENILLOS', key: 'frenillos' },
-    { title: 'XIX. DIAGNÓSTICO', key: 'diagnostico' },
-    { title: 'XX. PRONÓSTICO', key: 'pronostico' }
-  ];
-  
   // Add each section to the PDF if it has content
-  sections.forEach(section => {
-    const content = sectionRedactions[section.key];
-    if (content) {
-      console.log(`Adding section ${section.title} to PDF`);
-      addSection(section.title, content);
+  Object.entries(sectionRedactions).forEach(([key, content]) => {
+    if (content && SECTION_TITLES[key]) {
+      console.log(`Adding section ${SECTION_TITLES[key]} to PDF`);
+      addSection(SECTION_TITLES[key], content);
     }
   });
   

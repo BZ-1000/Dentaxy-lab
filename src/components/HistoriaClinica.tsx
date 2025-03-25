@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -37,9 +36,7 @@ import LoadingOverlay from './historia-clinica/LoadingOverlay';
 
 const HistoriaClinica = () => {
   
-  const {
-    theme
-  } = useTheme();
+  const { theme } = useTheme();
   const [pacienteActual, setPacienteActual] = useState<string>('');
   const [nombrePaciente, setNombrePaciente] = useState<string>('');
   const [alertOpen, setAlertOpen] = useState(false);
@@ -128,82 +125,106 @@ const HistoriaClinica = () => {
     const allMissingFields = [...padecimientoFields, ...heredoFamiliaresFields, ...noPatologicosFields, ...patologicosFields];
     return allMissingFields;
   };
-  
-  // Improved function to click the "Generate IA" button and wait for redaction
-  const generateSectionRedaction = async (sectionName: string, sectionElement: Element) => {
+
+  // Improved function to click the "Generate IA" button for a section
+  const generateSectionRedaction = async (sectionElement: Element) => {
     try {
-      console.log(`Attempting to generate redaction for ${sectionName}`);
-      
-      // Find the "Generar Redacción IA" button
-      const allButtons = sectionElement.querySelectorAll('button');
-      let generateButton = null;
-      
-      for (const button of allButtons) {
-        if (button.textContent && button.textContent.includes('Generar Redacción IA')) {
-          generateButton = button;
-          break;
-        }
-      }
-      
-      if (!generateButton) {
-        console.warn(`No 'Generar Redacción IA' button found for ${sectionName}`);
-        return false;
-      }
+      if (!sectionElement) return false;
       
       // First make sure we're on the form tab
       const formTabs = sectionElement.querySelectorAll('button');
+      let formTab = null;
       for (const tab of formTabs) {
         if (tab.textContent && tab.textContent.includes('Formulario')) {
-          (tab as HTMLElement).click();
-          await new Promise(resolve => setTimeout(resolve, 300));
+          formTab = tab;
           break;
         }
       }
       
-      // Now click the generate button
-      console.log(`Clicking 'Generar Redacción IA' button for ${sectionName}`);
+      if (formTab) {
+        (formTab as HTMLElement).click();
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+      
+      // Find and click the "Generar Redacción IA" button
+      const allButtons = Array.from(sectionElement.querySelectorAll('button'));
+      const generateButton = allButtons.find(button => 
+        button.textContent && 
+        (button.textContent.includes('Generar Redacción IA') || 
+         button.textContent.includes('Generar Redacción') ||
+         button.textContent.includes('Generar Informe'))
+      );
+      
+      if (!generateButton) {
+        console.warn('No generate button found in section');
+        return false;
+      }
+      
+      console.log('Clicking generate button', generateButton.textContent);
       (generateButton as HTMLElement).click();
       
-      // Wait longer for the redaction to generate
+      // Wait for redaction to generate (4 seconds should be enough)
       await new Promise(resolve => setTimeout(resolve, 4000));
       
-      // Switch to the redaction tab to ensure content is visible
+      // Switch to the redaction tab
       const redactionTabs = sectionElement.querySelectorAll('button');
+      let redactionTab = null;
       for (const tab of redactionTabs) {
-        if (tab.textContent && tab.textContent.includes('Redacción IA')) {
-          (tab as HTMLElement).click();
-          await new Promise(resolve => setTimeout(resolve, 300));
+        if (tab.textContent && 
+            (tab.textContent.includes('Redacción IA') || 
+             tab.textContent.includes('Informe IA'))) {
+          redactionTab = tab;
           break;
         }
+      }
+      
+      if (redactionTab) {
+        (redactionTab as HTMLElement).click();
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
       
       return true;
     } catch (error) {
-      console.error(`Error generating ${sectionName} redaction:`, error);
+      console.error('Error generating redaction:', error);
       return false;
     }
   };
   
-  // Improved function to get redaction content with better selectors
-  const getSectionRedaction = (sectionName: string, sectionElement: Element): string | null => {
+  // Function to extract redaction content from a section
+  const getSectionRedaction = (sectionElement: Element): string | null => {
     try {
-      // Try multiple selector strategies to find the content
+      if (!sectionElement) return null;
+      
+      // Try to find redaction content div (with various selectors to be robust)
+      const possibleContentSelectors = [
+        'div[data-redaction-content]',
+        '.min-h-\\[150px\\], .min-h-\\[200px\\]',
+        'div.bg-gray-50, div.bg-gray-900',
+        'div[style*="white-space: pre-wrap"]',
+        'div.whitespace-pre-wrap'
+      ];
+      
       let contentElement = null;
       
-      // Strategy 1: Find div that contains the redaction text (uses more specific class names)
-      contentElement = sectionElement.querySelector('.min-h-\\[200px\\], .min-h-\\[150px\\]');
-      
-      if (!contentElement) {
-        // Strategy 2: Find by paragraph or text elements
-        contentElement = sectionElement.querySelector('p.justify-text, div.justify-text');
+      for (const selector of possibleContentSelectors) {
+        const elements = sectionElement.querySelectorAll(selector);
+        for (const el of elements) {
+          if (el.textContent && el.textContent.trim().length > 10) {
+            contentElement = el;
+            break;
+          }
+        }
+        if (contentElement) break;
       }
       
+      // If still not found, try a more generic approach
       if (!contentElement) {
-        // Strategy 3: Look for the div containing the redaction content
-        const divs = sectionElement.querySelectorAll('div');
-        for (const div of divs) {
-          if (div.textContent && div.textContent.length > 50 && 
-              (div.className.includes('bg-gray-50') || div.className.includes('bg-gray-900') || 
+        const allDivs = sectionElement.querySelectorAll('div');
+        for (const div of allDivs) {
+          if (div.textContent && 
+              div.textContent.trim().length > 30 && 
+              (div.className.includes('bg-gray') || 
+               div.hasAttribute('data-redaction-content') || 
                div.style.whiteSpace === 'pre-wrap')) {
             contentElement = div;
             break;
@@ -212,112 +233,82 @@ const HistoriaClinica = () => {
       }
       
       if (!contentElement) {
-        console.warn(`Could not find content element for ${sectionName}`);
+        console.warn('Could not find redaction content');
         return null;
       }
       
-      // Get the text content
+      // Get and clean up the content
       const text = contentElement.textContent || '';
-      const trimmed = text.trim();
-      
-      if (trimmed.length === 0) {
-        console.warn(`Empty content found for ${sectionName}`);
-        return null;
-      }
-      
-      console.log(`Found content for ${sectionName}: ${trimmed.substring(0, 30)}...`);
-      return trimmed;
+      return text.trim();
     } catch (error) {
-      console.error(`Error extracting ${sectionName} content:`, error);
+      console.error('Error extracting redaction:', error);
       return null;
     }
   };
   
-  // Updated function to collect all redactions with improved section identification
+  // Function to collect redactions from all sections
   const collectAllRedactions = async () => {
-    // Define all sections with their names and class identifiers
-    const sectionConfigs = [
-      { name: 'padecimientoActual', title: 'I. PADECIMIENTO ACTUAL', identifier: 'PadecimientoActual' },
-      { name: 'antecedentesHeredoFamiliares', title: 'II. ANTECEDENTES HEREDO FAMILIARES', identifier: 'AntecedentesHeredoFamiliares' },
-      { name: 'antecedentesPersonalesNoPatologicos', title: 'III. ANTECEDENTES PERSONALES NO PATOLÓGICOS', identifier: 'AntecedentesPersonalesNoPatologicos' },
-      { name: 'antecedentesPersonalesPatologicos', title: 'IV. ANTECEDENTES PERSONALES PATOLÓGICOS', identifier: 'AntecedentesPersonalesPatologicos' }
-    ];
-    
     pdfSectionsRef.current = {};
     
-    // For each section, find the component in the DOM and process it
-    for (const sectionConfig of sectionConfigs) {
+    // Define all sections we want to process
+    const sectionSelectors = [
+      { name: 'padecimientoActual', selector: '[data-section-name="padecimientoActual"]' },
+      { name: 'antecedentesHeredoFamiliares', selector: '[data-section-name="antecedentesHeredoFamiliares"]' },
+      { name: 'antecedentesPersonalesNoPatologicos', selector: '[data-section-name="antecedentesPersonalesNoPatologicos"]' },
+      { name: 'antecedentesPersonalesPatologicos', selector: '[data-section-name="antecedentesPersonalesPatologicos"]' },
+      { name: 'antecedentesAlergicos', selector: '[data-section-name="antecedentesAlergicos"]' },
+      { name: 'antecedentesQuirurgicos', selector: '[data-section-name="antecedentesQuirurgicos"]' },
+      { name: 'antecedentesHemorragicos', selector: '[data-section-name="antecedentesHemorragicos"]' },
+      { name: 'interrogatorioSistemas', selector: '[data-section-name="interrogatorioSistemas"]' },
+      { name: 'exploracionFisica', selector: '[data-section-name="exploracionFisica"]' },
+      { name: 'examenCabeza', selector: '[data-section-name="examenCabeza"]' }
+    ];
+    
+    // Total steps for progress calculation
+    const totalSteps = sectionSelectors.length * 2; // *2 because we have generate and extract for each section
+    let completedSteps = 0;
+    
+    for (const sectionConfig of sectionSelectors) {
       console.log(`Processing section: ${sectionConfig.name}`);
       
-      // Find the section by looking for headings with the title text
-      const headings = Array.from(document.querySelectorAll('h2'));
-      let sectionContainer = null;
-      
-      for (const heading of headings) {
-        if (heading.textContent && heading.textContent.includes(sectionConfig.title.split('.')[1].trim())) {
-          // Find the parent Card or container for this section
-          let parent = heading;
-          while (parent && !parent.classList.contains('card') && parent.tagName !== 'BODY') {
-            parent = parent.parentElement as Element;
-          }
-          
-          if (parent && parent.tagName !== 'BODY') {
-            sectionContainer = parent;
-            break;
-          }
-        }
-      }
-      
-      if (!sectionContainer) {
-        // Fallback: try to find component by its class name pattern
-        let components = document.querySelectorAll(`[class*="${sectionConfig.identifier}"], [id*="${sectionConfig.identifier}"]`);
-        if (components.length === 0) {
-          // Try by approximate text within the section
-          components = document.querySelectorAll('div.card');
-          for (const component of components) {
-            if (component.textContent && component.textContent.includes(sectionConfig.title.split('.')[1].trim())) {
-              sectionContainer = component;
-              break;
-            }
-          }
-        } else if (components.length > 0) {
-          sectionContainer = components[0];
-        }
-      }
-      
-      if (!sectionContainer) {
-        console.warn(`Could not find section container for ${sectionConfig.name}`);
+      // Find section element
+      const sectionElements = document.querySelectorAll(sectionConfig.selector);
+      if (sectionElements.length === 0) {
+        console.warn(`Section not found: ${sectionConfig.name}`);
+        completedSteps += 2; // Skip both steps for this section
+        setPdfGenerationProgress((completedSteps / totalSteps) * 100);
         continue;
       }
       
-      console.log(`Found section container for ${sectionConfig.name}`);
+      const sectionElement = sectionElements[0];
       
       // Generate redaction for this section
-      const generated = await generateSectionRedaction(sectionConfig.name, sectionContainer);
+      await generateSectionRedaction(sectionElement);
       
       // Update progress
-      const progressStep = 100 / (sectionConfigs.length * 2);
-      setPdfGenerationProgress(prev => prev + progressStep);
+      completedSteps++;
+      setPdfGenerationProgress((completedSteps / totalSteps) * 100);
       
       // Wait a moment to ensure the redaction has fully rendered
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Get the redaction content
-      const content = getSectionRedaction(sectionConfig.name, sectionContainer);
+      // Extract redaction content
+      const content = getSectionRedaction(sectionElement);
       if (content) {
         pdfSectionsRef.current[sectionConfig.name] = content;
-        console.log(`Successfully added ${sectionConfig.name} redaction to PDF`);
+        console.log(`Added ${sectionConfig.name} redaction to PDF`);
       }
       
       // Update progress again
-      setPdfGenerationProgress(prev => prev + progressStep);
+      completedSteps++;
+      setPdfGenerationProgress((completedSteps / totalSteps) * 100);
     }
     
     console.log("All redactions collected:", Object.keys(pdfSectionsRef.current));
     return pdfSectionsRef.current;
   };
   
-  // Update the generatePDFDocument function to use the improved collection method
+  // Function to generate the PDF
   const generatePDFDocument = async () => {
     try {
       setIsGeneratingPDF(true);
@@ -325,6 +316,17 @@ const HistoriaClinica = () => {
       
       // Collect all redactions
       const allRedactions = await collectAllRedactions();
+      
+      // Check if we have any redactions
+      if (Object.keys(allRedactions).length === 0) {
+        toast({
+          title: "Advertencia",
+          description: "No se encontraron redacciones para incluir en el PDF. Por favor, genere al menos una redacción.",
+          variant: "destructive"
+        });
+        setIsGeneratingPDF(false);
+        return;
+      }
       
       // Generate the PDF
       const patientName = nombrePaciente || pacienteActual || 'Paciente';
@@ -335,8 +337,7 @@ const HistoriaClinica = () => {
         description: "La Historia Clínica ha sido generada exitosamente."
       });
       
-      // IMPORTANT: We're NOT resetting the form anymore as requested by the user
-      // Removed: resetFormulario();
+      // Important: We're NOT resetting the form as requested by the user
       
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -362,20 +363,24 @@ const HistoriaClinica = () => {
   };
   
   
-  return <div className={`${theme} min-h-screen w-full flex`}>
-      <FormulariosSidebar onCargarFormulario={(data, nombre) => {
-      cargarFormulario(data);
-      setPacienteActual(nombre);
-      setNombrePaciente(nombre);
-    }} onGuardarFormulario={nombre => {
-      guardarFormulario(formData, nombre);
-      setPacienteActual(nombre);
-    }} onCerrarFormulario={handleLimpiarFormulario} onResetFormulario={handleResetFormulario} pacienteActual={pacienteActual} />
-      
+  return (
+    <div className={`${theme} min-h-screen w-full flex`}>
+      <FormulariosSidebar 
+        onCargarFormulario={(data, nombre) => {
+          cargarFormulario(data);
+          setPacienteActual(nombre);
+          setNombrePaciente(nombre);
+        }} 
+        onGuardarFormulario={nombre => {
+          guardarFormulario(formData, nombre);
+          setPacienteActual(nombre);
+        }} 
+        onCerrarFormulario={handleLimpiarFormulario} 
+        onResetFormulario={handleResetFormulario} 
+        pacienteActual={pacienteActual} 
+      />
       
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
-        
-        
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-2">Formulario IA</h1>
@@ -383,7 +388,7 @@ const HistoriaClinica = () => {
               (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)
             </p>
             
-            {/* Componente de nombre de paciente con estilo Apple minimalista - ahora sticky */}
+            {/* Componente de nombre de paciente */}
             <div className="max-w-lg mx-auto mb-2 sticky top-4 z-30">
               <div className="backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
                 <div className="flex items-center gap-3">
@@ -391,9 +396,18 @@ const HistoriaClinica = () => {
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <User className="h-4 w-4 text-gray-400" />
                     </div>
-                    <Input value={nombrePaciente} onChange={e => setNombrePaciente(e.target.value)} placeholder="Nombre del paciente" className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" />
+                    <Input 
+                      value={nombrePaciente} 
+                      onChange={e => setNombrePaciente(e.target.value)} 
+                      placeholder="Nombre del paciente" 
+                      className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                    />
                   </div>
-                  <Button onClick={handleGuardarFormulario} disabled={!nombrePaciente.trim()} className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200">
+                  <Button 
+                    onClick={handleGuardarFormulario} 
+                    disabled={!nombrePaciente.trim()} 
+                    className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200"
+                  >
                     <Save className="h-4 w-4" />
                     <span className="text-sm font-medium">Guardar</span>
                   </Button>
@@ -401,19 +415,25 @@ const HistoriaClinica = () => {
               </div>
             </div>
             
-            {/* Componente separado para mostrar el paciente actual */}
-            {pacienteActual && <div className="flex items-center justify-center gap-2 mb-6">
+            {/* Componente para mostrar el paciente actual */}
+            {pacienteActual && (
+              <div className="flex items-center justify-center gap-2 mb-6">
                 <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
                   Formulario actual: {pacienteActual}
                 </div>
-                <button onClick={handleResetFormulario} className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Resetear formulario">
+                <button 
+                  onClick={handleResetFormulario} 
+                  className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" 
+                  aria-label="Resetear formulario"
+                >
                   <X className="w-3 h-3" />
                 </button>
-              </div>}
+              </div>
+            )}
           </div>
 
           <div className="space-y-6">
-            {/* Using data-section-redaction="true" attribute to identify sections for redaction */}
+            {/* Add data attributes to all sections for redaction collection */}
             <div data-section-redaction="true" data-section-name="padecimientoActual">
               <PadecimientoActual 
                 formData={formData} 
@@ -446,65 +466,143 @@ const HistoriaClinica = () => {
               />
             </div>
             
-            <AntecedentesAlergicos formData={formData} handleAntecedenteAlergicoChange={handleAntecedenteAlergicoChange} />
+            <div data-section-redaction="true" data-section-name="antecedentesAlergicos">
+              <AntecedentesAlergicos 
+                formData={formData} 
+                handleAntecedenteAlergicoChange={handleAntecedenteAlergicoChange} 
+              />
+            </div>
 
-            <AntecedentesQuirurgicos formData={formData} handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange} />
+            <div data-section-redaction="true" data-section-name="antecedentesQuirurgicos">
+              <AntecedentesQuirurgicos 
+                formData={formData} 
+                handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange} 
+              />
+            </div>
 
-            <AntecedentesHemorragicos formData={formData} handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange} />
+            <div data-section-redaction="true" data-section-name="antecedentesHemorragicos">
+              <AntecedentesHemorragicos 
+                formData={formData} 
+                handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange} 
+              />
+            </div>
 
-            <InterrogatorioSistemas formData={formData} handleInterrogatorioChange={handleInterrogatorioChange} />
+            <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
+              <InterrogatorioSistemas 
+                formData={formData} 
+                handleInterrogatorioChange={handleInterrogatorioChange} 
+              />
+            </div>
 
-            <ExploracionFisica formData={formData} handleExploracionFisicaChange={handleExploracionFisicaChange} />
+            <div data-section-redaction="true" data-section-name="exploracionFisica">
+              <ExploracionFisica 
+                formData={formData} 
+                handleExploracionFisicaChange={handleExploracionFisicaChange} 
+              />
+            </div>
 
-            <ExamenCabeza formData={formData} handleExamenCabezaChange={handleExamenCabezaChange} />
+            <div data-section-redaction="true" data-section-name="examenCabeza">
+              <ExamenCabeza 
+                formData={formData} 
+                handleExamenCabezaChange={handleExamenCabezaChange} 
+              />
+            </div>
             
-            <ArticulacionCraneomandibular formData={formData} handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} />
+            <ArticulacionCraneomandibular 
+              formData={formData} 
+              handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} 
+            />
             
-            <ExamenCuello formData={formData} handleExamenCuelloChange={handleExamenCuelloChange} />
+            <ExamenCuello 
+              formData={formData} 
+              handleExamenCuelloChange={handleExamenCuelloChange} 
+            />
             
-            <ExamenIntrabucal formData={formData} handleExamenIntrabucalChange={handleExamenIntrabucalChange} />
+            <ExamenIntrabucal 
+              formData={formData} 
+              handleExamenIntrabucalChange={handleExamenIntrabucalChange} 
+            />
             
-            <GlandulasSalivales formData={formData} handleGlandulasSalivalesChange={handleGlandulasSalivalesChange} />
+            <GlandulasSalivales 
+              formData={formData} 
+              handleGlandulasSalivalesChange={handleGlandulasSalivalesChange} 
+            />
             
-            <Oclusion formData={formData} handleOclusionChange={handleOclusionChange} />
+            <Oclusion 
+              formData={formData} 
+              handleOclusionChange={handleOclusionChange} 
+            />
             
-            <RelacionDientes formData={formData} handleRelacionDientesChange={handleRelacionDientesChange} />
+            <RelacionDientes 
+              formData={formData} 
+              handleRelacionDientesChange={handleRelacionDientesChange} 
+            />
             
-            <LineaMedia formData={formData} handleLineaMediaChange={handleLineaMediaChange} />
+            <LineaMedia 
+              formData={formData} 
+              handleLineaMediaChange={handleLineaMediaChange} 
+            />
             
-            <Frenillos formData={formData} handleFrenillosChange={handleFrenillosChange} />
+            <Frenillos 
+              formData={formData} 
+              handleFrenillosChange={handleFrenillosChange} 
+            />
             
-            <Diagnostico formData={formData} handleDiagnosticoChange={handleDiagnosticoChange} />
+            <Diagnostico 
+              formData={formData} 
+              handleDiagnosticoChange={handleDiagnosticoChange} 
+            />
             
-            <Pronostico formData={formData} handlePronosticoChange={handlePronosticoChange} />
+            <Pronostico 
+              formData={formData} 
+              handlePronosticoChange={handlePronosticoChange} 
+            />
 
             <div className="flex justify-center pt-6">
-              <Button onClick={handleGeneratePDF} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] font-semibold text-lg px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105">
-                {isGeneratingPDF ? <>
+              <Button 
+                onClick={handleGeneratePDF} 
+                disabled={isGeneratingPDF} 
+                className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] font-semibold text-lg px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105"
+              >
+                {isGeneratingPDF ? (
+                  <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Generando PDF...
-                  </> : <>
+                  </>
+                ) : (
+                  <>
                     <FileText className="mr-2 h-5 w-5" />
                     Generar Historia Clínica en PDF
-                  </>}
+                  </>
+                )}
               </Button>
             </div>
           </div>
         </div>
       </div>
       
-      <ConfirmationAlert isOpen={alertOpen} onClose={() => setAlertOpen(false)} onConfirm={() => {
-      setAlertOpen(false);
-      generatePDFDocument();
-    }} title="Formulario incompleto" description="Hay campos sin completar en el formulario." missingFields={missingFields} />
+      <ConfirmationAlert 
+        isOpen={alertOpen} 
+        onClose={() => setAlertOpen(false)} 
+        onConfirm={() => {
+          setAlertOpen(false);
+          generatePDFDocument();
+        }} 
+        title="Formulario incompleto" 
+        description="Hay campos sin completar en el formulario." 
+        missingFields={missingFields} 
+      />
       
-      {isGeneratingPDF && <LoadingOverlay 
-        message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." 
-        progress={pdfGenerationProgress}
-      />}
+      {isGeneratingPDF && (
+        <LoadingOverlay 
+          message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." 
+          progress={pdfGenerationProgress}
+        />
+      )}
       
       <Toaster />
-    </div>;
+    </div>
+  );
 };
 
 export default HistoriaClinica;
