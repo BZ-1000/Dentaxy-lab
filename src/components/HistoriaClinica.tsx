@@ -323,8 +323,15 @@ const HistoriaClinica = () => {
         }
       }
       
+      // Corregimos el error de TS2352 aquí - convertimos el array a NodeListOf<Element>
       if (sectionElements.length > 0) {
-        allSectionElements = sectionElements as NodeListOf<Element>;
+        // En lugar de hacer una conversión directa, creamos una copia de los elementos
+        // usando document.querySelectorAll con un selector personalizado para cada elemento
+        const nodeList = new Array<Element>();
+        sectionElements.forEach(element => {
+          nodeList.push(element);
+        });
+        allSectionElements = nodeList as unknown as NodeListOf<Element>;
       } else {
         console.error("Failed to find any sections by heading text");
         return {};
@@ -412,8 +419,9 @@ const HistoriaClinica = () => {
         description: "La Historia Clínica ha sido generada exitosamente."
       });
       
-      // IMPORTANT: We are NOT resetting the form anymore
-      // Removed: resetFormulario();
+      // IMPORTANTE: No resetear el formulario después de generar el PDF
+      // Esta es la línea que causaba que se borrara el formulario después de generar el PDF
+      // resetFormulario();
       
     } catch (error) {
       console.error("Error generating PDF:", error);

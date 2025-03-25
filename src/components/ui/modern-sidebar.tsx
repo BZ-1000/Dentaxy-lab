@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -93,6 +92,7 @@ export const DesktopSidebar = ({
       animate={{
         width: sidebarWidth
       }}
+      // Corregir el error de TS2322 pasando width como string directamente al estilo
       style={{ width: sidebarWidth }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}

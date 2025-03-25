@@ -102,7 +102,7 @@ export const generatePDF = (
   });
   
   if (sectionsAdded === 0) {
-    // If no sections added, add a message about missing content
+    // Si no se agregaron secciones, añadir un mensaje sobre contenido faltante
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(12);
     doc.text("No se encontró contenido redactado para incluir en el PDF. Por favor, asegúrese de generar las redacciones de las secciones del formulario.", 14, yPos, { maxWidth: 180 });
