@@ -190,37 +190,25 @@ const HistoriaClinica = () => {
       // Try multiple selector strategies to find the content
       let contentElement = null;
       
-      // Strategy 1: Look for specific data attribute
-      contentElement = sectionElement.querySelector('[data-redaction-content]');
+      // Strategy 1: Find div that contains the redaction text (uses more specific class names)
+      contentElement = sectionElement.querySelector('.min-h-\\[200px\\], .min-h-\\[150px\\]');
       
-      // Strategy 2: Look for min-height containers (common pattern)
       if (!contentElement) {
-        contentElement = sectionElement.querySelector('.min-h-\\[150px\\], .min-h-\\[200px\\]');
+        // Strategy 2: Find by paragraph or text elements
+        contentElement = sectionElement.querySelector('p.justify-text, div.justify-text');
       }
       
-      // Strategy 3: Look for tab panels
       if (!contentElement) {
-        const tabPanels = sectionElement.querySelectorAll('[role="tabpanel"]');
-        // Find the visible/active tab panel
-        for (const panel of tabPanels) {
-          if (panel.getAttribute('aria-hidden') !== 'true') {
-            contentElement = panel;
+        // Strategy 3: Look for the div containing the redaction content
+        const divs = sectionElement.querySelectorAll('div');
+        for (const div of divs) {
+          if (div.textContent && div.textContent.length > 50 && 
+              (div.className.includes('bg-gray-50') || div.className.includes('bg-gray-900') || 
+               div.style.whiteSpace === 'pre-wrap')) {
+            contentElement = div;
             break;
           }
         }
-      }
-      
-      // Strategy 4: Find any paragraph or text content in the active tab panel
-      if (!contentElement) {
-        const activePanel = sectionElement.querySelector('[role="tabpanel"]:not([aria-hidden="true"])');
-        if (activePanel) {
-          contentElement = activePanel.querySelector('p, div.text-content, div');
-        }
-      }
-      
-      // Strategy 5: Just get the text content of the active panel itself
-      if (!contentElement) {
-        contentElement = sectionElement.querySelector('[role="tabpanel"]:not([aria-hidden="true"])');
       }
       
       if (!contentElement) {
@@ -247,138 +235,82 @@ const HistoriaClinica = () => {
   
   // Updated function to collect all redactions with improved section identification
   const collectAllRedactions = async () => {
-    // Define all sections with their names and indexes
+    // Define all sections with their names and class identifiers
     const sectionConfigs = [
-      { name: 'padecimientoActual', title: 'I. PADECIMIENTO ACTUAL' },
-      { name: 'antecedentesHeredoFamiliares', title: 'II. ANTECEDENTES HEREDO FAMILIARES' },
-      { name: 'antecedentesPersonalesNoPatologicos', title: 'III. ANTECEDENTES PERSONALES NO PATOLÓGICOS' },
-      { name: 'antecedentesPersonalesPatologicos', title: 'IV. ANTECEDENTES PERSONALES PATOLÓGICOS' },
-      { name: 'antecedentesAlergicos', title: 'V. ANTECEDENTES ALÉRGICOS' },
-      { name: 'antecedentesQuirurgicos', title: 'VI. ANTECEDENTES QUIRÚRGICOS' },
-      { name: 'antecedentesHemorragicos', title: 'VII. ANTECEDENTES HEMORRAGICOS' },
-      { name: 'interrogatorioSistemas', title: 'VIII. INTERROGATORIO POR SISTEMAS' },
-      { name: 'exploracionFisica', title: 'IX. EXPLORACIÓN FÍSICA' },
-      { name: 'examenCabeza', title: 'X. EXAMEN DE CABEZA' },
-      { name: 'articulacionCraneomandibular', title: 'XI. ARTICULACIÓN CRANEOMANDIBULAR' },
-      { name: 'examenCuello', title: 'XII. EXAMEN DE CUELLO' },
-      { name: 'examenIntrabucal', title: 'XIII. EXAMEN INTRABUCAL' },
-      { name: 'glandulasSalivales', title: 'XIV. GLÁNDULAS SALIVALES' },
-      { name: 'oclusion', title: 'XV. OCLUSIÓN' },
-      { name: 'relacionDientes', title: 'XVI. RELACIÓN DE DIENTES' },
-      { name: 'lineaMedia', title: 'XVII. LÍNEA MEDIA' },
-      { name: 'frenillos', title: 'XVIII. FRENILLOS' },
-      { name: 'diagnostico', title: 'XIX. DIAGNÓSTICO' },
-      { name: 'pronostico', title: 'XX. PRONÓSTICO' }
+      { name: 'padecimientoActual', title: 'I. PADECIMIENTO ACTUAL', identifier: 'PadecimientoActual' },
+      { name: 'antecedentesHeredoFamiliares', title: 'II. ANTECEDENTES HEREDO FAMILIARES', identifier: 'AntecedentesHeredoFamiliares' },
+      { name: 'antecedentesPersonalesNoPatologicos', title: 'III. ANTECEDENTES PERSONALES NO PATOLÓGICOS', identifier: 'AntecedentesPersonalesNoPatologicos' },
+      { name: 'antecedentesPersonalesPatologicos', title: 'IV. ANTECEDENTES PERSONALES PATOLÓGICOS', identifier: 'AntecedentesPersonalesPatologicos' }
     ];
     
-    // Get all section elements
-    const allSectionElements = document.querySelectorAll('[data-section-redaction="true"]');
-    
-    if (!allSectionElements || allSectionElements.length === 0) {
-      console.error("No section elements found with data-section-redaction attribute");
-      
-      // Fallback: try to find sections by their headings
-      const sections = document.querySelectorAll('h2, h3');
-      const sectionElements: Element[] = [];
-      
-      for (const heading of sections) {
-        const text = heading.textContent || '';
-        const sectionConfig = sectionConfigs.find(config => text.includes(config.title));
-        if (sectionConfig) {
-          // Find the parent section container
-          let parent = heading.parentElement;
-          while (parent && !parent.classList.contains('space-y-6')) {
-            parent = parent.parentElement;
-          }
-          if (parent) {
-            sectionElements.push(parent);
-          }
-        }
-      }
-      
-      if (sectionElements.length > 0) {
-        console.log(`Found ${sectionElements.length} section elements using fallback method`);
-        // Process the first 4 sections (the ones with redaction buttons)
-        pdfSectionsRef.current = {};
-        
-        for (let i = 0; i < Math.min(sectionElements.length, 4); i++) {
-          const sectionConfig = sectionConfigs[i];
-          const sectionElement = sectionElements[i];
-          
-          // Generate redactions for each section
-          await generateSectionRedaction(sectionConfig.name, sectionElement);
-          
-          // Set progress
-          setPdfGenerationProgress(Math.round((i / 4) * 50));
-          
-          // Wait between sections
-          await new Promise(resolve => setTimeout(resolve, 2000));
-        }
-        
-        // Additional wait to ensure all content is generated
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        
-        // Collect redactions from all sections
-        for (let i = 0; i < Math.min(sectionElements.length, 4); i++) {
-          const sectionConfig = sectionConfigs[i];
-          const sectionElement = sectionElements[i];
-          
-          const content = getSectionRedaction(sectionConfig.name, sectionElement);
-          if (content) {
-            pdfSectionsRef.current[sectionConfig.name] = content;
-          }
-          
-          // Set progress
-          setPdfGenerationProgress(Math.round(50 + (i / 4) * 50));
-        }
-        
-        return pdfSectionsRef.current;
-      }
-      
-      return {};
-    }
-    
-    console.log(`Found ${allSectionElements.length} section elements`);
     pdfSectionsRef.current = {};
     
-    // Process all sections (focus on first 4 which have the redaction buttons)
-    const sectionsToProcess = Math.min(allSectionElements.length, 4);
-    
-    // First pass: Generate all redactions
-    for (let i = 0; i < sectionsToProcess; i++) {
-      const sectionConfig = sectionConfigs[i];
-      const sectionElement = allSectionElements[i];
+    // For each section, find the component in the DOM and process it
+    for (const sectionConfig of sectionConfigs) {
+      console.log(`Processing section: ${sectionConfig.name}`);
       
-      console.log(`Generating redaction for section: ${sectionConfig.name}`);
-      await generateSectionRedaction(sectionConfig.name, sectionElement);
+      // Find the section by looking for headings with the title text
+      const headings = Array.from(document.querySelectorAll('h2'));
+      let sectionContainer = null;
       
-      // Update progress
-      setPdfGenerationProgress(Math.round((i / sectionsToProcess) * 50));
-      
-      // Longer wait between sections
-      await new Promise(resolve => setTimeout(resolve, 3000));
-    }
-    
-    // Additional wait to ensure all content is generated
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    
-    // Second pass: Collect all redactions
-    for (let i = 0; i < sectionsToProcess; i++) {
-      const sectionConfig = sectionConfigs[i];
-      const sectionElement = allSectionElements[i];
-      
-      console.log(`Collecting redaction for section: ${sectionConfig.name}`);
-      const content = getSectionRedaction(sectionConfig.name, sectionElement);
-      
-      if (content) {
-        pdfSectionsRef.current[sectionConfig.name] = content;
-        console.log(`Successfully collected content for ${sectionConfig.name}`);
-      } else {
-        console.warn(`Failed to collect content for ${sectionConfig.name}`);
+      for (const heading of headings) {
+        if (heading.textContent && heading.textContent.includes(sectionConfig.title.split('.')[1].trim())) {
+          // Find the parent Card or container for this section
+          let parent = heading;
+          while (parent && !parent.classList.contains('card') && parent.tagName !== 'BODY') {
+            parent = parent.parentElement as Element;
+          }
+          
+          if (parent && parent.tagName !== 'BODY') {
+            sectionContainer = parent;
+            break;
+          }
+        }
       }
       
+      if (!sectionContainer) {
+        // Fallback: try to find component by its class name pattern
+        let components = document.querySelectorAll(`[class*="${sectionConfig.identifier}"], [id*="${sectionConfig.identifier}"]`);
+        if (components.length === 0) {
+          // Try by approximate text within the section
+          components = document.querySelectorAll('div.card');
+          for (const component of components) {
+            if (component.textContent && component.textContent.includes(sectionConfig.title.split('.')[1].trim())) {
+              sectionContainer = component;
+              break;
+            }
+          }
+        } else if (components.length > 0) {
+          sectionContainer = components[0];
+        }
+      }
+      
+      if (!sectionContainer) {
+        console.warn(`Could not find section container for ${sectionConfig.name}`);
+        continue;
+      }
+      
+      console.log(`Found section container for ${sectionConfig.name}`);
+      
+      // Generate redaction for this section
+      const generated = await generateSectionRedaction(sectionConfig.name, sectionContainer);
+      
       // Update progress
-      setPdfGenerationProgress(50 + Math.round((i / sectionsToProcess) * 50));
+      const progressStep = 100 / (sectionConfigs.length * 2);
+      setPdfGenerationProgress(prev => prev + progressStep);
+      
+      // Wait a moment to ensure the redaction has fully rendered
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Get the redaction content
+      const content = getSectionRedaction(sectionConfig.name, sectionContainer);
+      if (content) {
+        pdfSectionsRef.current[sectionConfig.name] = content;
+        console.log(`Successfully added ${sectionConfig.name} redaction to PDF`);
+      }
+      
+      // Update progress again
+      setPdfGenerationProgress(prev => prev + progressStep);
     }
     
     console.log("All redactions collected:", Object.keys(pdfSectionsRef.current));
@@ -415,6 +347,7 @@ const HistoriaClinica = () => {
       });
     } finally {
       setIsGeneratingPDF(false);
+      setPdfGenerationProgress(100);
     }
   };
   
@@ -480,14 +413,38 @@ const HistoriaClinica = () => {
           </div>
 
           <div className="space-y-6">
+            {/* Using data-section-redaction="true" attribute to identify sections for redaction */}
+            <div data-section-redaction="true" data-section-name="padecimientoActual">
+              <PadecimientoActual 
+                formData={formData} 
+                handlePadecimientoChange={handlePadecimientoChange} 
+                handleDolorChange={handleDolorChange} 
+                handleSinSintomasChange={handleSinSintomasChange} 
+              />
+            </div>
             
-            <PadecimientoActual formData={formData} handlePadecimientoChange={handlePadecimientoChange} handleDolorChange={handleDolorChange} handleSinSintomasChange={handleSinSintomasChange} />
-            
-            <AntecedentesHeredoFamiliares formData={formData} handleFamiliarChange={handleFamiliarChange} handleCondicionChange={handleCondicionChange} />
+            <div data-section-redaction="true" data-section-name="antecedentesHeredoFamiliares">
+              <AntecedentesHeredoFamiliares 
+                formData={formData} 
+                handleFamiliarChange={handleFamiliarChange} 
+                handleCondicionChange={handleCondicionChange} 
+              />
+            </div>
 
-            <AntecedentesPersonalesNoPatologicos formData={formData} handleAntecedenteChange={handleAntecedenteChange} toggleService={toggleService} />
+            <div data-section-redaction="true" data-section-name="antecedentesPersonalesNoPatologicos">
+              <AntecedentesPersonalesNoPatologicos 
+                formData={formData} 
+                handleAntecedenteChange={handleAntecedenteChange} 
+                toggleService={toggleService} 
+              />
+            </div>
             
-            <AntecedentesPersonalesPatologicos formData={formData} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
+            <div data-section-redaction="true" data-section-name="antecedentesPersonalesPatologicos">
+              <AntecedentesPersonalesPatologicos 
+                formData={formData} 
+                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
+              />
+            </div>
             
             <AntecedentesAlergicos formData={formData} handleAntecedenteAlergicoChange={handleAntecedenteAlergicoChange} />
 
