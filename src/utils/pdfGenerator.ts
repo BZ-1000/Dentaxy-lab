@@ -7,6 +7,8 @@ export const generatePDF = (
   nombrePaciente: string,
   sectionRedactions: { [key: string]: string } = {}
 ) => {
+  console.log("Generating PDF with redactions:", Object.keys(sectionRedactions));
+  
   const doc = new jsPDF();
   
   // Add title
@@ -39,9 +41,12 @@ export const generatePDF = (
   
   // Function to add a section with title
   const addSection = (title: string, content: string) => {
-    if (!content) return;
+    if (!content) {
+      console.warn(`No content for section: ${title}`);
+      return;
+    }
     
-    // Clean up HTML tags from content
+    // Clean up HTML tags from content if present
     const cleanText = content.replace(/<\/?[^>]+(>|$)/g, "");
     const lines = doc.splitTextToSize(cleanText, 180);
     
@@ -89,6 +94,7 @@ export const generatePDF = (
   sections.forEach(section => {
     const content = sectionRedactions[section.key];
     if (content) {
+      console.log(`Adding section ${section.title} to PDF`);
       addSection(section.title, content);
     }
   });

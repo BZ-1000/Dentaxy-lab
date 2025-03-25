@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -129,109 +128,105 @@ const HistoriaClinica = () => {
     return allMissingFields;
   };
   
-  // Function to click the "Generate IA" button of a section and wait for redaction to be completed
-  const generateSectionRedaction = async (sectionSelector: string) => {
-    const section = document.querySelector(sectionSelector);
-    if (!section) return false;
-    
-    // Find the "Generar Redacción IA" button
-    const generateButtons = section.querySelectorAll('button');
-    let generateButton = null;
-    
-    for (const button of generateButtons) {
-      if (button.textContent && button.textContent.includes('Generar Redacción IA')) {
-        generateButton = button;
-        break;
+  // Updated function to click the "Generate IA" button of a section and wait for redaction to be completed
+  const generateSectionRedaction = async (sectionIndex: number) => {
+    try {
+      // Get all sections
+      const sections = document.querySelectorAll('[data-section-redaction="true"]');
+      if (!sections || sections.length <= sectionIndex) return false;
+      
+      const section = sections[sectionIndex];
+      
+      // Find the "Generar Redacción IA" button
+      const generateButtons = section.querySelectorAll('button');
+      let generateButton = null;
+      
+      for (const button of generateButtons) {
+        if (button.textContent && button.textContent.includes('Generar Redacción IA')) {
+          generateButton = button;
+          break;
+        }
       }
-    }
-    
-    if (!generateButton) return false;
-    
-    // Switch to form tab if available
-    const formButtons = section.querySelectorAll('button');
-    let formButton = null;
-    
-    for (const button of formButtons) {
-      if (button.textContent && button.textContent.includes('Formulario')) {
-        formButton = button;
-        break;
+      
+      if (!generateButton) return false;
+      
+      // Switch to form tab if available
+      const formButtons = section.querySelectorAll('button');
+      let formButton = null;
+      
+      for (const button of formButtons) {
+        if (button.textContent && button.textContent.includes('Formulario')) {
+          formButton = button;
+          break;
+        }
       }
-    }
-    
-    if (formButton) {
-      (formButton as HTMLElement).click();
-      // Small delay to ensure UI updates
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-    
-    // Click the generate button
-    (generateButton as HTMLElement).click();
-    
-    // Wait for the redaction to be generated (longer wait time)
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    
-    // Find and click redaction tab to ensure we can see the content
-    const redactionButtons = section.querySelectorAll('button');
-    let redactionButton = null;
-    
-    for (const button of redactionButtons) {
-      if (button.textContent && button.textContent.includes('Redacción IA')) {
-        redactionButton = button;
-        break;
+      
+      if (formButton) {
+        (formButton as HTMLElement).click();
+        // Small delay to ensure UI updates
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
+      
+      // Click the generate button
+      (generateButton as HTMLElement).click();
+      
+      // Wait for the redaction to be generated (longer wait time)
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Find and click redaction tab to ensure we can see the content
+      const redactionButtons = section.querySelectorAll('button');
+      let redactionButton = null;
+      
+      for (const button of redactionButtons) {
+        if (button.textContent && button.textContent.includes('Redacción IA')) {
+          redactionButton = button;
+          break;
+        }
+      }
+      
+      if (redactionButton) {
+        (redactionButton as HTMLElement).click();
+        // Wait for UI update
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Error generating section redaction:", error);
+      return false;
     }
-    
-    if (redactionButton) {
-      (redactionButton as HTMLElement).click();
-      // Wait for UI update
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
-    
-    return true;
   };
   
   // Updated function to get redaction content after buttons are clicked
-  const getSectionRedaction = (sectionSelector: string, sectionName: string): string | null => {
-    const section = document.querySelector(sectionSelector);
-    if (!section) return null;
-    
-    // Find the redaction content container
-    const contentContainer = section.querySelector('[data-redaction-content]') || 
-                            section.querySelector('div[dangerouslySetInnerHTML]') ||
-                            section.querySelector('.min-h-\\[150px\\]') ||
-                            section.querySelector('.min-h-\\[200px\\]');
-    
-    if (!contentContainer) return null;
-    
-    // Extract content
-    let text = contentContainer.textContent || '';
-    
-    // If using dangerouslySetInnerHTML, try to get inner HTML
-    if (!text && contentContainer.innerHTML) {
-      text = contentContainer.innerHTML;
+  const getSectionRedaction = (sectionIndex: number, sectionName: string): string | null => {
+    try {
+      const sections = document.querySelectorAll('[data-section-redaction="true"]');
+      if (!sections || sections.length <= sectionIndex) return null;
+      
+      const section = sections[sectionIndex];
+      
+      // Find the redaction content container
+      const contentContainer = section.querySelector('[data-redaction-content]') || 
+                              section.querySelector('.min-h-\\[150px\\]') ||
+                              section.querySelector('.min-h-\\[200px\\]');
+      
+      if (!contentContainer) return `No se encontró contenido para la sección ${sectionName}`;
+      
+      // Extract content
+      const text = contentContainer.textContent || '';
+      return text.trim();
+    } catch (error) {
+      console.error("Error getting section redaction:", error);
+      return null;
     }
-    
-    return text;
   };
   
   const collectAllRedactions = async () => {
     const sectionConfigs = [
-      {
-        selector: '[data-section-redaction="true"][data-section-name="padecimientoActual"]',
-        name: 'padecimientoActual'
-      },
-      {
-        selector: 'div:has(> div > h2:contains("ANTECEDENTES HEREDO FAMILIARES"))',
-        name: 'antecedentesHeredoFamiliares'
-      },
-      {
-        selector: 'div:has(> div > h2:contains("ANTECEDENTES PERSONALES NO PATOLÓGICOS"))',
-        name: 'antecedentesPersonalesNoPatologicos'
-      },
-      {
-        selector: 'div:has(> div > h2:contains("ANTECEDENTES PERSONALES PATOLÓGICOS"))',
-        name: 'antecedentesPersonalesPatologicos'
-      }
+      { index: 0, name: 'padecimientoActual' },
+      { index: 1, name: 'antecedentesHeredoFamiliares' },
+      { index: 2, name: 'antecedentesPersonalesNoPatologicos' },
+      { index: 3, name: 'antecedentesPersonalesPatologicos' }
     ];
     
     const totalSections = sectionConfigs.length;
@@ -241,25 +236,34 @@ const HistoriaClinica = () => {
     
     // First pass: Generate all redactions by clicking buttons
     for (const section of sectionConfigs) {
-      await generateSectionRedaction(section.selector);
+      console.log(`Generating redaction for section: ${section.name}`);
+      await generateSectionRedaction(section.index);
       processedSections++;
       setPdfGenerationProgress(Math.round((processedSections / (totalSections * 2)) * 100));
+      
+      // Add extra wait time between section processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
     
     // Additional wait to ensure all redactions are fully generated
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 4000));
     
     // Second pass: Collect all redaction content
     processedSections = 0;
     for (const section of sectionConfigs) {
-      const redactionContent = getSectionRedaction(section.selector, section.name);
+      console.log(`Collecting redaction for section: ${section.name}`);
+      const redactionContent = getSectionRedaction(section.index, section.name);
       if (redactionContent) {
         pdfSectionsRef.current[section.name] = redactionContent;
+        console.log(`Collected content for ${section.name}:`, redactionContent.substring(0, 50) + '...');
+      } else {
+        console.warn(`No content found for section: ${section.name}`);
       }
       processedSections++;
       setPdfGenerationProgress(Math.round(((totalSections + processedSections) / (totalSections * 2)) * 100));
     }
     
+    console.log("All redactions collected:", Object.keys(pdfSectionsRef.current));
     return pdfSectionsRef.current;
   };
   
