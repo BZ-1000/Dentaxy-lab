@@ -735,4 +735,4 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                           onClick={() => handleCopy('enfermedadesTransmisionSexual')}
                           className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                         >
-                          {copied.enfermedadesTransmisionSexual ? (
+                          {copied.enfermedadesTransmision
