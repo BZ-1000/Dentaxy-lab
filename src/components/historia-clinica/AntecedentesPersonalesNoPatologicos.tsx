@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
+
 interface AntecedentesPersonalesNoPatologicosProps {
   formData: FormDataState;
   handleAntecedenteChange: (field: string, value: any) => void;
@@ -26,6 +27,7 @@ const WordButton = ({
       {label}
     </button>;
 };
+
 const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPatologicosProps> = ({
   formData,
   handleAntecedenteChange,
@@ -46,21 +48,26 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [formDataLocal, setFormDataLocal] = useState(formData.antecedentesPersonalesNoPatologicos);
+
   useEffect(() => {
     setFormDataLocal(formData.antecedentesPersonalesNoPatologicos);
   }, [formData]);
+
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
   };
+
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
     setIsMinimized(false);
   };
+
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
   };
+
   const generarRedaccionIA = () => {
     // Implement AI text generation logic for each section
     const serviciosRedaccion = generateServiciosDomiciliariosText();
@@ -77,7 +84,29 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     });
     setShowForm(false);
     setProgress(100);
+
+    // Scroll to the title "Servicios Domiciliarios"
+    if (redaccionesRef.current) {
+      redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Add typing animation
+    animateText(redaccionesRef.current, serviciosRedaccion);
   };
+
+  const animateText = (element: HTMLElement | null, text: string) => {
+    if (!element) return;
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < text.length) {
+        element.innerHTML += text.charAt(index);
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 50); // Adjust speed here
+  };
+
   const generateServiciosDomiciliariosText = () => {
     const {
       tipoVivienda,
@@ -96,6 +125,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }
     return `El paciente habita en una vivienda de tipo ${tipoVivienda || '[no especificado]'}, construida principalmente con ${materialVivienda || '[no especificado]'}. Cuenta con los siguientes servicios básicos: ${serviciosList}. La condición de la calle en la que se encuentra la vivienda es ${condicionCalle || '[no especificado]'}, y la iluminación en la vía pública es ${iluminacionCalle || '[no especificado]'}, lo que puede influir en la seguridad y accesibilidad del entorno.`;
   };
+
   const generateHigieneViviendaText = () => {
     const {
       frecuenciaLimpieza,
@@ -117,6 +147,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }
     return `El mantenimiento del hogar se realiza con una frecuencia ${frecuenciaLimpieza || '[no especificada]'}, lo que impacta directamente en la salubridad del entorno. La ropa de cama se cambia ${cambioRopaCama || '[no especificado]'}, contribuyendo a la higiene y confort del paciente. Se observa ${hacinamientoText}, lo que puede influir en la calidad de vida y bienestar de los habitantes. Asimismo, ${promiscuidadText}, lo cual puede ser relevante en la evaluación de riesgos sanitarios y epidemiológicos. En el domicilio ${mascotasText}, lo que puede representar un factor de exposición a zoonosis u otras afecciones. En cuanto al manejo de residuos, ${manejoResiduos || '[no especificado]'}, lo que influye en la prevención de enfermedades y el control ambiental.`;
   };
+
   const generateHigienePersonalText = () => {
     const {
       frecuenciaBano,
@@ -131,6 +162,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }
     return `El paciente refiere una frecuencia de baño ${frecuenciaBano || '[no especificada]'}, lo que contribuye a la higiene general y prevención de infecciones cutáneas. Presenta hábitos de higiene de manos ${lavadoManosText}, lo que es un factor clave en la prevención de enfermedades de transmisión feco-oral. El cambio de ropa se realiza ${cambioRopa || '[no especificada]'}, aspecto importante en el mantenimiento de la higiene personal.`;
   };
+
   const generateHigieneBucalText = () => {
     const {
       frecuenciaCepillado,
@@ -157,6 +189,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }
     return `El paciente refiere un cepillado dental con una frecuencia ${frecuenciaCepillado || '[no especificada]'}, utilizando técnica ${tecnicaCepillado || '[no especificada]'}, lo que influye directamente en la salud periodontal y la prevención de caries. Además, complementa su higiene bucal con ${auxiliaresText}. La última visita al odontólogo fue hace ${ultimaVisitaOdontologo || '[no especificada]'}, lo que permite evaluar su acceso a la atención odontológica y el seguimiento de su salud bucal. Actualmente, refiere ${problemasText}, aspectos clave en la valoración del estado oral.`;
   };
+
   const generateAlimentacionText = () => {
     const {
       alimentosConsumidos,
@@ -174,10 +207,12 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }
     return `El paciente tiene una alimentación basada en ${alimentosText}, lo que influye en su estado nutricional y salud general. El consumo de frutas y verduras es ${frecuenciaFrutasVerduras || '[no especificado]'}, mientras que la ingesta de bebidas azucaradas ocurre ${frecuenciaBebidasAzucaradas || '[no especificado]'} y el consumo de comida chatarra ${frecuenciaComidaChatarra || '[no especificado]'}, factores determinantes en el riesgo de enfermedades metabólicas y caries dental. La cantidad de agua ingerida diariamente es de aproximadamente ${consumoAgua || '[no especificado]'}, contribuyendo a la hidratación y función renal. Realiza ${numeroComidas || '[no especificado]'} comidas al día, con los siguientes horarios reportados:\n\n${horarios}`;
   };
+
   const adjustTextareaHeight = (element: HTMLTextAreaElement) => {
     element.style.height = "auto";
     element.style.height = element.scrollHeight + "px";
   };
+
   const handleCopy = (section: string) => {
     navigator.clipboard.writeText(redacciones[section]);
     setCopied(prev => ({
@@ -189,6 +224,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
       [section]: false
     })), 2000);
   };
+
   const handleFormChange = (field: string, value: any) => {
     // Local state update
     setFormDataLocal(prevData => ({
@@ -199,6 +235,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     // Also update parent state
     handleAntecedenteChange(field, value);
   };
+
   const handleWordButtonClick = (field: string, value: string) => {
     let newValues;
 
@@ -236,6 +273,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }
     handleFormChange(field, newValues);
   };
+
   const limpiarFormulario = () => {
     const emptyData = {
       tipoVivienda: "",
@@ -286,6 +324,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     });
     setProgress(0);
   };
+
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -321,10 +360,10 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
 
         {!isMinimized && <div className="p-6" ref={formRef}>
             {showForm ? <div className="space-y-6">
-                
+
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2 text-justify">Servicios Domiciliarios</h4>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Tipo de Vivienda</Label>
@@ -396,7 +435,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
 
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2 text-justify">Higiene de la Vivienda</h4>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Frecuencia de Limpieza del Hogar</Label>
@@ -482,7 +521,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
 
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2 text-justify">Higiene Personal</h4>
-                  
+
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label>Frecuencia de Baño</Label>
@@ -523,7 +562,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
 
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2 text-justify">Higiene Bucal</h4>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Frecuencia de Cepillado Dental</Label>
@@ -591,7 +630,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
 
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2 text-justify">Alimentación</h4>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Alimentos Consumidos Frecuentemente</Label>
