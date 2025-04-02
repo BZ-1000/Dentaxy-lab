@@ -133,6 +133,24 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
 
     // Autoscroll to the top
     redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
+
+    // Animate writing
+    Object.keys(nuevasRedacciones).forEach(categoria => {
+      escribirTexto(document.getElementById(categoria), nuevasRedacciones[categoria], 50);
+    });
+  };
+
+  const escribirTexto = (elemento: HTMLElement | null, texto: string, velocidad: number) => {
+    if (!elemento) return;
+    let i = 0;
+    const intervalo = setInterval(() => {
+      if (i < texto.length) {
+        elemento.innerHTML += texto.charAt(i);
+        i++;
+      } else {
+        clearInterval(intervalo);
+      }
+    }, velocidad);
   };
 
   const generarRedaccionPorCategoria = (categoria: string) => {
@@ -392,20 +410,12 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     opciones: { valor: string, etiqueta: string }[]
   }) => {
     const inputRef = useRef<HTMLInputElement>(null);
-    const [isInitialFocus, setIsInitialFocus] = useState(true);
 
     useEffect(() => {
-      // Only focus when "otra" is first selected, but not on every render
-      if (formData.antecedentesPersonalesPatologicos[categoria]?.otra && isInitialFocus && inputRef.current) {
+      if (inputRef.current) {
         inputRef.current.focus();
-        setIsInitialFocus(false);
       }
-      
-      // Reset the initial focus flag when "otra" is deselected
-      if (!formData.antecedentesPersonalesPatologicos[categoria]?.otra) {
-        setIsInitialFocus(true);
-      }
-    }, [formData.antecedentesPersonalesPatologicos[categoria]?.otra, categoria, isInitialFocus]);
+    }, [formData.antecedentesPersonalesPatologicos[categoria]?.otra]);
 
     return (
       <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia ? "hidden" : ""}`}>
@@ -441,7 +451,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                 onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
                 className="w-full"
                 ref={inputRef}
-                onBlur={() => setIsInitialFocus(false)}
               />
             </div>
           )}
@@ -490,249 +499,402 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
           </h2>
         </div>
 
-        {!isMinimized && (
-          <div className="p-6" ref={formRef}>
-            {showForm ? (
-              <div className="space-y-6">
-                <div
-                  className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
-                  onClick={handleSinPatologiaChange}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <AlertCircle className="h-5 w-5 text-blue-500" />
-                      <Label className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
-                        Paciente sin patologías
-                        {sinPatologia ? (
-                          <span className="ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <EyeOff className="h-3 w-3" />
-                            Secciones ocultas
-                          </span>
-                        ) : (
-                          <span className="ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <Eye className="h-3 w-3" />
-                            Secciones visibles
-                          </span>
-                        )}
-                      </Label>
-                    </div>
-                    <Switch
-                      id="sin-patologia"
-                      checked={sinPatologia}
-                      onCheckedChange={handleSinPatologiaChange}
-                      className="data-[state=checked]:bg-blue-500"
-                      onClick={(e) => e.stopPropagation()}
-                    />
+        {!isMinimized && <div className="p-6" ref={formRef}>
+          {showForm ? (
+            <div className="space-y-6">
+              <div
+                className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
+                onClick={handleSinPatologiaChange}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-5 w-5 text-blue-500" />
+                    <Label className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
+                      Paciente sin patologías
+                      {sinPatologia ? (
+                        <span className="ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <EyeOff className="h-3 w-3" />
+                          Secciones ocultas
+                        </span>
+                      ) : (
+                        <span className="ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <Eye className="h-3 w-3" />
+                          Secciones visibles
+                        </span>
+                      )}
+                    </Label>
                   </div>
-                </div>
-
-                {!sinPatologia && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <CategoriaPatologica
-                      categoria="nutricionales"
-                      titulo="Nutricionales"
-                      opciones={[
-                        { valor: "anorexia", etiqueta: "Anorexia" },
-                        { valor: "bulimia", etiqueta: "Bulimia" },
-                        { valor: "sobrepeso", etiqueta: "Sobrepeso" },
-                        { valor: "obesidad", etiqueta: "Obesidad" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="cardiacos"
-                      titulo="Cardíacos"
-                      opciones={[
-                        { valor: "enfermedadCoronaria", etiqueta: "Enfermedad coronaria" },
-                        { valor: "arritmias", etiqueta: "Arritmias" },
-                        { valor: "defectosCardiacosCongenitos", etiqueta: "Defectos cardíacos congénitos" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="hepaticos"
-                      titulo="Hepáticos"
-                      opciones={[
-                        { valor: "hepatitisA", etiqueta: "Hepatitis A" },
-                        { valor: "hepatitisB", etiqueta: "Hepatitis B" },
-                        { valor: "hepatitisC", etiqueta: "Hepatitis C" },
-                        { valor: "higadoGraso", etiqueta: "Hígado graso" },
-                        { valor: "cirrosis", etiqueta: "Cirrosis" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="enfermedadesTransmisionSexual"
-                      titulo="Enfermedades de Transmisión Sexual"
-                      opciones={[
-                        { valor: "vih", etiqueta: "VIH/SIDA" },
-                        { valor: "sifilis", etiqueta: "Sífilis" },
-                        { valor: "gonorrea", etiqueta: "Gonorrea" },
-                        { valor: "herpesGenital", etiqueta: "Herpes genital" },
-                        { valor: "vph", etiqueta: "VPH" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="enfermedadesEruptivas"
-                      titulo="Enfermedades Eruptivas de la Infancia"
-                      opciones={[
-                        { valor: "sarampion", etiqueta: "Sarampión" },
-                        { valor: "rubeola", etiqueta: "Rubéola" },
-                        { valor: "escarlatina", etiqueta: "Escarlatina" },
-                        { valor: "varicela", etiqueta: "Varicela" },
-                        { valor: "paperas", etiqueta: "Parotiditis (paperas)" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="pulmonares"
-                      titulo="Pulmonares"
-                      opciones={[
-                        { valor: "neumonia", etiqueta: "Neumonía" },
-                        { valor: "bronquitis", etiqueta: "Bronquitis" },
-                        { valor: "asma", etiqueta: "Asma" },
-                        { valor: "epoc", etiqueta: "EPOC" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="infecciosasParasitarias"
-                      titulo="Enfermedades Infecciosas y Parasitarias"
-                      opciones={[
-                        { valor: "fiebreTifoidea", etiqueta: "Fiebre tifoidea" },
-                        { valor: "tuberculosis", etiqueta: "Tuberculosis" },
-                        { valor: "amibiasis", etiqueta: "Amibiasis" },
-                        { valor: "giardiasis", etiqueta: "Giardiasis" },
-                        { valor: "ascariasis", etiqueta: "Ascariasis" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="otrosPadecimientos"
-                      titulo="Otros Padecimientos Sistémicos"
-                      opciones={[
-                        { valor: "especificar", etiqueta: "Especificar" }
-                      ]}
-                    />
-                  </div>
-                )}
-
-                <div className="flex justify-center gap-4 mt-6">
-                  <Button
-                    onClick={generarRedaccionIA}
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
-                  >
-                    Generar Redacción IA
-                  </Button>
-                  <Button
-                    onClick={limpiarFormulario}
-                    variant="outline"
-                    className="border-gray-300 text-gray-700 dark:text-gray-300"
-                  >
-                    Limpiar Formulario
-                  </Button>
+                  <Switch
+                    id="sin-patologia"
+                    checked={sinPatologia}
+                    onCheckedChange={handleSinPatologiaChange}
+                    className="data-[state=checked]:bg-blue-500"
+                    onClick={(e) => e.stopPropagation()}
+                  />
                 </div>
               </div>
-            ) : (
-              <div className="space-y-6">
-                {progress === 100 && (
-                  <>
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Nutricionales</h4>
-                        <button
-                          onClick={() => handleCopy('nutricionales')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.nutricionales ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <Textarea
-                        id="nutricionales"
-                        value={redacciones.nutricionales}
-                        readOnly
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 text-justify"
-                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                        chatAnimation={true}
-                      />
-                    </div>
 
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Cardíacos</h4>
-                        <button
-                          onClick={() => handleCopy('cardiacos')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.cardiacos ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <Textarea
-                        id="cardiacos"
-                        value={redacciones.cardiacos}
-                        readOnly
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 text-justify"
-                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                        chatAnimation={true}
-                      />
-                    </div>
+              {!sinPatologia && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <CategoriaPatologica
+                    categoria="nutricionales"
+                    titulo="Nutricionales"
+                    opciones={[
+                      { valor: "anorexia", etiqueta: "Anorexia" },
+                      { valor: "bulimia", etiqueta: "Bulimia" },
+                      { valor: "sobrepeso", etiqueta: "Sobrepeso" },
+                      { valor: "obesidad", etiqueta: "Obesidad" }
+                    ]}
+                  />
 
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Hepáticos</h4>
-                        <button
-                          onClick={() => handleCopy('hepaticos')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.hepaticos ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <Textarea
-                        id="hepaticos"
-                        value={redacciones.hepaticos}
-                        readOnly
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 text-justify"
-                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                        chatAnimation={true}
-                      />
-                    </div>
+                  <CategoriaPatologica
+                    categoria="cardiacos"
+                    titulo="Cardíacos"
+                    opciones={[
+                      { valor: "enfermedadCoronaria", etiqueta: "Enfermedad coronaria" },
+                      { valor: "arritmias", etiqueta: "Arritmias" },
+                      { valor: "defectosCardiacosCongenitos", etiqueta: "Defectos cardíacos congénitos" }
+                    ]}
+                  />
 
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Enfermedades de Transmisión Sexual</h4>
-                        <button
-                          onClick={() => handleCopy('enfermedadesTransmisionSexual')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.enfermedadesTransmision
+                  <CategoriaPatologica
+                    categoria="hepaticos"
+                    titulo="Hepáticos"
+                    opciones={[
+                      { valor: "hepatitisA", etiqueta: "Hepatitis A" },
+                      { valor: "hepatitisB", etiqueta: "Hepatitis B" },
+                      { valor: "hepatitisC", etiqueta: "Hepatitis C" },
+                      { valor: "higadoGraso", etiqueta: "Hígado graso" },
+                      { valor: "cirrosis", etiqueta: "Cirrosis" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="enfermedadesTransmisionSexual"
+                    titulo="Enfermedades de Transmisión Sexual"
+                    opciones={[
+                      { valor: "vih", etiqueta: "VIH/SIDA" },
+                      { valor: "sifilis", etiqueta: "Sífilis" },
+                      { valor: "gonorrea", etiqueta: "Gonorrea" },
+                      { valor: "herpesGenital", etiqueta: "Herpes genital" },
+                      { valor: "vph", etiqueta: "VPH" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="enfermedadesEruptivas"
+                    titulo="Enfermedades Eruptivas de la Infancia"
+                    opciones={[
+                      { valor: "sarampion", etiqueta: "Sarampión" },
+                      { valor: "rubeola", etiqueta: "Rubéola" },
+                      { valor: "escarlatina", etiqueta: "Escarlatina" },
+                      { valor: "varicela", etiqueta: "Varicela" },
+                      { valor: "paperas", etiqueta: "Parotiditis (paperas)" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="pulmonares"
+                    titulo="Pulmonares"
+                    opciones={[
+                      { valor: "neumonia", etiqueta: "Neumonía" },
+                      { valor: "bronquitis", etiqueta: "Bronquitis" },
+                      { valor: "asma", etiqueta: "Asma" },
+                      { valor: "epoc", etiqueta: "EPOC" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="infecciosasParasitarias"
+                    titulo="Enfermedades Infecciosas y Parasitarias"
+                    opciones={[
+                      { valor: "fiebreTifoidea", etiqueta: "Fiebre tifoidea" },
+                      { valor: "tuberculosis", etiqueta: "Tuberculosis" },
+                      { valor: "amibiasis", etiqueta: "Amibiasis" },
+                      { valor: "giardiasis", etiqueta: "Giardiasis" },
+                      { valor: "ascariasis", etiqueta: "Ascariasis" }
+                    ]}
+                  />
+
+                  <CategoriaPatologica
+                    categoria="otrosPadecimientos"
+                    titulo="Otros Padecimientos Sistémicos"
+                    opciones={[
+                      { valor: "especificar", etiqueta: "Especificar" }
+                    ]}
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-center gap-4 mt-6">
+                <Button
+                  onClick={generarRedaccionIA}
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  Generar Redacción IA
+                </Button>
+                <Button
+                  onClick={limpiarFormulario}
+                  variant="outline"
+                  className="border-gray-300 text-gray-700 dark:text-gray-300"
+                >
+                  Limpiar Formulario
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {progress === 100 && (
+                <>
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Nutricionales</h4>
+                      <button
+                        onClick={() => handleCopy('nutricionales')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.nutricionales ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="nutricionales"
+                      value={redacciones.nutricionales}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Cardíacos</h4>
+                      <button
+                        onClick={() => handleCopy('cardiacos')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.cardiacos ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="cardiacos"
+                      value={redacciones.cardiacos}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Hepáticos</h4>
+                      <button
+                        onClick={() => handleCopy('hepaticos')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.hepaticos ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="hepaticos"
+                      value={redacciones.hepaticos}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Enfermedades de Transmisión Sexual</h4>
+                      <button
+                        onClick={() => handleCopy('enfermedadesTransmisionSexual')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.enfermedadesTransmisionSexual ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="enfermedadesTransmisionSexual"
+                      value={redacciones.enfermedadesTransmisionSexual}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Enfermedades Eruptivas de la Infancia</h4>
+                      <button
+                        onClick={() => handleCopy('enfermedadesEruptivas')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.enfermedadesEruptivas ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="enfermedadesEruptivas"
+                      value={redacciones.enfermedadesEruptivas}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Pulmonares</h4>
+                      <button
+                        onClick={() => handleCopy('pulmonares')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.pulmonares ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="pulmonares"
+                      value={redacciones.pulmonares}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Enfermedades Infecciosas y Parasitarias</h4>
+                      <button
+                        onClick={() => handleCopy('infecciosasParasitarias')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.infecciosasParasitarias ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="infecciosasParasitarias"
+                      value={redacciones.infecciosasParasitarias}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">Otros Padecimientos Sistémicos</h4>
+                      <button
+                        onClick={() => handleCopy('otrosPadecimientos')}
+                        className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                      >
+                        {copied.otrosPadecimientos ? (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Copiado</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-4 h-4" />
+                            <span>Copiar</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <Textarea
+                      id="otrosPadecimientos"
+                      value={redacciones.otrosPadecimientos}
+                      readOnly
+                      className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                      onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                    />
+                  </div>
+
+                  <div className="flex justify-center">
+                    <Button
+                      onClick={() => setShowForm(true)}
+                      variant="outline"
+                      className="border-gray-300 text-gray-700 dark:text-gray-300"
+                    >
+                      Volver al Formulario
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>}
+      </Card>
+    </div>
+  );
+};
+
+export default AntecedentesPersonalesPatologicos;
