@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -134,24 +133,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
 
     // Autoscroll to the top
     redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
-
-    // Animate writing
-    Object.keys(nuevasRedacciones).forEach(categoria => {
-      escribirTexto(document.getElementById(categoria), nuevasRedacciones[categoria], 50);
-    });
-  };
-
-  const escribirTexto = (elemento: HTMLElement | null, texto: string, velocidad: number) => {
-    if (!elemento) return;
-    let i = 0;
-    const intervalo = setInterval(() => {
-      if (i < texto.length) {
-        elemento.innerHTML += texto.charAt(i);
-        i++;
-      } else {
-        clearInterval(intervalo);
-      }
-    }, velocidad);
   };
 
   const generarRedaccionPorCategoria = (categoria: string) => {
@@ -681,8 +662,9 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         id="nutricionales"
                         value={redacciones.nutricionales}
                         readOnly
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 text-justify"
                         onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                        chatAnimation={true}
                       />
                     </div>
 
@@ -710,8 +692,9 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         id="cardiacos"
                         value={redacciones.cardiacos}
                         readOnly
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 text-justify"
                         onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                        chatAnimation={true}
                       />
                     </div>
 
@@ -739,8 +722,9 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                         id="hepaticos"
                         value={redacciones.hepaticos}
                         readOnly
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50 text-justify"
                         onFocus={e => adjustTextareaHeight(e.currentTarget)}
+                        chatAnimation={true}
                       />
                     </div>
 
@@ -752,151 +736,3 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                           className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                         >
                           {copied.enfermedadesTransmisionSexual ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <Textarea
-                        id="enfermedadesTransmisionSexual"
-                        value={redacciones.enfermedadesTransmisionSexual}
-                        readOnly
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                      />
-                    </div>
-
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Enfermedades Eruptivas de la Infancia</h4>
-                        <button
-                          onClick={() => handleCopy('enfermedadesEruptivas')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.enfermedadesEruptivas ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <Textarea
-                        id="enfermedadesEruptivas"
-                        value={redacciones.enfermedadesEruptivas}
-                        readOnly
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                      />
-                    </div>
-
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Pulmonares</h4>
-                        <button
-                          onClick={() => handleCopy('pulmonares')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.pulmonares ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <Textarea
-                        id="pulmonares"
-                        value={redacciones.pulmonares}
-                        readOnly
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                      />
-                    </div>
-
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Enfermedades Infecciosas y Parasitarias</h4>
-                        <button
-                          onClick={() => handleCopy('infecciosasParasitarias')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.infecciosasParasitarias ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <Textarea
-                        id="infecciosasParasitarias"
-                        value={redacciones.infecciosasParasitarias}
-                        readOnly
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                      />
-                    </div>
-
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Otros Padecimientos Sistémicos</h4>
-                        <button
-                          onClick={() => handleCopy('otrosPadecimientos')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.otrosPadecimientos ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <Textarea
-                        id="otrosPadecimientos"
-                        value={redacciones.otrosPadecimientos}
-                        readOnly
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        onFocus={e => adjustTextareaHeight(e.currentTarget)}
-                      />
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-};
-
-export default AntecedentesPersonalesPatologicos;
