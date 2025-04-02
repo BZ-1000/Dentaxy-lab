@@ -16,6 +16,15 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
         ref={ref}
         {...props}
+        // Prevent automatic focus scrolling behavior
+        onFocus={(e) => {
+          // Call the original onFocus if it exists
+          if (props.onFocus) {
+            props.onFocus(e);
+          }
+          // Prevent scroll jumping
+          e.currentTarget.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+        }}
       />
     )
   }
