@@ -27,7 +27,7 @@ interface PadecimientoActualProps {
         };
         atenuacion: string;
         causaProvocado?: string;
-        ubicacion?: string; // Ensure ubicacion is included
+        ubicacionDolor?: string; // Asegúrate de que esta propiedad esté presente
       };
     };
   };
@@ -38,44 +38,56 @@ interface PadecimientoActualProps {
 
 function revisarRedaccion(text: string): string {
   let textoCorregido = text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
-  const frasesRedundantes = [{
-    patron: /Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi,
-    reemplazo: 'Motivo de consulta: El paciente acude a consulta por'
-  }, {
-    patron: /El paciente acude a consulta por El paciente acude a consulta por/gi,
-    reemplazo: 'El paciente acude a consulta por'
-  }, {
-    patron: /El paciente acude a consulta por por/gi,
-    reemplazo: 'El paciente acude a consulta por'
-  }, {
-    patron: /El paciente acude a consulta por debido a/gi,
-    reemplazo: 'El paciente acude a consulta por'
-  }, {
-    patron: /El paciente refiere la presencia de dolor localizado en localizado en/gi,
-    reemplazo: 'El paciente refiere la presencia de dolor localizado en'
-  }, {
-    patron: /El paciente refiere que refiere/gi,
-    reemplazo: 'El paciente refiere'
-  }, {
-    patron: /refiere que refiere/gi,
-    reemplazo: 'refiere'
-  }, {
-    patron: /presenta dolor con doloroso/gi,
-    reemplazo: 'presenta dolor'
-  }];
-  frasesRedundantes.forEach(({
-    patron,
-    reemplazo
-  }) => {
+  const frasesRedundantes = [
+    {
+      patron: /Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi,
+      reemplazo: 'Motivo de consulta: El paciente acude a consulta por'
+    },
+    {
+      patron: /El paciente acude a consulta por El paciente acude a consulta por/gi,
+      reemplazo: 'El paciente acude a consulta por'
+    },
+    {
+      patron: /El paciente acude a consulta por por/gi,
+      reemplazo: 'El paciente acude a consulta por'
+    },
+    {
+      patron: /El paciente acude a consulta por debido a/gi,
+      reemplazo: 'El paciente acude a consulta por'
+    },
+    {
+      patron: /El paciente refiere la presencia de dolor localizado en localizado en/gi,
+      reemplazo: 'El paciente refiere la presencia de dolor localizado en'
+    },
+    {
+      patron: /El paciente refiere que refiere/gi,
+      reemplazo: 'El paciente refiere'
+    },
+    {
+      patron: /refiere que refiere/gi,
+      reemplazo: 'refiere'
+    },
+    {
+      patron: /presenta dolor con doloroso/gi,
+      reemplazo: 'presenta dolor'
+    }
+  ];
+  frasesRedundantes.forEach(({ patron, reemplazo }) => {
     textoCorregido = textoCorregido.replace(patron, reemplazo);
   });
   textoCorregido = textoCorregido.replace(/\. ([a-z])/g, (_, letra) => `. ${letra.toUpperCase()}`);
-  textoCorregido = textoCorregido.replace(/provocado por/gi, 'provocada por').replace(/aparece en/gi, 'aparece cuando').replace(/se ha observado que/gi, 'se observa que').replace(/presenta un dolor/gi, 'manifiesta dolor').replace(/tiene dolor/gi, 'presenta dolor').replace(/el dolor es/gi, 'el dolor se caracteriza por ser');
+  textoCorregido = textoCorregido.replace(/provocado por/gi, 'provocada por')
+                                .replace(/aparece en/gi, 'aparece cuando')
+                                .replace(/se ha observado que/gi, 'se observa que')
+                                .replace(/presenta un dolor/gi, 'manifiesta dolor')
+                                .replace(/tiene dolor/gi, 'presenta dolor')
+                                .replace(/el dolor es/gi, 'el dolor se caracteriza por ser');
   return textoCorregido;
 }
 
 function formatearTexto(text: string): string {
-  let textoFormateado = text.replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>').replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
+  let textoFormateado = text.replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>')
+                            .replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
   const sections = textoFormateado.split('<strong>Historia del padecimiento:</strong>');
   if (sections.length > 1) {
     textoFormateado = `${sections[0]}<strong>Historia del padecimiento:</strong><div style="text-align: justify;">${sections[1].trim()}</div>`;
@@ -86,12 +98,7 @@ function formatearTexto(text: string): string {
   return textoFormateado;
 }
 
-const PadecimientoActual = ({
-  formData,
-  handlePadecimientoChange,
-  handleDolorChange,
-  handleSinSintomasChange
-}: PadecimientoActualProps) => {
+const PadecimientoActual = ({ formData, handlePadecimientoChange, handleDolorChange, handleSinSintomasChange }: PadecimientoActualProps) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
@@ -102,9 +109,26 @@ const PadecimientoActual = ({
   const [showCausasProvocado, setShowCausasProvocado] = useState(formData.padecimientoActual.dolor.condicionAparicion === 'provocado');
   const redaccionRef = useRef(null);
   const defaultMotivoConsulta = "El paciente acude a consulta por ";
-  const motivosEjemplo = ["dolor dental intenso en molar superior derecho...", "sangrado de encías al cepillarse...", "revisión y limpieza dental de rutina...", "sensibilidad al frío y calor en dientes anteriores...", "inflamación y dolor en zona de muelas del juicio...", "aplicación de resina en diente fracturado...", "evaluación para tratamiento de ortodoncia...", "manchas oscuras en los dientes frontales...", "mal aliento persistente...", "dolor al masticar alimentos..."];
+  const motivosEjemplo = [
+    "dolor dental intenso en molar superior derecho...",
+    "sangrado de encías al cepillarse...",
+    "revisión y limpieza dental de rutina...",
+    "sensibilidad al frío y calor en dientes anteriores...",
+    "inflamación y dolor en zona de muelas del juicio...",
+    "aplicación de resina en diente fracturado...",
+    "evaluación para tratamiento de ortodoncia...",
+    "manchas oscuras en los dientes frontales...",
+    "mal aliento persistente...",
+    "dolor al masticar alimentos..."
+  ];
   const defaultCausaProvocado = "Provocado con ";
-  const causasProvocadoEjemplo = ["alimentos fríos o helados en contacto con el diente...", "la presión durante la masticación de alimentos duros...", "bebidas calientes que generan dolor inmediato...", "el cepillado en la zona vestibular de los premolares...", "dulces y alimentos azucarados que desencadenan molestias..."];
+  const causasProvocadoEjemplo = [
+    "alimentos fríos o helados en contacto con el diente...",
+    "la presión durante la masticación de alimentos duros...",
+    "bebidas calientes que generan dolor inmediato...",
+    "el cepillado en la zona vestibular de los premolares...",
+    "dulces y alimentos azucarados que desencadenan molestias..."
+  ];
 
   useEffect(() => {
     if (!formData.padecimientoActual.motivoConsulta) {
@@ -140,22 +164,12 @@ ${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').tri
 
 Actualmente no refiere sintomatología`;
     } else {
-      const {
-        fechaInicio,
-        condicionAparicion,
-        frecuencia,
-        caracter,
-        intensidad,
-        localizacion,
-        atenuacion,
-        causaProvocado,
-        ubicacion // Include ubicacion in the redaccion
-      } = formData.padecimientoActual.dolor;
+      const { fechaInicio, condicionAparicion, frecuencia, caracter, intensidad, localizacion, atenuacion, causaProvocado, ubicacionDolor } = formData.padecimientoActual.dolor;
       textoGenerado = `Motivo de consulta:
 ${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
 
 Historia del padecimiento:
-El paciente refiere la presencia de dolor ${ubicacion === 'localizado' ? 'localizado en' : 'irradiado hacia'} ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'}`;
+El paciente refiere la presencia de dolor ${ubicacionDolor === 'localizado' ? 'localizado en' : 'irradiado hacia'} ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'}`;
       if (condicionAparicion === 'provocado' && causaProvocado) {
         textoGenerado += `, siendo provocado específicamente por ${causaProvocado}`;
       }
@@ -192,7 +206,7 @@ El paciente refiere la presencia de dolor ${ubicacion === 'localizado' ? 'locali
     });
     handleDolorChange("atenuacion", "");
     handleDolorChange("causaProvocado", defaultCausaProvocado);
-    handleDolorChange("ubicacion", ""); // Clear ubicacion field
+    handleDolorChange("ubicacionDolor", ""); // Limpiar la nueva propiedad
     handleSinSintomasChange(false);
     setRedaccionIA("");
     setShowRedaccion(false);
@@ -258,27 +272,10 @@ El paciente refiere la presencia de dolor ${ubicacion === 'localizado' ? 'locali
         {showRedaccion ? (
           <div ref={redaccionRef} className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
-            <div className="progress-bar-container" style={{
-              width: '100%',
-              backgroundColor: '#d3d3d3',
-              borderRadius: '12px',
-              overflow: 'hidden',
-              marginBottom: '1rem',
-              boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'
-            }}>
-              <div className="progress-bar" style={{
-                height: '8px',
-                backgroundColor: '#34c759',
-                transition: 'width 0.015s ease-in-out',
-                width: `${progress}%`,
-                borderRadius: '12px'
-              }}></div>
+            <div className="progress-bar-container" style={{ width: '100%', backgroundColor: '#d3d3d3', borderRadius: '12px', overflow: 'hidden', marginBottom: '1rem', boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)' }}>
+              <div className="progress-bar" style={{ height: '8px', backgroundColor: '#34c759', transition: 'width 0.015s ease-in-out', width: `${progress}%`, borderRadius: '12px' }}></div>
             </div>
-            <div className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-y-auto whitespace-pre-wrap" style={{
-              whiteSpace: 'pre-wrap'
-            }} dangerouslySetInnerHTML={{
-              __html: displayedText
-            }} data-redaction-content />
+            <div className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-y-auto whitespace-pre-wrap" style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: displayedText }} data-redaction-content />
             <Button onClick={handleCopy} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative">
               <Copy className="w-4 h-4" />
               <span>Copiar Redacción</span>
@@ -315,16 +312,14 @@ El paciente refiere la presencia de dolor ${ubicacion === 'localizado' ? 'locali
                 )}
               </div>
               <div className="mt-2">
-                <VoiceInput
-                  onTranscriptionComplete={text => {
-                    const newValue = text;
-                    if (!newValue.startsWith(defaultMotivoConsulta)) {
-                      handlePadecimientoChange("motivoConsulta", `${defaultMotivoConsulta} ${newValue}`);
-                    } else {
-                      handlePadecimientoChange("motivoConsulta", newValue);
-                    }
-                  }}
-                />
+                <VoiceInput onTranscriptionComplete={text => {
+                  const newValue = text;
+                  if (!newValue.startsWith(defaultMotivoConsulta)) {
+                    handlePadecimientoChange("motivoConsulta", `${defaultMotivoConsulta} ${newValue}`);
+                  } else {
+                    handlePadecimientoChange("motivoConsulta", newValue);
+                  }
+                }} />
               </div>
             </div>
           </div>
