@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -165,7 +165,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     } else {
       lavadoManosText = 'sin hábito regular';
     }
-    return `El paciente refiere una frecuencia de baño ${frecuenciaBano || '[no especificada]'}, lo que contribuye a la higiene general y prevención de infecciones cutáneas. Presenta hábitos de higiene de manos ${lavadoManosText}, lo que es un factor clave en la prevención de enfermedades de transmisión feco-oral. El cambio de ropa se realiza ${cambioRopa || '[no especificada]'}, aspecto importante en el mantenimiento de la higiene personal.`;
+    return `El paciente refiere una frecuencia de baño ${frecuenciaBano || '[no especificada]'}, lo que contribuye a la higiene general y prevención de infecciones cutáneas. Presenta hábitos de higiene de manos ${lavadoManosText}, lo que es un factor clave en la prevención de enfermedades de transmisión feco-oral. El cambio de ropa se realiza ${cambioRopa || '[no especificado]'}, aspecto importante en el mantenimiento de la higiene personal.`;
   };
 
   const generateHigieneBucalText = () => {
@@ -514,7 +514,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                           <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="recoleccion municipal">Recolección municipal</SelectItem>
+                          <SelectItem value="recolección municipal">Recolección municipal</SelectItem>
                           <SelectItem value="quema">Quema</SelectItem>
                           <SelectItem value="entierro">Entierro</SelectItem>
                           <SelectItem value="otro">Otro</SelectItem>
