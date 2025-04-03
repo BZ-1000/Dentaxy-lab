@@ -60,11 +60,11 @@ export function AnimatedTextarea({
 
   useEffect(() => {
     // Auto-adjust height after animation completes
-    if (!isAnimating && textareaRef.current) {
+    if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [isAnimating, displayedText]);
+  }, [displayedText]);
 
   const alignmentClass = {
     left: "text-left",
