@@ -23,7 +23,7 @@ interface CaracteristicasDolorProps {
     causaProvocado?: string;
     ubicacionDolor?: string; // Nueva propiedad para la ubicación del dolor
   };
-  onDolorChange: (field: string, value: string | any) => void;
+  onDolorChange: (field: string, value: string) => void;
 }
 
 const definicionesDolor = [
@@ -52,7 +52,6 @@ const localizacionesEjemplo = [
   "el piso de boca, irradiado hacia la lengua...",
   "la papila interdentaria entre los incisivos inferiores..."
 ];
-
 const defaultCausaProvocado = "Provocado con ";
 const causasProvocadoEjemplo = [
   "alimentos fríos o helados en contacto con el diente...",
@@ -87,10 +86,10 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
 
     // Only update the description part in the dolor object
     const descripcion = newValue;
-    onDolorChange("localizacion", {
+    onDolorChange("localizacion", JSON.stringify({
       tipo: dolor.localizacion?.tipo || "",
       descripcion
-    });
+    }));
   };
 
   const handleCausaProvocadoChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -252,7 +251,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
                 className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify"
               />
               {localizacionText === defaultLocalizacion && (
-                <div className="absolute top-2 left-[105px] pointer-events-none">
+                <div className="absolute top-2 left-[115px] pointer-events-none">
                   <Typewriter
                     text={localizacionesEjemplo}
                     speed={50}
@@ -273,10 +272,10 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
                     finalText = `${defaultLocalizacion} ${finalText}`;
                   }
                   setLocalizacionText(finalText);
-                  onDolorChange("localizacion", {
+                  onDolorChange("localizacion", JSON.stringify({
                     tipo: dolor.localizacion?.tipo || "",
                     descripcion: finalText
-                  });
+                  }));
                 }}
               />
             </div>
@@ -294,9 +293,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
             className="min-h-[100px] max-h-[200px] w-full resize-y text-justify"
           />
           <div className="mt-2">
-            <VoiceInput
-              onTranscriptionComplete={text => onDolorChange('atenuacion', text)}
-            />
+            <VoiceInput onTranscriptionComplete={text => onDolorChange('atenuacion', text)} />
           </div>
         </div>
       </div>
@@ -314,7 +311,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
                 className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify"
               />
               {causaProvocadoText === defaultCausaProvocado && (
-                <div className="absolute top-2 left-[110px] pointer-events-none">
+                <div className="absolute top-2 left-[115px] pointer-events-none">
                   <Typewriter
                     text={causasProvocadoEjemplo}
                     speed={50}

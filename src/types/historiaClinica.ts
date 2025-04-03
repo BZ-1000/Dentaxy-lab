@@ -31,10 +31,8 @@ export interface PadecimientoActual {
       descripcion: string;
     };
     atenuacion: string;
-    ubicacionDolor?: string; // Asegúrate de que esta propiedad esté presente
   };
 }
-
 
 export interface AntecedentesHeredoFamiliares {
   padre: Familiar;
