@@ -76,12 +76,7 @@ function revisarRedaccion(text: string): string {
     textoCorregido = textoCorregido.replace(patron, reemplazo);
   });
   textoCorregido = textoCorregido.replace(/\. ([a-z])/g, (_, letra) => `. ${letra.toUpperCase()}`);
-  textoCorregido = textoCorregido.replace(/provocado por/gi, 'provocada por')
-                                .replace(/aparece en/gi, 'aparece cuando')
-                                .replace(/se ha observado que/gi, 'se observa que')
-                                .replace(/presenta un dolor/gi, 'manifiesta dolor')
-                                .replace(/tiene dolor/gi, 'presenta dolor')
-                                .replace(/el dolor es/gi, 'el dolor se caracteriza por ser');
+  textoCorregido = textoCorregido.replace(/provocado por/gi, 'provocada por');
   return textoCorregido;
 }
 
