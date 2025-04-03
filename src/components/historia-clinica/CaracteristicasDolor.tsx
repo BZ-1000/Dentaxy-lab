@@ -77,6 +77,11 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    // Actualizar la visibilidad del campo de localización cuando cambia ubicacionDolor
+    setShowLocalizacion(dolor.ubicacionDolor === "localizado");
+  }, [dolor.ubicacionDolor]);
+
   const handleLocalizacionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     let newValue = event.target.value;
 
@@ -227,7 +232,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
           <Label>Ubicación del dolor</Label>
           <Select value={dolor.ubicacionDolor} onValueChange={value => {
             onDolorChange('ubicacionDolor', value);
-            setShowLocalizacion(value === "localizado"); // Mostrar/ocultar el Textarea de localización
+            setShowLocalizacion(value === "localizado");
           }}>
             <SelectTrigger>
               <SelectValue placeholder="Seleccione ubicación" />
