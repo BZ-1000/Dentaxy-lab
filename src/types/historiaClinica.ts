@@ -1,3 +1,4 @@
+
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -30,8 +31,6 @@ export interface PadecimientoActual {
       descripcion: string;
     };
     atenuacion: string;
-    causaProvocado?: string;
-    ubicacionDolor?: string; // Added property for ubicacionDolor
   };
 }
 

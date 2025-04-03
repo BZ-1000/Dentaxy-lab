@@ -413,12 +413,9 @@ export const useHistoriaClinica = () => {
     setResumen('');
   };
 
-  // Guardar formulario con el userId para separar por sesión
   const guardarFormulario = (data: FormDataState, nombre: string) => {
     if (!nombre.trim()) return;
-    // Get the user ID from localStorage
-    const userId = localStorage.getItem('historia_clinica_user_id') || 'default_user';
-    localStorage.setItem(`${userId}_formulario_${nombre}`, JSON.stringify(data));
+    localStorage.setItem(`formulario_${nombre}`, JSON.stringify(data));
   };
 
   const cargarFormulario = (data: FormDataState | null) => {
