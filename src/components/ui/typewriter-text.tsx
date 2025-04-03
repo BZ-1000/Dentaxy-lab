@@ -13,7 +13,6 @@ export interface TypewriterProps {
   delay?: number;
   className?: string;
   onComplete?: () => void; // Add callback for when typing completes
-  textAlign?: "left" | "center" | "right" | "justify"; // Add text alignment option
 }
  
 export function Typewriter({
@@ -25,7 +24,6 @@ export function Typewriter({
   delay = 1000,
   className,
   onComplete,
-  textAlign = "left", // Default to left alignment
 }: TypewriterProps) {
   const [displayText, setDisplayText] = useState("");
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -82,15 +80,8 @@ export function Typewriter({
     onComplete,
   ]);
  
-  const alignmentClass = {
-    left: "text-left",
-    center: "text-center",
-    right: "text-right",
-    justify: "text-justify",
-  }[textAlign];
- 
   return (
-    <span className={`${className} ${alignmentClass}`}>
+    <span className={className}>
       {displayText}
       <span className="animate-pulse">{cursor}</span>
     </span>

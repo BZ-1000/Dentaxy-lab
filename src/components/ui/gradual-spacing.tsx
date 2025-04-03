@@ -1,4 +1,3 @@
-
 "use client";
 
 import { AnimatePresence, motion, Variants } from "framer-motion";
@@ -10,7 +9,6 @@ interface GradualSpacingProps {
   delayMultiple?: number;
   framerProps?: Variants;
   className?: string;
-  textAlign?: "left" | "center" | "right" | "justify";
 }
 
 function GradualSpacing({
@@ -34,17 +32,9 @@ function GradualSpacing({
     },
   },
   className,
-  textAlign = "center",
 }: GradualSpacingProps) {
-  const containerClass = {
-    left: "justify-start",
-    center: "justify-center",
-    right: "justify-end",
-    justify: "justify-between",
-  }[textAlign];
-
   return (
-    <div className={`flex ${containerClass} space-x-1`}>
+    <div className="flex justify-center space-x-1">
       <AnimatePresence>
         {text.split("").map((char, i) => (
           <motion.h1

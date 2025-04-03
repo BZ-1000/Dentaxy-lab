@@ -1,9 +1,7 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
-import { AnimatedTextarea } from "@/components/ui/animated-textarea";
 
 interface InformacionPrincipalProps {
   fechaAparicion: string;

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -7,8 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
-import { AnimatedTextarea } from "@/components/ui/animated-textarea";
-
 interface AntecedentesPersonalesNoPatologicosProps {
   formData: FormDataState;
   handleAntecedenteChange: (field: string, value: any) => void;
@@ -29,7 +26,6 @@ const WordButton = ({
       {label}
     </button>;
 };
-
 const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPatologicosProps> = ({
   formData,
   handleAntecedenteChange,
@@ -50,26 +46,21 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [formDataLocal, setFormDataLocal] = useState(formData.antecedentesPersonalesNoPatologicos);
-
   useEffect(() => {
     setFormDataLocal(formData.antecedentesPersonalesNoPatologicos);
   }, [formData]);
-
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
   };
-
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
     setIsMinimized(false);
   };
-
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
   };
-
   const generarRedaccionIA = () => {
     // Implement AI text generation logic for each section
     const serviciosRedaccion = generateServiciosDomiciliariosText();
@@ -86,13 +77,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     });
     setShowForm(false);
     setProgress(100);
-
-    // Scroll to the title "Servicios Domiciliarios"
-    if (redaccionesRef.current) {
-      redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
   };
-
   const generateServiciosDomiciliariosText = () => {
     const {
       tipoVivienda,
@@ -111,7 +96,6 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }
     return `El paciente habita en una vivienda de tipo ${tipoVivienda || '[no especificado]'}, construida principalmente con ${materialVivienda || '[no especificado]'}. Cuenta con los siguientes servicios básicos: ${serviciosList}. La condición de la calle en la que se encuentra la vivienda es ${condicionCalle || '[no especificado]'}, y la iluminación en la vía pública es ${iluminacionCalle || '[no especificado]'}, lo que puede influir en la seguridad y accesibilidad del entorno.`;
   };
-
   const generateHigieneViviendaText = () => {
     const {
       frecuenciaLimpieza,
@@ -133,7 +117,6 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }
     return `El mantenimiento del hogar se realiza con una frecuencia ${frecuenciaLimpieza || '[no especificada]'}, lo que impacta directamente en la salubridad del entorno. La ropa de cama se cambia ${cambioRopaCama || '[no especificado]'}, contribuyendo a la higiene y confort del paciente. Se observa ${hacinamientoText}, lo que puede influir en la calidad de vida y bienestar de los habitantes. Asimismo, ${promiscuidadText}, lo cual puede ser relevante en la evaluación de riesgos sanitarios y epidemiológicos. En el domicilio ${mascotasText}, lo que puede representar un factor de exposición a zoonosis u otras afecciones. En cuanto al manejo de residuos, ${manejoResiduos || '[no especificado]'}, lo que influye en la prevención de enfermedades y el control ambiental.`;
   };
-
   const generateHigienePersonalText = () => {
     const {
       frecuenciaBano,
@@ -148,7 +131,6 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }
     return `El paciente refiere una frecuencia de baño ${frecuenciaBano || '[no especificada]'}, lo que contribuye a la higiene general y prevención de infecciones cutáneas. Presenta hábitos de higiene de manos ${lavadoManosText}, lo que es un factor clave en la prevención de enfermedades de transmisión feco-oral. El cambio de ropa se realiza ${cambioRopa || '[no especificada]'}, aspecto importante en el mantenimiento de la higiene personal.`;
   };
-
   const generateHigieneBucalText = () => {
     const {
       frecuenciaCepillado,
@@ -175,7 +157,6 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }
     return `El paciente refiere un cepillado dental con una frecuencia ${frecuenciaCepillado || '[no especificada]'}, utilizando técnica ${tecnicaCepillado || '[no especificada]'}, lo que influye directamente en la salud periodontal y la prevención de caries. Además, complementa su higiene bucal con ${auxiliaresText}. La última visita al odontólogo fue hace ${ultimaVisitaOdontologo || '[no especificada]'}, lo que permite evaluar su acceso a la atención odontológica y el seguimiento de su salud bucal. Actualmente, refiere ${problemasText}, aspectos clave en la valoración del estado oral.`;
   };
-
   const generateAlimentacionText = () => {
     const {
       alimentosConsumidos,
@@ -191,14 +172,12 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     if (horarioComidas) {
       horarios = `Desayuno: ${horarioComidas.desayuno || '[no especificado]'}\nAlmuerzo: ${horarioComidas.almuerzo || '[no especificado]'}\nCena: ${horarioComidas.cena || '[no especificado]'}`;
     }
-    return `El paciente tiene una alimentación basada en ${alimentosText}, lo que influye en su estado nutricional y salud general. El consumo de frutas y verduras es ${frecuenciaFrutasVerduras || '[no especificada]'}, mientras que la ingesta de bebidas azucaradas ocurre ${frecuenciaBebidasAzucaradas || '[no especificada]'} y el consumo de comida chatarra ${frecuenciaComidaChatarra || '[no especificada]'}, factores determinantes en el riesgo de enfermedades metabólicas y caries dental. La cantidad de agua ingerida diariamente es de aproximadamente ${consumoAgua || '[no especificado]'}, contribuyendo a la hidratación y función renal. Realiza ${numeroComidas || '[no especificado]'} comidas al día, con los siguientes horarios reportados:\n\n${horarios}`;
+    return `El paciente tiene una alimentación basada en ${alimentosText}, lo que influye en su estado nutricional y salud general. El consumo de frutas y verduras es ${frecuenciaFrutasVerduras || '[no especificado]'}, mientras que la ingesta de bebidas azucaradas ocurre ${frecuenciaBebidasAzucaradas || '[no especificado]'} y el consumo de comida chatarra ${frecuenciaComidaChatarra || '[no especificado]'}, factores determinantes en el riesgo de enfermedades metabólicas y caries dental. La cantidad de agua ingerida diariamente es de aproximadamente ${consumoAgua || '[no especificado]'}, contribuyendo a la hidratación y función renal. Realiza ${numeroComidas || '[no especificado]'} comidas al día, con los siguientes horarios reportados:\n\n${horarios}`;
   };
-
   const adjustTextareaHeight = (element: HTMLTextAreaElement) => {
     element.style.height = "auto";
     element.style.height = element.scrollHeight + "px";
   };
-
   const handleCopy = (section: string) => {
     navigator.clipboard.writeText(redacciones[section]);
     setCopied(prev => ({
@@ -210,7 +189,6 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
       [section]: false
     })), 2000);
   };
-
   const handleFormChange = (field: string, value: any) => {
     // Local state update
     setFormDataLocal(prevData => ({
@@ -221,7 +199,6 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     // Also update parent state
     handleAntecedenteChange(field, value);
   };
-
   const handleWordButtonClick = (field: string, value: string) => {
     let newValues;
 
@@ -259,7 +236,6 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }
     handleFormChange(field, newValues);
   };
-
   const limpiarFormulario = () => {
     const emptyData = {
       tipoVivienda: "",
@@ -310,9 +286,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     });
     setProgress(0);
   };
-
-  return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
+  return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
@@ -345,13 +319,12 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           </h2>
         </div>
 
-        {!isMinimized && (
-          <div className="p-6" ref={formRef}>
-            {showForm ? (
-              <div className="space-y-6">
+        {!isMinimized && <div className="p-6" ref={formRef}>
+            {showForm ? <div className="space-y-6">
+                
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2 text-justify">Servicios Domiciliarios</h4>
-
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Tipo de Vivienda</Label>
@@ -423,7 +396,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
 
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2 text-justify">Higiene de la Vivienda</h4>
-
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Frecuencia de Limpieza del Hogar</Label>
@@ -509,7 +482,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
 
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2 text-justify">Higiene Personal</h4>
-
+                  
                   <div className="grid grid-cols-1 gap-4">
                     <div>
                       <Label>Frecuencia de Baño</Label>
@@ -550,7 +523,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
 
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2 text-justify">Higiene Bucal</h4>
-
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Frecuencia de Cepillado Dental</Label>
@@ -618,7 +591,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
 
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <h4 className="text-lg font-semibold mb-2 text-justify">Alimentación</h4>
-
+                  
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Alimentos Consumidos Frecuentemente</Label>
@@ -636,43 +609,43 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="diaria">Diaria</SelectItem>
-                          <SelectItem value="3-5 veces por semana">3-5 veces por semana</SelectItem>
-                          <SelectItem value="1-2 veces por semana">1-2 veces por semana</SelectItem>
-                          <SelectItem value="rara vez">Rara vez</SelectItem>
+                          <SelectItem value="diario">Diario</SelectItem>
+                          <SelectItem value="3-4 veces por semana">3-4 veces por semana</SelectItem>
+                          <SelectItem value="ocasional">Ocasional</SelectItem>
+                          <SelectItem value="nunca">Nunca</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label>Frecuencia de Bebidas Azucaradas</Label>
+                      <Label>Frecuencia de Consumo de Bebidas Azucaradas</Label>
                       <Select value={formDataLocal.frecuenciaBebidasAzucaradas} onValueChange={value => handleFormChange('frecuenciaBebidasAzucaradas', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="diaria">Diaria</SelectItem>
-                          <SelectItem value="3-5 veces por semana">3-5 veces por semana</SelectItem>
-                          <SelectItem value="1-2 veces por semana">1-2 veces por semana</SelectItem>
-                          <SelectItem value="rara vez">Rara vez</SelectItem>
+                          <SelectItem value="diario">Diario</SelectItem>
+                          <SelectItem value="3-4 veces por semana">3-4 veces por semana</SelectItem>
+                          <SelectItem value="ocasional">Ocasional</SelectItem>
+                          <SelectItem value="nunca">Nunca</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label>Frecuencia de Comida Chatarra</Label>
+                      <Label>Frecuencia de Consumo de Comida Chatarra</Label>
                       <Select value={formDataLocal.frecuenciaComidaChatarra} onValueChange={value => handleFormChange('frecuenciaComidaChatarra', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione frecuencia" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="diaria">Diaria</SelectItem>
-                          <SelectItem value="3-5 veces por semana">3-5 veces por semana</SelectItem>
-                          <SelectItem value="1-2 veces por semana">1-2 veces por semana</SelectItem>
-                          <SelectItem value="rara vez">Rara vez</SelectItem>
+                          <SelectItem value="diario">Diario</SelectItem>
+                          <SelectItem value="3-4 veces por semana">3-4 veces por semana</SelectItem>
+                          <SelectItem value="ocasional">Ocasional</SelectItem>
+                          <SelectItem value="nunca">Nunca</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label>Consumo de Agua Diario (Litros)</Label>
+                      <Label>Consumo de Agua al Día</Label>
                       <Select value={formDataLocal.consumoAgua} onValueChange={value => handleFormChange('consumoAgua', value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Seleccione cantidad" />
@@ -691,166 +664,162 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                           <SelectValue placeholder="Seleccione número" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="1-2">1-2</SelectItem>
+                          <SelectItem value="1">1</SelectItem>
+                          <SelectItem value="2">2</SelectItem>
                           <SelectItem value="3">3</SelectItem>
-                          <SelectItem value="4-5">4-5</SelectItem>
-                          <SelectItem value="más de 5">Más de 5</SelectItem>
+                          <SelectItem value="más de 3">Más de 3</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div className="col-span-2">
+                      <Label>Horario de Comidas</Label>
+                      <div className="grid grid-cols-3 gap-2 mt-2">
+                        <div>
+                          <Label className="text-xs mb-1">Desayuno</Label>
+                          <Select value={formDataLocal.horarioComidas.desayuno} onValueChange={value => handleFormChange('horarioComidas.desayuno', value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleccione horario" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="antes de 8:00 AM">Antes de 8:00 AM</SelectItem>
+                              <SelectItem value="8:00 - 10:00 AM">8:00 - 10:00 AM</SelectItem>
+                              <SelectItem value="después de 10:00 AM">Después de 10:00 AM</SelectItem>
+                              <SelectItem value="no desayuna">No desayuna</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs mb-1">Almuerzo</Label>
+                          <Select value={formDataLocal.horarioComidas.almuerzo} onValueChange={value => handleFormChange('horarioComidas.almuerzo', value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleccione horario" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="antes de 1:00 PM">Antes de 1:00 PM</SelectItem>
+                              <SelectItem value="1:00 - 3:00 PM">1:00 - 3:00 PM</SelectItem>
+                              <SelectItem value="después de 3:00 PM">Después de 3:00 PM</SelectItem>
+                              <SelectItem value="no almuerza">No almuerza</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs mb-1">Cena</Label>
+                          <Select value={formDataLocal.horarioComidas.cena} onValueChange={value => handleFormChange('horarioComidas.cena', value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Seleccione horario" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="antes de 8:00 PM">Antes de 8:00 PM</SelectItem>
+                              <SelectItem value="8:00 - 10:00 PM">8:00 - 10:00 PM</SelectItem>
+                              <SelectItem value="después de 10:00 PM">Después de 10:00 PM</SelectItem>
+                              <SelectItem value="no cena">No cena</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex justify-center pt-4">
+                <div className="flex justify-center gap-4 mt-6">
                   <Button onClick={generarRedaccionIA} className="bg-blue-500 hover:bg-blue-600 text-white">
                     Generar Redacción IA
                   </Button>
-                  <Button onClick={limpiarFormulario} variant="outline" className="ml-4 flex items-center gap-2">
-                    <Eraser className="w-4 h-4" />
-                    Limpiar formulario
+                  <Button onClick={limpiarFormulario} variant="outline" className="border-gray-300 text-slate-100 font-semibold bg-[#ff0000]">
+                    Limpiar Formulario
                   </Button>
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Redacción IA */}
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Servicios Domiciliarios</h4>
-                    <button onClick={() => handleCopy('serviciosDomiciliarios')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.serviciosDomiciliarios ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.serviciosDomiciliarios}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
+              </div> : <div className="space-y-6">
+                {progress === 100 && <>
+                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="text-lg font-semibold">Servicios Domiciliarios</h4>
+                        <button onClick={() => handleCopy('serviciosDomiciliarios')} className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700">
+                          {copied.serviciosDomiciliarios ? <>
+                              <CheckCircle className="w-4 h-4" />
+                              <span>Copiado</span>
+                            </> : <>
+                              <Copy className="w-4 h-4" />
+                              <span>Copiar</span>
+                            </>}
+                        </button>
+                      </div>
+                      <Textarea value={redacciones.serviciosDomiciliarios} readOnly className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" onFocus={e => adjustTextareaHeight(e.currentTarget)} />
+                    </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Higiene de la Vivienda</h4>
-                    <button onClick={() => handleCopy('higieneVivienda')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.higieneVivienda ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.higieneVivienda}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
+                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="text-lg font-semibold">Higiene de la Vivienda</h4>
+                        <button onClick={() => handleCopy('higieneVivienda')} className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700">
+                          {copied.higieneVivienda ? <>
+                              <CheckCircle className="w-4 h-4" />
+                              <span>Copiado</span>
+                            </> : <>
+                              <Copy className="w-4 h-4" />
+                              <span>Copiar</span>
+                            </>}
+                        </button>
+                      </div>
+                      <Textarea value={redacciones.higieneVivienda} readOnly className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" onFocus={e => adjustTextareaHeight(e.currentTarget)} />
+                    </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Higiene Personal</h4>
-                    <button onClick={() => handleCopy('higienePersonal')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.higienePersonal ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.higienePersonal}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
+                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="text-lg font-semibold">Higiene Personal</h4>
+                        <button onClick={() => handleCopy('higienePersonal')} className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700">
+                          {copied.higienePersonal ? <>
+                              <CheckCircle className="w-4 h-4" />
+                              <span>Copiado</span>
+                            </> : <>
+                              <Copy className="w-4 h-4" />
+                              <span>Copiar</span>
+                            </>}
+                        </button>
+                      </div>
+                      <Textarea value={redacciones.higienePersonal} readOnly className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" onFocus={e => adjustTextareaHeight(e.currentTarget)} />
+                    </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Higiene Bucal</h4>
-                    <button onClick={() => handleCopy('higieneBucal')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.higieneBucal ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.higieneBucal}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
+                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="text-lg font-semibold">Higiene Bucal</h4>
+                        <button onClick={() => handleCopy('higieneBucal')} className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700">
+                          {copied.higieneBucal ? <>
+                              <CheckCircle className="w-4 h-4" />
+                              <span>Copiado</span>
+                            </> : <>
+                              <Copy className="w-4 h-4" />
+                              <span>Copiar</span>
+                            </>}
+                        </button>
+                      </div>
+                      <Textarea value={redacciones.higieneBucal} readOnly className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" onFocus={e => adjustTextareaHeight(e.currentTarget)} />
+                    </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Alimentación</h4>
-                    <button onClick={() => handleCopy('alimentacion')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.alimentacion ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.alimentacion}
-                    className="min-h-[200px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
+                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="text-lg font-semibold">Alimentación</h4>
+                        <button onClick={() => handleCopy('alimentacion')} className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700">
+                          {copied.alimentacion ? <>
+                              <CheckCircle className="w-4 h-4" />
+                              <span>Copiado</span>
+                            </> : <>
+                              <Copy className="w-4 h-4" />
+                              <span>Copiar</span>
+                            </>}
+                        </button>
+                      </div>
+                      <Textarea value={redacciones.alimentacion} readOnly className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50" onFocus={e => adjustTextareaHeight(e.currentTarget)} />
+                    </div>
 
-                <div className="flex justify-center">
-                  <Button onClick={() => setShowForm(true)} variant="outline" className="text-blue-500 border-blue-500">
-                    Volver al Formulario
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+                    <div className="flex justify-center gap-4 mt-6">
+                      <Button onClick={() => setShowForm(true)} variant="outline" className="border-gray-300 text-gray-700">
+                        Volver al Formulario
+                      </Button>
+                    </div>
+                  </>}
+              </div>}
+          </div>}
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default AntecedentesPersonalesNoPatologicos;
