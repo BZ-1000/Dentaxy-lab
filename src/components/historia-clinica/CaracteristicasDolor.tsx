@@ -26,7 +26,6 @@ interface CaracteristicasDolorProps {
   onDolorChange: (field: string, value: string | any) => void;
 }
 
-
 const definicionesDolor = [
   {
     titulo: "Dolor Sordo",
