@@ -39,11 +39,13 @@ const InformacionPrincipal = ({
       <div>
         <Label>Estado Actual</Label>
         <div className="flex items-center gap-4">
-          <Textarea
-            value={evolucion}
+          <AnimatedTextarea
+            content={evolucion}
             onChange={(e) => onEvolucionChange(e.target.value)}
             placeholder="Describa el estado actual de los síntomas"
             className="min-h-[135px] max-h-[135px] w-[75%]"
+            textAlign="justify"
+            readOnly={false}
           />
           <div className="h-[40px]">
             <VoiceInput onTranscriptionComplete={onVoiceTranscription} />
@@ -54,11 +56,13 @@ const InformacionPrincipal = ({
       <div>
         <Label>Evolución</Label>
         <div className="flex items-center gap-4">
-          <Textarea
-            value={estadoActual}
+          <AnimatedTextarea
+            content={estadoActual}
             onChange={(e) => onEstadoChange(e.target.value)}
             placeholder="Describa la evolución de los síntomas"
             className="min-h-[135px] max-h-[135px] w-[75%]"
+            textAlign="justify"
+            readOnly={false}
           />
           <div className="h-[40px]">
             <VoiceInput onTranscriptionComplete={(text) => onEstadoChange(text)} />

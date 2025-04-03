@@ -1,12 +1,14 @@
-
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, ChangeEvent } from 'react';
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 interface AnimatedTextareaProps {
-  content: string;
+  content?: string;
+  value?: string;
+  placeholder?: string;
+  onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void;
   speed?: number;
   readOnly?: boolean;
   autoFocus?: boolean;
@@ -17,6 +19,9 @@ interface AnimatedTextareaProps {
 
 export function AnimatedTextarea({
   content,
+  value,
+  placeholder,
+  onChange,
   speed = 10,
   readOnly = true,
   autoFocus = false,
@@ -24,11 +29,18 @@ export function AnimatedTextarea({
   textAlign = "justify",
   onAnimationComplete,
 }: AnimatedTextareaProps) {
-  const [displayedText, setDisplayedText] = useState('');
-  const [isAnimating, setIsAnimating] = useState(true);
+  const [displayedText, setDisplayedText] = useState(value || '');
+  const [isAnimating, setIsAnimating] = useState(!!content);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    // If in edit mode (with onChange handler), just use the value directly
+    if (onChange) {
+      setDisplayedText(value || '');
+      return;
+    }
+
+    // Otherwise, use animation mode with content
     if (!content) {
       setDisplayedText('');
       setIsAnimating(false);
@@ -56,10 +68,10 @@ export function AnimatedTextarea({
     }, speed);
 
     return () => clearInterval(typeInterval);
-  }, [content, speed, onAnimationComplete]);
+  }, [content, speed, onAnimationComplete, onChange, value]);
 
   useEffect(() => {
-    // Auto-adjust height after animation completes
+    // Auto-adjust height after animation completes or when value changes
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
@@ -73,6 +85,26 @@ export function AnimatedTextarea({
     justify: "text-justify",
   }[textAlign];
 
+  // If in edit mode (with onChange handler), render an editable textarea
+  if (onChange) {
+    return (
+      <Textarea
+        ref={textareaRef}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        readOnly={false}
+        autoFocus={autoFocus}
+        className={cn(
+          "min-h-[100px] transition-all duration-200", 
+          alignmentClass,
+          className
+        )}
+      />
+    );
+  }
+
+  // Otherwise, render an animated read-only textarea
   return (
     <Textarea
       ref={textareaRef}
