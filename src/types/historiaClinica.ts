@@ -1,4 +1,3 @@
-
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -31,6 +30,8 @@ export interface PadecimientoActual {
       descripcion: string;
     };
     atenuacion: string;
+    causaProvocado?: string;
+    ubicacion?: string; // Added ubicacion field
   };
 }
 
