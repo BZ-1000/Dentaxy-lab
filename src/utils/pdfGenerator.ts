@@ -1,8 +1,7 @@
-
 import jsPDF from 'jspdf';
 import { FormDataState } from '@/types/historiaClinica';
 
-// Mapping of section keys to their titles
+// Mapeo de claves de sección a sus títulos
 const SECTION_TITLES = {
   padecimientoActual: 'I. PADECIMIENTO ACTUAL',
   antecedentesHeredoFamiliares: 'II. ANTECEDENTES HEREDO FAMILIARES',
@@ -26,7 +25,7 @@ const SECTION_TITLES = {
   pronostico: 'XX. PRONÓSTICO'
 };
 
-// Subtitles for specific sections
+// Subtítulos para secciones específicas
 const SUBTITLES = {
   padecimientoActual: {
     motivoConsulta: 'Motivo de consulta',
@@ -51,67 +50,63 @@ const SUBTITLES = {
   }
 };
 
-// Logo path - this would be the path to your logo
+// Ruta del logo
 const LOGO_PATH = '/lovable-uploads/7898fc25-0e62-40e1-a139-6582324afb27.png';
 
 export const generatePDF = (
-  formData: FormDataState, 
+  formData: FormDataState,
   nombrePaciente: string,
   sectionRedactions: { [key: string]: string } = {}
 ) => {
-  console.log("Generating PDF with redactions:", Object.keys(sectionRedactions));
-  
+  console.log("Generando PDF con redacciones:", Object.keys(sectionRedactions));
+
   const doc = new jsPDF();
-  
-  // Set page margins - increased for better readability
-  const margin = 20; // Increased from 10 to 20
+
+  // Establecer márgenes de página
+  const margin = 20;
   const pageWidth = doc.internal.pageSize.width;
   const contentWidth = pageWidth - (2 * margin);
-  
-  // Add logo
+
+  // Agregar logo
   try {
     doc.addImage(LOGO_PATH, 'PNG', pageWidth / 2 - 15, 10, 30, 30);
   } catch (error) {
-    console.error('Error adding logo:', error);
-    // Continue without logo if there's an error
+    console.error('Error al agregar el logo:', error);
   }
-  
-  // Add title with more spacing after logo
+
+  // Agregar título
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
   doc.text('HISTORIA CLÍNICA', pageWidth / 2, 50, { align: 'center' });
-  
-  // Add "Dental Basics Academy" text
+
+  // Agregar texto "Dental Basics Academy"
   doc.setFontSize(12);
   doc.text('Dental Basics Academy', pageWidth / 2, 58, { align: 'center' });
-  
-  // Add patient name if available
+
+  // Agregar nombre del paciente si está disponible
   if (nombrePaciente) {
     doc.setFontSize(12);
     doc.text(`Paciente: ${nombrePaciente}`, pageWidth / 2, 66, { align: 'center' });
   }
-  
-  // Add date
+
+  // Agregar fecha
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text(`Fecha: ${new Date().toLocaleDateString()}`, pageWidth / 2, 74, { align: 'center' });
-  
-  let yPos = 85; // Start content lower to make room for the header
-  
-  // Function to clean the text content
+
+  let yPos = 85; // Comenzar el contenido más abajo para dar espacio al encabezado
+
+  // Función para limpiar el contenido del texto
   const cleanContent = (content: string): string => {
-    // Remove unwanted text and patterns
     let cleanedText = content
       .replace(/FormularioRedacción IA|Formulario|Redacción IA|Copiar|Volver al formulario|Generar Redacción IA|Generar Informe IA/gi, '')
-      .replace(/\n\s*\n/g, '\n') // Remove multiple empty lines
-      .replace(/III\.\s*ANTECEDENTES\s*PERSONALES\s*NO\s*PATOLÓGICOS/gi, '') // Remove repeated section title
-      .replace(/IV\.\s*ANTECEDENTES\s*PERSONALES\s*PATOLÓGICOS/gi, '') // Remove repeated section title
+      .replace(/\n\s*\n/g, '\n') // Eliminar múltiples líneas vacías
       .trim();
-    
+
     return cleanedText;
   };
-  
-  // Function to check if we need a new page
+
+  // Función para verificar si se necesita una nueva página
   const checkNewPage = (neededSpace: number) => {
     if (yPos + neededSpace > doc.internal.pageSize.height - margin) {
       doc.addPage();
@@ -120,62 +115,59 @@ export const generatePDF = (
     }
     return false;
   };
-  
-  // Function to add a section with title and content
+
+  // Función para agregar una sección con título y contenido
   const addSection = (title: string, content: string, sectionKey?: string) => {
     if (!content) {
-      console.warn(`No content for section: ${title}`);
+      console.warn(`No hay contenido para la sección: ${title}`);
       return;
     }
-    
-    // Clean up content
+
+    // Limpiar contenido
     const cleanText = cleanContent(content);
-    
-    // Check if we need a new page for the section title
+
+    // Verificar si se necesita una nueva página para el título de la sección
     checkNewPage(10);
-    
-    // Add section title
+
+    // Agregar título de la sección
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(12);
     doc.text(title, margin, yPos);
     yPos += 8;
-    
-    // If this section has specific subtitle handling
+
+    // Si esta sección tiene manejo específico de subtítulos
     if (sectionKey && SUBTITLES[sectionKey as keyof typeof SUBTITLES]) {
-      // Process with subtitles
+      // Procesar con subtítulos
       addContentWithSubtitles(cleanText, sectionKey);
     } else {
-      // Regular content
+      // Contenido regular
       doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10); // Increased from 9 to 10
-      
-      // Apply proper word spacing for justified text
-      const textLines = doc.splitTextToSize(cleanText, contentWidth - 10); // Reduced width slightly to prevent word cutting
-      
-      // Add each line with proper justification
+      doc.setFontSize(10);
+
+      // Aplicar espaciado adecuado para el texto justificado
+      const textLines = doc.splitTextToSize(cleanText, contentWidth - 10);
+
+      // Agregar cada línea con la justificación adecuada
       doc.text(textLines, margin, yPos);
-      yPos += textLines.length * 6 + 10; // Increased line spacing from 5 to 6
+      yPos += textLines.length * 6 + 10;
     }
   };
-  
-  // Function to handle sections with subtitles
+
+  // Función para manejar secciones con subtítulos
   const addContentWithSubtitles = (content: string, sectionKey: string) => {
     const subtitles = SUBTITLES[sectionKey as keyof typeof SUBTITLES];
-    
-    // Special handling for Padecimiento Actual section
+
+    // Manejo especial para la sección "Padecimiento Actual"
     if (sectionKey === 'padecimientoActual') {
-      // Split content by "Motivo de consulta:" and "Historia del padecimiento:"
       const motivoMatch = content.match(/Motivo de consulta:([\s\S]*?)(?=Historia del padecimiento:|$)/i);
       const historiaMatch = content.match(/Historia del padecimiento:([\s\S]*?)$/i);
-      
+
       if (motivoMatch && motivoMatch[1]) {
-        // Add "Motivo de consulta" subtitle
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
         doc.text('Motivo de consulta', margin, yPos);
         yPos += 6;
-        
-        // Add the motivo content
+
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         const motivoContent = motivoMatch[1].trim();
@@ -183,16 +175,14 @@ export const generatePDF = (
         doc.text(motivoLines, margin, yPos);
         yPos += motivoLines.length * 6 + 8;
       }
-      
+
       if (historiaMatch && historiaMatch[1]) {
-        // Add "Historia del padecimiento" subtitle
         checkNewPage(15);
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
         doc.text('Historia del padecimiento', margin, yPos);
         yPos += 6;
-        
-        // Add the historia content
+
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         const historiaContent = historiaMatch[1].trim();
@@ -200,49 +190,42 @@ export const generatePDF = (
         doc.text(historiaLines, margin, yPos);
         yPos += historiaLines.length * 6 + 10;
       }
-      
+
       return;
     }
-    
-    // For other sections with subtitles (like antecedentes)
+
+    // Para otras secciones con subtítulos (como antecedentes)
     const subtitleKeys = Object.keys(subtitles);
-    
-    // Try to extract subsections based on subtitles
+
     for (const key of subtitleKeys) {
       const subtitleText = subtitles[key as keyof typeof subtitles];
-      
-      // Find the subtitle in the content and its corresponding text
+
       let subtitleRegex = new RegExp(`${subtitleText}[:\\s]+(.*?)(?=(?:${Object.values(subtitles).join('|')})[:\\s]+|$)`, 'si');
       let match = content.match(subtitleRegex);
-      
+
       if (!match) {
-        // Try an alternate regex pattern if first one fails
         subtitleRegex = new RegExp(`${subtitleText}[:\\s]+(.*?)(?=\\n\\s*\\n|$)`, 'si');
         match = content.match(subtitleRegex);
       }
-      
+
       if (match && match[1]) {
-        // Check if we need a new page
         checkNewPage(15);
-        
-        // Add subtitle
+
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
         doc.text(subtitleText, margin, yPos);
         yPos += 6;
-        
-        // Add content
+
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
         const subcontent = match[1].trim();
         const textLines = doc.splitTextToSize(subcontent, contentWidth - 10);
         doc.text(textLines, margin, yPos);
-        yPos += textLines.length * 6 + 8; // Space between subtitle sections
+        yPos += textLines.length * 6 + 8;
       }
     }
-    
-    // If we couldn't find any matching subtitles, add the entire content
-    if (yPos === 8) { // If y position hasn't changed, we didn't add any content
+
+    if (yPos === 8) {
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
       const textLines = doc.splitTextToSize(content, contentWidth - 10);
@@ -250,16 +233,16 @@ export const generatePDF = (
       yPos += textLines.length * 6 + 10;
     }
   };
-  
-  // Add each section to the PDF if it has content
+
+  // Agregar cada sección al PDF si tiene contenido
   Object.entries(sectionRedactions).forEach(([key, content]) => {
     if (content && SECTION_TITLES[key]) {
-      console.log(`Adding section ${SECTION_TITLES[key]} to PDF`);
+      console.log(`Agregando sección ${SECTION_TITLES[key]} al PDF`);
       addSection(SECTION_TITLES[key], content, key);
     }
   });
-  
-  // Save the PDF
+
+  // Guardar el PDF
   const filename = `Historia_Clinica_${nombrePaciente.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`;
   doc.save(filename);
 };
