@@ -22,6 +22,7 @@ interface CaracteristicasDolorProps {
     };
     atenuacion: string;
     causaProvocado?: string;
+    ubicacion?: string;  // Added ubicacion field
   };
   onDolorChange: (field: string, value: string | any) => void;
 }
@@ -220,50 +221,65 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
             </SelectContent>
           </Select>
         </div>
-      </div>
 
-      <div>
-        <Label className="text-gray-700 dark:text-gray-300">Localización</Label>
-        <div className="flex items-start gap-4">
-          <div className="relative w-full">
-            <Textarea 
-              value={localizacionText} 
-              onChange={handleLocalizacionChange} 
-              onKeyDown={e => handleKeyDown(defaultLocalizacion, e)} 
-              placeholder={defaultLocalizacion} 
-              className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify" 
-            />
-            {localizacionText === defaultLocalizacion && (
-              <div className="absolute top-2 left-[105px] pointer-events-none">
-                <Typewriter 
-                  text={localizacionesEjemplo} 
-                  speed={50} 
-                  deleteSpeed={30} 
-                  delay={2000} 
-                  loop={true} 
-                  className="text-gray-500 italic text-base" 
-                />
-              </div>
-            )}
-          </div>
-          <div className="mt-2">
-            <VoiceInput
-              onTranscriptionComplete={text => {
-                const newValue = text;
-                let finalText = newValue;
-                if (!finalText.startsWith(defaultLocalizacion)) {
-                  finalText = `${defaultLocalizacion} ${finalText}`;
-                }
-                setLocalizacionText(finalText);
-                onDolorChange("localizacion", {
-                  tipo: dolor.localizacion?.tipo || "",
-                  descripcion: finalText
-                });
-              }}
-            />
-          </div>
+        <div>
+          <Label>Ubicación</Label>
+          <Select value={dolor.ubicacion} onValueChange={value => onDolorChange('ubicacion', value)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Seleccione ubicación" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="localizado">Localizado</SelectItem>
+              <SelectItem value="irradiado">Irradiado</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
+
+      {dolor.ubicacion === 'localizado' && (
+        <div>
+          <Label className="text-gray-700 dark:text-gray-300">Localización</Label>
+          <div className="flex items-start gap-4">
+            <div className="relative w-full">
+              <Textarea 
+                value={localizacionText} 
+                onChange={handleLocalizacionChange} 
+                onKeyDown={e => handleKeyDown(defaultLocalizacion, e)} 
+                placeholder={defaultLocalizacion} 
+                className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify" 
+              />
+              {localizacionText === defaultLocalizacion && (
+                <div className="absolute top-2 left-[105px] pointer-events-none">
+                  <Typewriter 
+                    text={localizacionesEjemplo} 
+                    speed={50} 
+                    deleteSpeed={30} 
+                    delay={2000} 
+                    loop={true} 
+                    className="text-gray-500 italic text-base" 
+                  />
+                </div>
+              )}
+            </div>
+            <div className="mt-2">
+              <VoiceInput
+                onTranscriptionComplete={text => {
+                  const newValue = text;
+                  let finalText = newValue;
+                  if (!finalText.startsWith(defaultLocalizacion)) {
+                    finalText = `${defaultLocalizacion} ${finalText}`;
+                  }
+                  setLocalizacionText(finalText);
+                  onDolorChange("localizacion", {
+                    tipo: dolor.localizacion?.tipo || "",
+                    descripcion: finalText
+                  });
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       <div>
         <Label>Atenuación</Label>

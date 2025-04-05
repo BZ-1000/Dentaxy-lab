@@ -26,6 +26,7 @@ interface PadecimientoActualProps {
         };
         atenuacion: string;
         causaProvocado?: string;
+        ubicacion?: string;
       };
     };
   };
@@ -138,15 +139,18 @@ Actualmente no refiere sintomatología`;
         caracter,
         intensidad,
         localizacion,
+        ubicacion,
         atenuacion,
         causaProvocado
       } = formData.padecimientoActual.dolor;
+      
       textoGenerado = `Motivo de consulta:
 ${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
 
 
 Historia del padecimiento:
-El paciente refiere la presencia de dolor localizado en ${localizacion.descripcion || 'una localización no especificada'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'}`;
+El paciente refiere la presencia de dolor ${ubicacion || ''} en ${ubicacion === 'localizado' ? (localizacion.descripcion || 'una localización no especificada') : 'varias zonas con irradiación'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'}`;
+      
       if (condicionAparicion === 'provocado' && causaProvocado) {
         textoGenerado += `, siendo provocado específicamente por ${causaProvocado}`;
       }
@@ -154,6 +158,7 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
         textoGenerado += `. Se ha observado que ${atenuacion}`;
       }
     }
+    
     const textoRevisado = revisarRedaccion(textoGenerado);
     const textoFinal = formatearTexto(textoRevisado);
     setRedaccionIA(textoFinal);
@@ -176,9 +181,10 @@ El paciente refiere la presencia de dolor localizado en ${localizacion.descripci
     handleDolorChange("frecuencia", "");
     handleDolorChange("caracter", "");
     handleDolorChange("intensidad", "");
+    handleDolorChange("ubicacion", "");
     handleDolorChange("localizacion", {
       tipo: "",
-descripcion: ""
+      descripcion: ""
     });
     handleDolorChange("atenuacion", "");
     handleDolorChange("causaProvocado", defaultCausaProvocado);
@@ -338,5 +344,3 @@ setShowCausasProvocado(false);
     </div>;
 };
 export default PadecimientoActual;
-
-
