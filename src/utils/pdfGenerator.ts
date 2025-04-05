@@ -28,6 +28,10 @@ const SECTION_TITLES = {
 
 // Subtitles for specific sections
 const SUBTITLES = {
+  padecimientoActual: {
+    motivoConsulta: 'Motivo de consulta',
+    historiaPadecimiento: 'Historia del padecimiento'
+  },
   antecedentesPersonalesNoPatologicos: {
     serviciosDomiciliarios: 'Servicios Domiciliarios',
     higieneVivienda: 'Higiene de la Vivienda',
@@ -136,8 +140,8 @@ export const generatePDF = (
     doc.text(title, margin, yPos);
     yPos += 8;
     
-    // If this section requires subtitles, process it differently
-    if (sectionKey && (sectionKey === 'antecedentesPersonalesNoPatologicos' || sectionKey === 'antecedentesPersonalesPatologicos')) {
+    // If this section has specific subtitle handling
+    if (sectionKey && SUBTITLES[sectionKey as keyof typeof SUBTITLES]) {
       // Process with subtitles
       addContentWithSubtitles(cleanText, sectionKey);
     } else {
@@ -157,15 +161,65 @@ export const generatePDF = (
   // Function to handle sections with subtitles
   const addContentWithSubtitles = (content: string, sectionKey: string) => {
     const subtitles = SUBTITLES[sectionKey as keyof typeof SUBTITLES];
-    let remainingContent = content;
     
-    // For each subtitle, try to find and extract the content
-    Object.entries(subtitles).forEach(([key, subtitleText]) => {
-      // Find the subtitle in the content
-      const subtitleValues = Object.values(subtitles);
-      const nextSubtitlePattern = subtitleValues.filter(s => s !== subtitleText).join('|');
-      const subtitlePattern = new RegExp(`${subtitleText}\\s*[:\\n]?\\s*([\\s\\S]*?)(?=\\s*(?:${nextSubtitlePattern})|$)`, 'i');
-      const match = remainingContent.match(subtitlePattern);
+    // Special handling for Padecimiento Actual section
+    if (sectionKey === 'padecimientoActual') {
+      // Split content by "Motivo de consulta:" and "Historia del padecimiento:"
+      const motivoMatch = content.match(/Motivo de consulta:([\s\S]*?)(?=Historia del padecimiento:|$)/i);
+      const historiaMatch = content.match(/Historia del padecimiento:([\s\S]*?)$/i);
+      
+      if (motivoMatch && motivoMatch[1]) {
+        // Add "Motivo de consulta" subtitle
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.text('Motivo de consulta', margin, yPos);
+        yPos += 6;
+        
+        // Add the motivo content
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        const motivoContent = motivoMatch[1].trim();
+        const motivoLines = doc.splitTextToSize(motivoContent, contentWidth - 10);
+        doc.text(motivoLines, margin, yPos);
+        yPos += motivoLines.length * 6 + 8;
+      }
+      
+      if (historiaMatch && historiaMatch[1]) {
+        // Add "Historia del padecimiento" subtitle
+        checkNewPage(15);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.text('Historia del padecimiento', margin, yPos);
+        yPos += 6;
+        
+        // Add the historia content
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        const historiaContent = historiaMatch[1].trim();
+        const historiaLines = doc.splitTextToSize(historiaContent, contentWidth - 10);
+        doc.text(historiaLines, margin, yPos);
+        yPos += historiaLines.length * 6 + 10;
+      }
+      
+      return;
+    }
+    
+    // For other sections with subtitles (like antecedentes)
+    const subtitleKeys = Object.keys(subtitles);
+    
+    // Try to extract subsections based on subtitles
+    for (const key of subtitleKeys) {
+      const subtitleText = subtitles[key as keyof typeof subtitles];
+      
+      // Find the subtitle in the content and its corresponding text
+      let subtitleRegex = new RegExp(`${subtitleText}[:\\s]+(.*?)(?=(?:${Object.values(subtitles).join('|')})[:\\s]+|$)`, 'si');
+      let match = content.match(subtitleRegex);
+      
+      if (!match) {
+        // Try an alternate regex pattern if first one fails
+        subtitleRegex = new RegExp(`${subtitleText}[:\\s]+(.*?)(?=\\n\\s*\\n|$)`, 'si');
+        match = content.match(subtitleRegex);
+      }
       
       if (match && match[1]) {
         // Check if we need a new page
@@ -173,29 +227,25 @@ export const generatePDF = (
         
         // Add subtitle
         doc.setFont('helvetica', 'bold');
-        doc.setFontSize(11); // Slightly bigger than regular text
+        doc.setFontSize(11);
         doc.text(subtitleText, margin, yPos);
-        yPos += 8; // More space after subtitle
+        yPos += 6;
         
-        // Add content for this subtitle
+        // Add content
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10); // Increased from 9 to 10
+        doc.setFontSize(10);
         const subcontent = match[1].trim();
-        
-        // Better text justification with reduced content width
         const textLines = doc.splitTextToSize(subcontent, contentWidth - 10);
         doc.text(textLines, margin, yPos);
-        yPos += textLines.length * 6 + 10; // Increased space between sections
-        
-        // Remove processed content
-        remainingContent = remainingContent.replace(match[0], '');
+        yPos += textLines.length * 6 + 8; // Space between subtitle sections
       }
-    });
+    }
     
-    // If there's any remaining content not matched by subtitles, add it
-    if (remainingContent.trim()) {
-      checkNewPage(10);
-      const textLines = doc.splitTextToSize(remainingContent.trim(), contentWidth - 10);
+    // If we couldn't find any matching subtitles, add the entire content
+    if (yPos === 8) { // If y position hasn't changed, we didn't add any content
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      const textLines = doc.splitTextToSize(content, contentWidth - 10);
       doc.text(textLines, margin, yPos);
       yPos += textLines.length * 6 + 10;
     }

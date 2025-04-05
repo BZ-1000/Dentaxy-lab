@@ -60,6 +60,9 @@ function revisarRedaccion(text: string): string {
   }, {
     patron: /presenta dolor con doloroso/gi,
     reemplazo: 'presenta dolor'
+  }, {
+    patron: /aparece provocado, siendo provocado específicamente por/gi,
+    reemplazo: 'aparece provocado, siendo provocado por'
   }];
   frasesRedundantes.forEach(({
     patron,
@@ -152,7 +155,7 @@ Historia del padecimiento:
 El paciente refiere la presencia de dolor ${ubicacion || ''} en ${ubicacion === 'localizado' ? (localizacion.descripcion || 'una localización no especificada') : 'varias zonas con irradiación'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'}`;
       
       if (condicionAparicion === 'provocado' && causaProvocado) {
-        textoGenerado += `, siendo provocado específicamente por ${causaProvocado}`;
+        textoGenerado += `, siendo provocado por ${causaProvocado}`;
       }
       if (atenuacion) {
         textoGenerado += `. Se ha observado que ${atenuacion}`;
