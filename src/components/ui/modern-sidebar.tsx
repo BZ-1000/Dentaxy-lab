@@ -1,200 +1,355 @@
-
-import { cn } from "@/lib/utils";
-import React, { useState, createContext, useContext, ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
-
-interface Links {
-  label: string;
-  href?: string;
-  icon: React.JSX.Element | React.ReactNode;
-  onClick?: () => void;
+import React, { useState, useRef, useEffect } from "react";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { VoiceInput } from "@/components/ui/voice-input";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
+import { Typewriter } from "@/components/ui/typewriter-text";
+import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
+import SintomasToggle from "./padecimiento/SintomasToggle";
+interface PadecimientoActualProps {
+  formData: {
+    padecimientoActual: {
+      sinSintomas: boolean;
+      motivoConsulta: string;
+      historiaPadecimiento: string;
+      dolor: {
+        fechaInicio: string;
+        condicionAparicion: string;
+        frecuencia: string;
+        caracter: string;
+        intensidad: string;
+        localizacion: {
+          tipo: string;
+          descripcion: string;
+        };
+        atenuacion: string;
+        causaProvocado?: string;
+        ubicacion?: string;
+      };
+    };
+  };
+  handlePadecimientoChange: (field: string, value: string) => void;
+  handleDolorChange: (field: string, value: any) => void;
+  handleSinSintomasChange: (checked: boolean) => void;
 }
-
-interface SidebarContextProps {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  animate: boolean;
+function revisarRedaccion(text: string): string {
+  let textoCorregido = text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
+  const frasesRedundantes = [{
+    patron: /Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi,
+    reemplazo: 'Motivo de consulta: El paciente acude a consulta por'
+  }, {
+    patron: /El paciente acude a consulta por El paciente acude a consulta por/gi,
+    reemplazo: 'El paciente acude a consulta por'
+  }, {
+    patron: /El paciente acude a consulta por por/gi,
+    reemplazo: 'El paciente acude a consulta por'
+  }, {
+    patron: /El paciente acude a consulta por debido a/gi,
+    reemplazo: 'El paciente acude a consulta por'
+  }, {
+    patron: /El paciente refiere la presencia de dolor localizado en localizado en/gi,
+    reemplazo: 'El paciente refiere la presencia de dolor localizado en'
+  }, {
+    patron: /El paciente refiere que refiere/gi,
+    reemplazo: 'El paciente refiere'
+  }, {
+    patron: /refiere que refiere/gi,
+    reemplazo: 'refiere'
+  }, {
+    patron: /presenta dolor con doloroso/gi,
+    reemplazo: 'presenta dolor'
+  }, {
+    patron: /aparece provocado, siendo provocado específicamente por/gi,
+    reemplazo: 'aparece provocado, siendo provocado por'
+  }];
+  frasesRedundantes.forEach(({
+    patron,
+    reemplazo
+  }) => {
+    textoCorregido = textoCorregido.replace(patron, reemplazo);
+  });
+  textoCorregido = textoCorregido.replace(/\. ([a-z])/g, (_, letra) => `. ${letra.toUpperCase()}`);
+  textoCorregido = textoCorregido.replace(/provocado por/gi, 'provocada por').replace(/aparece en/gi, 'aparece cuando').replace(/se ha observado que/gi, 'se observa que').replace(/presenta un dolor/gi, 'manifiesta dolor').replace(/tiene dolor/gi, 'presenta dolor').replace(/el dolor es/gi, 'el dolor se caracteriza por ser');
+return textoCorregido;
 }
-
-const SidebarContext = createContext<SidebarContextProps | undefined>(undefined);
-
-export const useSidebar = () => {
-  const context = useContext(SidebarContext);
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider");
+function formatearTexto(text: string): string {
+  let textoFormateado = text.replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>').replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
+  const sections = textoFormateado.split('<strong>Historia del padecimiento:</strong>');
+  if (sections.length > 1) {
+    textoFormateado = `${sections[0]}<strong>Historia del padecimiento:</strong><div style="text-align: justify;">${sections[1].trim()}</div>`;
   }
-  return context;
-};
+  textoFormateado = textoFormateado.replace(/\.$/, '');
+  textoFormateado = textoFormateado.replace(/<strong>Historia del padecimiento:<\/strong>\s*\n\s*/g, '<strong>Historia del padecimiento:</strong>\n');
+  textoFormateado = textoFormateado.replace(/\n\s*\n\s*\n/g, '\n\n');
+  return textoFormateado;
+}
+const PadecimientoActual = ({
+  formData,
+  handlePadecimientoChange,
+  handleDolorChange,
+  handleSinSintomasChange
+}: PadecimientoActualProps) => {
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [showRedaccion, setShowRedaccion] = useState(false);
+  const [redaccionIA, setRedaccionIA] = useState("");
+  const [displayedText, setDisplayedText] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [copied, setCopied] = useState(false);
+  const [showCausasProvocado, setShowCausasProvocado] = useState(formData.padecimientoActual.dolor.condicionAparicion === 'provocado');
+  const redaccionRef = useRef(null);
+  const defaultMotivoConsulta = "El paciente acude a consulta por ";
+  const motivosEjemplo = ["dolor dental intenso en molar superior derecho...", "sangrado de encías al cepillarse...", "revisión y limpieza dental de rutina...", "sensibilidad al frío y calor en dientes anteriores...", "inflamación y dolor en zona de muelas del juicio...", "aplicación de resina en diente fracturado...", "evaluación para tratamiento de ortodoncia...", "manchas oscuras en los dientes frontales...", "mal aliento persistente...", "dolor al masticar alimentos..."];
+  const defaultCausaProvocado = "Provocado con ";
+  const causasProvocadoEjemplo = ["alimentos fríos o helados en contacto con el diente...", "la presión durante la masticación de alimentos duros...", "bebidas calientes que generan dolor inmediato...", "el cepillado en la zona vestibular de los premolares...", "dulces y alimentos azucarados que desencadenan molestias..."];
+  useEffect(() => {
+    if (!formData.padecimientoActual.motivoConsulta) {
+      handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+    }
+    if (formData.padecimientoActual.dolor.condicionAparicion === 'provocado' && (!formData.padecimientoActual.dolor.causaProvocado || formData.padecimientoActual.dolor.causaProvocado === '')) {
+      handleDolorChange("causaProvocado", defaultCausaProvocado);
+    }
+  }, []);
+  const handleMinimize = () => {
+    setIsMinimized(!isMinimized);
+    setIsMaximized(false);
+  };
+  const handleMaximize = () => {
+    setIsMaximized(!isMaximized);
+    setIsMinimized(false);
+  };
+  const handleClose = () => {
+    setIsMinimized(false);
+    setIsMaximized(false);
+  };
+  const generarRedaccionIA = () => {
+    const motivoConsulta = formData.padecimientoActual.motivoConsulta.trim();
+    const sinSintomas = formData.padecimientoActual.sinSintomas;
+    let textoGenerado = "";
+    if (sinSintomas) {
+ textoGenerado = `Motivo de consulta:
+${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
 
-export const SidebarProvider = ({
-  children,
-  open: openProp,
-  setOpen: setOpenProp,
-  animate = true
-}: {
-  children: React.ReactNode;
-  open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
-}) => {
-  const [openState, setOpenState] = useState(false);
-  const open = openProp !== undefined ? openProp : openState;
-  const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
 
-  return <SidebarContext.Provider value={{
-    open,
-    setOpen,
-    animate
-  }}>
-      {children}
-    </SidebarContext.Provider>;
-};
-
-export const Sidebar = ({
-  children,
-  open,
-  setOpen,
-  animate
-}: {
-  children: React.ReactNode;
-  open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
-}) => {
-  return <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
-      {children}
-    </SidebarProvider>;
-};
-
-export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
-  return <>
-      <DesktopSidebar {...props} />
-      <MobileSidebar {...props} />
-    </>;
-};
-
-export const DesktopSidebar = ({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen, animate } = useSidebar();
-
-  // Fixed width property - use explicit string width
-  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
-
-  return (
-    <motion.div
-      className={cn(
-        "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
-        className
-      )}
-      animate={{
-        width: sidebarWidth
-      }}
-      style={{ width: sidebarWidth }}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      {...props}
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-export const MobileSidebar = ({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen } = useSidebar();
-
-  return (
-    <>
-      <div className="h-14 md:hidden flex items-center px-4 bg-neutral-100 dark:bg-neutral-800">
-        <button
-          onClick={() => setOpen(true)}
-          className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg"
-        >
-          <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
-        </button>
-      </div>
+Actualmente no refiere sintomatología`;
+    } else {
+      const {
+        fechaInicio,
+        condicionAparicion,
+        frecuencia,
+        caracter,
+        intensidad,
+        localizacion,
+        ubicacion,
+        atenuacion,
+        causaProvocado
+      } = formData.padecimientoActual.dolor;
       
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-            className={cn(
-              "fixed inset-0 z-50 bg-white dark:bg-neutral-900 md:hidden",
-              className
-            )}
-            {...props}
-          >
-            <div className="flex flex-col h-full p-4">
-              <button
-                onClick={() => setOpen(false)}
-                className="self-end p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg mb-4"
-              >
-                <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+      textoGenerado = `Motivo de consulta:
+${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
+
+
+Historia del padecimiento:
+El paciente refiere la presencia de dolor ${ubicacion || ''} en ${ubicacion === 'localizado' ? (localizacion.descripcion || 'una localización no especificada') : 'varias zonas con irradiación'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'}`;
+      
+      if (condicionAparicion === 'provocado' && causaProvocado) {
+        // Remove the "Provocado con " prefix if it exists
+        let causaLimpia = causaProvocado;
+        if (causaLimpia.startsWith('Provocado con ')) {
+          causaLimpia = causaLimpia.replace('Provocado con ', '');
+        }
+        textoGenerado += `, siendo provocado por ${causaLimpia}`;
+      }
+      
+      if (atenuacion) {
+        textoGenerado += `. Se ha observado que ${atenuacion}`;
+      }
+    }
+    
+    const textoRevisado = revisarRedaccion(textoGenerado);
+    const textoFinal = formatearTexto(textoRevisado);
+    setRedaccionIA(textoFinal);
+    setShowRedaccion(true);
+    setTimeout(() => {
+      redaccionRef.current?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+      setTimeout(() => {
+        window.scrollBy(0, -200);
+      }, 300);
+    }, 100);
+  };
+  const limpiarFormulario = () => {
+    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+    handlePadecimientoChange("historiaPadecimiento", "");
+    handleDolorChange("fechaInicio", "");
+    handleDolorChange("condicionAparicion", "");
+    handleDolorChange("frecuencia", "");
+    handleDolorChange("caracter", "");
+    handleDolorChange("intensidad", "");
+    handleDolorChange("ubicacion", "");
+    handleDolorChange("localizacion", {
+      tipo: "",
+      descripcion: ""
+    });
+    handleDolorChange("atenuacion", "");
+    handleDolorChange("causaProvocado", defaultCausaProvocado);
+    handleSinSintomasChange(false);
+    setRedaccionIA("");
+    setShowRedaccion(false);
+    setShowCausasProvocado(false);
+  };
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(redaccionIA);
+    setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
+  };
+  useEffect(() => {
+    let index = 0;
+    const interval = setInterval(() => {
+      if (index < redaccionIA.length) {
+        setDisplayedText(redaccionIA.substring(0, index + 1));
+        setProgress(index / redaccionIA.length * 100);
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 15);
+    return () => clearInterval(interval);
+  }, [redaccionIA]);
+  return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="padecimientoActual">
+      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex justify-center w-full">
+            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
+              <button onClick={() => setShowRedaccion(false)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
+                Formulario
               </button>
-              {children}
+              <button onClick={() => setShowRedaccion(true)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
+                Redacción IA
+              </button>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-};
+          </div>
 
-export const SidebarLink = ({
-  link,
-  className,
-  ...props
-}: {
-  link: Links;
-  className?: string;
-}) => {
-  const { open, animate } = useSidebar();
 
-  return (
-    <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} onClick={link.onClick} {...props}>
-      {link.icon}
-      {animate ? (
-        open ? (
-          <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
-            {link.label}
-          </span>
-        ) : null
-      ) : (
-        <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
-          {link.label}
-        </span>
-      )}
-    </div>
-  );
-};
+          <div className="flex items-center gap-2">
+            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
+              <Minus className="w-4 h-4" />
+ </button>
+            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" aria-label={isMaximized ? "Restaurar" : "Maximizar"}>
+              <Maximize2 className="w-4 h-4" />
+            </button>
+            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" aria-label="Cerrar">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
 
-export const Logo = ({
-  children
-}: {
-  children: ReactNode;
-}) => {
-  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
-      {children}
-      <div className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</div>
+
+        <div className="flex justify-start px-6 py-2">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <span className="text-gray-400">I.</span> PADECIMIENTO ACTUAL
+          </h2>
+        </div>
+
+
+        {showRedaccion ? <div ref={redaccionRef} className="p-6">
+            <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
+            <div className="progress-bar-container" style={{
+          width: '100%',
+          backgroundColor: '#d3d3d3',
+          borderRadius: '12px',
+          overflow: 'hidden',
+          marginBottom: '1rem',
+          boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'
+        }}>
+              <div className="progress-bar" style={{
+            height: '8px',
+            backgroundColor: '#34c759',
+            transition: 'width 0.015s ease-in-out',
+            width: `${progress}%`,
+            borderRadius: '12px'
+          }}></div>
+            </div>
+<div className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-y-auto whitespace-pre-wrap" style={{
+          whiteSpace: 'pre-wrap'
+        }} dangerouslySetInnerHTML={{
+          __html: displayedText
+        }} data-redaction-content />
+            <Button onClick={handleCopy} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative">
+              <Copy className="w-4 h-4" />
+              <span>Copiar Redacción</span>
+              {copied && <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Copiado</span>
+                </div>}
+            </Button>
+          </div> : <div className="p-6">
+            <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
+            <div className="flex items-start gap-4">
+              <div className="relative w-full">
+                <Textarea value={formData.padecimientoActual.motivoConsulta} onChange={e => {
+              const newValue = e.target.value;
+              if (!newValue.startsWith(defaultMotivoConsulta)) {
+                handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+              } else {
+                handlePadecimientoChange("motivoConsulta", newValue);
+              }
+            }} placeholder={defaultMotivoConsulta} className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md" />
+                {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && <div className="absolute top-2 left-[215px] pointer-events-none">
+ <Typewriter text={motivosEjemplo} speed={50} deleteSpeed={30} delay={2000} loop={true} className="text-gray-500 italic text-base" />
+                  </div>}
+              </div>
+              <div className="mt-2">
+                <VoiceInput onTranscriptionComplete={text => {
+              const newValue = text;
+              if (!newValue.startsWith(defaultMotivoConsulta)) {
+                handlePadecimientoChange("motivoConsulta", `${defaultMotivoConsulta} ${newValue}`);
+              } else {
+                handlePadecimientoChange("motivoConsulta", newValue);
+              }
+            }} />
+              </div>
+            </div>
+          </div>}
+
+
+        {!isMinimized && !showRedaccion && <div className="p-6 space-y-8">
+            <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={checked => {
+          handleSinSintomasChange(checked);
+          setShowCausasProvocado(false);
+        }} />
+            {!formData.padecimientoActual.sinSintomas && <div className="space-y-6">
+                <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
+                  <h3 className="mb-6 text-xl text-gray-800 font-medium">EN CASO DE DOLOR</h3>
+                  <CaracteristicasDolor dolor={formData.padecimientoActual.dolor} onDolorChange={(field, value) => {
+              handleDolorChange(field, value);
+              if (field === 'condicionAparicion' && value === 'provocado') {
+                setShowCausasProvocado(true);
+              } else if (field === 'condicionAparicion' && value !== 'provocado') {
+setShowCausasProvocado(false);
+              }
+            }} />
+                </div>
+              </div>}
+          </div>}
+
+
+        {!showRedaccion && <div className="p-6 flex justify-center gap-4">
+            <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
+              <span>Generar Redacción IA</span>
+            </Button>
+            <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
+              <Eraser className="w-4 h-4" />
+              <span>Limpiar Formulario</span>
+            </Button>
+          </div>}
+      </Card>
     </div>;
 };
-
-export const LogoIcon = ({
-  children
-}: {
-  children: ReactNode;
-}) => {
-  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
-      {children}
-    </div>;
-};
+export default PadecimientoActual;
