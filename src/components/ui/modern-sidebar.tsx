@@ -6,8 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { Typewriter } from "@/components/ui/typewriter-text";
-import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
-import SintomasToggle from "./padecimiento/SintomasToggle";
+import CaracteristicasDolor from "@/components/historia-clinica/padecimiento/CaracteristicasDolor";
+import SintomasToggle from "@/components/historia-clinica/padecimiento/SintomasToggle";
 interface PadecimientoActualProps {
   formData: {
     padecimientoActual: {
@@ -85,6 +85,58 @@ function formatearTexto(text: string): string {
   textoFormateado = textoFormateado.replace(/\n\s*\n\s*\n/g, '\n\n');
   return textoFormateado;
 }
+export const Sidebar = ({ children, open, setOpen, animate = false, className = "" }) => {
+  return (
+    <div className={`${className} ${animate ? "transition-all duration-300" : ""}`}>
+      {children}
+    </div>
+  );
+};
+
+export const SidebarBody = ({ children, className = "" }) => {
+  return (
+    <div className={`flex flex-col h-full ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+export const SidebarLink = ({ link, className = "" }) => {
+  return (
+    <button 
+      onClick={link.onClick} 
+      className={`flex items-center space-x-2 w-full py-2 ${className}`}
+    >
+      {link.icon}
+      <span>{link.label}</span>
+    </button>
+  );
+};
+
+export const Logo = ({ children }) => {
+  return (
+    <div className="flex items-center justify-center p-4">
+      {children}
+    </div>
+  );
+};
+
+export const LogoIcon = ({ children }) => {
+  return (
+    <div className="flex items-center justify-center p-2">
+      {children}
+    </div>
+  );
+};
+
+export const useSidebar = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  return {
+    open: sidebarOpen,
+    setOpen: setSidebarOpen
+  };
+};
 const PadecimientoActual = ({
   formData,
   handlePadecimientoChange,
@@ -352,4 +404,5 @@ setShowCausasProvocado(false);
       </Card>
     </div>;
 };
+
 export default PadecimientoActual;
