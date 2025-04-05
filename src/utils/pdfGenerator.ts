@@ -60,6 +60,9 @@ export const generatePDF = (
 ) => {
   console.log("Generando PDF con redacciones:", Object.keys(sectionRedactions));
 
+  // Imprimir formData para verificar su estructura
+  console.log("Datos del formulario:", formData);
+
   const doc = new jsPDF();
 
   // Establecer márgenes de página
