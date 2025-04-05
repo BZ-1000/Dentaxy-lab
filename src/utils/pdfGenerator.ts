@@ -138,7 +138,7 @@ export const generatePDF = (
     // Si esta sección tiene manejo específico de subtítulos
     if (sectionKey && SUBTITLES[sectionKey as keyof typeof SUBTITLES]) {
       // Procesar con subtítulos
-      addContentWithSubtitles(cleanText, sectionKey);
+      addContentWithSubtitles(cleanText, sectionKey, formData);
     } else {
       // Contenido regular
       doc.setFont('helvetica', 'normal');
@@ -154,42 +154,40 @@ export const generatePDF = (
   };
 
   // Función para manejar secciones con subtítulos
-  const addContentWithSubtitles = (content: string, sectionKey: string) => {
+  const addContentWithSubtitles = (content: string, sectionKey: string, formData: FormDataState) => {
     const subtitles = SUBTITLES[sectionKey as keyof typeof SUBTITLES];
 
-    // Manejo especial para la sección "Padecimiento Actual"
-    if (sectionKey === 'padecimientoActual') {
-      const motivoMatch = content.match(/Motivo de consulta:([\s\S]*?)(?=Historia del padecimiento:|$)/i);
-      const historiaMatch = content.match(/Historia del padecimiento:([\s\S]*?)$/i);
+    if (sectionKey === 'antecedentesPersonalesNoPatologicos') {
+      const antecedentes = formData.antecedentesPersonalesNoPatologicos;
 
-      if (motivoMatch && motivoMatch[1]) {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(11);
-        doc.text('Motivo de consulta', margin, yPos);
-        yPos += 6;
+      // Mapeo de subtítulos a campos de datos
+      const subtitleMapping = {
+        serviciosDomiciliarios: `El paciente habita en una vivienda de tipo ${antecedentes.tipoVivienda}, construida principalmente con ${antecedentes.materialVivienda}. Cuenta con los siguientes servicios básicos: ${antecedentes.servicios.join(', ')}. La condición de la calle en la que se encuentra la vivienda es ${antecedentes.condicionCalle}, y la iluminación en la vía pública es ${antecedentes.iluminacionCalle}, lo que puede influir en la seguridad y accesibilidad del entorno.`,
+        higieneVivienda: `El mantenimiento del hogar se realiza con una frecuencia ${antecedentes.frecuenciaLimpieza}, lo que impacta directamente en la salubridad del entorno. La ropa de cama se cambia ${antecedentes.cambioRopaCama}, contribuyendo a la higiene y confort del paciente. Se observa ${antecedentes.hacinamiento} de hacinamiento, lo que puede influir en la calidad de vida y bienestar de los habitantes. Asimismo, ${antecedentes.promiscuidad} hay evidencia de promiscuidad, lo cual puede ser relevante en la evaluación de riesgos sanitarios y epidemiológicos. En el domicilio ${antecedentes.mascotas} se observan animales en el domicilio, lo que puede representar un factor de exposición a zoonosis u otras afecciones. En cuanto al manejo de residuos, ${antecedentes.manejoResiduos}, lo que influye en la prevención de enfermedades y el control ambiental.`,
+        higienePersonal: `El paciente refiere una frecuencia de baño ${antecedentes.frecuenciaBano}, lo que contribuye a la higiene general y prevención de infecciones cutáneas. Presenta hábitos de higiene de manos ${antecedentes.lavadoManos.join(', ')}, lo que es un factor clave en la prevención de enfermedades de transmisión feco-oral. El cambio de ropa se realiza ${antecedentes.cambioRopa}, aspecto importante en el mantenimiento de la higiene personal.`,
+        higieneBucal: `El paciente refiere un cepillado dental con una frecuencia ${antecedentes.frecuenciaCepillado}, utilizando técnica ${antecedentes.tecnicaCepillado}, lo que influye directamente en la salud periodontal y la prevención de caries. Además, complementa su higiene bucal con ${antecedentes.auxiliaresBucales.join(', ')}. La última visita al odontólogo fue hace ${antecedentes.ultimaVisitaOdontologo}, lo que permite evaluar su acceso a la atención odontológica y el seguimiento de su salud bucal. Actualmente, refiere ${antecedentes.problemasBucales.join(', ')}.`,
+        alimentacion: `El paciente tiene una alimentación basada en ${antecedentes.alimentosConsumidos.join(', ')}. El consumo de frutas y verduras es ${antecedentes.frecuenciaFrutasVerduras}, mientras que la ingesta de bebidas azucaradas ocurre ${antecedentes.frecuenciaBebidasAzucaradas} y el consumo de comida chatarra ${antecedentes.frecuenciaComidaChatarra}, factores determinantes en el riesgo de enfermedades metabólicas y caries dental. La cantidad de agua ingerida diariamente es de aproximadamente ${antecedentes.consumoAgua}, contribuyendo a la hidratación y función renal. Realiza ${antecedentes.numeroComidas} comidas al día, con los siguientes horarios reportados:
 
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        const motivoContent = motivoMatch[1].trim();
-        const motivoLines = doc.splitTextToSize(motivoContent, contentWidth - 10);
-        doc.text(motivoLines, margin, yPos);
-        yPos += motivoLines.length * 6 + 8;
-      }
+Desayuno: ${antecedentes.horarioComidas.desayuno}
+Almuerzo: ${antecedentes.horarioComidas.almuerzo}
+Cena: ${antecedentes.horarioComidas.cena}`
+      };
 
-      if (historiaMatch && historiaMatch[1]) {
+      // Agregar cada subtítulo y su contenido
+      Object.entries(subtitleMapping).forEach(([subtitleKey, subtitleContent]) => {
         checkNewPage(15);
+
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(11);
-        doc.text('Historia del padecimiento', margin, yPos);
+        doc.text(subtitles[subtitleKey as keyof typeof subtitles], margin, yPos);
         yPos += 6;
 
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(10);
-        const historiaContent = historiaMatch[1].trim();
-        const historiaLines = doc.splitTextToSize(historiaContent, contentWidth - 10);
-        doc.text(historiaLines, margin, yPos);
-        yPos += historiaLines.length * 6 + 10;
-      }
+        const textLines = doc.splitTextToSize(subtitleContent, contentWidth - 10);
+        doc.text(textLines, margin, yPos);
+        yPos += textLines.length * 6 + 8;
+      });
 
       return;
     }
