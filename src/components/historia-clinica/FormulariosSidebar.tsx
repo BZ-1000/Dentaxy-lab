@@ -5,14 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Save, FileText, BookOpen, Trash, Pencil, Share2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
-import { 
-  Sidebar, 
-  SidebarBody, 
-  SidebarLink, 
-  Logo, 
-  LogoIcon, 
-  useSidebar 
-} from '@/components/ui/modern-sidebar';
+import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@/components/ui/modern-sidebar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
@@ -31,7 +24,10 @@ const FormulariosSidebar = ({
   pacienteActual
 }: FormulariosSidebarProps) => {
   const [nombrePaciente, setNombrePaciente] = useState('');
-  const [formularios, setFormularios: any>([]);
+  const [formularios, setFormularios] = useState<{
+    nombre: string;
+    data: FormDataState;
+  }[]>([]);
   const {
     theme
   } = useTheme();
