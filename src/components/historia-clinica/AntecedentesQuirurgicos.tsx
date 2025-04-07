@@ -1,13 +1,14 @@
 
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Mic } from "lucide-react";
+import { Minus, Maximize2, X, Mic, PlusCircle, Trash2 } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { FancyRadio, FancyRadioGroup } from "@/components/ui/fancy-radio"
+import { AIVoiceInput } from "@/components/ui/ai-voice-input";
 
 interface AntecedentesQuirurgicosProps {
   formData: FormDataState;
@@ -49,12 +50,34 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
     }
   };
 
+  const handleInputChange = (field: string, value: string) => {
+    handleAntecedenteQuirurgicoChange(field, value);
+  };
+
   const handleRadioChange = (field: string, value: string) => {
     handleAntecedenteQuirurgicoChange(field, value === 'si');
   };
 
-  const handleInputChange = (field: string, value: any) => {
-    handleAntecedenteQuirurgicoChange(field, value);
+  const handleVoiceInput = (field: string, text: string) => {
+    handleAntecedenteQuirurgicoChange(field, text);
+  };
+
+  const addCirugia = () => {
+    const cirugias = [...(formData?.antecedentesQuirurgicos?.cirugiasRealizadas || [])];
+    cirugias.push({ tipo: '', fecha: '', motivo: '' });
+    handleAntecedenteQuirurgicoChange('cirugiasRealizadas', cirugias);
+  };
+
+  const removeCirugia = (index: number) => {
+    const cirugias = [...(formData?.antecedentesQuirurgicos?.cirugiasRealizadas || [])];
+    cirugias.splice(index, 1);
+    handleAntecedenteQuirurgicoChange('cirugiasRealizadas', cirugias);
+  };
+
+  const updateCirugia = (index: number, field: 'tipo' | 'fecha' | 'motivo', value: string) => {
+    const cirugias = [...(formData?.antecedentesQuirurgicos?.cirugiasRealizadas || [])];
+    cirugias[index] = { ...cirugias[index], [field]: value };
+    handleAntecedenteQuirurgicoChange('cirugiasRealizadas', cirugias);
   };
 
   return (
@@ -102,240 +125,280 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
             <div className="space-y-6">
               <div className="space-y-4">
                 <h3 className="font-medium">1. ¿Ha estado sometido(a) a algún tratamiento médico en los últimos dos meses?</h3>
-                <RadioGroup 
+                <FancyRadioGroup 
                   defaultValue={formData?.antecedentesQuirurgicos?.tratamiento_reciente ? 'si' : 'no'}
                   onValueChange={(value) => handleRadioChange('tratamiento_reciente', value)}
-                  className="flex space-x-4"
                 >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="si" id="tratamiento-si" />
-                    <Label htmlFor="tratamiento-si">Sí</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="tratamiento-no" />
-                    <Label htmlFor="tratamiento-no">No</Label>
-                  </div>
-                </RadioGroup>
+                  <FancyRadio value="si" label="Sí" id="tratamiento-si" />
+                  <FancyRadio value="no" label="No" id="tratamiento-no" />
+                </FancyRadioGroup>
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">2. Motivo del tratamiento:</h3>
+                </div>
+                <div className="relative">
+                  <Textarea 
+                    placeholder="Detallar el motivo del tratamiento..." 
+                    className="min-h-[80px] pr-12" 
+                    value={formData?.antecedentesQuirurgicos?.motivo_tratamiento || ''}
+                    onChange={(e) => handleInputChange('motivo_tratamiento', e.target.value)}
+                  />
                   <Button 
                     variant="ghost" 
                     size="icon"
                     onClick={() => handleRecording('motivo_tratamiento')}
-                    className={`h-8 w-8 rounded-full ${recordingField === 'motivo_tratamiento' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'motivo_tratamiento' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
                   >
                     <Mic className="h-4 w-4" />
                   </Button>
                 </div>
-                <Textarea 
-                  placeholder="Motivo por el que recibió tratamiento médico..." 
-                  className="min-h-[80px]" 
-                  value={formData?.antecedentesQuirurgicos?.motivo_tratamiento || ''}
-                  onChange={(e) => handleInputChange('motivo_tratamiento', e.target.value)}
-                />
+                {recordingField === 'motivo_tratamiento' && (
+                  <AIVoiceInput
+                    onTranscriptionComplete={(text) => handleVoiceInput('motivo_tratamiento', text)}
+                  />
+                )}
               </div>
 
               <div className="space-y-4">
                 <h3 className="font-medium">3. ¿Ha sido hospitalizado(a) en los últimos dos meses?</h3>
-                <RadioGroup 
+                <FancyRadioGroup 
                   defaultValue={formData?.antecedentesQuirurgicos?.hospitalizacion_reciente ? 'si' : 'no'}
                   onValueChange={(value) => handleRadioChange('hospitalizacion_reciente', value)}
-                  className="flex space-x-4"
                 >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="si" id="hospitalizacion-si" />
-                    <Label htmlFor="hospitalizacion-si">Sí</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="hospitalizacion-no" />
-                    <Label htmlFor="hospitalizacion-no">No</Label>
-                  </div>
-                </RadioGroup>
+                  <FancyRadio value="si" label="Sí" id="hospitalizacion-si" />
+                  <FancyRadio value="no" label="No" id="hospitalizacion-no" />
+                </FancyRadioGroup>
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">4. Motivo de la hospitalización:</h3>
+                </div>
+                <div className="relative">
+                  <Textarea 
+                    placeholder="Detallar el motivo de la hospitalización..." 
+                    className="min-h-[80px] pr-12" 
+                    value={formData?.antecedentesQuirurgicos?.motivo_hospitalizacion || ''}
+                    onChange={(e) => handleInputChange('motivo_hospitalizacion', e.target.value)}
+                  />
                   <Button 
                     variant="ghost" 
                     size="icon"
                     onClick={() => handleRecording('motivo_hospitalizacion')}
-                    className={`h-8 w-8 rounded-full ${recordingField === 'motivo_hospitalizacion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'motivo_hospitalizacion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
                   >
                     <Mic className="h-4 w-4" />
                   </Button>
                 </div>
-                <Textarea 
-                  placeholder="Detallar motivo de hospitalización..." 
-                  className="min-h-[80px]" 
-                  value={formData?.antecedentesQuirurgicos?.motivo_hospitalizacion || ''}
-                  onChange={(e) => handleInputChange('motivo_hospitalizacion', e.target.value)}
-                />
+                {recordingField === 'motivo_hospitalizacion' && (
+                  <AIVoiceInput
+                    onTranscriptionComplete={(text) => handleVoiceInput('motivo_hospitalizacion', text)}
+                  />
+                )}
               </div>
 
               <div className="space-y-4">
                 <h3 className="font-medium">5. ¿Está tomando actualmente algún medicamento?</h3>
-                <RadioGroup 
+                <FancyRadioGroup 
                   defaultValue={formData?.antecedentesQuirurgicos?.medicacion_actual ? 'si' : 'no'}
                   onValueChange={(value) => handleRadioChange('medicacion_actual', value)}
-                  className="flex space-x-4"
                 >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="si" id="medicacion-si" />
-                    <Label htmlFor="medicacion-si">Sí</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="medicacion-no" />
-                    <Label htmlFor="medicacion-no">No</Label>
-                  </div>
-                </RadioGroup>
+                  <FancyRadio value="si" label="Sí" id="medicacion-si" />
+                  <FancyRadio value="no" label="No" id="medicacion-no" />
+                </FancyRadioGroup>
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">6. ¿Cuál o cuáles?</h3>
+                </div>
+                <div className="relative">
+                  <Textarea 
+                    placeholder="Detallar los medicamentos que toma actualmente..." 
+                    className="min-h-[80px] pr-12" 
+                    value={formData?.antecedentesQuirurgicos?.medicamentos_actuales || ''}
+                    onChange={(e) => handleInputChange('medicamentos_actuales', e.target.value)}
+                  />
                   <Button 
                     variant="ghost" 
                     size="icon"
                     onClick={() => handleRecording('medicamentos_actuales')}
-                    className={`h-8 w-8 rounded-full ${recordingField === 'medicamentos_actuales' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'medicamentos_actuales' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
                   >
                     <Mic className="h-4 w-4" />
                   </Button>
                 </div>
-                <Textarea 
-                  placeholder="Listar los medicamentos que toma actualmente..." 
-                  className="min-h-[80px]" 
-                  value={formData?.antecedentesQuirurgicos?.medicamentos_actuales || ''}
-                  onChange={(e) => handleInputChange('medicamentos_actuales', e.target.value)}
-                />
+                {recordingField === 'medicamentos_actuales' && (
+                  <AIVoiceInput
+                    onTranscriptionComplete={(text) => handleVoiceInput('medicamentos_actuales', text)}
+                  />
+                )}
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">7. Motivo por el cual toma estos medicamentos:</h3>
+                </div>
+                <div className="relative">
+                  <Textarea 
+                    placeholder="Detallar el motivo de la medicación..." 
+                    className="min-h-[80px] pr-12" 
+                    value={formData?.antecedentesQuirurgicos?.motivo_medicacion || ''}
+                    onChange={(e) => handleInputChange('motivo_medicacion', e.target.value)}
+                  />
                   <Button 
                     variant="ghost" 
                     size="icon"
                     onClick={() => handleRecording('motivo_medicacion')}
-                    className={`h-8 w-8 rounded-full ${recordingField === 'motivo_medicacion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'motivo_medicacion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
                   >
                     <Mic className="h-4 w-4" />
                   </Button>
                 </div>
-                <Textarea 
-                  placeholder="Detallar motivo por el que toma medicamentos..." 
-                  className="min-h-[80px]" 
-                  value={formData?.antecedentesQuirurgicos?.motivo_medicacion || ''}
-                  onChange={(e) => handleInputChange('motivo_medicacion', e.target.value)}
-                />
+                {recordingField === 'motivo_medicacion' && (
+                  <AIVoiceInput
+                    onTranscriptionComplete={(text) => handleVoiceInput('motivo_medicacion', text)}
+                  />
+                )}
               </div>
 
-              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="font-medium mb-4">Antecedentes Gineco-Obstétricos (solo para pacientes mujeres)</h3>
+              <div className="pt-4 border-t">
+                <h2 className="text-lg font-semibold mb-4">Cirugías</h2>
+
                 <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-medium text-sm">1. Número de embarazos:</h4>
+                  {formData?.antecedentesQuirurgicos?.cirugiasRealizadas && 
+                   formData?.antecedentesQuirurgicos?.cirugiasRealizadas.map((cirugia, index) => (
+                    <div key={index} className="p-4 border border-gray-200 rounded-lg relative">
                       <Button 
                         variant="ghost" 
-                        size="icon"
-                        onClick={() => handleRecording('num_embarazos')}
-                        className={`h-8 w-8 rounded-full ${recordingField === 'num_embarazos' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                        size="icon" 
+                        className="absolute top-2 right-2 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => removeCirugia(index)}
                       >
-                        <Mic className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <Label htmlFor={`cirugia-tipo-${index}`}>Tipo de cirugía</Label>
+                          <Input
+                            id={`cirugia-tipo-${index}`}
+                            value={cirugia.tipo || ''}
+                            onChange={(e) => updateCirugia(index, 'tipo', e.target.value)}
+                            placeholder="Tipo de cirugía"
+                            className="mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor={`cirugia-fecha-${index}`}>Fecha</Label>
+                          <Input
+                            id={`cirugia-fecha-${index}`}
+                            value={cirugia.fecha || ''}
+                            onChange={(e) => updateCirugia(index, 'fecha', e.target.value)}
+                            placeholder="Fecha de la cirugía"
+                            className="mt-1"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor={`cirugia-motivo-${index}`}>Motivo</Label>
+                        <Textarea
+                          id={`cirugia-motivo-${index}`}
+                          value={cirugia.motivo || ''}
+                          onChange={(e) => updateCirugia(index, 'motivo', e.target.value)}
+                          placeholder="Motivo de la cirugía"
+                          className="mt-1"
+                        />
+                      </div>
                     </div>
-                    <Textarea 
-                      placeholder="Indicar número de embarazos..." 
-                      className="min-h-[60px]" 
+                  ))}
+
+                  <Button
+                    variant="outline"
+                    onClick={addCirugia}
+                    className="w-full flex items-center justify-center gap-2 border-dashed"
+                  >
+                    <PlusCircle className="h-4 w-4" />
+                    <span>Agregar cirugía</span>
+                  </Button>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t">
+                <h2 className="text-lg font-semibold mb-4">Antecedentes Gineco-Obstétricos (solo para pacientes mujeres)</h2>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <Label htmlFor="num-embarazos">Número de embarazos</Label>
+                    <Input
+                      id="num-embarazos"
+                      type="text"
+                      placeholder="0"
                       value={formData?.antecedentesQuirurgicos?.num_embarazos || ''}
                       onChange={(e) => handleInputChange('num_embarazos', e.target.value)}
                     />
                   </div>
-
                   <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-medium text-sm">2. Número de partos:</h4>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleRecording('num_partos')}
-                        className={`h-8 w-8 rounded-full ${recordingField === 'num_partos' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
-                      >
-                        <Mic className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <Textarea 
-                      placeholder="Indicar número de partos..." 
-                      className="min-h-[60px]" 
+                    <Label htmlFor="num-partos">Número de partos</Label>
+                    <Input
+                      id="num-partos"
+                      type="text"
+                      placeholder="0"
                       value={formData?.antecedentesQuirurgicos?.num_partos || ''}
                       onChange={(e) => handleInputChange('num_partos', e.target.value)}
                     />
                   </div>
-
                   <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-medium text-sm">3. Número de cesáreas:</h4>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleRecording('num_cesareas')}
-                        className={`h-8 w-8 rounded-full ${recordingField === 'num_cesareas' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
-                      >
-                        <Mic className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <Textarea 
-                      placeholder="Indicar número de cesáreas..." 
-                      className="min-h-[60px]" 
+                    <Label htmlFor="num-cesareas">Número de cesáreas</Label>
+                    <Input
+                      id="num-cesareas"
+                      type="text"
+                      placeholder="0"
                       value={formData?.antecedentesQuirurgicos?.num_cesareas || ''}
                       onChange={(e) => handleInputChange('num_cesareas', e.target.value)}
                     />
                   </div>
-
                   <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-medium text-sm">4. Número de abortos:</h4>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleRecording('num_abortos')}
-                        className={`h-8 w-8 rounded-full ${recordingField === 'num_abortos' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
-                      >
-                        <Mic className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <Textarea 
-                      placeholder="Indicar número de abortos..." 
-                      className="min-h-[60px]" 
+                    <Label htmlFor="num-abortos">Número de abortos</Label>
+                    <Input
+                      id="num-abortos"
+                      type="text"
+                      placeholder="0"
                       value={formData?.antecedentesQuirurgicos?.num_abortos || ''}
                       onChange={(e) => handleInputChange('num_abortos', e.target.value)}
                     />
                   </div>
+                </div>
 
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-medium text-sm">5. Complicaciones:</h4>
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleRecording('complicaciones_gineco')}
-                        className={`h-8 w-8 rounded-full ${recordingField === 'complicaciones_gineco' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
-                      >
-                        <Mic className="h-4 w-4" />
-                      </Button>
-                    </div>
+                <div>
+                  <div className="flex justify-between items-center mb-2">
+                    <Label htmlFor="complicaciones-gineco">Complicaciones</Label>
+                  </div>
+                  <div className="relative">
                     <Textarea 
-                      placeholder="Detallar complicaciones durante embarazos, partos o cesáreas..." 
-                      className="min-h-[80px]" 
+                      id="complicaciones-gineco"
+                      placeholder="Describa complicaciones durante embarazos, partos, etc..." 
+                      className="min-h-[80px] pr-12" 
                       value={formData?.antecedentesQuirurgicos?.complicaciones_gineco || ''}
                       onChange={(e) => handleInputChange('complicaciones_gineco', e.target.value)}
                     />
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => handleRecording('complicaciones_gineco')}
+                      className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'complicaciones_gineco' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    >
+                      <Mic className="h-4 w-4" />
+                    </Button>
                   </div>
+                  {recordingField === 'complicaciones_gineco' && (
+                    <AIVoiceInput
+                      onTranscriptionComplete={(text) => handleVoiceInput('complicaciones_gineco', text)}
+                    />
+                  )}
                 </div>
               </div>
             </div>

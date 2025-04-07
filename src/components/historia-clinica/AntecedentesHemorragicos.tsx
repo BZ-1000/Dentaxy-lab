@@ -4,9 +4,10 @@ import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Mic } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
+import { FancyRadio, FancyRadioGroup } from "@/components/ui/fancy-radio"
+import { AIVoiceInput } from "@/components/ui/ai-voice-input";
 
 interface AntecedentesHemorragicosProps {
   formData: FormDataState;
@@ -56,6 +57,10 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
     handleAntecedenteHemorragicoChange(field, value === 'si');
   };
 
+  const handleVoiceInput = (field: string, text: string) => {
+    handleAntecedenteHemorragicoChange(field, text);
+  };
+
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
@@ -101,60 +106,67 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
             <div className="space-y-6">
               <div className="space-y-4">
                 <h3 className="font-medium">1. ¿Le han transfundido sangre o algún derivado de la misma?</h3>
-                <RadioGroup 
+                <FancyRadioGroup 
                   defaultValue={formData?.antecedentesHemorragicos?.transfusion_sanguinea ? 'si' : 'no'}
                   onValueChange={(value) => handleRadioChange('transfusion_sanguinea', value)}
-                  className="flex space-x-4"
                 >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="si" id="transfusion-si" />
-                    <Label htmlFor="transfusion-si">Sí</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="transfusion-no" />
-                    <Label htmlFor="transfusion-no">No</Label>
-                  </div>
-                </RadioGroup>
+                  <FancyRadio value="si" label="Sí" id="transfusion-si" />
+                  <FancyRadio value="no" label="No" id="transfusion-no" />
+                </FancyRadioGroup>
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">2. Motivo de la transfusión:</h3>
+                </div>
+                <div className="relative">
+                  <Textarea 
+                    placeholder="Detallar el motivo de la transfusión sanguínea..." 
+                    className="min-h-[80px] pr-12" 
+                    value={formData?.antecedentesHemorragicos?.motivo_transfusion || ''}
+                    onChange={(e) => handleInputChange('motivo_transfusion', e.target.value)}
+                  />
                   <Button 
                     variant="ghost" 
                     size="icon"
                     onClick={() => handleRecording('motivo_transfusion')}
-                    className={`h-8 w-8 rounded-full ${recordingField === 'motivo_transfusion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'motivo_transfusion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
                   >
                     <Mic className="h-4 w-4" />
                   </Button>
                 </div>
-                <Textarea 
-                  placeholder="Detallar el motivo de la transfusión sanguínea..." 
-                  className="min-h-[80px]" 
-                  value={formData?.antecedentesHemorragicos?.motivo_transfusion || ''}
-                  onChange={(e) => handleInputChange('motivo_transfusion', e.target.value)}
-                />
+                {recordingField === 'motivo_transfusion' && (
+                  <AIVoiceInput
+                    onTranscriptionComplete={(text) => handleVoiceInput('motivo_transfusion', text)}
+                  />
+                )}
               </div>
 
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">3. Fecha de la transfusión:</h3>
+                </div>
+                <div className="relative">
+                  <Textarea 
+                    placeholder="Indicar fecha o fechas de transfusión..." 
+                    className="min-h-[80px] pr-12" 
+                    value={formData?.antecedentesHemorragicos?.fecha_transfusion || ''}
+                    onChange={(e) => handleInputChange('fecha_transfusion', e.target.value)}
+                  />
                   <Button 
                     variant="ghost" 
                     size="icon"
                     onClick={() => handleRecording('fecha_transfusion')}
-                    className={`h-8 w-8 rounded-full ${recordingField === 'fecha_transfusion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'fecha_transfusion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
                   >
                     <Mic className="h-4 w-4" />
                   </Button>
                 </div>
-                <Textarea 
-                  placeholder="Indicar fecha o fechas de transfusión..." 
-                  className="min-h-[80px]" 
-                  value={formData?.antecedentesHemorragicos?.fecha_transfusion || ''}
-                  onChange={(e) => handleInputChange('fecha_transfusion', e.target.value)}
-                />
+                {recordingField === 'fecha_transfusion' && (
+                  <AIVoiceInput
+                    onTranscriptionComplete={(text) => handleVoiceInput('fecha_transfusion', text)}
+                  />
+                )}
               </div>
 
               <div>
@@ -162,56 +174,35 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <h4 className="text-sm font-medium mb-2">Sangrado prolongado</h4>
-                    <RadioGroup 
+                    <FancyRadioGroup 
                       defaultValue={formData?.antecedentesHemorragicos?.sangradoProlongado || 'no'}
                       onValueChange={(value) => handleInputChange('sangradoProlongado', value)}
-                      className="flex space-x-4"
                     >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="si" id="sangrado-si" />
-                        <Label htmlFor="sangrado-si">Sí</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="sangrado-no" />
-                        <Label htmlFor="sangrado-no">No</Label>
-                      </div>
-                    </RadioGroup>
+                      <FancyRadio value="si" label="Sí" id="sangrado-si" />
+                      <FancyRadio value="no" label="No" id="sangrado-no" />
+                    </FancyRadioGroup>
                   </div>
                   
                   <div>
                     <h4 className="text-sm font-medium mb-2">Hematomas frecuentes</h4>
-                    <RadioGroup 
+                    <FancyRadioGroup 
                       defaultValue={formData?.antecedentesHemorragicos?.hematomas || 'no'}
                       onValueChange={(value) => handleInputChange('hematomas', value)}
-                      className="flex space-x-4"
                     >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="si" id="hematomas-si" />
-                        <Label htmlFor="hematomas-si">Sí</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="hematomas-no" />
-                        <Label htmlFor="hematomas-no">No</Label>
-                      </div>
-                    </RadioGroup>
+                      <FancyRadio value="si" label="Sí" id="hematomas-si" />
+                      <FancyRadio value="no" label="No" id="hematomas-no" />
+                    </FancyRadioGroup>
                   </div>
                   
                   <div>
                     <h4 className="text-sm font-medium mb-2">Hemorragias espontáneas</h4>
-                    <RadioGroup 
+                    <FancyRadioGroup 
                       defaultValue={formData?.antecedentesHemorragicos?.hemorragiasEspontaneas || 'no'}
                       onValueChange={(value) => handleInputChange('hemorragiasEspontaneas', value)}
-                      className="flex space-x-4"
                     >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="si" id="hemorragias-si" />
-                        <Label htmlFor="hemorragias-si">Sí</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id="hemorragias-no" />
-                        <Label htmlFor="hemorragias-no">No</Label>
-                      </div>
-                    </RadioGroup>
+                      <FancyRadio value="si" label="Sí" id="hemorragias-si" />
+                      <FancyRadio value="no" label="No" id="hemorragias-no" />
+                    </FancyRadioGroup>
                   </div>
                 </div>
               </div>
@@ -219,21 +210,28 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">Detalles adicionales sobre antecedentes hemorrágicos:</h3>
+                </div>
+                <div className="relative">
+                  <Textarea 
+                    placeholder="Incluir cualquier otra información relevante sobre antecedentes hemorrágicos..." 
+                    className="min-h-[100px] pr-12" 
+                    value={formData?.antecedentesHemorragicos?.detallesAdicionales || ''}
+                    onChange={(e) => handleInputChange('detallesAdicionales', e.target.value)}
+                  />
                   <Button 
                     variant="ghost" 
                     size="icon"
                     onClick={() => handleRecording('detallesAdicionales')}
-                    className={`h-8 w-8 rounded-full ${recordingField === 'detallesAdicionales' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'detallesAdicionales' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
                   >
                     <Mic className="h-4 w-4" />
                   </Button>
                 </div>
-                <Textarea 
-                  placeholder="Incluir cualquier otra información relevante sobre antecedentes hemorrágicos..." 
-                  className="min-h-[100px]" 
-                  value={formData?.antecedentesHemorragicos?.detallesAdicionales || ''}
-                  onChange={(e) => handleInputChange('detallesAdicionales', e.target.value)}
-                />
+                {recordingField === 'detallesAdicionales' && (
+                  <AIVoiceInput
+                    onTranscriptionComplete={(text) => handleVoiceInput('detallesAdicionales', text)}
+                  />
+                )}
               </div>
             </div>
           </div>
