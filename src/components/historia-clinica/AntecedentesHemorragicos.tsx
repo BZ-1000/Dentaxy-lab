@@ -119,7 +119,7 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">2. Motivo de la transfusión:</h3>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-center gap-4">
                   <div className="relative flex-1">
                     <Textarea 
                       placeholder="Detallar el motivo de la transfusión sanguínea..." 
@@ -128,18 +128,19 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                       onChange={(e) => handleInputChange('motivo_transfusion', e.target.value)}
                     />
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => handleRecording('motivo_transfusion')}
-                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'motivo_transfusion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                  >
-                    <Mic className="h-5 w-5 text-white" />
-                  </Button>
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={() => handleRecording('motivo_transfusion')}
+                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'motivo_transfusion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
+                    >
+                      <Mic className="h-6 w-6 text-white" />
+                    </button>
+                  </div>
                 </div>
                 {recordingField === 'motivo_transfusion' && (
                   <AIVoiceInput
                     onTranscriptionComplete={(text) => handleVoiceInput('motivo_transfusion', text)}
+                    className="p-0"
                   />
                 )}
               </div>
@@ -148,7 +149,7 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">3. Fecha de la transfusión:</h3>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-center gap-4">
                   <div className="relative flex-1">
                     <Textarea 
                       placeholder="Indicar fecha o fechas de transfusión..." 
@@ -157,18 +158,19 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                       onChange={(e) => handleInputChange('fecha_transfusion', e.target.value)}
                     />
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => handleRecording('fecha_transfusion')}
-                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'fecha_transfusion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                  >
-                    <Mic className="h-5 w-5 text-white" />
-                  </Button>
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={() => handleRecording('fecha_transfusion')}
+                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'fecha_transfusion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
+                    >
+                      <Mic className="h-6 w-6 text-white" />
+                    </button>
+                  </div>
                 </div>
                 {recordingField === 'fecha_transfusion' && (
                   <AIVoiceInput
                     onTranscriptionComplete={(text) => handleVoiceInput('fecha_transfusion', text)}
+                    className="p-0"
                   />
                 )}
               </div>
@@ -215,7 +217,7 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">Detalles adicionales sobre antecedentes hemorrágicos:</h3>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-center gap-4">
                   <div className="relative flex-1">
                     <Textarea 
                       placeholder="Incluir cualquier otra información relevante sobre antecedentes hemorrágicos..." 
@@ -224,18 +226,19 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                       onChange={(e) => handleInputChange('detallesAdicionales', e.target.value)}
                     />
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => handleRecording('detallesAdicionales')}
-                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'detallesAdicionales' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                  >
-                    <Mic className="h-5 w-5 text-white" />
-                  </Button>
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={() => handleRecording('detallesAdicionales')}
+                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'detallesAdicionales' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
+                    >
+                      <Mic className="h-6 w-6 text-white" />
+                    </button>
+                  </div>
                 </div>
                 {recordingField === 'detallesAdicionales' && (
                   <AIVoiceInput
                     onTranscriptionComplete={(text) => handleVoiceInput('detallesAdicionales', text)}
+                    className="p-0"
                   />
                 )}
               </div>

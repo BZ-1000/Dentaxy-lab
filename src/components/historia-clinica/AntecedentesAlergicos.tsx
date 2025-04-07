@@ -136,7 +136,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">2. ¿Cuáles?</h3>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-center gap-4">
                   <div className="relative flex-1">
                     <Textarea 
                       placeholder="Detallar las alergias identificadas..." 
@@ -145,18 +145,19 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                       onChange={(e) => handleInputChange('cuales_alergias', e.target.value)}
                     />
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => handleRecording('cuales_alergias')}
-                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'cuales_alergias' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                  >
-                    <Mic className="h-5 w-5 text-white" />
-                  </Button>
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={() => handleRecording('cuales_alergias')}
+                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'cuales_alergias' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
+                    >
+                      <Mic className="h-6 w-6 text-white" />
+                    </button>
+                  </div>
                 </div>
                 {recordingField === 'cuales_alergias' && (
                   <AIVoiceInput
                     onTranscriptionComplete={(text) => handleVoiceInput('cuales_alergias', text)}
+                    className="p-0"
                   />
                 )}
               </div>
@@ -165,7 +166,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">3. ¿A qué específicamente?</h3>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-center gap-4">
                   <div className="relative flex-1">
                     <Textarea 
                       placeholder="Especificar detalles sobre las alergias..." 
@@ -174,18 +175,19 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                       onChange={(e) => handleInputChange('especificacion_alergias', e.target.value)}
                     />
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => handleRecording('especificacion_alergias')}
-                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'especificacion_alergias' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                  >
-                    <Mic className="h-5 w-5 text-white" />
-                  </Button>
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={() => handleRecording('especificacion_alergias')}
+                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'especificacion_alergias' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
+                    >
+                      <Mic className="h-6 w-6 text-white" />
+                    </button>
+                  </div>
                 </div>
                 {recordingField === 'especificacion_alergias' && (
                   <AIVoiceInput
                     onTranscriptionComplete={(text) => handleVoiceInput('especificacion_alergias', text)}
+                    className="p-0"
                   />
                 )}
               </div>
@@ -205,7 +207,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">5. Especifique el tipo de anestesia y procedimiento:</h3>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-center gap-4">
                   <div className="relative flex-1">
                     <Textarea 
                       placeholder="Detallar tipo de anestesia y procedimiento..." 
@@ -214,18 +216,19 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                       onChange={(e) => handleInputChange('tipo_anestesia', e.target.value)}
                     />
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => handleRecording('tipo_anestesia')}
-                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'tipo_anestesia' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                  >
-                    <Mic className="h-5 w-5 text-white" />
-                  </Button>
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={() => handleRecording('tipo_anestesia')}
+                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'tipo_anestesia' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
+                    >
+                      <Mic className="h-6 w-6 text-white" />
+                    </button>
+                  </div>
                 </div>
                 {recordingField === 'tipo_anestesia' && (
                   <AIVoiceInput
                     onTranscriptionComplete={(text) => handleVoiceInput('tipo_anestesia', text)}
+                    className="p-0"
                   />
                 )}
               </div>
@@ -245,7 +248,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">7. Si respondió que sí, especifique la reacción:</h3>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-center gap-4">
                   <div className="relative flex-1">
                     <Textarea 
                       placeholder="Detallar la reacción adversa..." 
@@ -254,18 +257,19 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                       onChange={(e) => handleInputChange('especificacion_reaccion', e.target.value)}
                     />
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => handleRecording('especificacion_reaccion')}
-                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'especificacion_reaccion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                  >
-                    <Mic className="h-5 w-5 text-white" />
-                  </Button>
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={() => handleRecording('especificacion_reaccion')}
+                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'especificacion_reaccion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
+                    >
+                      <Mic className="h-6 w-6 text-white" />
+                    </button>
+                  </div>
                 </div>
                 {recordingField === 'especificacion_reaccion' && (
                   <AIVoiceInput
                     onTranscriptionComplete={(text) => handleVoiceInput('especificacion_reaccion', text)}
+                    className="p-0"
                   />
                 )}
               </div>
@@ -295,7 +299,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">9. Especifique tipo, frecuencia y duración:</h3>
                 </div>
-                <div className="flex items-start gap-4">
+                <div className="flex items-center gap-4">
                   <div className="relative flex-1">
                     <Textarea 
                       placeholder="Detallar tipo, frecuencia y duración de las adicciones..." 
@@ -304,18 +308,19 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                       onChange={(e) => handleInputChange('detalles_adiccion', e.target.value)}
                     />
                   </div>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    onClick={() => handleRecording('detalles_adiccion')}
-                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'detalles_adiccion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                  >
-                    <Mic className="h-5 w-5 text-white" />
-                  </Button>
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={() => handleRecording('detalles_adiccion')}
+                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'detalles_adiccion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
+                    >
+                      <Mic className="h-6 w-6 text-white" />
+                    </button>
+                  </div>
                 </div>
                 {recordingField === 'detalles_adiccion' && (
                   <AIVoiceInput
                     onTranscriptionComplete={(text) => handleVoiceInput('detalles_adiccion', text)}
+                    className="p-0"
                   />
                 )}
               </div>
