@@ -119,20 +119,22 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">2. Motivo de la transfusión:</h3>
                 </div>
-                <div className="relative">
-                  <Textarea 
-                    placeholder="Detallar el motivo de la transfusión sanguínea..." 
-                    className="min-h-[80px] pr-12" 
-                    value={formData?.antecedentesHemorragicos?.motivo_transfusion || ''}
-                    onChange={(e) => handleInputChange('motivo_transfusion', e.target.value)}
-                  />
+                <div className="flex items-start gap-4">
+                  <div className="relative flex-1">
+                    <Textarea 
+                      placeholder="Detallar el motivo de la transfusión sanguínea..." 
+                      className="min-h-[80px] resize-y text-justify pr-3" 
+                      value={formData?.antecedentesHemorragicos?.motivo_transfusion || ''}
+                      onChange={(e) => handleInputChange('motivo_transfusion', e.target.value)}
+                    />
+                  </div>
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="icon"
                     onClick={() => handleRecording('motivo_transfusion')}
-                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'motivo_transfusion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'motivo_transfusion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
                   >
-                    <Mic className="h-4 w-4" />
+                    <Mic className="h-5 w-5 text-white" />
                   </Button>
                 </div>
                 {recordingField === 'motivo_transfusion' && (
@@ -146,20 +148,22 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">3. Fecha de la transfusión:</h3>
                 </div>
-                <div className="relative">
-                  <Textarea 
-                    placeholder="Indicar fecha o fechas de transfusión..." 
-                    className="min-h-[80px] pr-12" 
-                    value={formData?.antecedentesHemorragicos?.fecha_transfusion || ''}
-                    onChange={(e) => handleInputChange('fecha_transfusion', e.target.value)}
-                  />
+                <div className="flex items-start gap-4">
+                  <div className="relative flex-1">
+                    <Textarea 
+                      placeholder="Indicar fecha o fechas de transfusión..." 
+                      className="min-h-[80px] resize-y text-justify pr-3" 
+                      value={formData?.antecedentesHemorragicos?.fecha_transfusion || ''}
+                      onChange={(e) => handleInputChange('fecha_transfusion', e.target.value)}
+                    />
+                  </div>
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="icon"
                     onClick={() => handleRecording('fecha_transfusion')}
-                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'fecha_transfusion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'fecha_transfusion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
                   >
-                    <Mic className="h-4 w-4" />
+                    <Mic className="h-5 w-5 text-white" />
                   </Button>
                 </div>
                 {recordingField === 'fecha_transfusion' && (
@@ -211,20 +215,22 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">Detalles adicionales sobre antecedentes hemorrágicos:</h3>
                 </div>
-                <div className="relative">
-                  <Textarea 
-                    placeholder="Incluir cualquier otra información relevante sobre antecedentes hemorrágicos..." 
-                    className="min-h-[100px] pr-12" 
-                    value={formData?.antecedentesHemorragicos?.detallesAdicionales || ''}
-                    onChange={(e) => handleInputChange('detallesAdicionales', e.target.value)}
-                  />
+                <div className="flex items-start gap-4">
+                  <div className="relative flex-1">
+                    <Textarea 
+                      placeholder="Incluir cualquier otra información relevante sobre antecedentes hemorrágicos..." 
+                      className="min-h-[100px] resize-y text-justify pr-3" 
+                      value={formData?.antecedentesHemorragicos?.detallesAdicionales || ''}
+                      onChange={(e) => handleInputChange('detallesAdicionales', e.target.value)}
+                    />
+                  </div>
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="icon"
                     onClick={() => handleRecording('detallesAdicionales')}
-                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'detallesAdicionales' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'detallesAdicionales' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
                   >
-                    <Mic className="h-4 w-4" />
+                    <Mic className="h-5 w-5 text-white" />
                   </Button>
                 </div>
                 {recordingField === 'detallesAdicionales' && (

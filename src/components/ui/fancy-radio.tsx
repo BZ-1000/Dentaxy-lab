@@ -22,14 +22,15 @@ const FancyRadio = React.forwardRef<HTMLInputElement, FancyRadioProps>(
           />
           <div
             className={cn(
-              "h-5 w-5 rounded-full border border-gray-300 flex items-center justify-center",
+              "h-6 w-6 rounded-full border border-gray-300 flex items-center justify-center",
               "peer-checked:bg-emerald-500 peer-checked:border-emerald-500",
               "transition-all duration-200 ease-in-out",
               "peer-focus:ring-2 peer-focus:ring-offset-2 peer-focus:ring-emerald-500/50",
+              "hover:border-emerald-400 hover:shadow-sm",
               className
             )}
           >
-            <Check className="h-3 w-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+            <Check className="h-3.5 w-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
           </div>
         </div>
         {label && <span className="text-sm font-medium">{label}</span>}
@@ -87,4 +88,34 @@ const FancyRadioGroup = React.forwardRef<
 
 FancyRadioGroup.displayName = "FancyRadioGroup"
 
-export { FancyRadio, FancyRadioGroup }
+// New component for clickable tag buttons
+interface TagButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  active?: boolean;
+  label: string;
+}
+
+const TagButton = React.forwardRef<HTMLButtonElement, TagButtonProps>(
+  ({ className, active, label, onClick, ...props }, ref) => {
+    return (
+      <button
+        ref={ref}
+        className={cn(
+          "px-3 py-1 rounded-full text-xs font-medium transition-all",
+          "border border-gray-200 bg-white shadow-sm", 
+          "hover:bg-blue-50 hover:border-blue-200 hover:shadow",
+          active && "bg-blue-100 border-blue-300 text-blue-700",
+          className
+        )}
+        onClick={onClick}
+        type="button"
+        {...props}
+      >
+        {label}
+      </button>
+    );
+  }
+)
+
+TagButton.displayName = "TagButton"
+
+export { FancyRadio, FancyRadioGroup, TagButton }

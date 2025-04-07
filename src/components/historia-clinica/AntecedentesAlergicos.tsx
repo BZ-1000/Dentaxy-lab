@@ -1,14 +1,11 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Mic } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
-import { CustomCheckbox } from "@/components/ui/custom-checkbox";
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { FancyRadio, FancyRadioGroup } from "@/components/ui/fancy-radio";
+import { FancyRadio, FancyRadioGroup, TagButton } from "@/components/ui/fancy-radio";
 import { AIVoiceInput } from "@/components/ui/ai-voice-input";
 
 interface AntecedentesAlergicosProps {
@@ -51,27 +48,23 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
     }
   };
 
-  const handleCheckboxChange = (field: string, checked: boolean) => {
+  const handleTagToggle = (field: string, checked: boolean) => {
     if (!handleAntecedenteAlergicoChange) return;
-    
     handleAntecedenteAlergicoChange(field, checked);
   };
 
   const handleInputChange = (field: string, value: string) => {
     if (!handleAntecedenteAlergicoChange) return;
-    
     handleAntecedenteAlergicoChange(field, value);
   };
 
   const handleRadioChange = (field: string, value: string) => {
     if (!handleAntecedenteAlergicoChange) return;
-    
     handleAntecedenteAlergicoChange(field, value === 'si');
   };
 
   const handleVoiceInput = (field: string, text: string) => {
     if (!handleAntecedenteAlergicoChange) return;
-    
     handleAntecedenteAlergicoChange(field, text);
   };
 
@@ -120,31 +113,22 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
             <div className="space-y-6">
               <div>
                 <h3 className="font-medium mb-3">1. ¿Ha presentado alguna reacción alérgica a alguno de los siguientes?</h3>
-                <div className="flex flex-wrap gap-6">
-                  <div className="flex items-center space-x-2">
-                    <CustomCheckbox 
-                      id="alergias-medicamentos" 
-                      checked={formData?.antecedentesAlergicos?.medicamentos?.es_alergico || false}
-                      onChange={(e) => handleCheckboxChange('medicamentos.es_alergico', e.target.checked)}
-                    />
-                    <Label htmlFor="alergias-medicamentos">Medicamentos</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CustomCheckbox 
-                      id="alergias-alimentos" 
-                      checked={formData?.antecedentesAlergicos?.alimentos?.es_alergico || false}
-                      onChange={(e) => handleCheckboxChange('alimentos.es_alergico', e.target.checked)}
-                    />
-                    <Label htmlFor="alergias-alimentos">Alimentos</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CustomCheckbox 
-                      id="alergias-ambiental" 
-                      checked={formData?.antecedentesAlergicos?.ambiental?.es_alergico || false}
-                      onChange={(e) => handleCheckboxChange('ambiental.es_alergico', e.target.checked)}
-                    />
-                    <Label htmlFor="alergias-ambiental">Entorno ambiental</Label>
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  <TagButton
+                    label="Medicamentos"
+                    active={formData?.antecedentesAlergicos?.medicamentos?.es_alergico || false}
+                    onClick={() => handleTagToggle('medicamentos.es_alergico', !formData?.antecedentesAlergicos?.medicamentos?.es_alergico)}
+                  />
+                  <TagButton
+                    label="Alimentos"
+                    active={formData?.antecedentesAlergicos?.alimentos?.es_alergico || false}
+                    onClick={() => handleTagToggle('alimentos.es_alergico', !formData?.antecedentesAlergicos?.alimentos?.es_alergico)}
+                  />
+                  <TagButton
+                    label="Entorno ambiental"
+                    active={formData?.antecedentesAlergicos?.ambiental?.es_alergico || false}
+                    onClick={() => handleTagToggle('ambiental.es_alergico', !formData?.antecedentesAlergicos?.ambiental?.es_alergico)}
+                  />
                 </div>
               </div>
 
@@ -152,20 +136,22 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">2. ¿Cuáles?</h3>
                 </div>
-                <div className="relative">
-                  <Textarea 
-                    placeholder="Detallar las alergias identificadas..." 
-                    className="min-h-[80px] pr-12" 
-                    value={formData?.antecedentesAlergicos?.cuales_alergias || ''}
-                    onChange={(e) => handleInputChange('cuales_alergias', e.target.value)}
-                  />
+                <div className="flex items-start gap-4">
+                  <div className="relative flex-1">
+                    <Textarea 
+                      placeholder="Detallar las alergias identificadas..." 
+                      className="min-h-[80px] resize-y text-justify pr-3" 
+                      value={formData?.antecedentesAlergicos?.cuales_alergias || ''}
+                      onChange={(e) => handleInputChange('cuales_alergias', e.target.value)}
+                    />
+                  </div>
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="icon"
                     onClick={() => handleRecording('cuales_alergias')}
-                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'cuales_alergias' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'cuales_alergias' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
                   >
-                    <Mic className="h-4 w-4" />
+                    <Mic className="h-5 w-5 text-white" />
                   </Button>
                 </div>
                 {recordingField === 'cuales_alergias' && (
@@ -179,20 +165,22 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">3. ¿A qué específicamente?</h3>
                 </div>
-                <div className="relative">
-                  <Textarea 
-                    placeholder="Especificar detalles sobre las alergias..." 
-                    className="min-h-[80px] pr-12" 
-                    value={formData?.antecedentesAlergicos?.especificacion_alergias || ''}
-                    onChange={(e) => handleInputChange('especificacion_alergias', e.target.value)}
-                  />
+                <div className="flex items-start gap-4">
+                  <div className="relative flex-1">
+                    <Textarea 
+                      placeholder="Especificar detalles sobre las alergias..." 
+                      className="min-h-[80px] resize-y text-justify pr-3" 
+                      value={formData?.antecedentesAlergicos?.especificacion_alergias || ''}
+                      onChange={(e) => handleInputChange('especificacion_alergias', e.target.value)}
+                    />
+                  </div>
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="icon"
                     onClick={() => handleRecording('especificacion_alergias')}
-                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'especificacion_alergias' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'especificacion_alergias' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
                   >
-                    <Mic className="h-4 w-4" />
+                    <Mic className="h-5 w-5 text-white" />
                   </Button>
                 </div>
                 {recordingField === 'especificacion_alergias' && (
@@ -217,20 +205,22 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">5. Especifique el tipo de anestesia y procedimiento:</h3>
                 </div>
-                <div className="relative">
-                  <Textarea 
-                    placeholder="Detallar tipo de anestesia y procedimiento..." 
-                    className="min-h-[80px] pr-12" 
-                    value={formData?.antecedentesAlergicos?.tipo_anestesia || ''}
-                    onChange={(e) => handleInputChange('tipo_anestesia', e.target.value)}
-                  />
+                <div className="flex items-start gap-4">
+                  <div className="relative flex-1">
+                    <Textarea 
+                      placeholder="Detallar tipo de anestesia y procedimiento..." 
+                      className="min-h-[80px] resize-y text-justify pr-3" 
+                      value={formData?.antecedentesAlergicos?.tipo_anestesia || ''}
+                      onChange={(e) => handleInputChange('tipo_anestesia', e.target.value)}
+                    />
+                  </div>
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="icon"
                     onClick={() => handleRecording('tipo_anestesia')}
-                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'tipo_anestesia' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'tipo_anestesia' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
                   >
-                    <Mic className="h-4 w-4" />
+                    <Mic className="h-5 w-5 text-white" />
                   </Button>
                 </div>
                 {recordingField === 'tipo_anestesia' && (
@@ -255,20 +245,22 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">7. Si respondió que sí, especifique la reacción:</h3>
                 </div>
-                <div className="relative">
-                  <Textarea 
-                    placeholder="Detallar la reacción adversa..." 
-                    className="min-h-[80px] pr-12" 
-                    value={formData?.antecedentesAlergicos?.especificacion_reaccion || ''}
-                    onChange={(e) => handleInputChange('especificacion_reaccion', e.target.value)}
-                  />
+                <div className="flex items-start gap-4">
+                  <div className="relative flex-1">
+                    <Textarea 
+                      placeholder="Detallar la reacción adversa..." 
+                      className="min-h-[80px] resize-y text-justify pr-3" 
+                      value={formData?.antecedentesAlergicos?.especificacion_reaccion || ''}
+                      onChange={(e) => handleInputChange('especificacion_reaccion', e.target.value)}
+                    />
+                  </div>
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="icon"
                     onClick={() => handleRecording('especificacion_reaccion')}
-                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'especificacion_reaccion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'especificacion_reaccion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
                   >
-                    <Mic className="h-4 w-4" />
+                    <Mic className="h-5 w-5 text-white" />
                   </Button>
                 </div>
                 {recordingField === 'especificacion_reaccion' && (
@@ -280,31 +272,22 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
 
               <div>
                 <h3 className="font-medium mb-3">8. ¿Tiene alguna adicción actual o pasada?</h3>
-                <div className="flex flex-wrap gap-6">
-                  <div className="flex items-center space-x-2">
-                    <CustomCheckbox 
-                      id="adiccion-tabaco" 
-                      checked={formData?.antecedentesAlergicos?.adiccion_tabaco || false}
-                      onChange={(e) => handleCheckboxChange('adiccion_tabaco', e.target.checked)}
-                    />
-                    <Label htmlFor="adiccion-tabaco">Tabaco</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CustomCheckbox 
-                      id="adiccion-alcohol" 
-                      checked={formData?.antecedentesAlergicos?.adiccion_alcohol || false}
-                      onChange={(e) => handleCheckboxChange('adiccion_alcohol', e.target.checked)}
-                    />
-                    <Label htmlFor="adiccion-alcohol">Alcohol</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CustomCheckbox 
-                      id="adiccion-drogas" 
-                      checked={formData?.antecedentesAlergicos?.adiccion_drogas || false}
-                      onChange={(e) => handleCheckboxChange('adiccion_drogas', e.target.checked)}
-                    />
-                    <Label htmlFor="adiccion-drogas">Drogas</Label>
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  <TagButton
+                    label="Tabaco"
+                    active={formData?.antecedentesAlergicos?.adiccion_tabaco || false}
+                    onClick={() => handleTagToggle('adiccion_tabaco', !formData?.antecedentesAlergicos?.adiccion_tabaco)}
+                  />
+                  <TagButton
+                    label="Alcohol"
+                    active={formData?.antecedentesAlergicos?.adiccion_alcohol || false}
+                    onClick={() => handleTagToggle('adiccion_alcohol', !formData?.antecedentesAlergicos?.adiccion_alcohol)}
+                  />
+                  <TagButton
+                    label="Drogas"
+                    active={formData?.antecedentesAlergicos?.adiccion_drogas || false}
+                    onClick={() => handleTagToggle('adiccion_drogas', !formData?.antecedentesAlergicos?.adiccion_drogas)}
+                  />
                 </div>
               </div>
 
@@ -312,20 +295,22 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                 <div className="flex justify-between items-center mb-2">
                   <h3 className="font-medium">9. Especifique tipo, frecuencia y duración:</h3>
                 </div>
-                <div className="relative">
-                  <Textarea 
-                    placeholder="Detallar tipo, frecuencia y duración de las adicciones..." 
-                    className="min-h-[80px] pr-12" 
-                    value={formData?.antecedentesAlergicos?.detalles_adiccion || ''}
-                    onChange={(e) => handleInputChange('detalles_adiccion', e.target.value)}
-                  />
+                <div className="flex items-start gap-4">
+                  <div className="relative flex-1">
+                    <Textarea 
+                      placeholder="Detallar tipo, frecuencia y duración de las adicciones..." 
+                      className="min-h-[80px] resize-y text-justify pr-3" 
+                      value={formData?.antecedentesAlergicos?.detalles_adiccion || ''}
+                      onChange={(e) => handleInputChange('detalles_adiccion', e.target.value)}
+                    />
+                  </div>
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="icon"
                     onClick={() => handleRecording('detalles_adiccion')}
-                    className={`absolute right-2 top-2 h-8 w-8 rounded-full ${recordingField === 'detalles_adiccion' && isRecording ? 'bg-red-100 text-red-500 animate-pulse' : ''}`}
+                    className={`rounded-full bg-blue-500 hover:bg-blue-600 h-10 w-10 p-0 flex items-center justify-center ${recordingField === 'detalles_adiccion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
                   >
-                    <Mic className="h-4 w-4" />
+                    <Mic className="h-5 w-5 text-white" />
                   </Button>
                 </div>
                 {recordingField === 'detalles_adiccion' && (
