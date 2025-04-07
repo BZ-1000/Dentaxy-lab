@@ -59,6 +59,18 @@ export const useHistoriaClinica = () => {
           }
         }
       }));
+    } else if (field === 'causaProvocado') {
+      // Asegurar que causaProvocado se guarde correctamente
+      setFormData(prev => ({
+        ...prev,
+        padecimientoActual: {
+          ...prev.padecimientoActual,
+          dolor: {
+            ...prev.padecimientoActual.dolor,
+            causaProvocado: value
+          }
+        }
+      }));
     } else {
       setFormData(prev => ({
         ...prev,
@@ -415,7 +427,21 @@ export const useHistoriaClinica = () => {
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {
     if (!nombre.trim()) return;
-    localStorage.setItem(`formulario_${nombre}`, JSON.stringify(data));
+    
+    // Asegurar que se guarden completos los valores de localizacion y causaProvocado
+    const formDataToSave = {
+      ...data,
+      padecimientoActual: {
+        ...data.padecimientoActual,
+        dolor: {
+          ...data.padecimientoActual.dolor,
+          localizacion: data.padecimientoActual.dolor.localizacion || { tipo: '', descripcion: '' },
+          causaProvocado: data.padecimientoActual.dolor.causaProvocado || ''
+        }
+      }
+    };
+    
+    localStorage.setItem(`formulario_${nombre}`, JSON.stringify(formDataToSave));
   };
 
   const cargarFormulario = (data: FormDataState | null) => {
