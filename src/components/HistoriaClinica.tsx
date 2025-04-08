@@ -472,7 +472,7 @@ const HistoriaClinica = () => {
                 <button
                   className={`px-4 py-2 rounded-md text-sm transition-colors ${
                     esMujer
-                      ? 'bg-[#2ecc71] text-white'
+                      ? 'bg-[#8B5CF6] text-white'
                       : 'bg-gray-100 dark:bg-gray-700'
                   }`}
                   onClick={() => setEsMujer(true)}
