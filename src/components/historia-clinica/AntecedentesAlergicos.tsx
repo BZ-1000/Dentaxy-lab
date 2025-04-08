@@ -4,12 +4,10 @@ import { Minus, Maximize2, X, Mic } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
-
 interface AntecedentesAlergicosProps {
   formData: FormDataState;
   handleAntecedenteAlergicoChange?: (field: string, value: any) => void;
 }
-
 const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
   formData,
   handleAntecedenteAlergicoChange
@@ -19,61 +17,51 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
   const [activeTab, setActiveTab] = useState('formulario');
   const [redaccionContent, setRedaccionContent] = useState('');
   const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
-  
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
   };
-  
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
     setIsMinimized(false);
   };
-  
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
   };
-
   const handleToggleButton = (field: string) => {
     if (handleAntecedenteAlergicoChange) {
       handleAntecedenteAlergicoChange(field, !formData.antecedentesAlergicos[field]);
     }
   };
-
   const handleToggleAllergyType = (type: 'medicamentos' | 'alimentos' | 'ambiente') => {
     if (handleAntecedenteAlergicoChange) {
       const currentValue = formData.antecedentesAlergicos.tiposAlergias?.[type] || false;
       handleAntecedenteAlergicoChange(`tiposAlergias.${type}`, !currentValue);
     }
   };
-
   const handleToggleAddiction = (type: 'tabaco' | 'alcohol' | 'drogas') => {
     if (handleAntecedenteAlergicoChange) {
       const currentValue = formData.antecedentesAlergicos.adicciones?.[type] || false;
       handleAntecedenteAlergicoChange(`adicciones.${type}`, !currentValue);
     }
   };
-
   const handleTextChange = (field: string, value: string) => {
     if (handleAntecedenteAlergicoChange) {
       handleAntecedenteAlergicoChange(field, value);
     }
   };
-  
   const handleBooleanChange = (field: string, value: boolean) => {
     if (handleAntecedenteAlergicoChange) {
       handleAntecedenteAlergicoChange(field, value);
     }
   };
-
   const handleVoiceInput = (field: string) => (text: string) => {
     if (handleAntecedenteAlergicoChange) {
       const currentValue = formData.antecedentesAlergicos[field] || "";
       handleAntecedenteAlergicoChange(field, currentValue ? `${currentValue} ${text}` : text);
     }
   };
-
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
     setTimeout(() => {
@@ -138,7 +126,6 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
       setActiveTab('redaccion');
     }, 1000);
   };
-
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="antecedentesAlergicos">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -178,22 +165,13 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                   <div>
                     <h3 className="text-md font-medium mb-2">¿Ha presentado alguna reacción alérgica a alguno de los siguientes?</h3>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      <button 
-                        className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.tiposAlergias?.medicamentos ? 'bg-[#FFC107] hover:bg-[#FFC107]/80 text-gray-900' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`} 
-                        onClick={() => handleToggleAllergyType('medicamentos')}
-                      >
+                      <button className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.tiposAlergias?.medicamentos ? 'bg-[#FFC107] hover:bg-[#FFC107]/80 text-gray-900' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`} onClick={() => handleToggleAllergyType('medicamentos')}>
                         Medicamentos
                       </button>
-                      <button 
-                        className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.tiposAlergias?.alimentos ? 'bg-[#4CAF50] hover:bg-[#4CAF50]/80 text-white' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`} 
-                        onClick={() => handleToggleAllergyType('alimentos')}
-                      >
+                      <button className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.tiposAlergias?.alimentos ? 'bg-[#4CAF50] hover:bg-[#4CAF50]/80 text-white' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`} onClick={() => handleToggleAllergyType('alimentos')}>
                         Alimentos
                       </button>
-                      <button 
-                        className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.tiposAlergias?.ambiente ? 'bg-[#2196F3] hover:bg-[#2196F3]/80 text-white' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`} 
-                        onClick={() => handleToggleAllergyType('ambiente')}
-                      >
+                      <button className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.tiposAlergias?.ambiente ? 'bg-[#2196F3] hover:bg-[#2196F3]/80 text-white' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`} onClick={() => handleToggleAllergyType('ambiente')}>
                         Entorno ambiental
                       </button>
                     </div>
@@ -267,22 +245,13 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                     <div>
                       <h3 className="text-md font-medium mb-2">¿Tiene alguna adicción actual o pasada?</h3>
                       <div className="flex flex-wrap gap-2 mb-4">
-                        <button
-                          className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.adicciones?.tabaco ? 'bg-[#E57373] hover:bg-[#E57373]/80 text-white' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`}
-                          onClick={() => handleToggleAddiction('tabaco')}
-                        >
+                        <button className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.adicciones?.tabaco ? 'bg-[#E57373] hover:bg-[#E57373]/80 text-white' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`} onClick={() => handleToggleAddiction('tabaco')}>
                           Tabaco
                         </button>
-                        <button
-                          className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.adicciones?.alcohol ? 'bg-[#9575CD] hover:bg-[#9575CD]/80 text-white' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`}
-                          onClick={() => handleToggleAddiction('alcohol')}
-                        >
+                        <button className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.adicciones?.alcohol ? 'bg-[#9575CD] hover:bg-[#9575CD]/80 text-white' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`} onClick={() => handleToggleAddiction('alcohol')}>
                           Alcohol
                         </button>
-                        <button
-                          className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.adicciones?.drogas ? 'bg-[#FF8A65] hover:bg-[#FF8A65]/80 text-white' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`}
-                          onClick={() => handleToggleAddiction('drogas')}
-                        >
+                        <button className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.adicciones?.drogas ? 'bg-[#FF8A65] hover:bg-[#FF8A65]/80 text-white' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`} onClick={() => handleToggleAddiction('drogas')}>
                           Drogas
                         </button>
                       </div>
@@ -300,17 +269,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                   </div>
 
                   <div className="flex justify-center mt-6">
-                    <button
-                      onClick={generateRedaccion}
-                      disabled={isGeneratingRedaccion}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 flex items-center gap-2"
-                    >
-                      {isGeneratingRedaccion ? (
-                        <>Generando...</>
-                      ) : (
-                        <>Generar Redacción IA</>
-                      )}
-                    </button>
+                    
                   </div>
                 </div>
               </div> : <div className="p-6">
@@ -324,5 +283,4 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
       </Card>
     </div>;
 };
-
 export default AntecedentesAlergicos;

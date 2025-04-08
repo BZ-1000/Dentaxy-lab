@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, ChevronDown, ChevronUp } from "lucide-react";
@@ -6,12 +5,10 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { VoiceInput } from "@/components/ui/voice-input";
-
 interface AntecedentesGinecoObstetricosProps {
   formData: FormDataState;
   handleAntecedenteGinecoObstetricoChange: (field: string, value: any) => void;
 }
-
 const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps> = ({
   formData,
   handleAntecedenteGinecoObstetricoChange
@@ -21,48 +18,39 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
   const [activeTab, setActiveTab] = useState('formulario');
   const [redaccionContent, setRedaccionContent] = useState('');
   const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
-
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
   };
-
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
     setIsMinimized(false);
   };
-
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
   };
-
   const handleTextChange = (field: string, value: string) => {
     handleAntecedenteGinecoObstetricoChange(field, value);
   };
-
   const handleNumberChange = (field: string, value: string) => {
     const numValue = value === '' ? '' : parseInt(value) || 0;
     handleAntecedenteGinecoObstetricoChange(field, numValue);
   };
-
   const incrementValue = (field: string) => {
     const currentValue = formData.antecedentesGinecoObstetricos?.[field] || 0;
     handleAntecedenteGinecoObstetricoChange(field, parseInt(currentValue as string) + 1);
   };
-
   const decrementValue = (field: string) => {
     const currentValue = formData.antecedentesGinecoObstetricos?.[field] || 0;
     if (parseInt(currentValue as string) > 0) {
       handleAntecedenteGinecoObstetricoChange(field, parseInt(currentValue as string) - 1);
     }
   };
-
   const handleVoiceInput = (field: string) => (text: string) => {
     const currentValue = formData.antecedentesGinecoObstetricos?.[field] || "";
     handleAntecedenteGinecoObstetricoChange(field, currentValue ? `${currentValue} ${text}` : text);
   };
-
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
     setTimeout(() => {
@@ -95,7 +83,6 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
       setActiveTab('redaccion');
     }, 1000);
   };
-
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="antecedentesGinecoObstetricos">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -137,26 +124,11 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                     <div>
                       <label className="block text-sm font-medium mb-2">Número de embarazos:</label>
                       <div className="flex items-center w-full max-w-[200px] rounded-md border overflow-hidden bg-white shadow-sm">
-                        <button 
-                          type="button"
-                          onClick={() => decrementValue('embarazos')}
-                          className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none"
-                        >
+                        <button type="button" onClick={() => decrementValue('embarazos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none">
                           <ChevronDown className="h-4 w-4" />
                         </button>
-                        <input
-                          type="text"
-                          value={formData.antecedentesGinecoObstetricos?.embarazos || '0'}
-                          onChange={(e) => handleNumberChange('embarazos', e.target.value)}
-                          className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none"
-                          inputMode="numeric"
-                          pattern="\d*"
-                        />
-                        <button 
-                          type="button"
-                          onClick={() => incrementValue('embarazos')}
-                          className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none"
-                        >
+                        <input type="text" value={formData.antecedentesGinecoObstetricos?.embarazos || '0'} onChange={e => handleNumberChange('embarazos', e.target.value)} className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none" inputMode="numeric" pattern="\d*" />
+                        <button type="button" onClick={() => incrementValue('embarazos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none">
                           <ChevronUp className="h-4 w-4" />
                         </button>
                       </div>
@@ -165,26 +137,11 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                     <div>
                       <label className="block text-sm font-medium mb-2">Número de partos:</label>
                       <div className="flex items-center w-full max-w-[200px] rounded-md border overflow-hidden bg-white shadow-sm">
-                        <button 
-                          type="button"
-                          onClick={() => decrementValue('partos')}
-                          className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none"
-                        >
+                        <button type="button" onClick={() => decrementValue('partos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none">
                           <ChevronDown className="h-4 w-4" />
                         </button>
-                        <input
-                          type="text"
-                          value={formData.antecedentesGinecoObstetricos?.partos || '0'}
-                          onChange={(e) => handleNumberChange('partos', e.target.value)}
-                          className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none"
-                          inputMode="numeric"
-                          pattern="\d*"
-                        />
-                        <button 
-                          type="button"
-                          onClick={() => incrementValue('partos')}
-                          className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none"
-                        >
+                        <input type="text" value={formData.antecedentesGinecoObstetricos?.partos || '0'} onChange={e => handleNumberChange('partos', e.target.value)} className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none" inputMode="numeric" pattern="\d*" />
+                        <button type="button" onClick={() => incrementValue('partos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none">
                           <ChevronUp className="h-4 w-4" />
                         </button>
                       </div>
@@ -193,26 +150,11 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                     <div>
                       <label className="block text-sm font-medium mb-2">Número de cesáreas:</label>
                       <div className="flex items-center w-full max-w-[200px] rounded-md border overflow-hidden bg-white shadow-sm">
-                        <button 
-                          type="button"
-                          onClick={() => decrementValue('cesareas')}
-                          className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none"
-                        >
+                        <button type="button" onClick={() => decrementValue('cesareas')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none">
                           <ChevronDown className="h-4 w-4" />
                         </button>
-                        <input
-                          type="text"
-                          value={formData.antecedentesGinecoObstetricos?.cesareas || '0'}
-                          onChange={(e) => handleNumberChange('cesareas', e.target.value)}
-                          className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none"
-                          inputMode="numeric"
-                          pattern="\d*"
-                        />
-                        <button 
-                          type="button"
-                          onClick={() => incrementValue('cesareas')}
-                          className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none"
-                        >
+                        <input type="text" value={formData.antecedentesGinecoObstetricos?.cesareas || '0'} onChange={e => handleNumberChange('cesareas', e.target.value)} className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none" inputMode="numeric" pattern="\d*" />
+                        <button type="button" onClick={() => incrementValue('cesareas')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none">
                           <ChevronUp className="h-4 w-4" />
                         </button>
                       </div>
@@ -221,26 +163,11 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                     <div>
                       <label className="block text-sm font-medium mb-2">Número de abortos:</label>
                       <div className="flex items-center w-full max-w-[200px] rounded-md border overflow-hidden bg-white shadow-sm">
-                        <button 
-                          type="button"
-                          onClick={() => decrementValue('abortos')}
-                          className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none"
-                        >
+                        <button type="button" onClick={() => decrementValue('abortos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none">
                           <ChevronDown className="h-4 w-4" />
                         </button>
-                        <input
-                          type="text"
-                          value={formData.antecedentesGinecoObstetricos?.abortos || '0'}
-                          onChange={(e) => handleNumberChange('abortos', e.target.value)}
-                          className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none"
-                          inputMode="numeric"
-                          pattern="\d*"
-                        />
-                        <button 
-                          type="button"
-                          onClick={() => incrementValue('abortos')}
-                          className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none"
-                        >
+                        <input type="text" value={formData.antecedentesGinecoObstetricos?.abortos || '0'} onChange={e => handleNumberChange('abortos', e.target.value)} className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none" inputMode="numeric" pattern="\d*" />
+                        <button type="button" onClick={() => incrementValue('abortos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none">
                           <ChevronUp className="h-4 w-4" />
                         </button>
                       </div>
@@ -258,17 +185,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                   </div>
 
                   <div className="flex justify-center mt-6">
-                    <button
-                      onClick={generateRedaccion}
-                      disabled={isGeneratingRedaccion}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 flex items-center gap-2"
-                    >
-                      {isGeneratingRedaccion ? (
-                        <>Generando...</>
-                      ) : (
-                        <>Generar Redacción IA</>
-                      )}
-                    </button>
+                    
                   </div>
                 </div>
               </div> : <div className="p-6">
@@ -282,5 +199,4 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
       </Card>
     </div>;
 };
-
 export default AntecedentesGinecoObstetricos;

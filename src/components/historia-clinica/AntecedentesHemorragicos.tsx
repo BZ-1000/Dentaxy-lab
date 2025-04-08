@@ -1,16 +1,13 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
-
 interface AntecedentesHemorragicosProps {
   formData: FormDataState;
   handleAntecedenteHemorragicoChange: (field: string, value: any) => void;
 }
-
 const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
   formData,
   handleAntecedenteHemorragicoChange
@@ -20,35 +17,28 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
   const [activeTab, setActiveTab] = useState('formulario');
   const [redaccionContent, setRedaccionContent] = useState('');
   const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
-
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
   };
-
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
     setIsMinimized(false);
   };
-
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
   };
-
   const handleTextChange = (field: string, value: string) => {
     handleAntecedenteHemorragicoChange(field, value);
   };
-
   const handleBooleanChange = (field: string, value: boolean) => {
     handleAntecedenteHemorragicoChange(field, value);
   };
-
   const handleVoiceInput = (field: string) => (text: string) => {
     const currentValue = formData.antecedentesHemorragicos[field] || "";
     handleAntecedenteHemorragicoChange(field, currentValue ? `${currentValue} ${text}` : text);
   };
-
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
     setTimeout(() => {
@@ -76,7 +66,6 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
       setActiveTab('redaccion');
     }, 1000);
   };
-
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="antecedentesHemorragicos">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -156,17 +145,7 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                   </div>
 
                   <div className="flex justify-center mt-6">
-                    <button
-                      onClick={generateRedaccion}
-                      disabled={isGeneratingRedaccion}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 flex items-center gap-2"
-                    >
-                      {isGeneratingRedaccion ? (
-                        <>Generando...</>
-                      ) : (
-                        <>Generar Redacción IA</>
-                      )}
-                    </button>
+                    
                   </div>
                 </div>
               </div> : <div className="p-6">
@@ -180,5 +159,4 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
       </Card>
     </div>;
 };
-
 export default AntecedentesHemorragicos;
