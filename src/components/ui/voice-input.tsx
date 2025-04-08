@@ -49,11 +49,12 @@ export const VoiceInput = ({ onTranscriptionComplete }: VoiceInputProps) => {
 
   return (
     <div className="h-full flex items-center justify-center">
-      <div
+      <button
         className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
           isRecording ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
         }`}
         onClick={handleClick}
+        type="button"
       >
         <Mic className="w-5 h-5 text-white" />
         {isRecording && (
@@ -67,7 +68,7 @@ export const VoiceInput = ({ onTranscriptionComplete }: VoiceInputProps) => {
           className="hidden"
           isActive={isRecording}
         />
-      </div>
+      </button>
     </div>
   );
 };

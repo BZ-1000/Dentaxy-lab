@@ -1,4 +1,3 @@
-
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -183,13 +182,15 @@ export interface AntecedentesQuirurgicos {
   }>;
   hospitalizacionesPrevias: string;
   complicacionesAnestesicas: string;
-  tratamientoReciente?: boolean;
+  tratamientoMedico?: boolean;
   motivoTratamiento?: string;
-  hospitalizacionReciente?: boolean;
+  hospitalizado?: boolean;
   motivoHospitalizacion?: string;
   tomaMedicamentos?: boolean;
   cualesMedicamentos?: string;
+  medicamentos?: string;
   motivoMedicamentos?: string;
+  detallesAdicionales?: string;
 }
 
 export interface AntecedentesHemorragicos {

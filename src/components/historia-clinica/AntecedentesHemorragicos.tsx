@@ -45,6 +45,12 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
 
   const handleBooleanChange = (field: string, value: boolean) => {
     handleAntecedenteHemorragicoChange(field, value);
+    
+    // Clear related fields when selecting "No"
+    if (field === 'transfusionPrevia' && !value) {
+      handleAntecedenteHemorragicoChange('motivoTransfusion', '');
+      handleAntecedenteHemorragicoChange('fechaTransfusion', '');
+    }
   };
 
   const handleVoiceInput = (field: string) => (text: string) => {
@@ -162,35 +168,40 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <label className="block text-sm font-medium mb-1">Motivo de la transfusión:</label>
-                    <div className="flex items-center">
-                      <Textarea 
-                        value={formData.antecedentesHemorragicos.motivoTransfusion || ''} 
-                        onChange={e => handleTextChange('motivoTransfusion', e.target.value)} 
-                        placeholder="Especifique el motivo" 
-                        className="min-h-[80px] flex-1" 
-                      />
-                      <div className="ml-2">
-                        <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTransfusion')} />
+                  {/* Show these fields only when transfusionPrevia is true */}
+                  {formData.antecedentesHemorragicos.transfusionPrevia && (
+                    <>
+                      <div className="relative">
+                        <label className="block text-sm font-medium mb-1">Motivo de la transfusión:</label>
+                        <div className="flex items-center">
+                          <Textarea 
+                            value={formData.antecedentesHemorragicos.motivoTransfusion || ''} 
+                            onChange={e => handleTextChange('motivoTransfusion', e.target.value)} 
+                            placeholder="Especifique el motivo" 
+                            className="min-h-[80px] flex-1" 
+                          />
+                          <div className="ml-2">
+                            <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTransfusion')} />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="relative">
-                    <label className="block text-sm font-medium mb-1">Fecha de la transfusión:</label>
-                    <div className="flex items-center">
-                      <Textarea 
-                        value={formData.antecedentesHemorragicos.fechaTransfusion || ''} 
-                        onChange={e => handleTextChange('fechaTransfusion', e.target.value)} 
-                        placeholder="DD/MM/AAAA o especifique aproximadamente" 
-                        className="min-h-[60px] flex-1" 
-                      />
-                      <div className="ml-2">
-                        <VoiceInput onTranscriptionComplete={handleVoiceInput('fechaTransfusion')} />
+                      <div className="relative">
+                        <label className="block text-sm font-medium mb-1">Fecha de la transfusión:</label>
+                        <div className="flex items-center">
+                          <Textarea 
+                            value={formData.antecedentesHemorragicos.fechaTransfusion || ''} 
+                            onChange={e => handleTextChange('fechaTransfusion', e.target.value)} 
+                            placeholder="DD/MM/AAAA o especifique aproximadamente" 
+                            className="min-h-[60px] flex-1" 
+                          />
+                          <div className="ml-2">
+                            <VoiceInput onTranscriptionComplete={handleVoiceInput('fechaTransfusion')} />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
 
                   <div className="relative">
                     <label className="block text-sm font-medium mb-1">Detalles adicionales sobre antecedentes hemorrágicos:</label>
