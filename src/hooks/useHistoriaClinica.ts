@@ -213,26 +213,48 @@ export const useHistoriaClinica = () => {
       }
     }));
   };
+  
+  const clearAntecedentesMedicosQuirurgicos = () => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesQuirurgicos: {
+        ...prev.antecedentesQuirurgicos,
+        tratamientoMedico: false,
+        motivoTratamiento: '',
+        hospitalizado: false, 
+        motivoHospitalizacion: '',
+        tomaMedicamento: false,
+        medicamentos: '',
+        motivoMedicamentos: '',
+        detallesAdicionales: 'El paciente no presenta antecedentes médicos ni quirúrgicos relevantes.'
+      }
+    }));
+    
+    toast({
+      title: "Formulario actualizado",
+      description: "Se ha registrado que el paciente no presenta antecedentes médicos ni quirúrgicos",
+    });
+  };
 
-const handleAntecedenteHemorragicoChange = (field: string, value: any) => {
-  setFormData(prev => ({
-    ...prev,
-    antecedentesHemorragicos: {
-      ...prev.antecedentesHemorragicos,
-      [field]: value
-    }
-  }));
-};
+  const handleAntecedenteHemorragicoChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesHemorragicos: {
+        ...prev.antecedentesHemorragicos,
+        [field]: value
+      }
+    }));
+  };
 
-const handleAntecedenteGinecoObstetricoChange = (field: string, value: any) => {
-  setFormData(prev => ({
-    ...prev,
-    antecedentesGinecoObstetricos: {
-      ...prev.antecedentesGinecoObstetricos || {},
-      [field]: value
-    }
-  }));
-};
+  const handleAntecedenteGinecoObstetricoChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesGinecoObstetricos: {
+        ...prev.antecedentesGinecoObstetricos || {},
+        [field]: value
+      }
+    }));
+  };
 
   const handleInterrogatorioChange = (system: string, value: string) => {
     setFormData(prev => ({
@@ -477,6 +499,7 @@ const handleAntecedenteGinecoObstetricoChange = (field: string, value: any) => {
     handleAntecedentePatologicoChange,
     handleAntecedenteAlergicoChange,
     handleAntecedenteQuirurgicoChange,
+    clearAntecedentesMedicosQuirurgicos,
     handleAntecedenteHemorragicoChange,
     handleAntecedenteGinecoObstetricoChange,
     handleInterrogatorioChange,

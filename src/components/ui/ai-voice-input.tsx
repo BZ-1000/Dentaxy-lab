@@ -8,12 +8,13 @@ import { useToast } from "@/hooks/use-toast";
 
 interface AIVoiceInputProps {
   onStart?: () => void;
-  onStop?: (duration: number) => void;
+  onStop?: (duration?: number) => void;
   visualizerBars?: number;
   demoMode?: boolean;
   demoInterval?: number;
   className?: string;
   onTranscriptionComplete?: (text: string) => void;
+  isActive?: boolean;
 }
 
 export function AIVoiceInput({
@@ -23,7 +24,8 @@ export function AIVoiceInput({
   demoMode = false,
   demoInterval = 3000,
   className,
-  onTranscriptionComplete
+  onTranscriptionComplete,
+  isActive = false
 }: AIVoiceInputProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [time, setTime] = useState(0);
@@ -150,6 +152,15 @@ export function AIVoiceInput({
     };
   }, []);
 
+  // Effect to handle external activation
+  useEffect(() => {
+    if (isActive && !isRecording) {
+      startRecording();
+    } else if (!isActive && isRecording) {
+      stopRecording();
+    }
+  }, [isActive, isRecording, stopRecording]);
+
   const checkMicrophonePermission = async () => {
     try {
       // First check if permission is already granted by attempting to access
@@ -192,9 +203,15 @@ export function AIVoiceInput({
   };
 
   const startRecording = async () => {
-    // First check microphone permission
+    // First check if the browser supports speech recognition
+    if (!isClient) return;
+
+    // Check microphone permission
     const permissionGranted = await checkMicrophonePermission();
-    if (!permissionGranted) return;
+    if (!permissionGranted) {
+      onStop?.();
+      return;
+    }
     
     try {
       transcriptRef.current = '';
@@ -208,11 +225,8 @@ export function AIVoiceInput({
         timerRef.current = setInterval(() => {
           setTime(prev => prev + 1);
         }, 1000);
-
-        toast({
-          title: "Grabación iniciada",
-          description: "Puedes comenzar a hablar...",
-        });
+      } else {
+        onStop?.();
       }
     } catch (error) {
       console.error('Error al iniciar el reconocimiento:', error);
@@ -221,6 +235,7 @@ export function AIVoiceInput({
         description: "No se pudo iniciar la grabación. Por favor, verifica los permisos del micrófono.",
         variant: "destructive",
       });
+      onStop?.();
     }
   };
 
@@ -241,21 +256,23 @@ export function AIVoiceInput({
   return (
     <div className={cn("w-full py-4", className)}>
       <div className="relative max-w-xl w-full mx-auto flex items-center flex-col gap-2">
-        <button
-          className={cn(
-            "group relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
-            isRecording
-              ? "bg-red-500 hover:bg-red-600"
-              : "bg-blue-500 hover:bg-blue-600"
-          )}
-          type="button"
-          onClick={handleClick}
-        >
-          <Mic className="w-6 h-6 text-white" />
-          {isRecording && (
-            <span className="absolute -top-2 -right-2 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-          )}
-        </button>
+        {!isActive && (
+          <button
+            className={cn(
+              "group relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
+              isRecording
+                ? "bg-red-500 hover:bg-red-600"
+                : "bg-blue-500 hover:bg-blue-600"
+            )}
+            type="button"
+            onClick={handleClick}
+          >
+            <Mic className="w-6 h-6 text-white" />
+            {isRecording && (
+              <span className="absolute -top-2 -right-2 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+            )}
+          </button>
+        )}
 
         {isRecording && (
           <span className="text-sm text-gray-500 dark:text-gray-400">

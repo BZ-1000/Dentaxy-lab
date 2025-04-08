@@ -1,44 +1,72 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+
 interface AntecedentesHemorragicosProps {
   formData: FormDataState;
   handleAntecedenteHemorragicoChange: (field: string, value: any) => void;
 }
+
 const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
   formData,
   handleAntecedenteHemorragicoChange
 }) => {
+  const { toast } = useToast();
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [activeTab, setActiveTab] = useState('formulario');
   const [redaccionContent, setRedaccionContent] = useState('');
   const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
+
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
   };
+
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
     setIsMinimized(false);
   };
+
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
   };
+
   const handleTextChange = (field: string, value: string) => {
     handleAntecedenteHemorragicoChange(field, value);
   };
+
   const handleBooleanChange = (field: string, value: boolean) => {
     handleAntecedenteHemorragicoChange(field, value);
   };
+
   const handleVoiceInput = (field: string) => (text: string) => {
     const currentValue = formData.antecedentesHemorragicos[field] || "";
     handleAntecedenteHemorragicoChange(field, currentValue ? `${currentValue} ${text}` : text);
   };
+
+  const handleNoAntecedentes = () => {
+    // Reset all values and set to default "no antecedents" state
+    handleAntecedenteHemorragicoChange('transfusionPrevia', false);
+    handleAntecedenteHemorragicoChange('motivoTransfusion', '');
+    handleAntecedenteHemorragicoChange('fechaTransfusion', '');
+    handleAntecedenteHemorragicoChange('detallesAdicionales', 'El paciente no presenta antecedentes hemorrágicos.');
+    
+    toast({
+      title: "Formulario actualizado",
+      description: "Se ha registrado que el paciente no presenta antecedentes hemorrágicos",
+    });
+
+    generateRedaccion();
+  };
+
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
     setTimeout(() => {
@@ -66,15 +94,27 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
       setActiveTab('redaccion');
     }, 1000);
   };
-  return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="antecedentesHemorragicos">
+
+  return (
+    <div 
+      className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} 
+      data-section-redaction="true" 
+      data-section-name="antecedentesHemorragicos"
+    >
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`} onClick={() => setActiveTab('formulario')}>
+              <button 
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`} 
+                onClick={() => setActiveTab('formulario')}
+              >
                 Formulario
               </button>
-              <button className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'redaccion' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`} onClick={() => setActiveTab('redaccion')}>
+              <button 
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'redaccion' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`} 
+                onClick={() => setActiveTab('redaccion')}
+              >
                 Redacción IA
               </button>
             </div>
@@ -99,16 +139,24 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
           </h2>
         </div>
 
-        {!isMinimized && <>
-            {activeTab === 'formulario' ? <div className="p-6">
+        {!isMinimized && (
+          <>
+            {activeTab === 'formulario' ? (
+              <div className="p-6">
                 <div className="space-y-6">
                   <div>
                     <h3 className="text-md font-medium mb-2">¿Le han transfundido sangre o algún derivado de la misma?</h3>
                     <div className="flex gap-4">
-                      <button className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesHemorragicos.transfusionPrevia ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => handleBooleanChange('transfusionPrevia', true)}>
+                      <button 
+                        className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesHemorragicos.transfusionPrevia ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} 
+                        onClick={() => handleBooleanChange('transfusionPrevia', true)}
+                      >
                         Sí
                       </button>
-                      <button className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesHemorragicos.transfusionPrevia === false ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => handleBooleanChange('transfusionPrevia', false)}>
+                      <button 
+                        className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesHemorragicos.transfusionPrevia === false ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} 
+                        onClick={() => handleBooleanChange('transfusionPrevia', false)}
+                      >
                         No
                       </button>
                     </div>
@@ -117,7 +165,12 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                   <div className="relative">
                     <label className="block text-sm font-medium mb-1">Motivo de la transfusión:</label>
                     <div className="flex items-center">
-                      <Textarea value={formData.antecedentesHemorragicos.motivoTransfusion || ''} onChange={e => handleTextChange('motivoTransfusion', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
+                      <Textarea 
+                        value={formData.antecedentesHemorragicos.motivoTransfusion || ''} 
+                        onChange={e => handleTextChange('motivoTransfusion', e.target.value)} 
+                        placeholder="Especifique el motivo" 
+                        className="min-h-[80px] flex-1" 
+                      />
                       <div className="ml-2">
                         <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTransfusion')} />
                       </div>
@@ -127,7 +180,12 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                   <div className="relative">
                     <label className="block text-sm font-medium mb-1">Fecha de la transfusión:</label>
                     <div className="flex items-center">
-                      <Textarea value={formData.antecedentesHemorragicos.fechaTransfusion || ''} onChange={e => handleTextChange('fechaTransfusion', e.target.value)} placeholder="DD/MM/AAAA o especifique aproximadamente" className="min-h-[60px] flex-1" />
+                      <Textarea 
+                        value={formData.antecedentesHemorragicos.fechaTransfusion || ''} 
+                        onChange={e => handleTextChange('fechaTransfusion', e.target.value)} 
+                        placeholder="DD/MM/AAAA o especifique aproximadamente" 
+                        className="min-h-[60px] flex-1" 
+                      />
                       <div className="ml-2">
                         <VoiceInput onTranscriptionComplete={handleVoiceInput('fechaTransfusion')} />
                       </div>
@@ -137,7 +195,12 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                   <div className="relative">
                     <label className="block text-sm font-medium mb-1">Detalles adicionales sobre antecedentes hemorrágicos:</label>
                     <div className="flex items-center">
-                      <Textarea value={formData.antecedentesHemorragicos.detallesAdicionales || ''} onChange={e => handleTextChange('detallesAdicionales', e.target.value)} placeholder="Proporcione cualquier otra información relevante" className="min-h-[80px] flex-1" />
+                      <Textarea 
+                        value={formData.antecedentesHemorragicos.detallesAdicionales || ''} 
+                        onChange={e => handleTextChange('detallesAdicionales', e.target.value)} 
+                        placeholder="Proporcione cualquier otra información relevante" 
+                        className="min-h-[80px] flex-1" 
+                      />
                       <div className="ml-2">
                         <VoiceInput onTranscriptionComplete={handleVoiceInput('detallesAdicionales')} />
                       </div>
@@ -145,18 +208,31 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                   </div>
 
                   <div className="flex justify-center mt-6">
-                    
+                    <Button 
+                      onClick={handleNoAntecedentes}
+                      className="bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      No presenta antecedentes hemorrágicos
+                    </Button>
                   </div>
                 </div>
-              </div> : <div className="p-6">
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" style={{
-            whiteSpace: 'pre-wrap'
-          }} data-redaction-content>
+              </div>
+            ) : (
+              <div className="p-6">
+                <div 
+                  className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" 
+                  style={{ whiteSpace: 'pre-wrap' }} 
+                  data-redaction-content
+                >
                   {redaccionContent || "No se ha generado redacción aún. Utilice el botón 'Generar Redacción IA' en la pestaña de Formulario."}
                 </div>
-              </div>}
-          </>}
+              </div>
+            )}
+          </>
+        )}
       </Card>
-    </div>;
+    </div>
+  );
 };
+
 export default AntecedentesHemorragicos;
