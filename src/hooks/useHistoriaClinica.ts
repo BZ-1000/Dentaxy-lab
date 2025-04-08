@@ -214,15 +214,25 @@ export const useHistoriaClinica = () => {
     }));
   };
 
-  const handleAntecedenteHemorragicoChange = (field: string, value: any) => {
-    setFormData(prev => ({
-      ...prev,
-      antecedentesHemorragicos: {
-        ...prev.antecedentesHemorragicos,
-        [field]: value
-      }
-    }));
-  };
+const handleAntecedenteHemorragicoChange = (field: string, value: any) => {
+  setFormData(prev => ({
+    ...prev,
+    antecedentesHemorragicos: {
+      ...prev.antecedentesHemorragicos,
+      [field]: value
+    }
+  }));
+};
+
+const handleAntecedenteGinecoObstetricoChange = (field: string, value: any) => {
+  setFormData(prev => ({
+    ...prev,
+    antecedentesGinecoObstetricos: {
+      ...prev.antecedentesGinecoObstetricos || {},
+      [field]: value
+    }
+  }));
+};
 
   const handleInterrogatorioChange = (system: string, value: string) => {
     setFormData(prev => ({
@@ -468,6 +478,7 @@ export const useHistoriaClinica = () => {
     handleAntecedenteAlergicoChange,
     handleAntecedenteQuirurgicoChange,
     handleAntecedenteHemorragicoChange,
+    handleAntecedenteGinecoObstetricoChange,
     handleInterrogatorioChange,
     handleExploracionFisicaChange,
     handleExamenCabezaChange,
