@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Minus, Maximize2, X, Mic } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -36,16 +36,6 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
   const handleNumberChange = (field: string, value: string) => {
     const numValue = value === '' ? '' : parseInt(value) || 0;
     handleAntecedenteGinecoObstetricoChange(field, numValue);
-  };
-  const incrementValue = (field: string) => {
-    const currentValue = formData.antecedentesGinecoObstetricos?.[field] || 0;
-    handleAntecedenteGinecoObstetricoChange(field, parseInt(currentValue as string) + 1);
-  };
-  const decrementValue = (field: string) => {
-    const currentValue = formData.antecedentesGinecoObstetricos?.[field] || 0;
-    if (parseInt(currentValue as string) > 0) {
-      handleAntecedenteGinecoObstetricoChange(field, parseInt(currentValue as string) - 1);
-    }
   };
   const handleVoiceInput = (field: string) => (text: string) => {
     const currentValue = formData.antecedentesGinecoObstetricos?.[field] || "";
@@ -122,55 +112,23 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-medium mb-2">Número de embarazos:</label>
-                      <div className="flex items-center w-full max-w-[200px] rounded-md border overflow-hidden bg-white shadow-sm">
-                        <button type="button" onClick={() => decrementValue('embarazos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none">
-                          <ChevronDown className="h-4 w-4" />
-                        </button>
-                        <input type="text" value={formData.antecedentesGinecoObstetricos?.embarazos || '0'} onChange={e => handleNumberChange('embarazos', e.target.value)} className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none" inputMode="numeric" pattern="\d*" />
-                        <button type="button" onClick={() => incrementValue('embarazos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none">
-                          <ChevronUp className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <label className="block text-sm font-medium mb-1">Número de embarazos:</label>
+                      <Input type="number" value={formData.antecedentesGinecoObstetricos?.embarazos || ''} onChange={e => handleNumberChange('embarazos', e.target.value)} placeholder="0" min="0" className="w-full" />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium mb-2">Número de partos:</label>
-                      <div className="flex items-center w-full max-w-[200px] rounded-md border overflow-hidden bg-white shadow-sm">
-                        <button type="button" onClick={() => decrementValue('partos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none">
-                          <ChevronDown className="h-4 w-4" />
-                        </button>
-                        <input type="text" value={formData.antecedentesGinecoObstetricos?.partos || '0'} onChange={e => handleNumberChange('partos', e.target.value)} className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none" inputMode="numeric" pattern="\d*" />
-                        <button type="button" onClick={() => incrementValue('partos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none">
-                          <ChevronUp className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <label className="block text-sm font-medium mb-1">Número de partos:</label>
+                      <Input type="number" value={formData.antecedentesGinecoObstetricos?.partos || ''} onChange={e => handleNumberChange('partos', e.target.value)} placeholder="0" min="0" className="w-full" />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium mb-2">Número de cesáreas:</label>
-                      <div className="flex items-center w-full max-w-[200px] rounded-md border overflow-hidden bg-white shadow-sm">
-                        <button type="button" onClick={() => decrementValue('cesareas')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none">
-                          <ChevronDown className="h-4 w-4" />
-                        </button>
-                        <input type="text" value={formData.antecedentesGinecoObstetricos?.cesareas || '0'} onChange={e => handleNumberChange('cesareas', e.target.value)} className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none" inputMode="numeric" pattern="\d*" />
-                        <button type="button" onClick={() => incrementValue('cesareas')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none">
-                          <ChevronUp className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <label className="block text-sm font-medium mb-1">Número de cesáreas:</label>
+                      <Input type="number" value={formData.antecedentesGinecoObstetricos?.cesareas || ''} onChange={e => handleNumberChange('cesareas', e.target.value)} placeholder="0" min="0" className="w-full" />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium mb-2">Número de abortos:</label>
-                      <div className="flex items-center w-full max-w-[200px] rounded-md border overflow-hidden bg-white shadow-sm">
-                        <button type="button" onClick={() => decrementValue('abortos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-r text-gray-500 focus:outline-none">
-                          <ChevronDown className="h-4 w-4" />
-                        </button>
-                        <input type="text" value={formData.antecedentesGinecoObstetricos?.abortos || '0'} onChange={e => handleNumberChange('abortos', e.target.value)} className="flex-1 py-2 px-3 text-center focus:outline-none focus:ring-0 border-none" inputMode="numeric" pattern="\d*" />
-                        <button type="button" onClick={() => incrementValue('abortos')} className="px-3 py-2 bg-gray-50 hover:bg-gray-100 transition-colors border-l text-gray-500 focus:outline-none">
-                          <ChevronUp className="h-4 w-4" />
-                        </button>
-                      </div>
+                      <label className="block text-sm font-medium mb-1">Número de abortos:</label>
+                      <Input type="number" value={formData.antecedentesGinecoObstetricos?.abortos || ''} onChange={e => handleNumberChange('abortos', e.target.value)} placeholder="0" min="0" className="w-full" />
                     </div>
                   </div>
 
@@ -179,7 +137,9 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                     <div className="flex items-center">
                       <Textarea value={formData.antecedentesGinecoObstetricos?.complicaciones || ''} onChange={e => handleTextChange('complicaciones', e.target.value)} placeholder="Describa cualquier complicación durante embarazos o partos" className="min-h-[80px] flex-1" />
                       <div className="ml-2">
-                        <VoiceInput onTranscriptionComplete={handleVoiceInput('complicaciones')} />
+                        <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
+                          <VoiceInput onTranscriptionComplete={handleVoiceInput('complicaciones')} />
+                        </button>
                       </div>
                     </div>
                   </div>
