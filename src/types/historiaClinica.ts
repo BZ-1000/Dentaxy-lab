@@ -1,3 +1,4 @@
+
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -152,6 +153,25 @@ export interface AntecedentesAlergicos {
     es_alergico: boolean;
     descripcion_reaccion: string;
   };
+  tiposAlergias?: {
+    medicamentos?: boolean;
+    alimentos?: boolean;
+    ambiente?: boolean;
+    [key: string]: boolean | undefined;
+  };
+  cualesAlergias?: string;
+  especificacionAlergias?: string;
+  administradoAnestesia?: boolean;
+  tipoAnestesia?: string;
+  reaccionAnestesia?: boolean;
+  descripcionReaccion?: string;
+  adicciones?: {
+    tabaco?: boolean;
+    alcohol?: boolean;
+    drogas?: boolean;
+    [key: string]: boolean | undefined;
+  };
+  detallesAdicciones?: string;
 }
 
 export interface AntecedentesQuirurgicos {
@@ -163,6 +183,13 @@ export interface AntecedentesQuirurgicos {
   }>;
   hospitalizacionesPrevias: string;
   complicacionesAnestesicas: string;
+  tratamientoReciente?: boolean;
+  motivoTratamiento?: string;
+  hospitalizacionReciente?: boolean;
+  motivoHospitalizacion?: string;
+  tomaMedicamentos?: boolean;
+  cualesMedicamentos?: string;
+  motivoMedicamentos?: string;
 }
 
 export interface AntecedentesHemorragicos {
@@ -172,6 +199,17 @@ export interface AntecedentesHemorragicos {
   hemorragiasEspontaneas: string;
   transfusiones: string;
   detallesAdicionales: string;
+  transfusionPrevia?: boolean;
+  motivoTransfusion?: string;
+  fechaTransfusion?: string;
+}
+
+export interface AntecedentesGinecoObstetricos {
+  embarazos?: number | string;
+  partos?: number | string;
+  cesareas?: number | string;
+  abortos?: number | string;
+  complicaciones?: string;
 }
 
 export interface ExploracionFisica {
@@ -326,6 +364,7 @@ export interface FormDataState {
   antecedentesAlergicos: AntecedentesAlergicos;
   antecedentesQuirurgicos: AntecedentesQuirurgicos;
   antecedentesHemorragicos: AntecedentesHemorragicos;
+  antecedentesGinecoObstetricos?: AntecedentesGinecoObstetricos;
   interrogatorioSistemas: {
     [key: string]: string;
     cardiovascular?: string;

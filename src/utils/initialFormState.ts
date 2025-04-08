@@ -149,13 +149,37 @@ export const getInitialFormState = (): FormDataState => ({
     latex: {
       es_alergico: false,
       descripcion_reaccion: ""
-    }
+    },
+    tiposAlergias: {
+      medicamentos: false,
+      alimentos: false,
+      ambiente: false
+    },
+    cualesAlergias: "",
+    especificacionAlergias: "",
+    administradoAnestesia: false,
+    tipoAnestesia: "",
+    reaccionAnestesia: false,
+    descripcionReaccion: "",
+    adicciones: {
+      tabaco: false,
+      alcohol: false,
+      drogas: false
+    },
+    detallesAdicciones: ""
   },
   antecedentesQuirurgicos: {
     sinQuirurgicos: false,
     cirugiasRealizadas: [],
     hospitalizacionesPrevias: "",
-    complicacionesAnestesicas: ""
+    complicacionesAnestesicas: "",
+    tratamientoReciente: false,
+    motivoTratamiento: "",
+    hospitalizacionReciente: false,
+    motivoHospitalizacion: "",
+    tomaMedicamentos: false,
+    cualesMedicamentos: "",
+    motivoMedicamentos: ""
   },
   antecedentesHemorragicos: {
     sinHemorragicos: false,
@@ -163,7 +187,17 @@ export const getInitialFormState = (): FormDataState => ({
     hematomas: "no",
     hemorragiasEspontaneas: "no",
     transfusiones: "no",
-    detallesAdicionales: ""
+    detallesAdicionales: "",
+    transfusionPrevia: false,
+    motivoTransfusion: "",
+    fechaTransfusion: ""
+  },
+  antecedentesGinecoObstetricos: {
+    embarazos: 0,
+    partos: 0,
+    cesareas: 0,
+    abortos: 0,
+    complicaciones: ""
   },
   interrogatorioSistemas: {
     cardiovascular: "",
