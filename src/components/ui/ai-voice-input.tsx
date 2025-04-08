@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Mic } from "lucide-react";
@@ -242,18 +243,17 @@ export function AIVoiceInput({
       <div className="relative max-w-xl w-full mx-auto flex items-center flex-col gap-2">
         <button
           className={cn(
-            "group relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300",
+            "group relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
             isRecording
               ? "bg-red-500 hover:bg-red-600"
-              : "bg-blue-500 hover:bg-blue-600 shadow-md"
+              : "bg-blue-500 hover:bg-blue-600"
           )}
           type="button"
           onClick={handleClick}
-          aria-label={isRecording ? "Stop recording" : "Start recording"}
         >
           <Mic className="w-6 h-6 text-white" />
           {isRecording && (
-            <span className="absolute -top-2 -right-2 w-3 h-3 bg-red-500 rounded-full animate-pulse shadow-lg" />
+            <span className="absolute -top-2 -right-2 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
           )}
         </button>
 

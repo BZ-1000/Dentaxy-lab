@@ -1,23 +1,6 @@
 
 import { FormDataState } from '@/types/historiaClinica';
 
-export const getInitialFamiliarState = () => ({
-  finado: false,
-  causaMuerte: '',
-  condiciones: {
-    diabetesMellitus: false,
-    hipertensionArterial: false,
-    osteoporosis: false,
-    artritisReumatoide: false,
-    parkinson: false,
-    alzheimer: false,
-    asma: false,
-    cancer: false,
-    anemia: false,
-    otras: ''
-  }
-});
-
 export const getInitialFormState = (): FormDataState => ({
   padecimientoActual: {
     sinSintomas: false,
@@ -33,8 +16,7 @@ export const getInitialFormState = (): FormDataState => ({
         tipo: '',
         descripcion: ''
       },
-      atenuacion: '',
-      causaProvocado: ''
+      atenuacion: ''
     }
   },
   antecedentesHeredoFamiliares: {
@@ -167,39 +149,13 @@ export const getInitialFormState = (): FormDataState => ({
     latex: {
       es_alergico: false,
       descripcion_reaccion: ""
-    },
-    ambiental: {
-      es_alergico: false,
-      descripcion: ""
-    },
-    cuales_alergias: "",
-    especificacion_alergias: "",
-    anestesia_previa: false,
-    tipo_anestesia: "",
-    reaccion_anestesia: false,
-    especificacion_reaccion: "",
-    adiccion_tabaco: false,
-    adiccion_alcohol: false,
-    adiccion_drogas: false,
-    detalles_adiccion: ""
+    }
   },
   antecedentesQuirurgicos: {
     sinQuirurgicos: false,
     cirugiasRealizadas: [],
     hospitalizacionesPrevias: "",
-    complicacionesAnestesicas: "",
-    tratamiento_reciente: false,
-    motivo_tratamiento: "",
-    hospitalizacion_reciente: false,
-    motivo_hospitalizacion: "",
-    medicacion_actual: false,
-    medicamentos_actuales: "",
-    motivo_medicacion: "",
-    num_embarazos: "",
-    num_partos: "",
-    num_cesareas: "",
-    num_abortos: "",
-    complicaciones_gineco: ""
+    complicacionesAnestesicas: ""
   },
   antecedentesHemorragicos: {
     sinHemorragicos: false,
@@ -207,10 +163,7 @@ export const getInitialFormState = (): FormDataState => ({
     hematomas: "no",
     hemorragiasEspontaneas: "no",
     transfusiones: "no",
-    detallesAdicionales: "",
-    transfusion_sanguinea: false,
-    motivo_transfusion: "",
-    fecha_transfusion: ""
+    detallesAdicionales: ""
   },
   interrogatorioSistemas: {
     cardiovascular: "",
@@ -361,5 +314,22 @@ export const getInitialFormState = (): FormDataState => ({
   frecuenciaRespiratoria: '',
   temperatura: '',
   diagnosticos: '',
-  pronosticos: ''
+  pronosticos: '',
+});
+
+const getInitialFamiliarState = () => ({
+  finado: false,
+  causaMuerte: '',
+  condiciones: {
+    diabetesMellitus: false,
+    hipertensionArterial: false,
+    osteoporosis: false,
+    artritisReumatoide: false,
+    parkinson: false,
+    alzheimer: false,
+    asma: false,
+    cancer: false,
+    anemia: false,
+    otras: ''
+  }
 });

@@ -1,4 +1,3 @@
-
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -153,20 +152,6 @@ export interface AntecedentesAlergicos {
     es_alergico: boolean;
     descripcion_reaccion: string;
   };
-  ambiental?: {
-    es_alergico: boolean;
-    descripcion: string;
-  };
-  cuales_alergias?: string;
-  especificacion_alergias?: string;
-  anestesia_previa?: boolean;
-  tipo_anestesia?: string;
-  reaccion_anestesia?: boolean;
-  especificacion_reaccion?: string;
-  adiccion_tabaco?: boolean;
-  adiccion_alcohol?: boolean;
-  adiccion_drogas?: boolean;
-  detalles_adiccion?: string;
 }
 
 export interface AntecedentesQuirurgicos {
@@ -178,19 +163,6 @@ export interface AntecedentesQuirurgicos {
   }>;
   hospitalizacionesPrevias: string;
   complicacionesAnestesicas: string;
-  tratamiento_reciente?: boolean;
-  motivo_tratamiento?: string;
-  hospitalizacion_reciente?: boolean;
-  motivo_hospitalizacion?: string;
-  medicacion_actual?: boolean;
-  medicamentos_actuales?: string;
-  motivo_medicacion?: string;
-  // Antecedentes Gineco-Obstétricos
-  num_embarazos?: string;
-  num_partos?: string;
-  num_cesareas?: string;
-  num_abortos?: string;
-  complicaciones_gineco?: string;
 }
 
 export interface AntecedentesHemorragicos {
@@ -200,9 +172,6 @@ export interface AntecedentesHemorragicos {
   hemorragiasEspontaneas: string;
   transfusiones: string;
   detallesAdicionales: string;
-  transfusion_sanguinea?: boolean;
-  motivo_transfusion?: string;
-  fecha_transfusion?: string;
 }
 
 export interface ExploracionFisica {

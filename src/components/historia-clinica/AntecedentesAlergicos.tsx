@@ -1,12 +1,8 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Mic } from "lucide-react";
+import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Button } from "@/components/ui/button"
-import { FancyRadio, FancyRadioGroup, TagButton } from "@/components/ui/fancy-radio";
-import { AIVoiceInput } from "@/components/ui/ai-voice-input";
 
 interface AntecedentesAlergicosProps {
   formData: FormDataState;
@@ -19,9 +15,6 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
-  const [activeTab, setActiveTab] = useState<'form' | 'ai'>('form');
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingField, setRecordingField] = useState<string | null>(null);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -38,52 +31,16 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
     setIsMaximized(false);
   };
 
-  const handleRecording = (field: string) => {
-    if (recordingField === field) {
-      setIsRecording(false);
-      setRecordingField(null);
-    } else {
-      setIsRecording(true);
-      setRecordingField(field);
-    }
-  };
-
-  const handleTagToggle = (field: string, checked: boolean) => {
-    if (!handleAntecedenteAlergicoChange) return;
-    handleAntecedenteAlergicoChange(field, checked);
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    if (!handleAntecedenteAlergicoChange) return;
-    handleAntecedenteAlergicoChange(field, value);
-  };
-
-  const handleRadioChange = (field: string, value: string) => {
-    if (!handleAntecedenteAlergicoChange) return;
-    handleAntecedenteAlergicoChange(field, value === 'si');
-  };
-
-  const handleVoiceInput = (field: string, text: string) => {
-    if (!handleAntecedenteAlergicoChange) return;
-    handleAntecedenteAlergicoChange(field, text);
-  };
-
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button 
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'form' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
-                onClick={() => setActiveTab('form')}
-              >
+              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm bg-blue-500 text-white shadow-md">
                 Formulario
               </button>
-              <button 
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'ai' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
-                onClick={() => setActiveTab('ai')}
-              >
+              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm text-gray-700 dark:text-gray-300">
                 Redacción IA
               </button>
             </div>
@@ -108,242 +65,9 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
           </h2>
         </div>
 
-        {!isMinimized && activeTab === 'form' && (
-          <div className="p-6">
-            <div className="space-y-6">
-              <div>
-                <h3 className="font-medium mb-3">1. ¿Ha presentado alguna reacción alérgica a alguno de los siguientes?</h3>
-                <div className="flex flex-wrap gap-2">
-                  <TagButton
-                    label="Medicamentos"
-                    active={formData?.antecedentesAlergicos?.medicamentos?.es_alergico || false}
-                    onClick={() => handleTagToggle('medicamentos.es_alergico', !formData?.antecedentesAlergicos?.medicamentos?.es_alergico)}
-                  />
-                  <TagButton
-                    label="Alimentos"
-                    active={formData?.antecedentesAlergicos?.alimentos?.es_alergico || false}
-                    onClick={() => handleTagToggle('alimentos.es_alergico', !formData?.antecedentesAlergicos?.alimentos?.es_alergico)}
-                  />
-                  <TagButton
-                    label="Entorno ambiental"
-                    active={formData?.antecedentesAlergicos?.ambiental?.es_alergico || false}
-                    onClick={() => handleTagToggle('ambiental.es_alergico', !formData?.antecedentesAlergicos?.ambiental?.es_alergico)}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium">2. ¿Cuáles?</h3>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-1">
-                    <Textarea 
-                      placeholder="Detallar las alergias identificadas..." 
-                      className="min-h-[80px] resize-y text-justify pr-3" 
-                      value={formData?.antecedentesAlergicos?.cuales_alergias || ''}
-                      onChange={(e) => handleInputChange('cuales_alergias', e.target.value)}
-                    />
-                  </div>
-                  <div className="flex-shrink-0">
-                    <button
-                      onClick={() => handleRecording('cuales_alergias')}
-                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'cuales_alergias' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                    >
-                      <Mic className="h-6 w-6 text-white" />
-                    </button>
-                  </div>
-                </div>
-                {recordingField === 'cuales_alergias' && (
-                  <AIVoiceInput
-                    onTranscriptionComplete={(text) => handleVoiceInput('cuales_alergias', text)}
-                    className="p-0"
-                  />
-                )}
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium">3. ¿A qué específicamente?</h3>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-1">
-                    <Textarea 
-                      placeholder="Especificar detalles sobre las alergias..." 
-                      className="min-h-[80px] resize-y text-justify pr-3" 
-                      value={formData?.antecedentesAlergicos?.especificacion_alergias || ''}
-                      onChange={(e) => handleInputChange('especificacion_alergias', e.target.value)}
-                    />
-                  </div>
-                  <div className="flex-shrink-0">
-                    <button
-                      onClick={() => handleRecording('especificacion_alergias')}
-                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'especificacion_alergias' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                    >
-                      <Mic className="h-6 w-6 text-white" />
-                    </button>
-                  </div>
-                </div>
-                {recordingField === 'especificacion_alergias' && (
-                  <AIVoiceInput
-                    onTranscriptionComplete={(text) => handleVoiceInput('especificacion_alergias', text)}
-                    className="p-0"
-                  />
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-medium">4. ¿Le han administrado anestesia general y/o local?</h3>
-                <FancyRadioGroup 
-                  defaultValue={formData?.antecedentesAlergicos?.anestesia_previa ? 'si' : 'no'}
-                  onValueChange={(value) => handleRadioChange('anestesia_previa', value)}
-                >
-                  <FancyRadio value="si" label="Sí" id="anestesia-si" />
-                  <FancyRadio value="no" label="No" id="anestesia-no" />
-                </FancyRadioGroup>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium">5. Especifique el tipo de anestesia y procedimiento:</h3>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-1">
-                    <Textarea 
-                      placeholder="Detallar tipo de anestesia y procedimiento..." 
-                      className="min-h-[80px] resize-y text-justify pr-3" 
-                      value={formData?.antecedentesAlergicos?.tipo_anestesia || ''}
-                      onChange={(e) => handleInputChange('tipo_anestesia', e.target.value)}
-                    />
-                  </div>
-                  <div className="flex-shrink-0">
-                    <button
-                      onClick={() => handleRecording('tipo_anestesia')}
-                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'tipo_anestesia' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                    >
-                      <Mic className="h-6 w-6 text-white" />
-                    </button>
-                  </div>
-                </div>
-                {recordingField === 'tipo_anestesia' && (
-                  <AIVoiceInput
-                    onTranscriptionComplete={(text) => handleVoiceInput('tipo_anestesia', text)}
-                    className="p-0"
-                  />
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="font-medium">6. ¿Tuvo alguna reacción adversa a la anestesia?</h3>
-                <FancyRadioGroup 
-                  defaultValue={formData?.antecedentesAlergicos?.reaccion_anestesia ? 'si' : 'no'}
-                  onValueChange={(value) => handleRadioChange('reaccion_anestesia', value)}
-                >
-                  <FancyRadio value="si" label="Sí" id="reaccion-si" />
-                  <FancyRadio value="no" label="No" id="reaccion-no" />
-                </FancyRadioGroup>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium">7. Si respondió que sí, especifique la reacción:</h3>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-1">
-                    <Textarea 
-                      placeholder="Detallar la reacción adversa..." 
-                      className="min-h-[80px] resize-y text-justify pr-3" 
-                      value={formData?.antecedentesAlergicos?.especificacion_reaccion || ''}
-                      onChange={(e) => handleInputChange('especificacion_reaccion', e.target.value)}
-                    />
-                  </div>
-                  <div className="flex-shrink-0">
-                    <button
-                      onClick={() => handleRecording('especificacion_reaccion')}
-                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'especificacion_reaccion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                    >
-                      <Mic className="h-6 w-6 text-white" />
-                    </button>
-                  </div>
-                </div>
-                {recordingField === 'especificacion_reaccion' && (
-                  <AIVoiceInput
-                    onTranscriptionComplete={(text) => handleVoiceInput('especificacion_reaccion', text)}
-                    className="p-0"
-                  />
-                )}
-              </div>
-
-              <div>
-                <h3 className="font-medium mb-3">8. ¿Tiene alguna adicción actual o pasada?</h3>
-                <div className="flex flex-wrap gap-2">
-                  <TagButton
-                    label="Tabaco"
-                    active={formData?.antecedentesAlergicos?.adiccion_tabaco || false}
-                    onClick={() => handleTagToggle('adiccion_tabaco', !formData?.antecedentesAlergicos?.adiccion_tabaco)}
-                  />
-                  <TagButton
-                    label="Alcohol"
-                    active={formData?.antecedentesAlergicos?.adiccion_alcohol || false}
-                    onClick={() => handleTagToggle('adiccion_alcohol', !formData?.antecedentesAlergicos?.adiccion_alcohol)}
-                  />
-                  <TagButton
-                    label="Drogas"
-                    active={formData?.antecedentesAlergicos?.adiccion_drogas || false}
-                    onClick={() => handleTagToggle('adiccion_drogas', !formData?.antecedentesAlergicos?.adiccion_drogas)}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-medium">9. Especifique tipo, frecuencia y duración:</h3>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="relative flex-1">
-                    <Textarea 
-                      placeholder="Detallar tipo, frecuencia y duración de las adicciones..." 
-                      className="min-h-[80px] resize-y text-justify pr-3" 
-                      value={formData?.antecedentesAlergicos?.detalles_adiccion || ''}
-                      onChange={(e) => handleInputChange('detalles_adiccion', e.target.value)}
-                    />
-                  </div>
-                  <div className="flex-shrink-0">
-                    <button
-                      onClick={() => handleRecording('detalles_adiccion')}
-                      className={`rounded-full w-12 h-12 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors ${recordingField === 'detalles_adiccion' && isRecording ? 'bg-red-500 hover:bg-red-600 animate-pulse' : ''}`}
-                    >
-                      <Mic className="h-6 w-6 text-white" />
-                    </button>
-                  </div>
-                </div>
-                {recordingField === 'detalles_adiccion' && (
-                  <AIVoiceInput
-                    onTranscriptionComplete={(text) => handleVoiceInput('detalles_adiccion', text)}
-                    className="p-0"
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {!isMinimized && activeTab === 'ai' && (
-          <div className="p-6">
-            <div className="flex justify-between mb-4">
-              <Button variant="outline" size="sm">Copiar</Button>
-              <Button 
-                variant="default" 
-                size="sm" 
-                className="bg-blue-500 hover:bg-blue-600"
-              >
-                Generar Redacción IA
-              </Button>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg min-h-[150px] whitespace-pre-wrap">
-              {/* Aquí se mostrará la redacción generada por IA */}
-              <p className="text-gray-500 dark:text-gray-400 italic">La redacción generada por IA aparecerá aquí después de hacer clic en el botón "Generar Redacción IA".</p>
-            </div>
+        {!isMinimized && (
+          <div className="p-6 flex items-center justify-center">
+            <h1 className="text-4xl font-bold text-gray-400 dark:text-gray-500">Próximamente</h1>
           </div>
         )}
       </Card>
