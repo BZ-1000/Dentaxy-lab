@@ -35,7 +35,6 @@ export const VoiceInput = ({ onTranscriptionComplete }: VoiceInputProps) => {
   const handleTranscriptionComplete = (text: string) => {
     if (text && onTranscriptionComplete) {
       onTranscriptionComplete(text);
-      setIsRecording(false);  // Ensure recording state is reset
     }
   };
 
@@ -45,30 +44,38 @@ export const VoiceInput = ({ onTranscriptionComplete }: VoiceInputProps) => {
     } else {
       handleStart();
     }
+    
+    // This will be handled by the AIVoiceInput component
+    const audioInput = document.createElement('audio-input');
+    document.body.appendChild(audioInput);
+    
+    setTimeout(() => {
+      document.body.removeChild(audioInput);
+    }, 100);
   };
 
   return (
     <div className="h-full flex items-center justify-center">
-      <button
-        className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
+      <div
+        className={`group relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer ${
           isRecording ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"
         }`}
         onClick={handleClick}
-        type="button"
       >
         <Mic className="w-5 h-5 text-white" />
         {isRecording && (
           <span className="absolute -top-2 -right-2 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
         )}
         
-        <AIVoiceInput
-          onStart={handleStart}
-          onStop={handleStop}
-          onTranscriptionComplete={handleTranscriptionComplete}
-          className="hidden"
-          isActive={isRecording}
-        />
-      </button>
+        <div style={{ display: 'none' }}>
+          <AIVoiceInput
+            onStart={handleStart}
+            onStop={handleStop}
+            onTranscriptionComplete={handleTranscriptionComplete}
+            className="p-0"
+          />
+        </div>
+      </div>
     </div>
   );
 };
