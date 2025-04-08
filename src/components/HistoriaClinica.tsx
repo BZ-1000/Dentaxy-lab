@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -34,6 +35,7 @@ import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
 import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
+
 const HistoriaClinica = () => {
   const {
     theme
@@ -83,20 +85,24 @@ const HistoriaClinica = () => {
   const pdfSectionsRef = useRef<{
     [key: string]: string;
   }>({});
+
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
     }
   }, [formData, pacienteActual, guardarFormulario]);
+
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
     cargarFormulario(null); // Cargar formulario vacío
   };
+
   const handleResetFormulario = () => {
     setPacienteActual('');
     resetFormulario();
   };
+
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       toast({
@@ -113,6 +119,7 @@ const HistoriaClinica = () => {
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
+
   const validateForm = () => {
     const padecimientoFields = validatePadecimientoActual(formData);
     const heredoFamiliaresFields = validateAntecedentesHeredoFamiliares(formData);
@@ -369,6 +376,7 @@ const HistoriaClinica = () => {
       setPdfGenerationProgress(100);
     }
   };
+
   const handleGeneratePDF = () => {
     const missing = validateForm();
     if (missing.length > 0) {
@@ -378,15 +386,23 @@ const HistoriaClinica = () => {
       generatePDFDocument();
     }
   };
-  return <div className={`${theme} min-h-screen w-full flex`}>
-      <FormulariosSidebar onCargarFormulario={(data, nombre) => {
-      cargarFormulario(data);
-      setPacienteActual(nombre);
-      setNombrePaciente(nombre);
-    }} onGuardarFormulario={nombre => {
-      guardarFormulario(formData, nombre);
-      setPacienteActual(nombre);
-    }} onCerrarFormulario={handleLimpiarFormulario} onResetFormulario={handleResetFormulario} pacienteActual={pacienteActual} />
+
+  return (
+    <div className={`${theme} min-h-screen w-full flex`}>
+      <FormulariosSidebar 
+        onCargarFormulario={(data, nombre) => {
+          cargarFormulario(data);
+          setPacienteActual(nombre);
+          setNombrePaciente(nombre);
+        }} 
+        onGuardarFormulario={nombre => {
+          guardarFormulario(formData, nombre);
+          setPacienteActual(nombre);
+        }} 
+        onCerrarFormulario={handleLimpiarFormulario} 
+        onResetFormulario={handleResetFormulario} 
+        pacienteActual={pacienteActual} 
+      />
       
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
         <div className="max-w-5xl mx-auto space-y-8">
@@ -404,9 +420,18 @@ const HistoriaClinica = () => {
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                       <User className="h-4 w-4 text-gray-400" />
                     </div>
-                    <Input value={nombrePaciente} onChange={e => setNombrePaciente(e.target.value)} placeholder="Nombre del paciente" className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" />
+                    <Input 
+                      value={nombrePaciente} 
+                      onChange={e => setNombrePaciente(e.target.value)} 
+                      placeholder="Nombre del paciente" 
+                      className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                    />
                   </div>
-                  <Button onClick={handleGuardarFormulario} disabled={!nombrePaciente.trim()} className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200">
+                  <Button 
+                    onClick={handleGuardarFormulario} 
+                    disabled={!nombrePaciente.trim()} 
+                    className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200"
+                  >
                     <Save className="h-4 w-4" />
                     <span className="text-sm font-medium">Guardar</span>
                   </Button>
@@ -415,23 +440,43 @@ const HistoriaClinica = () => {
             </div>
             
             {/* Componente para mostrar el paciente actual */}
-            {pacienteActual && <div className="flex items-center justify-center gap-2 mb-6">
+            {pacienteActual && (
+              <div className="flex items-center justify-center gap-2 mb-6">
                 <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
                   Formulario actual: {pacienteActual}
                 </div>
-                <button onClick={handleResetFormulario} className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Resetear formulario">
+                <button 
+                  onClick={handleResetFormulario} 
+                  className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" 
+                  aria-label="Resetear formulario"
+                >
                   <X className="w-3 h-3" />
                 </button>
-              </div>}
+              </div>
+            )}
             
             {/* Selector de género para mostrar/ocultar sección gineco-obstétrica */}
             <div className="flex items-center justify-center mb-6 gap-4">
               <span className="text-sm text-gray-600 dark:text-gray-400">Género del paciente:</span>
               <div className="flex gap-2">
-                <button className={`px-4 py-2 rounded-md text-sm transition-colors ${!esMujer ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setEsMujer(false)}>
+                <button
+                  className={`px-4 py-2 rounded-md text-sm transition-colors ${
+                    !esMujer
+                      ? 'bg-[#2ecc71] text-white'
+                      : 'bg-gray-100 dark:bg-gray-700'
+                  }`}
+                  onClick={() => setEsMujer(false)}
+                >
                   Hombre
                 </button>
-                <button onClick={() => setEsMujer(true)} className="font-normal text-sm text-slate-950 bg-fuchsia-500 hover:bg-fuchsia-400 mx-0 px-[20px] rounded-2xl">
+                <button
+                  className={`px-4 py-2 rounded-md text-sm transition-colors ${
+                    esMujer
+                      ? 'bg-[#2ecc71] text-white'
+                      : 'bg-gray-100 dark:bg-gray-700'
+                  }`}
+                  onClick={() => setEsMujer(true)}
+                >
                   Mujer
                 </button>
               </div>
@@ -469,9 +514,14 @@ const HistoriaClinica = () => {
             </div>
 
             {/* Mostrar antecedentes gineco-obstétricos solo si es mujer */}
-            {esMujer && <div data-section-redaction="true" data-section-name="antecedentesGinecoObstetricos">
-                <AntecedentesGinecoObstetricos formData={formData} handleAntecedenteGinecoObstetricoChange={handleAntecedenteGinecoObstetricoChange} />
-              </div>}
+            {esMujer && (
+              <div data-section-redaction="true" data-section-name="antecedentesGinecoObstetricos">
+                <AntecedentesGinecoObstetricos 
+                  formData={formData} 
+                  handleAntecedenteGinecoObstetricoChange={handleAntecedenteGinecoObstetricoChange} 
+                />
+              </div>
+            )}
 
             <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
               <InterrogatorioSistemas formData={formData} handleInterrogatorioChange={handleInterrogatorioChange} />
@@ -526,28 +576,50 @@ const HistoriaClinica = () => {
             </div>
 
             <div className="flex justify-center pt-6">
-              <Button onClick={handleGeneratePDF} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-base font-normal">
-                {isGeneratingPDF ? <>
+              <Button 
+                onClick={handleGeneratePDF} 
+                disabled={isGeneratingPDF} 
+                className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-base font-normal"
+              >
+                {isGeneratingPDF ? (
+                  <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Generando PDF...
-                  </> : <>
+                  </>
+                ) : (
+                  <>
                     <FileText className="mr-2 h-5 w-5" />
                     Generar Historia Clínica en PDF
-                  </>}
+                  </>
+                )}
               </Button>
             </div>
           </div>
         </div>
       </div>
       
-      <ConfirmationAlert isOpen={alertOpen} onClose={() => setAlertOpen(false)} onConfirm={() => {
-      setAlertOpen(false);
-      generatePDFDocument();
-    }} title="Formulario incompleto" description="Hay campos sin completar en el formulario." missingFields={missingFields} />
+      <ConfirmationAlert 
+        isOpen={alertOpen} 
+        onClose={() => setAlertOpen(false)} 
+        onConfirm={() => {
+          setAlertOpen(false);
+          generatePDFDocument();
+        }} 
+        title="Formulario incompleto" 
+        description="Hay campos sin completar en el formulario." 
+        missingFields={missingFields} 
+      />
       
-      {isGeneratingPDF && <LoadingOverlay message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." progress={pdfGenerationProgress} />}
+      {isGeneratingPDF && (
+        <LoadingOverlay 
+          message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." 
+          progress={pdfGenerationProgress} 
+        />
+      )}
       
       <Toaster />
-    </div>;
+    </div>
+  );
 };
+
 export default HistoriaClinica;
