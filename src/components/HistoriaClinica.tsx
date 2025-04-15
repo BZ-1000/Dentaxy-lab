@@ -384,8 +384,9 @@ const HistoriaClinica = () => {
               (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)
             </p>
 
-            <div className="max-w-lg mx-auto mb-2 sticky top-4 z-30">
-              <div className="backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
+            {/* Componente de nombre de paciente */}
+            <div className="sticky top-0 z-30 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-md mb-4">
+              <div className="backdrop-blur-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50 dark:bg-gray-900">
                 <div className="flex items-center gap-3">
                   <div className="relative flex-1">
                     <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
