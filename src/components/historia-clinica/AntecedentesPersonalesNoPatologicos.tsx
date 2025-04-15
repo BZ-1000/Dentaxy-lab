@@ -175,6 +175,14 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     return `El paciente refiere un cepillado dental con una frecuencia ${frecuenciaCepillado || '[no especificada]'}, utilizando técnica ${tecnicaCepillado || '[no especificada]'}, lo que influye directamente en la salud periodontal y la prevención de caries. Además, complementa su higiene bucal con ${auxiliaresText}. La última visita al odontólogo fue hace ${ultimaVisitaOdontologo || '[no especificada]'}, lo que permite evaluar su acceso a la atención odontológica y el seguimiento de su salud bucal. Actualmente, refiere ${problemasText}, aspectos clave en la valoración del estado oral.`;
   };
 
+  const formatTime12Hour = (time: string) => {
+    if (!time) return '[no especificado]';
+    const [hours, minutes] = time.split(':');
+    const period = parseInt(hours, 10) >= 12 ? 'PM' : 'AM';
+    const formattedHours = parseInt(hours, 10) % 12 || 12;
+    return `${formattedHours}:${minutes} ${period}`;
+  };
+
   const generateAlimentacionText = () => {
     const {
       alimentosConsumidos,
@@ -188,7 +196,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     let alimentosText = alimentosConsumidos.length > 0 ? alimentosConsumidos.join(', ') : '[no especificado]';
     let horarios = '';
     if (horarioComidas) {
-      horarios = `Desayuno: ${horarioComidas.desayuno || '[no especificado]'}\nAlmuerzo: ${horarioComidas.almuerzo || '[no especificado]'}\nCena: ${horarioComidas.cena || '[no especificado]'}`;
+      horarios = `Desayuno: ${formatTime12Hour(horarioComidas.desayuno)}\nAlmuerzo: ${formatTime12Hour(horarioComidas.almuerzo)}\nCena: ${formatTime12Hour(horarioComidas.cena)}`;
     }
     return `El paciente tiene una alimentación basada en ${alimentosText}, lo que influye en su estado nutricional y salud general. El consumo de frutas y verduras es ${frecuenciaFrutasVerduras || '[no especificada]'}, mientras que la ingesta de bebidas azucaradas ocurre ${frecuenciaBebidasAzucaradas || '[no especificada]'} y el consumo de comida chatarra ${frecuenciaComidaChatarra || '[no especificada]'}, factores determinantes en el riesgo de enfermedades metabólicas y caries dental. La cantidad de agua ingerida diariamente es de aproximadamente ${consumoAgua || '[no especificado]'}, contribuyendo a la hidratación y función renal. Realiza ${numeroComidas || '[no especificado]'} comidas al día, con los siguientes horarios reportados:\n\n${horarios}`;
   };
