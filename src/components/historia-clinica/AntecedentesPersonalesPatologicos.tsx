@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -10,15 +10,21 @@ import { Switch } from "@/components/ui/switch";
 import { AlertCircle, EyeOff, Eye } from "lucide-react";
 import { AnimatedTextarea } from '@/components/ui/animated-textarea';
 
-interface AntecedentesPersonalesPatologicosProps {
-  formData: FormDataState;
-  handleAntecedentePatologicoChange: (field: string, value: any) => void;
+interface CopiedState {
+  nutricionales?: boolean;
+  cardiacos?: boolean;
+  hepaticos?: boolean;
+  enfermedadesTransmisionSexual?: boolean;
+  enfermedadesEruptivas?: boolean;
+  pulmonares?: boolean;
+  infecciosasParasitarias?: boolean;
+  otrosPadecimientos?: boolean;
 }
 
-const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologicosProps> = ({
-  formData,
-  handleAntecedentePatologicoChange
-}) => {
+const AntecedentesPersonalesPatologicos: React.FC<{
+  formData: FormDataState;
+  handleAntecedentePatologicoChange: (field: string, value: any) => void;
+}> = ({ formData, handleAntecedentePatologicoChange }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showForm, setShowForm] = useState(true);
@@ -33,11 +39,25 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     infecciosasParasitarias: "",
     otrosPadecimientos: ""
   });
-  const [copied, setCopied] = useState<Record<string, boolean>>({});
+  const [copied, setCopied] = useState<CopiedState>({});
   const formRef = useRef<HTMLDivElement>(null);
   const redaccionesRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLDivElement>(null); // Referencia para el div que envuelve AnimatedTextarea
   const [progress, setProgress] = useState(0);
   const [previousFormState, setPreviousFormState] = useState(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (textareaRef.current && !textareaRef.current.contains(event.target as Node)) {
+        // Aquí puedes agregar lógica adicional si es necesario
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -60,7 +80,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     handleAntecedentePatologicoChange("sinPatologia", newValue);
 
     if (newValue) {
-      // Clear other fields when "sin patologia" is selected
       handleAntecedentePatologicoChange("nutricionales", { ninguna: true, otra: false, otraDescripcion: '' });
       handleAntecedentePatologicoChange("cardiacos", { ninguna: true, otra: false, otraDescripcion: '' });
       handleAntecedentePatologicoChange("hepaticos", { ninguna: true, otra: false, otraDescripcion: '' });
@@ -70,7 +89,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
       handleAntecedentePatologicoChange("infecciosasParasitarias", { ninguna: true, otra: false, otraDescripcion: '' });
       handleAntecedentePatologicoChange("otrosPadecimientos", { ninguna: true, otra: false, otraDescripcion: '' });
     } else {
-      // Restore previous state if available
       if (previousFormState) {
         Object.keys(previousFormState).forEach(categoria => {
           handleAntecedentePatologicoChange(categoria, previousFormState[categoria]);
@@ -132,7 +150,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     setShowForm(false);
     setProgress(100);
 
-    // Autoscroll to the top
     redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -271,16 +288,18 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     return opciones[categoria]?.[opcion] || opcion;
   };
 
-  const handleCopy = (section: string) => {
-    navigator.clipboard.writeText(redacciones[section]);
-    setCopied(prev => ({
-      ...prev,
-      [section]: true
-    }));
-    setTimeout(() => setCopied(prev => ({
-      ...prev,
-      [section]: false
-    })), 2000);
+  const handleCopy = (section: keyof CopiedState) => {
+    if (redacciones[section]) {
+      navigator.clipboard.writeText(redacciones[section]);
+      setCopied(prev => ({
+        ...prev,
+        [section]: true
+      }));
+      setTimeout(() => setCopied(prev => ({
+        ...prev,
+        [section]: false
+      })), 2000);
+    }
   };
 
   const limpiarFormulario = () => {
@@ -636,11 +655,13 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                           )}
                         </button>
                       </div>
-                      <AnimatedTextarea
-                        content={redacciones.nutricionales}
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        textAlign="justify"
-                      />
+                      <div ref={textareaRef}>
+                        <AnimatedTextarea
+                          content={redacciones.nutricionales}
+                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                          textAlign="justify"
+                        />
+                      </div>
                     </div>
 
                     <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -663,11 +684,13 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                           )}
                         </button>
                       </div>
-                      <AnimatedTextarea
-                        content={redacciones.cardiacos}
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        textAlign="justify"
-                      />
+                      <div ref={textareaRef}>
+                        <AnimatedTextarea
+                          content={redacciones.cardiacos}
+                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                          textAlign="justify"
+                        />
+                      </div>
                     </div>
 
                     <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -690,11 +713,13 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                           )}
                         </button>
                       </div>
-                      <AnimatedTextarea
-                        content={redacciones.hepaticos}
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        textAlign="justify"
-                      />
+                      <div ref={textareaRef}>
+                        <AnimatedTextarea
+                          content={redacciones.hepaticos}
+                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                          textAlign="justify"
+                        />
+                      </div>
                     </div>
 
                     <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -717,11 +742,13 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                           )}
                         </button>
                       </div>
-                      <AnimatedTextarea
-                        content={redacciones.enfermedadesTransmisionSexual}
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        textAlign="justify"
-                      />
+                      <div ref={textareaRef}>
+                        <AnimatedTextarea
+                          content={redacciones.enfermedadesTransmisionSexual}
+                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                          textAlign="justify"
+                        />
+                      </div>
                     </div>
 
                     <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -744,11 +771,13 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                           )}
                         </button>
                       </div>
-                      <AnimatedTextarea
-                        content={redacciones.enfermedadesEruptivas}
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        textAlign="justify"
-                      />
+                      <div ref={textareaRef}>
+                        <AnimatedTextarea
+                          content={redacciones.enfermedadesEruptivas}
+                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                          textAlign="justify"
+                        />
+                      </div>
                     </div>
 
                     <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -771,11 +800,13 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                           )}
                         </button>
                       </div>
-                      <AnimatedTextarea
-                        content={redacciones.pulmonares}
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        textAlign="justify"
-                      />
+                      <div ref={textareaRef}>
+                        <AnimatedTextarea
+                          content={redacciones.pulmonares}
+                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                          textAlign="justify"
+                        />
+                      </div>
                     </div>
 
                     <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -798,11 +829,13 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                           )}
                         </button>
                       </div>
-                      <AnimatedTextarea
-                        content={redacciones.infecciosasParasitarias}
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        textAlign="justify"
-                      />
+                      <div ref={textareaRef}>
+                        <AnimatedTextarea
+                          content={redacciones.infecciosasParasitarias}
+                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                          textAlign="justify"
+                        />
+                      </div>
                     </div>
 
                     <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -825,11 +858,13 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                           )}
                         </button>
                       </div>
-                      <AnimatedTextarea
-                        content={redacciones.otrosPadecimientos}
-                        className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                        textAlign="justify"
-                      />
+                      <div ref={textareaRef}>
+                        <AnimatedTextarea
+                          content={redacciones.otrosPadecimientos}
+                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
+                          textAlign="justify"
+                        />
+                      </div>
                     </div>
 
                     <div className="flex justify-center">
