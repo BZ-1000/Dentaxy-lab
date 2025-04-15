@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -697,6 +696,33 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
                           <SelectItem value="más de 5">Más de 5</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                    <div>
+                      <Label>Horario de Desayuno</Label>
+                      <input
+                        type="time"
+                        value={formDataLocal.horarioComidas.desayuno}
+                        onChange={(e) => handleFormChange('horarioComidas', { ...formDataLocal.horarioComidas, desayuno: e.target.value })}
+                        className="w-full p-2 border rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <Label>Horario de Almuerzo</Label>
+                      <input
+                        type="time"
+                        value={formDataLocal.horarioComidas.almuerzo}
+                        onChange={(e) => handleFormChange('horarioComidas', { ...formDataLocal.horarioComidas, almuerzo: e.target.value })}
+                        className="w-full p-2 border rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <Label>Horario de Cena</Label>
+                      <input
+                        type="time"
+                        value={formDataLocal.horarioComidas.cena}
+                        onChange={(e) => handleFormChange('horarioComidas', { ...formDataLocal.horarioComidas, cena: e.target.value })}
+                        className="w-full p-2 border rounded-md"
+                      />
                     </div>
                   </div>
                 </div>
