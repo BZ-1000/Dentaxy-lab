@@ -4,11 +4,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Copy, CheckCircle } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { AlertCircle, EyeOff, Eye } from "lucide-react";
-import { AnimatedTextarea } from '@/components/ui/animated-textarea';
 
 interface CopiedState {
   nutricionales?: boolean;
@@ -42,22 +40,8 @@ const AntecedentesPersonalesPatologicos: React.FC<{
   const [copied, setCopied] = useState<CopiedState>({});
   const formRef = useRef<HTMLDivElement>(null);
   const redaccionesRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLDivElement>(null); // Referencia para el div que envuelve AnimatedTextarea
   const [progress, setProgress] = useState(0);
   const [previousFormState, setPreviousFormState] = useState(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (textareaRef.current && !textareaRef.current.contains(event.target as Node)) {
-        // Aquí puedes agregar lógica adicional si es necesario
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -635,237 +619,42 @@ const AntecedentesPersonalesPatologicos: React.FC<{
               <div className="space-y-6">
                 {progress === 100 && (
                   <>
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Nutricionales</h4>
-                        <button
-                          onClick={() => handleCopy('nutricionales')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.nutricionales ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
+                    {Object.keys(redacciones).map((section) => (
+                      <div key={section} className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div className="flex justify-between items-center mb-2">
+                          <h4 className="text-lg font-semibold capitalize">{section}</h4>
+                          <button
+                            onClick={() => handleCopy(section as keyof CopiedState)}
+                            className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                          >
+                            {copied[section as keyof CopiedState] ? (
+                              <>
+                                <CheckCircle className="w-4 h-4" />
+                                <span>Copiado</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4" />
+                                <span>Copiar</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <div>
+                          <textarea
+                            value={redacciones[section as keyof typeof redacciones]}
+                            onChange={(e) => setRedacciones({
+                              ...redacciones,
+                              [section]: e.target.value
+                            })}
+                            onFocus={() => console.log(`Focused on ${section}`)}
+                            onBlur={() => console.log(`Blurred from ${section}`)}
+                            className="min-h-[100px] w-full text-sm bg-white/50 dark:bg-gray-800/50 p-2 rounded-md"
+                            style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                          />
+                        </div>
                       </div>
-                      <div ref={textareaRef}>
-                        <AnimatedTextarea
-                          content={redacciones.nutricionales}
-                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                          textAlign="justify"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Cardíacos</h4>
-                        <button
-                          onClick={() => handleCopy('cardiacos')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.cardiacos ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <div ref={textareaRef}>
-                        <AnimatedTextarea
-                          content={redacciones.cardiacos}
-                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                          textAlign="justify"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Hepáticos</h4>
-                        <button
-                          onClick={() => handleCopy('hepaticos')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.hepaticos ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <div ref={textareaRef}>
-                        <AnimatedTextarea
-                          content={redacciones.hepaticos}
-                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                          textAlign="justify"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Enfermedades de Transmisión Sexual</h4>
-                        <button
-                          onClick={() => handleCopy('enfermedadesTransmisionSexual')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.enfermedadesTransmisionSexual ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <div ref={textareaRef}>
-                        <AnimatedTextarea
-                          content={redacciones.enfermedadesTransmisionSexual}
-                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                          textAlign="justify"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Enfermedades Eruptivas de la Infancia</h4>
-                        <button
-                          onClick={() => handleCopy('enfermedadesEruptivas')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.enfermedadesEruptivas ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <div ref={textareaRef}>
-                        <AnimatedTextarea
-                          content={redacciones.enfermedadesEruptivas}
-                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                          textAlign="justify"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Pulmonares</h4>
-                        <button
-                          onClick={() => handleCopy('pulmonares')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.pulmonares ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <div ref={textareaRef}>
-                        <AnimatedTextarea
-                          content={redacciones.pulmonares}
-                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                          textAlign="justify"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Enfermedades Infecciosas y Parasitarias</h4>
-                        <button
-                          onClick={() => handleCopy('infecciosasParasitarias')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.infecciosasParasitarias ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <div ref={textareaRef}>
-                        <AnimatedTextarea
-                          content={redacciones.infecciosasParasitarias}
-                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                          textAlign="justify"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex justify-between items-center mb-2">
-                        <h4 className="text-lg font-semibold">Otros Padecimientos Sistémicos</h4>
-                        <button
-                          onClick={() => handleCopy('otrosPadecimientos')}
-                          className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                        >
-                          {copied.otrosPadecimientos ? (
-                            <>
-                              <CheckCircle className="w-4 h-4" />
-                              <span>Copiado</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="w-4 h-4" />
-                              <span>Copiar</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                      <div ref={textareaRef}>
-                        <AnimatedTextarea
-                          content={redacciones.otrosPadecimientos}
-                          className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                          textAlign="justify"
-                        />
-                      </div>
-                    </div>
+                    ))}
 
                     <div className="flex justify-center">
                       <Button
