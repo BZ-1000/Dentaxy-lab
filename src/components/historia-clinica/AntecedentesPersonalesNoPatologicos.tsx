@@ -102,7 +102,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     } = formDataLocal;
     let serviciosList = '';
     if (servicios.length === 6) {
-      serviciosList = 'todos los servicios básicos (agua, luz, drenaje, transporte, internet y gas)';
+      serviciosList = '(agua, luz, drenaje, transporte, internet y gas)';
     } else if (servicios.length > 0) {
       serviciosList = servicios.join(', ');
     } else {
