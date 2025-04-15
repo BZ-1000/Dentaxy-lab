@@ -18,6 +18,8 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
 
+  const gineco = formData.antecedentesGinecoObstetricos || {};
+
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
@@ -43,17 +45,17 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
   };
 
   const handleVoiceInput = (field: string) => (text: string) => {
-    const currentValue = formData.antecedentesGinecoObstetricos?.[field] || "";
+    const currentValue = gineco[field] || "";
     handleAntecedenteGinecoObstetricoChange(field, currentValue ? `${currentValue} ${text}` : text);
   };
 
   return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
+    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-name="antecedentesGinecoObstetricos">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-semibold text-center w-full">
-            ANTECEDENTES GINECO-OBSTÉTRICOS
-            <span className="text-xs text-gray-400 block">(solo para pacientes mujeres)</span>
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <span className="text-gray-400">VIII.</span> ANTECEDENTES GINECO-OBSTÉTRICOS
+            <span className="text-xs text-gray-400 ml-2">(solo para pacientes mujeres)</span>
           </h2>
           <div className="flex items-center gap-2">
             <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
@@ -75,7 +77,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                 <label className="block text-sm font-medium mb-1">Número de embarazos:</label>
                 <Input
                   type="number"
-                  value={formData.antecedentesGinecoObstetricos?.embarazos || ''}
+                  value={gineco.embarazos ?? ''}
                   onChange={e => handleNumberChange('embarazos', e.target.value)}
                   placeholder="0"
                   min="0"
@@ -87,7 +89,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                 <label className="block text-sm font-medium mb-1">Número de partos:</label>
                 <Input
                   type="number"
-                  value={formData.antecedentesGinecoObstetricos?.partos || ''}
+                  value={gineco.partos ?? ''}
                   onChange={e => handleNumberChange('partos', e.target.value)}
                   placeholder="0"
                   min="0"
@@ -99,7 +101,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                 <label className="block text-sm font-medium mb-1">Número de cesáreas:</label>
                 <Input
                   type="number"
-                  value={formData.antecedentesGinecoObstetricos?.cesareas || ''}
+                  value={gineco.cesareas ?? ''}
                   onChange={e => handleNumberChange('cesareas', e.target.value)}
                   placeholder="0"
                   min="0"
@@ -111,7 +113,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                 <label className="block text-sm font-medium mb-1">Número de abortos:</label>
                 <Input
                   type="number"
-                  value={formData.antecedentesGinecoObstetricos?.abortos || ''}
+                  value={gineco.abortos ?? ''}
                   onChange={e => handleNumberChange('abortos', e.target.value)}
                   placeholder="0"
                   min="0"
@@ -124,7 +126,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
               <label className="block text-sm font-medium mb-1">Complicaciones:</label>
               <div className="flex items-center">
                 <Textarea
-                  value={formData.antecedentesGinecoObstetricos?.complicaciones || ''}
+                  value={gineco.complicaciones || ''}
                   onChange={e => handleTextChange('complicaciones', e.target.value)}
                   placeholder="Describa cualquier complicación durante embarazos o partos"
                   className="min-h-[80px] flex-1"
