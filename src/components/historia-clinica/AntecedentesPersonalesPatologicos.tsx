@@ -1,5 +1,4 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -388,16 +387,8 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     titulo: string,
     opciones: { valor: string, etiqueta: string }[]
   }) => {
-    const inputRef = useRef<HTMLInputElement>(null);
-
-    useEffect(() => {
-      if (inputRef.current && formData.antecedentesPersonalesPatologicos[categoria]?.otra) {
-        inputRef.current.focus();
-      }
-    }, [formData.antecedentesPersonalesPatologicos[categoria]?.otra]);
-
     return (
-      <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia ? "hidden" : ""}`}>
+      <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia ? "hidden" : ""}`} style={{ overflowY: 'auto', maxHeight: '500px' }}>
         <h4 className="text-lg font-semibold mb-3">{titulo}</h4>
 
         <div className="flex flex-wrap gap-2">
@@ -429,7 +420,6 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
                 onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
                 className="w-full"
-                ref={inputRef}
               />
             </div>
           )}
