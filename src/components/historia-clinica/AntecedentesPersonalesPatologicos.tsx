@@ -42,6 +42,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [previousFormState, setPreviousFormState] = useState(null);
+  const textareaRefs = useRef<{ [key: string]: HTMLTextAreaElement | null }>({});
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -103,6 +104,11 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       categoriasActualizadas.otra = valor;
       categoriasActualizadas.ninguna = false;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
+
+      // Focus the corresponding textarea
+      setTimeout(() => {
+        textareaRefs.current[categoria]?.focus();
+      }, 0);
     } else {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas[opcion] = valor;
@@ -418,10 +424,13 @@ const AntecedentesPersonalesPatologicos: React.FC<{
 
           {formData.antecedentesPersonalesPatologicos[categoria]?.otra && (
             <div className="w-full mt-2">
-              <Input
+              <textarea
+                ref={(el) => (textareaRefs.current[categoria] = el)}
                 placeholder="Especificar otra condición..."
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
                 onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
+                onBlur={(e) => e.relatedTarget?.contains(e.currentTarget) || e.currentTarget.focus()}
+                onMouseDown={(e) => e.stopPropagation()}
                 className="w-full"
               />
             </div>
