@@ -7,7 +7,6 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { AlertCircle, EyeOff, Eye } from "lucide-react";
-import { AnimatedTextarea } from '@/components/ui/animated-textarea';
 
 interface CopiedState {
   nutricionales?: boolean;
@@ -642,12 +641,16 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                           </button>
                         </div>
                         <div>
-                          <AnimatedTextarea
-                            content={redacciones[section as keyof typeof redacciones]}
-                            className="min-h-[100px] text-sm bg-white/50 dark:bg-gray-800/50"
-                            textAlign="justify"
+                          <textarea
+                            value={redacciones[section as keyof typeof redacciones]}
+                            onChange={(e) => setRedacciones({
+                              ...redacciones,
+                              [section]: e.target.value
+                            })}
                             onFocus={() => console.log(`Focused on ${section}`)}
                             onBlur={() => console.log(`Blurred from ${section}`)}
+                            className="min-h-[100px] w-full text-sm bg-white/50 dark:bg-gray-800/50 p-2 rounded-md"
+                            style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
                           />
                         </div>
                       </div>
