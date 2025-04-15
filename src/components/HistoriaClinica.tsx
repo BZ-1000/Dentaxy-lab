@@ -472,15 +472,13 @@ const HistoriaClinica = () => {
                 <button
                   className={`px-4 py-2 rounded-md text-sm transition-colors ${
                     esMujer
-                      ? 'bg-[#FF00FF] text-white' // Cambiado a un tono rosa-púrpura usando código hexadecimal
-                     : 'bg-gray-100 dark:bg-gray-700'
-                 }`}
-                 onClick={() => setEsMujer(true)}
+                      ? 'bg-[#2ecc71] text-white'
+                      : 'bg-gray-100 dark:bg-gray-700'
+                  }`}
+                  onClick={() => setEsMujer(true)}
                 >
                   Mujer
                 </button>
-
-
               </div>
             </div>
           </div>
