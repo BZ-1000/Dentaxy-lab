@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -386,15 +387,6 @@ const HistoriaClinica = () => {
     }
   };
 
-  const handleHorarioComidaChange = (meal: string, time: string) => {
-    const updatedHorarioComidas = {
-      ...formData.antecedentesPersonalesNoPatologicos.horarioComidas,
-      [meal]: time
-    };
-    
-    handleAntecedenteChange('horarioComidas', updatedHorarioComidas);
-  };
-
   return (
     <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar 
@@ -502,12 +494,7 @@ const HistoriaClinica = () => {
             </div>
 
             <div data-section-redaction="true" data-section-name="antecedentesPersonalesNoPatologicos">
-              <AntecedentesPersonalesNoPatologicos 
-                formData={formData} 
-                handleAntecedenteChange={handleAntecedenteChange} 
-                toggleService={toggleService}
-                handleHorarioComidaChange={handleHorarioComidaChange} 
-              />
+              <AntecedentesPersonalesNoPatologicos formData={formData} handleAntecedenteChange={handleAntecedenteChange} toggleService={toggleService} />
             </div>
             
             <div data-section-redaction="true" data-section-name="antecedentesPersonalesPatologicos">
