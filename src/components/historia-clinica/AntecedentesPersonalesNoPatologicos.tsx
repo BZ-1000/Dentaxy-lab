@@ -1,60 +1,30 @@
-
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
+import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
-import { AnimatedTextarea } from "@/components/ui/animated-textarea";
+import { Input } from "@/components/ui/input";
 
 interface AntecedentesPersonalesNoPatologicosProps {
   formData: FormDataState;
   handleAntecedenteChange: (field: string, value: any) => void;
   toggleService: (service: string) => void;
+  handleHorarioComidaChange: (comida: 'desayuno' | 'almuerzo' | 'cena', value: string) => void;
 }
-
-// Word button component for replacing checkboxes
-const WordButton = ({
-  label,
-  isSelected,
-  onClick
-}: {
-  label: string;
-  isSelected: boolean;
-  onClick: () => void;
-}) => {
-  return <button onClick={onClick} className={`px-2 py-1 text-xs rounded-md transition-colors mb-1 mr-1 ${isSelected ? "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200" : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"}`}>
-      {label}
-    </button>;
-};
 
 const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPatologicosProps> = ({
   formData,
   handleAntecedenteChange,
-  toggleService
+  toggleService,
+  handleHorarioComidaChange
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
-  const [showForm, setShowForm] = useState(true);
-  const [redacciones, setRedacciones] = useState({
-    serviciosDomiciliarios: "",
-    higieneVivienda: "",
-    higienePersonal: "",
-    higieneBucal: "",
-    alimentacion: ""
-  });
-  const [copied, setCopied] = useState<Record<string, boolean>>({});
-  const formRef = useRef<HTMLDivElement>(null);
-  const redaccionesRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
-  const [formDataLocal, setFormDataLocal] = useState(formData.antecedentesPersonalesNoPatologicos);
-
-  useEffect(() => {
-    setFormDataLocal(formData.antecedentesPersonalesNoPatologicos);
-  }, [formData]);
-
+  const [activeTab, setActiveTab] = useState('formulario');
+  const [activeSection, setActiveSection] = useState('serviciosDomiciliarios');
+  const [redaccionContent, setRedaccionContent] = useState('');
+  const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
+  
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
@@ -70,257 +40,52 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     setIsMaximized(false);
   };
 
-  const generarRedaccionIA = () => {
-    // Implement AI text generation logic for each section
-    const serviciosRedaccion = generateServiciosDomiciliariosText();
-    const higieneViviendaRedaccion = generateHigieneViviendaText();
-    const higienePersonalRedaccion = generateHigienePersonalText();
-    const higieneBucalRedaccion = generateHigieneBucalText();
-    const alimentacionRedaccion = generateAlimentacionText();
-    setRedacciones({
-      serviciosDomiciliarios: serviciosRedaccion,
-      higieneVivienda: higieneViviendaRedaccion,
-      higienePersonal: higienePersonalRedaccion,
-      higieneBucal: higieneBucalRedaccion,
-      alimentacion: alimentacionRedaccion
-    });
-    setShowForm(false);
-    setProgress(100);
+  const generateRedaccion = () => {
+    setIsGeneratingRedaccion(true);
+    setTimeout(() => {
+      let content = "ANTECEDENTES PERSONALES NO PATOLÓGICOS:\n\n";
 
-    // Scroll to the title "Servicios Domiciliarios"
-    if (redaccionesRef.current) {
-      redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+      // Servicios Domiciliarios
+      content += `Servicios domiciliarios: ${formData.antecedentesPersonalesNoPatologicos.serviciosDomiciliarios || 'No especificado'}\n`;
+      content += `Pisos de la vivienda: ${formData.antecedentesPersonalesNoPatologicos.pisosVivienda || 'No especificado'}\n`;
+      content += `Material de la vivienda: ${formData.antecedentesPersonalesNoPatologicos.materialVivienda || 'No especificado'}\n`;
+      content += `Material del piso: ${formData.antecedentesPersonalesNoPatologicos.materialPiso || 'No especificado'}\n`;
+      content += `Ventilación: ${formData.antecedentesPersonalesNoPatologicos.ventilacion || 'No especificado'}\n`;
+
+      // Higiene
+      content += `Frecuencia de limpieza: ${formData.antecedentesPersonalesNoPatologicos.frecuenciaLimpieza || 'No especificado'}\n`;
+      content += `Hacinamiento: ${formData.antecedentesPersonalesNoPatologicos.hacinamiento || 'No especificado'}\n`;
+      content += `Frecuencia de baño: ${formData.antecedentesPersonalesNoPatologicos.frecuenciaBano || 'No especificado'}\n`;
+
+      // Higiene Bucal
+      content += `Frecuencia de cepillado: ${formData.antecedentesPersonalesNoPatologicos.higieneBucal.frecuenciaCepillado || 'No especificado'}\n`;
+      content += `Uso de hilo dental: ${formData.antecedentesPersonalesNoPatologicos.higieneBucal.usoHiloDental || 'No especificado'}\n`;
+      content += `Tipo de cerdas: ${formData.antecedentesPersonalesNoPatologicos.higieneBucal.tipoCerdas || 'No especificado'}\n`;
+      content += `Cantidad de pasta: ${formData.antecedentesPersonalesNoPatologicos.higieneBucal.cantidadPasta || 'No especificado'}\n`;
+      content += `Marca de pasta: ${formData.antecedentesPersonalesNoPatologicos.higieneBucal.marcaPasta || 'No especificado'}\n`;
+
+      // Alimentación
+      content += `Tipo de dieta: ${formData.antecedentesPersonalesNoPatologicos.alimentacion.tipoDieta || 'No especificado'}\n`;
+      content += `Frecuencia de comidas: ${formData.antecedentesPersonalesNoPatologicos.alimentacion.frecuenciaComidas || 'No especificado'}\n`;
+      content += `Tipos de alimentos: ${formData.antecedentesPersonalesNoPatologicos.alimentacion.tiposAlimentos || 'No especificado'}\n`;
+      content += `Salta comidas: ${formData.antecedentesPersonalesNoPatologicos.alimentacion.saltaComidas || 'No especificado'}\n`;
+      content += `Consumo nutritivo: ${formData.antecedentesPersonalesNoPatologicos.alimentacion.consumoNutritivo || 'No especificado'}\n`;
+
+      setRedaccionContent(content);
+      setIsGeneratingRedaccion(false);
+      setActiveTab('redaccion');
+    }, 1000);
   };
 
-  const generateServiciosDomiciliariosText = () => {
-    const {
-      tipoVivienda,
-      materialVivienda,
-      servicios,
-      condicionCalle,
-      iluminacionCalle
-    } = formDataLocal;
-    let serviciosList = '';
-    if (servicios.length === 6) {
-      serviciosList = 'todos los servicios básicos (agua, luz, drenaje, transporte, internet y gas)';
-    } else if (servicios.length > 0) {
-      serviciosList = servicios.join(', ');
-    } else {
-      serviciosList = 'servicios limitados';
-    }
-    return `El paciente habita en una vivienda de tipo ${tipoVivienda || '[no especificado]'}, construida principalmente con ${materialVivienda || '[no especificado]'}. Cuenta con los siguientes servicios básicos: ${serviciosList}. La condición de la calle en la que se encuentra la vivienda es ${condicionCalle || '[no especificado]'}, y la iluminación en la vía pública es ${iluminacionCalle || '[no especificado]'}, lo que puede influir en la seguridad y accesibilidad del entorno.`;
-  };
-
-  const generateHigieneViviendaText = () => {
-    const {
-      frecuenciaLimpieza,
-      cambioRopaCama,
-      hacinamiento,
-      promiscuidad,
-      mascotas,
-      manejoResiduos
-    } = formDataLocal;
-    let hacinamientoText = hacinamiento === 'si' ? 'presencia de hacinamiento' : 'ausencia de hacinamiento';
-    let promiscuidadText = promiscuidad === 'si' ? 'hay presencia de promiscuidad' : 'no hay evidencia de promiscuidad';
-    let mascotasText = '';
-    if (mascotas === 'dentro') {
-      mascotasText = 'se observan animales dentro de la casa';
-    } else if (mascotas === 'patio') {
-      mascotasText = 'se observan animales en el patio';
-    } else {
-      mascotasText = 'no se observan animales en el domicilio';
-    }
-    return `El mantenimiento del hogar se realiza con una frecuencia ${frecuenciaLimpieza || '[no especificada]'}, lo que impacta directamente en la salubridad del entorno. La ropa de cama se cambia ${cambioRopaCama || '[no especificado]'}, contribuyendo a la higiene y confort del paciente. Se observa ${hacinamientoText}, lo que puede influir en la calidad de vida y bienestar de los habitantes. Asimismo, ${promiscuidadText}, lo cual puede ser relevante en la evaluación de riesgos sanitarios y epidemiológicos. En el domicilio ${mascotasText}, lo que puede representar un factor de exposición a zoonosis u otras afecciones. En cuanto al manejo de residuos, ${manejoResiduos || '[no especificado]'}, lo que influye en la prevención de enfermedades y el control ambiental.`;
-  };
-
-  const generateHigienePersonalText = () => {
-    const {
-      frecuenciaBano,
-      lavadoManos,
-      cambioRopa
-    } = formDataLocal;
-    let lavadoManosText = '';
-    if (lavadoManos.length > 0) {
-      lavadoManosText = lavadoManos.join(', ');
-    } else {
-      lavadoManosText = 'sin hábito regular';
-    }
-    return `El paciente refiere una frecuencia de baño ${frecuenciaBano || '[no especificada]'}, lo que contribuye a la higiene general y prevención de infecciones cutáneas. Presenta hábitos de higiene de manos ${lavadoManosText}, lo que es un factor clave en la prevención de enfermedades de transmisión feco-oral. El cambio de ropa se realiza ${cambioRopa || '[no especificada]'}, aspecto importante en el mantenimiento de la higiene personal.`;
-  };
-
-  const generateHigieneBucalText = () => {
-    const {
-      frecuenciaCepillado,
-      tecnicaCepillado,
-      auxiliaresBucales,
-      ultimaVisitaOdontologo,
-      problemasBucales
-    } = formDataLocal;
-    let auxiliaresText = '';
-    if (auxiliaresBucales.includes('no auxiliares')) {
-      auxiliaresText = 'no usa auxiliares de higiene bucal';
-    } else if (auxiliaresBucales.length > 0) {
-      auxiliaresText = auxiliaresBucales.join(', ');
-    } else {
-      auxiliaresText = '[no especificado]';
-    }
-    let problemasText = '';
-    if (problemasBucales.includes('no problemas')) {
-      problemasText = 'sin problemas bucales';
-    } else if (problemasBucales.length > 0) {
-      problemasText = problemasBucales.join(', ');
-    } else {
-      problemasText = '[no especificado]';
-    }
-    return `El paciente refiere un cepillado dental con una frecuencia ${frecuenciaCepillado || '[no especificada]'}, utilizando técnica ${tecnicaCepillado || '[no especificada]'}, lo que influye directamente en la salud periodontal y la prevención de caries. Además, complementa su higiene bucal con ${auxiliaresText}. La última visita al odontólogo fue hace ${ultimaVisitaOdontologo || '[no especificada]'}, lo que permite evaluar su acceso a la atención odontológica y el seguimiento de su salud bucal. Actualmente, refiere ${problemasText}, aspectos clave en la valoración del estado oral.`;
-  };
-
-  const generateAlimentacionText = () => {
-    const {
-      alimentosConsumidos,
-      frecuenciaFrutasVerduras,
-      frecuenciaBebidasAzucaradas,
-      frecuenciaComidaChatarra,
-      consumoAgua,
-      numeroComidas,
-      horarioComidas
-    } = formDataLocal;
-    let alimentosText = alimentosConsumidos.length > 0 ? alimentosConsumidos.join(', ') : '[no especificado]';
-    let horarios = '';
-    if (horarioComidas) {
-      horarios = `Desayuno: ${horarioComidas.desayuno || '[no especificado]'}\nAlmuerzo: ${horarioComidas.almuerzo || '[no especificado]'}\nCena: ${horarioComidas.cena || '[no especificado]'}`;
-    }
-    return `El paciente tiene una alimentación basada en ${alimentosText}, lo que influye en su estado nutricional y salud general. El consumo de frutas y verduras es ${frecuenciaFrutasVerduras || '[no especificada]'}, mientras que la ingesta de bebidas azucaradas ocurre ${frecuenciaBebidasAzucaradas || '[no especificada]'} y el consumo de comida chatarra ${frecuenciaComidaChatarra || '[no especificada]'}, factores determinantes en el riesgo de enfermedades metabólicas y caries dental. La cantidad de agua ingerida diariamente es de aproximadamente ${consumoAgua || '[no especificado]'}, contribuyendo a la hidratación y función renal. Realiza ${numeroComidas || '[no especificado]'} comidas al día, con los siguientes horarios reportados:\n\n${horarios}`;
-  };
-
-  const adjustTextareaHeight = (element: HTMLTextAreaElement) => {
-    element.style.height = "auto";
-    element.style.height = element.scrollHeight + "px";
-  };
-
-  const handleCopy = (section: string) => {
-    navigator.clipboard.writeText(redacciones[section]);
-    setCopied(prev => ({
-      ...prev,
-      [section]: true
-    }));
-    setTimeout(() => setCopied(prev => ({
-      ...prev,
-      [section]: false
-    })), 2000);
-  };
-
-  const handleFormChange = (field: string, value: any) => {
-    // Local state update
-    setFormDataLocal(prevData => ({
-      ...prevData,
-      [field]: value
-    }));
-
-    // Also update parent state
-    handleAntecedenteChange(field, value);
-  };
-
-  const handleWordButtonClick = (field: string, value: string) => {
-    let newValues;
-
-    // If this is "todos los servicios" in servicios field, handle specially
-    if (field === 'servicios' && value === 'todos') {
-      // Toggle all services
-      if (formDataLocal.servicios.length === 6) {
-        newValues = [];
-      } else {
-        newValues = ['agua', 'luz', 'drenaje', 'transporte', 'internet', 'gas'];
-      }
-      handleFormChange(field, newValues);
-      return;
-    }
-    const currentValues = formDataLocal[field] as string[];
-
-    // If this is a special case like 'no auxiliares' or 'no problemas'
-    if (value === 'no auxiliares' || value === 'no problemas') {
-      // If selecting an exclusive option, remove all other options
-      if (currentValues.includes(value)) {
-        newValues = [];
-      } else {
-        newValues = [value];
-      }
-    } else {
-      // Remove exclusive options if selecting something else
-      let filteredValues = currentValues.filter(v => v !== 'no auxiliares' && v !== 'no problemas');
-
-      // Toggle the selected value
-      if (filteredValues.includes(value)) {
-        newValues = filteredValues.filter(v => v !== value);
-      } else {
-        newValues = [...filteredValues, value];
-      }
-    }
-    handleFormChange(field, newValues);
-  };
-
-  const limpiarFormulario = () => {
-    const emptyData = {
-      tipoVivienda: "",
-      materialVivienda: "",
-      servicios: [],
-      condicionCalle: "",
-      iluminacionCalle: "",
-      frecuenciaLimpieza: "",
-      cambioRopaCama: "",
-      hacinamiento: "",
-      promiscuidad: "",
-      mascotas: "",
-      manejoResiduos: "",
-      frecuenciaBano: "",
-      lavadoManos: [],
-      cambioRopa: "",
-      frecuenciaCepillado: "",
-      tecnicaCepillado: "",
-      auxiliaresBucales: [],
-      ultimaVisitaOdontologo: "",
-      problemasBucales: [],
-      alimentosConsumidos: [],
-      frecuenciaFrutasVerduras: "",
-      frecuenciaBebidasAzucaradas: "",
-      frecuenciaComidaChatarra: "",
-      consumoAgua: "",
-      numeroComidas: "",
-      horarioComidas: {
-        desayuno: "",
-        almuerzo: "",
-        cena: ""
-      },
-      ayunoProlongado: ""
-    };
-    setFormDataLocal(emptyData);
-
-    // Update all fields in parent state
-    Object.entries(emptyData).forEach(([key, value]) => {
-      handleAntecedenteChange(key, value);
-    });
-    setShowForm(true);
-    setRedacciones({
-      serviciosDomiciliarios: "",
-      higieneVivienda: "",
-      higienePersonal: "",
-      higieneBucal: "",
-      alimentacion: ""
-    });
-    setProgress(0);
-  };
-
-  return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
+  return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-name="antecedentesPersonalesNoPatologicos" data-section-redaction="true">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button onClick={() => setShowForm(true)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
+              <button className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`} onClick={() => setActiveTab('formulario')}>
                 Formulario
               </button>
-              <button onClick={() => setShowForm(false)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
+              <button className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'redaccion' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`} onClick={() => setActiveTab('redaccion')}>
                 Redacción IA
               </button>
             </div>
@@ -339,518 +104,272 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           </div>
         </div>
 
-        <div ref={redaccionesRef} className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">III.</span> ANTECEDENTES PERSONALES NO PATOLÓGICOS
-          </h2>
-        </div>
-
-        {!isMinimized && (
-          <div className="p-6" ref={formRef}>
-            {showForm ? (
-              <div className="space-y-6">
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Servicios Domiciliarios</h4>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Tipo de Vivienda</Label>
-                      <Select value={formDataLocal.tipoVivienda} onValueChange={value => handleFormChange('tipoVivienda', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione tipo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="urbana">Urbana</SelectItem>
-                          <SelectItem value="rural">Rural</SelectItem>
-                          <SelectItem value="semiurbana">Semiurbana</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Material Predominante de la Vivienda</Label>
-                      <Select value={formDataLocal.materialVivienda} onValueChange={value => handleFormChange('materialVivienda', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione material" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="concreto">Concreto</SelectItem>
-                          <SelectItem value="madera">Madera</SelectItem>
-                          <SelectItem value="lamina">Lámina</SelectItem>
-                          <SelectItem value="ladrillo">Ladrillo</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Servicios Disponibles</Label>
-                      <div className="flex flex-wrap mt-1">
-                        <WordButton label="Todos los servicios" isSelected={formDataLocal.servicios.length === 6} onClick={() => toggleService('todos')} />
-                        <WordButton label="Agua" isSelected={formDataLocal.servicios.includes('agua')} onClick={() => toggleService('agua')} />
-                        <WordButton label="Luz" isSelected={formDataLocal.servicios.includes('luz')} onClick={() => toggleService('luz')} />
-                        <WordButton label="Drenaje" isSelected={formDataLocal.servicios.includes('drenaje')} onClick={() => toggleService('drenaje')} />
-                        <WordButton label="Transporte" isSelected={formDataLocal.servicios.includes('transporte')} onClick={() => toggleService('transporte')} />
-                        <WordButton label="Internet" isSelected={formDataLocal.servicios.includes('internet')} onClick={() => toggleService('internet')} />
-                        <WordButton label="Gas" isSelected={formDataLocal.servicios.includes('gas')} onClick={() => toggleService('gas')} />
-                      </div>
-                    </div>
-                    <div>
-                      <Label>Condición de la Calle</Label>
-                      <Select value={formDataLocal.condicionCalle} onValueChange={value => handleFormChange('condicionCalle', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione condición" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pavimentada">Pavimentada</SelectItem>
-                          <SelectItem value="terraceria">Terracería</SelectItem>
-                          <SelectItem value="adoquinada">Adoquinada</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Iluminación en la Vía Pública</Label>
-                      <Select value={formDataLocal.iluminacionCalle} onValueChange={value => handleFormChange('iluminacionCalle', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione iluminación" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="buena">Buena</SelectItem>
-                          <SelectItem value="mala">Mala</SelectItem>
-                          <SelectItem value="sin iluminación">Sin iluminación</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+        {!isMinimized && <>
+            {activeTab === 'formulario' ? <div className="p-6">
+                <div className="flex mb-6 overflow-x-auto justify-between">
+                  <button className={`px-4 py-2 rounded-md text-sm ${activeSection === 'serviciosDomiciliarios' ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setActiveSection('serviciosDomiciliarios')}>Servicios Domiciliarios</button>
+                  <button className={`px-4 py-2 rounded-md text-sm ${activeSection === 'higieneVivienda' ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setActiveSection('higieneVivienda')}>Higiene Vivienda</button>
+                  <button className={`px-4 py-2 rounded-md text-sm ${activeSection === 'higienePersonal' ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setActiveSection('higienePersonal')}>Higiene Personal</button>
+                  <button className={`px-4 py-2 rounded-md text-sm ${activeSection === 'higieneBucal' ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setActiveSection('higieneBucal')}>Higiene Bucal</button>
+                  <button className={`px-4 py-2 rounded-md text-sm ${activeSection === 'alimentacion' ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setActiveSection('alimentacion')}>Alimentación</button>
                 </div>
 
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Higiene de la Vivienda</h4>
+                {activeSection === 'serviciosDomiciliarios' && (
+                  <div className="space-y-6 px-2">
+                    <h3 className="text-lg font-semibold border-b pb-2">Servicios Domiciliarios</h3>
 
-                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Frecuencia de Limpieza del Hogar</Label>
-                      <Select value={formDataLocal.frecuenciaLimpieza} onValueChange={value => handleFormChange('frecuenciaLimpieza', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diaria">Diaria</SelectItem>
-                          <SelectItem value="interdiaria">Interdiaria</SelectItem>
-                          <SelectItem value="semanal">Semanal</SelectItem>
-                          <SelectItem value="quincenal">Quincenal</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="block text-sm font-medium mb-1">Tipo de vivienda:</label>
+                      <Textarea placeholder="Casa, departamento, etc." value={formData.antecedentesPersonalesNoPatologicos.tipoVivienda || ''} onChange={(e) => handleAntecedenteChange('tipoVivienda', e.target.value)} />
                     </div>
-                    <div>
-                      <Label>Frecuencia de Cambio de Ropa de Cama</Label>
-                      <Select value={formDataLocal.cambioRopaCama} onValueChange={value => handleFormChange('cambioRopaCama', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diario">Diario</SelectItem>
-                          <SelectItem value="interdiario">Interdiario</SelectItem>
-                          <SelectItem value="semanal">Semanal</SelectItem>
-                          <SelectItem value="quincenal">Quincenal</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Hacinamiento en el Domicilio</Label>
-                      <Select value={formDataLocal.hacinamiento} onValueChange={value => handleFormChange('hacinamiento', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="si">Sí</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Promiscuidad en el Domicilio</Label>
-                      <Select value={formDataLocal.promiscuidad} onValueChange={value => handleFormChange('promiscuidad', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="si">Sí</SelectItem>
-                          <SelectItem value="no">No</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Presencia de Mascotas en el Domicilio</Label>
-                      <Select value={formDataLocal.mascotas} onValueChange={value => handleFormChange('mascotas', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="dentro">Dentro de la casa</SelectItem>
-                          <SelectItem value="patio">En el patio</SelectItem>
-                          <SelectItem value="no">No hay mascotas</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Manejo de Residuos</Label>
-                      <Select value={formDataLocal.manejoResiduos} onValueChange={value => handleFormChange('manejoResiduos', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="recoleccion municipal">Recolección municipal</SelectItem>
-                          <SelectItem value="quema">Quema</SelectItem>
-                          <SelectItem value="entierro">Entierro</SelectItem>
-                          <SelectItem value="otro">Otro</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Higiene Personal</h4>
-
-                  <div className="grid grid-cols-1 gap-4">
                     <div>
-                      <Label>Frecuencia de Baño</Label>
-                      <Select value={formDataLocal.frecuenciaBano} onValueChange={value => handleFormChange('frecuenciaBano', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diaria">Diaria</SelectItem>
-                          <SelectItem value="interdiaria">Interdiaria</SelectItem>
-                          <SelectItem value="semanal">Semanal</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="block text-sm font-medium mb-1">Material de construcción predominante:</label>
+                      <Textarea placeholder="Ladrillo, madera, etc." value={formData.antecedentesPersonalesNoPatologicos.materialVivienda || ''} onChange={(e) => handleAntecedenteChange('materialVivienda', e.target.value)} />
                     </div>
+
                     <div>
-                      <Label>Hábitos de Higiene de Manos</Label>
-                      <div className="flex flex-wrap mt-1">
-                        <WordButton label="Antes de cada comida" isSelected={formDataLocal.lavadoManos.includes('antes de cada comida')} onClick={() => handleWordButtonClick('lavadoManos', 'antes de cada comida')} />
-                        <WordButton label="Después de ir al baño" isSelected={formDataLocal.lavadoManos.includes('después de ir al baño')} onClick={() => handleWordButtonClick('lavadoManos', 'después de ir al baño')} />
-                        <WordButton label="Al manipular alimentos" isSelected={formDataLocal.lavadoManos.includes('al manipular alimentos')} onClick={() => handleWordButtonClick('lavadoManos', 'al manipular alimentos')} />
-                        <WordButton label="Sin hábito regular" isSelected={formDataLocal.lavadoManos.includes('sin hábito regular')} onClick={() => handleWordButtonClick('lavadoManos', 'sin hábito regular')} />
+                      <h4 className="text-md font-medium mb-2">Servicios con los que cuenta:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {['agua', 'luz', 'drenaje', 'transporte', 'internet', 'gas'].map(service => (
+                          <button key={service} onClick={() => toggleService(service)} className={`px-3 py-2 rounded-md text-xs ${formData.antecedentesPersonalesNoPatologicos.servicios?.includes(service) ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                            {service}
+                          </button>
+                        ))}
+                        <button onClick={() => toggleService('todos')} className={`px-3 py-2 rounded-md text-xs ${['agua', 'luz', 'drenaje', 'transporte', 'internet', 'gas'].every(s => formData.antecedentesPersonalesNoPatologicos.servicios?.includes(s)) ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                          Todos
+                        </button>
                       </div>
                     </div>
+
                     <div>
-                      <Label>Frecuencia de Cambio de Ropa</Label>
-                      <Select value={formDataLocal.cambioRopa} onValueChange={value => handleFormChange('cambioRopa', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diaria">Diaria</SelectItem>
-                          <SelectItem value="interdiaria">Interdiaria</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="block text-sm font-medium mb-1">Condiciones de la calle:</label>
+                      <Textarea placeholder="Pavimentada, terracería, etc." value={formData.antecedentesPersonalesNoPatologicos.condicionCalle || ''} onChange={(e) => handleAntecedenteChange('condicionCalle', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Iluminación en la vía pública:</label>
+                      <Textarea placeholder="Buena, mala, etc." value={formData.antecedentesPersonalesNoPatologicos.iluminacionCalle || ''} onChange={(e) => handleAntecedenteChange('iluminacionCalle', e.target.value)} />
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Higiene Bucal</h4>
+                {activeSection === 'higieneVivienda' && (
+                  <div className="space-y-6 px-2">
+                    <h3 className="text-lg font-semibold border-b pb-2">Higiene de la Vivienda</h3>
 
-                  <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Frecuencia de Cepillado Dental</Label>
-                      <Select value={formDataLocal.frecuenciaCepillado} onValueChange={value => handleFormChange('frecuenciaCepillado', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="después de cada comida">Después de cada comida</SelectItem>
-                          <SelectItem value="dos veces al día">Dos veces al día</SelectItem>
-                          <SelectItem value="una vez al día">Una vez al día</SelectItem>
-                          <SelectItem value="ocasional">Ocasional</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="block text-sm font-medium mb-1">Frecuencia de limpieza del hogar:</label>
+                      <Textarea placeholder="Diaria, semanal, etc." value={formData.antecedentesPersonalesNoPatologicos.frecuenciaLimpieza || ''} onChange={(e) => handleAntecedenteChange('frecuenciaLimpieza', e.target.value)} />
                     </div>
+
                     <div>
-                      <Label>Técnica de Cepillado Dental</Label>
-                      <Select value={formDataLocal.tecnicaCepillado} onValueChange={value => handleFormChange('tecnicaCepillado', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione técnica" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="horizontal">Horizontal</SelectItem>
-                          <SelectItem value="vertical">Vertical</SelectItem>
-                          <SelectItem value="circular">Circular</SelectItem>
-                          <SelectItem value="bass">Bass</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="block text-sm font-medium mb-1">Frecuencia con la que se cambia la ropa de cama:</label>
+                      <Textarea placeholder="Semanal, quincenal, etc." value={formData.antecedentesPersonalesNoPatologicos.cambioRopaCama || ''} onChange={(e) => handleAntecedenteChange('cambioRopaCama', e.target.value)} />
                     </div>
+
                     <div>
-                      <Label>Auxiliares de Higiene Bucal</Label>
-                      <div className="flex flex-wrap mt-1">
-                        <WordButton label="Hilo dental" isSelected={formDataLocal.auxiliaresBucales.includes('hilo dental')} onClick={() => handleWordButtonClick('auxiliaresBucales', 'hilo dental')} />
-                        <WordButton label="Enjuague bucal" isSelected={formDataLocal.auxiliaresBucales.includes('enjuague bucal')} onClick={() => handleWordButtonClick('auxiliaresBucales', 'enjuague bucal')} />
-                        <WordButton label="Irrigador dental" isSelected={formDataLocal.auxiliaresBucales.includes('irrigador dental')} onClick={() => handleWordButtonClick('auxiliaresBucales', 'irrigador dental')} />
-                        <WordButton label="No auxiliares" isSelected={formDataLocal.auxiliaresBucales.includes('no auxiliares')} onClick={() => handleWordButtonClick('auxiliaresBucales', 'no auxiliares')} />
+                      <label className="block text-sm font-medium mb-1">Hacinamiento:</label>
+                      <Textarea placeholder="Sí/No y detalles" value={formData.antecedentesPersonalesNoPatologicos.hacinamiento || ''} onChange={(e) => handleAntecedenteChange('hacinamiento', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Promiscuidad:</label>
+                      <Textarea placeholder="Sí/No y detalles" value={formData.antecedentesPersonalesNoPatologicos.promiscuidad || ''} onChange={(e) => handleAntecedenteChange('promiscuidad', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Mascotas:</label>
+                      <Textarea placeholder="Sí/No y detalles" value={formData.antecedentesPersonalesNoPatologicos.mascotas || ''} onChange={(e) => handleAntecedenteChange('mascotas', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Manejo de residuos:</label>
+                      <Textarea placeholder="Adecuado, inadecuado, etc." value={formData.antecedentesPersonalesNoPatologicos.manejoResiduos || ''} onChange={(e) => handleAntecedenteChange('manejoResiduos', e.target.value)} />
+                    </div>
+                  </div>
+                )}
+
+                {activeSection === 'higienePersonal' && (
+                  <div className="space-y-6 px-2">
+                    <h3 className="text-lg font-semibold border-b pb-2">Higiene Personal</h3>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Frecuencia de baño:</label>
+                      <Textarea placeholder="Diaria, interdiaria, etc." value={formData.antecedentesPersonalesNoPatologicos.frecuenciaBano || ''} onChange={(e) => handleAntecedenteChange('frecuenciaBano', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <h4 className="text-md font-medium mb-2">Lavado de manos:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {['Antes de comer', 'Después de ir al baño', 'Al llegar a casa', 'Otro'].map(momento => (
+                          <button key={momento} onClick={() => {
+                            const updatedLavado = formData.antecedentesPersonalesNoPatologicos.lavadoManos?.includes(momento)
+                              ? formData.antecedentesPersonalesNoPatologicos.lavadoManos.filter(l => l !== momento)
+                              : [...(formData.antecedentesPersonalesNoPatologicos.lavadoManos || []), momento];
+                            handleAntecedenteChange('lavadoManos', updatedLavado);
+                          }} className={`px-3 py-2 rounded-md text-xs ${formData.antecedentesPersonalesNoPatologicos.lavadoManos?.includes(momento) ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                            {momento}
+                          </button>
+                        ))}
                       </div>
                     </div>
+
                     <div>
-                      <Label>Última Visita al Odontólogo</Label>
-                      <Select value={formDataLocal.ultimaVisitaOdontologo} onValueChange={value => handleFormChange('ultimaVisitaOdontologo', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione tiempo" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="menos de 6 meses">Menos de 6 meses</SelectItem>
-                          <SelectItem value="entre 6 meses y 1 año">Entre 6 meses y 1 año</SelectItem>
-                          <SelectItem value="más de 1 año">Más de 1 año</SelectItem>
-                          <SelectItem value="nunca">Nunca</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="block text-sm font-medium mb-1">Cambio de ropa:</label>
+                      <Textarea placeholder="Diario, interdiario, etc." value={formData.antecedentesPersonalesNoPatologicos.cambioRopa || ''} onChange={(e) => handleAntecedenteChange('cambioRopa', e.target.value)} />
                     </div>
+                  </div>
+                )}
+
+                {activeSection === 'higieneBucal' && (
+                  <div className="space-y-6 px-2">
+                    <h3 className="text-lg font-semibold border-b pb-2">Higiene Bucal</h3>
+
                     <div>
-                      <Label>Problemas Bucales Referidos</Label>
-                      <div className="flex flex-wrap mt-1">
-                        <WordButton label="Encías que sangran" isSelected={formDataLocal.problemasBucales.includes('encías que sangran')} onClick={() => handleWordButtonClick('problemasBucales', 'encías que sangran')} />
-                        <WordButton label="Dientes con cavidades" isSelected={formDataLocal.problemasBucales.includes('dientes con cavidades')} onClick={() => handleWordButtonClick('problemasBucales', 'dientes con cavidades')} />
-                        <WordButton label="Halitosis" isSelected={formDataLocal.problemasBucales.includes('halitosis')} onClick={() => handleWordButtonClick('problemasBucales', 'halitosis')} />
-                        <WordButton label="Dolor en dientes o encías" isSelected={formDataLocal.problemasBucales.includes('dolor en dientes o encías')} onClick={() => handleWordButtonClick('problemasBucales', 'dolor en dientes o encías')} />
-                        <WordButton label="Sin problemas bucales" isSelected={formDataLocal.problemasBucales.includes('sin problemas bucales')} onClick={() => handleWordButtonClick('problemasBucales', 'sin problemas bucales')} />
+                      <label className="block text-sm font-medium mb-1">Frecuencia de cepillado:</label>
+                      <Textarea placeholder="Veces al día" value={formData.antecedentesPersonalesNoPatologicos.frecuenciaCepillado || ''} onChange={(e) => handleAntecedenteChange('frecuenciaCepillado', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Técnica de cepillado:</label>
+                      <Textarea placeholder="Horizontal, vertical, etc." value={formData.antecedentesPersonalesNoPatologicos.tecnicaCepillado || ''} onChange={(e) => handleAntecedenteChange('tecnicaCepillado', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <h4 className="text-md font-medium mb-2">Auxiliares bucales:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {['Hilo dental', 'Enjuague bucal', 'Otro'].map(auxiliar => (
+                          <button key={auxiliar} onClick={() => {
+                            const updatedAuxiliares = formData.antecedentesPersonalesNoPatologicos.auxiliaresBucales?.includes(auxiliar)
+                              ? formData.antecedentesPersonalesNoPatologicos.auxiliaresBucales.filter(a => a !== auxiliar)
+                              : [...(formData.antecedentesPersonalesNoPatologicos.auxiliaresBucales || []), auxiliar];
+                            handleAntecedenteChange('auxiliaresBucales', updatedAuxiliares);
+                          }} className={`px-3 py-2 rounded-md text-xs ${formData.antecedentesPersonalesNoPatologicos.auxiliaresBucales?.includes(auxiliar) ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                            {auxiliar}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Última visita al odontólogo:</label>
+                      <Textarea placeholder="Fecha aproximada" value={formData.antecedentesPersonalesNoPatologicos.ultimaVisitaOdontologo || ''} onChange={(e) => handleAntecedenteChange('ultimaVisitaOdontologo', e.target.value)} />
+                    </div>
+
+                    <div>
+                      <h4 className="text-md font-medium mb-2">Problemas bucales:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {['Caries', 'Gingivitis', 'Periodontitis', 'Otro'].map(problema => (
+                          <button key={problema} onClick={() => {
+                            const updatedProblemas = formData.antecedentesPersonalesNoPatologicos.problemasBucales?.includes(problema)
+                              ? formData.antecedentesPersonalesNoPatologicos.problemasBucales.filter(p => p !== problema)
+                              : [...(formData.antecedentesPersonalesNoPatologicos.problemasBucales || []), problema];
+                            handleAntecedenteChange('problemasBucales', updatedProblemas);
+                          }} className={`px-3 py-2 rounded-md text-xs ${formData.antecedentesPersonalesNoPatologicos.problemasBucales?.includes(problema) ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                            {problema}
+                          </button>
+                        ))}
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Alimentación</h4>
-
-                  <div className="grid grid-cols-2 gap-4">
+                {activeSection === 'alimentacion' && <div className="space-y-6 px-2">
+                    <h3 className="text-lg font-semibold border-b pb-2">Hábitos Alimenticios</h3>
+                    
                     <div>
-                      <Label>Alimentos Consumidos Frecuentemente</Label>
-                      <div className="flex flex-wrap mt-1">
-                        <WordButton label="Frutas y verduras" isSelected={formDataLocal.alimentosConsumidos.includes('frutas y verduras')} onClick={() => handleWordButtonClick('alimentosConsumidos', 'frutas y verduras')} />
-                        <WordButton label="Carnes y proteínas" isSelected={formDataLocal.alimentosConsumidos.includes('carnes y proteínas')} onClick={() => handleWordButtonClick('alimentosConsumidos', 'carnes y proteínas')} />
-                        <WordButton label="Alimentos procesados" isSelected={formDataLocal.alimentosConsumidos.includes('alimentos procesados')} onClick={() => handleWordButtonClick('alimentosConsumidos', 'alimentos procesados')} />
-                        <WordButton label="Dulces y azúcares" isSelected={formDataLocal.alimentosConsumidos.includes('dulces y azúcares')} onClick={() => handleWordButtonClick('alimentosConsumidos', 'dulces y azúcares')} />
+                      <label className="block text-sm font-medium mb-1">Alimentos principalmente consumidos:</label>
+                      <div className="flex flex-wrap gap-2">
+                        {['Frutas', 'Verduras', 'Carnes', 'Cereales', 'Lácteos', 'Legumbres', 'Carbohidratos', 'Comida chatarra', 'Bebidas azucaradas'].map(alimento => (
+                          <button key={alimento} onClick={() => {
+                            const updatedAlimentos = formData.antecedentesPersonalesNoPatologicos.alimentosConsumidos?.includes(alimento) 
+                              ? formData.antecedentesPersonalesNoPatologicos.alimentosConsumidos.filter(a => a !== alimento)
+                              : [...(formData.antecedentesPersonalesNoPatologicos.alimentosConsumidos || []), alimento];
+                            handleAntecedenteChange('alimentosConsumidos', updatedAlimentos);
+                          }} className={`px-3 py-2 rounded-md text-xs ${formData.antecedentesPersonalesNoPatologicos.alimentosConsumidos?.includes(alimento) ? 'bg-blue-500 text-white' : 'bg-gray-100 dark:bg-gray-700'}`}>
+                            {alimento}
+                          </button>
+                        ))}
                       </div>
                     </div>
+                      
                     <div>
-                      <Label>Frecuencia de Consumo de Frutas y Verduras</Label>
-                      <Select value={formDataLocal.frecuenciaFrutasVerduras} onValueChange={value => handleFormChange('frecuenciaFrutasVerduras', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diaria">Diaria</SelectItem>
-                          <SelectItem value="3-5 veces por semana">3-5 veces por semana</SelectItem>
-                          <SelectItem value="1-2 veces por semana">1-2 veces por semana</SelectItem>
-                          <SelectItem value="rara vez">Rara vez</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="block text-sm font-medium mb-1">Frecuencia de consumo de frutas y verduras:</label>
+                      <Textarea placeholder="Diariamente, semanalmente, etc." value={formData.antecedentesPersonalesNoPatologicos.frecuenciaFrutasVerduras || ''} onChange={(e) => handleAntecedenteChange('frecuenciaFrutasVerduras', e.target.value)} />
                     </div>
+                      
                     <div>
-                      <Label>Frecuencia de Bebidas Azucaradas</Label>
-                      <Select value={formDataLocal.frecuenciaBebidasAzucaradas} onValueChange={value => handleFormChange('frecuenciaBebidasAzucaradas', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diaria">Diaria</SelectItem>
-                          <SelectItem value="3-5 veces por semana">3-5 veces por semana</SelectItem>
-                          <SelectItem value="1-2 veces por semana">1-2 veces por semana</SelectItem>
-                          <SelectItem value="rara vez">Rara vez</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="block text-sm font-medium mb-1">Frecuencia de consumo de bebidas azucaradas:</label>
+                      <Textarea placeholder="Diariamente, semanalmente, etc." value={formData.antecedentesPersonalesNoPatologicos.frecuenciaBebidasAzucaradas || ''} onChange={(e) => handleAntecedenteChange('frecuenciaBebidasAzucaradas', e.target.value)} />
                     </div>
+                      
                     <div>
-                      <Label>Frecuencia de Comida Chatarra</Label>
-                      <Select value={formDataLocal.frecuenciaComidaChatarra} onValueChange={value => handleFormChange('frecuenciaComidaChatarra', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione frecuencia" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="diaria">Diaria</SelectItem>
-                          <SelectItem value="3-5 veces por semana">3-5 veces por semana</SelectItem>
-                          <SelectItem value="1-2 veces por semana">1-2 veces por semana</SelectItem>
-                          <SelectItem value="rara vez">Rara vez</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="block text-sm font-medium mb-1">Frecuencia de consumo de comida chatarra:</label>
+                      <Textarea placeholder="Diariamente, semanalmente, etc." value={formData.antecedentesPersonalesNoPatologicos.frecuenciaComidaChatarra || ''} onChange={(e) => handleAntecedenteChange('frecuenciaComidaChatarra', e.target.value)} />
                     </div>
+                      
                     <div>
-                      <Label>Consumo de Agua Diario (Litros)</Label>
-                      <Select value={formDataLocal.consumoAgua} onValueChange={value => handleFormChange('consumoAgua', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione cantidad" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="menos de 1 litro">Menos de 1 litro</SelectItem>
-                          <SelectItem value="1-2 litros">1-2 litros</SelectItem>
-                          <SelectItem value="más de 2 litros">Más de 2 litros</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="block text-sm font-medium mb-1">Consumo diario aproximado de agua:</label>
+                      <Textarea placeholder="Cantidad en litros o vasos" value={formData.antecedentesPersonalesNoPatologicos.consumoAgua || ''} onChange={(e) => handleAntecedenteChange('consumoAgua', e.target.value)} />
                     </div>
+                      
                     <div>
-                      <Label>Número de Comidas al Día</Label>
-                      <Select value={formDataLocal.numeroComidas} onValueChange={value => handleFormChange('numeroComidas', value)}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccione número" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1-2">1-2</SelectItem>
-                          <SelectItem value="3">3</SelectItem>
-                          <SelectItem value="4-5">4-5</SelectItem>
-                          <SelectItem value="más de 5">Más de 5</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="block text-sm font-medium mb-1">Número de comidas al día:</label>
+                      <Textarea placeholder="Tres, cinco, etc." value={formData.antecedentesPersonalesNoPatologicos.numeroComidas || ''} onChange={(e) => handleAntecedenteChange('numeroComidas', e.target.value)} />
                     </div>
-                  </div>
+                      
+                    <div className="space-y-3">
+                      <label className="block text-sm font-medium">Horarios habituales de comida:</label>
+                        
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">Desayuno:</label>
+                          <Input 
+                            type="time" 
+                            value={formData.antecedentesPersonalesNoPatologicos.horarioComidas.desayuno || ''} 
+                            onChange={(e) => handleHorarioComidaChange('desayuno', e.target.value)} 
+                            className="w-full" 
+                          />
+                        </div>
+                          
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">Comida/Almuerzo:</label>
+                          <Input 
+                            type="time" 
+                            value={formData.antecedentesPersonalesNoPatologicos.horarioComidas.almuerzo || ''} 
+                            onChange={(e) => handleHorarioComidaChange('almuerzo', e.target.value)} 
+                            className="w-full" 
+                          />
+                        </div>
+                          
+                        <div>
+                          <label className="block text-xs text-gray-500 mb-1">Cena:</label>
+                          <Input 
+                            type="time" 
+                            value={formData.antecedentesPersonalesNoPatologicos.horarioComidas.cena || ''} 
+                            onChange={(e) => handleHorarioComidaChange('cena', e.target.value)} 
+                            className="w-full" 
+                          />
+                        </div>
+                      </div>
+                    </div>
+                      
+                    <div>
+                      <label className="block text-sm font-medium mb-1">¿Realiza ayuno prolongado?</label>
+                      <Textarea placeholder="Indique si ayuna y por cuántas horas" value={formData.antecedentesPersonalesNoPatologicos.ayunoProlongado || ''} onChange={(e) => handleAntecedenteChange('ayunoProlongado', e.target.value)} />
+                    </div>
+                  </div>}
+              </div> : <div className="p-6">
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" style={{
+                  whiteSpace: 'pre-wrap'
+                }} data-redaction-content>
+                  {redaccionContent || "No se ha generado redacción aún. Utilice el botón 'Generar Redacción IA' en la pestaña de Formulario."}
                 </div>
-
-                <div className="flex justify-center pt-4">
-                  <Button onClick={generarRedaccionIA} className="bg-blue-500 hover:bg-blue-600 text-white">
-                    Generar Redacción IA
-                  </Button>
-                  <Button onClick={limpiarFormulario} variant="outline" className="ml-4 flex items-center gap-2">
-                    <Eraser className="w-4 h-4" />
-                    Limpiar formulario
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Redacción IA */}
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Servicios Domiciliarios</h4>
-                    <button onClick={() => handleCopy('serviciosDomiciliarios')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.serviciosDomiciliarios ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.serviciosDomiciliarios}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Higiene de la Vivienda</h4>
-                    <button onClick={() => handleCopy('higieneVivienda')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.higieneVivienda ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.higieneVivienda}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Higiene Personal</h4>
-                    <button onClick={() => handleCopy('higienePersonal')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.higienePersonal ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.higienePersonal}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Higiene Bucal</h4>
-                    <button onClick={() => handleCopy('higieneBucal')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.higieneBucal ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.higieneBucal}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Alimentación</h4>
-                    <button onClick={() => handleCopy('alimentacion')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.alimentacion ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.alimentacion}
-                    className="min-h-[200px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="flex justify-center">
-                  <Button onClick={() => setShowForm(true)} variant="outline" className="text-blue-500 border-blue-500">
-                    Volver al Formulario
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+              </div>}
+          </>}
       </Card>
-    </div>
-  );
+    </div>;
 };
 
 export default AntecedentesPersonalesNoPatologicos;
