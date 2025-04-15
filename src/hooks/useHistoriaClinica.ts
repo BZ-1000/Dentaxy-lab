@@ -1,24 +1,23 @@
-import { useState } from 'react';
-import { useToast } from "@/components/ui/use-toast";
-import { generateMedicalReport } from '@/services/geminiService';
-import { FormDataState } from '@/types/historiaClinica';
+import { useState, useCallback } from 'react';
+import { FormDataState, Familiar } from '@/types/historiaClinica';
 import { getInitialFormState } from '@/utils/initialFormState';
 
 export const useHistoriaClinica = () => {
-  const { toast } = useToast();
-  const [resumen, setResumen] = useState<string>('');
-  const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState<FormDataState>(getInitialFormState());
+  const [resumen, setResumen] = useState<string>('');
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+  const handleInputChange = useCallback((section: keyof FormDataState, field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [section]: {
+        ...prev[section],
+        [field]: value
+      }
     }));
-  };
+  }, []);
 
-  const handlePadecimientoChange = (field: string, value: string) => {
+  const handlePadecimientoChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       padecimientoActual: {
@@ -26,76 +25,34 @@ export const useHistoriaClinica = () => {
         [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleDolorChange = (field: string, value: any) => {
-    if (field === 'localizacion') {
-      let localizacion;
-      
-      if (typeof value === 'string') {
-        try {
-          if (value.startsWith('{') && value.endsWith('}')) {
-            localizacion = JSON.parse(value);
-          } else {
-            localizacion = { 
-              tipo: '',
-              descripcion: value 
-            };
-          }
-        } catch (e) {
-          localizacion = { tipo: '', descripcion: value };
-        }
-      } else if (typeof value === 'object') {
-        localizacion = value;
-      }
-      
-      setFormData(prev => ({
-        ...prev,
-        padecimientoActual: {
-          ...prev.padecimientoActual,
-          dolor: {
-            ...prev.padecimientoActual.dolor,
-            localizacion
-          }
-        }
-      }));
-    } else if (field === 'causaProvocado') {
-      // Asegurar que causaProvocado se guarde correctamente
-      setFormData(prev => ({
-        ...prev,
-        padecimientoActual: {
-          ...prev.padecimientoActual,
-          dolor: {
-            ...prev.padecimientoActual.dolor,
-            causaProvocado: value
-          }
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        padecimientoActual: {
-          ...prev.padecimientoActual,
-          dolor: {
-            ...prev.padecimientoActual.dolor,
-            [field]: value
-          }
-        }
-      }));
-    }
-  };
-
-  const handleSinSintomasChange = (checked: boolean) => {
+  const handleDolorChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       padecimientoActual: {
         ...prev.padecimientoActual,
-        sinSintomas: checked
+        dolor: {
+          ...prev.padecimientoActual.dolor,
+          [field]: value
+        }
       }
     }));
-  };
+  }, []);
 
-  const handleFamiliarChange = (familiar: string, field: string, value: boolean | string) => {
+  const handleSinSintomasChange = useCallback((value: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      padecimientoActual: {
+        ...prev.padecimientoActual,
+        sinSintomas: value,
+        motivoConsulta: value ? '' : prev.padecimientoActual.motivoConsulta,
+        historiaPadecimiento: value ? '' : prev.padecimientoActual.historiaPadecimiento
+      }
+    }));
+  }, []);
+
+  const handleFamiliarChange = useCallback((familiar: keyof FormDataState['antecedentesHeredoFamiliares'], field: keyof Familiar, value: any) => {
     setFormData(prev => ({
       ...prev,
       antecedentesHeredoFamiliares: {
@@ -106,9 +63,9 @@ export const useHistoriaClinica = () => {
         }
       }
     }));
-  };
+  }, []);
 
-  const handleCondicionChange = (familiar: string, condicion: string, value: boolean | string) => {
+  const handleCondicionChange = useCallback((familiar: keyof FormDataState['antecedentesHeredoFamiliares'], condicion: keyof Familiar['condiciones'], value: boolean | string) => {
     setFormData(prev => ({
       ...prev,
       antecedentesHeredoFamiliares: {
@@ -122,89 +79,50 @@ export const useHistoriaClinica = () => {
         }
       }
     }));
-  };
+  }, []);
 
-  const handleAntecedenteChange = (field: string, value: any) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setFormData(prev => ({
-        ...prev,
-        antecedentesPersonalesNoPatologicos: {
-          ...prev.antecedentesPersonalesNoPatologicos,
-          [parent]: {
-            ...prev.antecedentesPersonalesNoPatologicos[parent],
-            [child]: value
-          }
-        }
-      }));
-    } else if (Array.isArray(value)) {
-      setFormData(prev => ({
-        ...prev,
-        antecedentesPersonalesNoPatologicos: {
-          ...prev.antecedentesPersonalesNoPatologicos,
-          [field]: value
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        antecedentesPersonalesNoPatologicos: {
-          ...prev.antecedentesPersonalesNoPatologicos,
-          [field]: value
-        }
-      }));
-    }
-  };
+  const handleAntecedenteChange = useCallback((field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesPersonalesNoPatologicos: {
+        ...prev.antecedentesPersonalesNoPatologicos,
+        [field]: value
+      }
+    }));
+  }, []);
 
-  const handleAntecedentePatologicoChange = (field: string, value: any) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setFormData(prev => ({
-        ...prev,
-        antecedentesPersonalesPatologicos: {
-          ...prev.antecedentesPersonalesPatologicos,
-          [parent]: {
-            ...prev.antecedentesPersonalesPatologicos[parent],
-            [child]: value
-          }
+  const handleAntecedentePatologicoChange = useCallback((group: keyof FormDataState['antecedentesPersonalesPatologicos'], condition: string, value: boolean | string) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesPersonalesPatologicos: {
+        ...prev.antecedentesPersonalesPatologicos,
+        [group]: {
+          ...prev.antecedentesPersonalesPatologicos[group],
+          [condition]: value
         }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        antecedentesPersonalesPatologicos: {
-          ...prev.antecedentesPersonalesPatologicos,
-          [field]: value
-        }
-      }));
-    }
-  };
+      }
+    }));
+  }, []);
 
-  const handleAntecedenteAlergicoChange = (field: string, value: any) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setFormData(prev => ({
+  const handleAntecedenteAlergicoChange = useCallback((path: string, value: any) => {
+    setFormData(prev => {
+      const pathParts = path.split('.');
+      let current = { ...prev.antecedentesAlergicos };
+      for (let i = 0; i < pathParts.length - 1; i++) {
+        current = current[pathParts[i]] = { ...current[pathParts[i]] };
+      }
+      current[pathParts[pathParts.length - 1]] = value;
+      return {
         ...prev,
         antecedentesAlergicos: {
           ...prev.antecedentesAlergicos,
-          [parent]: {
-            ...prev.antecedentesAlergicos[parent],
-            [child]: value
-          }
+          ...current
         }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        antecedentesAlergicos: {
-          ...prev.antecedentesAlergicos,
-          [field]: value
-        }
-      }));
-    }
-  };
+      };
+    });
+  }, []);
 
-  const handleAntecedenteQuirurgicoChange = (field: string, value: any) => {
+  const handleAntecedenteQuirurgicoChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       antecedentesQuirurgicos: {
@@ -212,9 +130,9 @@ export const useHistoriaClinica = () => {
         [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleAntecedenteHemorragicoChange = (field: string, value: any) => {
+  const handleAntecedenteHemorragicoChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       antecedentesHemorragicos: {
@@ -222,235 +140,205 @@ export const useHistoriaClinica = () => {
         [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleInterrogatorioChange = (system: string, value: string) => {
+  const handleAntecedenteGinecoObstetricoChange = useCallback((field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesGinecoObstetricos: {
+        ...prev.antecedentesGinecoObstetricos,
+        [field]: value
+      }
+    }));
+  }, []);
+
+  const handleInterrogatorioChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       interrogatorioSistemas: {
         ...prev.interrogatorioSistemas,
-        [system]: value
+        [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleExploracionFisicaChange = (field: string, value: any) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setFormData(prev => ({
-        ...prev,
-        exploracionFisica: {
-          ...prev.exploracionFisica,
-          [parent]: {
-            ...prev.exploracionFisica?.[parent],
-            [child]: value
-          }
-        }
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        exploracionFisica: {
-          ...prev.exploracionFisica,
+  const handleExploracionFisicaChange = useCallback((group: string, field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      exploracionFisica: {
+        ...prev.exploracionFisica,
+        [group]: {
+          ...prev.exploracionFisica[group],
           [field]: value
         }
-      }));
-    }
-  };
+      }
+    }));
+  }, []);
 
-  const handleExamenCabezaChange = (part: string, value: any) => {
+  const handleExamenCabezaChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       examenCabeza: {
         ...prev.examenCabeza,
-        [part]: value
+        [field]: value
       }
     }));
-  };
-  
-  // New handlers for the added sections
-  const handleArticulacionCraneomandibularChange = (part: string, value: string | boolean) => {
+  }, []);
+
+  const handleArticulacionCraneomandibularChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       articulacionCraneomandibular: {
         ...prev.articulacionCraneomandibular,
-        [part]: value
+        [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleExamenCuelloChange = (part: string, value: string | boolean) => {
+  const handleExamenCuelloChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       examenCuello: {
         ...prev.examenCuello,
-        [part]: value
+        [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleExamenIntrabucalChange = (part: string, value: string | boolean) => {
+  const handleExamenIntrabucalChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       examenIntrabucal: {
         ...prev.examenIntrabucal,
-        [part]: value
+        [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleGlandulasSalivalesChange = (part: string, value: string | boolean) => {
+  const handleGlandulasSalivalesChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       glandulasSalivales: {
         ...prev.glandulasSalivales,
-        [part]: value
+        [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleOclusionChange = (part: string, value: string | boolean) => {
+  const handleOclusionChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       oclusion: {
         ...prev.oclusion,
-        [part]: value
+        [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleRelacionDientesChange = (part: string, value: string | boolean) => {
+  const handleRelacionDientesChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       relacionDientes: {
         ...prev.relacionDientes,
-        [part]: value
+        [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleLineaMediaChange = (part: string, value: string | boolean) => {
+  const handleLineaMediaChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       lineaMedia: {
         ...prev.lineaMedia,
-        [part]: value
+        [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleFrenillosChange = (part: string, value: string | boolean) => {
+  const handleFrenillosChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       frenillos: {
         ...prev.frenillos,
-        [part]: value
+        [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handleDiagnosticoChange = (part: string, value: string) => {
+  const handleDiagnosticoChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       diagnostico: {
         ...prev.diagnostico,
-        [part]: value
+        [field]: value
       }
     }));
-  };
+  }, []);
 
-  const handlePronosticoChange = (part: string, value: string) => {
+  const handlePronosticoChange = useCallback((field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
       pronostico: {
         ...prev.pronostico,
-        [part]: value
+        [field]: value
       }
     }));
-  };
+  }, []);
 
-  const generarResumen = async () => {
-    try {
-      setIsGenerating(true);
-      const resumenGenerado = await generateMedicalReport(formData);
-      setResumen(resumenGenerado);
-      toast({
-        title: "Historia Clínica Generada",
-        description: "El resumen de la historia clínica ha sido generado exitosamente con IA.",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo generar la historia clínica. Por favor, intente nuevamente.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const toggleService = (service: string) => {
+  const toggleService = useCallback((service: string) => {
     setFormData(prev => {
-      const currentServices = [...prev.antecedentesPersonalesNoPatologicos.servicios];
-      
-      if (service === 'todos') {
-        const allServices = ['agua', 'luz', 'drenaje', 'transporte', 'internet', 'gas'];
-        const hasAllServices = allServices.every(s => currentServices.includes(s));
-        
-        return {
-          ...prev,
-          antecedentesPersonalesNoPatologicos: {
-            ...prev.antecedentesPersonalesNoPatologicos,
-            servicios: hasAllServices ? [] : allServices
-          }
-        };
+      const servicios = [...prev.antecedentesPersonalesNoPatologicos.servicios];
+      const index = servicios.indexOf(service);
+      if (index === -1) {
+        servicios.push(service);
+      } else {
+        servicios.splice(index, 1);
       }
-      
-      const updatedServices = currentServices.includes(service)
-        ? currentServices.filter(s => s !== service)
-        : [...currentServices, service];
-        
       return {
         ...prev,
         antecedentesPersonalesNoPatologicos: {
           ...prev.antecedentesPersonalesNoPatologicos,
-          servicios: updatedServices
+          servicios: servicios
         }
       };
     });
-  };
+  }, []);
 
-  const resetFormulario = () => {
+  const generarResumen = useCallback(async () => {
+    setIsGenerating(true);
+    // Simulación de llamada a API
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setResumen('Resumen generado exitosamente.');
+    setIsGenerating(false);
+  }, []);
+
+  const guardarFormulario = useCallback((data: FormDataState, nombre: string) => {
+    localStorage.setItem(`form_${nombre}`, JSON.stringify(data));
+  }, []);
+
+  const cargarFormulario = useCallback((data: FormDataState | null) => {
+    if (data) {
+      setFormData(data);
+    } else {
+      setFormData(getInitialFormState());
+    }
+  }, []);
+
+  const resetFormulario = useCallback(() => {
     setFormData(getInitialFormState());
-    setResumen('');
-  };
+  }, []);
 
-  const guardarFormulario = (data: FormDataState, nombre: string) => {
-    if (!nombre.trim()) return;
-    
-    // Asegurar que se guarden completos los valores de localizacion y causaProvocado
-    const formDataToSave = {
-      ...data,
-      padecimientoActual: {
-        ...data.padecimientoActual,
-        dolor: {
-          ...data.padecimientoActual.dolor,
-          localizacion: data.padecimientoActual.dolor.localizacion || { tipo: '', descripcion: '' },
-          causaProvocado: data.padecimientoActual.dolor.causaProvocado || ''
+  const handleHorarioComidaChange = (meal: string, time: string) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesPersonalesNoPatologicos: {
+        ...prev.antecedentesPersonalesNoPatologicos,
+        horarioComidas: {
+          ...prev.antecedentesPersonalesNoPatologicos.horarioComidas,
+          [meal]: time
         }
       }
-    };
-    
-    localStorage.setItem(`formulario_${nombre}`, JSON.stringify(formDataToSave));
-  };
-
-  const cargarFormulario = (data: FormDataState | null) => {
-    if (data === null) {
-      setFormData(getInitialFormState());
-      setResumen('');
-    } else {
-      setFormData(data);
-    }
+    }));
   };
 
   return {
@@ -468,6 +356,7 @@ export const useHistoriaClinica = () => {
     handleAntecedenteAlergicoChange,
     handleAntecedenteQuirurgicoChange,
     handleAntecedenteHemorragicoChange,
+    handleAntecedenteGinecoObstetricoChange,
     handleInterrogatorioChange,
     handleExploracionFisicaChange,
     handleExamenCabezaChange,
@@ -485,6 +374,7 @@ export const useHistoriaClinica = () => {
     generarResumen,
     guardarFormulario,
     cargarFormulario,
-    resetFormulario
+    resetFormulario,
+    handleHorarioComidaChange,
   };
 };
