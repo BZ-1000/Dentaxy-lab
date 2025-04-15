@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Mic } from "lucide-react";
@@ -123,29 +124,33 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <label className="block text-sm font-medium mb-1">Motivo de la transfusión:</label>
-                    <div className="flex items-center">
-                      <Textarea value={formData.antecedentesHemorragicos.motivoTransfusion || ''} onChange={e => handleTextChange('motivoTransfusion', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
-                      <div className="ml-2">
-                        <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                          <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTransfusion')} />
-                        </button>
+                  {formData.antecedentesHemorragicos.transfusionPrevia && (
+                    <>
+                      <div className="relative">
+                        <label className="block text-sm font-medium mb-1">Motivo de la transfusión:</label>
+                        <div className="flex items-center">
+                          <Textarea value={formData.antecedentesHemorragicos.motivoTransfusion || ''} onChange={e => handleTextChange('motivoTransfusion', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
+                          <div className="ml-2">
+                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
+                              <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTransfusion')} />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="relative">
-                    <label className="block text-sm font-medium mb-1">Fecha de la transfusión:</label>
-                    <div className="flex items-center">
-                      <Textarea value={formData.antecedentesHemorragicos.fechaTransfusion || ''} onChange={e => handleTextChange('fechaTransfusion', e.target.value)} placeholder="DD/MM/AAAA o especifique aproximadamente" className="min-h-[60px] flex-1" />
-                      <div className="ml-2">
-                        <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                          <VoiceInput onTranscriptionComplete={handleVoiceInput('fechaTransfusion')} />
-                        </button>
+                      <div className="relative">
+                        <label className="block text-sm font-medium mb-1">Fecha de la transfusión:</label>
+                        <div className="flex items-center">
+                          <Textarea value={formData.antecedentesHemorragicos.fechaTransfusion || ''} onChange={e => handleTextChange('fechaTransfusion', e.target.value)} placeholder="DD/MM/AAAA o especifique aproximadamente" className="min-h-[60px] flex-1" />
+                          <div className="ml-2">
+                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
+                              <VoiceInput onTranscriptionComplete={handleVoiceInput('fechaTransfusion')} />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
 
                   <div className="relative">
                     <label className="block text-sm font-medium mb-1">Detalles adicionales sobre antecedentes hemorrágicos:</label>

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Mic } from "lucide-react";
@@ -139,17 +140,19 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <label className="block text-sm font-medium mb-1">Motivo del tratamiento:</label>
-                    <div className="flex items-center">
-                      <Textarea value={formData.antecedentesQuirurgicos.motivoTratamiento || ''} onChange={e => handleTextChange('motivoTratamiento', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
-                      <div className="ml-2">
-                        <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                          <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTratamiento')} />
-                        </button>
+                  {formData.antecedentesQuirurgicos.tratamientoReciente && (
+                    <div className="relative">
+                      <label className="block text-sm font-medium mb-1">Motivo del tratamiento:</label>
+                      <div className="flex items-center">
+                        <Textarea value={formData.antecedentesQuirurgicos.motivoTratamiento || ''} onChange={e => handleTextChange('motivoTratamiento', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
+                        <div className="ml-2">
+                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
+                            <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTratamiento')} />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   <div>
                     <h3 className="text-md font-medium mb-2">¿Ha sido hospitalizado(a) en los últimos dos meses?</h3>
@@ -163,17 +166,19 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <label className="block text-sm font-medium mb-1">Motivo de la hospitalización:</label>
-                    <div className="flex items-center">
-                      <Textarea value={formData.antecedentesQuirurgicos.motivoHospitalizacion || ''} onChange={e => handleTextChange('motivoHospitalizacion', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
-                      <div className="ml-2">
-                        <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                          <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoHospitalizacion')} />
-                        </button>
+                  {formData.antecedentesQuirurgicos.hospitalizacionReciente && (
+                    <div className="relative">
+                      <label className="block text-sm font-medium mb-1">Motivo de la hospitalización:</label>
+                      <div className="flex items-center">
+                        <Textarea value={formData.antecedentesQuirurgicos.motivoHospitalizacion || ''} onChange={e => handleTextChange('motivoHospitalizacion', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
+                        <div className="ml-2">
+                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
+                            <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoHospitalizacion')} />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   <div>
                     <h3 className="text-md font-medium mb-2">¿Está tomando actualmente algún medicamento?</h3>
@@ -187,29 +192,33 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <label className="block text-sm font-medium mb-1">¿Cuál o cuáles?:</label>
-                    <div className="flex items-center">
-                      <Textarea value={formData.antecedentesQuirurgicos.cualesMedicamentos || ''} onChange={e => handleTextChange('cualesMedicamentos', e.target.value)} placeholder="Liste los medicamentos" className="min-h-[80px] flex-1" />
-                      <div className="ml-2">
-                        <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                          <VoiceInput onTranscriptionComplete={handleVoiceInput('cualesMedicamentos')} />
-                        </button>
+                  {formData.antecedentesQuirurgicos.tomaMedicamentos && (
+                    <>
+                      <div className="relative">
+                        <label className="block text-sm font-medium mb-1">¿Cuál o cuáles?:</label>
+                        <div className="flex items-center">
+                          <Textarea value={formData.antecedentesQuirurgicos.cualesMedicamentos || ''} onChange={e => handleTextChange('cualesMedicamentos', e.target.value)} placeholder="Liste los medicamentos" className="min-h-[80px] flex-1" />
+                          <div className="ml-2">
+                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
+                              <VoiceInput onTranscriptionComplete={handleVoiceInput('cualesMedicamentos')} />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
 
-                  <div className="relative">
-                    <label className="block text-sm font-medium mb-1">Motivo por el cual toma estos medicamentos:</label>
-                    <div className="flex items-center">
-                      <Textarea value={formData.antecedentesQuirurgicos.motivoMedicamentos || ''} onChange={e => handleTextChange('motivoMedicamentos', e.target.value)} placeholder="Explique por qué toma estos medicamentos" className="min-h-[80px] flex-1" />
-                      <div className="ml-2">
-                        <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                          <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoMedicamentos')} />
-                        </button>
+                      <div className="relative">
+                        <label className="block text-sm font-medium mb-1">Motivo por el cual toma estos medicamentos:</label>
+                        <div className="flex items-center">
+                          <Textarea value={formData.antecedentesQuirurgicos.motivoMedicamentos || ''} onChange={e => handleTextChange('motivoMedicamentos', e.target.value)} placeholder="Explique por qué toma estos medicamentos" className="min-h-[80px] flex-1" />
+                          <div className="ml-2">
+                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
+                              <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoMedicamentos')} />
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
 
                   <div className="flex justify-center mt-6">
                     
