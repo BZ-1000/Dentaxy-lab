@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
@@ -641,4 +642,93 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-30
+              <button
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
+                onClick={() => setActiveTab('formulario')}
+              >
+                Formulario
+              </button>
+              <button
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'redaccion' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
+                onClick={generateRedaccion}
+              >
+                Redacción
+              </button>
+            </div>
+          </div>
+
+          <div className="flex space-x-2">
+            <button onClick={handleMinimize} className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <Minus size={18} />
+            </button>
+            <button onClick={handleMaximize} className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <Maximize2 size={18} />
+            </button>
+            <button onClick={handleClose} className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+
+        <div className={`${isMinimized ? 'hidden' : 'block'} p-6`}>
+          {activeTab === 'formulario' ? (
+            <div>
+              <div className="flex mb-6 space-x-3 overflow-x-auto scrollbar-hide">
+                <button
+                  className={`px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap ${currentSection === 'vivienda' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+                  onClick={() => setCurrentSection('vivienda')}
+                >
+                  Vivienda
+                </button>
+                <button
+                  className={`px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap ${currentSection === 'higiene' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+                  onClick={() => setCurrentSection('higiene')}
+                >
+                  Higiene
+                </button>
+                <button
+                  className={`px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap ${currentSection === 'higieneBucal' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+                  onClick={() => setCurrentSection('higieneBucal')}
+                >
+                  Higiene Bucal
+                </button>
+                <button
+                  className={`px-4 py-2 text-sm font-medium rounded-md whitespace-nowrap ${currentSection === 'alimentacion' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}
+                  onClick={() => setCurrentSection('alimentacion')}
+                >
+                  Alimentación
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {currentSection === 'vivienda' && renderViviendaSection()}
+                {currentSection === 'higiene' && renderHigieneSection()}
+                {currentSection === 'higieneBucal' && renderHigieneBucalSection()}
+                {currentSection === 'alimentacion' && renderAlimentacionSection()}
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {isGeneratingRedaccion ? (
+                <div className="flex items-center justify-center h-40">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+                </div>
+              ) : (
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Redacción de antecedentes personales no patológicos</h3>
+                  <Textarea
+                    value={redaccionContent}
+                    readOnly
+                    className="min-h-[300px] w-full border-gray-300 dark:border-gray-700"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
+  );
+};
+
+export default AntecedentesPersonalesNoPatologicos;
