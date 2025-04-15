@@ -462,7 +462,7 @@ const HistoriaClinica = () => {
                 <button
                   className={`px-4 py-2 rounded-md text-sm transition-colors ${
                     !esMujer
-                      ? 'bg-[fuchsia-500] text-white'
+                      ? 'bg-[#2ecc71] text-white'
                       : 'bg-gray-100 dark:bg-gray-700'
                   }`}
                   onClick={() => setEsMujer(false)}
@@ -470,15 +470,16 @@ const HistoriaClinica = () => {
                   Hombre
                 </button>
                 <button
-                  className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                    esMujer
-                      ? 'bg-[#2ecc71] text-white'
-                      : 'bg-gray-100 dark:bg-gray-700'
-                  }`}
-                  onClick={() => setEsMujer(true)}
-                >
-                  Mujer
-                </button>
+  className={`px-4 py-2 rounded-md text-sm transition-colors ${
+    esMujer
+      ? 'bg-pink-500 text-white' // Cambiado a rosa
+      : 'bg-gray-100 dark:bg-gray-700'
+  }`}
+  onClick={() => setEsMujer(true)}
+>
+  Mujer
+</button>
+
               </div>
             </div>
           </div>
