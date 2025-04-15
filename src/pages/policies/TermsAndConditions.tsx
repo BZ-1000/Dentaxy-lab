@@ -77,5 +77,5 @@ const TermsAndConditions = () => {
     </div>
   );
 };
-
+ 
 export default TermsAndConditions;
