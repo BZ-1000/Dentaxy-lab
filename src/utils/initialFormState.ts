@@ -1,3 +1,4 @@
+
 import { FormDataState } from '@/types/historiaClinica';
 
 export const getInitialFormState = (): FormDataState => ({
@@ -15,8 +16,7 @@ export const getInitialFormState = (): FormDataState => ({
         tipo: '',
         descripcion: ''
       },
-      atenuacion: '',
-      causaProvocado: ''
+      atenuacion: ''
     }
   },
   antecedentesHeredoFamiliares: {
@@ -135,17 +135,6 @@ export const getInitialFormState = (): FormDataState => ({
       otraDescripcion: ""
     }
   },
-  antecedentesQuirurgicos: {
-    sinQuirurgicos: false,
-    cirugiasRealizadas: [],
-    hospitalizacionesPrevias: "",
-    complicacionesAnestesicas: "",
-    tomaMedicamentos: false,
-    cualesMedicamentos: "",
-    motivoMedicamentos: "",
-    hospitalizacionReciente: false,
-    motivoHospitalizacion: ""
-  },
   antecedentesAlergicos: {
     medicamentos: {
       es_alergico: false,
@@ -178,6 +167,19 @@ export const getInitialFormState = (): FormDataState => ({
       drogas: false
     },
     detallesAdicciones: ""
+  },
+  antecedentesQuirurgicos: {
+    sinQuirurgicos: false,
+    cirugiasRealizadas: [],
+    hospitalizacionesPrevias: "",
+    complicacionesAnestesicas: "",
+    tratamientoReciente: false,
+    motivoTratamiento: "",
+    hospitalizacionReciente: false,
+    motivoHospitalizacion: "",
+    tomaMedicamentos: false,
+    cualesMedicamentos: "",
+    motivoMedicamentos: ""
   },
   antecedentesHemorragicos: {
     sinHemorragicos: false,

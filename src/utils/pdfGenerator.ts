@@ -1,4 +1,3 @@
-
 import jsPDF from 'jspdf';
 import { FormDataState } from '@/types/historiaClinica';
 
@@ -60,6 +59,8 @@ export const generatePDF = (
   sectionRedactions: { [key: string]: string } = {}
 ) => {
   console.log("Generando PDF con redacciones:", Object.keys(sectionRedactions));
+
+  // Imprimir formData para verificar su estructura
   console.log("Datos del formulario:", formData);
 
   const doc = new jsPDF();
@@ -193,67 +194,8 @@ Cena: ${antecedentes.horarioComidas.cena}`
 
       return;
     }
-    
-    if (sectionKey === 'antecedentesPersonalesPatologicos') {
-      // Handle pathology subsections with specific formatting
-      const pathologyCategories = [
-        { key: 'nutricionales', title: 'Nutricionales', conditions: ['anorexia', 'bulimia', 'sobrepeso', 'obesidad'] },
-        { key: 'cardiacos', title: 'Cardíacos', conditions: ['enfermedadCoronaria', 'arritmias', 'defectosCardiacosCongenitos'] },
-        { key: 'hepaticos', title: 'Hepáticos', conditions: ['hepatitisA', 'hepatitisB', 'hepatitisC', 'higadoGraso', 'cirrosis'] },
-        { key: 'enfermedadesTransmisionSexual', title: 'Enfermedades de Transmisión Sexual', conditions: ['vih', 'sifilis', 'gonorrea', 'herpesGenital', 'vph'] },
-        { key: 'enfermedadesEruptivas', title: 'Enfermedades Eruptivas de la Infancia', conditions: ['sarampion', 'rubeola', 'escarlatina', 'varicela', 'paperas'] },
-        { key: 'pulmonares', title: 'Pulmonares', conditions: ['neumonia', 'bronquitis', 'asma', 'epoc'] },
-        { key: 'infecciosasParasitarias', title: 'Enfermedades Infecciosas y Parasitarias', conditions: ['fiebreTifoidea', 'tuberculosis', 'amibiasis', 'giardiasis', 'ascariasis'] },
-        { key: 'otrosPadecimientos', title: 'Otros Padecimientos Sistémicos', conditions: ['especificar'] }
-      ];
 
-      const patologicos = formData.antecedentesPersonalesPatologicos;
-      
-      pathologyCategories.forEach(category => {
-        checkNewPage(15);
-        
-        // Add subtitle
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(11);
-        doc.text(category.title, margin, yPos);
-        yPos += 6;
-        
-        // Add content
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-        
-        // Generate text based on whether the category has conditions or not
-        const categoryData = patologicos[category.key as keyof typeof patologicos];
-        
-        let categoryText = '';
-        if (typeof categoryData === 'object') {
-          if (categoryData.ninguna) {
-            categoryText = `El paciente niega antecedentes de padecimientos ${category.title.toLowerCase()} (se interrogó específicamente por ${category.conditions.join(', ')}).`;
-          } else {
-            // List conditions that are true
-            const positiveConditions = category.conditions.filter(cond => 
-              categoryData[cond as keyof typeof categoryData]
-            );
-            
-            if (positiveConditions.length > 0) {
-              categoryText = `El paciente refiere antecedentes de: ${positiveConditions.join(', ')}.`;
-            } else if (typeof categoryData.otra === 'boolean' && categoryData.otra && categoryData.otraDescripcion) {
-              categoryText = `El paciente refiere: ${categoryData.otraDescripcion}`;
-            } else {
-              categoryText = `No se reportan padecimientos específicos en esta categoría.`;
-            }
-          }
-        }
-        
-        const textLines = doc.splitTextToSize(categoryText, contentWidth - 10);
-        doc.text(textLines, margin, yPos);
-        yPos += textLines.length * 6 + 10;
-      });
-      
-      return;
-    }
-
-    // For other sections with subtitles (regular processing)
+    // Para otras secciones con subtítulos (como antecedentes)
     const subtitleKeys = Object.keys(subtitles);
 
     for (const key of subtitleKeys) {
@@ -295,9 +237,9 @@ Cena: ${antecedentes.horarioComidas.cena}`
 
   // Agregar cada sección al PDF si tiene contenido
   Object.entries(sectionRedactions).forEach(([key, content]) => {
-    if (content && SECTION_TITLES[key as keyof typeof SECTION_TITLES]) {
-      console.log(`Agregando sección ${SECTION_TITLES[key as keyof typeof SECTION_TITLES]} al PDF`);
-      addSection(SECTION_TITLES[key as keyof typeof SECTION_TITLES], content, key);
+    if (content && SECTION_TITLES[key]) {
+      console.log(`Agregando sección ${SECTION_TITLES[key]} al PDF`);
+      addSection(SECTION_TITLES[key], content, key);
     }
   });
 

@@ -60,6 +60,7 @@ export const useHistoriaClinica = () => {
         }
       }));
     } else if (field === 'causaProvocado') {
+      // Asegurar que causaProvocado se guarde correctamente
       setFormData(prev => ({
         ...prev,
         padecimientoActual: {
@@ -124,16 +125,7 @@ export const useHistoriaClinica = () => {
   };
 
   const handleAntecedenteChange = (field: string, value: any) => {
-    if (field === 'horarioComidas') {
-      // Handle horarioComidas as an object
-      setFormData(prev => ({
-        ...prev,
-        antecedentesPersonalesNoPatologicos: {
-          ...prev.antecedentesPersonalesNoPatologicos,
-          horarioComidas: value
-        }
-      }));
-    } else if (field.includes('.')) {
+    if (field.includes('.')) {
       const [parent, child] = field.split('.');
       setFormData(prev => ({
         ...prev,
@@ -461,19 +453,6 @@ export const useHistoriaClinica = () => {
     }
   };
 
-  const handleHorarioComidaChange = (comida: 'desayuno' | 'almuerzo' | 'cena', value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      antecedentesPersonalesNoPatologicos: {
-        ...prev.antecedentesPersonalesNoPatologicos,
-        horarioComidas: {
-          ...prev.antecedentesPersonalesNoPatologicos.horarioComidas,
-          [comida]: value
-        }
-      }
-    }));
-  };
-
   return {
     formData,
     resumen,
@@ -502,7 +481,6 @@ export const useHistoriaClinica = () => {
     handleFrenillosChange,
     handleDiagnosticoChange,
     handlePronosticoChange,
-    handleHorarioComidaChange,
     toggleService,
     generarResumen,
     guardarFormulario,
