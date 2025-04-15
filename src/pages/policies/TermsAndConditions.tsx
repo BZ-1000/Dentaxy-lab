@@ -11,7 +11,7 @@ const TermsAndConditions = () => {
         
         <div className="prose prose-lg mx-auto">
           <p className="text-gray-700">
-            Última actualización: 1 de mayo de 2025
+            Última actualización: 
           </p>
           
           <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">1. Introducción</h2>
