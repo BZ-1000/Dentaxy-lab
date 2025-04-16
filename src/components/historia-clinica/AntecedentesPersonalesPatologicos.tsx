@@ -81,6 +81,17 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     }
   };
 
+  const inputRefs = useRef<{[key: string]: React.RefObject<HTMLInputElement>}>({
+    nutricionales: React.createRef<HTMLInputElement>(),
+    cardiacos: React.createRef<HTMLInputElement>(),
+    hepaticos: React.createRef<HTMLInputElement>(),
+    enfermedadesTransmisionSexual: React.createRef<HTMLInputElement>(),
+    enfermedadesEruptivas: React.createRef<HTMLInputElement>(),
+    pulmonares: React.createRef<HTMLInputElement>(),
+    infecciosasParasitarias: React.createRef<HTMLInputElement>(),
+    otrosPadecimientos: React.createRef<HTMLInputElement>(),
+  });
+
   const seleccionarOpcion = (categoria: string, opcion: string, valor: boolean) => {
     if (opcion === 'ninguna' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
@@ -103,6 +114,13 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       categoriasActualizadas.otra = valor;
       categoriasActualizadas.ninguna = false;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
+      
+      // Focus the input field after state update
+      setTimeout(() => {
+        if (inputRefs.current[categoria]?.current) {
+          inputRefs.current[categoria].current?.focus();
+        }
+      }, 0);
     } else {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas[opcion] = valor;
@@ -419,10 +437,12 @@ const AntecedentesPersonalesPatologicos: React.FC<{
           {formData.antecedentesPersonalesPatologicos[categoria]?.otra && (
             <div className="w-full mt-2">
               <Input
+                ref={inputRefs.current[categoria]}
                 placeholder="Especificar otra condición..."
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
                 onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
                 className="w-full"
+                onBlur={() => {}}
               />
             </div>
           )}
