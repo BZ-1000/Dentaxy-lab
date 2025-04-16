@@ -82,6 +82,9 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
+  
+  // Add new state for sticky header
+  const [isHeaderSticky, setIsHeaderSticky] = useState(false);
 
   // Add new state for terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -120,8 +123,21 @@ const Landing = () => {
         checkUserPlan(session.user.id);
       }
     });
+    
+    // Add scroll event listener for sticky header effect
+    const handleScroll = () => {
+      if (window.scrollY > 10) {
+        setIsHeaderSticky(true);
+      } else {
+        setIsHeaderSticky(false);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    
     return () => {
       subscription.unsubscribe();
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
   
@@ -175,6 +191,7 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
+  
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -199,30 +216,35 @@ const Landing = () => {
       toast.error('Error al activar el plan');
     }
   };
+  
   const handleItemClick = (label: string) => {
     setActiveItem(label);
     if (label === "perfil." && session) {
       setShowDropdown(!showDropdown);
     }
   };
+  
   const handleLogin = () => {
     setAuthDialog({
       isOpen: true,
       mode: "login"
     });
   };
+  
   const handleRegister = () => {
     setAuthDialog({
       isOpen: true,
       mode: "register"
     });
   };
+  
   const handleAuthSuccess = () => {
     setAuthDialog({
       isOpen: false,
       mode: "login"
     });
   };
+  
   const handleLogout = async () => {
     const {
       error
@@ -256,6 +278,7 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
+  
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
       nutricionales: {
@@ -429,8 +452,8 @@ const Landing = () => {
   if (loading && mounted) return <LoadingScreen visible={loading} onComplete={handleLoadingComplete} />;
   
   return <div className="min-h-screen w-full bg-white apple-minimalist">
-      {/* Header with logo and navigation */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shadow-sm">
+      {/* Header with logo and navigation - Now with sticky effect for desktop */}
+      <div className={`flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white ${isHeaderSticky && !isMobile ? 'fixed top-0 left-0 right-0 z-50 shadow-md transition-all duration-300' : 'shadow-sm'}`}>
         <div className="flex items-center gap-2">
           <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-8 w-8" />
           <span className="text-xs font-bold text-gray-700">Dental Basics Academy</span>
@@ -477,6 +500,9 @@ const Landing = () => {
             </div>}
         </div>
       </div>
+
+      {/* Add padding to the content when header is sticky */}
+      {isHeaderSticky && !isMobile && <div className="h-16"></div>}
 
       {/* Mobile Menu */}
       {isMobile && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
@@ -759,18 +785,4 @@ const Landing = () => {
                 <h3 className="text-xl font-bold text-black mb-4">
                   Plan Premium
                 </h3>
-                <p className="text-gray-600 mb-6">Próximamente</p>
-              </div>
-            </div>
-          </div>
-        </div>}
-
-      {/* Auth Dialog */}
-      <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({
-      ...authDialog,
-      isOpen: false
-    })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
-    </div>;
-};
-
-export default Landing;
+                <p className="text-gray-600 mb-6">Pr
