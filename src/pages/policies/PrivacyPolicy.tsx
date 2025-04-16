@@ -11,90 +11,68 @@ const PrivacyPolicy = () => {
         
         <div className="prose prose-lg mx-auto">
           <p className="text-gray-700">
-            Fecha de última actualización: 14 de abril de 2025
+            Última actualización: 1 de mayo de 2025
           </p>
           
           <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">1. Introducción</h2>
           <p className="text-gray-700">
-            En Dentaxy, respetamos su privacidad y nos comprometemos a proteger su información. 
-            Esta Política de Privacidad explica cómo manejamos sus datos al utilizar nuestra plataforma. 
-            Nuestra prioridad es garantizar la transparencia y la seguridad de la información generada por los usuarios.
+            En Dentaxy, respetamos su privacidad y nos comprometemos a proteger sus datos personales. 
+            Esta política de privacidad describe cómo recopilamos, utilizamos y compartimos su información 
+            cuando utiliza nuestra plataforma.
           </p>
           
-          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">2. Qué Información Recopilamos</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">2. Información que Recopilamos</h2>
           <p className="text-gray-700">
-            <strong>2.1. Información personal mínima</strong><br />
-            Al crear una cuenta en Dentaxy, podemos recopilar únicamente su correo electrónico y, si lo proporciona, su nombre. 
-            No solicitamos información adicional.
-          </p>
-          <p className="text-gray-700">
-            <strong>2.2. Información clínica o de pacientes</strong><br />
-            Dentaxy no almacena información de formularios, redacciones clínicas ni datos de pacientes. 
-            Todo contenido generado vive únicamente en su navegador y dispositivo, y no es enviado ni guardado en nuestros servidores.
-          </p>
-          <p className="text-gray-700">
-            <strong>2.3. Almacenamiento local</strong><br />
-            Los formularios o configuraciones que el usuario guarda se almacenan localmente en el dispositivo 
-            mediante tecnologías como el almacenamiento local del navegador. Esto significa que los datos no 
-            se sincronizan entre dispositivos, incluso si el usuario inicia sesión con la misma cuenta.
-          </p>
-          <p className="text-gray-700">
-            <strong>2.4. Datos de uso anónimos</strong><br />
-            Podemos recopilar información técnica de uso general (como tipo de navegador, sistema operativo 
-            o duración de la sesión) de forma anónima y agregada, con el fin de mejorar la experiencia de la 
-            plataforma. Esta información no se vincula a datos personales ni clínicos.
+            2.1. <strong>Información personal:</strong> Nombre, dirección de correo electrónico, información de contacto.<br />
+            2.2. <strong>Datos de pacientes:</strong> Historias clínicas y otra información médica que usted ingrese.<br />
+            2.3. <strong>Datos de uso:</strong> Información sobre cómo utiliza nuestra plataforma.
           </p>
           
-          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">3. Uso de la Información</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">3. Cómo Utilizamos su Información</h2>
           <p className="text-gray-700">
-            Utilizamos la información recopilada exclusivamente para:<br />
-            • Proporcionar acceso y funcionalidad básica de la plataforma<br />
-            • Mejorar la estabilidad y rendimiento del sistema<br />
-            • Comunicarnos con usted en relación con cambios importantes en el servicio
+            3.1. Para proporcionar y mantener nuestro servicio.<br />
+            3.2. Para notificarle sobre cambios en nuestro servicio.<br />
+            3.3. Para permitirle participar en funciones interactivas.<br />
+            3.4. Para proporcionar atención al cliente.<br />
+            3.5. Para detectar, prevenir y abordar problemas técnicos.<br />
+            3.6. Para mejorar nuestro servicio.
           </p>
           
           <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">4. Seguridad de los Datos</h2>
           <p className="text-gray-700">
-            Aunque Dentaxy no almacena contenido clínico o formularios, tomamos medidas para proteger la seguridad 
-            de su cuenta de acceso. Contamos con cifrado y protocolos seguros para la autenticación y la navegación 
-            en nuestra plataforma.
+            La seguridad de sus datos es importante para nosotros. Implementamos medidas técnicas y 
+            organizativas apropiadas para proteger su información personal, incluyendo encriptación 
+            de datos y protocolos de seguridad avanzados.
           </p>
           
-          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">5. Compartición de Datos</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">5. Compartir Datos</h2>
           <p className="text-gray-700">
-            5.1. Nunca vendemos, alquilamos ni compartimos información personal con terceros con fines comerciales.<br />
-            5.2. Podemos trabajar con proveedores de servicios tecnológicos que nos ayuden a operar la plataforma, 
-            siempre bajo estrictos acuerdos de confidencialidad y solo cuando sea técnicamente necesario.<br />
-            5.3. Podremos divulgar información si así lo exige la ley, una orden judicial o un proceso legal válido.
+            5.1. No vendemos ni alquilamos su información personal a terceros.<br />
+            5.2. Podemos compartir datos con proveedores de servicios que nos ayudan a operar la plataforma.<br />
+            5.3. Podemos divulgar su información si es requerido por ley.
           </p>
           
-          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">6. Responsabilidad del Usuario</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">6. Sus Derechos</h2>
           <p className="text-gray-700">
-            Usted es el único responsable del contenido que genere, guarde o descargue desde la Plataforma, 
-            incluyendo archivos PDF de historias clínicas. Debe asegurar su almacenamiento, resguardo y uso 
-            conforme a las leyes de protección de datos personales de su país.
+            Dependiendo de su ubicación, puede tener derechos específicos con respecto a sus datos, incluyendo:<br />
+            • Acceso a sus datos personales<br />
+            • Corrección de datos inexactos<br />
+            • Eliminación de sus datos<br />
+            • Oposición al procesamiento<br />
+            • Portabilidad de datos
           </p>
           
-          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">7. Derechos del Usuario</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">7. Cambios a esta Política</h2>
           <p className="text-gray-700">
-            Según su ubicación, puede tener derecho a:<br />
-            • Acceder a sus datos personales mínimos (correo y nombre, si fue ingresado)<br />
-            • Solicitar la eliminación de su cuenta<br />
-            • Solicitar la eliminación de sus datos personales de contacto<br /><br />
-            Para ejercer estos derechos, contáctenos en dentalbasicsacademy@dentaxy.com.
+            Podemos actualizar nuestra política de privacidad periódicamente. Le notificaremos cualquier 
+            cambio publicando la nueva política de privacidad en esta página y, cuando sea apropiado, 
+            mediante notificación por correo electrónico.
           </p>
           
-          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">8. Cambios a esta Política</h2>
+          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">8. Contacto</h2>
           <p className="text-gray-700">
-            Podemos actualizar esta política de privacidad ocasionalmente. Notificaremos cualquier cambio importante 
-            publicando una nueva versión en esta página y, cuando sea pertinente, a través de un aviso en la plataforma 
-            o por correo electrónico.
-          </p>
-          
-          <h2 className="text-2xl font-semibold mt-8 mb-4 text-gray-900">9. Contacto</h2>
-          <p className="text-gray-700">
-            Si tiene preguntas o inquietudes sobre esta política de privacidad, puede comunicarse con nosotros en:<br />
-            <a href="mailto:dentalbasicsacademy@dentaxy.com" className="text-blue-600 hover:underline">📧 dentalbasicsacademy@dentaxy.com</a>
+            Si tiene preguntas sobre esta política de privacidad, por favor contáctenos en:<br />
+            <a href="mailto:privacidad@dentaxy.com" className="text-blue-600 hover:underline">privacidad@dentaxy.com</a>
           </p>
           
           <div className="text-center mt-12">

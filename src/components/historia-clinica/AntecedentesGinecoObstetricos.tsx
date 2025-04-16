@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Mic } from "lucide-react";
@@ -6,12 +5,10 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { VoiceInput } from "@/components/ui/voice-input";
-
 interface AntecedentesGinecoObstetricosProps {
   formData: FormDataState;
   handleAntecedenteGinecoObstetricoChange: (field: string, value: any) => void;
 }
-
 const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps> = ({
   formData,
   handleAntecedenteGinecoObstetricoChange
@@ -21,37 +18,29 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
   const [activeTab, setActiveTab] = useState('formulario');
   const [redaccionContent, setRedaccionContent] = useState('');
   const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
-
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
   };
-
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
     setIsMinimized(false);
   };
-
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
   };
-
   const handleTextChange = (field: string, value: string) => {
     handleAntecedenteGinecoObstetricoChange(field, value);
   };
-
   const handleNumberChange = (field: string, value: string) => {
-    // Fix: Allow empty string or convert to number
-    const numValue = value === '' ? '' : Number(value);
+    const numValue = value === '' ? '' : parseInt(value) || 0;
     handleAntecedenteGinecoObstetricoChange(field, numValue);
   };
-
   const handleVoiceInput = (field: string) => (text: string) => {
     const currentValue = formData.antecedentesGinecoObstetricos?.[field] || "";
     handleAntecedenteGinecoObstetricoChange(field, currentValue ? `${currentValue} ${text}` : text);
   };
-
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
     setTimeout(() => {
@@ -84,11 +73,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
       setActiveTab('redaccion');
     }, 1000);
   };
-
-  return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} 
-         data-section-redaction="true" 
-         data-section-name="antecedentesGinecoObstetricos">
+  return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="antecedentesGinecoObstetricos">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
@@ -122,70 +107,35 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
           </h2>
         </div>
 
-        {!isMinimized && (
-          <>
-            {activeTab === 'formulario' ? (
-              <div className="p-6">
+        {!isMinimized && <>
+            {activeTab === 'formulario' ? <div className="p-6">
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium mb-1">Número de embarazos:</label>
-                      <Input 
-                        type="number" 
-                        value={formData.antecedentesGinecoObstetricos?.embarazos ?? ''} 
-                        onChange={e => handleNumberChange('embarazos', e.target.value)} 
-                        placeholder="0" 
-                        min="0" 
-                        className="w-full" 
-                      />
+                      <Input type="number" value={formData.antecedentesGinecoObstetricos?.embarazos || ''} onChange={e => handleNumberChange('embarazos', e.target.value)} placeholder="0" min="0" className="w-full" />
                     </div>
                     
                     <div>
                       <label className="block text-sm font-medium mb-1">Número de partos:</label>
-                      <Input 
-                        type="number" 
-                        value={formData.antecedentesGinecoObstetricos?.partos ?? ''} 
-                        onChange={e => handleNumberChange('partos', e.target.value)} 
-                        placeholder="0" 
-                        min="0" 
-                        className="w-full" 
-                      />
+                      <Input type="number" value={formData.antecedentesGinecoObstetricos?.partos || ''} onChange={e => handleNumberChange('partos', e.target.value)} placeholder="0" min="0" className="w-full" />
                     </div>
                     
                     <div>
                       <label className="block text-sm font-medium mb-1">Número de cesáreas:</label>
-                      <Input 
-                        type="number" 
-                        value={formData.antecedentesGinecoObstetricos?.cesareas ?? ''} 
-                        onChange={e => handleNumberChange('cesareas', e.target.value)} 
-                        placeholder="0" 
-                        min="0" 
-                        className="w-full" 
-                      />
+                      <Input type="number" value={formData.antecedentesGinecoObstetricos?.cesareas || ''} onChange={e => handleNumberChange('cesareas', e.target.value)} placeholder="0" min="0" className="w-full" />
                     </div>
                     
                     <div>
                       <label className="block text-sm font-medium mb-1">Número de abortos:</label>
-                      <Input 
-                        type="number" 
-                        value={formData.antecedentesGinecoObstetricos?.abortos ?? ''} 
-                        onChange={e => handleNumberChange('abortos', e.target.value)} 
-                        placeholder="0" 
-                        min="0" 
-                        className="w-full" 
-                      />
+                      <Input type="number" value={formData.antecedentesGinecoObstetricos?.abortos || ''} onChange={e => handleNumberChange('abortos', e.target.value)} placeholder="0" min="0" className="w-full" />
                     </div>
                   </div>
 
                   <div className="relative">
                     <label className="block text-sm font-medium mb-1">Complicaciones:</label>
                     <div className="flex items-center">
-                      <Textarea 
-                        value={formData.antecedentesGinecoObstetricos?.complicaciones ?? ''} 
-                        onChange={e => handleTextChange('complicaciones', e.target.value)} 
-                        placeholder="Describa cualquier complicación durante embarazos o partos" 
-                        className="min-h-[80px] flex-1" 
-                      />
+                      <Textarea value={formData.antecedentesGinecoObstetricos?.complicaciones || ''} onChange={e => handleTextChange('complicaciones', e.target.value)} placeholder="Describa cualquier complicación durante embarazos o partos" className="min-h-[80px] flex-1" />
                       <div className="ml-2">
                         <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
                           <VoiceInput onTranscriptionComplete={handleVoiceInput('complicaciones')} />
@@ -195,37 +145,18 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                   </div>
 
                   <div className="flex justify-center mt-6">
-                    <button
-                      onClick={generateRedaccion}
-                      disabled={isGeneratingRedaccion}
-                      className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 disabled:opacity-50"
-                    >
-                      {isGeneratingRedaccion ? (
-                        <>
-                          <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
-                          Generando...
-                        </>
-                      ) : (
-                        "Generar Redacción IA"
-                      )}
-                    </button>
+                    
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="p-6">
+              </div> : <div className="p-6">
                 <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" style={{
-                  whiteSpace: 'pre-wrap'
-                }} data-redaction-content>
+            whiteSpace: 'pre-wrap'
+          }} data-redaction-content>
                   {redaccionContent || "No se ha generado redacción aún. Utilice el botón 'Generar Redacción IA' en la pestaña de Formulario."}
                 </div>
-              </div>
-            )}
-          </>
-        )}
+              </div>}
+          </>}
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default AntecedentesGinecoObstetricos;
