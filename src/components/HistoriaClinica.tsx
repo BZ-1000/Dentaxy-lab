@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -413,29 +412,27 @@ const HistoriaClinica = () => {
             </p>
             
             {/* Componente de nombre de paciente */}
-            <div className="max-w-lg mx-auto mb-2 sticky top-4 z-30">
-              <div className="backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
-                <div className="flex items-center gap-3">
-                  <div className="relative flex-1">
-                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                      <User className="h-4 w-4 text-gray-400" />
-                    </div>
-                    <Input 
-                      value={nombrePaciente} 
-                      onChange={e => setNombrePaciente(e.target.value)} 
-                      placeholder="Nombre del paciente" 
-                      className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" 
-                    />
+            <div className="max-w-lg mx-auto mb-2 sticky top-4 z-30 backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
+              <div className="flex items-center gap-3">
+                <div className="relative flex-1">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <User className="h-4 w-4 text-gray-400" />
                   </div>
-                  <Button 
-                    onClick={handleGuardarFormulario} 
-                    disabled={!nombrePaciente.trim()} 
-                    className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200"
-                  >
-                    <Save className="h-4 w-4" />
-                    <span className="text-sm font-medium">Guardar</span>
-                  </Button>
+                  <Input 
+                    value={nombrePaciente} 
+                    onChange={e => setNombrePaciente(e.target.value)} 
+                    placeholder="Nombre del paciente" 
+                    className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                  />
                 </div>
+                <Button 
+                  onClick={handleGuardarFormulario} 
+                  disabled={!nombrePaciente.trim()} 
+                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200"
+                >
+                  <Save className="h-4 w-4" />
+                  <span className="text-sm font-medium">Guardar</span>
+                </Button>
               </div>
             </div>
             
