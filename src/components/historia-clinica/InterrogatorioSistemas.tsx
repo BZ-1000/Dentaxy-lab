@@ -615,11 +615,11 @@ ${formValues.nervioso.parestesias === "Si" ? "Presenta" : "No presenta"} pareste
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Rápido" id="ritmo-rapido" />
-                        <Label htmlFor="ritmo-rapido">Rápido (taquicardia >100 lpm)</Label>
+                        <Label htmlFor="ritmo-rapido">Rápido (taquicardia &gt;100 lpm)</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="Lento" id="ritmo-lento" />
-                        <Label htmlFor="ritmo-lento">Lento (bradicardia <60 lpm)</Label>
+                        <Label htmlFor="ritmo-lento">Lento (bradicardia &lt;60 lpm)</Label>
                       </div>
                     </RadioGroup>
                   </div>
