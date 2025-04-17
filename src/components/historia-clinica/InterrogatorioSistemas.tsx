@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
@@ -187,7 +188,7 @@ Otros síntomas presentes: ${formValues.tegumentario.sintomasTegumentarios.lengt
 
     // 🦴 SISTEMA MÚSCULO-ESQUELÉTICO
     const musculoEsqueleticoText = `${formValues.musculoEsqueletico.fracturas === "No" ? "No ha presentado" : "Ha presentado"} fracturas o esguinces. ${formValues.musculoEsqueletico.fracturas === "Si" ? `En caso afirmativo, se registran: ${formValues.musculoEsqueletico.detallesFracturas || "[sin especificar]"}.` : ""}
-Sintomatología musculoesquelética actual: ${formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.length > 0 ? formValues.musculoEsqueleticos.join(", ") : "Ninguno"}.`;
+Sintomatología musculoesquelética actual: ${formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.length > 0 ? formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.join(", ") : "Ninguno"}.`;
 
     // 🧠 SISTEMA NERVIOSO
     const nerviosoText = `${formValues.nervioso.percepcionSentidos === "Si" ? "Percibe" : "No percibe"} adecuadamente a través de los órganos de los sentidos.
@@ -291,7 +292,7 @@ ${formValues.nervioso.parestesias === "Si" ? "Presenta" : "No presenta"} pareste
 
         {!isMinimized && (
           <div className="p-6">
-            <Tabs value={activeTab}>
+            <Tabs value={activeTab} className="w-full">
               <TabsContent value="formulario" className="space-y-6">
                 {/* APARATO DIGESTIVO */}
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800">
@@ -649,4 +650,99 @@ ${formValues.nervioso.parestesias === "Si" ? "Presenta" : "No presenta"} pareste
                             />
                             <label 
                               htmlFor={`cardiovascular-${item.id}`}
-                              className="
+                              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                            >
+                              {item.label}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+              <TabsContent value="redaccion" className="space-y-4">
+                <div className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
+                  <h3 className="text-lg font-medium mb-4">Interrogatorio por Aparatos y Sistemas</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="text-md font-medium mb-2">🦷 APARATO DIGESTIVO</h4>
+                      <Textarea 
+                        value={formData.interrogatorioSistemas?.digestivo || ""} 
+                        onChange={(e) => handleInterrogatorioChange("digestivo", e.target.value)}
+                        className="min-h-[120px]"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-md font-medium mb-2">🌬️ APARATO RESPIRATORIO</h4>
+                      <Textarea 
+                        value={formData.interrogatorioSistemas?.respiratorio || ""} 
+                        onChange={(e) => handleInterrogatorioChange("respiratorio", e.target.value)}
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-md font-medium mb-2">❤️ APARATO CARDIOVASCULAR</h4>
+                      <Textarea 
+                        value={formData.interrogatorioSistemas?.cardiovascular || ""} 
+                        onChange={(e) => handleInterrogatorioChange("cardiovascular", e.target.value)}
+                        className="min-h-[100px]"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-md font-medium mb-2">🚻 APARATO GENITO-URINARIO</h4>
+                      <Textarea 
+                        value={formData.interrogatorioSistemas?.urinario || ""} 
+                        onChange={(e) => handleInterrogatorioChange("urinario", e.target.value)}
+                        className="min-h-[120px]"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-md font-medium mb-2">🔁 SISTEMA ENDOCRINO</h4>
+                      <Textarea 
+                        value={formData.interrogatorioSistemas?.endocrino || ""} 
+                        onChange={(e) => handleInterrogatorioChange("endocrino", e.target.value)}
+                        className="min-h-[100px]"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-md font-medium mb-2">🧖 SISTEMA TEGUMENTARIO</h4>
+                      <Textarea 
+                        value={formData.interrogatorioSistemas?.tegumentario || ""} 
+                        onChange={(e) => handleInterrogatorioChange("tegumentario", e.target.value)}
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-md font-medium mb-2">🦴 SISTEMA MÚSCULO-ESQUELÉTICO</h4>
+                      <Textarea 
+                        value={formData.interrogatorioSistemas?.musculoEsqueletico || ""} 
+                        onChange={(e) => handleInterrogatorioChange("musculoEsqueletico", e.target.value)}
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="text-md font-medium mb-2">🧠 SISTEMA NERVIOSO</h4>
+                      <Textarea 
+                        value={formData.interrogatorioSistemas?.nervioso || ""} 
+                        onChange={(e) => handleInterrogatorioChange("nervioso", e.target.value)}
+                        className="min-h-[120px]"
+                      />
+                    </div>
+                  </div>
+                  <div className="mt-6">
+                    <Button onClick={generateAndUpdateRedacciones} className="bg-blue-500 hover:bg-blue-600">
+                      Generar Redacción IA
+                    </Button>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+};
+
+export default InterrogatorioSistemas;
