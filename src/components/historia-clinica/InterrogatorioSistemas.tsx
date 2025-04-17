@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Copy, CheckCircle, Eraser } from "lucide-react";
@@ -151,51 +150,21 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
   };
 
   const generateAndUpdateRedacciones = () => {
-    const digestivoText = `El paciente refiere seguir una dieta de tipo ${formValues.digestivo.alimentacion || "[sin especificar]"}. Su patrón de masticación es ${formValues.digestivo.masticacion || "[sin especificar]"}.
-Manifiesta ${getPercepcionGustoText()}.
-La salivación es ${formValues.digestivo.salivacion || "[sin especificar]"}.
-Respecto a la deglución, ${getDeglusiónText()}.
-${formValues.digestivo.halitosis === "Si" ? "Presenta" : "No presenta"} halitosis.
-Ha experimentado los siguientes síntomas digestivos: ${formValues.digestivo.sintomasDigestivos.length > 0 ? formValues.digestivo.sintomasDigestivos.join(", ") : "Ninguno"}.
-Refiere realizar ${formValues.digestivo.frecuenciaEvacuacion || "[sin especificar]"} evacuaciones diarias.`;
+    const digestivoText = `El paciente sigue una dieta de tipo ${formValues.digestivo.alimentacion || "[sin especificar]"}. Su patrón de masticación es ${formValues.digestivo.masticacion || "[sin especificar]"}. Manifiesta ${getPercepcionGustoText()}. La salivación es ${formValues.digestivo.salivacion || "[sin especificar]"}. Respecto a la deglución, ${getDeglusiónText()}. ${formValues.digestivo.halitosis === "Si" ? "Presenta" : "No presenta"} halitosis. Ha experimentado los siguientes síntomas digestivos: ${formValues.digestivo.sintomasDigestivos.length > 0 ? formValues.digestivo.sintomasDigestivos.join(", ") : "ninguno"}. Realiza ${formValues.digestivo.frecuenciaEvacuacion || "[sin especificar]"} evacuaciones diarias.`;
 
-    const respiratorioText = `El tipo de respiración habitual es ${formValues.respiratorio.tipoRespiracion || "[sin especificar]"}.
-Refiere presentar síntomas respiratorios como: ${formValues.respiratorio.sintomasRespiratorios.length > 0 ? formValues.respiratorio.sintomasRespiratorios.join(", ") : "Ninguno"}.`;
+    const respiratorioText = `El tipo de respiración habitual es ${formValues.respiratorio.tipoRespiracion || "[sin especificar]"}. Presenta síntomas respiratorios como: ${formValues.respiratorio.sintomasRespiratorios.length > 0 ? formValues.respiratorio.sintomasRespiratorios.join(", ") : "ninguno"}.`;
 
-    const cardiovascularText = `${formValues.cardiovascular.dolorPecho === "No" ? "No refiere" : "Refiere"} dolor precordial${formValues.cardiovascular.dolorPecho === "Si" ? " de tipo opresivo con irradiación a cuello, dientes o brazos" : ""}.
-${formValues.cardiovascular.lipotimia === "Si" ? "Ha presentado" : "No ha presentado"} episodios de lipotimia.
-El ritmo cardíaco es ${formValues.cardiovascular.ritmoCardiaco || "[sin especificar]"}.
-Sintomatología cardiovascular reportada: ${formValues.cardiovascular.sintomasCardiovasculares.length > 0 ? formValues.cardiovascular.sintomasCardiovasculares.join(", ") : "Ninguno"}.`;
+    const cardiovascularText = `${formValues.cardiovascular.dolorPecho === "No" ? "No refiere" : "Refiere"} dolor precordial${formValues.cardiovascular.dolorPecho === "Si" ? " de tipo opresivo con irradiación a cuello, dientes o brazos" : ""}. ${formValues.cardiovascular.lipotimia === "Si" ? "Ha presentado" : "No ha presentado"} episodios de lipotimia. El ritmo cardíaco es ${formValues.cardiovascular.ritmoCardiaco || "[sin especificar]"}. Sintomatología cardiovascular reportada: ${formValues.cardiovascular.sintomasCardiovasculares.length > 0 ? formValues.cardiovascular.sintomasCardiovasculares.join(", ") : "ninguna"}.`;
 
-    const genitoUrinarioText = `El paciente refiere una frecuencia urinaria de ${formValues.genitoUrinario.frecuenciaUrinaria || "[sin especificar]"} veces al día.
-Síntomas urinarios presentes: ${formValues.genitoUrinario.sintomasUrinarios.length > 0 ? formValues.genitoUrinario.sintomasUrinarios.join(", ") : "Ninguno"}.
+    const genitoUrinarioText = `El paciente refiere una frecuencia urinaria de ${formValues.genitoUrinario.frecuenciaUrinaria || "[sin especificar]"} veces al día. Síntomas urinarios presentes: ${formValues.genitoUrinario.sintomasUrinarios.length > 0 ? formValues.genitoUrinario.sintomasUrinarios.join(", ") : "ninguno"}. ${formValues.genitoUrinario.ultimaMenstruacion ? `En pacientes mujeres: Fecha de última menstruación: ${formValues.genitoUrinario.ultimaMenstruacion}. Dismenorrea: ${formValues.genitoUrinario.dismenorrea || "[sin especificar]"}. Último parto: ${formValues.genitoUrinario.ultimoParto || "[sin especificar]"}. Antecedentes obstétricos: ${formValues.genitoUrinario.antecedentesObstetricos || "[sin especificar]"}` : ""}`;
 
-${formValues.genitoUrinario.ultimaMenstruacion ? `En pacientes mujeres:
+    const endocrinoText = `El paciente refiere los siguientes síntomas endocrinos: ${formValues.endocrino.sintomasEndocrinos.length > 0 ? formValues.endocrino.sintomasEndocrinos.join(", ") : "ninguno"}. Reporta ${getCambiosPesoText()}. ${getIntoleranciaText()}. Antecedentes patológicos conocidos: ${formValues.endocrino.condicionesEndocrinas || "ninguno"}.`;
 
-Fecha de última menstruación: ${formValues.genitoUrinario.ultimaMenstruacion}
+    const tegumentarioText = `${formValues.tegumentario.cambiosColoracion === "Si" ? "Ha" : "No ha"} notado cambios en la coloración de la piel. Otros síntomas presentes: ${formValues.tegumentario.sintomasTegumentarios.length > 0 ? formValues.tegumentario.sintomasTegumentarios.join(", ") : "ninguno"}.`;
 
-Dismenorrea: ${formValues.genitoUrinario.dismenorrea || "[sin especificar]"}
+    const musculoEsqueleticoText = `${formValues.musculoEsqueletico.fracturas === "No" ? "No ha presentado" : "Ha presentado"} fracturas o esguinces. ${formValues.musculoEsqueletico.fracturas === "Si" ? `En caso afirmativo, se registran: ${formValues.musculoEsqueletico.detallesFracturas || "[sin especificar]"}.` : ""} Sintomatología musculoesquelética actual: ${formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.length > 0 ? formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.join(", ") : "ninguna"}.`;
 
-Último parto: ${formValues.genitoUrinario.ultimoParto || "[sin especificar]"}
-
-Antecedentes obstétricos: ${formValues.genitoUrinario.antecedentesObstetricos || "[sin especificar]"}` : ""}`;
-
-    const endocrinoText = `El paciente refiere los siguientes síntomas endocrinos: ${formValues.endocrino.sintomasEndocrinos.length > 0 ? formValues.endocrino.sintomasEndocrinos.join(", ") : "Ninguno"}.
-Reporta ${getCambiosPesoText()}.
-${getIntoleranciaText()}.
-Antecedentes patológicos conocidos: ${formValues.endocrino.condicionesEndocrinas || "ninguno"}.`;
-
-    const tegumentarioText = `${formValues.tegumentario.cambiosColoracion === "Si" ? "Ha" : "No ha"} notado cambios en la coloración de la piel.
-Otros síntomas presentes: ${formValues.tegumentario.sintomasTegumentarios.length > 0 ? formValues.tegumentario.sintomasTegumentarios.join(", ") : "Ninguno"}.`;
-
-    const musculoEsqueleticoText = `${formValues.musculoEsqueletico.fracturas === "No" ? "No ha presentado" : "Ha presentado"} fracturas o esguinces. ${formValues.musculoEsqueletico.fracturas === "Si" ? `En caso afirmativo, se registran: ${formValues.musculoEsqueletico.detallesFracturas || "[sin especificar]"}.` : ""}
-Sintomatología musculoesquelética actual: ${formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.length > 0 ? formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.join(", ") : "Ninguno"}.`;
-
-    const nerviosoText = `${formValues.nervioso.percepcionSentidos === "Si" ? "Percibe" : "No percibe"} adecuadamente a través de los órganos de los sentidos.
-El patrón de sueño habitual es de ${formValues.nervioso.horasSueno || "[sin especificar]"} horas por noche.
-${formValues.nervioso.trastornosSueno === "Si" ? "Presenta" : "No presenta"} trastornos del sueño.
-Su carácter habitual se describe como ${formValues.nervioso.estadoAnimo || "[sin especificar]"}.
-${formValues.nervioso.parestesias === "Si" ? "Presenta" : "No presenta"} parestesias (hormigueos, adormecimiento o pérdida de sensibilidad).`;
+    const nerviosoText = `${formValues.nervioso.percepcionSentidos === "Si" ? "Percibe" : "No percibe"} adecuadamente a través de los órganos de los sentidos. El patrón de sueño habitual es de ${formValues.nervioso.horasSueno || "[sin especificar]"} horas por noche. ${formValues.nervioso.trastornosSueno === "Si" ? "Presenta" : "No presenta"} trastornos del sueño. Su carácter habitual se describe como ${formValues.nervioso.estadoAnimo || "[sin especificar]"}. ${formValues.nervioso.parestesias === "Si" ? "Presenta" : "No presenta"} parestesias (hormigueos, adormecimiento o pérdida de sensibilidad).`;
 
     setRedacciones({
       digestivo: digestivoText,
@@ -216,6 +185,12 @@ ${formValues.nervioso.parestesias === "Si" ? "Presenta" : "No presenta"} pareste
     handleInterrogatorioChange("tegumentario", tegumentarioText);
     handleInterrogatorioChange("musculoEsqueletico", musculoEsqueleticoText);
     handleInterrogatorioChange("nervioso", nerviosoText);
+
+    // Cambiar al apartado de redacción IA y hacer auto scroll
+    setShowForm(false);
+    setTimeout(() => {
+      redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   };
 
   const getPercepcionGustoText = () => {
