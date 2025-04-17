@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
@@ -219,6 +220,16 @@ export const useHistoriaClinica = () => {
       ...prev,
       antecedentesHemorragicos: {
         ...prev.antecedentesHemorragicos,
+        [field]: value
+      }
+    }));
+  };
+
+  const handleAntecedenteGinecoObstetricoChange = (field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      antecedentesGinecoObstetricos: {
+        ...prev.antecedentesGinecoObstetricos,
         [field]: value
       }
     }));
@@ -468,6 +479,7 @@ export const useHistoriaClinica = () => {
     handleAntecedenteAlergicoChange,
     handleAntecedenteQuirurgicoChange,
     handleAntecedenteHemorragicoChange,
+    handleAntecedenteGinecoObstetricoChange,
     handleInterrogatorioChange,
     handleExploracionFisicaChange,
     handleExamenCabezaChange,
