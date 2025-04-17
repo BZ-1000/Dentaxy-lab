@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Copy, CheckCircle } from "lucide-react";
+import { Minus, Maximize2, X, Copy, CheckCircle, Eraser } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
