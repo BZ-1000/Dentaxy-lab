@@ -155,7 +155,7 @@ export function AppleStyleDock() {
   return (
     <>
       <div className='fixed bottom-2 left-1/2 max-w-full -translate-x-1/2 z-50'>
-        <Dock className='items-end pb-3'>
+        <Dock className={cn('items-end pb-3 flex', isVisible ? 'bg-white dark:bg-neutral-900' : '')}>
           {data.map((item, idx) => (
             <DockItem
               key={idx}
@@ -179,13 +179,13 @@ export function AppleStyleDock() {
           <DockItem
             onClick={scrollToName}
             className={cn(
-              'aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer',
-              isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              'aspect-square rounded-full cursor-pointer transition-all duration-300 ease-in-out',
+              isVisible ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg' : 'opacity-0 pointer-events-none'
             )}
           >
             <DockLabel>Scroll to Name</DockLabel>
             <DockIcon>
-              <Save className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+              <Save className='h-full w-full' />
             </DockIcon>
           </DockItem>
         </Dock>
