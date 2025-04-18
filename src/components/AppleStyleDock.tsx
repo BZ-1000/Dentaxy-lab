@@ -176,18 +176,17 @@ export function AppleStyleDock() {
             </DockIcon>
           </DockItem>
           {/* Nuevo botón ScrollToName */}
-          <DockItem
-            onClick={scrollToName}
-            className={cn(
-              'aspect-square rounded-full cursor-pointer transition-all duration-300 ease-in-out',
-              isVisible ? 'bg-blue-500 hover:bg-blue-600 text-white shadow-lg' : 'opacity-0 pointer-events-none'
-            )}
-          >
-            <DockLabel>Scroll to Name</DockLabel>
-            <DockIcon>
-              <Save className='h-full w-full' />
-            </DockIcon>
-          </DockItem>
+          {isVisible && (
+            <DockItem
+              onClick={scrollToName}
+              className='aspect-square rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg cursor-pointer'
+            >
+              <DockLabel>Scroll to Name</DockLabel>
+              <DockIcon>
+                <Save className='h-full w-full' />
+              </DockIcon>
+            </DockItem>
+          )}
         </Dock>
       </div>
 
