@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowUp } from 'lucide-react';
+import { Save } from 'lucide-react'; // Asegúrate de importar el ícono correcto
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 
@@ -35,12 +35,12 @@ export const ScrollToNameButton = () => {
     <Button
       onClick={scrollToName}
       className={cn(
-        'fixed bottom-2 right-1/2 translate-x-1/2 z-50 size-10 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 ease-in-out',
+        'fixed bottom-2 right-1/2 translate-x-1/2 z-[9999] size-10 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 ease-in-out',
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       )}
       aria-label="Scroll to patient name"
     >
-      <ArrowUp className="h-5 w-5" />
+      <Save className="h-5 w-5" /> {/* Cambiado a ícono Save */}
     </Button>
   );
 };
