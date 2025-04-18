@@ -34,6 +34,7 @@ import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
 import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
+import { ScrollToNameButton } from './ui/scroll-to-name';
 
 const HistoriaClinica = () => {
   const {
@@ -412,7 +413,7 @@ const HistoriaClinica = () => {
             </p>
             
             {/* Componente de nombre de paciente */}
-            <div className="max-w-lg mx-auto mb-2 sticky top-4 z-30 backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
+            <div id="patient-name-input" className="max-w-lg mx-auto mb-2 sticky top-4 z-30 backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
               <div className="flex items-center gap-3">
                 <div className="relative flex-1">
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
@@ -435,6 +436,9 @@ const HistoriaClinica = () => {
                 </Button>
               </div>
             </div>
+
+            {/* Add the ScrollToNameButton component */}
+            <ScrollToNameButton />
             
             {/* Componente para mostrar el paciente actual */}
             {pacienteActual && (
