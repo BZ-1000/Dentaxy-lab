@@ -175,20 +175,21 @@ export function AppleStyleDock() {
               <SunMoon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
             </DockIcon>
           </DockItem>
+          {/* Nuevo botón ScrollToName */}
+          <DockItem
+            onClick={scrollToName}
+            className={cn(
+              'aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer',
+              isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            )}
+          >
+            <DockLabel>Scroll to Name</DockLabel>
+            <DockIcon>
+              <Save className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+            </DockIcon>
+          </DockItem>
         </Dock>
       </div>
-
-      {/* Botón ScrollToName */}
-      <Button
-        onClick={scrollToName}
-        className={cn(
-          'fixed bottom-2 right-4 z-[9999] size-10 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 ease-in-out',
-          isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        )}
-        aria-label="Scroll to patient name"
-      >
-        <Save className="h-5 w-5" /> {/* Ícono Save */}
-      </Button>
 
       <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
         <DialogContent>
