@@ -1,5 +1,7 @@
+'use client';
+
 import { useEffect, useState } from 'react';
-import { ArrowUp } from 'lucide-react';
+import { Save } from 'lucide-react'; // Cambia el ícono a Save
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 
@@ -49,7 +51,7 @@ const ScrollToNameButton: React.FC<ScrollToNameButtonProps> = ({ isSaveButtonHid
       )}
       aria-label="Scroll to patient name"
     >
-      <ArrowUp className="h-5 w-5" />
+      <Save className="h-5 w-5 text-white" /> {/* Cambia el ícono a Save y ajusta el color */}
     </Button>
   );
 };
