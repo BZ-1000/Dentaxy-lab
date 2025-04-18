@@ -12,7 +12,7 @@ export const ScrollToNameButton = () => {
     const checkScroll = () => {
       if (nameInput) {
         const rect = nameInput.getBoundingClientRect();
-        setIsVisible(rect.top < 0);
+        setIsVisible(rect.top < 0); // Asegúrate de que esta lógica sea correcta
       }
     };
 
@@ -36,7 +36,7 @@ export const ScrollToNameButton = () => {
       onClick={scrollToName}
       className={cn(
         'fixed bottom-2 right-1/2 translate-x-1/2 z-50 size-10 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 ease-in-out',
-        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-[100%] opacity-0 pointer-events-none'
+        isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       )}
       aria-label="Scroll to patient name"
     >
