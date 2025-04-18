@@ -35,7 +35,7 @@ export const ScrollToNameButton = () => {
     <Button
       onClick={scrollToName}
       className={cn(
-        'fixed bottom-2 right-1/2 translate-x-1/2 z-[9999] size-10 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 ease-in-out',
+        'fixed bottom-2 right-4 z-[9999] size-10 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 ease-in-out',
         isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
       )}
       aria-label="Scroll to patient name"
