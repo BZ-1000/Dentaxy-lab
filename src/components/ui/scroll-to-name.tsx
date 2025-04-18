@@ -54,3 +54,4 @@ const ScrollToNameButton: React.FC<ScrollToNameButtonProps> = ({ isSaveButtonHid
   );
 };
 
+export default ScrollToNameButton;
