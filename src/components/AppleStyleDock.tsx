@@ -1,4 +1,3 @@
-
 import {
   Mail,
   ScrollText,
@@ -6,6 +5,7 @@ import {
   UserCircle,
   SunMoon,
   Crown,
+  Save, // Importa el ícono Save
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -18,9 +18,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from '@/components/ui/button';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils'; // Asegúrate de importar la utilidad cn
 
 const data = [
   {
@@ -63,6 +64,32 @@ export function AppleStyleDock() {
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
+  const [isVisible, setIsVisible] = useState(false); // Estado para la visibilidad del botón
+
+  useEffect(() => {
+    const nameInput = document.querySelector('#patient-name-input');
+
+    const checkScroll = () => {
+      if (nameInput) {
+        const rect = nameInput.getBoundingClientRect();
+        setIsVisible(rect.top < 0); // Lógica para mostrar/ocultar el botón
+      }
+    };
+
+    window.addEventListener('scroll', checkScroll);
+    return () => window.removeEventListener('scroll', checkScroll);
+  }, []);
+
+  const scrollToName = () => {
+    const nameInput = document.querySelector('#patient-name-input');
+    if (nameInput) {
+      nameInput.scrollIntoView({ behavior: 'smooth' });
+      const input = nameInput.querySelector('input');
+      if (input) {
+        input.focus();
+      }
+    }
+  };
 
   const handleItemClick = async (title: string) => {
     switch (title) {
@@ -150,6 +177,18 @@ export function AppleStyleDock() {
           </DockItem>
         </Dock>
       </div>
+
+      {/* Botón ScrollToName */}
+      <Button
+        onClick={scrollToName}
+        className={cn(
+          'fixed bottom-2 right-4 z-[9999] size-10 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 ease-in-out',
+          isVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        )}
+        aria-label="Scroll to patient name"
+      >
+        <Save className="h-5 w-5" /> {/* Ícono Save */}
+      </Button>
 
       <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
         <DialogContent>
@@ -277,12 +316,12 @@ export function AppleStyleDock() {
                   Seleccionar Plan Beta
                 </Button>
               </div>
-              
+
               <div className="p-6 rounded-xl border border-white/20 backdrop-blur-sm opacity-50">
                 <h3 className="text-xl font-bold text-white mb-4">Plan Básico</h3>
                 <p className="text-white/60 mb-6">Próximamente</p>
               </div>
-              
+
               <div className="p-6 rounded-xl border border-white/20 backdrop-blur-sm opacity-50">
                 <h3 className="text-xl font-bold text-white mb-4">Plan Premium</h3>
                 <p className="text-white/60 mb-6">Próximamente</p>
