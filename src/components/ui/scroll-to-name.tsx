@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
-import { Button } from './button';
+import { DockItem, DockIcon, DockLabel } from './dock';
 import { cn } from '@/lib/utils';
 
 export const ScrollToNameButton = () => {
@@ -33,15 +33,23 @@ export const ScrollToNameButton = () => {
   };
 
   return (
-    <Button
-      onClick={scrollToName}
+    <div 
       className={cn(
-        'fixed right-20 top-4 z-50 size-10 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 ease-in-out',
-        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-[-100%] opacity-0 pointer-events-none'
+        'fixed bottom-2 z-50 transition-all duration-500 ease-in-out transform',
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 pointer-events-none'
       )}
-      aria-label="Scroll to patient name"
+      style={{ left: 'calc(50% + 140px)' }} // Position it next to the dock items
     >
-      <ArrowUp className="h-5 w-5" />
-    </Button>
+      <DockItem
+        onClick={scrollToName}
+        className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer'
+      >
+        <DockLabel>Volver arriba</DockLabel>
+        <DockIcon>
+          <ArrowUp className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+        </DockIcon>
+      </DockItem>
+    </div>
   );
 };
+
