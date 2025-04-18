@@ -81,7 +81,7 @@ export const DesktopSidebar = ({
 }: React.ComponentProps<typeof motion.div>) => {
   const { open, setOpen, animate } = useSidebar();
 
-  // Fixed width property - use explicit width value
+  // Fixed width property - use explicit string width
   const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
 
   return (
@@ -93,7 +93,7 @@ export const DesktopSidebar = ({
       animate={{
         width: sidebarWidth
       }}
-      style={{ width: sidebarWidth as string }}
+      style={{ width: sidebarWidth }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       {...props}
