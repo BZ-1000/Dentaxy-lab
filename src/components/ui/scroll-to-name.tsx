@@ -1,20 +1,15 @@
-'use client';
 
 import { useEffect, useState } from 'react';
-import { Save } from 'lucide-react'; // Cambia el ícono a Save
+import { ArrowUp } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 
-interface ScrollToNameButtonProps {
-  isSaveButtonHidden: boolean;
-}
-
-const ScrollToNameButton: React.FC<ScrollToNameButtonProps> = ({ isSaveButtonHidden }) => {
+export const ScrollToNameButton = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
-
+    
     const checkScroll = () => {
       if (nameInput) {
         const rect = nameInput.getBoundingClientRect();
@@ -22,14 +17,9 @@ const ScrollToNameButton: React.FC<ScrollToNameButtonProps> = ({ isSaveButtonHid
       }
     };
 
-    if (isSaveButtonHidden) {
-      window.addEventListener('scroll', checkScroll);
-    } else {
-      setIsVisible(false);
-    }
-
+    window.addEventListener('scroll', checkScroll);
     return () => window.removeEventListener('scroll', checkScroll);
-  }, [isSaveButtonHidden]);
+  }, []);
 
   const scrollToName = () => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -51,9 +41,7 @@ const ScrollToNameButton: React.FC<ScrollToNameButtonProps> = ({ isSaveButtonHid
       )}
       aria-label="Scroll to patient name"
     >
-      <Save className="h-5 w-5 text-white" /> {/* Cambia el ícono a Save y ajusta el color */}
+      <ArrowUp className="h-5 w-5" />
     </Button>
   );
 };
-
-export default ScrollToNameButton;
