@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
-import { DockItem, DockIcon, DockLabel } from './dock';
+import { DockProvider, DockItem, DockIcon, DockLabel } from './dock';
 import { cn } from '@/lib/utils';
 
 export const ScrollToNameButton = () => {
@@ -33,23 +33,24 @@ export const ScrollToNameButton = () => {
   };
 
   return (
-    <div 
-      className={cn(
-        'fixed bottom-2 z-50 transition-all duration-500 ease-in-out transform',
-        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 pointer-events-none'
-      )}
-      style={{ left: 'calc(50% + 140px)' }} // Position it next to the dock items
-    >
-      <DockItem
-        onClick={scrollToName}
-        className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer'
+    <DockProvider>
+      <div 
+        className={cn(
+          'fixed bottom-2 z-50 transition-all duration-500 ease-in-out transform',
+          isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20 pointer-events-none'
+        )}
+        style={{ left: 'calc(50% + 140px)' }}
       >
-        <DockLabel>Volver arriba</DockLabel>
-        <DockIcon>
-          <ArrowUp className='h-full w-full text-neutral-600 dark:text-neutral-300' />
-        </DockIcon>
-      </DockItem>
-    </div>
+        <DockItem
+          onClick={scrollToName}
+          className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer'
+        >
+          <DockLabel>Volver arriba</DockLabel>
+          <DockIcon>
+            <ArrowUp className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+          </DockIcon>
+        </DockItem>
+      </div>
+    </DockProvider>
   );
 };
-
