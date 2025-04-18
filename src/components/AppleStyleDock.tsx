@@ -155,7 +155,7 @@ export function AppleStyleDock() {
   return (
     <>
       <div className='fixed bottom-2 left-1/2 max-w-full -translate-x-1/2 z-50'>
-        <Dock className={cn('items-end pb-3 flex', isVisible ? 'bg-white dark:bg-neutral-900' : '')}>
+        <Dock className={cn('items-end pb-3 flex', isVisible ? 'w-auto' : 'w-fit')}>
           {data.map((item, idx) => (
             <DockItem
               key={idx}

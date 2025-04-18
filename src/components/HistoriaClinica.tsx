@@ -34,7 +34,7 @@ import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
 import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
-import { ScrollToNameButton } from './ui/scroll-to-name';
+
 
 const HistoriaClinica = () => {
   const {
@@ -437,8 +437,6 @@ const HistoriaClinica = () => {
               </div>
             </div>
 
-            {/* Add the ScrollToNameButton component */}
-            <ScrollToNameButton />
             
             {/* Componente para mostrar el paciente actual */}
             {pacienteActual && (
