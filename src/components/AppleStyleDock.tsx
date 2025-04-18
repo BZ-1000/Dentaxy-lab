@@ -179,7 +179,7 @@ export function AppleStyleDock() {
           {isVisible && (
             <DockItem
               onClick={scrollToName}
-              className='aspect-square rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg cursor-pointer'
+              className='aspect-square rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg cursor-pointer slide-in'
             >
               <DockLabel>Scroll to Name</DockLabel>
               <DockIcon>
@@ -330,6 +330,22 @@ export function AppleStyleDock() {
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .slide-in {
+          animation: slideIn 0.3s ease-out;
+        }
+      `}</style>
     </>
   );
 }
