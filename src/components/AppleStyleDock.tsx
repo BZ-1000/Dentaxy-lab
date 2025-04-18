@@ -1,4 +1,3 @@
-
 import {
   Mail,
   ScrollText,
@@ -6,6 +5,7 @@ import {
   UserCircle,
   SunMoon,
   Crown,
+  ArrowUp,
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import ScrollToNameButton  from '@/components/ui/scroll-to-name'; // Asegúrate de que esta ruta sea correcta
 
 const data = [
   {
@@ -63,8 +64,9 @@ export function AppleStyleDock() {
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
+  const [isSaveButtonHidden, setIsSaveButtonHidden] = useState(false); // Estado para controlar la visibilidad
 
-  const handleItemClick = async (title: string) => {
+  const handleItemClick = async (title) => {
     switch (title) {
       case 'Inicio':
         navigate('/');
@@ -125,6 +127,11 @@ export function AppleStyleDock() {
     toast.success('Sesión cerrada exitosamente');
   };
 
+  // Simula la ocultación del botón "Guardar"
+  const simulateSaveButtonHide = () => {
+    setIsSaveButtonHidden(true);
+  };
+
   return (
     <>
       <div className='fixed bottom-2 left-1/2 max-w-full -translate-x-1/2 z-50'>
@@ -148,6 +155,23 @@ export function AppleStyleDock() {
               <SunMoon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
             </DockIcon>
           </DockItem>
+          <DockItem
+            onClick={simulateSaveButtonHide}
+            className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer'
+          >
+            <DockLabel>Simular Ocultar Guardar</DockLabel>
+            <DockIcon>
+              <ArrowUp className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+            </DockIcon>
+          </DockItem>
+          {isSaveButtonHidden && (
+            <DockItem className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer'>
+              <DockLabel>Scroll to Name</DockLabel>
+              <DockIcon>
+                <ScrollToNameButton isSaveButtonHidden={isSaveButtonHidden} />
+              </DockIcon>
+            </DockItem>
+          )}
         </Dock>
       </div>
 
@@ -277,12 +301,12 @@ export function AppleStyleDock() {
                   Seleccionar Plan Beta
                 </Button>
               </div>
-              
+
               <div className="p-6 rounded-xl border border-white/20 backdrop-blur-sm opacity-50">
                 <h3 className="text-xl font-bold text-white mb-4">Plan Básico</h3>
                 <p className="text-white/60 mb-6">Próximamente</p>
               </div>
-              
+
               <div className="p-6 rounded-xl border border-white/20 backdrop-blur-sm opacity-50">
                 <h3 className="text-xl font-bold text-white mb-4">Plan Premium</h3>
                 <p className="text-white/60 mb-6">Próximamente</p>

@@ -1,15 +1,18 @@
-
 import { useEffect, useState } from 'react';
 import { ArrowUp } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 
-export const ScrollToNameButton = () => {
+interface ScrollToNameButtonProps {
+  isSaveButtonHidden: boolean;
+}
+
+const ScrollToNameButton: React.FC<ScrollToNameButtonProps> = ({ isSaveButtonHidden }) => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
-    
+
     const checkScroll = () => {
       if (nameInput) {
         const rect = nameInput.getBoundingClientRect();
@@ -17,9 +20,14 @@ export const ScrollToNameButton = () => {
       }
     };
 
-    window.addEventListener('scroll', checkScroll);
+    if (isSaveButtonHidden) {
+      window.addEventListener('scroll', checkScroll);
+    } else {
+      setIsVisible(false);
+    }
+
     return () => window.removeEventListener('scroll', checkScroll);
-  }, []);
+  }, [isSaveButtonHidden]);
 
   const scrollToName = () => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -45,3 +53,5 @@ export const ScrollToNameButton = () => {
     </Button>
   );
 };
+
+export default ScrollToNameButton;
