@@ -105,10 +105,6 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
         provider: "google",
         options: {
           redirectTo: redirectUrl,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent'
-          }
         }
       });
       
