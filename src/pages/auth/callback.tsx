@@ -24,15 +24,6 @@ export default function AuthCallback() {
         if (data?.session) {
           // The user is authenticated, redirect to landing page
           toast.success('¡Autenticación exitosa!');
-          
-          // Ensure we have a unique user identifier for localStorage prefixing
-          const userId = data.session.user.id;
-          console.log("User authenticated with ID:", userId);
-          
-          // Add timestamp to avoid cache issues
-          const timestamp = new Date().getTime();
-          localStorage.setItem(`last_login_${userId}`, timestamp.toString());
-          
           navigate('/'); // Redirect to landing page after login
           return;
         }
@@ -49,12 +40,6 @@ export default function AuthCallback() {
           setTimeout(async () => {
             const { data: sessionData } = await supabase.auth.getSession();
             if (sessionData?.session) {
-              // Add timestamp to avoid cache issues
-              const userId = sessionData.session.user.id;
-              console.log("User authenticated with ID:", userId);
-              const timestamp = new Date().getTime();
-              localStorage.setItem(`last_login_${userId}`, timestamp.toString());
-              
               toast.success('¡Autenticación exitosa!');
               navigate('/'); // Redirect to landing page after login
             } else {
