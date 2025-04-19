@@ -71,8 +71,10 @@ const Register = () => {
           redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent'
-          }
+            prompt: 'consent', // Force account selection
+            hd: 'dentaxy.com', // Preferred domain (optional)
+          },
+          scopes: 'email profile',
         }
       });
 

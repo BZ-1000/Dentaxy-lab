@@ -58,8 +58,10 @@ const Login = () => {
           redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent'
-          }
+            prompt: 'consent', // Force account selection
+            hd: 'dentaxy.com', // Preferred domain (optional)
+          },
+          scopes: 'email profile',
         }
       });
 
