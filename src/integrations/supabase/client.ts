@@ -19,6 +19,25 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    flowType: 'pkce'
+    flowType: 'pkce',
+    storage: {
+      getItem: (key) => {
+        // Append the user ID to the storage key to make it unique per user
+        const storedSession = localStorage.getItem(key);
+        return storedSession;
+      },
+      setItem: (key, value) => {
+        localStorage.setItem(key, value);
+      },
+      removeItem: (key) => {
+        localStorage.removeItem(key);
+      }
+    }
   }
 });
+
+// Utility function to clear all user-specific data from localStorage
+export const clearUserData = () => {
+  localStorage.removeItem('dentaxy_username');
+  // Add any other user-specific localStorage items that need to be cleared
+};

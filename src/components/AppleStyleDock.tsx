@@ -1,4 +1,3 @@
-
 import {
   Mail,
   ScrollText,
@@ -6,7 +5,7 @@ import {
   UserCircle,
   SunMoon,
   Crown,
-  Save, // Importa el ícono Save
+  Save,
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -21,8 +20,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
-import { cn } from '@/lib/utils'; // Asegúrate de importar la utilidad cn
+import { supabase, clearUserData } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
 
 const data = [
   {
@@ -49,7 +48,7 @@ const data = [
   {
     title: 'Comentarios',
     icon: (
-      <Mail className='h-full w-full text-red-500 dark:text-red-400' /> // Color rojo estilo Apple
+      <Mail className='h-full w-full text-red-500 dark:text-red-400' />
     ),
     href: '#',
   },
@@ -66,20 +65,113 @@ export function AppleStyleDock() {
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [isVisible, setIsVisible] = useState(false); // Estado para la visibilidad del botón
+  const [hasBetaPlan, setHasBetaPlan] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-    const nameInput = document.querySelector('#patient-name-input');
+    // Check for current session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setSession(session);
+      if (session) {
+        // Get username from localStorage with a user-specific key
+        const userId = session.user.id;
+        const storedUsername = localStorage.getItem(`dentaxy_username_${userId}`);
+        if (storedUsername) {
+          setUsername(storedUsername);
+        } else {
+          checkUsername(userId);
+        }
+        checkUserPlan(userId);
+      }
+    };
+    getSession();
 
+    // Setup auth change listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        if (session) {
+          const userId = session.user.id;
+          const storedUsername = localStorage.getItem(`dentaxy_username_${userId}`);
+          if (storedUsername) {
+            setUsername(storedUsername);
+          } else {
+            checkUsername(userId);
+          }
+          checkUserPlan(userId);
+        } else {
+          // Clear username when logged out
+          setUsername('');
+        }
+      }
+    );
+
+    // Check for the patient name input for scroll functionality
+    const nameInput = document.querySelector('#patient-name-input');
     const checkScroll = () => {
       if (nameInput) {
         const rect = nameInput.getBoundingClientRect();
-        setIsVisible(rect.top < 0); // Lógica para mostrar/ocultar el botón
+        setIsVisible(rect.top < 0);
       }
     };
-
     window.addEventListener('scroll', checkScroll);
-    return () => window.removeEventListener('scroll', checkScroll);
+    
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('scroll', checkScroll);
+    };
   }, []);
+
+  const checkUsername = async (userId) => {
+    try {
+      // Check if user already has username in localStorage (with user-specific key)
+      const storedUsername = localStorage.getItem(`dentaxy_username_${userId}`);
+      if (storedUsername) {
+        setUsername(storedUsername);
+        return;
+      }
+
+      // Otherwise, fetch from database
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('username')
+        .eq('id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data?.username) {
+        setUsername(data.username);
+        // Store with user-specific key
+        localStorage.setItem(`dentaxy_username_${userId}`, data.username);
+      } else {
+        setShowPopup(true);
+      }
+    } catch (error) {
+      console.error('Error checking username:', error);
+    }
+  };
+  
+  const checkUserPlan = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_plans')
+        .select('plan_type')
+        .eq('id', userId)
+        .maybeSingle();
+        
+      if (error) {
+        console.error('Error checking plan:', error);
+        return;
+      }
+      setHasBetaPlan(data?.plan_type === 'beta');
+    } catch (error) {
+      console.error('Error checking user plan:', error);
+    }
+  };
 
   const scrollToName = () => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -89,12 +181,12 @@ export function AppleStyleDock() {
       if (input) {
         setTimeout(() => {
           input.focus();
-        }, 300); // Espera a que termine el scroll antes de enfocar
+        }, 300);
       }
     }
   };
 
-  const handleItemClick = async (title: string) => {
+  const handleItemClick = async (title) => {
     switch (title) {
       case 'Inicio':
         navigate('/');
@@ -145,14 +237,34 @@ export function AppleStyleDock() {
   };
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      // Get current user ID before logout
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      const userId = currentSession?.user?.id;
+      
+      // Sign out
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast.error('Error al cerrar sesión');
+        return;
+      }
+      
+      // Clear user-specific data
+      clearUserData();
+      if (userId) {
+        localStorage.removeItem(`dentaxy_username_${userId}`);
+      }
+      
+      setSession(null);
+      setShowProfile(false);
+      setUsername('');
+      setHasBetaPlan(false);
+      
+      toast.success('Sesión cerrada exitosamente');
+    } catch (error) {
+      console.error('Error during logout:', error);
       toast.error('Error al cerrar sesión');
-      return;
     }
-    setSession(null);
-    setShowProfile(false);
-    toast.success('Sesión cerrada exitosamente');
   };
 
   return (

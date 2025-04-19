@@ -107,8 +107,12 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
           redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent'
-          }
+            prompt: 'select_account', // Forzar selección de cuenta
+            hd: 'dentaxy.com', // Dominio preferido (opcional)
+          },
+          scopes: 'email profile',
+          theme: 'dark', // Tema de la página de autenticación
+          provider_display_name: 'Dentaxy', // Nombre personalizado
         }
       });
       
