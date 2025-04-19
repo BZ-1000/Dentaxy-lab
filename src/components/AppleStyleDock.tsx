@@ -86,7 +86,9 @@ export function AppleStyleDock() {
       nameInput.scrollIntoView({ behavior: 'smooth' });
       const input = nameInput.querySelector('input');
       if (input) {
-        input.focus();
+        setTimeout(() => {
+          input.focus();
+        }, 300); // Espera a que termine el scroll antes de enfocar
       }
     }
   };
@@ -349,3 +351,4 @@ export function AppleStyleDock() {
     </>
   );
 }
+vcc
