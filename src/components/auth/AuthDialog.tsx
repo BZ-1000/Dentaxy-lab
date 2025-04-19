@@ -107,10 +107,8 @@ export function AuthDialog({ isOpen, onClose, defaultMode = "login", onSuccess }
           redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent', // Force account selection
-            hd: 'dentaxy.com', // Preferred domain (optional)
-          },
-          scopes: 'email profile',
+            prompt: 'consent'
+          }
         }
       });
       

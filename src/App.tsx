@@ -9,7 +9,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import VerifyEmail from './pages/auth/VerifyEmail';
 import AuthCallback from './pages/auth/callback';
-import { supabase, clearUserData } from './integrations/supabase/client';
+import { supabase } from './integrations/supabase/client';
 import { Session } from '@supabase/supabase-js';
 import { Toaster } from './components/ui/sonner';
 import './App.css';
@@ -30,24 +30,14 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Configurar manejador de eventos de autenticación primero
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (_event === 'SIGNED_OUT') {
-        // Limpiar datos específicos del usuario cuando cierra sesión
-        const userId = session?.user?.id;
-        if (userId) {
-          clearUserData(userId);
-        } else {
-          clearUserData();
-        }
-      }
-      
+    // Obtener la sesión actual al cargar
+    supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setLoading(false);
     });
 
-    // Obtener la sesión actual después de configurar el listener
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Escuchar cambios en el estado de autenticación
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setLoading(false);
     });
