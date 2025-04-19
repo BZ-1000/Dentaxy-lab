@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '../../components/ui/button';
@@ -57,12 +58,10 @@ const Login = () => {
           redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'select_account', // Forzar selección de cuenta
-            hd: 'dentaxy.com', // Dominio preferido (opcional)
+            prompt: 'consent', // Force account selection
+            hd: 'dentaxy.com', // Preferred domain (optional)
           },
           scopes: 'email profile',
-          theme: 'dark', // Tema de la página de autenticación
-          provider_display_name: 'Dentaxy', // Nombre personalizado
         }
       });
 

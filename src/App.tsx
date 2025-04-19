@@ -34,7 +34,12 @@ function App() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (_event === 'SIGNED_OUT') {
         // Limpiar datos específicos del usuario cuando cierra sesión
-        clearUserData();
+        const userId = session?.user?.id;
+        if (userId) {
+          clearUserData(userId);
+        } else {
+          clearUserData();
+        }
       }
       
       setSession(session);
