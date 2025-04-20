@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -42,7 +43,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
   const formRef = useRef<HTMLDivElement>(null);
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
-  const [previousFormState, setPreviousFormState] = useState(null);
+  const [previousFormState, setPreviousFormState] = useState<Record<string, any> | null>(null);
 
   // Refs and state for managing focus on "otra" inputs
   const inputRefs = useRef<{[key: string]: React.RefObject<HTMLInputElement>}>({
@@ -134,6 +135,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     handleAntecedentePatologicoChange("sinPatologia", newValue);
 
     if (newValue) {
+      setPreviousFormState(formData.antecedentesPersonalesPatologicos); // Save current state before clearing
       handleAntecedentePatologicoChange("nutricionales", { ninguna: true, otra: false, otraDescripcion: '' });
       handleAntecedentePatologicoChange("cardiacos", { ninguna: true, otra: false, otraDescripcion: '' });
       handleAntecedentePatologicoChange("hepaticos", { ninguna: true, otra: false, otraDescripcion: '' });
@@ -148,6 +150,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
           handleAntecedentePatologicoChange(categoria, previousFormState[categoria]);
         });
       }
+      setPreviousFormState(null);
     }
   };
 
@@ -365,6 +368,9 @@ const AntecedentesPersonalesPatologicos: React.FC<{
         amibiasis: "Amibiasis",
         giardiasis: "Giardiasis",
         ascariasis: "Ascariasis"
+      },
+      otrosPadecimientos: {
+        especificar: "Especificar"
       }
     };
 
@@ -390,7 +396,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                               'enfermedadesEruptivas', 'pulmonares', 'infecciosasParasitarias', 'otrosPadecimientos'];
 
     categoriasIniciales.forEach(categoria => {
-      const categoriasLimpias = {
+      const categoriasLimpias: {[key:string]: any} = {
         ninguna: false,
         otra: false,
         otraDescripcion: ''
@@ -754,5 +760,18 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                         />
                       </div>
                     ))}
-
                     <div className="flex justify-center">
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+};
+
+export default AntecedentesPersonalesPatologicos;
+
