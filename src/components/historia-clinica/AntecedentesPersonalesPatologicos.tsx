@@ -7,6 +7,8 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { AlertCircle, EyeOff, Eye } from "lucide-react";
+import { AnimatedTextareaWithTyping } from "@/components/ui/AnimatedTextareaWithTyping";
+import OtraCondicionInput from '@/components/ui/OtraCondicionInput';
 
 interface CopiedState {
   nutricionales?: boolean;
@@ -436,7 +438,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
 
           {formData.antecedentesPersonalesPatologicos[categoria]?.otra && (
             <div className="w-full mt-2">
-              <Input
+              <OtraCondicionInput
                 ref={inputRefs.current[categoria]}
                 placeholder="Especificar otra condición..."
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
@@ -639,7 +641,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
               <div className="space-y-6">
                 {progress === 100 && (
                   <>
-                    {Object.keys(redacciones).map((section) => (
+                    {Object.entries(redacciones).map(([section, content]) => (
                       <div key={section} className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center mb-2">
                           <h4 className="text-lg font-semibold capitalize">{section}</h4>
@@ -661,16 +663,11 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                           </button>
                         </div>
                         <div>
-                          <textarea
-                            value={redacciones[section as keyof typeof redacciones]}
-                            onChange={(e) => setRedacciones({
-                              ...redacciones,
-                              [section]: e.target.value
-                            })}
-                            onFocus={() => console.log(`Focused on ${section}`)}
-                            onBlur={() => console.log(`Blurred from ${section}`)}
-                            className="min-h-[100px] w-full text-sm bg-white/50 dark:bg-gray-800/50 p-2 rounded-md"
-                            style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                          <AnimatedTextareaWithTyping
+                            content={content as string}
+                            className="w-full bg-white/50 dark:bg-gray-800/50 p-2 rounded-md text-sm"
+                            textAlign="justify"
+                            readOnly
                           />
                         </div>
                       </div>
