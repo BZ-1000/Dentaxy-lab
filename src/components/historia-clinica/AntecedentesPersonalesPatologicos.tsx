@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -84,6 +83,18 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     };
   }, [focusStatus]);
 
+  useEffect(() => {
+    // Cuando focusStatus cambia, aplicamos el enfoque a los inputs activados
+    Object.keys(focusStatus).forEach(categoria => {
+      if (focusStatus[categoria]) {
+        const inputRef = inputRefs.current[categoria];
+        if (inputRef && inputRef.current) {
+          inputRef.current.focus();
+        }
+      }
+    });
+  }, [focusStatus]);
+
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
@@ -134,7 +145,6 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       categoriasActualizadas.otra = false;
       categoriasActualizadas.otraDescripcion = '';
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      // Remove focus if was focused
       setFocusStatus(prev => ({ ...prev, [categoria]: false }));
     } else if (opcion !== 'ninguna' && opcion !== 'otra' && opcion !== 'otraDescripcion' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
@@ -148,22 +158,14 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       categoriasActualizadas.ninguna = false;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
 
-      // Set focus on the input "otra"
+      // Actualizamos focusStatus para activar foco en input
       setFocusStatus(prev => ({ ...prev, [categoria]: true }));
-
-      // Focus the input field after state update (wait a tick)
-      setTimeout(() => {
-        if (inputRefs.current[categoria]?.current) {
-          inputRefs.current[categoria].current?.focus();
-        }
-      }, 0);
     } else {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas[opcion] = valor;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
 
-      // Possibly clear focus if other options changed
-      if(opcion !== 'otraDescripcion'){
+      if (opcion !== 'otraDescripcion') {
         setFocusStatus(prev => ({ ...prev, [categoria]: false }));
       }
     }
