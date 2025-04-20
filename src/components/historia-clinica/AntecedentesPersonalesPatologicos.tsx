@@ -7,8 +7,6 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { AlertCircle, EyeOff, Eye } from "lucide-react";
-import { AnimatedTextarea } from "@/components/ui/animated-textarea";
-import OtraCondicionInput from "@/components/ui/OtraCondicionInput";
 
 interface CopiedState {
   nutricionales?: boolean;
@@ -44,45 +42,6 @@ const AntecedentesPersonalesPatologicos: React.FC<{
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [previousFormState, setPreviousFormState] = useState(null);
-
-  // Refs and state for managing focus on "otra" inputs
-  const inputRefs = useRef<{[key: string]: React.RefObject<HTMLInputElement>}>({
-    nutricionales: React.createRef<HTMLInputElement>(),
-    cardiacos: React.createRef<HTMLInputElement>(),
-    hepaticos: React.createRef<HTMLInputElement>(),
-    enfermedadesTransmisionSexual: React.createRef<HTMLInputElement>(),
-    enfermedadesEruptivas: React.createRef<HTMLInputElement>(),
-    pulmonares: React.createRef<HTMLInputElement>(),
-    infecciosasParasitarias: React.createRef<HTMLInputElement>(),
-    otrosPadecimientos: React.createRef<HTMLInputElement>(),
-  });
-  const [focusStatus, setFocusStatus] = useState<{[key: string]: boolean}>({});
-
-  useEffect(() => {
-    // Listener to detect clicks outside "otra" inputs or scroll to remove focus
-    function handleClickOutside(event: MouseEvent) {
-      for (const key in inputRefs.current) {
-        const ref = inputRefs.current[key];
-        if (ref && ref.current && !ref.current.contains(event.target as Node)) {
-          if (focusStatus[key]) {
-            setFocusStatus(prev => ({ ...prev, [key]: false }));
-          }
-        }
-      }
-    }
-    function handleScroll() {
-      // On scroll, remove focus from all
-      setFocusStatus({});
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    window.addEventListener('scroll', handleScroll, true);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('scroll', handleScroll, true);
-    };
-  }, [focusStatus]);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -122,6 +81,17 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     }
   };
 
+  const inputRefs = useRef<{[key: string]: React.RefObject<HTMLInputElement>}>({
+    nutricionales: React.createRef<HTMLInputElement>(),
+    cardiacos: React.createRef<HTMLInputElement>(),
+    hepaticos: React.createRef<HTMLInputElement>(),
+    enfermedadesTransmisionSexual: React.createRef<HTMLInputElement>(),
+    enfermedadesEruptivas: React.createRef<HTMLInputElement>(),
+    pulmonares: React.createRef<HTMLInputElement>(),
+    infecciosasParasitarias: React.createRef<HTMLInputElement>(),
+    otrosPadecimientos: React.createRef<HTMLInputElement>(),
+  });
+
   const seleccionarOpcion = (categoria: string, opcion: string, valor: boolean) => {
     if (opcion === 'ninguna' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
@@ -134,24 +104,18 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       categoriasActualizadas.otra = false;
       categoriasActualizadas.otraDescripcion = '';
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      // Remove focus if was focused
-      setFocusStatus(prev => ({ ...prev, [categoria]: false }));
     } else if (opcion !== 'ninguna' && opcion !== 'otra' && opcion !== 'otraDescripcion' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas[opcion] = valor;
       categoriasActualizadas.ninguna = false;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      setFocusStatus(prev => ({ ...prev, [categoria]: false }));
     } else if (opcion === 'otra' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas.otra = valor;
       categoriasActualizadas.ninguna = false;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-
-      // Set focus on the input "otra"
-      setFocusStatus(prev => ({ ...prev, [categoria]: true }));
-
-      // Focus the input field after state update (wait a tick)
+      
+      // Focus the input field after state update
       setTimeout(() => {
         if (inputRefs.current[categoria]?.current) {
           inputRefs.current[categoria].current?.focus();
@@ -161,11 +125,6 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas[opcion] = valor;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-
-      // Possibly clear focus if other options changed
-      if(opcion !== 'otraDescripcion'){
-        setFocusStatus(prev => ({ ...prev, [categoria]: false }));
-      }
     }
   };
 
@@ -477,10 +436,13 @@ const AntecedentesPersonalesPatologicos: React.FC<{
 
           {formData.antecedentesPersonalesPatologicos[categoria]?.otra && (
             <div className="w-full mt-2">
-              <OtraCondicionInput
+              <Input
+                ref={inputRefs.current[categoria]}
+                placeholder="Especificar otra condición..."
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
-                onChange={(val) => handleOtraDescripcionChange(categoria, val)}
-                className=""
+                onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
+                className="w-full"
+                onBlur={() => {}}
               />
             </div>
           )}
@@ -680,7 +642,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                     {Object.keys(redacciones).map((section) => (
                       <div key={section} className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                         <div className="flex justify-between items-center mb-2">
-                          <h4 className="text-lg font-semibold capitalize">{getTituloCategoria(section)}</h4>
+                          <h4 className="text-lg font-semibold capitalize">{section}</h4>
                           <button
                             onClick={() => handleCopy(section as keyof CopiedState)}
                             className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
@@ -699,14 +661,16 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                           </button>
                         </div>
                         <div>
-                          <AnimatedTextarea
-                            content={redacciones[section as keyof typeof redacciones]}
-                            speed={15}
-                            readOnly={false}
-                            autoFocus={false}
-                            className="min-h-[100px] w-full"
-                            textAlign="justify"
-                            onAnimationComplete={() => {}}
+                          <textarea
+                            value={redacciones[section as keyof typeof redacciones]}
+                            onChange={(e) => setRedacciones({
+                              ...redacciones,
+                              [section]: e.target.value
+                            })}
+                            onFocus={() => console.log(`Focused on ${section}`)}
+                            onBlur={() => console.log(`Blurred from ${section}`)}
+                            className="min-h-[100px] w-full text-sm bg-white/50 dark:bg-gray-800/50 p-2 rounded-md"
+                            style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
                           />
                         </div>
                       </div>
