@@ -430,7 +430,7 @@ const Landing = () => {
   
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white shadow-sm">
+      <div className="sticky top-0 bg-white z-50 flex items-center justify-between px-6 py-4 border-b border-gray-100 shadow-sm">
         <div className="flex items-center gap-2">
           <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-8 w-8" />
           <span className="text-xs font-bold text-gray-700">Dental Basics Academy</span>
@@ -438,9 +438,11 @@ const Landing = () => {
 
         {/* Main horizontal navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          {menuItems.map(item => <Link key={item.label} to={item.href} className={`text-gray-700 hover:text-blue-600 transition-colors text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`} onClick={() => setActiveItem(item.label)}>
+          {menuItems.map(item => (
+            <Link key={item.label} to={item.href} className={`text-gray-700 hover:text-blue-600 transition-colors text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`} onClick={() => setActiveItem(item.label)}>
               {item.label}
-            </Link>)}
+            </Link>
+          ))}
         </div>
 
         {/* Auth buttons */}
