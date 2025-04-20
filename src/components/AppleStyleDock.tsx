@@ -1,4 +1,3 @@
-
 import {
   Mail,
   ScrollText,
@@ -65,7 +64,10 @@ export function AppleStyleDock() {
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
-  const [isVisible, setIsVisible] = useState(false); // Estado para la visibilidad del botón
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Function to detect if mobile device using screen width
+  const isMobile = window.innerWidth < 768;
 
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -73,7 +75,7 @@ export function AppleStyleDock() {
     const checkScroll = () => {
       if (nameInput) {
         const rect = nameInput.getBoundingClientRect();
-        setIsVisible(rect.top < 0); // Lógica para mostrar/ocultar el botón
+        setIsVisible(rect.top < 0);
       }
     };
 
@@ -81,15 +83,22 @@ export function AppleStyleDock() {
     return () => window.removeEventListener('scroll', checkScroll);
   }, []);
 
+  // Updated scrollToName function with mobile detection
   const scrollToName = () => {
     const nameInput = document.querySelector('#patient-name-input');
     if (nameInput) {
-      nameInput.scrollIntoView({ behavior: 'smooth' });
+      if (window.innerWidth < 768) {
+        // Mobile: scroll instantly without smooth to avoid stuck click effect
+        nameInput.scrollIntoView({ behavior: 'auto' });
+      } else {
+        // Desktop: smooth scroll
+        nameInput.scrollIntoView({ behavior: 'smooth' });
+      }
       const input = nameInput.querySelector('input');
       if (input) {
         setTimeout(() => {
           input.focus();
-        }, 300); // Espera a que termine el scroll antes de enfocar
+        }, 300);
       }
     }
   };
@@ -178,7 +187,6 @@ export function AppleStyleDock() {
               <SunMoon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
             </DockIcon>
           </DockItem>
-          {/* Nuevo botón ScrollToName */}
           {isVisible && (
             <DockItem
               onClick={scrollToName}
