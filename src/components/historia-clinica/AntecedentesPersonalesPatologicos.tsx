@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -9,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { AlertCircle, EyeOff, Eye } from "lucide-react";
 import { AnimatedTextarea } from "@/components/ui/animated-textarea";
+import OtraCondicionInput from "@/components/ui/OtraCondicionInput";
 
 interface CopiedState {
   nutricionales?: boolean;
@@ -477,14 +477,10 @@ const AntecedentesPersonalesPatologicos: React.FC<{
 
           {formData.antecedentesPersonalesPatologicos[categoria]?.otra && (
             <div className="w-full mt-2">
-              <Input
-                ref={inputRefs.current[categoria]}
-                placeholder="Especificar otra condición..."
+              <OtraCondicionInput
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
-                onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
-                className="w-full"
-                onFocus={() => setFocusStatus(prev => ({ ...prev, [categoria]: true }))}
-                onBlur={() => setFocusStatus(prev => ({ ...prev, [categoria]: false }))}
+                onChange={(val) => handleOtraDescripcionChange(categoria, val)}
+                className=""
               />
             </div>
           )}
