@@ -83,15 +83,15 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     }
   };
 
-  const inputRefs = useRef<{[key: string]: React.RefObject<HTMLInputElement>}>({
-    nutricionales: React.createRef<HTMLInputElement>(),
-    cardiacos: React.createRef<HTMLInputElement>(),
-    hepaticos: React.createRef<HTMLInputElement>(),
-    enfermedadesTransmisionSexual: React.createRef<HTMLInputElement>(),
-    enfermedadesEruptivas: React.createRef<HTMLInputElement>(),
-    pulmonares: React.createRef<HTMLInputElement>(),
-    infecciosasParasitarias: React.createRef<HTMLInputElement>(),
-    otrosPadecimientos: React.createRef<HTMLInputElement>(),
+  const inputRefs = useRef<{[key: string]: React.RefObject<HTMLTextAreaElement>}>({
+    nutricionales: React.createRef<HTMLTextAreaElement>(),
+    cardiacos: React.createRef<HTMLTextAreaElement>(),
+    hepaticos: React.createRef<HTMLTextAreaElement>(),
+    enfermedadesTransmisionSexual: React.createRef<HTMLTextAreaElement>(),
+    enfermedadesEruptivas: React.createRef<HTMLTextAreaElement>(),
+    pulmonares: React.createRef<HTMLTextAreaElement>(),
+    infecciosasParasitarias: React.createRef<HTMLTextAreaElement>(),
+    otrosPadecimientos: React.createRef<HTMLTextAreaElement>(),
   });
 
   const seleccionarOpcion = (categoria: string, opcion: string, valor: boolean) => {
@@ -111,18 +111,22 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       categoriasActualizadas[opcion] = valor;
       categoriasActualizadas.ninguna = false;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-    } else if (opcion === 'otra' && valor) {
+    } else if (opcion === 'otra') {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas.otra = valor;
+      if (!valor) {
+        categoriasActualizadas.otraDescripcion = '';
+      }
       categoriasActualizadas.ninguna = false;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      
-      // Focus the input field after state update
-      setTimeout(() => {
-        if (inputRefs.current[categoria]?.current) {
-          inputRefs.current[categoria].current?.focus();
-        }
-      }, 0);
+
+      if (valor) {
+        setTimeout(() => {
+          if (inputRefs.current[categoria]?.current) {
+            inputRefs.current[categoria].current?.focus();
+          }
+        }, 0);
+      }
     } else {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas[opcion] = valor;
@@ -437,13 +441,13 @@ const AntecedentesPersonalesPatologicos: React.FC<{
           />
 
           {formData.antecedentesPersonalesPatologicos[categoria]?.otra && (
-            <div className="w-full mt-2">
+            <div className="w-full mt-2 max-w-[250px]">
               <OtraCondicionInput
-                ref={inputRefs.current[categoria]}
+                ref={inputRefs.current[categoria] as React.RefObject<HTMLTextAreaElement>}
                 placeholder="Especificar otra condición..."
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
                 onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
-                className="w-full"
+                className="w-full h-[30px]"
                 onBlur={() => {}}
               />
             </div>
