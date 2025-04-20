@@ -84,11 +84,11 @@ const AntecedentesPersonalesPatologicos: React.FC<{
   }, [focusStatus]);
 
   useEffect(() => {
-    // Cuando focusStatus cambia, aplicamos el enfoque a los inputs activados
-    Object.keys(focusStatus).forEach(categoria => {
-      if (focusStatus[categoria]) {
+    // When focusStatus changes, focus the inputs only if not already focused (avoid loops)
+    Object.entries(focusStatus).forEach(([categoria, isFocused]) => {
+      if (isFocused) {
         const inputRef = inputRefs.current[categoria];
-        if (inputRef && inputRef.current) {
+        if (inputRef && inputRef.current && document.activeElement !== inputRef.current) {
           inputRef.current.focus();
         }
       }
@@ -134,6 +134,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
   };
 
   const seleccionarOpcion = (categoria: string, opcion: string, valor: boolean) => {
+    // Fix focus logic to avoid multiple focus calls or infinite loops
     if (opcion === 'ninguna' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       Object.keys(categoriasActualizadas).forEach(key => {
@@ -157,14 +158,11 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       categoriasActualizadas.otra = valor;
       categoriasActualizadas.ninguna = false;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-
-      // Actualizamos focusStatus para activar foco en input
       setFocusStatus(prev => ({ ...prev, [categoria]: true }));
     } else {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas[opcion] = valor;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-
       if (opcion !== 'otraDescripcion') {
         setFocusStatus(prev => ({ ...prev, [categoria]: false }));
       }
@@ -704,17 +702,16 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                             )}
                           </button>
                         </div>
-                        <div>
-                          <AnimatedTextarea
-                            content={redacciones[section as keyof typeof redacciones]}
-                            speed={15}
-                            readOnly={false}
-                            autoFocus={false}
-                            className="min-h-[100px] w-full"
-                            textAlign="justify"
-                            onAnimationComplete={() => {}}
-                          />
-                        </div>
+                        <AnimatedTextarea
+                          key={`animated-${section}`}
+                          content={redacciones[section as keyof typeof redacciones]}
+                          speed={15}
+                          readOnly={false}
+                          autoFocus={false}
+                          className="min-h-[100px] w-full"
+                          textAlign="justify"
+                          onAnimationComplete={() => {}}
+                        />
                       </div>
                     ))}
 
