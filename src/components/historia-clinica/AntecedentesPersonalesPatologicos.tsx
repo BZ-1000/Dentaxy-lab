@@ -94,6 +94,27 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     otrosPadecimientos: React.createRef<HTMLTextAreaElement>(),
   });
 
+  const handleOtraDescripcionChange = (categoria: string, valor: string) => {
+    const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
+    categoriasActualizadas.otra = true;
+    categoriasActualizadas.otraDescripcion = valor;
+    categoriasActualizadas.ninguna = false;
+    handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
+  };
+
+  useEffect(() => {
+    Object.entries(formData.antecedentesPersonalesPatologicos).forEach(([categoria, data]) => {
+      if (data?.otra && data?.otraDescripcion !== undefined) {
+        const ref = inputRefs.current[categoria];
+        if (ref && ref.current && document.activeElement !== ref.current) {
+          ref.current.focus();
+          const val = ref.current.value;
+          ref.current.setSelectionRange(val.length, val.length);
+        }
+      }
+    });
+  }, [formData.antecedentesPersonalesPatologicos]);
+
   const seleccionarOpcion = (categoria: string, opcion: string, valor: boolean) => {
     if (opcion === 'ninguna' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
@@ -132,14 +153,6 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       categoriasActualizadas[opcion] = valor;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
     }
-  };
-
-  const handleOtraDescripcionChange = (categoria: string, valor: string) => {
-    const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
-    categoriasActualizadas.otra = true;
-    categoriasActualizadas.otraDescripcion = valor;
-    categoriasActualizadas.ninguna = false;
-    handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
   };
 
   const generarRedaccionIA = () => {
