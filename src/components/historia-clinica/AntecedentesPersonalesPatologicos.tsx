@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -743,3 +744,39 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                             className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                           >
                             {copied[section as keyof CopiedState] ? (
+                              <>
+                                <CheckCircle className="w-4 h-4" />
+                                <span>Copiado</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4" />
+                                <span>Copiar</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <AnimatedTextarea
+                          key={`animated-${section}`}
+                          content={redacciones[section as keyof typeof redacciones]}
+                          speed={15}
+                          readOnly={false}
+                          autoFocus={false}
+                          className="min-h-[100px] w-full"
+                          textAlign="justify"
+                          onAnimationComplete={() => {}}
+                        />
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+};
+
+export default AntecedentesPersonalesPatologicos;
