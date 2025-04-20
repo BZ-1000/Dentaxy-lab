@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -57,39 +56,47 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     otrosPadecimientos: React.createRef<HTMLInputElement>(),
   });
   const [focusStatus, setFocusStatus] = useState<{[key: string]: boolean}>({});
+  // Ref to keep latest focusStatus for event handlers to avoid stale closure & avoid infinite loop
+  const focusStatusRef = useRef<{[key: string]: boolean}>({});
 
-  // Fix infinite loop issue by guarding useEffect calls properly
+  useEffect(() => {
+    focusStatusRef.current = focusStatus;
+  }, [focusStatus]);
+
+  // Fix infinite loop issue by moving event listeners only once and using ref for focusStatus
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
+      let newFocusStatus = {...focusStatusRef.current};
+      let changed = false;
+
       for (const key in inputRefs.current) {
         const ref = inputRefs.current[key];
         if (ref && ref.current && !ref.current.contains(event.target as Node)) {
-          if (focusStatus[key]) {
-            setFocusStatus(prev => {
-              if (prev[key] === true) {
-                return {...prev, [key]: false};
-              }
-              return prev;
-            });
+          if (focusStatusRef.current[key]) {
+            newFocusStatus[key] = false;
+            changed = true;
           }
         }
+      }
+      if (changed) {
+        setFocusStatus(newFocusStatus);
       }
     }
     function handleScroll() {
       // On scroll, remove focus from all only if any focused
-      let anyFocused = Object.values(focusStatus).some(focused => focused === true);
+      const anyFocused = Object.values(focusStatusRef.current).some(focused => focused === true);
       if (anyFocused) {
-        setFocusStatus(prev => {
-          const newFocus = {...prev};
-          let changed = false;
-          for (const k in newFocus) {
-            if (newFocus[k]) {
-              newFocus[k] = false;
-              changed = true;
-            }
+        const newFocusStatus = {...focusStatusRef.current};
+        let changed = false;
+        for (const k in newFocusStatus) {
+          if (newFocusStatus[k]) {
+            newFocusStatus[k] = false;
+            changed = true;
           }
-          return changed ? newFocus : prev;
-        });
+        }
+        if (changed) {
+          setFocusStatus(newFocusStatus);
+        }
       }
     }
 
@@ -100,7 +107,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       document.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('scroll', handleScroll, true);
     };
-  }, [focusStatus]);
+  }, []); // note empty dependency array to avoid re-adding event listeners on every change
 
   useEffect(() => {
     // Focus inputs when focusStatus changes to true, avoid loops by checking activeElement
@@ -736,42 +743,3 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                             className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
                           >
                             {copied[section as keyof CopiedState] ? (
-                              <>
-                                <CheckCircle className="w-4 h-4" />
-                                <span>Copiado</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-4 h-4" />
-                                <span>Copiar</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                        <AnimatedTextarea
-                          key={`animated-${section}`}
-                          content={redacciones[section as keyof typeof redacciones]}
-                          speed={15}
-                          readOnly={false}
-                          autoFocus={false}
-                          className="min-h-[100px] w-full"
-                          textAlign="justify"
-                          onAnimationComplete={() => {}}
-                        />
-                      </div>
-                    ))}
-                    <div className="flex justify-center">
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-};
-
-export default AntecedentesPersonalesPatologicos;
-
