@@ -1,126 +1,41 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Copy, CheckCircle } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { AlertCircle, EyeOff, Eye } from "lucide-react";
-import { AnimatedTextarea } from "@/components/ui/animated-textarea";
+import { Textarea } from "@/components/ui/textarea";
+import Otra from './Otra';
 
-interface CopiedState {
-  nutricionales?: boolean;
-  cardiacos?: boolean;
-  hepaticos?: boolean;
-  enfermedadesTransmisionSexual?: boolean;
-  enfermedadesEruptivas?: boolean;
-  pulmonares?: boolean;
-  infecciosasParasitarias?: boolean;
-  otrosPadecimientos?: boolean;
-}
-
-const AntecedentesPersonalesPatologicos: React.FC<{
+interface AntecedentesPersonalesPatologicosProps {
   formData: FormDataState;
   handleAntecedentePatologicoChange: (field: string, value: any) => void;
-}> = ({ formData, handleAntecedentePatologicoChange }) => {
+}
+
+const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologicosProps> = ({
+  formData,
+  handleAntecedentePatologicoChange
+}) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
-  const [showForm, setShowForm] = useState(true);
-  const [sinPatologia, setSinPatologia] = useState(formData.antecedentesPersonalesPatologicos?.sinPatologia || false);
-  const [redacciones, setRedacciones] = useState({
-    nutricionales: "",
-    cardiacos: "",
-    hepaticos: "",
-    enfermedadesTransmisionSexual: "",
-    enfermedadesEruptivas: "",
-    pulmonares: "",
-    infecciosasParasitarias: "",
-    otrosPadecimientos: ""
-  });
-  const [copied, setCopied] = useState<CopiedState>({});
-  const formRef = useRef<HTMLDivElement>(null);
-  const redaccionesRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
-  const [previousFormState, setPreviousFormState] = useState<Record<string, any> | null>(null);
-
-  // Refs and state for managing focus on "otra" inputs
-  const inputRefs = useRef<{[key: string]: React.RefObject<HTMLInputElement>}>({
-    nutricionales: React.createRef<HTMLInputElement>(),
-    cardiacos: React.createRef<HTMLInputElement>(),
-    hepaticos: React.createRef<HTMLInputElement>(),
-    enfermedadesTransmisionSexual: React.createRef<HTMLInputElement>(),
-    enfermedadesEruptivas: React.createRef<HTMLInputElement>(),
-    pulmonares: React.createRef<HTMLInputElement>(),
-    infecciosasParasitarias: React.createRef<HTMLInputElement>(),
-    otrosPadecimientos: React.createRef<HTMLInputElement>(),
-  });
-  const [focusStatus, setFocusStatus] = useState<{[key: string]: boolean}>({});
-  // Ref to keep latest focusStatus for event handlers to avoid stale closure & avoid infinite loop
-  const focusStatusRef = useRef<{[key: string]: boolean}>({});
+  const [activeTab, setActiveTab] = useState('formulario');
+  const [redaccionContent, setRedaccionContent] = useState('');
+  const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
+  const [focusStatus, setFocusStatus] = useState<{ [key: string]: boolean }>({});
+  const inputRefs = useRef<{ [key: string]: React.RefObject<HTMLInputElement> }>({});
+  const [sinPatologia, setSinPatologia] = useState(false);
 
   useEffect(() => {
-    focusStatusRef.current = focusStatus;
-  }, [focusStatus]);
-
-  // Fix infinite loop issue by moving event listeners only once and using ref for focusStatus
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      let newFocusStatus = {...focusStatusRef.current};
-      let changed = false;
-
-      for (const key in inputRefs.current) {
-        const ref = inputRefs.current[key];
-        if (ref && ref.current && !ref.current.contains(event.target as Node)) {
-          if (focusStatusRef.current[key]) {
-            newFocusStatus[key] = false;
-            changed = true;
-          }
-        }
-      }
-      if (changed) {
-        setFocusStatus(newFocusStatus);
-      }
-    }
-    function handleScroll() {
-      // On scroll, remove focus from all only if any focused
-      const anyFocused = Object.values(focusStatusRef.current).some(focused => focused === true);
-      if (anyFocused) {
-        const newFocusStatus = {...focusStatusRef.current};
-        let changed = false;
-        for (const k in newFocusStatus) {
-          if (newFocusStatus[k]) {
-            newFocusStatus[k] = false;
-            changed = true;
-          }
-        }
-        if (changed) {
-          setFocusStatus(newFocusStatus);
-        }
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside);
-    window.addEventListener('scroll', handleScroll, true);
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      window.removeEventListener('scroll', handleScroll, true);
+    inputRefs.current = {
+      nutricionales: inputRefs.current.nutricionales || React.createRef(),
+      cardiacos: inputRefs.current.cardiacos || React.createRef(),
+      hepaticos: inputRefs.current.hepaticos || React.createRef(),
+      enfermedadesTransmisionSexual: inputRefs.current.enfermedadesTransmisionSexual || React.createRef(),
+      enfermedadesEruptivas: inputRefs.current.enfermedadesEruptivas || React.createRef(),
+      pulmonares: inputRefs.current.pulmonares || React.createRef(),
+      infecciosasParasitarias: inputRefs.current.infecciosasParasitarias || React.createRef(),
+      otrosPadecimientos: inputRefs.current.otrosPadecimientos || React.createRef(),
     };
-  }, []); // note empty dependency array to avoid re-adding event listeners on every change
-
-  useEffect(() => {
-    // Focus inputs when focusStatus changes to true, avoid loops by checking activeElement
-    Object.entries(focusStatus).forEach(([categoria, isFocused]) => {
-      if (isFocused) {
-        const inputRef = inputRefs.current[categoria];
-        if (inputRef && inputRef.current && document.activeElement !== inputRef.current) {
-          inputRef.current.focus();
-        }
-      }
-    });
-  }, [focusStatus]);
+  }, []);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -137,360 +52,273 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     setIsMaximized(false);
   };
 
-  const handleSinPatologiaChange = () => {
-    const newValue = !sinPatologia;
-    setSinPatologia(newValue);
-    handleAntecedentePatologicoChange("sinPatologia", newValue);
-
-    if (newValue) {
-      setPreviousFormState(formData.antecedentesPersonalesPatologicos); // Save current state before clearing
-      handleAntecedentePatologicoChange("nutricionales", { ninguna: true, otra: false, otraDescripcion: '' });
-      handleAntecedentePatologicoChange("cardiacos", { ninguna: true, otra: false, otraDescripcion: '' });
-      handleAntecedentePatologicoChange("hepaticos", { ninguna: true, otra: false, otraDescripcion: '' });
-      handleAntecedentePatologicoChange("enfermedadesTransmisionSexual", { ninguna: true, otra: false, otraDescripcion: '' });
-      handleAntecedentePatologicoChange("enfermedadesEruptivas", { ninguna: true, otra: false, otraDescripcion: '' });
-      handleAntecedentePatologicoChange("pulmonares", { ninguna: true, otra: false, otraDescripcion: '' });
-      handleAntecedentePatologicoChange("infecciosasParasitarias", { ninguna: true, otra: false, otraDescripcion: '' });
-      handleAntecedentePatologicoChange("otrosPadecimientos", { ninguna: true, otra: false, otraDescripcion: '' });
-    } else {
-      if (previousFormState) {
-        Object.keys(previousFormState).forEach(categoria => {
-          handleAntecedentePatologicoChange(categoria, previousFormState[categoria]);
-        });
-      }
-      setPreviousFormState(null);
-    }
+  const handleCheckboxChange = (categoria: string, enfermedad: string, value: boolean) => {
+    handleAntecedentePatologicoChange(`${categoria}.${enfermedad}`, value);
   };
 
-  const seleccionarOpcion = (categoria: string, opcion: string, valor: boolean) => {
-    if (opcion === 'ninguna' && valor) {
-      const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
-      Object.keys(categoriasActualizadas).forEach(key => {
-        if (key !== 'ninguna' && key !== 'otra' && key !== 'otraDescripcion') {
-          categoriasActualizadas[key] = false;
-        }
-      });
-      categoriasActualizadas.ninguna = true;
-      categoriasActualizadas.otra = false;
-      categoriasActualizadas.otraDescripcion = '';
-      handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      // Remove focus when "ninguna" selected
-      setFocusStatus(prev => {
-        if (prev[categoria]) {
-          return {...prev, [categoria]: false};
-        }
-        return prev;
-      });
-    } else if (opcion !== 'ninguna' && opcion !== 'otra' && opcion !== 'otraDescripcion' && valor) {
-      const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
-      categoriasActualizadas[opcion] = valor;
-      categoriasActualizadas.ninguna = false;
-      handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      // Remove focus when other option selected
-      setFocusStatus(prev => {
-        if (prev[categoria]) {
-          return {...prev, [categoria]: false};
-        }
-        return prev;
-      });
-    } else if (opcion === 'otra' && valor) {
-      const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
-      categoriasActualizadas.otra = valor;
-      categoriasActualizadas.ninguna = false;
-      handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      // Set focus to true only if not already focused to avoid loops
-      setFocusStatus(prev => {
-        if (!prev[categoria]) {
-          return {...prev, [categoria]: true};
-        }
-        return prev;
-      });
-    } else {
-      const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
-      categoriasActualizadas[opcion] = valor;
-      handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      if (opcion !== 'otraDescripcion') {
-        setFocusStatus(prev => {
-          if (prev[categoria]) {
-            return {...prev, [categoria]: false};
-          }
-          return prev;
-        });
-      }
-    }
+  const handleOtraDescripcionChange = (categoria: string, value: string) => {
+    handleAntecedentePatologicoChange(`${categoria}.otraDescripcion`, value);
   };
 
-  const handleOtraDescripcionChange = (categoria: string, valor: string) => {
-    const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
-    categoriasActualizadas.otra = true;
-    categoriasActualizadas.otraDescripcion = valor;
-    categoriasActualizadas.ninguna = false;
-    handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-  };
-
-  const generarRedaccionIA = () => {
-    const nuevasRedacciones = {
-      nutricionales: generarRedaccionPorCategoria('nutricionales'),
-      cardiacos: generarRedaccionPorCategoria('cardiacos'),
-      hepaticos: generarRedaccionPorCategoria('hepaticos'),
-      enfermedadesTransmisionSexual: generarRedaccionPorCategoria('enfermedadesTransmisionSexual'),
-      enfermedadesEruptivas: generarRedaccionPorCategoria('enfermedadesEruptivas'),
-      pulmonares: generarRedaccionPorCategoria('pulmonares'),
-      infecciosasParasitarias: generarRedaccionPorCategoria('infecciosasParasitarias'),
-      otrosPadecimientos: generarRedaccionPorCategoria('otrosPadecimientos')
+  const handleNingunaChange = (categoria: string) => {
+    const newState = {
+      ...formData.antecedentesPersonalesPatologicos[categoria],
+      ninguna: !formData.antecedentesPersonalesPatologicos[categoria]?.ninguna,
     };
 
-    setRedacciones(nuevasRedacciones);
-    setShowForm(false);
-    setProgress(100);
+    Object.keys(newState).forEach(key => {
+      if (key !== 'ninguna' && key !== 'otraDescripcion') {
+        newState[key] = false;
+      }
+    });
 
-    redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
+    handleAntecedentePatologicoChange(categoria, newState);
   };
 
-  const generarRedaccionPorCategoria = (categoria: string) => {
-    if (sinPatologia) {
-      const enfermedadesComunes = {
-        nutricionales: "anorexia, bulimia, sobrepeso, obesidad",
-        cardiacos: "enfermedad coronaria, arritmias, defectos cardíacos congénitos",
-        hepaticos: "hepatitis A, B, C, hígado graso, cirrosis",
-        enfermedadesTransmisionSexual: "VIH/SIDA, sífilis, gonorrea, herpes genital, VPH",
-        enfermedadesEruptivas: "sarampión, rubéola, escarlatina, varicela, paperas",
-        pulmonares: "neumonía, bronquitis, asma, EPOC",
-        infecciosasParasitarias: "fiebre tifoidea, tuberculosis, amibiasis, giardiasis, ascariasis",
-        otrosPadecimientos: "otras enfermedades sistémicas"
-      };
+  const handleOtraChange = (categoria: string) => {
+    const newState = {
+      ...formData.antecedentesPersonalesPatologicos[categoria],
+      otra: !formData.antecedentesPersonalesPatologicos[categoria]?.otra,
+    };
 
-      return `El paciente niega antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()} (se interrogó específicamente por ${enfermedadesComunes[categoria]}).`;
+    handleAntecedentePatologicoChange(categoria, newState);
+    if (!formData.antecedentesPersonalesPatologicos[categoria]?.otra) {
+      setTimeout(() => {
+        inputRefs.current[categoria]?.current?.focus();
+      }, 100);
     }
+  };
 
-    const categoriaData = formData.antecedentesPersonalesPatologicos[categoria];
+  const opcionesNutricionales = [
+    { valor: 'anorexia', etiqueta: 'Anorexia' },
+    { valor: 'bulimia', etiqueta: 'Bulimia' },
+    { valor: 'sobrepeso', etiqueta: 'Sobrepeso' },
+    { valor: 'obesidad', etiqueta: 'Obesidad' },
+  ];
 
-    if (!categoriaData) return "No hay datos disponibles.";
+  const opcionesCardiacos = [
+    { valor: 'enfermedadCoronaria', etiqueta: 'Enfermedad Coronaria' },
+    { valor: 'arritmias', etiqueta: 'Arritmias' },
+    { valor: 'defectosCardiacosCongenitos', etiqueta: 'Defectos Cardíacos Congénitos' },
+  ];
 
-    if (categoriaData.ninguna) {
-      const enfermedadesComunes = {
-        nutricionales: "anorexia, bulimia, sobrepeso, obesidad",
-        cardiacos: "enfermedad coronaria, arritmias, defectos cardíacos congénitos",
-        hepaticos: "hepatitis A, B, C, hígado graso, cirrosis",
-        enfermedadesTransmisionSexual: "VIH/SIDA, sífilis, gonorrea, herpes genital, VPH",
-        enfermedadesEruptivas: "sarampión, rubéola, escarlatina, varicela, paperas",
-        pulmonares: "neumonía, bronquitis, asma, EPOC",
-        infecciosasParasitarias: "fiebre tifoidea, tuberculosis, amibiasis, giardiasis, ascariasis",
-        otrosPadecimientos: "otras enfermedades sistémicas"
-      };
+  const opcionesHepaticos = [
+    { valor: 'hepatitisA', etiqueta: 'Hepatitis A' },
+    { valor: 'hepatitisB', etiqueta: 'Hepatitis B' },
+    { valor: 'hepatitisC', etiqueta: 'Hepatitis C' },
+    { valor: 'higadoGraso', etiqueta: 'Hígado Graso' },
+    { valor: 'cirrosis', etiqueta: 'Cirrosis' },
+  ];
 
-      return `El paciente niega antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()} (se interrogó específicamente por ${enfermedadesComunes[categoria]}).`;
-    }
+  const opcionesTransmisionSexual = [
+    { valor: 'vih', etiqueta: 'VIH' },
+    { valor: 'sifilis', etiqueta: 'Sífilis' },
+    { valor: 'gonorrea', etiqueta: 'Gonorrea' },
+    { valor: 'herpesGenital', etiqueta: 'Herpes Genital' },
+    { valor: 'vph', etiqueta: 'VPH' },
+  ];
 
-    const opcionesSeleccionadas = Object.entries(categoriaData)
-      .filter(([key, value]) =>
-        key !== 'ninguna' &&
-        key !== 'otra' &&
-        key !== 'otraDescripcion' &&
-        value === true
-      )
-      .map(([key]) => getNombreOpcion(key, categoria));
+  const opcionesEruptivas = [
+    { valor: 'sarampion', etiqueta: 'Sarampión' },
+    { valor: 'rubeola', etiqueta: 'Rubéola' },
+    { valor: 'escarlatina', etiqueta: 'Escarlatina' },
+    { valor: 'varicela', etiqueta: 'Varicela' },
+    { valor: 'paperas', etiqueta: 'Paperas' },
+  ];
 
-    let redaccion = "";
+  const opcionesPulmonares = [
+    { valor: 'neumonia', etiqueta: 'Neumonía' },
+    { valor: 'bronquitis', etiqueta: 'Bronquitis' },
+    { valor: 'asma', etiqueta: 'Asma' },
+    { valor: 'epoc', etiqueta: 'EPOC' },
+  ];
 
-    if (opcionesSeleccionadas.length > 0) {
-      redaccion += `El paciente refiere presentar antecedentes de ${opcionesSeleccionadas.join(', ')}`;
-    }
+  const opcionesInfecciosasParasitarias = [
+    { valor: 'fiebreTifoidea', etiqueta: 'Fiebre Tifoidea' },
+    { valor: 'tuberculosis', etiqueta: 'Tuberculosis' },
+    { valor: 'amibiasis', etiqueta: 'Amibiasis' },
+    { valor: 'giardiasis', etiqueta: 'Giardiasis' },
+    { valor: 'ascariasis', etiqueta: 'Ascariasis' },
+  ];
 
-    if (categoriaData.otra && categoriaData.otraDescripcion) {
-      if (redaccion) {
-        redaccion += ` y ${categoriaData.otraDescripcion}`;
+  const generateRedaccion = () => {
+    setIsGeneratingRedaccion(true);
+    setTimeout(() => {
+      let content = "ANTECEDENTES PERSONALES PATOLÓGICOS:\n\n";
+
+      // Nutricionales
+      content += "Nutricionales: ";
+      if (formData.antecedentesPersonalesPatologicos.nutricionales?.ninguna) {
+        content += "Ninguno.\n";
       } else {
-        redaccion += `El paciente refiere presentar antecedentes de ${categoriaData.otraDescripcion}`;
+        const nutricionales = opcionesNutricionales
+          .filter(opcion => formData.antecedentesPersonalesPatologicos.nutricionales?.[opcion.valor])
+          .map(opcion => opcion.etiqueta);
+        if (nutricionales.length > 0) {
+          content += nutricionales.join(', ') + '.\n';
+        } else {
+          content += "Ninguno.\n";
+        }
+        if (formData.antecedentesPersonalesPatologicos.nutricionales?.otra) {
+          content += `Otra condición nutricional: ${formData.antecedentesPersonalesPatologicos.nutricionales?.otraDescripcion || 'No especificado'}.\n`;
+        }
       }
-      redaccion += ` como padecimiento(s) ${getTituloCategoria(categoria).toLowerCase()}.`;
-    } else if (redaccion) {
-      redaccion += ` como padecimiento(s) ${getTituloCategoria(categoria).toLowerCase()}.`;
-    }
 
-    if (!redaccion) {
-      redaccion = `No se reportan antecedentes de padecimientos ${getTituloCategoria(categoria).toLowerCase()}.`;
-    }
+      // Cardiacos
+      content += "Cardíacos: ";
+      if (formData.antecedentesPersonalesPatologicos.cardiacos?.ninguna) {
+        content += "Ninguno.\n";
+      } else {
+        const cardiacos = opcionesCardiacos
+          .filter(opcion => formData.antecedentesPersonalesPatologicos.cardiacos?.[opcion.valor])
+          .map(opcion => opcion.etiqueta);
+        if (cardiacos.length > 0) {
+          content += cardiacos.join(', ') + '.\n';
+        } else {
+          content += "Ninguno.\n";
+        }
+        if (formData.antecedentesPersonalesPatologicos.cardiacos?.otra) {
+          content += `Otra condición cardíaca: ${formData.antecedentesPersonalesPatologicos.cardiacos?.otraDescripcion || 'No especificado'}.\n`;
+        }
+      }
 
-    return redaccion;
+      // Hepaticos
+      content += "Hepáticos: ";
+      if (formData.antecedentesPersonalesPatologicos.hepaticos?.ninguna) {
+        content += "Ninguno.\n";
+      } else {
+        const hepaticos = opcionesHepaticos
+          .filter(opcion => formData.antecedentesPersonalesPatologicos.hepaticos?.[opcion.valor])
+          .map(opcion => opcion.etiqueta);
+        if (hepaticos.length > 0) {
+          content += hepaticos.join(', ') + '.\n';
+        } else {
+          content += "Ninguno.\n";
+        }
+        if (formData.antecedentesPersonalesPatologicos.hepaticos?.otra) {
+          content += `Otra condición hepática: ${formData.antecedentesPersonalesPatologicos.hepaticos?.otraDescripcion || 'No especificado'}.\n`;
+        }
+      }
+
+      // ETS
+      content += "Enfermedades de Transmisión Sexual: ";
+      if (formData.antecedentesPersonalesPatologicos.enfermedadesTransmisionSexual?.ninguna) {
+        content += "Ninguno.\n";
+      } else {
+        const ets = opcionesTransmisionSexual
+          .filter(opcion => formData.antecedentesPersonalesPatologicos.enfermedadesTransmisionSexual?.[opcion.valor])
+          .map(opcion => opcion.etiqueta);
+        if (ets.length > 0) {
+          content += ets.join(', ') + '.\n';
+        } else {
+          content += "Ninguno.\n";
+        }
+        if (formData.antecedentesPersonalesPatologicos.enfermedadesTransmisionSexual?.otra) {
+          content += `Otra ETS: ${formData.antecedentesPersonalesPatologicos.enfermedadesTransmisionSexual?.otraDescripcion || 'No especificado'}.\n`;
+        }
+      }
+
+      // Eruptivas
+      content += "Enfermedades Eruptivas: ";
+      if (formData.antecedentesPersonalesPatologicos.enfermedadesEruptivas?.ninguna) {
+        content += "Ninguno.\n";
+      } else {
+        const eruptivas = opcionesEruptivas
+          .filter(opcion => formData.antecedentesPersonalesPatologicos.enfermedadesEruptivas?.[opcion.valor])
+          .map(opcion => opcion.etiqueta);
+        if (eruptivas.length > 0) {
+          content += eruptivas.join(', ') + '.\n';
+        } else {
+          content += "Ninguno.\n";
+        }
+        if (formData.antecedentesPersonalesPatologicos.enfermedadesEruptivas?.otra) {
+          content += `Otra enfermedad eruptiva: ${formData.antecedentesPersonalesPatologicos.enfermedadesEruptivas?.otraDescripcion || 'No especificado'}.\n`;
+        }
+      }
+
+      // Pulmonares
+      content += "Pulmonares: ";
+      if (formData.antecedentesPersonalesPatologicos.pulmonares?.ninguna) {
+        content += "Ninguno.\n";
+      } else {
+        const pulmonares = opcionesPulmonares
+          .filter(opcion => formData.antecedentesPersonalesPatologicos.pulmonares?.[opcion.valor])
+          .map(opcion => opcion.etiqueta);
+        if (pulmonares.length > 0) {
+          content += pulmonares.join(', ') + '.\n';
+        } else {
+          content += "Ninguno.\n";
+        }
+        if (formData.antecedentesPersonalesPatologicos.pulmonares?.otra) {
+          content += `Otra condición pulmonar: ${formData.antecedentesPersonalesPatologicos.pulmonares?.otraDescripcion || 'No especificado'}.\n`;
+        }
+      }
+
+      // Infecciosas/Parasitarias
+      content += "Infecciosas/Parasitarias: ";
+      if (formData.antecedentesPersonalesPatologicos.infecciosasParasitarias?.ninguna) {
+        content += "Ninguno.\n";
+      } else {
+        const infecciosasParasitarias = opcionesInfecciosasParasitarias
+          .filter(opcion => formData.antecedentesPersonalesPatologicos.infecciosasParasitarias?.[opcion.valor])
+          .map(opcion => opcion.etiqueta);
+        if (infecciosasParasitarias.length > 0) {
+          content += infecciosasParasitarias.join(', ') + '.\n';
+        } else {
+          content += "Ninguno.\n";
+        }
+        if (formData.antecedentesPersonalesPatologicos.infecciosasParasitarias?.otra) {
+          content += `Otra condición infecciosa/parasitaria: ${formData.antecedentesPersonalesPatologicos.infecciosasParasitarias?.otraDescripcion || 'No especificado'}.\n`;
+        }
+      }
+
+      // Otros padecimientos
+      if (formData.antecedentesPersonalesPatologicos.otrosPadecimientos?.ninguna) {
+        content += "Otros padecimientos: Ninguno.\n";
+      } else if (formData.antecedentesPersonalesPatologicos.otrosPadecimientos?.otra) {
+        content += `Otros padecimientos: ${formData.antecedentesPersonalesPatologicos.otrosPadecimientos?.otraDescripcion || 'No especificado'}.\n`;
+      } else {
+        content += "Otros padecimientos: Ninguno.\n";
+      }
+
+      setRedaccionContent(content);
+      setIsGeneratingRedaccion(false);
+      setActiveTab('redaccion');
+    }, 1000);
   };
 
-  const getTituloCategoria = (categoria: string) => {
-    const titulos = {
-      nutricionales: "Nutricionales",
-      cardiacos: "Cardíacos",
-      hepaticos: "Hepáticos",
-      enfermedadesTransmisionSexual: "Enfermedades de Transmisión Sexual",
-      enfermedadesEruptivas: "Enfermedades Eruptivas de la Infancia",
-      pulmonares: "Pulmonares",
-      infecciosasParasitarias: "Enfermedades Infecciosas y Parasitarias",
-      otrosPadecimientos: "Otros Padecimientos Sistémicos"
+  const OpcionPatologica = ({ categoria, valor, etiqueta }: { categoria: string, valor: string, etiqueta: string }) => {
+    const isNinguna = valor === 'ninguna';
+    const isOtra = valor === 'otra';
+    const checked = isNinguna
+      ? formData.antecedentesPersonalesPatologicos[categoria]?.ninguna
+      : isOtra
+        ? formData.antecedentesPersonalesPatologicos[categoria]?.otra
+        : formData.antecedentesPersonalesPatologicos[categoria]?.[valor];
+
+    const handleChange = () => {
+      if (isNinguna) {
+        handleNingunaChange(categoria);
+      } else if (isOtra) {
+        handleOtraChange(categoria);
+      } else {
+        handleCheckboxChange(categoria, valor, !checked);
+      }
     };
-
-    return titulos[categoria] || categoria;
-  };
-
-  const getNombreOpcion = (opcion: string, categoria: string) => {
-    const opciones = {
-      nutricionales: {
-        anorexia: "Anorexia",
-        bulimia: "Bulimia",
-        sobrepeso: "Sobrepeso",
-        obesidad: "Obesidad"
-      },
-      cardiacos: {
-        enfermedadCoronaria: "Enfermedad coronaria",
-        arritmias: "Arritmias",
-        defectosCardiacosCongenitos: "Defectos cardíacos congénitos"
-      },
-      hepaticos: {
-        hepatitisA: "Hepatitis A",
-        hepatitisB: "Hepatitis B",
-        hepatitisC: "Hepatitis C",
-        higadoGraso: "Hígado graso",
-        cirrosis: "Cirrosis"
-      },
-      enfermedadesTransmisionSexual: {
-        vih: "VIH/SIDA",
-        sifilis: "Sífilis",
-        gonorrea: "Gonorrea",
-        herpesGenital: "Herpes genital",
-        vph: "Virus del Papiloma Humano (VPH)"
-      },
-      enfermedadesEruptivas: {
-        sarampion: "Sarampión",
-        rubeola: "Rubéola",
-        escarlatina: "Escarlatina",
-        varicela: "Varicela",
-        paperas: "Parotiditis (paperas)"
-      },
-      pulmonares: {
-        neumonia: "Neumonía",
-        bronquitis: "Bronquitis",
-        asma: "Asma",
-        epoc: "Enfermedad Pulmonar Obstructiva Crónica (EPOC)"
-      },
-      infecciosasParasitarias: {
-        fiebreTifoidea: "Fiebre tifoidea",
-        tuberculosis: "Tuberculosis",
-        amibiasis: "Amibiasis",
-        giardiasis: "Giardiasis",
-        ascariasis: "Ascariasis"
-      },
-      otrosPadecimientos: {
-        especificar: "Especificar"
-      }
-    };
-
-    return opciones[categoria]?.[opcion] || opcion;
-  };
-
-  const handleCopy = (section: keyof CopiedState) => {
-    if (redacciones[section]) {
-      navigator.clipboard.writeText(redacciones[section]);
-      setCopied(prev => ({
-        ...prev,
-        [section]: true
-      }));
-      setTimeout(() => setCopied(prev => ({
-        ...prev,
-        [section]: false
-      })), 2000);
-    }
-  };
-
-  const limpiarFormulario = () => {
-    const categoriasIniciales = ['nutricionales', 'cardiacos', 'hepaticos', 'enfermedadesTransmisionSexual',
-                              'enfermedadesEruptivas', 'pulmonares', 'infecciosasParasitarias', 'otrosPadecimientos'];
-
-    categoriasIniciales.forEach(categoria => {
-      const categoriasLimpias: {[key:string]: any} = {
-        ninguna: false,
-        otra: false,
-        otraDescripcion: ''
-      };
-
-      if (categoria === 'nutricionales') {
-        categoriasLimpias['anorexia'] = false;
-        categoriasLimpias['bulimia'] = false;
-        categoriasLimpias['sobrepeso'] = false;
-        categoriasLimpias['obesidad'] = false;
-      } else if (categoria === 'cardiacos') {
-        categoriasLimpias['enfermedadCoronaria'] = false;
-        categoriasLimpias['arritmias'] = false;
-        categoriasLimpias['defectosCardiacosCongenitos'] = false;
-      } else if (categoria === 'hepaticos') {
-        categoriasLimpias['hepatitisA'] = false;
-        categoriasLimpias['hepatitisB'] = false;
-        categoriasLimpias['hepatitisC'] = false;
-        categoriasLimpias['higadoGraso'] = false;
-        categoriasLimpias['cirrosis'] = false;
-      } else if (categoria === 'enfermedadesTransmisionSexual') {
-        categoriasLimpias['vih'] = false;
-        categoriasLimpias['sifilis'] = false;
-        categoriasLimpias['gonorrea'] = false;
-        categoriasLimpias['herpesGenital'] = false;
-        categoriasLimpias['vph'] = false;
-      } else if (categoria === 'enfermedadesEruptivas') {
-        categoriasLimpias['sarampion'] = false;
-        categoriasLimpias['rubeola'] = false;
-        categoriasLimpias['escarlatina'] = false;
-        categoriasLimpias['varicela'] = false;
-        categoriasLimpias['paperas'] = false;
-      } else if (categoria === 'pulmonares') {
-        categoriasLimpias['neumonia'] = false;
-        categoriasLimpias['bronquitis'] = false;
-        categoriasLimpias['asma'] = false;
-        categoriasLimpias['epoc'] = false;
-      } else if (categoria === 'infecciosasParasitarias') {
-        categoriasLimpias['fiebreTifoidea'] = false;
-        categoriasLimpias['tuberculosis'] = false;
-        categoriasLimpias['amibiasis'] = false;
-        categoriasLimpias['giardiasis'] = false;
-        categoriasLimpias['ascariasis'] = false;
-      }
-
-      handleAntecedentePatologicoChange(categoria, categoriasLimpias);
-    });
-
-    setShowForm(true);
-    setRedacciones({
-      nutricionales: "",
-      cardiacos: "",
-      hepaticos: "",
-      enfermedadesTransmisionSexual: "",
-      enfermedadesEruptivas: "",
-      pulmonares: "",
-      infecciosasParasitarias: "",
-      otrosPadecimientos: ""
-    });
-    setProgress(0);
-    setSinPatologia(false);
-  };
-
-  const OpcionPatologica = ({
-    categoria,
-    valor,
-    etiqueta
-  }: {
-    categoria: string,
-    valor: string,
-    etiqueta: string
-  }) => {
-    const isChecked = formData.antecedentesPersonalesPatologicos[categoria]?.[valor] || false;
 
     return (
-      <button
-        type="button"
-        onClick={() => seleccionarOpcion(categoria, valor, !isChecked)}
-        className={`px-3 py-1.5 rounded-md text-xs transition-all ${
-          isChecked
-            ? "bg-blue-500 text-white shadow-md"
-            : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-        }`}
-      >
-        {etiqueta}
-      </button>
+      <label className={`inline-flex items-center space-x-2 rounded-full px-3 py-1 text-sm font-medium transition-colors 
+        ${checked ? 'bg-blue-500 text-white hover:bg-blue-400' : 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-gray-50 hover:bg-gray-200 dark:hover:bg-gray-700'}
+        ${isNinguna ? 'order-first' : ''}
+      `}>
+        <Checkbox
+          id={`${categoria}-${valor}`}
+          checked={checked}
+          onCheckedChange={handleChange}
+          disabled={formData.antecedentesPersonalesPatologicos[categoria]?.ninguna && !checked}
+        />
+        <span>{etiqueta}</span>
+      </label>
     );
   };
 
@@ -530,17 +358,13 @@ const AntecedentesPersonalesPatologicos: React.FC<{
           />
 
           {formData.antecedentesPersonalesPatologicos[categoria]?.otra && (
-            <div className="w-full mt-2">
-              <Input
-                ref={inputRefs.current[categoria]}
-                placeholder="Especificar otra condición..."
-                value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
-                onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
-                className="w-full"
-                onFocus={() => setFocusStatus(prev => ({ ...prev, [categoria]: true }))}
-                onBlur={() => setFocusStatus(prev => ({ ...prev, [categoria]: false }))}
-              />
-            </div>
+            <Otra
+              inputRef={inputRefs.current[categoria]}
+              value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
+              onChange={(val: string) => handleOtraDescripcionChange(categoria, val)}
+              onFocus={() => setFocusStatus(prev => ({ ...prev, [categoria]: true }))}
+              onBlur={() => setFocusStatus(prev => ({ ...prev, [categoria]: false }))}
+            />
           )}
         </div>
       </div>
@@ -548,20 +372,20 @@ const AntecedentesPersonalesPatologicos: React.FC<{
   };
 
   return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
+    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="antecedentesPersonalesPatologicos">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
               <button
-                onClick={() => setShowForm(true)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
+                onClick={() => setActiveTab('formulario')}
               >
                 Formulario
               </button>
               <button
-                onClick={() => setShowForm(false)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'redaccion' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
+                onClick={() => setActiveTab('redaccion')}
               >
                 Redacción IA
               </button>
@@ -581,198 +405,108 @@ const AntecedentesPersonalesPatologicos: React.FC<{
           </div>
         </div>
 
-        <div ref={redaccionesRef} className="flex justify-start px-6 py-2">
+        <div className="flex justify-start px-6 py-2">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">IV.</span> ANTECEDENTES PERSONALES PATOLÓGICOS
           </h2>
         </div>
 
         {!isMinimized && (
-          <div className="p-6" ref={formRef}>
-            {showForm ? (
-              <div className="space-y-6">
-                <div
-                  className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
-                  onClick={handleSinPatologiaChange}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <AlertCircle className="h-5 w-5 text-blue-500" />
-                      <Label className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
-                        Paciente sin patologías
-                        {sinPatologia ? (
-                          <span className="ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <EyeOff className="h-3 w-3" />
-                            Secciones ocultas
-                          </span>
-                        ) : (
-                          <span className="ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
-                            <Eye className="h-3 w-3" />
-                            Secciones visibles
-                          </span>
-                        )}
-                      </Label>
-                    </div>
-                    <Switch
-                      id="sin-patologia"
-                      checked={sinPatologia}
-                      onCheckedChange={handleSinPatologiaChange}
-                      className="data-[state=checked]:bg-blue-500"
-                      onClick={(e) => e.stopPropagation()}
+          <>
+            {activeTab === 'formulario' ? (
+              <div className="p-6 space-y-4">
+                <label className="inline-flex items-center space-x-2">
+                  <Checkbox id="sinPatologia" checked={sinPatologia} onCheckedChange={() => setSinPatologia(!sinPatologia)} />
+                  <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Sin patología aparente
+                  </span>
+                </label>
+
+                <CategoriaPatologica
+                  categoria="nutricionales"
+                  titulo="Nutricionales"
+                  opciones={opcionesNutricionales}
+                />
+
+                <CategoriaPatologica
+                  categoria="cardiacos"
+                  titulo="Cardíacos"
+                  opciones={opcionesCardiacos}
+                />
+
+                <CategoriaPatologica
+                  categoria="hepaticos"
+                  titulo="Hepáticos"
+                  opciones={opcionesHepaticos}
+                />
+
+                <CategoriaPatologica
+                  categoria="enfermedadesTransmisionSexual"
+                  titulo="Enfermedades de Transmisión Sexual"
+                  opciones={opcionesTransmisionSexual}
+                />
+
+                <CategoriaPatologica
+                  categoria="enfermedadesEruptivas"
+                  titulo="Enfermedades Eruptivas"
+                  opciones={opcionesEruptivas}
+                />
+
+                <CategoriaPatologica
+                  categoria="pulmonares"
+                  titulo="Pulmonares"
+                  opciones={opcionesPulmonares}
+                />
+
+                <CategoriaPatologica
+                  categoria="infecciosasParasitarias"
+                  titulo="Infecciosas/Parasitarias"
+                  opciones={opcionesInfecciosasParasitarias}
+                />
+
+                <div className={`bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 ${sinPatologia ? "hidden" : ""}`}>
+                  <h4 className="text-lg font-semibold mb-3">Otros padecimientos</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <OpcionPatologica
+                      categoria="otrosPadecimientos"
+                      valor="ninguna"
+                      etiqueta="Ninguna"
                     />
+                    <OpcionPatologica
+                      categoria="otrosPadecimientos"
+                      valor="otra"
+                      etiqueta="Otra"
+                    />
+                    {formData.antecedentesPersonalesPatologicos.otrosPadecimientos?.otra && (
+                      <Otra
+                        inputRef={inputRefs.current.otrosPadecimientos}
+                        value={formData.antecedentesPersonalesPatologicos.otrosPadecimientos?.otraDescripcion || ''}
+                        onChange={(val: string) => handleOtraDescripcionChange("otrosPadecimientos", val)}
+                        onFocus={() => setFocusStatus(prev => ({ ...prev, otrosPadecimientos: true }))}
+                        onBlur={() => setFocusStatus(prev => ({ ...prev, otrosPadecimientos: false }))}
+                      />
+                    )}
                   </div>
                 </div>
 
-                {!sinPatologia && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <CategoriaPatologica
-                      categoria="nutricionales"
-                      titulo="Nutricionales"
-                      opciones={[
-                        { valor: "anorexia", etiqueta: "Anorexia" },
-                        { valor: "bulimia", etiqueta: "Bulimia" },
-                        { valor: "sobrepeso", etiqueta: "Sobrepeso" },
-                        { valor: "obesidad", etiqueta: "Obesidad" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="cardiacos"
-                      titulo="Cardíacos"
-                      opciones={[
-                        { valor: "enfermedadCoronaria", etiqueta: "Enfermedad coronaria" },
-                        { valor: "arritmias", etiqueta: "Arritmias" },
-                        { valor: "defectosCardiacosCongenitos", etiqueta: "Defectos cardíacos congénitos" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="hepaticos"
-                      titulo="Hepáticos"
-                      opciones={[
-                        { valor: "hepatitisA", etiqueta: "Hepatitis A" },
-                        { valor: "hepatitisB", etiqueta: "Hepatitis B" },
-                        { valor: "hepatitisC", etiqueta: "Hepatitis C" },
-                        { valor: "higadoGraso", etiqueta: "Hígado graso" },
-                        { valor: "cirrosis", etiqueta: "Cirrosis" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="enfermedadesTransmisionSexual"
-                      titulo="Enfermedades de Transmisión Sexual"
-                      opciones={[
-                        { valor: "vih", etiqueta: "VIH/SIDA" },
-                        { valor: "sifilis", etiqueta: "Sífilis" },
-                        { valor: "gonorrea", etiqueta: "Gonorrea" },
-                        { valor: "herpesGenital", etiqueta: "Herpes genital" },
-                        { valor: "vph", etiqueta: "VPH" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="enfermedadesEruptivas"
-                      titulo="Enfermedades Eruptivas de la Infancia"
-                      opciones={[
-                        { valor: "sarampion", etiqueta: "Sarampión" },
-                        { valor: "rubeola", etiqueta: "Rubéola" },
-                        { valor: "escarlatina", etiqueta: "Escarlatina" },
-                        { valor: "varicela", etiqueta: "Varicela" },
-                        { valor: "paperas", etiqueta: "Parotiditis (paperas)" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="pulmonares"
-                      titulo="Pulmonares"
-                      opciones={[
-                        { valor: "neumonia", etiqueta: "Neumonía" },
-                        { valor: "bronquitis", etiqueta: "Bronquitis" },
-                        { valor: "asma", etiqueta: "Asma" },
-                        { valor: "epoc", etiqueta: "EPOC" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="infecciosasParasitarias"
-                      titulo="Enfermedades Infecciosas y Parasitarias"
-                      opciones={[
-                        { valor: "fiebreTifoidea", etiqueta: "Fiebre tifoidea" },
-                        { valor: "tuberculosis", etiqueta: "Tuberculosis" },
-                        { valor: "amibiasis", etiqueta: "Amibiasis" },
-                        { valor: "giardiasis", etiqueta: "Giardiasis" },
-                        { valor: "ascariasis", etiqueta: "Ascariasis" }
-                      ]}
-                    />
-
-                    <CategoriaPatologica
-                      categoria="otrosPadecimientos"
-                      titulo="Otros Padecimientos Sistémicos"
-                      opciones={[
-                        { valor: "especificar", etiqueta: "Especificar" }
-                      ]}
-                    />
-                  </div>
-                )}
-
-                <div className="flex justify-center gap-4 mt-6">
-                  <Button
-                    onClick={generarRedaccionIA}
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                <div className="flex justify-center mt-6">
+                  <button
+                    onClick={generateRedaccion}
+                    disabled={isGeneratingRedaccion}
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                   >
-                    Generar Redacción IA
-                  </Button>
-                  <Button
-                    onClick={limpiarFormulario}
-                    variant="outline"
-                    className="border-gray-300 text-gray-700 dark:text-gray-300"
-                  >
-                    Limpiar Formulario
-                  </Button>
+                    {isGeneratingRedaccion ? 'Generando Redacción...' : 'Generar Redacción IA'}
+                  </button>
                 </div>
               </div>
             ) : (
-              <div className="space-y-6">
-                {progress === 100 && (
-                  <>
-                    {Object.keys(redacciones).map((section) => (
-                      <div key={section} className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <div className="flex justify-between items-center mb-2">
-                          <h4 className="text-lg font-semibold capitalize">{getTituloCategoria(section)}</h4>
-                          <button
-                            onClick={() => handleCopy(section as keyof CopiedState)}
-                            className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                          >
-                            {copied[section as keyof CopiedState] ? (
-                              <>
-                                <CheckCircle className="w-4 h-4" />
-                                <span>Copiado</span>
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-4 h-4" />
-                                <span>Copiar</span>
-                              </>
-                            )}
-                          </button>
-                        </div>
-                        <AnimatedTextarea
-                          key={`animated-${section}`}
-                          content={redacciones[section as keyof typeof redacciones]}
-                          speed={15}
-                          readOnly={false}
-                          autoFocus={false}
-                          className="min-h-[100px] w-full"
-                          textAlign="justify"
-                          onAnimationComplete={() => {}}
-                        />
-                      </div>
-                    ))}
-                  </>
-                )}
+              <div className="p-6">
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" style={{ whiteSpace: 'pre-wrap' }} data-redaction-content>
+                  {redaccionContent || "No se ha generado redacción aún. Utilice el botón 'Generar Redacción IA' en la pestaña de Formulario."}
+                </div>
               </div>
             )}
-          </div>
+          </>
         )}
       </Card>
     </div>
