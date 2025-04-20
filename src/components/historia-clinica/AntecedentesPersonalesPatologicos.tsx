@@ -7,7 +7,6 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { AlertCircle, EyeOff, Eye } from "lucide-react";
-import { Typewriter } from '@/components/ui/typewriter-text'; // Import typewriter component for animated text
 
 interface CopiedState {
   nutricionales?: boolean;
@@ -43,52 +42,6 @@ const AntecedentesPersonalesPatologicos: React.FC<{
   const redaccionesRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
   const [previousFormState, setPreviousFormState] = useState(null);
-
-  // For controlling 'otra' input focus
-  const inputRefs = useRef<{[key: string]: React.RefObject<HTMLInputElement>}>({
-    nutricionales: React.createRef<HTMLInputElement>(),
-    cardiacos: React.createRef<HTMLInputElement>(),
-    hepaticos: React.createRef<HTMLInputElement>(),
-    enfermedadesTransmisionSexual: React.createRef<HTMLInputElement>(),
-    enfermedadesEruptivas: React.createRef<HTMLInputElement>(),
-    pulmonares: React.createRef<HTMLInputElement>(),
-    infecciosasParasitarias: React.createRef<HTMLInputElement>(),
-    otrosPadecimientos: React.createRef<HTMLInputElement>(),
-  });
-
-  // State to track if 'otra' input is focused
-  const [focusedInputCategory, setFocusedInputCategory] = useState<string | null>(null);
-
-  // Effect to handle removing focus on scroll or clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (focusedInputCategory) {
-        const input = inputRefs.current[focusedInputCategory]?.current;
-        if (input && !input.contains(event.target as Node)) {
-          setFocusedInputCategory(null);
-          input.blur();
-        }
-      }
-    }
-
-    function handleScroll() {
-      if (focusedInputCategory) {
-        const input = inputRefs.current[focusedInputCategory]?.current;
-        if (input) {
-          setFocusedInputCategory(null);
-          input.blur();
-        }
-      }
-    }
-
-    window.addEventListener('click', handleClickOutside);
-    window.addEventListener('scroll', handleScroll, true);
-
-    return () => {
-      window.removeEventListener('click', handleClickOutside);
-      window.removeEventListener('scroll', handleScroll, true);
-    };
-  }, [focusedInputCategory]);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -128,6 +81,17 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     }
   };
 
+  const inputRefs = useRef<{[key: string]: React.RefObject<HTMLInputElement>}>({
+    nutricionales: React.createRef<HTMLInputElement>(),
+    cardiacos: React.createRef<HTMLInputElement>(),
+    hepaticos: React.createRef<HTMLInputElement>(),
+    enfermedadesTransmisionSexual: React.createRef<HTMLInputElement>(),
+    enfermedadesEruptivas: React.createRef<HTMLInputElement>(),
+    pulmonares: React.createRef<HTMLInputElement>(),
+    infecciosasParasitarias: React.createRef<HTMLInputElement>(),
+    otrosPadecimientos: React.createRef<HTMLInputElement>(),
+  });
+
   const seleccionarOpcion = (categoria: string, opcion: string, valor: boolean) => {
     if (opcion === 'ninguna' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
@@ -150,11 +114,12 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       categoriasActualizadas.otra = valor;
       categoriasActualizadas.ninguna = false;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      // Set focus state when 'otra' is selected
-      setFocusedInputCategory(categoria);
+      
       // Focus the input field after state update
       setTimeout(() => {
-        inputRefs.current[categoria]?.current?.focus();
+        if (inputRefs.current[categoria]?.current) {
+          inputRefs.current[categoria].current?.focus();
+        }
       }, 0);
     } else {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
@@ -169,14 +134,8 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     categoriasActualizadas.otraDescripcion = valor;
     categoriasActualizadas.ninguna = false;
     handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-    // Keep focused input category while typing
-    setFocusedInputCategory(categoria);
   };
 
-  // Animated redaction mode state
-  const [animatedDisplayedTexts, setAnimatedDisplayedTexts] = useState<{[key: string]: string}>({});
-
-  // Generate redaction IA with animation effect for all sections
   const generarRedaccionIA = () => {
     const nuevasRedacciones = {
       nutricionales: generarRedaccionPorCategoria('nutricionales'),
@@ -188,11 +147,10 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       infecciosasParasitarias: generarRedaccionPorCategoria('infecciosasParasitarias'),
       otrosPadecimientos: generarRedaccionPorCategoria('otrosPadecimientos')
     };
+
     setRedacciones(nuevasRedacciones);
     setShowForm(false);
     setProgress(100);
-
-    setAnimatedDisplayedTexts({}); // Reset animation states
 
     redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -484,7 +442,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
                 onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
                 className="w-full"
-                onFocus={() => setFocusedInputCategory(categoria)}
+                onBlur={() => {}}
               />
             </div>
           )}
@@ -681,48 +639,43 @@ const AntecedentesPersonalesPatologicos: React.FC<{
               <div className="space-y-6">
                 {progress === 100 && (
                   <>
-                    {Object.keys(redacciones).map((section) => {
-                      const text = redacciones[section as keyof typeof redacciones];
-                      return (
-                        <div key={section} className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                          <div className="flex justify-between items-center mb-2">
-                            <h4 className="text-lg font-semibold capitalize">{section}</h4>
-                            <button
-                              onClick={() => handleCopy(section as keyof CopiedState)}
-                              className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
-                            >
-                              {copied[section as keyof CopiedState] ? (
-                                <>
-                                  <CheckCircle className="w-4 h-4" />
-                                  <span>Copiado</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-4 h-4" />
-                                  <span>Copiar</span>
-                                </>
-                              )}
-                            </button>
-                          </div>
-                          <div>
-                            {/* Use animated typewriter text for redaction */}
-                            <Typewriter
-                              key={section}
-                              text={text}
-                              speed={30}
-                              cursor=""
-                              className="min-h-[100px] w-full p-2 bg-white/50 dark:bg-gray-800/50 rounded-md text-sm whitespace-pre-wrap break-words"
-                              onComplete={() => {
-                                setAnimatedDisplayedTexts(prev => ({
-                                  ...prev,
-                                  [section]: text,
-                                }));
-                              }}
-                            />
-                          </div>
+                    {Object.keys(redacciones).map((section) => (
+                      <div key={section} className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div className="flex justify-between items-center mb-2">
+                          <h4 className="text-lg font-semibold capitalize">{section}</h4>
+                          <button
+                            onClick={() => handleCopy(section as keyof CopiedState)}
+                            className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700"
+                          >
+                            {copied[section as keyof CopiedState] ? (
+                              <>
+                                <CheckCircle className="w-4 h-4" />
+                                <span>Copiado</span>
+                              </>
+                            ) : (
+                              <>
+                                <Copy className="w-4 h-4" />
+                                <span>Copiar</span>
+                              </>
+                            )}
+                          </button>
                         </div>
-                      );
-                    })}
+                        <div>
+                          <textarea
+                            value={redacciones[section as keyof typeof redacciones]}
+                            onChange={(e) => setRedacciones({
+                              ...redacciones,
+                              [section]: e.target.value
+                            })}
+                            onFocus={() => console.log(`Focused on ${section}`)}
+                            onBlur={() => console.log(`Blurred from ${section}`)}
+                            className="min-h-[100px] w-full text-sm bg-white/50 dark:bg-gray-800/50 p-2 rounded-md"
+                            style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+
                     <div className="flex justify-center">
                       <Button
                         onClick={() => setShowForm(true)}
