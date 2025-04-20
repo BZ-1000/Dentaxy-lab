@@ -39,51 +39,83 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
       alimentacion: "",
       masticacion: "",
       percepcionGusto: "",
+      percepcionGustoEspecificaciones: "",
       salivacion: "",
       deglusion: "",
       halitosis: "",
+      halitosisEspecificaciones: "",
       sintomasDigestivos: [] as string[],
-      frecuenciaEvacuacion: ""
+      cambiosApetito: "",
+      habitosAlimenticios: "",
+      colorEvacuaciones: "",
+      hematemesis: "",
+      frecuenciaEvacuacion: "",
+      frecuenciaEvacuacionEspecificaciones: ""
     },
     respiratorio: {
       tipoRespiracion: "",
-      sintomasRespiratorios: [] as string[]
+      sintomasRespiratorios: [] as string[],
+      apneaSuenio: "",
+      oxigenoSuplementario: "",
+      tosExpectoracion: ""
     },
     cardiovascular: {
       dolorPecho: "",
       lipotimia: "",
       ritmoCardiaco: "",
-      sintomasCardiovasculares: [] as string[]
+      sintomasCardiovasculares: [] as string[],
+      presionArterial: "",
+      antecedentesInfarto: "",
+      fatigaEsfuerzo: ""
     },
     genitoUrinario: {
       frecuenciaUrinaria: "",
       sintomasUrinarios: [] as string[],
+      urgenciaUrinaria: "",
+      chorroUrinarioDebil: "",
+      chorroUrinarioIntermitente: "",
+      flujoVaginalUretral: "",
+      infeccionesUrinarias: "",
       ultimaMenstruacion: "",
       dismenorrea: "",
+      duracionMenstruacion: "",
       ultimoParto: "",
       antecedentesObstetricos: ""
     },
     endocrino: {
       sintomasEndocrinos: [] as string[],
+      sudoracionNocturna: "",
+      hirsutismo: "",
+      galactorrea: "",
+      cambiosRitmoMenstrual: "",
       cambiosPeso: "",
       intolerancia: "",
       condicionesEndocrinas: ""
     },
     tegumentario: {
       cambiosColoracion: "",
-      sintomasTegumentarios: [] as string[]
+      cambiosColoracionEspecificaciones: "",
+      sintomasTegumentarios: [] as string[],
+      cambiosUnas: "",
+      cambiosLunares: "",
+      lesionesPigmentadas: ""
     },
     musculoEsqueletico: {
       fracturas: "",
       detallesFracturas: "",
-      sintomasMusculoEsqueleticos: [] as string[]
+      sintomasMusculoEsqueleticos: [] as string[],
+      rigidezMatutina: "",
+      debilidadMuscular: "",
+      limitacionesMovimiento: ""
     },
     nervioso: {
       percepcionSentidos: "",
       horasSueno: "",
       trastornosSueno: "",
+      trastornosSuenoEspecificaciones: "",
       estadoAnimo: "",
-      parestesias: ""
+      parestesias: "",
+      otrosSintomasNeurologicos: [] as string[]
     }
   });
 
@@ -150,21 +182,21 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
   };
 
   const generateAndUpdateRedacciones = () => {
-    const digestivoText = `El paciente sigue una dieta de tipo ${formValues.digestivo.alimentacion || "[sin especificar]"}. Su patrón de masticación es ${formValues.digestivo.masticacion || "[sin especificar]"}. Manifiesta ${getPercepcionGustoText()}. La salivación es ${formValues.digestivo.salivacion || "[sin especificar]"}. Respecto a la deglución, ${getDeglusiónText()}. ${formValues.digestivo.halitosis === "Si" ? "Presenta" : "No presenta"} halitosis. Ha experimentado los siguientes síntomas digestivos: ${formValues.digestivo.sintomasDigestivos.length > 0 ? formValues.digestivo.sintomasDigestivos.join(", ") : "ninguno"}. Realiza ${formValues.digestivo.frecuenciaEvacuacion || "[sin especificar]"} evacuaciones diarias.`;
+    const digestivoText = `El paciente sigue una dieta de tipo ${formValues.digestivo.alimentacion || "[sin especificar]"}. Su patrón de masticación es ${formValues.digestivo.masticacion || "[sin especificar]"}. Manifiesta ${getPercepcionGustoText()}. ${formValues.digestivo.percepcionGustoEspecificaciones ? `Especificaciones: ${formValues.digestivo.percepcionGustoEspecificaciones}` : ''} La salivación es ${formValues.digestivo.salivacion || "[sin especificar]"}. Respecto a la deglución, ${getDeglusiónText()}. ${formValues.digestivo.halitosis === "Sí" ? "Presenta halitosis" : "No presenta halitosis"}. ${formValues.digestivo.halitosis === "Sí" ? `Especificaciones: ${formValues.digestivo.halitosisEspecificaciones}` : ''} Ha experimentado los siguientes síntomas digestivos: ${formValues.digestivo.sintomasDigestivos.length > 0 ? formValues.digestivo.sintomasDigestivos.join(", ") : "ninguno"}. ${formValues.digestivo.cambiosApetito ? `Cambios en el apetito: ${formValues.digestivo.cambiosApetito}` : ''} ${formValues.digestivo.habitosAlimenticios ? `Hábitos alimenticios: ${formValues.digestivo.habitosAlimenticios}` : ''} El color de las evacuaciones es ${formValues.digestivo.colorEvacuaciones || "[sin especificar]"}. ${formValues.digestivo.hematemesis === "Sí" ? "Presenta hematemesis" : "No presenta hematemesis"}. Realiza ${formValues.digestivo.frecuenciaEvacuacion || "[sin especificar]"} evacuaciones diarias. ${formValues.digestivo.frecuenciaEvacuacion === "Otra" ? `Especificaciones: ${formValues.digestivo.frecuenciaEvacuacionEspecificaciones}` : ''}.`;
 
-    const respiratorioText = `El tipo de respiración habitual es ${formValues.respiratorio.tipoRespiracion || "[sin especificar]"}. Presenta síntomas respiratorios como: ${formValues.respiratorio.sintomasRespiratorios.length > 0 ? formValues.respiratorio.sintomasRespiratorios.join(", ") : "ninguno"}.`;
+    const respiratorioText = `El tipo de respiración habitual es ${formValues.respiratorio.tipoRespiracion || "[sin especificar]"}. Presenta síntomas respiratorios como: ${formValues.respiratorio.sintomasRespiratorios.length > 0 ? formValues.respiratorio.sintomasRespiratorios.join(", ") : "ninguno"}. ${formValues.respiratorio.apneaSuenio === "Sí" ? "Presenta apnea del sueño" : "No presenta apnea del sueño"}. ${formValues.respiratorio.oxigenoSuplementario === "Sí" ? "Usa oxígeno suplementario" : "No usa oxígeno suplementario"}. ${formValues.respiratorio.tosExpectoracion ? `Tos con expectoración: ${formValues.respiratorio.tosExpectoracion}` : ''}.`;
 
-    const cardiovascularText = `${formValues.cardiovascular.dolorPecho === "No" ? "No refiere" : "Refiere"} dolor precordial${formValues.cardiovascular.dolorPecho === "Si" ? " de tipo opresivo con irradiación a cuello, dientes o brazos" : ""}. ${formValues.cardiovascular.lipotimia === "Si" ? "Ha presentado" : "No ha presentado"} episodios de lipotimia. El ritmo cardíaco es ${formValues.cardiovascular.ritmoCardiaco || "[sin especificar]"}. Sintomatología cardiovascular reportada: ${formValues.cardiovascular.sintomasCardiovasculares.length > 0 ? formValues.cardiovascular.sintomasCardiovasculares.join(", ") : "ninguna"}.`;
+    const cardiovascularText = `${formValues.cardiovascular.dolorPecho === "No" ? "No refiere" : "Refiere"} dolor precordial${formValues.cardiovascular.dolorPecho === "Sí" ? " de tipo opresivo con irradiación a cuello, dientes o brazos" : ""}. ${formValues.cardiovascular.lipotimia === "Sí" ? "Ha presentado" : "No ha presentado"} episodios de lipotimia. El ritmo cardíaco es ${formValues.cardiovascular.ritmoCardiaco || "[sin especificar]"}. Sintomatología cardiovascular reportada: ${formValues.cardiovascular.sintomasCardiovasculares.length > 0 ? formValues.cardiovascular.sintomasCardiovasculares.join(", ") : "ninguna"}. ${formValues.cardiovascular.presionArterial ? `Presión arterial conocida: ${formValues.cardiovascular.presionArterial}` : ''} ${formValues.cardiovascular.antecedentesInfarto === "Sí" ? "Tiene antecedentes de infarto o enfermedad coronaria" : "No tiene antecedentes de infarto o enfermedad coronaria"}. ${formValues.cardiovascular.fatigaEsfuerzo === "Sí" ? "Presenta fatiga fácil con esfuerzo leve" : "No presenta fatiga fácil con esfuerzo leve"}.`;
 
-    const genitoUrinarioText = `El paciente refiere una frecuencia urinaria de ${formValues.genitoUrinario.frecuenciaUrinaria || "[sin especificar]"} veces al día. Síntomas urinarios presentes: ${formValues.genitoUrinario.sintomasUrinarios.length > 0 ? formValues.genitoUrinario.sintomasUrinarios.join(", ") : "ninguno"}. ${formValues.genitoUrinario.ultimaMenstruacion ? `En pacientes mujeres: Fecha de última menstruación: ${formValues.genitoUrinario.ultimaMenstruacion}. Dismenorrea: ${formValues.genitoUrinario.dismenorrea || "[sin especificar]"}. Último parto: ${formValues.genitoUrinario.ultimoParto || "[sin especificar]"}. Antecedentes obstétricos: ${formValues.genitoUrinario.antecedentesObstetricos || "[sin especificar]"}` : ""}`;
+    const genitoUrinarioText = `El paciente refiere una frecuencia urinaria de ${formValues.genitoUrinario.frecuenciaUrinaria || "[sin especificar]"} veces al día. Síntomas urinarios presentes: ${formValues.genitoUrinario.sintomasUrinarios.length > 0 ? formValues.genitoUrinario.sintomasUrinarios.join(", ") : "ninguno"}. ${formValues.genitoUrinario.urgenciaUrinaria === "Sí" ? "Presenta urgencia urinaria" : "No presenta urgencia urinaria"}. ${formValues.genitoUrinario.chorroUrinarioDebil === "Sí" ? "Presenta chorro urinario débil" : "No presenta chorro urinario débil"}. ${formValues.genitoUrinario.chorroUrinarioIntermitente === "Sí" ? "Presenta chorro urinario intermitente" : "No presenta chorro urinario intermitente"}. ${formValues.genitoUrinario.flujoVaginalUretral === "Sí" ? "Presenta flujo vaginal/uretral anormal" : "No presenta flujo vaginal/uretral anormal"}. ${formValues.genitoUrinario.infeccionesUrinarias === "Sí" ? "Presenta infecciones urinarias frecuentes" : "No presenta infecciones urinarias frecuentes"}. ${formValues.genitoUrinario.ultimaMenstruacion ? `En pacientes mujeres: Fecha de última menstruación: ${formValues.genitoUrinario.ultimaMenstruacion}.` : ""} ${formValues.genitoUrinario.dismenorrea ? `Dismenorrea: ${formValues.genitoUrinario.dismenorrea}` : ''} ${formValues.genitoUrinario.duracionMenstruacion ? `Días de duración de menstruación: ${formValues.genitoUrinario.duracionMenstruacion}` : ''} ${formValues.genitoUrinario.ultimoParto ? `Fecha de último parto: ${formValues.genitoUrinario.ultimoParto}` : ''} Antecedentes obstétricos: ${formValues.genitoUrinario.antecedentesObstetricos || "ninguno"}.`;
 
-    const endocrinoText = `El paciente refiere los siguientes síntomas endocrinos: ${formValues.endocrino.sintomasEndocrinos.length > 0 ? formValues.endocrino.sintomasEndocrinos.join(", ") : "ninguno"}. Reporta ${getCambiosPesoText()}. ${getIntoleranciaText()}. Antecedentes patológicos conocidos: ${formValues.endocrino.condicionesEndocrinas || "ninguno"}.`;
+    const endocrinoText = `El paciente refiere los siguientes síntomas endocrinos: ${formValues.endocrino.sintomasEndocrinos.length > 0 ? formValues.endocrino.sintomasEndocrinos.join(", ") : "ninguno"}. ${formValues.endocrino.sudoracionNocturna === "Sí" ? "Presenta sudoración excesiva nocturna" : "No presenta sudoración excesiva nocturna"}. ${formValues.endocrino.hirsutismo === "Sí" ? "Presenta hirsutismo" : "No presenta hirsutismo"}. ${formValues.endocrino.galactorrea === "Sí" ? "Presenta galactorrea" : "No presenta galactorrea"}. ${formValues.endocrino.cambiosRitmoMenstrual ? `Cambios en el ritmo menstrual: ${formValues.endocrino.cambiosRitmoMenstrual}` : ''} Reporta ${getCambiosPesoText()}. ${getIntoleranciaText()}. Antecedentes patológicos conocidos: ${formValues.endocrino.condicionesEndocrinas || "ninguno"}.`;
 
-    const tegumentarioText = `${formValues.tegumentario.cambiosColoracion === "Si" ? "Ha" : "No ha"} notado cambios en la coloración de la piel. Otros síntomas presentes: ${formValues.tegumentario.sintomasTegumentarios.length > 0 ? formValues.tegumentario.sintomasTegumentarios.join(", ") : "ninguno"}.`;
+    const tegumentarioText = `${formValues.tegumentario.cambiosColoracion === "Sí" ? "Ha notado cambios en la coloración de la piel" : "No ha notado cambios en la coloración de la piel"}. ${formValues.tegumentario.cambiosColoracion === "Sí" ? `Especificaciones: ${formValues.tegumentario.cambiosColoracionEspecificaciones}` : ''} Otros síntomas presentes: ${formValues.tegumentario.sintomasTegumentarios.length > 0 ? formValues.tegumentario.sintomasTegumentarios.join(", ") : "ninguno"}. ${formValues.tegumentario.cambiosUnas ? `Cambios en uñas: ${formValues.tegumentario.cambiosUnas}` : ''} ${formValues.tegumentario.cambiosLunares === "Sí" ? "Presenta cambios en lunares" : "No presenta cambios en lunares"}. ${formValues.tegumentario.lesionesPigmentadas === "Sí" ? "Presenta lesiones pigmentadas" : "No presenta lesiones pigmentadas"}.`;
 
-    const musculoEsqueleticoText = `${formValues.musculoEsqueletico.fracturas === "No" ? "No ha presentado" : "Ha presentado"} fracturas o esguinces. ${formValues.musculoEsqueletico.fracturas === "Si" ? `En caso afirmativo, se registran: ${formValues.musculoEsqueletico.detallesFracturas || "[sin especificar]"}.` : ""} Sintomatología musculoesquelética actual: ${formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.length > 0 ? formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.join(", ") : "ninguna"}.`;
+    const musculoEsqueleticoText = `${formValues.musculoEsqueletico.fracturas === "No" ? "No ha presentado" : "Ha presentado"} fracturas o esguinces. ${formValues.musculoEsqueletico.fracturas === "Sí" ? `En caso afirmativo, se registran: ${formValues.musculoEsqueletico.detallesFracturas || "[sin especificar]"}.` : ""} Sintomatología musculoesquelética actual: ${formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.length > 0 ? formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.join(", ") : "ninguna"}. ${formValues.musculoEsqueletico.rigidezMatutina ? `Rigidez matutina: ${formValues.musculoEsqueletico.rigidezMatutina}` : ''} ${formValues.musculoEsqueletico.debilidadMuscular ? `Debilidad muscular: ${formValues.musculoEsqueletico.debilidadMuscular}` : ''} ${formValues.musculoEsqueletico.limitacionesMovimiento ? `Limitaciones de movimiento: ${formValues.musculoEsqueletico.limitacionesMovimiento}` : ''}.`;
 
-    const nerviosoText = `${formValues.nervioso.percepcionSentidos === "Si" ? "Percibe" : "No percibe"} adecuadamente a través de los órganos de los sentidos. El patrón de sueño habitual es de ${formValues.nervioso.horasSueno || "[sin especificar]"} horas por noche. ${formValues.nervioso.trastornosSueno === "Si" ? "Presenta" : "No presenta"} trastornos del sueño. Su carácter habitual se describe como ${formValues.nervioso.estadoAnimo || "[sin especificar]"}. ${formValues.nervioso.parestesias === "Si" ? "Presenta" : "No presenta"} parestesias (hormigueos, adormecimiento o pérdida de sensibilidad).`;
+    const nerviosoText = `${formValues.nervioso.percepcionSentidos === "Sí" ? "Percibe" : "No percibe"} adecuadamente a través de los órganos de los sentidos. El patrón de sueño habitual es de ${formValues.nervioso.horasSueno || "[sin especificar]"} horas por noche. ${formValues.nervioso.trastornosSueno === "Sí" ? "Presenta trastornos del sueño" : "No presenta trastornos del sueño"}. ${formValues.nervioso.trastornosSueno === "Sí" ? `Especificaciones: ${formValues.nervioso.trastornosSuenoEspecificaciones}` : ''} Su carácter habitual se describe como ${formValues.nervioso.estadoAnimo || "[sin especificar]"}. ${formValues.nervioso.parestesias === "Sí" ? "Presenta" : "No presenta"} parestesias (hormigueos, adormecimiento o pérdida de sensibilidad). Otros síntomas neurológicos: ${formValues.nervioso.otrosSintomasNeurologicos.length > 0 ? formValues.nervioso.otrosSintomasNeurologicos.join(", ") : "ninguno"}.`;
 
     setRedacciones({
       digestivo: digestivoText,
@@ -319,6 +351,14 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         <WordButton label="Disminución" isSelected={formValues.digestivo.percepcionGusto === "Disminucion"} onClick={() => handleRadioChange("digestivo", "percepcionGusto", "Disminucion")} />
                         <WordButton label="Alterados" isSelected={formValues.digestivo.percepcionGusto === "Alterados"} onClick={() => handleRadioChange("digestivo", "percepcionGusto", "Alterados")} />
                       </div>
+                      {formValues.digestivo.percepcionGusto === "Alterados" && (
+                        <Textarea
+                          placeholder="Escriba especificaciones relacionadas..."
+                          value={formValues.digestivo.percepcionGustoEspecificaciones}
+                          onChange={(e) => handleTextChange("digestivo", "percepcionGustoEspecificaciones", e.target.value)}
+                          className="w-full p-2 border rounded-md mt-2"
+                        />
+                      )}
                     </div>
                     <div>
                       <Label>Salivación</Label>
@@ -337,11 +377,17 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                       </div>
                     </div>
                     <div>
-                      <Label>Halitosis</Label>
+                      <Label>Halitosis (mal aliento)</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Sí" isSelected={formValues.digestivo.halitosis === "Si"} onClick={() => handleRadioChange("digestivo", "halitosis", "Si")} />
+                        <WordButton label="Sí" isSelected={formValues.digestivo.halitosis === "Sí"} onClick={() => handleRadioChange("digestivo", "halitosis", "Sí")} />
                         <WordButton label="No" isSelected={formValues.digestivo.halitosis === "No"} onClick={() => handleRadioChange("digestivo", "halitosis", "No")} />
                       </div>
+                      {formValues.digestivo.halitosis === "Sí" && (
+                        <div className="flex flex-wrap mt-1">
+                          <WordButton label="Solo por las mañanas" isSelected={formValues.digestivo.halitosisEspecificaciones === "Solo por las mañanas"} onClick={() => handleRadioChange("digestivo", "halitosisEspecificaciones", "Solo por las mañanas")} />
+                          <WordButton label="Todo el tiempo" isSelected={formValues.digestivo.halitosisEspecificaciones === "Todo el tiempo"} onClick={() => handleRadioChange("digestivo", "halitosisEspecificaciones", "Todo el tiempo")} />
+                        </div>
+                      )}
                     </div>
                     <div>
                       <Label>Síntomas Digestivos</Label>
@@ -358,12 +404,54 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                       </div>
                     </div>
                     <div>
+                      <Label>Cambios en el apetito</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Aumentado" isSelected={formValues.digestivo.cambiosApetito === "Aumentado"} onClick={() => handleRadioChange("digestivo", "cambiosApetito", "Aumentado")} />
+                        <WordButton label="Disminuido" isSelected={formValues.digestivo.cambiosApetito === "Disminuido"} onClick={() => handleRadioChange("digestivo", "cambiosApetito", "Disminuido")} />
+                        <WordButton label="Sin cambios" isSelected={formValues.digestivo.cambiosApetito === "Sin cambios"} onClick={() => handleRadioChange("digestivo", "cambiosApetito", "Sin cambios")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Hábitos alimenticios</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Ingesta nocturna" isSelected={formValues.digestivo.habitosAlimenticios === "Ingesta nocturna"} onClick={() => handleRadioChange("digestivo", "habitosAlimenticios", "Ingesta nocturna")} />
+                        <WordButton label="Picoteo frecuente" isSelected={formValues.digestivo.habitosAlimenticios === "Picoteo frecuente"} onClick={() => handleRadioChange("digestivo", "habitosAlimenticios", "Picoteo frecuente")} />
+                        <WordButton label="Ayuno prolongado" isSelected={formValues.digestivo.habitosAlimenticios === "Ayuno prolongado"} onClick={() => handleRadioChange("digestivo", "habitosAlimenticios", "Ayuno prolongado")} />
+                        <WordButton label="Ninguno" isSelected={formValues.digestivo.habitosAlimenticios === "Ninguno"} onClick={() => handleRadioChange("digestivo", "habitosAlimenticios", "Ninguno")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Color de las evacuaciones</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Normal" isSelected={formValues.digestivo.colorEvacuaciones === "Normal"} onClick={() => handleRadioChange("digestivo", "colorEvacuaciones", "Normal")} />
+                        <WordButton label="Oscuras" isSelected={formValues.digestivo.colorEvacuaciones === "Oscuras"} onClick={() => handleRadioChange("digestivo", "colorEvacuaciones", "Oscuras")} />
+                        <WordButton label="Claras" isSelected={formValues.digestivo.colorEvacuaciones === "Claras"} onClick={() => handleRadioChange("digestivo", "colorEvacuaciones", "Claras")} />
+                        <WordButton label="Presencia de moco" isSelected={formValues.digestivo.colorEvacuaciones === "Presencia de moco"} onClick={() => handleRadioChange("digestivo", "colorEvacuaciones", "Presencia de moco")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Hematemesis (vómito con sangre)</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.digestivo.hematemesis === "Sí"} onClick={() => handleRadioChange("digestivo", "hematemesis", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.digestivo.hematemesis === "No"} onClick={() => handleRadioChange("digestivo", "hematemesis", "No")} />
+                      </div>
+                    </div>
+                    <div>
                       <Label>Frecuencia de Evacuación</Label>
                       <div className="flex flex-wrap mt-1">
                         <WordButton label="Menos de 1 vez al día" isSelected={formValues.digestivo.frecuenciaEvacuacion === "Menos de una vez al día"} onClick={() => handleRadioChange("digestivo", "frecuenciaEvacuacion", "Menos de una vez al día")} />
                         <WordButton label="1 a 2 veces" isSelected={formValues.digestivo.frecuenciaEvacuacion === "1 a 2 veces"} onClick={() => handleRadioChange("digestivo", "frecuenciaEvacuacion", "1 a 2 veces")} />
                         <WordButton label="Más de 2 veces" isSelected={formValues.digestivo.frecuenciaEvacuacion === "Más de 2 veces"} onClick={() => handleRadioChange("digestivo", "frecuenciaEvacuacion", "Más de 2 veces")} />
+                        <WordButton label="Otra" isSelected={formValues.digestivo.frecuenciaEvacuacion === "Otra"} onClick={() => handleRadioChange("digestivo", "frecuenciaEvacuacion", "Otra")} />
                       </div>
+                      {formValues.digestivo.frecuenciaEvacuacion === "Otra" && (
+                        <Textarea
+                          placeholder="Escriba especificaciones relacionadas..."
+                          value={formValues.digestivo.frecuenciaEvacuacionEspecificaciones}
+                          onChange={(e) => handleTextChange("digestivo", "frecuenciaEvacuacionEspecificaciones", e.target.value)}
+                          className="w-full p-2 border rounded-md mt-2"
+                        />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -397,6 +485,29 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         <WordButton label="Ninguno" isSelected={formValues.respiratorio.sintomasRespiratorios.includes("Ninguno")} onClick={() => handleCheckboxChange("respiratorio", "sintomasRespiratorios", "Ninguno", !formValues.respiratorio.sintomasRespiratorios.includes("Ninguno"))} />
                       </div>
                     </div>
+                    <div>
+                      <Label>Apnea del sueño (ronquido o pausas al dormir)</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.respiratorio.apneaSuenio === "Sí"} onClick={() => handleRadioChange("respiratorio", "apneaSuenio", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.respiratorio.apneaSuenio === "No"} onClick={() => handleRadioChange("respiratorio", "apneaSuenio", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Uso de oxígeno suplementario</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.respiratorio.oxigenoSuplementario === "Sí"} onClick={() => handleRadioChange("respiratorio", "oxigenoSuplementario", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.respiratorio.oxigenoSuplementario === "No"} onClick={() => handleRadioChange("respiratorio", "oxigenoSuplementario", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Tos con expectoración</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Transparente" isSelected={formValues.respiratorio.tosExpectoracion === "Transparente"} onClick={() => handleRadioChange("respiratorio", "tosExpectoracion", "Transparente")} />
+                        <WordButton label="Amarilla" isSelected={formValues.respiratorio.tosExpectoracion === "Amarilla"} onClick={() => handleRadioChange("respiratorio", "tosExpectoracion", "Amarilla")} />
+                        <WordButton label="Verdosa" isSelected={formValues.respiratorio.tosExpectoracion === "Verdosa"} onClick={() => handleRadioChange("respiratorio", "tosExpectoracion", "Verdosa")} />
+                        <WordButton label="Hemoptoica" isSelected={formValues.respiratorio.tosExpectoracion === "Hemoptoica"} onClick={() => handleRadioChange("respiratorio", "tosExpectoracion", "Hemoptoica")} />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -408,13 +519,13 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                       <Label>Dolor en el Pecho</Label>
                       <div className="flex flex-wrap mt-1">
                         <WordButton label="No" isSelected={formValues.cardiovascular.dolorPecho === "No"} onClick={() => handleRadioChange("cardiovascular", "dolorPecho", "No")} />
-                        <WordButton label="Sí" isSelected={formValues.cardiovascular.dolorPecho === "Si"} onClick={() => handleRadioChange("cardiovascular", "dolorPecho", "Si")} />
+                        <WordButton label="Sí" isSelected={formValues.cardiovascular.dolorPecho === "Sí"} onClick={() => handleRadioChange("cardiovascular", "dolorPecho", "Sí")} />
                       </div>
                     </div>
                     <div>
                       <Label>Lipotimia</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Sí" isSelected={formValues.cardiovascular.lipotimia === "Si"} onClick={() => handleRadioChange("cardiovascular", "lipotimia", "Si")} />
+                        <WordButton label="Sí" isSelected={formValues.cardiovascular.lipotimia === "Sí"} onClick={() => handleRadioChange("cardiovascular", "lipotimia", "Sí")} />
                         <WordButton label="No" isSelected={formValues.cardiovascular.lipotimia === "No"} onClick={() => handleRadioChange("cardiovascular", "lipotimia", "No")} />
                       </div>
                     </div>
@@ -438,6 +549,28 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         <WordButton label="Fosfenos" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Luces al cerrar los ojos (fosfenos)")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Luces al cerrar los ojos (fosfenos)", !formValues.cardiovascular.sintomasCardiovasculares.includes("Luces al cerrar los ojos (fosfenos)"))} />
                         <WordButton label="Palpitaciones" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Palpitaciones")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Palpitaciones", !formValues.cardiovascular.sintomasCardiovasculares.includes("Palpitaciones"))} />
                         <WordButton label="Ninguno" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Ninguno")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Ninguno", !formValues.cardiovascular.sintomasCardiovasculares.includes("Ninguno"))} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Presión arterial conocida</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Alta" isSelected={formValues.cardiovascular.presionArterial === "Alta"} onClick={() => handleRadioChange("cardiovascular", "presionArterial", "Alta")} />
+                        <WordButton label="Baja" isSelected={formValues.cardiovascular.presionArterial === "Baja"} onClick={() => handleRadioChange("cardiovascular", "presionArterial", "Baja")} />
+                        <WordButton label="Normal" isSelected={formValues.cardiovascular.presionArterial === "Normal"} onClick={() => handleRadioChange("cardiovascular", "presionArterial", "Normal")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Antecedentes de infarto o enfermedad coronaria</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.cardiovascular.antecedentesInfarto === "Sí"} onClick={() => handleRadioChange("cardiovascular", "antecedentesInfarto", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.cardiovascular.antecedentesInfarto === "No"} onClick={() => handleRadioChange("cardiovascular", "antecedentesInfarto", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Fatiga fácil con esfuerzo leve</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.cardiovascular.fatigaEsfuerzo === "Sí"} onClick={() => handleRadioChange("cardiovascular", "fatigaEsfuerzo", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.cardiovascular.fatigaEsfuerzo === "No"} onClick={() => handleRadioChange("cardiovascular", "fatigaEsfuerzo", "No")} />
                       </div>
                     </div>
                   </div>
@@ -468,9 +601,44 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                       </div>
                     </div>
                     <div>
-                      <Label>Fecha de Última Menstruación</Label>
+                      <Label>Urgencia urinaria</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.genitoUrinario.urgenciaUrinaria === "Sí"} onClick={() => handleRadioChange("genitoUrinario", "urgenciaUrinaria", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.genitoUrinario.urgenciaUrinaria === "No"} onClick={() => handleRadioChange("genitoUrinario", "urgenciaUrinaria", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Chorro urinario débil</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.genitoUrinario.chorroUrinarioDebil === "Sí"} onClick={() => handleRadioChange("genitoUrinario", "chorroUrinarioDebil", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.genitoUrinario.chorroUrinarioDebil === "No"} onClick={() => handleRadioChange("genitoUrinario", "chorroUrinarioDebil", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Chorro urinario intermitente</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.genitoUrinario.chorroUrinarioIntermitente === "Sí"} onClick={() => handleRadioChange("genitoUrinario", "chorroUrinarioIntermitente", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.genitoUrinario.chorroUrinarioIntermitente === "No"} onClick={() => handleRadioChange("genitoUrinario", "chorroUrinarioIntermitente", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Flujo vaginal/uretral anormal</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.genitoUrinario.flujoVaginalUretral === "Sí"} onClick={() => handleRadioChange("genitoUrinario", "flujoVaginalUretral", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.genitoUrinario.flujoVaginalUretral === "No"} onClick={() => handleRadioChange("genitoUrinario", "flujoVaginalUretral", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Infecciones urinarias frecuentes</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.genitoUrinario.infeccionesUrinarias === "Sí"} onClick={() => handleRadioChange("genitoUrinario", "infeccionesUrinarias", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.genitoUrinario.infeccionesUrinarias === "No"} onClick={() => handleRadioChange("genitoUrinario", "infeccionesUrinarias", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Fecha de Última Menstruación (solo si es mujer)</Label>
                       <input
-                        type="text"
+                        type="date"
                         value={formValues.genitoUrinario.ultimaMenstruacion}
                         onChange={(e) => handleTextChange("genitoUrinario", "ultimaMenstruacion", e.target.value)}
                         className="w-full p-2 border rounded-md"
@@ -479,14 +647,22 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                     <div>
                       <Label>Dismenorrea</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Sí" isSelected={formValues.genitoUrinario.dismenorrea === "Si"} onClick={() => handleRadioChange("genitoUrinario", "dismenorrea", "Si")} />
+                        <WordButton label="Sí" isSelected={formValues.genitoUrinario.dismenorrea === "Sí"} onClick={() => handleRadioChange("genitoUrinario", "dismenorrea", "Sí")} />
                         <WordButton label="No" isSelected={formValues.genitoUrinario.dismenorrea === "No"} onClick={() => handleRadioChange("genitoUrinario", "dismenorrea", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Días de duración de menstruación</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Menos de 3 días" isSelected={formValues.genitoUrinario.duracionMenstruacion === "Menos de 3 días"} onClick={() => handleRadioChange("genitoUrinario", "duracionMenstruacion", "Menos de 3 días")} />
+                        <WordButton label="3 a 5 días" isSelected={formValues.genitoUrinario.duracionMenstruacion === "3 a 5 días"} onClick={() => handleRadioChange("genitoUrinario", "duracionMenstruacion", "3 a 5 días")} />
+                        <WordButton label="Más de 5 días" isSelected={formValues.genitoUrinario.duracionMenstruacion === "Más de 5 días"} onClick={() => handleRadioChange("genitoUrinario", "duracionMenstruacion", "Más de 5 días")} />
                       </div>
                     </div>
                     <div>
                       <Label>Fecha de Último Parto</Label>
                       <input
-                        type="text"
+                        type="date"
                         value={formValues.genitoUrinario.ultimoParto}
                         onChange={(e) => handleTextChange("genitoUrinario", "ultimoParto", e.target.value)}
                         className="w-full p-2 border rounded-md"
@@ -519,6 +695,35 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         <WordButton label="Temblores" isSelected={formValues.endocrino.sintomasEndocrinos.includes("Temblores")} onClick={() => handleCheckboxChange("endocrino", "sintomasEndocrinos", "Temblores", !formValues.endocrino.sintomasEndocrinos.includes("Temblores"))} />
                         <WordButton label="Insomnio" isSelected={formValues.endocrino.sintomasEndocrinos.includes("Insomnio")} onClick={() => handleCheckboxChange("endocrino", "sintomasEndocrinos", "Insomnio", !formValues.endocrino.sintomasEndocrinos.includes("Insomnio"))} />
                         <WordButton label="Ninguno" isSelected={formValues.endocrino.sintomasEndocrinos.includes("Ninguno")} onClick={() => handleCheckboxChange("endocrino", "sintomasEndocrinos", "Ninguno", !formValues.endocrino.sintomasEndocrinos.includes("Ninguno"))} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Sudoración excesiva nocturna</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.endocrino.sudoracionNocturna === "Sí"} onClick={() => handleRadioChange("endocrino", "sudoracionNocturna", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.endocrino.sudoracionNocturna === "No"} onClick={() => handleRadioChange("endocrino", "sudoracionNocturna", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Hirsutismo (vello excesivo en mujeres)</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.endocrino.hirsutismo === "Sí"} onClick={() => handleRadioChange("endocrino", "hirsutismo", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.endocrino.hirsutismo === "No"} onClick={() => handleRadioChange("endocrino", "hirsutismo", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Galactorrea (secreción mamaria anormal)</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.endocrino.galactorrea === "Sí"} onClick={() => handleRadioChange("endocrino", "galactorrea", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.endocrino.galactorrea === "No"} onClick={() => handleRadioChange("endocrino", "galactorrea", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Cambios en el ritmo menstrual</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Retrasos" isSelected={formValues.endocrino.cambiosRitmoMenstrual === "Retrasos"} onClick={() => handleRadioChange("endocrino", "cambiosRitmoMenstrual", "Retrasos")} />
+                        <WordButton label="Amenorrea" isSelected={formValues.endocrino.cambiosRitmoMenstrual === "Amenorrea"} onClick={() => handleRadioChange("endocrino", "cambiosRitmoMenstrual", "Amenorrea")} />
+                        <WordButton label="Ciclos cortos" isSelected={formValues.endocrino.cambiosRitmoMenstrual === "Ciclos cortos"} onClick={() => handleRadioChange("endocrino", "cambiosRitmoMenstrual", "Ciclos cortos")} />
                       </div>
                     </div>
                     <div>
@@ -555,9 +760,17 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                     <div>
                       <Label>Cambios en la Coloración de la Piel</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Sí" isSelected={formValues.tegumentario.cambiosColoracion === "Si"} onClick={() => handleRadioChange("tegumentario", "cambiosColoracion", "Si")} />
+                        <WordButton label="Sí" isSelected={formValues.tegumentario.cambiosColoracion === "Sí"} onClick={() => handleRadioChange("tegumentario", "cambiosColoracion", "Sí")} />
                         <WordButton label="No" isSelected={formValues.tegumentario.cambiosColoracion === "No"} onClick={() => handleRadioChange("tegumentario", "cambiosColoracion", "No")} />
                       </div>
+                      {formValues.tegumentario.cambiosColoracion === "Sí" && (
+                        <Textarea
+                          placeholder="Escriba especificaciones relacionadas..."
+                          value={formValues.tegumentario.cambiosColoracionEspecificaciones}
+                          onChange={(e) => handleTextChange("tegumentario", "cambiosColoracionEspecificaciones", e.target.value)}
+                          className="w-full p-2 border rounded-md mt-2"
+                        />
+                      )}
                     </div>
                     <div>
                       <Label>Síntomas Tegumentarios</Label>
@@ -570,6 +783,28 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         <WordButton label="Ninguno" isSelected={formValues.tegumentario.sintomasTegumentarios.includes("Ninguno")} onClick={() => handleCheckboxChange("tegumentario", "sintomasTegumentarios", "Ninguno", !formValues.tegumentario.sintomasTegumentarios.includes("Ninguno"))} />
                       </div>
                     </div>
+                    <div>
+                      <Label>Cambios en uñas</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Frágiles" isSelected={formValues.tegumentario.cambiosUnas === "Frágiles"} onClick={() => handleRadioChange("tegumentario", "cambiosUnas", "Frágiles")} />
+                        <WordButton label="Quebradizas" isSelected={formValues.tegumentario.cambiosUnas === "Quebradizas"} onClick={() => handleRadioChange("tegumentario", "cambiosUnas", "Quebradizas")} />
+                        <WordButton label="Deformadas" isSelected={formValues.tegumentario.cambiosUnas === "Deformadas"} onClick={() => handleRadioChange("tegumentario", "cambiosUnas", "Deformadas")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Cambios en lunares</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.tegumentario.cambiosLunares === "Sí"} onClick={() => handleRadioChange("tegumentario", "cambiosLunares", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.tegumentario.cambiosLunares === "No"} onClick={() => handleRadioChange("tegumentario", "cambiosLunares", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Lesiones pigmentadas</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Sí" isSelected={formValues.tegumentario.lesionesPigmentadas === "Sí"} onClick={() => handleRadioChange("tegumentario", "lesionesPigmentadas", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.tegumentario.lesionesPigmentadas === "No"} onClick={() => handleRadioChange("tegumentario", "lesionesPigmentadas", "No")} />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -580,27 +815,55 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                     <div>
                       <Label>Fracturas o Esguinces</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Sí" isSelected={formValues.musculoEsqueletico.fracturas === "Si"} onClick={() => handleRadioChange("musculoEsqueletico", "fracturas", "Si")} />
+                        <WordButton label="Sí" isSelected={formValues.musculoEsqueletico.fracturas === "Sí"} onClick={() => handleRadioChange("musculoEsqueletico", "fracturas", "Sí")} />
                         <WordButton label="No" isSelected={formValues.musculoEsqueletico.fracturas === "No"} onClick={() => handleRadioChange("musculoEsqueletico", "fracturas", "No")} />
                       </div>
                     </div>
                     <div>
                       <Label>Detalles de Fracturas</Label>
-                      <input
-                        type="text"
-                        value={formValues.musculoEsqueletico.detallesFracturas}
-                        onChange={(e) => handleTextChange("musculoEsqueletico", "detallesFracturas", e.target.value)}
-                        className="w-full p-2 border rounded-md"
-                      />
+                      {formValues.musculoEsqueletico.fracturas === "Sí" && (
+                        <Textarea
+                          placeholder="Escriba especificaciones relacionadas..."
+                          value={formValues.musculoEsqueletico.detallesFracturas}
+                          onChange={(e) => handleTextChange("musculoEsqueletico", "detallesFracturas", e.target.value)}
+                          className="w-full p-2 border rounded-md mt-2"
+                        />
+                      )}
                     </div>
                     <div>
                       <Label>Síntomas Musculoesqueléticos</Label>
                       <div className="flex flex-wrap mt-1">
                         <WordButton label="Deformidad Articular" isSelected={formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Deformidad articular")} onClick={() => handleCheckboxChange("musculoEsqueletico", "sintomasMusculoEsqueleticos", "Deformidad articular", !formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Deformidad articular"))} />
                         <WordButton label="Dolor Articular" isSelected={formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Dolor articular")} onClick={() => handleCheckboxChange("musculoEsqueletico", "sintomasMusculoEsqueleticos", "Dolor articular", !formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Dolor articular"))} />
-                        <WordButton label="Limitaciones de Movimiento" isSelected={formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Limitaciones de movimiento")} onClick={() => handleCheckboxChange("musculoEsqueletico", "sintomasMusculoEsqueleticos", "Limitaciones de movimiento", !formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Limitaciones de movimiento"))} />
+                        <WordButton label="Calambres musculares frecuentes" isSelected={formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Calambres musculares frecuentes")} onClick={() => handleCheckboxChange("musculoEsqueletico", "sintomasMusculoEsqueleticos", "Calambres musculares frecuentes", !formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Calambres musculares frecuentes"))} />
                         <WordButton label="Ninguno" isSelected={formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Ninguno")} onClick={() => handleCheckboxChange("musculoEsqueletico", "sintomasMusculoEsqueleticos", "Ninguno", !formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Ninguno"))} />
                       </div>
+                    </div>
+                    <div>
+                      <Label>Rigidez matutina</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Menos de 30 min" isSelected={formValues.musculoEsqueletico.rigidezMatutina === "Menos de 30 min"} onClick={() => handleRadioChange("musculoEsqueletico", "rigidezMatutina", "Menos de 30 min")} />
+                        <WordButton label="Más de 30 min" isSelected={formValues.musculoEsqueletico.rigidezMatutina === "Más de 30 min"} onClick={() => handleRadioChange("musculoEsqueletico", "rigidezMatutina", "Más de 30 min")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Debilidad muscular</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Generalizada" isSelected={formValues.musculoEsqueletico.debilidadMuscular === "Generalizada"} onClick={() => handleRadioChange("musculoEsqueletico", "debilidadMuscular", "Generalizada")} />
+                        <WordButton label="Localizada" isSelected={formValues.musculoEsqueletico.debilidadMuscular === "Localizada"} onClick={() => handleRadioChange("musculoEsqueletico", "debilidadMuscular", "Localizada")} />
+                        <WordButton label="No" isSelected={formValues.musculoEsqueletico.debilidadMuscular === "No"} onClick={() => handleRadioChange("musculoEsqueletico", "debilidadMuscular", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Limitaciones de Movimiento</Label>
+                      {formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Calambres musculares frecuentes") && (
+                        <Textarea
+                          placeholder="Escriba especificaciones relacionadas..."
+                          value={formValues.musculoEsqueletico.limitacionesMovimiento}
+                          onChange={(e) => handleTextChange("musculoEsqueletico", "limitacionesMovimiento", e.target.value)}
+                          className="w-full p-2 border rounded-md mt-2"
+                        />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -612,7 +875,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                     <div>
                       <Label>Percepción de los Sentidos</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Sí" isSelected={formValues.nervioso.percepcionSentidos === "Si"} onClick={() => handleRadioChange("nervioso", "percepcionSentidos", "Si")} />
+                        <WordButton label="Sí" isSelected={formValues.nervioso.percepcionSentidos === "Sí"} onClick={() => handleRadioChange("nervioso", "percepcionSentidos", "Sí")} />
                         <WordButton label="No" isSelected={formValues.nervioso.percepcionSentidos === "No"} onClick={() => handleRadioChange("nervioso", "percepcionSentidos", "No")} />
                       </div>
                     </div>
@@ -628,9 +891,17 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                     <div>
                       <Label>Trastornos del Sueño</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Sí" isSelected={formValues.nervioso.trastornosSueno === "Si"} onClick={() => handleRadioChange("nervioso", "trastornosSueno", "Si")} />
+                        <WordButton label="Sí" isSelected={formValues.nervioso.trastornosSueno === "Sí"} onClick={() => handleRadioChange("nervioso", "trastornosSueno", "Sí")} />
                         <WordButton label="No" isSelected={formValues.nervioso.trastornosSueno === "No"} onClick={() => handleRadioChange("nervioso", "trastornosSueno", "No")} />
                       </div>
+                      {formValues.nervioso.trastornosSueno === "Sí" && (
+                        <Textarea
+                          placeholder="Escriba especificaciones relacionadas..."
+                          value={formValues.nervioso.trastornosSuenoEspecificaciones}
+                          onChange={(e) => handleTextChange("nervioso", "trastornosSuenoEspecificaciones", e.target.value)}
+                          className="w-full p-2 border rounded-md mt-2"
+                        />
+                      )}
                     </div>
                     <div>
                       <Label>Estado de Ánimo</Label>
@@ -644,8 +915,18 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                     <div>
                       <Label>Parestesias</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Sí" isSelected={formValues.nervioso.parestesias === "Si"} onClick={() => handleRadioChange("nervioso", "parestesias", "Si")} />
+                        <WordButton label="Sí" isSelected={formValues.nervioso.parestesias === "Sí"} onClick={() => handleRadioChange("nervioso", "parestesias", "Sí")} />
                         <WordButton label="No" isSelected={formValues.nervioso.parestesias === "No"} onClick={() => handleRadioChange("nervioso", "parestesias", "No")} />
+                      </div>
+                    </div>
+                    <div>
+                      <Label>Otros Síntomas Neurológicos</Label>
+                      <div className="flex flex-wrap mt-1">
+                        <WordButton label="Convulsiones" isSelected={formValues.nervioso.otrosSintomasNeurologicos.includes("Convulsiones")} onClick={() => handleCheckboxChange("nervioso", "otrosSintomasNeurologicos", "Convulsiones", !formValues.nervioso.otrosSintomasNeurologicos.includes("Convulsiones"))} />
+                        <WordButton label="Temblores" isSelected={formValues.nervioso.otrosSintomasNeurologicos.includes("Temblores")} onClick={() => handleCheckboxChange("nervioso", "otrosSintomasNeurologicos", "Temblores", !formValues.nervioso.otrosSintomasNeurologicos.includes("Temblores"))} />
+                        <WordButton label="Problemas de memoria o concentración" isSelected={formValues.nervioso.otrosSintomasNeurologicos.includes("Problemas de memoria o concentración")} onClick={() => handleCheckboxChange("nervioso", "otrosSintomasNeurologicos", "Problemas de memoria o concentración", !formValues.nervioso.otrosSintomasNeurologicos.includes("Problemas de memoria o concentración"))} />
+                        <WordButton label="Cambios de personalidad o comportamiento" isSelected={formValues.nervioso.otrosSintomasNeurologicos.includes("Cambios de personalidad o comportamiento")} onClick={() => handleCheckboxChange("nervioso", "otrosSintomasNeurologicos", "Cambios de personalidad o comportamiento", !formValues.nervioso.otrosSintomasNeurologicos.includes("Cambios de personalidad o comportamiento"))} />
+                        <WordButton label="Coordinación motora alterada" isSelected={formValues.nervioso.otrosSintomasNeurologicos.includes("Coordinación motora alterada")} onClick={() => handleCheckboxChange("nervioso", "otrosSintomasNeurologicos", "Coordinación motora alterada", !formValues.nervioso.otrosSintomasNeurologicos.includes("Coordinación motora alterada"))} />
                       </div>
                     </div>
                   </div>
@@ -661,51 +942,83 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         alimentacion: "",
                         masticacion: "",
                         percepcionGusto: "",
+                        percepcionGustoEspecificaciones: "",
                         salivacion: "",
                         deglusion: "",
                         halitosis: "",
+                        halitosisEspecificaciones: "",
                         sintomasDigestivos: [],
-                        frecuenciaEvacuacion: ""
+                        cambiosApetito: "",
+                        habitosAlimenticios: "",
+                        colorEvacuaciones: "",
+                        hematemesis: "",
+                        frecuenciaEvacuacion: "",
+                        frecuenciaEvacuacionEspecificaciones: ""
                       },
                       respiratorio: {
                         tipoRespiracion: "",
-                        sintomasRespiratorios: []
+                        sintomasRespiratorios: [],
+                        apneaSuenio: "",
+                        oxigenoSuplementario: "",
+                        tosExpectoracion: ""
                       },
                       cardiovascular: {
                         dolorPecho: "",
                         lipotimia: "",
                         ritmoCardiaco: "",
-                        sintomasCardiovasculares: []
+                        sintomasCardiovasculares: [],
+                        presionArterial: "",
+                        antecedentesInfarto: "",
+                        fatigaEsfuerzo: ""
                       },
                       genitoUrinario: {
                         frecuenciaUrinaria: "",
                         sintomasUrinarios: [],
+                        urgenciaUrinaria: "",
+                        chorroUrinarioDebil: "",
+                        chorroUrinarioIntermitente: "",
+                        flujoVaginalUretral: "",
+                        infeccionesUrinarias: "",
                         ultimaMenstruacion: "",
                         dismenorrea: "",
+                        duracionMenstruacion: "",
                         ultimoParto: "",
                         antecedentesObstetricos: ""
                       },
                       endocrino: {
                         sintomasEndocrinos: [],
+                        sudoracionNocturna: "",
+                        hirsutismo: "",
+                        galactorrea: "",
+                        cambiosRitmoMenstrual: "",
                         cambiosPeso: "",
                         intolerancia: "",
                         condicionesEndocrinas: ""
                       },
                       tegumentario: {
                         cambiosColoracion: "",
-                        sintomasTegumentarios: []
+                        cambiosColoracionEspecificaciones: "",
+                        sintomasTegumentarios: [],
+                        cambiosUnas: "",
+                        cambiosLunares: "",
+                        lesionesPigmentadas: ""
                       },
                       musculoEsqueletico: {
                         fracturas: "",
                         detallesFracturas: "",
-                        sintomasMusculoEsqueleticos: []
+                        sintomasMusculoEsqueleticos: [],
+                        rigidezMatutina: "",
+                        debilidadMuscular: "",
+                        limitacionesMovimiento: ""
                       },
                       nervioso: {
                         percepcionSentidos: "",
                         horasSueno: "",
                         trastornosSueno: "",
+                        trastornosSuenoEspecificaciones: "",
                         estadoAnimo: "",
-                        parestesias: ""
+                        parestesias: "",
+                        otrosSintomasNeurologicos: []
                       }
                     });
                     setShowForm(true);
