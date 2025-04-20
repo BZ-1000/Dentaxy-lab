@@ -57,21 +57,39 @@ const AntecedentesPersonalesPatologicos: React.FC<{
   });
   const [focusStatus, setFocusStatus] = useState<{[key: string]: boolean}>({});
 
+  // Fix infinite loop issue by guarding useEffect calls properly
   useEffect(() => {
-    // Listener to detect clicks outside "otra" inputs or scroll to remove focus
     function handleClickOutside(event: MouseEvent) {
       for (const key in inputRefs.current) {
         const ref = inputRefs.current[key];
         if (ref && ref.current && !ref.current.contains(event.target as Node)) {
           if (focusStatus[key]) {
-            setFocusStatus(prev => ({ ...prev, [key]: false }));
+            setFocusStatus(prev => {
+              if (prev[key] === true) {
+                return {...prev, [key]: false};
+              }
+              return prev;
+            });
           }
         }
       }
     }
     function handleScroll() {
-      // On scroll, remove focus from all
-      setFocusStatus({});
+      // On scroll, remove focus from all only if any focused
+      let anyFocused = Object.values(focusStatus).some(focused => focused === true);
+      if (anyFocused) {
+        setFocusStatus(prev => {
+          const newFocus = {...prev};
+          let changed = false;
+          for (const k in newFocus) {
+            if (newFocus[k]) {
+              newFocus[k] = false;
+              changed = true;
+            }
+          }
+          return changed ? newFocus : prev;
+        });
+      }
     }
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -84,7 +102,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
   }, [focusStatus]);
 
   useEffect(() => {
-    // When focusStatus changes, focus the inputs only if not already focused (avoid loops)
+    // Focus inputs when focusStatus changes to true, avoid loops by checking activeElement
     Object.entries(focusStatus).forEach(([categoria, isFocused]) => {
       if (isFocused) {
         const inputRef = inputRefs.current[categoria];
@@ -134,7 +152,6 @@ const AntecedentesPersonalesPatologicos: React.FC<{
   };
 
   const seleccionarOpcion = (categoria: string, opcion: string, valor: boolean) => {
-    // Fix focus logic to avoid multiple focus calls or infinite loops
     if (opcion === 'ninguna' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       Object.keys(categoriasActualizadas).forEach(key => {
@@ -146,25 +163,48 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       categoriasActualizadas.otra = false;
       categoriasActualizadas.otraDescripcion = '';
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      setFocusStatus(prev => ({ ...prev, [categoria]: false }));
+      // Remove focus when "ninguna" selected
+      setFocusStatus(prev => {
+        if (prev[categoria]) {
+          return {...prev, [categoria]: false};
+        }
+        return prev;
+      });
     } else if (opcion !== 'ninguna' && opcion !== 'otra' && opcion !== 'otraDescripcion' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas[opcion] = valor;
       categoriasActualizadas.ninguna = false;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      setFocusStatus(prev => ({ ...prev, [categoria]: false }));
+      // Remove focus when other option selected
+      setFocusStatus(prev => {
+        if (prev[categoria]) {
+          return {...prev, [categoria]: false};
+        }
+        return prev;
+      });
     } else if (opcion === 'otra' && valor) {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas.otra = valor;
       categoriasActualizadas.ninguna = false;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
-      setFocusStatus(prev => ({ ...prev, [categoria]: true }));
+      // Set focus to true only if not already focused to avoid loops
+      setFocusStatus(prev => {
+        if (!prev[categoria]) {
+          return {...prev, [categoria]: true};
+        }
+        return prev;
+      });
     } else {
       const categoriasActualizadas = { ...formData.antecedentesPersonalesPatologicos[categoria] };
       categoriasActualizadas[opcion] = valor;
       handleAntecedentePatologicoChange(categoria, categoriasActualizadas);
       if (opcion !== 'otraDescripcion') {
-        setFocusStatus(prev => ({ ...prev, [categoria]: false }));
+        setFocusStatus(prev => {
+          if (prev[categoria]) {
+            return {...prev, [categoria]: false};
+          }
+          return prev;
+        });
       }
     }
   };
@@ -716,23 +756,3 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                     ))}
 
                     <div className="flex justify-center">
-                      <Button
-                        onClick={() => setShowForm(true)}
-                        variant="outline"
-                        className="border-gray-300 text-gray-700 dark:text-gray-300"
-                      >
-                        Volver al Formulario
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-      </Card>
-    </div>
-  );
-};
-
-export default AntecedentesPersonalesPatologicos;
