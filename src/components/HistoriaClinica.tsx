@@ -27,8 +27,6 @@ import { useTheme } from '@/hooks/use-theme';
 import { Loader2, X, Save, User, FileText } from "lucide-react";
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
-import FormulariosSidebarMobileButton from './historia-clinica/FormulariosSidebarMobileButton';
-import FormulariosSidebarMobile from './historia-clinica/FormulariosSidebarMobile';
 import { useState, useEffect, useRef } from 'react';
 import { toast } from "@/hooks/use-toast";
 import { getInitialFormState } from '@/utils/initialFormState';
@@ -87,7 +85,6 @@ const HistoriaClinica = () => {
   const pdfSectionsRef = useRef<{
     [key: string]: string;
   }>({});
-  const [mobileFormulariosOpen, setMobileFormulariosOpen] = useState(false);
 
   useEffect(() => {
     if (pacienteActual) {
@@ -391,39 +388,7 @@ const HistoriaClinica = () => {
   };
 
   return (
-    <div className={`${theme} min-h-screen w-full flex flex-col md:flex-row`}>
-      <FormulariosSidebarMobileButton
-        onClick={() => setMobileFormulariosOpen(true)}
-        isOpen={mobileFormulariosOpen}
-      />
-      <FormulariosSidebarMobile
-        formularios={[]}
-        onCargarFormulario={(data, nombre) => {
-          cargarFormulario(data);
-          setPacienteActual(nombre);
-          setNombrePaciente(nombre);
-          setMobileFormulariosOpen(false);
-        }}
-        onGuardarFormulario={(nombre) => {
-          guardarFormulario(formData, nombre);
-          setPacienteActual(nombre);
-          setMobileFormulariosOpen(false);
-        }}
-        onCerrarFormulario={() => {
-          setPacienteActual('');
-          setNombrePaciente('');
-          cargarFormulario(null);
-          setMobileFormulariosOpen(false);
-        }}
-        onResetFormulario={() => {
-          setPacienteActual('');
-          resetFormulario();
-          setMobileFormulariosOpen(false);
-        }}
-        pacienteActual={pacienteActual}
-        isOpen={mobileFormulariosOpen}
-        onClose={() => setMobileFormulariosOpen(false)}
-      />
+    <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar 
         onCargarFormulario={(data, nombre) => {
           cargarFormulario(data);
