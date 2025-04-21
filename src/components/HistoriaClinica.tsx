@@ -34,7 +34,7 @@ import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
 import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
-import FormulariosModalMobile from './historia-clinica/FormulariosModalMobile';
+
 
 const HistoriaClinica = () => {
   const {
@@ -92,11 +92,10 @@ const HistoriaClinica = () => {
     }
   }, [formData, pacienteActual, guardarFormulario]);
 
-  // Manejo de guardado y reset
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
-    cargarFormulario(null);
+    cargarFormulario(null); // Cargar formulario vacío
   };
 
   const handleResetFormulario = () => {
@@ -122,12 +121,12 @@ const HistoriaClinica = () => {
   };
 
   const validateForm = () => {
-    return [
-      ...validatePadecimientoActual(formData),
-      ...validateAntecedentesHeredoFamiliares(formData),
-      ...validateAntecedentesPersonalesNoPatologicos(formData),
-      ...validateAntecedentesPersonalesPatologicos(formData),
-    ];
+    const padecimientoFields = validatePadecimientoActual(formData);
+    const heredoFamiliaresFields = validateAntecedentesHeredoFamiliares(formData);
+    const noPatologicosFields = validateAntecedentesPersonalesNoPatologicos(formData);
+    const patologicosFields = validateAntecedentesPersonalesPatologicos(formData);
+    const allMissingFields = [...padecimientoFields, ...heredoFamiliaresFields, ...noPatologicosFields, ...patologicosFields];
+    return allMissingFields;
   };
 
   // Improved function to click the "Generate IA" button for a section
@@ -388,152 +387,79 @@ const HistoriaClinica = () => {
     }
   };
 
-  // State to control mobile modal for formularios
-  const [formModalMobileOpen, setFormModalMobileOpen] = useState(false);
-
-  // Add handlers for mobile formularios modal actions
-  const handleEliminarFormularioMobile = (nombre: string) => {
-    localStorage.removeItem(`formulario_${nombre}`);
-    toast({
-      title: "Formulario eliminado",
-      description: `El formulario de ${nombre} ha sido eliminado.`
-    });
-    if (nombre === pacienteActual) {
-      handleLimpiarFormulario();
-    }
-  };
-
-  const handleRenombrarFormularioMobile = (nombreViejo: string, nombreNuevo: string) => {
-    const oldData = localStorage.getItem(`formulario_${nombreViejo}`);
-    if (oldData) {
-      localStorage.setItem(`formulario_${nombreNuevo}`, oldData);
-      localStorage.removeItem(`formulario_${nombreViejo}`);
-      if (nombreViejo === pacienteActual) {
-        const data = JSON.parse(oldData);
-        cargarFormulario(data);
-        setPacienteActual(nombreNuevo);
-        setNombrePaciente(nombreNuevo);
-      }
-      toast({
-        title: "Formulario renombrado",
-        description: `El formulario ha sido renombrado a ${nombreNuevo}.`
-      });
-    }
-  };
-
-  const handleCompartirFormularioMobile = (nombre: string, email: string) => {
-    toast({
-      title: "Formulario compartido",
-      description: `Se ha compartido el formulario de ${nombre} con ${email}.`
-    });
-  };
-
   return (
-    // Contenedor principal con mejor espacio y scroll para móviles sin afectar escritorio
-    <div className={`${theme} min-h-screen w-full flex flex-col md:flex-row`}>
-      {/* Sidebar visible only on md+ */}
-      <div className="hidden md:flex sticky top-0 h-screen w-72 flex-col bg-white dark:bg-neutral-900 border-r border-gray-300 dark:border-gray-700 z-20">
-        <FormulariosSidebar
-          onCargarFormulario={(data, nombre) => {
-            cargarFormulario(data);
-            setPacienteActual(nombre);
-            setNombrePaciente(nombre);
-          }}
-          onGuardarFormulario={nombre => {
-            guardarFormulario(formData, nombre);
-            setPacienteActual(nombre);
-          }}
-          onCerrarFormulario={handleLimpiarFormulario}
-          onResetFormulario={handleResetFormulario}
-          pacienteActual={pacienteActual}
-        />
-      </div>
-
-      {/* Button visible only on mobile to open formularios modal */}
-      <div className="fixed bottom-4 right-4 md:hidden z-50">
-        <Button
-          variant="primary"
-          size="icon"
-          aria-label="Abrir formularios guardados"
-          onClick={() => setFormModalMobileOpen(true)}
-          className="rounded-full p-3 shadow-lg"
-        >
-          <FileText className="h-6 w-6" />
-        </Button>
-      </div>
-
-      {/* Formularios modal for mobile */}
-      <FormulariosModalMobile
-        open={formModalMobileOpen}
-        onOpenChange={setFormModalMobileOpen}
-        formularios={[]}
-        pacienteActual={pacienteActual}
+    <div className={`${theme} min-h-screen w-full flex`}>
+      <FormulariosSidebar 
         onCargarFormulario={(data, nombre) => {
           cargarFormulario(data);
           setPacienteActual(nombre);
           setNombrePaciente(nombre);
-          setFormModalMobileOpen(false);
-        }}
-        onEliminarFormulario={handleEliminarFormularioMobile}
-        onRenombrarFormulario={handleRenombrarFormularioMobile}
-        onCompartirFormulario={handleCompartirFormularioMobile}
+        }} 
+        onGuardarFormulario={nombre => {
+          guardarFormulario(formData, nombre);
+          setPacienteActual(nombre);
+        }} 
+        onCerrarFormulario={handleLimpiarFormulario} 
+        onResetFormulario={handleResetFormulario} 
+        pacienteActual={pacienteActual} 
       />
-
-      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 md:py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200 overflow-auto`}>
-        <div className="max-w-5xl mx-auto space-y-6 md:space-y-8">
-          <div className="text-center px-2 md:px-0">
-            <h1 className="text-3xl md:text-4xl font-bold mb-2">Formulario IA</h1>
-            <p className="text-xs md:text-sm text-gray-500 mb-6">
+      
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
+        <div className="max-w-5xl mx-auto space-y-8">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold mb-2">Formulario IA</h1>
+            <p className="text-sm text-gray-500 mb-6">
               (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)
             </p>
-
-            {/* Componente de nombre paciente con ajuste de padding, font y tamaño para móvil */}
-            <div id="patient-name-input" className="max-w-lg mx-auto mb-2 sticky top-4 z-30 backdrop-blur-sm shadow-sm border border-gray-200 p-3 rounded-2xl bg-slate-50">
-              <div className="flex items-center gap-2">
+            
+            {/* Componente de nombre de paciente */}
+            <div id="patient-name-input" className="max-w-lg mx-auto mb-2 sticky top-4 z-30 backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
+              <div className="flex items-center gap-3">
                 <div className="relative flex-1">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-2 pointer-events-none">
-                    <User className="h-3 w-3 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <User className="h-4 w-4 text-gray-400" />
                   </div>
-                  <Input
-                    value={nombrePaciente}
-                    onChange={e => setNombrePaciente(e.target.value)}
-                    placeholder="Nombre del paciente"
-                    className="pl-7 text-sm sm:text-base border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                  <Input 
+                    value={nombrePaciente} 
+                    onChange={e => setNombrePaciente(e.target.value)} 
+                    placeholder="Nombre del paciente" 
+                    className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" 
                   />
                 </div>
-                <Button
-                  onClick={handleGuardarFormulario}
-                  disabled={!nombrePaciente.trim()}
-                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-3 py-1 flex items-center gap-1 text-xs sm:text-sm transition-all duration-200"
+                <Button 
+                  onClick={handleGuardarFormulario} 
+                  disabled={!nombrePaciente.trim()} 
+                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200"
                 >
-                  <Save className="h-3 w-3" />
-                  <span>Guardar</span>
+                  <Save className="h-4 w-4" />
+                  <span className="text-sm font-medium">Guardar</span>
                 </Button>
               </div>
             </div>
 
-            {/* Info paciente actual con botón pequeño y espaciado adecuado */}
+            
+            {/* Componente para mostrar el paciente actual */}
             {pacienteActual && (
-              <div className="flex items-center justify-center gap-1 mb-5 text-xs sm:text-sm">
-                <div className="text-blue-500 dark:text-blue-400 font-medium">
+              <div className="flex items-center justify-center gap-2 mb-6">
+                <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
                   Formulario actual: {pacienteActual}
                 </div>
-                <button
-                  onClick={handleResetFormulario}
-                  className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+                <button 
+                  onClick={handleResetFormulario} 
+                  className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" 
                   aria-label="Resetear formulario"
                 >
                   <X className="w-3 h-3" />
                 </button>
               </div>
             )}
-
-            {/* Selector de género con botones pequeños y mejor espaciado */}
-            <div className="flex items-center justify-center mb-5 gap-3 px-4">
-              <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Género del paciente:</span>
+            
+            {/* Selector de género para mostrar/ocultar sección gineco-obstétrica */}
+            <div className="flex items-center justify-center mb-6 gap-4">
+              <span className="text-sm text-gray-600 dark:text-gray-400">Género del paciente:</span>
               <div className="flex gap-2">
                 <button
-                  className={`px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${
+                  className={`px-4 py-2 rounded-md text-sm transition-colors ${
                     !esMujer
                       ? 'bg-[#2ecc71] text-white'
                       : 'bg-gray-100 dark:bg-gray-700'
@@ -543,21 +469,23 @@ const HistoriaClinica = () => {
                   Hombre
                 </button>
                 <button
-                  className={`px-3 py-1 rounded-md text-xs sm:text-sm transition-colors ${
+                  className={`px-4 py-2 rounded-md text-sm transition-colors ${
                     esMujer
-                      ? 'bg-[#9370DB] text-white'
-                      : 'bg-gray-100 dark:bg-gray-700'
-                  }`}
-                  onClick={() => setEsMujer(true)}
+                      ? 'bg-[#9370DB] text-white' // Cambiado a un tono rosa-púrpura usando código hexadecimal
+                     : 'bg-gray-100 dark:bg-gray-700'
+                 }`}
+                 onClick={() => setEsMujer(true)}
                 >
                   Mujer
                 </button>
+
+
               </div>
             </div>
           </div>
 
-          <div className="space-y-5 md:space-y-6 px-2 md:px-0">
-            {/* Secciones con padding y margin ajustados para móvil para evitar superposiciones */}
+          <div className="space-y-6">
+            {/* Add data attributes to all sections for redaction collection */}
             <div data-section-redaction="true" data-section-name="padecimientoActual">
               <PadecimientoActual formData={formData} handlePadecimientoChange={handlePadecimientoChange} handleDolorChange={handleDolorChange} handleSinSintomasChange={handleSinSintomasChange} />
             </div>
@@ -657,7 +585,7 @@ const HistoriaClinica = () => {
                 {isGeneratingPDF ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Generando PDF...\n
+                    Generando PDF...
                   </>
                 ) : (
                   <>
@@ -695,62 +623,4 @@ const HistoriaClinica = () => {
   );
 };
 
-// Function to generate redaction for a section
-const generateSectionRedaction = async (sectionElement: Element) => {
-  try {
-    if (!sectionElement) return false;
-
-    // First make sure we're on the form tab
-    const formTabs = sectionElement.querySelectorAll('button');
-    let formTab = null;
-    for (const tab of formTabs) {
-      if (tab.textContent && tab.textContent.includes('Formulario')) {
-        formTab = tab;
-        break;
-      }
-    }
-    if (formTab) {
-      (formTab as HTMLElement).click();
-      await new Promise(resolve => setTimeout(resolve, 300));
-    }
-
-    // Find and click the "Generar Redacción IA" button
-    const allButtons = Array.from(sectionElement.querySelectorAll('button'));
-    const generateButton = allButtons.find(button => button.textContent && (button.textContent.includes('Generar Redacción IA') || button.textContent.includes('Generar Redacción') || button.textContent.includes('Generar Informe')));
-    if (!generateButton) {
-      console.warn('No generate button found in section');
-      return false;
-    }
-    console.log('Clicking generate button', generateButton.textContent);
-    (generateButton as HTMLElement).click();
-
-    // Wait for redaction to generate (4 seconds should be enough)
-    await new Promise(resolve => setTimeout(resolve, 4000));
-
-    // Switch to the redaction tab
-    const redactionTabs = sectionElement.querySelectorAll('button');
-    let redactionTab = null;
-    for (const tab of redactionTabs) {
-      if (tab.textContent && (tab.textContent.includes('Redacción IA') || tab.textContent.includes('Informe IA'))) {
-        redactionTab = tab;
-        break;
-      }
-    }
-    if (redactionTab) {
-      (redactionTab as HTMLElement).click();
-      await new Promise(resolve => setTimeout(resolve, 300));
-    }
-    return true;
-  } catch (error) {
-    console.error('Error generating redaction:', error);
-    return false;
-  }
-};
-
-// Function to extract redaction content from a section
-const getSectionRedaction = (sectionElement: Element): string | null => {
-  try {
-    if (!sectionElement) return null;
-
-    // Try to find redaction content div (with various selectors to be robust)
-    const possibleContentSelectors = ['div[data-redaction-content]', '.min-
+export default HistoriaClinica;
