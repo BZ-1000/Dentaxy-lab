@@ -427,8 +427,9 @@ const Landing = () => {
   };
   
   if (loading && mounted) return <LoadingScreen visible={loading} onComplete={handleLoadingComplete} />;
-  
-  return <div className="min-h-screen w-full bg-white apple-minimalist">
+
+  return (
+    <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="sticky top-0 bg-white z-50 flex items-center justify-between px-6 py-4 border-b border-gray-100 shadow-sm">
         <div className="flex items-center gap-2">
@@ -538,72 +539,146 @@ const Landing = () => {
             </button>
           </div>
 
-          <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
-            <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
-                🔽 Demostracion de redacción automatica...
+          <div 
+            className={`apple-card p-8 mb-12 max-w-4xl mx-auto ${isMobile ? "px-4 py-6 w-full max-w-full rounded-none" : ""}`} 
+            style={{ boxSizing: 'border-box' }}
+          >
+            <h2 className="mb-6 text-slate-600 font-normal text-base text-justify">
+              🔽 Demostracion de redacción automatica...
             </h2>
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+
+            {/* Solo mostrar formulario en móvil, ocultar elementos que no sean el formulario para aprovechar el espacio */}
+            {isMobile ? (
               <AntecedentesPersonalesPatologicos 
-        formData={{
-          antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-          padecimientoActual: {} as any,
-          antecedentesHeredoFamiliares: {} as any,
-          antecedentesPersonalesNoPatologicos: {} as any,
-          antecedentesAlergicos: {} as any,
-          antecedentesHemorragicos: {} as any,
-          antecedentesQuirurgicos: {} as any,
-          interrogatorioSistemas: {} as any,
-          exploracionFisica: {} as any,
-          examenCabeza: {} as any,
-          articulacionCraneomandibular: {} as any,
-          examenCuello: {} as any,
-          examenIntrabucal: {} as any,
-          glandulasSalivales: {} as any,
-          oclusion: {} as any,
-          relacionDientes: {} as any,
-          lineaMedia: {} as any,
-          frenillos: {} as any,
-          diagnostico: {} as any,
-          pronostico: {} as any,
-          serviciosDomiciliarios: '',
-          pisosVivienda: '',
-          materialVivienda: '',
-          materialPiso: '',
-          ventilacion: '',
-          frecuenciaLimpieza: '',
-          hacinamiento: '',
-          frecuenciaBano: '',
-          higieneBucal: {
-            frecuenciaCepillado: '',
-            usoHiloDental: '',
-            tipoCerdas: '',
-            cantidadPasta: '',
-            marcaPasta: ''
-          },
-          alimentacion: {
-            tipoDieta: '',
-            frecuenciaComidas: '',
-            tiposAlimentos: '',
-            saltaComidas: '',
-            consumoNutritivo: ''
-          },
-          grupoSanguineo: '',
-          factorRh: '',
-          inmunizaciones: '',
-          peso: '',
-          imc: '',
-          talla: '',
-          presionArterial: '',
-          pulso: '',
-          frecuenciaCardiaca: '',
-          frecuenciaRespiratoria: '',
-          temperatura: '',
-          diagnosticos: '',
-          pronosticos: ''
-        }} 
-        handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
-      />
-            </div>
+                formData={{
+                  antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+                  // En móvil, limpiamos el resto para evitar llenar espacio
+                  padecimientoActual: {} as any,
+                  antecedentesHeredoFamiliares: {} as any,
+                  antecedentesPersonalesNoPatologicos: {} as any,
+                  antecedentesAlergicos: {} as any,
+                  antecedentesHemorragicos: {} as any,
+                  antecedentesQuirurgicos: {} as any,
+                  interrogatorioSistemas: {} as any,
+                  exploracionFisica: {} as any,
+                  examenCabeza: {} as any,
+                  articulacionCraneomandibular: {} as any,
+                  examenCuello: {} as any,
+                  examenIntrabucal: {} as any,
+                  glandulasSalivales: {} as any,
+                  oclusion: {} as any,
+                  relacionDientes: {} as any,
+                  lineaMedia: {} as any,
+                  frenillos: {} as any,
+                  diagnostico: {} as any,
+                  pronostico: {} as any,
+                  serviciosDomiciliarios: '',
+                  pisosVivienda: '',
+                  materialVivienda: '',
+                  materialPiso: '',
+                  ventilacion: '',
+                  frecuenciaLimpieza: '',
+                  hacinamiento: '',
+                  frecuenciaBano: '',
+                  higieneBucal: {
+                    frecuenciaCepillado: '',
+                    usoHiloDental: '',
+                    tipoCerdas: '',
+                    cantidadPasta: '',
+                    marcaPasta: ''
+                  },
+                  alimentacion: {
+                    tipoDieta: '',
+                    frecuenciaComidas: '',
+                    tiposAlimentos: '',
+                    saltaComidas: '',
+                    consumoNutritivo: ''
+                  },
+                  grupoSanguineo: '',
+                  factorRh: '',
+                  inmunizaciones: '',
+                  peso: '',
+                  imc: '',
+                  talla: '',
+                  presionArterial: '',
+                  pulso: '',
+                  frecuenciaCardiaca: '',
+                  frecuenciaRespiratoria: '',
+                  temperatura: '',
+                  diagnosticos: '',
+                  pronosticos: ''
+                }}
+                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
+              />
+            ) : (
+              <>
+                <h2 className="mb-6 text-slate-600 font-normal text-base text-justify">
+                  🔽 Demostracion de redacción automatica...
+                </h2>
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                  <AntecedentesPersonalesPatologicos 
+                    formData={{
+                      antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+                      padecimientoActual: {} as any,
+                      antecedentesHeredoFamiliares: {} as any,
+                      antecedentesPersonalesNoPatologicos: {} as any,
+                      antecedentesAlergicos: {} as any,
+                      antecedentesHemorragicos: {} as any,
+                      antecedentesQuirurgicos: {} as any,
+                      interrogatorioSistemas: {} as any,
+                      exploracionFisica: {} as any,
+                      examenCabeza: {} as any,
+                      articulacionCraneomandibular: {} as any,
+                      examenCuello: {} as any,
+                      examenIntrabucal: {} as any,
+                      glandulasSalivales: {} as any,
+                      oclusion: {} as any,
+                      relacionDientes: {} as any,
+                      lineaMedia: {} as any,
+                      frenillos: {} as any,
+                      diagnostico: {} as any,
+                      pronostico: {} as any,
+                      serviciosDomiciliarios: '',
+                      pisosVivienda: '',
+                      materialVivienda: '',
+                      materialPiso: '',
+                      ventilacion: '',
+                      frecuenciaLimpieza: '',
+                      hacinamiento: '',
+                      frecuenciaBano: '',
+                      higieneBucal: {
+                        frecuenciaCepillado: '',
+                        usoHiloDental: '',
+                        tipoCerdas: '',
+                        cantidadPasta: '',
+                        marcaPasta: ''
+                      },
+                      alimentacion: {
+                        tipoDieta: '',
+                        frecuenciaComidas: '',
+                        tiposAlimentos: '',
+                        saltaComidas: '',
+                        consumoNutritivo: ''
+                      },
+                      grupoSanguineo: '',
+                      factorRh: '',
+                      inmunizaciones: '',
+                      peso: '',
+                      imc: '',
+                      talla: '',
+                      presionArterial: '',
+                      pulso: '',
+                      frecuenciaCardiaca: '',
+                      frecuenciaRespiratoria: '',
+                      temperatura: '',
+                      diagnosticos: '',
+                      pronosticos: ''
+                    }} 
+                    handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
+                  />
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -722,57 +797,3 @@ const Landing = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="relative p-6 rounded-xl border border-gray-200 shadow-sm">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm">
-                  Disponible
-                </div>
-                <h3 className="text-xl font-bold text-black mb-4 mt-4">
-                  Plan Beta
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Acceso completo durante la fase beta
-                </p>
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Acceso a todas
-                    las funciones
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Soporte
-                    prioritario
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Beneficios
-                    exclusivos
-                  </li>
-                </ul>
-                <Button onClick={handleSelectBetaPlan} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
-                  {hasBetaPlan ? "Plan Actual" : "Seleccionar Plan Beta"}
-                </Button>
-              </div>
-
-              <div className="p-6 rounded-xl border border-gray-200 shadow-sm opacity-50">
-                <h3 className="text-xl font-bold text-black mb-4">
-                  Plan Básico
-                </h3>
-                <p className="text-gray-600 mb-6">Próximamente</p>
-              </div>
-
-              <div className="p-6 rounded-xl border border-gray-200 shadow-sm opacity-50">
-                <h3 className="text-xl font-bold text-black mb-4">
-                  Plan Premium
-                </h3>
-                <p className="text-gray-600 mb-6">Próximamente</p>
-              </div>
-            </div>
-          </div>
-        </div>}
-
-      {/* Auth Dialog */}
-      <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({
-      ...authDialog,
-      isOpen: false
-    })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
-    </div>;
-};
-
-export default Landing;

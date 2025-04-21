@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -169,5 +168,13 @@
   .typewriter-text {
     font-size: 0.9rem !important;
   }
-}
 
+  /* Añadimos específicas reglas para mejorar la vista móvil referentes a apple-card */
+  .apple-card {
+    margin: 0 !important;
+    padding: 1rem !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+  }
+}
