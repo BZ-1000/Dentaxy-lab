@@ -427,9 +427,8 @@ const Landing = () => {
   };
   
   if (loading && mounted) return <LoadingScreen visible={loading} onComplete={handleLoadingComplete} />;
-
-  return (
-    <div className="min-h-screen w-full bg-white apple-minimalist">
+  
+  return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="sticky top-0 bg-white z-50 flex items-center justify-between px-6 py-4 border-b border-gray-100 shadow-sm">
         <div className="flex items-center gap-2">
@@ -440,14 +439,7 @@ const Landing = () => {
         {/* Main horizontal navigation */}
         <div className="hidden md:flex items-center space-x-6">
           {menuItems.map(item => (
-            <Link
-              key={item.label}
-              to={item.href}
-              className={`text-gray-700 hover:text-blue-600 transition-colors text-sm ${
-                activeItem === item.label ? 'font-medium' : 'font-normal'
-              }`}
-              onClick={() => setActiveItem(item.label)}
-            >
+            <Link key={item.label} to={item.href} className={`text-gray-700 hover:text-blue-600 transition-colors text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`} onClick={() => setActiveItem(item.label)}>
               {item.label}
             </Link>
           ))}
@@ -455,126 +447,78 @@ const Landing = () => {
 
         {/* Auth buttons */}
         <div className="flex gap-4">
-          {!session ? (
-            <>
+          {!session ? <>
               <Button variant="default" onClick={handleLogin} className="bg-black text-white hover:bg-black/80 rounded-full">
                 Iniciar sesión
               </Button>
               <Button variant="outline" onClick={handleRegister} className="bg-white text-black hover:bg-white/90 border-black rounded-full">
                 Registrarse
               </Button>
-            </>
-          ) : (
-            <div className="flex items-center gap-4">
+            </> : <div className="flex items-center gap-4">
               <span className="text-black text-sm">{username}</span>
               <button onClick={() => setShowDropdown(!showDropdown)} className="relative">
                 <UserCircle className="h-6 w-6 text-black" />
-                {showDropdown && (
-                  <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
-                    {hasBetaPlan && (
-                      <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
+                {showDropdown && <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
+                    {hasBetaPlan && <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
                         <Crown className="h-4 w-4" />
                         Plan Beta
-                      </div>
-                    )}
-                    <button
-                      onClick={handleChangeUsername}
-                      className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100"
-                    >
+                      </div>}
+                    <button onClick={handleChangeUsername} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100">
                       Cambiar nombre
                     </button>
-                    <button
-                      onClick={() => setShowPricingPopup(true)}
-                      className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2"
-                    >
+                    <button onClick={() => setShowPricingPopup(true)} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2">
                       <Crown className="h-4 w-4" />
                       Cambiar plan
                     </button>
-                    <button
-                      onClick={handleLogout}
-                      className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2"
-                    >
+                    <button onClick={handleLogout} className="px-2 py-3 text-red-500 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2">
                       <LogOut className="h-4 w-4" />
                       Cerrar sesión
                     </button>
-                  </div>
-                )}
+                  </div>}
               </button>
-            </div>
-          )}
+            </div>}
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {isMobile && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
+      {isMobile && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
           <div className="flex justify-around">
-            {menuItems.map(item => (
-              <Link
-                key={item.label}
-                to={item.href}
-                className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`}
-                onClick={() => setActiveItem(item.label)}
-              >
+            {menuItems.map(item => <Link key={item.label} to={item.href} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`} onClick={() => setActiveItem(item.label)}>
                 {item.label}
-              </Link>
-            ))}
+              </Link>)}
           </div>
-          {showDropdown && (
-            <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
-              {session ? (
-                <>
-                  <button
-                    onClick={handleChangeUsername}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-                  >
+          {showDropdown && <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
+              {session ? <>
+                  <button onClick={handleChangeUsername} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Cambiar nombre
                   </button>
-                  <button
-                    onClick={() => setShowPricingPopup(true)}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center gap-x-2"
-                  >
+                  <button onClick={() => setShowPricingPopup(true)} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center gap-x-2">
                     <Crown className="h-4 w-4" />
                     Cambiar plan
                   </button>
-                  <button
-                    onClick={handleLogout}
-                    className="w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100"
-                  >
+                  <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100">
                     Cerrar sesión
                   </button>
-                </>
-              ) : (
-                <>
-                  <button
-                    onClick={handleLogin}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-                  >
+                </> : <>
+                  <button onClick={handleLogin} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Iniciar sesión
                   </button>
-                  <button
-                    onClick={handleRegister}
-                    className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
-                  >
+                  <button onClick={handleRegister} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Registrarse
                   </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                </>}
+            </div>}
+        </div>}
 
       {/* Main Content */}
-      <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto py-[4px] w-full">
-
+      <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto py-[4px]">
         <div className="text-center w-full">
           <h1 className="mb-5 font-black text-black text-5xl text-center sm:text-8xl">
             DENTAXY
-            <Typewriter
-              text={[".ai", ".com"]}
-              speed={100}
-              deleteSpeed={80}
+            <Typewriter 
+              text={[".ai", ".com"]} 
+              speed={100} 
+              deleteSpeed={80} 
               delay={12000}
               loop={true}
               className="text-blue-500"
@@ -589,157 +533,77 @@ const Landing = () => {
           </div>
 
           <div className="mb-12">
-            <button
-              onClick={handleBetaAccess}
-              className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle"
-            >
+            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle">
               PRUEBA BETA
             </button>
           </div>
 
-          <div
-            className={`apple-card p-8 mb-12 max-w-4xl mx-auto ${isMobile ? "px-4 py-6 w-full max-w-full rounded-none" : ""}`}
-            style={{ boxSizing: 'border-box' }}
-          >
-            <h2
-              className={`mb-6 text-slate-600 font-normal text-base text-justify ${
-                isMobile ? "block" : "hidden"
-              }`}
-            >
-              🔽 Demostracion de redacción automatica...
+          <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
+            <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
+                🔽 Demostracion de redacción automatica...
             </h2>
-
-            {/* Solo mostrar formulario y titulo en móvil, sin otros complementos */}
-            {isMobile ? (
-              <AntecedentesPersonalesPatologicos
-                formData={{
-                  antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-                  padecimientoActual: {} as any,
-                  antecedentesHeredoFamiliares: {} as any,
-                  antecedentesPersonalesNoPatologicos: {} as any,
-                  antecedentesAlergicos: {} as any,
-                  antecedentesHemorragicos: {} as any,
-                  antecedentesQuirurgicos: {} as any,
-                  interrogatorioSistemas: {} as any,
-                  exploracionFisica: {} as any,
-                  examenCabeza: {} as any,
-                  articulacionCraneomandibular: {} as any,
-                  examenCuello: {} as any,
-                  examenIntrabucal: {} as any,
-                  glandulasSalivales: {} as any,
-                  oclusion: {} as any,
-                  relacionDientes: {} as any,
-                  lineaMedia: {} as any,
-                  frenillos: {} as any,
-                  diagnostico: {} as any,
-                  pronostico: {} as any,
-                  serviciosDomiciliarios: '',
-                  pisosVivienda: '',
-                  materialVivienda: '',
-                  materialPiso: '',
-                  ventilacion: '',
-                  frecuenciaLimpieza: '',
-                  hacinamiento: '',
-                  frecuenciaBano: '',
-                  higieneBucal: {
-                    frecuenciaCepillado: '',
-                    usoHiloDental: '',
-                    tipoCerdas: '',
-                    cantidadPasta: '',
-                    marcaPasta: '',
-                  },
-                  alimentacion: {
-                    tipoDieta: '',
-                    frecuenciaComidas: '',
-                    tiposAlimentos: '',
-                    saltaComidas: '',
-                    consumoNutritivo: '',
-                  },
-                  grupoSanguineo: '',
-                  factorRh: '',
-                  inmunizaciones: '',
-                  peso: '',
-                  imc: '',
-                  talla: '',
-                  presionArterial: '',
-                  pulso: '',
-                  frecuenciaCardiaca: '',
-                  frecuenciaRespiratoria: '',
-                  temperatura: '',
-                  diagnosticos: '',
-                  pronosticos: '',
-                }}
-                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
-              />
-            ) : (
-              <>
-                <h2 className="mb-6 text-slate-600 font-normal text-base text-justify">
-                  🔽 Demostracion de redacción automatica...
-                </h2>
-                <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-                  <AntecedentesPersonalesPatologicos
-                    formData={{
-                      antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-                      padecimientoActual: {} as any,
-                      antecedentesHeredoFamiliares: {} as any,
-                      antecedentesPersonalesNoPatologicos: {} as any,
-                      antecedentesAlergicos: {} as any,
-                      antecedentesHemorragicos: {} as any,
-                      antecedentesQuirurgicos: {} as any,
-                      interrogatorioSistemas: {} as any,
-                      exploracionFisica: {} as any,
-                      examenCabeza: {} as any,
-                      articulacionCraneomandibular: {} as any,
-                      examenCuello: {} as any,
-                      examenIntrabucal: {} as any,
-                      glandulasSalivales: {} as any,
-                      oclusion: {} as any,
-                      relacionDientes: {} as any,
-                      lineaMedia: {} as any,
-                      frenillos: {} as any,
-                      diagnostico: {} as any,
-                      pronostico: {} as any,
-                      serviciosDomiciliarios: '',
-                      pisosVivienda: '',
-                      materialVivienda: '',
-                      materialPiso: '',
-                      ventilacion: '',
-                      frecuenciaLimpieza: '',
-                      hacinamiento: '',
-                      frecuenciaBano: '',
-                      higieneBucal: {
-                        frecuenciaCepillado: '',
-                        usoHiloDental: '',
-                        tipoCerdas: '',
-                        cantidadPasta: '',
-                        marcaPasta: '',
-                      },
-                      alimentacion: {
-                        tipoDieta: '',
-                        frecuenciaComidas: '',
-                        tiposAlimentos: '',
-                        saltaComidas: '',
-                        consumoNutritivo: '',
-                      },
-                      grupoSanguineo: '',
-                      factorRh: '',
-                      inmunizaciones: '',
-                      peso: '',
-                      imc: '',
-                      talla: '',
-                      presionArterial: '',
-                      pulso: '',
-                      frecuenciaCardiaca: '',
-                      frecuenciaRespiratoria: '',
-                      temperatura: '',
-                      diagnosticos: '',
-                      pronosticos: '',
-                    }}
-                    handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
-                  />
-                </div>
-              </>
-            )}
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+              <AntecedentesPersonalesPatologicos 
+        formData={{
+          antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+          padecimientoActual: {} as any,
+          antecedentesHeredoFamiliares: {} as any,
+          antecedentesPersonalesNoPatologicos: {} as any,
+          antecedentesAlergicos: {} as any,
+          antecedentesHemorragicos: {} as any,
+          antecedentesQuirurgicos: {} as any,
+          interrogatorioSistemas: {} as any,
+          exploracionFisica: {} as any,
+          examenCabeza: {} as any,
+          articulacionCraneomandibular: {} as any,
+          examenCuello: {} as any,
+          examenIntrabucal: {} as any,
+          glandulasSalivales: {} as any,
+          oclusion: {} as any,
+          relacionDientes: {} as any,
+          lineaMedia: {} as any,
+          frenillos: {} as any,
+          diagnostico: {} as any,
+          pronostico: {} as any,
+          serviciosDomiciliarios: '',
+          pisosVivienda: '',
+          materialVivienda: '',
+          materialPiso: '',
+          ventilacion: '',
+          frecuenciaLimpieza: '',
+          hacinamiento: '',
+          frecuenciaBano: '',
+          higieneBucal: {
+            frecuenciaCepillado: '',
+            usoHiloDental: '',
+            tipoCerdas: '',
+            cantidadPasta: '',
+            marcaPasta: ''
+          },
+          alimentacion: {
+            tipoDieta: '',
+            frecuenciaComidas: '',
+            tiposAlimentos: '',
+            saltaComidas: '',
+            consumoNutritivo: ''
+          },
+          grupoSanguineo: '',
+          factorRh: '',
+          inmunizaciones: '',
+          peso: '',
+          imc: '',
+          talla: '',
+          presionArterial: '',
+          pulso: '',
+          frecuenciaCardiaca: '',
+          frecuenciaRespiratoria: '',
+          temperatura: '',
+          diagnosticos: '',
+          pronosticos: ''
+        }} 
+        handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
+      />
+            </div>
           </div>
         </div>
       </div>
@@ -758,43 +622,32 @@ const Landing = () => {
               <p className="text-xs text-gray-400">© 2025 Dentaxy.ai Todos los derechos reservados.</p>
               <p className="text-xs text-gray-400">© 2025 Dentaxy.com Todos los derechos reservados.</p>
               <div className="flex items-center">
-                <a
-                  href="https://instagram.com/dentalbasicsacademy"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => {
-                    e.currentTarget.classList.add('animate-scaleClick');
-                    setTimeout(() => {
-                      e.currentTarget.classList.remove('animate-scaleClick');
-                    }, 500);
-                  }}
-                  className="flex items-center hover:cursor-pointer transition-transform"
-                >
-                  <img
-                    src="/lovable-uploads/d122138d-9f75-4331-a81b-fd93b1b2e542.png"
-                    alt="Instagram"
-                    className="h-6 w-6 mr-2 animate-wiggle"
-                    style={{ transformOrigin: 'center' }}
-                  />
+                <a href="https://instagram.com/dentalbasicsacademy" target="_blank" rel="noopener noreferrer" onClick={e => {
+                e.currentTarget.classList.add('animate-scaleClick');
+                setTimeout(() => {
+                  e.currentTarget.classList.remove('animate-scaleClick');
+                }, 500);
+              }} className="flex items-center hover:cursor-pointer transition-transform">
+                  <img src="/lovable-uploads/d122138d-9f75-4331-a81b-fd93b1b2e542.png" alt="Instagram" className="h-6 w-6 mr-2 animate-wiggle" style={{
+                  transformOrigin: 'center'
+                }} />
                   <span className="text-sm text-gray-500">@dentalbasicsacademy</span>
                 </a>
               </div>
             </div>
-
+            
             {/* Column 2 - Quick Links */}
             <div>
               <h3 className="text-sm font-medium text-gray-800 mb-4">Enlaces</h3>
               <ul className="space-y-2">
-                {menuItems.map((item) => (
-                  <li key={item.label}>
+                {menuItems.map(item => <li key={item.label}>
                     <Link to={item.href} className="text-gray-500 hover:text-gray-800 transition-colors text-sm">
                       {item.label}
                     </Link>
-                  </li>
-                ))}
+                  </li>)}
               </ul>
             </div>
-
+            
             {/* Column 3 - Legal */}
             <div>
               <h3 className="text-sm font-medium text-gray-800 mb-4">Legal</h3>
@@ -812,7 +665,7 @@ const Landing = () => {
               </ul>
             </div>
           </div>
-
+          
           <div className="mt-10 pt-6 border-t border-gray-100 text-center">
             <p className="text-gray-400 text-xs">Transformando la experiencia odontológica con inteligencia artificial</p>
           </div>
@@ -820,68 +673,106 @@ const Landing = () => {
       </footer>
 
       {/* Username Popup - Updated with welcome message and terms checkboxes */}
-      {showPopup && session && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-            <h2 className="text-2xl font-bold text-black mb-2">¡Bienvenido a Dental Basics Academy!</h2>
-            <p className="text-gray-600 mb-6">
-              Para comenzar a utilizar nuestra plataforma, por favor ingresa tu nombre de usuario.
-            </p>
-
-            <Input
-              type="text"
-              placeholder="Ingresa tu nombre de usuario"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="mb-6"
-            />
-
-            <div className="space-y-3 mb-6">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="terms"
-                  checked={acceptTerms}
-                  onCheckedChange={(checked) => setAcceptTerms(checked === true)}
-                />
-                <label
-                  htmlFor="terms"
-                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Acepto los{' '}
-                  <Link to="/terms" className="text-blue-600 hover:underline" target="_blank">
-                    Términos y Condiciones
-                  </Link>
-                </label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="privacy"
-                  checked={acceptPrivacy}
-                  onCheckedChange={(checked) => setAcceptPrivacy(checked === true)}
-                />
-                <label
-                  htmlFor="privacy"
-                  className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  Acepto la{' '}
-                  <Link to="/privacy" className="text-blue-600 hover:underline" target="_blank">
-                    Política de Privacidad
-                  </Link>
-                </label>
-              </div>
+      {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+        <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+          <h2 className="text-2xl font-bold text-black mb-2">
+            ¡Bienvenido a Dental Basics Academy!
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Para comenzar a utilizar nuestra plataforma, por favor ingresa tu nombre de usuario.
+          </p>
+          
+          <Input type="text" placeholder="Ingresa tu nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="mb-6" />
+          
+          <div className="space-y-3 mb-6">
+            <div className="flex items-center space-x-2">
+              <Checkbox id="terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked === true)} />
+              <label htmlFor="terms" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Acepto los <Link to="/terms" className="text-blue-600 hover:underline" target="_blank">Términos y Condiciones</Link>
+              </label>
             </div>
-
-            <div className="flex justify-end gap-4">
-              <Button variant="ghost" onClick={() => setShowPopup(false)}>
-                Cancelar
-              </Button>
-              <Button
-                onClick={handleSaveUsername}
-                disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy}
-                className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                {loading ? 'Guardando...' : 'Guardar'}
-              </Button>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox id="privacy" checked={acceptPrivacy} onCheckedChange={checked => setAcceptPrivacy(checked === true)} />
+              <label htmlFor="privacy" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Acepto la <Link to="/privacy" className="text-blue-600 hover:underline" target="_blank">Política de Privacidad</Link>
+              </label>
             </div>
           </div>
+          
+          <div className="flex justify-end gap-4">
+            <Button variant="ghost" onClick={() => setShowPopup(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveUsername} disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy} className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              {loading ? "Guardando..." : "Guardar"}
+            </Button>
+          </div>
+        </div>
+      </div>}
+
+      {/* Pricing Popup */}
+      {showPricingPopup && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold text-black">Planes Disponibles</h2>
+              <Button variant="ghost" onClick={() => setShowPricingPopup(false)} className="text-gray-500 hover:text-gray-700">
+                ✕
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="relative p-6 rounded-xl border border-gray-200 shadow-sm">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm">
+                  Disponible
+                </div>
+                <h3 className="text-xl font-bold text-black mb-4 mt-4">
+                  Plan Beta
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Acceso completo durante la fase beta
+                </p>
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Acceso a todas
+                    las funciones
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Soporte
+                    prioritario
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Beneficios
+                    exclusivos
+                  </li>
+                </ul>
+                <Button onClick={handleSelectBetaPlan} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
+                  {hasBetaPlan ? "Plan Actual" : "Seleccionar Plan Beta"}
+                </Button>
+              </div>
+
+              <div className="p-6 rounded-xl border border-gray-200 shadow-sm opacity-50">
+                <h3 className="text-xl font-bold text-black mb-4">
+                  Plan Básico
+                </h3>
+                <p className="text-gray-600 mb-6">Próximamente</p>
+              </div>
+
+              <div className="p-6 rounded-xl border border-gray-200 shadow-sm opacity-50">
+                <h3 className="text-xl font-bold text-black mb-4">
+                  Plan Premium
+                </h3>
+                <p className="text-gray-600 mb-6">Próximamente</p>
+              </div>
+            </div>
+          </div>
+        </div>}
+
+      {/* Auth Dialog */}
+      <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({
+      ...authDialog,
+      isOpen: false
+    })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
+    </div>;
+};
+
+export default Landing;
