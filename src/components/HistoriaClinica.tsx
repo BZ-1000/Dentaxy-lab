@@ -525,10 +525,7 @@ const HistoriaClinica = () => {
             )}
 
             <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
-              <InterrogatorioSistemas
-          systemsData={formData.interrogatorioSistemas}
-          onChange={handleInterrogatorioChange}
-        />
+              <InterrogatorioSistemas formData={formData} handleInterrogatorioChange={handleInterrogatorioChange} />
             </div>
 
             <div data-section-redaction="true" data-section-name="exploracionFisica">

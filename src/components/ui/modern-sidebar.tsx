@@ -1,13 +1,13 @@
 
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
-import { AnimatePresence, motion, MotionValue, useMotionValue, useMotionValueEvent } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 interface Links {
   label: string;
   href?: string;
-  icon: React.ReactNode | MotionValue<string | number>;
+  icon: React.JSX.Element | React.ReactNode;
   onClick?: () => void;
 }
 
@@ -42,15 +42,29 @@ export const SidebarProvider = ({
   const open = openProp !== undefined ? openProp : openState;
   const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
 
-  return <SidebarContext.Provider
-    value={{
-      open,
-      setOpen,
-      animate
-    }}
-  >
+  return <SidebarContext.Provider value={{
+    open,
+    setOpen,
+    animate
+  }}>
       {children}
     </SidebarContext.Provider>;
+};
+
+export const Sidebar = ({
+  children,
+  open,
+  setOpen,
+  animate
+}: {
+  children: React.ReactNode;
+  open?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  animate?: boolean;
+}) => {
+  return <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
+      {children}
+    </SidebarProvider>;
 };
 
 export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
@@ -106,7 +120,7 @@ export const MobileSidebar = ({
           <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
         </button>
       </div>
-
+      
       <AnimatePresence>
         {open && (
           <motion.div
@@ -136,20 +150,6 @@ export const MobileSidebar = ({
   );
 };
 
-function MotionValueIcon({ icon }: { icon: MotionValue<string | number> }) {
-  // We'll subscribe to changes and rerender accordingly.
-  // This helper component unwraps the MotionValue and renders it as text.
-  const [currentValue, setCurrentValue] = React.useState(icon.get());
-
-  React.useEffect(() => {
-    return icon.onChange((latest) => {
-      setCurrentValue(latest);
-    });
-  }, [icon]);
-
-  return <>{String(currentValue)}</>;
-}
-
 export const SidebarLink = ({
   link,
   className,
@@ -160,32 +160,9 @@ export const SidebarLink = ({
 }) => {
   const { open, animate } = useSidebar();
 
-  // Handle the icon: if it's a MotionValue, unwrap it using MotionValueIcon; otherwise, render directly
-  let iconToRender: React.ReactNode;
-
-  if (
-    typeof link.icon === "object" &&
-    link.icon !== null &&
-    "onChange" in link.icon &&
-    typeof (link.icon as MotionValue<any>).get === "function"
-  ) {
-    // It's a MotionValue, render the current value with subscription
-    iconToRender = <MotionValueIcon icon={link.icon as MotionValue<string | number>} />;
-  } else {
-    // Normal ReactNode or JSX.Element
-    iconToRender = React.isValidElement(link.icon) ? link.icon : <>{link.icon}</>;
-  }
-
   return (
-    <div
-      className={cn(
-        "flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer",
-        className
-      )}
-      onClick={link.onClick}
-      {...props}
-    >
-      {iconToRender}
+    <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} onClick={link.onClick} {...props}>
+      {link.icon}
       {animate ? (
         open ? (
           <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
@@ -221,4 +198,3 @@ export const LogoIcon = ({
       {children}
     </div>;
 };
-
