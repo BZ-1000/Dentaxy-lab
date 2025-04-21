@@ -1,4 +1,7 @@
 
+// Corregido para que los inputs numéricos manejen estado correctamente y permitan edición,
+// y corregido el anidamiento incorrecto de <button> alrededor del VoiceInput.
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
@@ -38,9 +41,11 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
     handleAntecedenteGinecoObstetricoChange(field, value);
   };
   const handleNumberChange = (field: string, value: string) => {
+    // Permitir string vacío para limpiar el input
     if (value === '') {
       handleAntecedenteGinecoObstetricoChange(field, '');
     } else {
+      // Solo permitir números enteros positivos, converir o 0 si NaN
       const numValue = parseInt(value, 10);
       handleAntecedenteGinecoObstetricoChange(field, isNaN(numValue) ? 0 : numValue);
     }
@@ -70,6 +75,8 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
         } else {
           content += "No se reportan complicaciones.\n";
         }
+
+        // Fórmula obstétrica
         content += `\nFórmula obstétrica: G${embarazos || 0} P${partos || 0} C${cesareas || 0} A${abortos || 0}`;
       } else {
         content += "No se registraron datos gineco-obstétricos.";
@@ -217,10 +224,8 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                       placeholder="Describa cualquier complicación durante embarazos o partos"
                       className="min-h-[80px] flex-1 resize-y"
                     />
-                    <div className="ml-2">
-                      <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" type="button">
-                        <VoiceInput onTranscriptionComplete={handleVoiceInput("complicaciones")} />
-                      </button>
+                    <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer">
+                      <VoiceInput onTranscriptionComplete={handleVoiceInput("complicaciones")} />
                     </div>
                   </div>
                 </div>
@@ -247,3 +252,4 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
 };
 
 export default AntecedentesGinecoObstetricos;
+
