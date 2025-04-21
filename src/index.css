@@ -96,12 +96,12 @@
   }
 
   /* Sidebar smaller width on mobile (when visible) */
-  .md\\:flex.flex-col.bg-neutral-100 {
+  .md\:flex.flex-col.bg-neutral-100 {
     width: 180px !important;
   }
 
   /* Sidebar link text smaller */
-  .flex.items-center.justify-start.gap-2.group\\/sidebar.py-2 {
+  .flex.items-center.justify-start.gap-2.group\/sidebar.py-2 {
     font-size: 0.875rem;
   }
 
