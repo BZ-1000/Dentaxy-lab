@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -169,5 +168,17 @@
   .typewriter-text {
     font-size: 0.9rem !important;
   }
-}
 
+  /* Removed unnecessary margins and reduced padding for apple-card on mobile */
+  .apple-card {
+    margin-bottom: 1.5rem !important;
+    padding: 1.5rem !important;
+  }
+
+  /* Reduce container max-width for apple-card on mobile */
+  .apple-card.max-w-4xl {
+    max-width: 100% !important;
+    margin-left: 1rem !important;
+    margin-right: 1rem !important;
+  }
+}
