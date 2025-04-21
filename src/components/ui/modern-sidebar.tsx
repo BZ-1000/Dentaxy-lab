@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion, MotionValue } from "framer-motion";
@@ -70,7 +69,7 @@ export const Sidebar = ({
 export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
   return <>
       <DesktopSidebar {...props} />
-      <MobileSidebar {...props} />
+      {/* Eliminado el MobileSidebar */}
     </>;
 };
 
@@ -103,57 +102,7 @@ export const DesktopSidebar = ({
   );
 };
 
-export const MobileSidebar = ({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen } = useSidebar();
-
-  return (
-    <>
-      <div className="h-14 md:hidden flex items-center px-4 bg-neutral-100 dark:bg-neutral-800">
-        <button
-          onClick={() => setOpen(true)}
-          className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg"
-          aria-label="Abrir menú de formularios"
-        >
-          <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
-        </button>
-      </div>
-      
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-            className={cn(
-              "fixed inset-0 z-50 bg-white dark:bg-neutral-900 md:hidden shadow-lg",
-              className
-            )}
-            {...props}
-          >
-            <div className="flex flex-col h-full p-4">
-              <button
-                onClick={() => setOpen(false)}
-                className="self-end p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg mb-4"
-                aria-label="Cerrar menú de formularios"
-              >
-                <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
-              </button>
-              <div className="overflow-auto flex-1 scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
-                {children}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-};
-
+// MobileSidebar eliminado: no devuelve nada para no renderizar el slide sidebar en móviles.
 export const SidebarLink = ({
   link,
   className,
