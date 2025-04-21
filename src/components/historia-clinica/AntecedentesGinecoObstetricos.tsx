@@ -224,7 +224,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                       placeholder="Describa cualquier complicación durante embarazos o partos"
                       className="min-h-[80px] flex-1 resize-y"
                     />
-                    <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer">
+                    <div className="ml-2">
                       <VoiceInput onTranscriptionComplete={handleVoiceInput("complicaciones")} />
                     </div>
                   </div>
@@ -252,4 +252,3 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
 };
 
 export default AntecedentesGinecoObstetricos;
-

@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Mic } from "lucide-react";
+import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
@@ -24,17 +25,16 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
   };
-
   const handleMaximize = () => {
     setIsMaximized(!isMaximized);
     setIsMinimized(false);
   };
-
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
   };
 
+  // Toggle buttons
   const handleToggleButton = (field: string) => {
     if (handleAntecedenteAlergicoChange) {
       handleAntecedenteAlergicoChange(field, !formData.antecedentesAlergicos[field]);
@@ -79,7 +79,6 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
     setTimeout(() => {
       let content = "ANTECEDENTES ALÉRGICOS:\n\n";
 
-      // Tipos de alergias
       const alergias = [];
       if (formData.antecedentesAlergicos.tiposAlergias?.medicamentos) alergias.push("medicamentos");
       if (formData.antecedentesAlergicos.tiposAlergias?.alimentos) alergias.push("alimentos");
@@ -96,7 +95,6 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
         content += "El paciente no refiere antecedentes de alergias. ";
       }
 
-      // Anestesia
       content += "\n\nANTECEDENTES DE ANESTESIA:\n";
       if (formData.antecedentesAlergicos.administradoAnestesia) {
         content += "Se le ha administrado anestesia previamente";
@@ -119,7 +117,6 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
         content += "No se le ha administrado anestesia previamente. ";
       }
 
-      // Adicciones
       const adicciones = [];
       if (formData.antecedentesAlergicos.adicciones?.tabaco) adicciones.push("tabaco");
       if (formData.antecedentesAlergicos.adicciones?.alcohol) adicciones.push("alcohol");
@@ -155,13 +152,13 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
+            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" type="button">
               <Minus className="w-4 h-4" />
             </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
+            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" type="button">
               <Maximize2 className="w-4 h-4" />
             </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
+            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" type="button">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -198,7 +195,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                   </div>
 
                   {hasAnyAllergySelected && (
-                    <div className="grid grid-cols-1 gap-6">
+                    <>
                       <div className="relative">
                         <label className="block text-sm font-medium mb-1">¿Cuáles?</label>
                         <div className="flex items-center">
@@ -209,9 +206,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                             className="min-h-[80px] flex-1"
                           />
                           <div className="ml-2">
-                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                              <VoiceInput onTranscriptionComplete={handleVoiceInput('cualesAlergias')} />
-                            </button>
+                            <VoiceInput onTranscriptionComplete={handleVoiceInput('cualesAlergias')} />
                           </div>
                         </div>
                       </div>
@@ -226,13 +221,11 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                             className="min-h-[80px] flex-1"
                           />
                           <div className="ml-2">
-                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                              <VoiceInput onTranscriptionComplete={handleVoiceInput('especificacionAlergias')} />
-                            </button>
+                            <VoiceInput onTranscriptionComplete={handleVoiceInput('especificacionAlergias')} />
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </>
                   )}
 
                   <div>
@@ -264,9 +257,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                           className="min-h-[80px] flex-1"
                         />
                         <div className="ml-2">
-                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                            <VoiceInput onTranscriptionComplete={handleVoiceInput('tipoAnestesia')} />
-                          </button>
+                          <VoiceInput onTranscriptionComplete={handleVoiceInput('tipoAnestesia')} />
                         </div>
                       </div>
                     </div>
@@ -301,9 +292,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                           className="min-h-[80px] flex-1"
                         />
                         <div className="ml-2">
-                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                            <VoiceInput onTranscriptionComplete={handleVoiceInput('descripcionReaccion')} />
-                          </button>
+                          <VoiceInput onTranscriptionComplete={handleVoiceInput('descripcionReaccion')} />
                         </div>
                       </div>
                     </div>
@@ -341,9 +330,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                           className="min-h-[80px] flex-1"
                         />
                         <div className="ml-2">
-                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                            <VoiceInput onTranscriptionComplete={handleVoiceInput('detallesAdicciones')} />
-                          </button>
+                          <VoiceInput onTranscriptionComplete={handleVoiceInput('detallesAdicciones')} />
                         </div>
                       </div>
                     </div>
