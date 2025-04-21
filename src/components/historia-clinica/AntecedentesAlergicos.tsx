@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Mic } from "lucide-react";
+import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
@@ -208,10 +209,8 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                             placeholder="Especifique qué medicamentos, alimentos o elementos ambientales"
                             className="min-h-[80px] flex-1"
                           />
-                          <div className="ml-2">
-                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                              <VoiceInput onTranscriptionComplete={handleVoiceInput('cualesAlergias')} />
-                            </button>
+                          <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer">
+                            <VoiceInput onTranscriptionComplete={handleVoiceInput('cualesAlergias')} />
                           </div>
                         </div>
                       </div>
@@ -225,10 +224,8 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                             placeholder="Describa específicamente la alergia"
                             className="min-h-[80px] flex-1"
                           />
-                          <div className="ml-2">
-                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                              <VoiceInput onTranscriptionComplete={handleVoiceInput('especificacionAlergias')} />
-                            </button>
+                          <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer">
+                            <VoiceInput onTranscriptionComplete={handleVoiceInput('especificacionAlergias')} />
                           </div>
                         </div>
                       </div>
@@ -263,10 +260,8 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                           placeholder="Tipo de anestesia y procedimiento"
                           className="min-h-[80px] flex-1"
                         />
-                        <div className="ml-2">
-                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                            <VoiceInput onTranscriptionComplete={handleVoiceInput('tipoAnestesia')} />
-                          </button>
+                        <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer">
+                          <VoiceInput onTranscriptionComplete={handleVoiceInput('tipoAnestesia')} />
                         </div>
                       </div>
                     </div>
@@ -300,10 +295,8 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                           placeholder="Descripción de la reacción adversa"
                           className="min-h-[80px] flex-1"
                         />
-                        <div className="ml-2">
-                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                            <VoiceInput onTranscriptionComplete={handleVoiceInput('descripcionReaccion')} />
-                          </button>
+                        <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer">
+                          <VoiceInput onTranscriptionComplete={handleVoiceInput('descripcionReaccion')} />
                         </div>
                       </div>
                     </div>
@@ -340,10 +333,8 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                           placeholder="Detalles sobre adicciones"
                           className="min-h-[80px] flex-1"
                         />
-                        <div className="ml-2">
-                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
-                            <VoiceInput onTranscriptionComplete={handleVoiceInput('detallesAdicciones')} />
-                          </button>
+                        <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer">
+                          <VoiceInput onTranscriptionComplete={handleVoiceInput('detallesAdicciones')} />
                         </div>
                       </div>
                     </div>
