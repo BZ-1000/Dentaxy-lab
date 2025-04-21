@@ -1,14 +1,16 @@
 
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Mic } from "lucide-react";
+import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
+
 interface AntecedentesQuirurgicosProps {
   formData: FormDataState;
   handleAntecedenteQuirurgicoChange: (field: string, value: any) => void;
 }
+
 const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
   formData,
   handleAntecedenteQuirurgicoChange
@@ -18,6 +20,7 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
   const [activeTab, setActiveTab] = useState('formulario');
   const [redaccionContent, setRedaccionContent] = useState('');
   const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
+
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
@@ -45,7 +48,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
     setTimeout(() => {
       let content = "ANTECEDENTES MÉDICOS Y QUIRÚRGICOS:\n\n";
 
-      // Tratamiento médico reciente
       if (formData.antecedentesQuirurgicos.tratamientoReciente) {
         content += "El paciente ha estado sometido a tratamiento médico en los últimos dos meses. ";
         if (formData.antecedentesQuirurgicos.motivoTratamiento) {
@@ -55,7 +57,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
         content += "El paciente no ha estado sometido a tratamiento médico en los últimos dos meses. ";
       }
 
-      // Hospitalización reciente
       if (formData.antecedentesQuirurgicos.hospitalizacionReciente) {
         content += "\nHa sido hospitalizado en los últimos dos meses. ";
         if (formData.antecedentesQuirurgicos.motivoHospitalizacion) {
@@ -65,7 +66,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
         content += "\nNo ha sido hospitalizado en los últimos dos meses. ";
       }
 
-      // Medicamentos actuales
       if (formData.antecedentesQuirurgicos.tomaMedicamentos) {
         content += "\nActualmente está tomando medicamentos. ";
         if (formData.antecedentesQuirurgicos.cualesMedicamentos) {
@@ -78,7 +78,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
         content += "\nNo está tomando medicamentos actualmente. ";
       }
 
-      // Cirugías previas
       if (formData.antecedentesQuirurgicos.sinQuirurgicos === false && formData.antecedentesQuirurgicos.cirugiasRealizadas?.length > 0) {
         content += "\n\nANTECEDENTES QUIRÚRGICOS:\n";
         formData.antecedentesQuirurgicos.cirugiasRealizadas.forEach((cirugia, index) => {
@@ -146,7 +145,7 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                       <div className="flex items-center">
                         <Textarea value={formData.antecedentesQuirurgicos.motivoTratamiento || ''} onChange={e => handleTextChange('motivoTratamiento', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
                         <div className="ml-2">
-                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
+                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" type="button">
                             <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTratamiento')} />
                           </button>
                         </div>
@@ -172,7 +171,7 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                       <div className="flex items-center">
                         <Textarea value={formData.antecedentesQuirurgicos.motivoHospitalizacion || ''} onChange={e => handleTextChange('motivoHospitalizacion', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
                         <div className="ml-2">
-                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
+                          <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" type="button">
                             <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoHospitalizacion')} />
                           </button>
                         </div>
@@ -199,7 +198,7 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                         <div className="flex items-center">
                           <Textarea value={formData.antecedentesQuirurgicos.cualesMedicamentos || ''} onChange={e => handleTextChange('cualesMedicamentos', e.target.value)} placeholder="Liste los medicamentos" className="min-h-[80px] flex-1" />
                           <div className="ml-2">
-                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
+                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" type="button">
                               <VoiceInput onTranscriptionComplete={handleVoiceInput('cualesMedicamentos')} />
                             </button>
                           </div>
@@ -211,7 +210,7 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                         <div className="flex items-center">
                           <Textarea value={formData.antecedentesQuirurgicos.motivoMedicamentos || ''} onChange={e => handleTextChange('motivoMedicamentos', e.target.value)} placeholder="Explique por qué toma estos medicamentos" className="min-h-[80px] flex-1" />
                           <div className="ml-2">
-                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" onClick={() => {}}>
+                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" type="button">
                               <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoMedicamentos')} />
                             </button>
                           </div>

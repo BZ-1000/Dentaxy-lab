@@ -47,7 +47,6 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
     setTimeout(() => {
       let content = "ANTECEDENTES HEMORRÁGICOS:\n\n";
 
-      // Historial de transfusiones
       if (formData.antecedentesHemorragicos.transfusiones === 'si' || formData.antecedentesHemorragicos.transfusionPrevia) {
         content += "El paciente ha recibido transfusiones sanguíneas o derivados. ";
         if (formData.antecedentesHemorragicos.motivoTransfusion) {
@@ -60,7 +59,6 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
         content += "El paciente niega antecedentes de transfusiones sanguíneas. ";
       }
 
-      // Otros detalles hemorrágicos
       if (formData.antecedentesHemorragicos.sangradoProlongado === 'si') {
         content += "\nRefiere episodios de sangrado prolongado. ";
       }
@@ -132,8 +130,10 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                         <label className="block text-sm font-medium mb-1">Motivo de la transfusión:</label>
                         <div className="flex items-center">
                           <Textarea value={formData.antecedentesHemorragicos.motivoTransfusion || ''} onChange={e => handleTextChange('motivoTransfusion', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
-                          <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer">
-                            <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTransfusion')} />
+                          <div className="ml-2">
+                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" type="button">
+                              <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTransfusion')} />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -142,8 +142,10 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                         <label className="block text-sm font-medium mb-1">Fecha de la transfusión:</label>
                         <div className="flex items-center">
                           <Textarea value={formData.antecedentesHemorragicos.fechaTransfusion || ''} onChange={e => handleTextChange('fechaTransfusion', e.target.value)} placeholder="DD/MM/AAAA o especifique aproximadamente" className="min-h-[60px] flex-1" />
-                          <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer">
-                            <VoiceInput onTranscriptionComplete={handleVoiceInput('fechaTransfusion')} />
+                          <div className="ml-2">
+                            <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" type="button">
+                              <VoiceInput onTranscriptionComplete={handleVoiceInput('fechaTransfusion')} />
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -154,8 +156,10 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                     <label className="block text-sm font-medium mb-1">Detalles adicionales sobre antecedentes hemorrágicos:</label>
                     <div className="flex items-center">
                       <Textarea value={formData.antecedentesHemorragicos.detallesAdicionales || ''} onChange={e => handleTextChange('detallesAdicionales', e.target.value)} placeholder="Proporcione cualquier otra información relevante" className="min-h-[80px] flex-1" />
-                      <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer">
-                        <VoiceInput onTranscriptionComplete={handleVoiceInput('detallesAdicionales')} />
+                      <div className="ml-2">
+                        <button className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-600 transition-colors" type="button">
+                          <VoiceInput onTranscriptionComplete={handleVoiceInput('detallesAdicionales')} />
+                        </button>
                       </div>
                     </div>
                   </div>
