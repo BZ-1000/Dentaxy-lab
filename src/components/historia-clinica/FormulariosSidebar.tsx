@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -145,7 +146,7 @@ const FormulariosSidebar = ({
 
   
   return <div className="">
-      <div className="sticky top-0 h-screen">
+      <div className="sticky top-0 h-screen hidden md:block">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
           <SidebarBody className="bg-white dark:bg-neutral-900">
             <div className="sticky top-0 bg-slate-50 z-10">
@@ -247,3 +248,4 @@ const FormulariosSidebar = ({
 };
 
 export default FormulariosSidebar;
+
