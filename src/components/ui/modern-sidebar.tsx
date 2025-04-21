@@ -1,6 +1,7 @@
+
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
-import { AnimatePresence, motion, MotionValue } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 interface Links {
@@ -69,7 +70,7 @@ export const Sidebar = ({
 export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
   return <>
       <DesktopSidebar {...props} />
-      {/* Eliminado el MobileSidebar */}
+      <MobileSidebar {...props} />
     </>;
 };
 
@@ -102,7 +103,53 @@ export const DesktopSidebar = ({
   );
 };
 
-// MobileSidebar eliminado: no devuelve nada para no renderizar el slide sidebar en móviles.
+export const MobileSidebar = ({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof motion.div>) => {
+  const { open, setOpen } = useSidebar();
+
+  return (
+    <>
+      <div className="h-14 md:hidden flex items-center px-4 bg-neutral-100 dark:bg-neutral-800">
+        <button
+          onClick={() => setOpen(true)}
+          className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg"
+        >
+          <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+        </button>
+      </div>
+      
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+            className={cn(
+              "fixed inset-0 z-50 bg-white dark:bg-neutral-900 md:hidden",
+              className
+            )}
+            {...props}
+          >
+            <div className="flex flex-col h-full p-4">
+              <button
+                onClick={() => setOpen(false)}
+                className="self-end p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg mb-4"
+              >
+                <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+              </button>
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
 export const SidebarLink = ({
   link,
   className,
@@ -114,14 +161,7 @@ export const SidebarLink = ({
   const { open, animate } = useSidebar();
 
   return (
-    <div
-      className={cn(
-        "flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer select-none",
-        className
-      )}
-      onClick={link.onClick}
-      {...props}
-    >
+    <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} onClick={link.onClick} {...props}>
       {link.icon}
       {animate ? (
         open ? (
