@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLocation } from 'react-router-dom';
 
 interface FormulariosSidebarProps {
   onCargarFormulario: (data: FormDataState, nombre: string) => void;
@@ -32,12 +33,21 @@ const FormulariosSidebar = ({
   }[]>([]);
   const { theme } = useTheme();
   const [dialogOpen, setDialogOpen] = useState(false);
+  // Nuevo estado para diálogo renombrar/compartir separado (antes se usaba dialogOpen también)
+  const [formActionDialogOpen, setFormActionDialogOpen] = useState(false);
+
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [accionFormulario, setAccionFormulario] = useState<'eliminar' | 'renombrar' | 'compartir' | null>(null);
   const [formularioSeleccionado, setFormularioSeleccionado] = useState<string | null>(null);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
   const isMobile = useIsMobile();
+
+  // Importamos hook useLocation para detectar la ruta actual
+  const location = useLocation();
+
+  // Solo mostraremos el botón si la ruta actual empieza con /app para que no aparezca en la landing
+  const showButton = location.pathname.startsWith('/app') && isMobile;
 
   const loadSavedForms = () => {
     const savedForms: {
@@ -100,7 +110,8 @@ const FormulariosSidebar = ({
         onCargarFormulario(data, nuevoNombre);
       }
       loadSavedForms();
-      setDialogOpen(false);
+      setFormActionDialogOpen(false);
+      setAccionFormulario(null);
       toast({
         title: "Formulario renombrado",
         description: `El formulario ha sido renombrado a ${nuevoNombre}.`
@@ -114,7 +125,8 @@ const FormulariosSidebar = ({
       title: "Formulario compartido",
       description: `Se ha compartido el formulario de ${formularioSeleccionado} con ${emailCompartir}.`
     });
-    setDialogOpen(false);
+    setFormActionDialogOpen(false);
+    setAccionFormulario(null);
   };
 
   const handleFormularioAction = (action: 'eliminar' | 'renombrar' | 'compartir', nombre: string) => {
@@ -129,18 +141,27 @@ const FormulariosSidebar = ({
         setNuevoNombre('');
       }
       setEmailCompartir('');
-      setDialogOpen(true);
+      setFormActionDialogOpen(true);
     }
   };
 
-  // Función para cerrar el panel en móvil
+  // Para cerrar diálogo principal
   const handleCloseDialog = () => setDialogOpen(false);
+  // Para cerrar diálogo renombrar/compartir 
+  const handleCloseFormActionDialog = () => {
+    setFormActionDialogOpen(false);
+    setAccionFormulario(null);
+  };
 
-  // Renderizamos diferente dependiendo de si es móvil o escritorio
+  // Renderizar diferente en móvil u escritorio
   if (isMobile) {
-    // Mover el botón a la parte superior y arreglar el diálogo para mostrar formularios
+    if (!showButton) {
+      return null; // No renderizamos nada si no está en página /app movil (no mostrar botón)
+    }
+
     return (
       <>
+        {/* Botón en la parte superior izquierda */}
         <div className="fixed top-4 left-4 z-50">
           <Button 
             variant="outline"
@@ -152,13 +173,14 @@ const FormulariosSidebar = ({
           </Button>
         </div>
 
+        {/* Diálogo principal: listado de formularios */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="max-w-xs w-full p-0 fixed left-0 top-0 h-full bg-white dark:bg-neutral-900 shadow-lg overflow-hidden flex flex-col">
             <DialogHeader className="flex items-center justify-between px-4 py-3 border-b border-gray-300 dark:border-gray-700">
               <DialogTitle className="text-lg font-semibold">Formularios Guardados</DialogTitle>
               <Button 
                 variant="ghost"
-                onClick={() => setDialogOpen(false)}
+                onClick={handleCloseDialog}
                 aria-label="Cerrar formularios"
                 className="p-1"
               >
@@ -166,6 +188,7 @@ const FormulariosSidebar = ({
               </Button>
             </DialogHeader>
 
+            {/* Scrollarea ocupa el espacio restante */}
             <ScrollArea className="flex-1 overflow-y-auto px-2 pb-4">
               <div className="space-y-1">
                 {formularios.map((form, index) => (
@@ -176,12 +199,12 @@ const FormulariosSidebar = ({
                     tabIndex={0}
                     onClick={() => {
                       onCargarFormulario(form.data, form.nombre);
-                      setDialogOpen(false);
+                      handleCloseDialog();
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         onCargarFormulario(form.data, form.nombre);
-                        setDialogOpen(false);
+                        handleCloseDialog();
                       }
                     }}
                   >
@@ -194,6 +217,7 @@ const FormulariosSidebar = ({
                         onClick={(e) => {
                           e.stopPropagation();
                           handleFormularioAction('renombrar', form.nombre);
+                          handleCloseDialog(); // Cerramos diálogo principal para abrir el del formulario acción
                         }}
                         className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
                         title="Renombrar paciente"
@@ -205,6 +229,7 @@ const FormulariosSidebar = ({
                         onClick={(e) => {
                           e.stopPropagation();
                           handleFormularioAction('compartir', form.nombre);
+                          handleCloseDialog();
                         }}
                         className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
                         title="Compartir formulario"
@@ -216,6 +241,7 @@ const FormulariosSidebar = ({
                         onClick={(e) => {
                           e.stopPropagation();
                           handleFormularioAction('eliminar', form.nombre);
+                          handleCloseDialog();
                         }}
                         className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700 text-red-500"
                         title="Eliminar paciente"
@@ -232,9 +258,7 @@ const FormulariosSidebar = ({
         </Dialog>
 
         {/* Dialog para renombrar o compartir */}
-        <Dialog open={dialogOpen && accionFormulario !== null} onOpenChange={(open) => {
-          if (!open) setAccionFormulario(null);
-        }}>
+        <Dialog open={formActionDialogOpen} onOpenChange={setFormActionDialogOpen}>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
@@ -262,7 +286,7 @@ const FormulariosSidebar = ({
             )}
 
             <DialogFooter>
-              <Button onClick={() => setDialogOpen(false)} variant="outline">
+              <Button onClick={handleCloseFormActionDialog} variant="outline">
                 Cancelar
               </Button>
               <Button
@@ -306,7 +330,7 @@ const FormulariosSidebar = ({
     );
   }
 
-  // En escritorio, mostrar la lista completa fija a la izquierda
+  // En escritorio, mostrar la lista completa fija a la izquierda - sin cambios
   return (
     <div className="sticky top-0 h-screen w-72 bg-white dark:bg-neutral-900 border-r border-gray-300 dark:border-gray-700 p-4">
       <div className="flex items-center space-x-2 mb-4">
