@@ -525,10 +525,21 @@ const HistoriaClinica = () => {
             )}
 
           <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
-            <InterrogatorioSistemas 
-              systemsData={formData.interrogatorioSistemas} 
-              // We don't pass handleInterrogatorioChange because the component doesn't expect it unless you omitted from the interface
-            />
+            
+  const interrogatorioSystemsDataFixed = {
+    digestivo: formData.interrogatorioSistemas.digestivo ?? {},
+    respiratorio: formData.interrogatorioSistemas.respiratorio ?? {},
+    cardiovascular: formData.interrogatorioSistemas.cardiovascular ?? {},
+    genitoUrinaio: formData.interrogatorioSistemas.genitoUrinaio ?? {},
+    endocrino: formData.interrogatorioSistemas.endocrino ?? {},
+    tegumentario: formData.interrogatorioSistemas.tegumentario ?? {},
+    musculoEsqueletico: formData.interrogatorioSistemas.musculoEsqueletico ?? {},
+    nervioso: formData.interrogatorioSistemas.nervioso ?? {},
+  };
+
+  
+              <InterrogatorioSistemas systemsData={interrogatorioSystemsDataFixed} />
+            
           </div>
 
             <div data-section-redaction="true" data-section-name="exploracionFisica">
