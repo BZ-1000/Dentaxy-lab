@@ -55,11 +55,118 @@
   }
 }
 
+/* Global border for all elements */
 @layer base {
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* MOBILE ADJUSTMENTS */
+@media (max-width: 640px) {
+  /* Reduce base font size globally */
+  html {
+    font-size: 14px;
+  }
+
+  /* Make buttons smaller and more compact */
+  button,
+  .button, /* in case some buttons have this class */
+  [role="button"] {
+    @apply px-3 py-1.5 text-sm rounded-md;
+  }
+
+  /* Inputs smaller height */
+  input, textarea, select {
+    @apply text-sm px-2 py-1 rounded-md;
+  }
+
+  /* Smaller dialog content padding and font */
+  .radix-dialog-content {
+    padding: 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+
+  /* Dialog footer buttons smaller */
+  .radix-dialog-footer > button {
+    @apply text-sm px-3 py-1.5 rounded-md;
+  }
+
+  /* Sidebar smaller width on mobile (when visible) */
+  .md\\:flex.flex-col.bg-neutral-100 {
+    width: 180px !important;
+  }
+
+  /* Sidebar link text smaller */
+  .flex.items-center.justify-start.gap-2.group\\/sidebar.py-2 {
+    font-size: 0.875rem;
+  }
+
+  /* Reduce icon sizes inside sidebar links */
+  .flex.items-center.justify-start.gap-2 svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Scroll area padding reduced */
+  .radix-scroll-area {
+    padding-right: 4px !important;
+  }
+
+  /* Cards padding reduction */
+  .card {
+    padding: 1rem !important;
+  }
+
+  /* Smaller margins and paddings globally in main containers */
+  .container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  /* Reduce gaps in flex and grid containers */
+  .flex.gap-4, .flex.gap-6, .flex.gap-8, .grid.gap-4, .grid.gap-6 {
+    gap: 0.5rem !important;
+  }
+
+  /* Reduce heading sizes */
+  h1 {
+    font-size: 1.75rem !important;
+    line-height: 2rem !important;
+  }
+  h2 {
+    font-size: 1.25rem !important;
+    line-height: 1.5rem !important;
+  }
+  h3 {
+    font-size: 1rem !important;
+  }
+
+  /* Reduce space around input labels */
+  label {
+    font-size: 0.875rem !important;
+  }
+
+  /* Compact toggle buttons */
+  button[class*="Toggle"], button[class*="toggle"] {
+    @apply px-2 py-1 text-xs rounded;
+  }
+
+  /* Compact sidebar action icon buttons */
+  button[class*="rounded-full"].flex.items-center.justify-center {
+    @apply w-7 h-7 p-1 text-xs;
+  }
+
+  /* Toast messages smaller font */
+  .toast-root {
+    font-size: 0.8rem !important;
+  }
+
+  /* Adjust typewriter text font size */
+  .typewriter-text {
+    font-size: 0.9rem !important;
   }
 }
