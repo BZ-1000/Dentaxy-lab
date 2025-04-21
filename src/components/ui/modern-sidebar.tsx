@@ -1,7 +1,7 @@
 
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, MotionValue, useMotionValue } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 interface Links {
@@ -146,8 +146,21 @@ export const SidebarLink = ({
 }) => {
   const { open, animate } = useSidebar();
 
-  // Prevent MotionValues being rendered as React nodes
-  const icon = React.isValidElement(link.icon) ? link.icon : <>{link.icon}</>;
+  // We convert MotionValues to React elements carefully.
+  // If link.icon is a MotionValue (like an animated number), it cannot be rendered directly, so we ensure it's a ReactNode.
+  let iconToRender: React.ReactNode;
+  // If link.icon is a MotionValue, wrap it or use useMotionValue.
+  // Here we'll just wrap it with <> to force ReactNode type.
+  if (
+    typeof link.icon === "object" &&
+    (link.icon as MotionValue<any>).get !== undefined
+  ) {
+    // This is a MotionValue, we unwrap by using useMotionValue hook not possible here.
+    // So just render an empty fragment or a placeholder.
+    iconToRender = <>{String((link.icon as MotionValue<any>).get())}</>;
+  } else {
+    iconToRender = React.isValidElement(link.icon) ? link.icon : <>{link.icon}</>;
+  }
 
   return (
     <div
@@ -158,7 +171,7 @@ export const SidebarLink = ({
       onClick={link.onClick}
       {...props}
     >
-      {icon}
+      {iconToRender}
       {animate ? (
         open ? (
           <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
