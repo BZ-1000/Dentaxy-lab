@@ -524,23 +524,9 @@ const HistoriaClinica = () => {
               </div>
             )}
 
-          <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
-            
-  const interrogatorioSystemsDataFixed = {
-    digestivo: formData.interrogatorioSistemas.digestivo ?? {},
-    respiratorio: formData.interrogatorioSistemas.respiratorio ?? {},
-    cardiovascular: formData.interrogatorioSistemas.cardiovascular ?? {},
-    genitoUrinaio: formData.interrogatorioSistemas.genitoUrinaio ?? {},
-    endocrino: formData.interrogatorioSistemas.endocrino ?? {},
-    tegumentario: formData.interrogatorioSistemas.tegumentario ?? {},
-    musculoEsqueletico: formData.interrogatorioSistemas.musculoEsqueletico ?? {},
-    nervioso: formData.interrogatorioSistemas.nervioso ?? {},
-  };
-
-  
-              <InterrogatorioSistemas systemsData={interrogatorioSystemsDataFixed} />
-            
-          </div>
+            <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
+              <InterrogatorioSistemas formData={formData} handleInterrogatorioChange={handleInterrogatorioChange} />
+            </div>
 
             <div data-section-redaction="true" data-section-name="exploracionFisica">
               <ExploracionFisica formData={formData} handleExploracionFisicaChange={handleExploracionFisicaChange} />
