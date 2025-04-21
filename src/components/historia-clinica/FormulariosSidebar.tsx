@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -139,10 +138,10 @@ const FormulariosSidebar = ({
 
   // Renderizamos diferente dependiendo de si es móvil o escritorio
   if (isMobile) {
-    // Solo un botón minimalista con icono libro que abre el panel
+    // Mover el botón a la parte superior y arreglar el diálogo para mostrar formularios
     return (
       <>
-        <div className="fixed bottom-6 left-6 z-50">
+        <div className="fixed top-4 left-4 z-50">
           <Button 
             variant="outline"
             onClick={() => setDialogOpen(true)}
@@ -154,12 +153,12 @@ const FormulariosSidebar = ({
         </div>
 
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-w-xs w-full p-0 fixed left-0 top-0 h-full bg-white dark:bg-neutral-900 shadow-lg overflow-hidden">
+          <DialogContent className="max-w-xs w-full p-0 fixed left-0 top-0 h-full bg-white dark:bg-neutral-900 shadow-lg overflow-hidden flex flex-col">
             <DialogHeader className="flex items-center justify-between px-4 py-3 border-b border-gray-300 dark:border-gray-700">
               <DialogTitle className="text-lg font-semibold">Formularios Guardados</DialogTitle>
               <Button 
                 variant="ghost"
-                onClick={handleCloseDialog}
+                onClick={() => setDialogOpen(false)}
                 aria-label="Cerrar formularios"
                 className="p-1"
               >
@@ -167,7 +166,7 @@ const FormulariosSidebar = ({
               </Button>
             </DialogHeader>
 
-            <ScrollArea className="flex-1 overflow-y-auto h-[calc(100vh-56px)] px-2 pb-4">
+            <ScrollArea className="flex-1 overflow-y-auto px-2 pb-4">
               <div className="space-y-1">
                 {formularios.map((form, index) => (
                   <div
@@ -177,12 +176,12 @@ const FormulariosSidebar = ({
                     tabIndex={0}
                     onClick={() => {
                       onCargarFormulario(form.data, form.nombre);
-                      handleCloseDialog();
+                      setDialogOpen(false);
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         onCargarFormulario(form.data, form.nombre);
-                        handleCloseDialog();
+                        setDialogOpen(false);
                       }
                     }}
                   >
@@ -232,7 +231,7 @@ const FormulariosSidebar = ({
           </DialogContent>
         </Dialog>
 
-        {/* Dialog for renaming or sharing */}
+        {/* Dialog para renombrar o compartir */}
         <Dialog open={dialogOpen && accionFormulario !== null} onOpenChange={(open) => {
           if (!open) setAccionFormulario(null);
         }}>
@@ -285,7 +284,7 @@ const FormulariosSidebar = ({
           </DialogContent>
         </Dialog>
 
-        {/* Alert Dialog for confirming deletion */}
+        {/* Alert Dialog para confirmar eliminación */}
         <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
