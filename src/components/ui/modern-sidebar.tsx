@@ -7,7 +7,7 @@ import { Menu, X } from "lucide-react";
 interface Links {
   label: string;
   href?: string;
-  icon: React.JSX.Element | React.ReactNode;
+  icon: React.ReactNode;
   onClick?: () => void;
 }
 
@@ -42,29 +42,15 @@ export const SidebarProvider = ({
   const open = openProp !== undefined ? openProp : openState;
   const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
 
-  return <SidebarContext.Provider value={{
-    open,
-    setOpen,
-    animate
-  }}>
+  return <SidebarContext.Provider
+    value={{
+      open,
+      setOpen,
+      animate
+    }}
+  >
       {children}
     </SidebarContext.Provider>;
-};
-
-export const Sidebar = ({
-  children,
-  open,
-  setOpen,
-  animate
-}: {
-  children: React.ReactNode;
-  open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
-}) => {
-  return <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
-      {children}
-    </SidebarProvider>;
 };
 
 export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
@@ -120,7 +106,7 @@ export const MobileSidebar = ({
           <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
         </button>
       </div>
-      
+
       <AnimatePresence>
         {open && (
           <motion.div
@@ -160,9 +146,19 @@ export const SidebarLink = ({
 }) => {
   const { open, animate } = useSidebar();
 
+  // Prevent MotionValues being rendered as React nodes
+  const icon = React.isValidElement(link.icon) ? link.icon : <>{link.icon}</>;
+
   return (
-    <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} onClick={link.onClick} {...props}>
-      {link.icon}
+    <div
+      className={cn(
+        "flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer",
+        className
+      )}
+      onClick={link.onClick}
+      {...props}
+    >
+      {icon}
       {animate ? (
         open ? (
           <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
@@ -198,3 +194,4 @@ export const LogoIcon = ({
       {children}
     </div>;
 };
+
