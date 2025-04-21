@@ -34,6 +34,7 @@ import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
 import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
+import FormulariosModalMobile from './historia-clinica/FormulariosModalMobile';
 
 const HistoriaClinica = () => {
   const {
@@ -387,23 +388,97 @@ const HistoriaClinica = () => {
     }
   };
 
+  // State to control mobile modal for formularios
+  const [formModalMobileOpen, setFormModalMobileOpen] = useState(false);
+
+  // Add handlers for mobile formularios modal actions
+  const handleEliminarFormularioMobile = (nombre: string) => {
+    localStorage.removeItem(`formulario_${nombre}`);
+    toast({
+      title: "Formulario eliminado",
+      description: `El formulario de ${nombre} ha sido eliminado.`
+    });
+    if (nombre === pacienteActual) {
+      handleLimpiarFormulario();
+    }
+  };
+
+  const handleRenombrarFormularioMobile = (nombreViejo: string, nombreNuevo: string) => {
+    const oldData = localStorage.getItem(`formulario_${nombreViejo}`);
+    if (oldData) {
+      localStorage.setItem(`formulario_${nombreNuevo}`, oldData);
+      localStorage.removeItem(`formulario_${nombreViejo}`);
+      if (nombreViejo === pacienteActual) {
+        const data = JSON.parse(oldData);
+        cargarFormulario(data);
+        setPacienteActual(nombreNuevo);
+        setNombrePaciente(nombreNuevo);
+      }
+      toast({
+        title: "Formulario renombrado",
+        description: `El formulario ha sido renombrado a ${nombreNuevo}.`
+      });
+    }
+  };
+
+  const handleCompartirFormularioMobile = (nombre: string, email: string) => {
+    toast({
+      title: "Formulario compartido",
+      description: `Se ha compartido el formulario de ${nombre} con ${email}.`
+    });
+  };
+
   return (
     // Contenedor principal con mejor espacio y scroll para móviles sin afectar escritorio
     <div className={`${theme} min-h-screen w-full flex flex-col md:flex-row`}>
-      <FormulariosSidebar
+      {/* Sidebar visible only on md+ */}
+      <div className="hidden md:flex sticky top-0 h-screen w-72 flex-col bg-white dark:bg-neutral-900 border-r border-gray-300 dark:border-gray-700 z-20">
+        <FormulariosSidebar
+          onCargarFormulario={(data, nombre) => {
+            cargarFormulario(data);
+            setPacienteActual(nombre);
+            setNombrePaciente(nombre);
+          }}
+          onGuardarFormulario={nombre => {
+            guardarFormulario(formData, nombre);
+            setPacienteActual(nombre);
+          }}
+          onCerrarFormulario={handleLimpiarFormulario}
+          onResetFormulario={handleResetFormulario}
+          pacienteActual={pacienteActual}
+        />
+      </div>
+
+      {/* Button visible only on mobile to open formularios modal */}
+      <div className="fixed bottom-4 right-4 md:hidden z-50">
+        <Button
+          variant="primary"
+          size="icon"
+          aria-label="Abrir formularios guardados"
+          onClick={() => setFormModalMobileOpen(true)}
+          className="rounded-full p-3 shadow-lg"
+        >
+          <FileText className="h-6 w-6" />
+        </Button>
+      </div>
+
+      {/* Formularios modal for mobile */}
+      <FormulariosModalMobile
+        open={formModalMobileOpen}
+        onOpenChange={setFormModalMobileOpen}
+        formularios={[]}
+        pacienteActual={pacienteActual}
         onCargarFormulario={(data, nombre) => {
           cargarFormulario(data);
           setPacienteActual(nombre);
           setNombrePaciente(nombre);
+          setFormModalMobileOpen(false);
         }}
-        onGuardarFormulario={nombre => {
-          guardarFormulario(formData, nombre);
-          setPacienteActual(nombre);
-        }}
-        onCerrarFormulario={handleLimpiarFormulario}
-        onResetFormulario={handleResetFormulario}
-        pacienteActual={pacienteActual}
+        onEliminarFormulario={handleEliminarFormularioMobile}
+        onRenombrarFormulario={handleRenombrarFormularioMobile}
+        onCompartirFormulario={handleCompartirFormularioMobile}
       />
+
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 md:py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200 overflow-auto`}>
         <div className="max-w-5xl mx-auto space-y-6 md:space-y-8">
           <div className="text-center px-2 md:px-0">
@@ -582,7 +657,7 @@ const HistoriaClinica = () => {
                 {isGeneratingPDF ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Generando PDF...
+                    Generando PDF...\n
                   </>
                 ) : (
                   <>
@@ -678,69 +753,4 @@ const getSectionRedaction = (sectionElement: Element): string | null => {
     if (!sectionElement) return null;
 
     // Try to find redaction content div (with various selectors to be robust)
-    const possibleContentSelectors = ['div[data-redaction-content]', '.min-h-\\[150px\\], .min-h-\\[200px\\]', 'div.bg-gray-50, div.bg-gray-900', 'div[style*="white-space: pre-wrap"]', 'div.whitespace-pre-wrap'];
-    let contentElement = null;
-    for (const selector of possibleContentSelectors) {
-      const elements = sectionElement.querySelectorAll(selector);
-      for (const el of elements) {
-        if (el.textContent && el.textContent.trim().length > 10) {
-          contentElement = el;
-          break;
-        }
-      }
-      if (contentElement) break;
-    }
-
-    // If still not found, try a more generic approach
-    if (!contentElement) {
-      const allDivs = sectionElement.querySelectorAll('div');
-      for (const div of allDivs) {
-        if (div.textContent && div.textContent.trim().length > 30 && (div.className.includes('bg-gray') || div.hasAttribute('data-redaction-content') || div.style.whiteSpace === 'pre-wrap')) {
-          contentElement = div;
-          break;
-        }
-      }
-    }
-    if (!contentElement) {
-      console.warn('Could not find redaction content');
-      return null;
-    }
-
-    // Get and clean up the content
-    const text = contentElement.textContent || '';
-    return text.trim();
-  } catch (error) {
-    console.error('Error extracting redaction:', error);
-    return null;
-  }
-};
-
-// Function to collect redactions from all sections
-const collectAllRedactions = async () => {
-  pdfSectionsRef.current = {};
-
-  // Define all sections we want to process
-  const sectionSelectors = [{
-    name: 'padecimientoActual',
-    selector: '[data-section-name="padecimientoActual"]'
-  }, {
-    name: 'antecedentesHeredoFamiliares',
-    selector: '[data-section-name="antecedentesHeredoFamiliares"]'
-  }, {
-    name: 'antecedentesPersonalesNoPatologicos',
-    selector: '[data-section-name="antecedentesPersonalesNoPatologicos"]'
-  }, {
-    name: 'antecedentesPersonalesPatologicos',
-    selector: '[data-section-name="antecedentesPersonalesPatologicos"]'
-  }, {
-    name: 'antecedentesAlergicos',
-    selector: '[data-section-name="antecedentesAlergicos"]'
-  }, {
-    name: 'antecedentesQuirurgicos',
-    selector: '[data-section-name="antecedentesQuirurgicos"]'
-  }, {
-    name: 'antecedentesHemorragicos',
-    selector: '[data-section-name="antecedentesHemorragicos"]'
-  }, {
-    name: 'antecedentesGinecoObstetricos',
-    selector: '[data-section-name="antecedentesGinecoObstetricos"]'
+    const possibleContentSelectors = ['div[data-redaction-content]', '.min-

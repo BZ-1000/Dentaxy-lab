@@ -1,13 +1,11 @@
-
 import { useState, useEffect } from 'react';
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BookOpen, FileText, Trash, Pencil, Share2, Menu } from "lucide-react";
+import { BookOpen, FileText, Trash, Pencil, Share2 } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import FormulariosSidebarMobile from './FormulariosSidebarMobile';
 import { Button } from '@/components/ui/button';
 
 interface FormulariosSidebarProps {
@@ -37,7 +35,6 @@ const FormulariosSidebar = ({
   const [formularioSeleccionado, setFormularioSeleccionado] = useState<string | null>(null);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
-  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
 
   const loadSavedForms = () => {
     const savedForms: {
@@ -136,7 +133,7 @@ const FormulariosSidebar = ({
   return (
     <div>
       {/* Sidebar solamente visible para md+ */}
-      <div className="hidden md:flex sticky top-0 h-screen w-72 flex-col bg-white dark:bg-neutral-900 border-r border-gray-300 dark:border-gray-700 z-20">
+      <div className="sticky top-0 h-screen w-72 flex-col bg-white dark:bg-neutral-900 border-r border-gray-300 dark:border-gray-700 z-20">
         <div className="sticky top-0 bg-slate-50 z-30 border-b border-gray-300 dark:border-gray-700 flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
           <div className="flex items-center gap-2 p-4">
             <BookOpen
@@ -208,34 +205,6 @@ const FormulariosSidebar = ({
           </ScrollArea>
         </div>
       </div>
-
-      {/* Botón visible solo para móviles que abre el panel */}
-      <div className="fixed bottom-4 right-4 md:hidden z-50">
-        <Button
-          variant="primary"
-          size="icon"
-          aria-label="Abrir formularios guardados"
-          onClick={() => setMobilePanelOpen(true)}
-          className="rounded-full p-3 shadow-lg"
-        >
-          <Menu className="h-6 w-6" />
-        </Button>
-      </div>
-
-      {/* Panel de formularios para móvil */}
-      {mobilePanelOpen && (
-        <FormulariosSidebarMobile
-          formularios={formularios}
-          onCargarFormulario={(data, nombre) => {
-            onCargarFormulario(data, nombre);
-            setMobilePanelOpen(false);
-          }}
-          onCerrarFormulario={() => setMobilePanelOpen(false)}
-          onResetFormulario={onResetFormulario}
-          onGuardarFormulario={onGuardarFormulario}
-          pacienteActual={pacienteActual}
-        />
-      )}
 
       {/* Dialog para renombrar o compartir */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -312,4 +281,3 @@ const FormulariosSidebar = ({
 };
 
 export default FormulariosSidebar;
-
