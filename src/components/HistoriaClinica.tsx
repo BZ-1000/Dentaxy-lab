@@ -524,9 +524,12 @@ const HistoriaClinica = () => {
               </div>
             )}
 
-            <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
-              <InterrogatorioSistemas formData={formData} handleInterrogatorioChange={handleInterrogatorioChange} />
-            </div>
+          <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
+            <InterrogatorioSistemas 
+              systemsData={formData.interrogatorioSistemas} 
+              // We don't pass handleInterrogatorioChange because the component doesn't expect it unless you omitted from the interface
+            />
+          </div>
 
             <div data-section-redaction="true" data-section-name="exploracionFisica">
               <ExploracionFisica formData={formData} handleExploracionFisicaChange={handleExploracionFisicaChange} />
