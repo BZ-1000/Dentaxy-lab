@@ -1,7 +1,10 @@
 
+// Corregido para que los inputs numéricos manejen estado correctamente y permitan edición,
+// y corregido el anidamiento incorrecto de <button> alrededor del VoiceInput.
+
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Mic } from "lucide-react";
+import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -38,8 +41,14 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
     handleAntecedenteGinecoObstetricoChange(field, value);
   };
   const handleNumberChange = (field: string, value: string) => {
-    const numValue = value === '' ? '' : parseInt(value) || 0;
-    handleAntecedenteGinecoObstetricoChange(field, numValue);
+    // Permitir string vacío para limpiar el input
+    if (value === '') {
+      handleAntecedenteGinecoObstetricoChange(field, '');
+    } else {
+      // Solo permitir números enteros positivos, converir o 0 si NaN
+      const numValue = parseInt(value, 10);
+      handleAntecedenteGinecoObstetricoChange(field, isNaN(numValue) ? 0 : numValue);
+    }
   };
   const handleVoiceInput = (field: string) => (text: string) => {
     const currentValue = formData.antecedentesGinecoObstetricos?.[field] || "";
@@ -119,18 +128,21 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
             <button
               onClick={handleMinimize}
               className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+              type="button"
             >
               <Minus className="w-4 h-4" />
             </button>
             <button
               onClick={handleMaximize}
               className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors"
+              type="button"
             >
               <Maximize2 className="w-4 h-4" />
             </button>
             <button
               onClick={handleClose}
               className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+              type="button"
             >
               <X className="w-4 h-4" />
             </button>
@@ -150,10 +162,11 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
               <div className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Número de embarazos:</label>
+                    <label htmlFor="embarazos" className="block text-sm font-medium mb-1">Número de embarazos:</label>
                     <Input
+                      id="embarazos"
                       type="number"
-                      value={formData.antecedentesGinecoObstetricos?.embarazos || ""}
+                      value={formData.antecedentesGinecoObstetricos?.embarazos?.toString() || ""}
                       onChange={(e) => handleNumberChange("embarazos", e.target.value)}
                       placeholder="0"
                       min="0"
@@ -162,10 +175,11 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Número de partos:</label>
+                    <label htmlFor="partos" className="block text-sm font-medium mb-1">Número de partos:</label>
                     <Input
+                      id="partos"
                       type="number"
-                      value={formData.antecedentesGinecoObstetricos?.partos || ""}
+                      value={formData.antecedentesGinecoObstetricos?.partos?.toString() || ""}
                       onChange={(e) => handleNumberChange("partos", e.target.value)}
                       placeholder="0"
                       min="0"
@@ -174,10 +188,11 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Número de cesáreas:</label>
+                    <label htmlFor="cesareas" className="block text-sm font-medium mb-1">Número de cesáreas:</label>
                     <Input
+                      id="cesareas"
                       type="number"
-                      value={formData.antecedentesGinecoObstetricos?.cesareas || ""}
+                      value={formData.antecedentesGinecoObstetricos?.cesareas?.toString() || ""}
                       onChange={(e) => handleNumberChange("cesareas", e.target.value)}
                       placeholder="0"
                       min="0"
@@ -186,10 +201,11 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Número de abortos:</label>
+                    <label htmlFor="abortos" className="block text-sm font-medium mb-1">Número de abortos:</label>
                     <Input
+                      id="abortos"
                       type="number"
-                      value={formData.antecedentesGinecoObstetricos?.abortos || ""}
+                      value={formData.antecedentesGinecoObstetricos?.abortos?.toString() || ""}
                       onChange={(e) => handleNumberChange("abortos", e.target.value)}
                       placeholder="0"
                       min="0"
@@ -199,22 +215,20 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                 </div>
 
                 <div className="relative">
-                  <label className="block text-sm font-medium mb-1">Complicaciones:</label>
+                  <label htmlFor="complicaciones" className="block text-sm font-medium mb-1">Complicaciones:</label>
                   <div className="flex items-center">
                     <Textarea
+                      id="complicaciones"
                       value={formData.antecedentesGinecoObstetricos?.complicaciones || ""}
                       onChange={(e) => handleTextChange("complicaciones", e.target.value)}
                       placeholder="Describa cualquier complicación durante embarazos o partos"
-                      className="min-h-[80px] flex-1"
+                      className="min-h-[80px] flex-1 resize-y"
                     />
-                    <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer" onClick={() => {}}>
-                      {/* Instead of button wrapping VoiceInput, we just wrap it in a div to avoid nested buttons */}
+                    <div className="ml-2 flex items-center justify-center w-10 h-10 rounded-full bg-blue-500 hover:bg-blue-600 transition-colors cursor-pointer">
                       <VoiceInput onTranscriptionComplete={handleVoiceInput("complicaciones")} />
                     </div>
                   </div>
                 </div>
-
-                <div className="flex justify-center mt-6"></div>
               </div>
             ) : (
               <div className="p-6">
