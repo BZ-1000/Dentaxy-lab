@@ -1,7 +1,3 @@
-
-// Para evitar error de typeScript en framer-motion que dice que no acepta CSSProperties directamente en animate prop,
-// la solución segura es eliminar el prop animate y usar style para el ancho fijo que queremos.
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -93,8 +89,11 @@ export const DesktopSidebar = ({
         "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
         className
       )}
-      // Remove animate prop, use style only
-      style={{ width: sidebarWidth, transition: animate ? 'width 0.25s ease' : undefined }}
+      // Here force type assertion for animate prop to avoid the type error
+      animate={{
+        width: sidebarWidth
+      } as unknown as React.CSSProperties}
+      style={{ width: sidebarWidth }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       {...props}
@@ -200,4 +199,3 @@ export const LogoIcon = ({
       {children}
     </div>;
 };
-
