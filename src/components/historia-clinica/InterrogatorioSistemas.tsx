@@ -130,38 +130,28 @@ function generarRedaccionAparatoDigestivo(datos: {
     frecuenciaEvacuacion = "sin especificar",
   } = datos;
 
-  const todosNinguno =
-    sintomasDigestivos.length === 0 ||
-    sintomasDigestivos.every(
-      (sintoma) => sintoma.toLowerCase() === "ninguno"
-    );
+  // Si en síntomas digestivos se incluye "Ninguno", consideramos que niega alteraciones
+  const tieneNinguno = sintomasDigestivos.some(
+    (sintoma) => sintoma.toLowerCase() === "ninguno"
+  );
 
-  let parrafo = `El paciente refiere alimentación ${tipoAlimentacion} y patrón de masticación ${patronMasticacion}. `;
-  parrafo += `Reporta ${percepcionGusto} en la percepción del gusto y salivación ${salivacion}. `;
+  let parrafo = `El paciente refiere alimentación de tipo ${tipoAlimentacion}. Su patrón de masticación es ${patronMasticacion}. Manifiesta ${percepcionGusto}. La salivación es ${salivacion}. `;
 
   if (dificultadDeglucion === "sí" || dolorDeglucion === "sí") {
-    parrafo += `Presenta dificultad o dolor al tragar. `;
+    parrafo += `Respecto a la deglución, presenta dificultad o dolor. `;
   } else {
-    parrafo += `No presenta dificultad ni dolor al tragar. `;
+    parrafo += `Respecto a la deglución, no presenta dificultad ni dolor. `;
   }
 
   parrafo += halitosis === "sí" ? "Presenta halitosis. " : "No presenta halitosis. ";
 
-  if (!todosNinguno) {
-    const sintomasValidos = sintomasDigestivos.filter(
-      (s) => s.toLowerCase() !== "ninguno"
-    );
-    if (sintomasValidos.length > 0) {
-      parrafo += `Refirió ${sintomasValidos.join(" y ")}. `;
-    }
+  if (tieneNinguno) {
+    parrafo += "El paciente niega alteraciones relacionadas al sistema digestivo. Se interrogó específicamente sobre distensión abdominal, estreñimiento, plenitud posprandial, pirosis, dolor abdominal, náuseas, vómito y reflujo. ";
+  } else if (sintomasDigestivos.length > 0) {
+    parrafo += `Ha experimentado los siguientes síntomas digestivos: ${sintomasDigestivos.join(" y ")}. `;
   }
 
   parrafo += `La frecuencia de evacuación es de ${frecuenciaEvacuacion}. `;
-
-  if (todosNinguno) {
-    parrafo +=
-      "El paciente niega alteraciones relacionadas al sistema digestivo. Se interrogó específicamente sobre distensión abdominal, estreñimiento, plenitud posprandial, pirosis, dolor abdominal, náuseas, vómito y reflujo.";
-  }
 
   return parrafo.trim();
 }
