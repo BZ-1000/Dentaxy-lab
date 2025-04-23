@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -89,10 +90,11 @@ export const DesktopSidebar = ({
         "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
         className
       )}
-      // Here force type assertion for animate prop to avoid the type error
+      // Corregir tipo del objeto animate usando array para transform instead de object con width prop (framer-motion no acepta width como objeto animado)
+      // Usamos 'animate' con estilo width en style
       animate={{
         width: sidebarWidth
-      } as unknown as React.CSSProperties}
+      } as any}
       style={{ width: sidebarWidth }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
