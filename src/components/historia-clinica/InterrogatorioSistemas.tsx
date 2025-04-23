@@ -299,6 +299,7 @@ export function InterrogatorioSistemas() {
                             <Input
                               type="date"
                               {...field}
+                              value={field.value ? (field.value instanceof Date ? field.value.toISOString().substring(0, 10) : field.value) : ''}
                             />
                           </FormControl>
                           <FormMessage />

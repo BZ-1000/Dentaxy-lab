@@ -7,7 +7,7 @@ import AntecedentesAlergicos from './historia-clinica/AntecedentesAlergicos';
 import AntecedentesQuirurgicos from './historia-clinica/AntecedentesQuirurgicos';
 import AntecedentesHemorragicos from './historia-clinica/AntecedentesHemorragicos';
 import AntecedentesGinecoObstetricos from './historia-clinica/AntecedentesGinecoObstetricos';
-import InterrogatorioSistemas from './historia-clinica/InterrogatorioSistemas';
+import { InterrogatorioSistemas } from './historia-clinica/InterrogatorioSistemas'; // Changed to named import
 import ExploracionFisica from './historia-clinica/ExploracionFisica';
 import ExamenCabeza from './historia-clinica/ExamenCabeza';
 import ArticulacionCraneomandibular from './historia-clinica/ArticulacionCraneomandibular';
