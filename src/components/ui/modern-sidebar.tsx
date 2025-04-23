@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -90,9 +89,10 @@ export const DesktopSidebar = ({
         "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
         className
       )}
+      // Here force type assertion for animate prop to avoid the type error
       animate={{
         width: sidebarWidth
-      }}
+      } as unknown as React.CSSProperties}
       style={{ width: sidebarWidth }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
@@ -141,7 +141,8 @@ export const MobileSidebar = ({
               >
                 <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
               </button>
-              {children}
+              {/* Here explicitly cast children to ReactNode to fix type casting issues */}
+              {children as React.ReactNode}
             </div>
           </motion.div>
         )}
