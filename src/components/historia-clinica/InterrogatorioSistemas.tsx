@@ -246,10 +246,10 @@ function InterrogatorioSistemas() {
         incontinenciaUrinaria: "no",
       },
     },
-  })
+  });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
+    console.log(values);
   }
 
   return (
@@ -264,6 +264,7 @@ function InterrogatorioSistemas() {
               <AccordionItem value="DatosPersonales">
                 <AccordionTrigger>Datos Personales</AccordionTrigger>
                 <AccordionContent>
+                  {/* Datos personales form fields */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
@@ -955,5 +956,3 @@ function InterrogatorioSistemas() {
                               <SelectItem value="no">No</SelectItem>
                             </SelectContent>
                           </Select>
-                          <FormMessage />
-                        </
