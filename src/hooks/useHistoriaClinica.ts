@@ -11,19 +11,8 @@ export const useHistoriaClinica = () => {
   const [resumen, setResumen] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const [formData, setFormData] = useState<FormDataState>(() => {
-    // Al inicializar, intentar cargar formData desde localStorage para autoguardado
-    const saved = localStorage.getItem(AUTO_SAVE_KEY);
-    if (saved) {
-      try {
-        return JSON.parse(saved) as FormDataState;
-      } catch {
-        // Si ocurre error, cargar estado inicial usual
-        return getInitialFormState();
-      }
-    }
-    return getInitialFormState();
-  });
+  // Siempre iniciar con estado inicial, no cargar localStorage aquí
+  const [formData, setFormData] = useState<FormDataState>(() => getInitialFormState());
 
   // Guardar automáticamente en localStorage cada vez que formData cambia
   useEffect(() => {
