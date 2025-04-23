@@ -35,6 +35,8 @@ import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, valid
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
 
+// Constante para clave auto guardado localStorage
+const AUTO_SAVE_KEY = 'formDataAutoSave';
 
 const HistoriaClinica = () => {
   const {
@@ -86,6 +88,17 @@ const HistoriaClinica = () => {
     [key: string]: string;
   }>({});
 
+  // Al montar componente, tratar de cargar formData desde auto guardado para retomar sesión
+  useEffect(() => {
+    const saved = localStorage.getItem(AUTO_SAVE_KEY);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        cargarFormulario(data);
+      } catch {}
+    }
+  }, []);
+
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
@@ -101,6 +114,8 @@ const HistoriaClinica = () => {
   const handleResetFormulario = () => {
     setPacienteActual('');
     resetFormulario();
+    // También limpiar auto guardado para evitar reaparecer datos borrados
+    localStorage.removeItem(AUTO_SAVE_KEY);
   };
 
   const handleGuardarFormulario = () => {
