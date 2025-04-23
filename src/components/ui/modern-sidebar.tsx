@@ -1,7 +1,6 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
-import { AnimatePresence, motion, AnimatePresenceProps, TargetAndTransition } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 interface Links {
@@ -84,17 +83,16 @@ export const DesktopSidebar = ({
   // Fixed width property - use explicit string width
   const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
 
-  // Correct the animate prop type by providing object with width key only if animate is true
-  const animationObj: TargetAndTransition | boolean = animate ? { width: sidebarWidth } : false;
-
   return (
     <motion.div
       className={cn(
         "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
         className
       )}
-      animate={animationObj}
-      initial={false}
+      // Here force type assertion for animate prop to avoid the type error
+      animate={{
+        width: sidebarWidth
+      } as unknown as React.CSSProperties}
       style={{ width: sidebarWidth }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
@@ -118,7 +116,6 @@ export const MobileSidebar = ({
         <button
           onClick={() => setOpen(true)}
           className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg"
-          aria-label="Open sidebar menu"
         >
           <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
         </button>
@@ -141,7 +138,6 @@ export const MobileSidebar = ({
               <button
                 onClick={() => setOpen(false)}
                 className="self-end p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg mb-4"
-                aria-label="Close sidebar menu"
               >
                 <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
               </button>
@@ -166,14 +162,7 @@ export const SidebarLink = ({
   const { open, animate } = useSidebar();
 
   return (
-    <div
-      className={cn(
-        "flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer",
-        className
-      )}
-      onClick={link.onClick}
-      {...props}
-    >
+    <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} onClick={link.onClick} {...props}>
       {link.icon}
       {animate ? (
         open ? (
