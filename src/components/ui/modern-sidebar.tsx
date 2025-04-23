@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -67,6 +66,8 @@ export const Sidebar = ({
     </SidebarProvider>;
 };
 
+// Mejoramos para que no haya retraso con onMouseEnter/onMouseLeave, usamos toggle rápido con Tailwind para DesktopSidebar
+
 export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
   return <>
       <DesktopSidebar {...props} />
@@ -82,26 +83,22 @@ export const DesktopSidebar = ({
   const { open, setOpen, animate } = useSidebar();
 
   // Fixed width property - use explicit string width
-  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
+  const sidebarWidth = open ? "300px" : "60px";
+
+  // Quitamos animación framer-motion para width, solo toggle rápido con style y clases Tailwind
+  // Queda más fluido sin onMouseEnter/onMouseLeave, se debe controlar el toggle a mano
 
   return (
-    <motion.div
+    <div
       className={cn(
-        "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
+        "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0 transition-width duration-200 ease-in-out",
         className
       )}
-      // Corregir tipo del objeto animate usando array para transform instead de object con width prop (framer-motion no acepta width como objeto animado)
-      // Usamos 'animate' con estilo width en style
-      animate={{
-        width: sidebarWidth
-      } as any}
       style={{ width: sidebarWidth }}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
       {...props}
     >
       {children}
-    </motion.div>
+    </div>
   );
 };
 

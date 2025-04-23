@@ -1,3 +1,6 @@
+// Importar tipado completo para FormDataState
+import { FormDataState } from '@/types/historiaClinica';
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -108,7 +111,8 @@ const HistoriaClinica = () => {
       const saved = localStorage.getItem(AUTO_SAVE_KEY);
       if (saved) {
         try {
-          cargarFormulario(JSON.parse(saved));
+          const parsed = JSON.parse(saved) as FormDataState;
+          cargarFormulario(parsed);
         } catch {
           cargarFormulario(getInitialFormState());
         }
