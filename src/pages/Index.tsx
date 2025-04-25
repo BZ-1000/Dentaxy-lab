@@ -1,4 +1,3 @@
-
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
@@ -17,31 +16,14 @@ const Index = () => {
     // Update page title
     document.title = "DENTAXY.ai";
     
-    // Improved visibility state handling to completely prevent reload on tab switching
+    // Prevent any automatic reloads when switching tabs
     const handleVisibilityChange = () => {
-      // Do nothing special on visibility changes - this prevents auto-reloads
+      // No need to do anything here - just prevent default behavior
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
-    // Handle beforeunload event - ONLY for actual manual page reloads
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // We only want this to run when the user explicitly clicks the browser's reload button
-      // or presses F5, not when switching tabs or minimizing
-      if (document.visibilityState !== 'hidden') {
-        // Let the default browser reload happen in this case
-        return;
-      } else {
-        // If tab is hidden (switching tabs), prevent reload
-        e.preventDefault();
-        e.returnValue = '';
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);

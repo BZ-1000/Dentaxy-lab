@@ -59,18 +59,13 @@ const FormulariosSidebar = ({
   };
 
   useEffect(() => {
-    // Special handling for tab switching - auto save form when switching tabs
+    // Auto-save form data when tab visibility changes
     const handleVisibilityChange = () => {
-      // When tab becomes hidden (switching away), auto-save if there's a current patient
       if (document.visibilityState === 'hidden' && pacienteActual) {
-        // Auto-save the current form data
-        localStorage.setItem(`temp_auto_save_${pacienteActual}`, JSON.stringify(true));
-      } else if (document.visibilityState === 'visible') {
-        // Coming back to the tab - check if we need to restore form
-        const shouldRestore = localStorage.getItem(`temp_auto_save_${pacienteActual}`);
-        if (shouldRestore) {
-          // No need to actually reload anything - the form state is preserved in React
-          localStorage.removeItem(`temp_auto_save_${pacienteActual}`);
+        // Auto-save current form state when leaving tab
+        const formData = localStorage.getItem(`formulario_${pacienteActual}`);
+        if (formData) {
+          localStorage.setItem(`auto_save_${pacienteActual}`, formData);
         }
       }
     };
@@ -82,9 +77,19 @@ const FormulariosSidebar = ({
     };
   }, [pacienteActual]);
 
+  // Auto-save whenever form data changes
   useEffect(() => {
-    loadSavedForms();
-  }, []);
+    if (pacienteActual) {
+      const saveInterval = setInterval(() => {
+        const formData = localStorage.getItem(`formulario_${pacienteActual}`);
+        if (formData) {
+          localStorage.setItem(`auto_save_${pacienteActual}`, formData);
+        }
+      }, 5000); // Auto-save every 5 seconds
+
+      return () => clearInterval(saveInterval);
+    }
+  }, [pacienteActual]);
 
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {

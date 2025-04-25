@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
@@ -30,24 +29,19 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Completely disable page reloads when switching tabs
+    // Handle beforeunload event - ONLY for actual manual page reloads
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (document.visibilityState === 'hidden') {
-        // If tab is being hidden (switching tabs), prevent reload
-        e.preventDefault();
-        // Modern browsers require returnValue to be set
-        e.returnValue = '';
-        return false;
-      }
-      // Allow manual reloads when the tab is active
+      // Only allow page reload when the user explicitly requests it
+      // Do not prevent the default browser behavior for manual reloads
       return undefined;
     };
     
     window.addEventListener('beforeunload', handleBeforeUnload);
     
-    // Prevent page reload on visibility change
+    // Prevent any automatic reloads when switching tabs
     const handleVisibilityChange = () => {
-      // Do nothing on visibility changes - prevent reload behavior
+      // Prevent the default behavior which might cause a reload
+      e.preventDefault();
     };
     
     document.addEventListener('visibilitychange', handleVisibilityChange);
