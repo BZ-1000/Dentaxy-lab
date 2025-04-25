@@ -35,7 +35,7 @@ import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, valid
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
 
-// Clave para auto guardar en localStorage
+// Constante para clave auto guardado localStorage
 const AUTO_SAVE_KEY = 'formDataAutoSave';
 
 const HistoriaClinica = () => {
@@ -88,35 +88,16 @@ const HistoriaClinica = () => {
     [key: string]: string;
   }>({});
 
-  // Detectamos si la carga fue por recarga (reload) o navegación SPA
-  // Guardamos en sesión un flag temporal
-  // En navegación SPA no hay reload, pero en reload el navegador recarga todo el JS.
-  // Para ello se usa sesión para detectar si es reload o no
+  // Al montar componente, tratar de cargar formData desde auto guardado para retomar sesión
   useEffect(() => {
-    // Si en sessionStorage no está la clave, asumimos que es recarga
-    const isReload = !sessionStorage.getItem('appPreviouslyLoaded');
-    if (isReload) {
-      // Limpiar cualquier auto guardado para iniciar limpio al recargar la página
-      localStorage.removeItem(AUTO_SAVE_KEY);
-      // Marcar que ya cargó (a menos que recargue más)
-      sessionStorage.setItem('appPreviouslyLoaded', 'true');
-      cargarFormulario(getInitialFormState());
-      setPacienteActual('');
-      setNombrePaciente('');
-    } else {
-      // Si no es recarga sino navegación, cargamos auto guardado si existe
-      const saved = localStorage.getItem(AUTO_SAVE_KEY);
-      if (saved) {
-        try {
-          cargarFormulario(JSON.parse(saved));
-        } catch {
-          cargarFormulario(getInitialFormState());
-        }
-      } else {
-        cargarFormulario(getInitialFormState());
-      }
+    const saved = localStorage.getItem(AUTO_SAVE_KEY);
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        cargarFormulario(data);
+      } catch {}
     }
-  }, [cargarFormulario]);
+  }, []);
 
   useEffect(() => {
     if (pacienteActual) {
