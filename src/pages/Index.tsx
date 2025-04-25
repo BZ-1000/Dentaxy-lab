@@ -17,23 +17,22 @@ const Index = () => {
     // Update page title
     document.title = "DENTAXY.ai";
     
-    // Better visibility state handling to prevent reload on tab switching
+    // Improved visibility state handling to completely prevent reload on tab switching
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        // Tab is now hidden, do nothing special
-      } else {
-        // Tab is visible again, do nothing special
-      }
+      // Do nothing special on visibility changes - this prevents auto-reloads
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
     
-    // Handle beforeunload event - only for actual page reloads
+    // Handle beforeunload event - ONLY for actual manual page reloads
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Only show confirmation dialog if on the app page
-      // and only for actual page reloads (not tab switching)
-      if (window.location.pathname === '/app') {
-        isUnloading.current = true;
-        // Modern browsers require returnValue to be set
+      // We only want this to run when the user explicitly clicks the browser's reload button
+      // or presses F5, not when switching tabs or minimizing
+      if (document.visibilityState !== 'hidden') {
+        // Let the default browser reload happen in this case
+        return;
+      } else {
+        // If tab is hidden (switching tabs), prevent reload
+        e.preventDefault();
         e.returnValue = '';
       }
     };

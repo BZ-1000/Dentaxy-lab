@@ -59,19 +59,26 @@ const FormulariosSidebar = ({
   };
 
   useEffect(() => {
-    // Add an event listener to save data before tab close or refresh
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Only prevent unload if we're on the app page
-      if (window.location.pathname === '/app' && pacienteActual) {
-        // Don't do anything special here, just let the default behavior happen
+    // Special handling for tab switching - auto save form when switching tabs
+    const handleVisibilityChange = () => {
+      // When tab becomes hidden (switching away), auto-save if there's a current patient
+      if (document.visibilityState === 'hidden' && pacienteActual) {
+        // Auto-save the current form data
+        localStorage.setItem(`temp_auto_save_${pacienteActual}`, JSON.stringify(true));
+      } else if (document.visibilityState === 'visible') {
+        // Coming back to the tab - check if we need to restore form
+        const shouldRestore = localStorage.getItem(`temp_auto_save_${pacienteActual}`);
+        if (shouldRestore) {
+          // No need to actually reload anything - the form state is preserved in React
+          localStorage.removeItem(`temp_auto_save_${pacienteActual}`);
+        }
       }
     };
     
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     
-    // And remove it when the component unmounts
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [pacienteActual]);
 

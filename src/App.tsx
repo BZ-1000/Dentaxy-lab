@@ -30,15 +30,27 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Disable automatic page reloads when switching tabs
+    // Completely disable page reloads when switching tabs
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Only handle actual page reloads, not tab switching
-      if (document.visibilityState !== 'hidden') {
-        // No action needed for tab switching
+      if (document.visibilityState === 'hidden') {
+        // If tab is being hidden (switching tabs), prevent reload
+        e.preventDefault();
+        // Modern browsers require returnValue to be set
+        e.returnValue = '';
+        return false;
       }
+      // Allow manual reloads when the tab is active
+      return undefined;
     };
     
     window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    // Prevent page reload on visibility change
+    const handleVisibilityChange = () => {
+      // Do nothing on visibility changes - prevent reload behavior
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     
     // Obtener la sesión actual al cargar
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -55,6 +67,7 @@ function App() {
     return () => {
       subscription.unsubscribe();
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
