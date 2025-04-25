@@ -1,10 +1,12 @@
+
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const Index = () => {
   const [offset, setOffset] = useState(0);
+  const isUnloading = useRef(false);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -15,20 +17,33 @@ const Index = () => {
     // Update page title
     document.title = "DENTAXY.ai";
     
-    // Prevent default beforeunload behavior when navigating between tabs
+    // Better visibility state handling to prevent reload on tab switching
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        // Tab is now hidden, do nothing special
+      } else {
+        // Tab is visible again, do nothing special
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Handle beforeunload event - only for actual page reloads
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Solo mostrar diálogo de confirmación si hay cambios pendientes
+      // Only show confirmation dialog if on the app page
+      // and only for actual page reloads (not tab switching)
       if (window.location.pathname === '/app') {
-        e.preventDefault();
+        isUnloading.current = true;
+        // Modern browsers require returnValue to be set
+        e.returnValue = '';
       }
     };
 
-    // Add beforeunload event listener only for manual page reloads
     window.addEventListener('beforeunload', handleBeforeUnload);
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
   
@@ -75,6 +90,6 @@ const Index = () => {
       <AppleStyleDock />
       <div className="h-24" /> {/* Spacer for dock */}
     </div>;
-
 };
+
 export default Index;

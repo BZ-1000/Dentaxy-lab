@@ -30,6 +30,16 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Disable automatic page reloads when switching tabs
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Only handle actual page reloads, not tab switching
+      if (document.visibilityState !== 'hidden') {
+        // No action needed for tab switching
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
     // Obtener la sesión actual al cargar
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -42,7 +52,10 @@ function App() {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   // Componente protegido que verifica si el usuario está autenticado

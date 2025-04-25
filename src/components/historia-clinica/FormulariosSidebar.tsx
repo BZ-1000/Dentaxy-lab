@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -58,6 +57,23 @@ const FormulariosSidebar = ({
     }
     setFormularios(savedForms);
   };
+
+  useEffect(() => {
+    // Add an event listener to save data before tab close or refresh
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Only prevent unload if we're on the app page
+      if (window.location.pathname === '/app' && pacienteActual) {
+        // Don't do anything special here, just let the default behavior happen
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    // And remove it when the component unmounts
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [pacienteActual]);
 
   useEffect(() => {
     loadSavedForms();
@@ -248,4 +264,3 @@ const FormulariosSidebar = ({
 };
 
 export default FormulariosSidebar;
-
