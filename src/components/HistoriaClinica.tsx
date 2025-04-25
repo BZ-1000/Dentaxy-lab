@@ -35,6 +35,8 @@ import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, valid
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
 
+// Clave para auto guardar en localStorage
+const AUTO_SAVE_KEY = 'formDataAutoSave';
 
 const HistoriaClinica = () => {
   const {
@@ -86,6 +88,36 @@ const HistoriaClinica = () => {
     [key: string]: string;
   }>({});
 
+  // Detectamos si la carga fue por recarga (reload) o navegación SPA
+  // Guardamos en sesión un flag temporal
+  // En navegación SPA no hay reload, pero en reload el navegador recarga todo el JS.
+  // Para ello se usa sesión para detectar si es reload o no
+  useEffect(() => {
+    // Si en sessionStorage no está la clave, asumimos que es recarga
+    const isReload = !sessionStorage.getItem('appPreviouslyLoaded');
+    if (isReload) {
+      // Limpiar cualquier auto guardado para iniciar limpio al recargar la página
+      localStorage.removeItem(AUTO_SAVE_KEY);
+      // Marcar que ya cargó (a menos que recargue más)
+      sessionStorage.setItem('appPreviouslyLoaded', 'true');
+      cargarFormulario(getInitialFormState());
+      setPacienteActual('');
+      setNombrePaciente('');
+    } else {
+      // Si no es recarga sino navegación, cargamos auto guardado si existe
+      const saved = localStorage.getItem(AUTO_SAVE_KEY);
+      if (saved) {
+        try {
+          cargarFormulario(JSON.parse(saved));
+        } catch {
+          cargarFormulario(getInitialFormState());
+        }
+      } else {
+        cargarFormulario(getInitialFormState());
+      }
+    }
+  }, [cargarFormulario]);
+
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
@@ -101,6 +133,8 @@ const HistoriaClinica = () => {
   const handleResetFormulario = () => {
     setPacienteActual('');
     resetFormulario();
+    // También limpiar auto guardado para evitar reaparecer datos borrados
+    localStorage.removeItem(AUTO_SAVE_KEY);
   };
 
   const handleGuardarFormulario = () => {
@@ -524,9 +558,10 @@ const HistoriaClinica = () => {
               </div>
             )}
 
-            <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
-              <InterrogatorioSistemas formData={formData} handleInterrogatorioChange={handleInterrogatorioChange} />
-            </div>
+            <InterrogatorioSistemas 
+              formData={formData.interrogatorioSistemas} 
+              handleInterrogatorioChange={handleInterrogatorioChange} 
+            />
 
             <div data-section-redaction="true" data-section-name="exploracionFisica">
               <ExploracionFisica formData={formData} handleExploracionFisicaChange={handleExploracionFisicaChange} />

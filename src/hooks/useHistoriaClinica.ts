@@ -1,15 +1,27 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
 import { FormDataState } from '@/types/historiaClinica';
 import { getInitialFormState } from '@/utils/initialFormState';
 
+const AUTO_SAVE_KEY = 'formDataAutoSave';
+
 export const useHistoriaClinica = () => {
   const { toast } = useToast();
   const [resumen, setResumen] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [formData, setFormData] = useState<FormDataState>(getInitialFormState());
+
+  // Siempre iniciar con estado inicial, no cargar localStorage aquí
+  const [formData, setFormData] = useState<FormDataState>(() => getInitialFormState());
+
+  // Guardar automáticamente en localStorage cada vez que formData cambia
+  useEffect(() => {
+    try {
+      localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(formData));
+    } catch {
+      // En caso de error, se ignora
+    }
+  }, [formData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -61,7 +73,6 @@ export const useHistoriaClinica = () => {
         }
       }));
     } else if (field === 'causaProvocado') {
-      // Asegurar que causaProvocado se guarde correctamente
       setFormData(prev => ({
         ...prev,
         padecimientoActual: {
@@ -279,7 +290,6 @@ export const useHistoriaClinica = () => {
     }));
   };
   
-  // New handlers for the added sections
   const handleArticulacionCraneomandibularChange = (part: string, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
@@ -439,7 +449,6 @@ export const useHistoriaClinica = () => {
   const guardarFormulario = (data: FormDataState, nombre: string) => {
     if (!nombre.trim()) return;
     
-    // Asegurar que se guarden completos los valores de localizacion y causaProvocado
     const formDataToSave = {
       ...data,
       padecimientoActual: {
