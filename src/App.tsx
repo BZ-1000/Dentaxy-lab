@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
@@ -29,6 +30,7 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Prevent automatic reloads
     // Handle beforeunload event - ONLY for actual manual page reloads
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       // Only allow page reload when the user explicitly requests it
@@ -40,8 +42,8 @@ function App() {
     
     // Prevent any automatic reloads when switching tabs
     const handleVisibilityChange = () => {
-      // Prevent the default behavior which might cause a reload
-      e.preventDefault();
+      // Just a listener to handle visibility changes, no action needed
+      // The form data will be auto-saved in the FormulariosSidebar component
     };
     
     document.addEventListener('visibilitychange', handleVisibilityChange);
