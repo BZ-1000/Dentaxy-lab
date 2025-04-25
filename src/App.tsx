@@ -30,24 +30,6 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Prevent automatic reloads
-    // Handle beforeunload event - ONLY for actual manual page reloads
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      // Only allow page reload when the user explicitly requests it
-      // Do not prevent the default browser behavior for manual reloads
-      return undefined;
-    };
-    
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
-    // Prevent any automatic reloads when switching tabs
-    const handleVisibilityChange = () => {
-      // Just a listener to handle visibility changes, no action needed
-      // The form data will be auto-saved in the FormulariosSidebar component
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
     // Obtener la sesión actual al cargar
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -60,11 +42,7 @@ function App() {
       setLoading(false);
     });
 
-    return () => {
-      subscription.unsubscribe();
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   // Componente protegido que verifica si el usuario está autenticado

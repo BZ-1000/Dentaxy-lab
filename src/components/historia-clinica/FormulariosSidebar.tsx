@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -38,7 +39,6 @@ const FormulariosSidebar = ({
   const [formularioSeleccionado, setFormularioSeleccionado] = useState<string | null>(null);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
-  const [lastVisibilityState, setLastVisibilityState] = useState<string>(document.visibilityState);
 
   const loadSavedForms = () => {
     const savedForms: {
@@ -59,48 +59,9 @@ const FormulariosSidebar = ({
     setFormularios(savedForms);
   };
 
-  // Load saved forms on initial mount and whenever a change happens
   useEffect(() => {
     loadSavedForms();
-    
-    // Set up auto-save whenever visibility changes
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden' && pacienteActual) {
-        console.log("Tab hidden, auto-saving form data for:", pacienteActual);
-        
-        // Get current form data directly from localStorage
-        const currentData = localStorage.getItem(`formulario_${pacienteActual}`);
-        if (currentData) {
-          localStorage.setItem(`auto_save_${pacienteActual}`, currentData);
-          console.log("Auto-save completed for:", pacienteActual);
-        }
-      } else if (document.visibilityState === 'visible' && lastVisibilityState === 'hidden') {
-        // Tab is visible again after being hidden - reload saved forms
-        loadSavedForms();
-        console.log("Tab visible again, reloaded forms list");
-      }
-      
-      setLastVisibilityState(document.visibilityState);
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Set up auto-save interval (every 3 seconds)
-    const autoSaveInterval = setInterval(() => {
-      if (pacienteActual) {
-        const currentData = localStorage.getItem(`formulario_${pacienteActual}`);
-        if (currentData) {
-          localStorage.setItem(`auto_save_${pacienteActual}`, currentData);
-          console.log("Auto-save interval triggered for:", pacienteActual);
-        }
-      }
-    }, 3000);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      clearInterval(autoSaveInterval);
-    };
-  }, [pacienteActual, lastVisibilityState]);
+  }, []);
 
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
@@ -119,7 +80,6 @@ const FormulariosSidebar = ({
   const handleEliminarFormulario = () => {
     if (!formularioSeleccionado) return;
     localStorage.removeItem(`formulario_${formularioSeleccionado}`);
-    localStorage.removeItem(`auto_save_${formularioSeleccionado}`); // Also remove auto-save data
     loadSavedForms();
     setAlertDialogOpen(false);
     if (formularioSeleccionado === pacienteActual) {
@@ -137,14 +97,6 @@ const FormulariosSidebar = ({
     if (oldData) {
       localStorage.setItem(`formulario_${nuevoNombre}`, oldData);
       localStorage.removeItem(`formulario_${formularioSeleccionado}`);
-      
-      // Also rename auto-save data if it exists
-      const autoSaveData = localStorage.getItem(`auto_save_${formularioSeleccionado}`);
-      if (autoSaveData) {
-        localStorage.setItem(`auto_save_${nuevoNombre}`, autoSaveData);
-        localStorage.removeItem(`auto_save_${formularioSeleccionado}`);
-      }
-      
       if (formularioSeleccionado === pacienteActual) {
         const data = JSON.parse(oldData);
         onCargarFormulario(data, nuevoNombre);
@@ -291,11 +243,9 @@ const FormulariosSidebar = ({
         </AlertDialogContent>
       </AlertDialog>
       
-      {/* Indicator showing auto-save status */}
-      <div className="fixed bottom-4 left-4 text-xs text-gray-500 bg-white dark:bg-gray-800 px-2 py-1 rounded-md shadow opacity-70">
-        {pacienteActual ? `Auto-guardando: ${pacienteActual}` : 'No hay formulario activo'}
-      </div>
+      {pacienteActual}
     </div>;
 };
 
 export default FormulariosSidebar;
+

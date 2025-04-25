@@ -2,12 +2,10 @@
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 const Index = () => {
   const [offset, setOffset] = useState(0);
-  const isUnloading = useRef(false);
-  const pageActive = useRef(true);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -15,56 +13,11 @@ const Index = () => {
     };
     window.addEventListener('scroll', handleScroll);
     
-    // Update page title
+    // Actualizar el título de la página
     document.title = "DENTAXY.ai";
-    
-    // Prevent any automatic reloads when switching tabs
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        pageActive.current = false;
-        console.log("Page hidden - saving state");
-        
-        // Page is now hidden (user switched tabs or minimized)
-        // Don't do anything that would cause a refresh
-        
-        // Create a "last active time" timestamp
-        sessionStorage.setItem('lastActive', Date.now().toString());
-      } else {
-        pageActive.current = true;
-        console.log("Page visible again");
-        
-        // Check how long the page was inactive
-        const lastActive = sessionStorage.getItem('lastActive');
-        if (lastActive) {
-          const timeDiff = Date.now() - parseInt(lastActive);
-          console.log(`Page was inactive for: ${timeDiff/1000} seconds`);
-          
-          // If it was inactive for a very long time (e.g., 4 hours), we could
-          // prompt the user to refresh, but we won't do that automatically
-        }
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    // Also handle beforeunload to prevent accidental refreshes
-    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (!isUnloading.current) {
-        // This is a user-initiated page refresh or navigation away
-        // For form pages, we might want to confirm they want to leave
-        const message = "¿Estás seguro que deseas salir? Los datos no guardados pueden perderse.";
-        e.returnValue = message;
-        return message;
-      }
-      return null;
-    };
-    
-    window.addEventListener('beforeunload', handleBeforeUnload);
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
   
@@ -112,5 +65,4 @@ const Index = () => {
       <div className="h-24" /> {/* Spacer for dock */}
     </div>;
 };
-
 export default Index;
