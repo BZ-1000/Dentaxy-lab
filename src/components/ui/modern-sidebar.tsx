@@ -89,13 +89,11 @@ export const DesktopSidebar = ({
         "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
         className
       )}
-      // Here force type assertion for animate prop to avoid the type error
-      animate={{
-        width: sidebarWidth
-      } as unknown as React.CSSProperties}
-      style={{ width: sidebarWidth }}
+      animate={{ width: sidebarWidth }}
+      style={{ width: sidebarWidth as string }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
+      transition={{ duration: 0.2 }}
       {...props}
     >
       {children}

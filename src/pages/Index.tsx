@@ -1,4 +1,3 @@
-
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
@@ -13,11 +12,23 @@ const Index = () => {
     };
     window.addEventListener('scroll', handleScroll);
     
-    // Actualizar el título de la página
+    // Update page title
     document.title = "DENTAXY.ai";
+    
+    // Prevent default beforeunload behavior when navigating between tabs
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Solo mostrar diálogo de confirmación si hay cambios pendientes
+      if (window.location.pathname === '/app') {
+        e.preventDefault();
+      }
+    };
+
+    // Add beforeunload event listener only for manual page reloads
+    window.addEventListener('beforeunload', handleBeforeUnload);
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
   
@@ -64,5 +75,6 @@ const Index = () => {
       <AppleStyleDock />
       <div className="h-24" /> {/* Spacer for dock */}
     </div>;
+
 };
 export default Index;
