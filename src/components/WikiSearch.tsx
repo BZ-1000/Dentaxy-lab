@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
@@ -88,12 +87,18 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   useEffect(() => {
     if (searchTerm.trim()) {
       debouncedSearch(searchTerm);
-      fetchSuggestions(searchTerm);
+      // Only fetch suggestions if not using category filters
+      if (selectedCategory === "all") {
+        fetchSuggestions(searchTerm);
+      } else {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
     } else {
       setSearchResults("");
       setSuggestions([]);
     }
-  }, [searchTerm, debouncedSearch]);
+  }, [searchTerm, debouncedSearch, selectedCategory]);
 
   const fetchSuggestions = async (term: string) => {
     if (term.length < 2) {
@@ -210,6 +215,12 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   };
 
+  const handleSelectCategory = (category: SearchCategory) => {
+    setSelectedCategory(category);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl h-[80vh] flex flex-col">
@@ -247,8 +258,8 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
             </Button>
           </div>
 
-          {/* Suggestions dropdown - Now persistent until search or selection */}
-          {suggestions.length > 0 && showSuggestions && (
+          {/* Suggestions dropdown - Only show when using direct search and not filters */}
+          {suggestions.length > 0 && showSuggestions && selectedCategory === "all" && (
             <div className="absolute z-10 w-[calc(100%-5rem)] bg-white dark:bg-neutral-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 mt-1">
               <ul>
                 {suggestions.map((suggestion, index) => (
@@ -266,7 +277,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           )}
         </div>
 
-        {/* Category filters - always visible when not searching */}
+        {/* Category filters */}
         {!searchTerm && (
           <div className="bg-gray-50 dark:bg-neutral-900 p-3 rounded-md mb-2 border border-gray-200 dark:border-gray-800">
             <h3 className="text-sm font-medium mb-2">Filtros de búsqueda</h3>
@@ -276,7 +287,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                   key={category}
                   size="sm"
                   variant={selectedCategory === category ? "default" : "outline"}
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => handleSelectCategory(category)}
                   className="text-xs"
                 >
                   {category === "all" ? "Todos" : 
