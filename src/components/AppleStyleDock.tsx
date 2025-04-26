@@ -1,3 +1,4 @@
+
 import {
   Mail,
   RefreshCw,
@@ -21,8 +22,9 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { cn } from '@/lib/utils'; // Asegúrate de importar la utilidad cn
+import { cn } from '@/lib/utils';
 import ResetConfirmationDialog from '@/components/historia-clinica/ResetConfirmationDialog';
+import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 
 const data = [
   {
@@ -57,6 +59,7 @@ const data = [
 ];
 
 export function AppleStyleDock() {
+  const { cargarFormulario } = useHistoriaClinica();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
@@ -160,7 +163,7 @@ export function AppleStyleDock() {
   const handleReset = () => {
     // Clear localStorage form data
     localStorage.removeItem('AUTO_SAVE_KEY');
-    // Reset form data using the existing cargarFormulario function from context
+    // Reset form data using the imported cargarFormulario function
     cargarFormulario(null); 
     // Close the confirmation dialog
     setShowResetConfirmation(false);

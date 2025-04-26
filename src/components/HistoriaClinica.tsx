@@ -34,6 +34,7 @@ import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
 import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
+import { FormDataState } from '@/types/historiaClinica';
 
 // Constante para clave auto guardado localStorage
 const AUTO_SAVE_KEY = 'formDataAutoSave';
@@ -402,18 +403,7 @@ const HistoriaClinica = () => {
     }
   };
 
-  const cargarFormulario = (data: FormDataState | null) => {
-    const initialState = getInitialFormState();
-    if (data === null) {
-      setFormData(initialState);
-      setResumen('');
-      // Clear patient name when resetting
-      setNombrePaciente('');
-      setPacienteActual('');
-    } else {
-      setFormData(data);
-    }
-  };
+  
 
   return (
     <div className={`${theme} min-h-screen w-full flex`}>
