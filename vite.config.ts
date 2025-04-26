@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
+    chunkSizeWarningLimit: 1000, // Increased chunk size warning limit
     minify: 'terser',
     terserOptions: {
       compress: {
@@ -37,7 +38,12 @@ export default defineConfig(({ mode }) => ({
     },
     rollupOptions: {
       output: {
-        manualChunks: undefined
+        // Split large dependencies into separate chunks
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        }
       }
     }
   }
