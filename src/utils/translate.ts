@@ -53,7 +53,7 @@ export async function translateText(texts: string | string[]): Promise<string | 
                 tempElement.lang = 'en';
                 document.documentElement.lang = 'es';
                 
-                // Forzar la traducción con un tiempo de espera más largo
+                // Forzar la traducción con un tiempo de espera más largo para Vercel
                 setTimeout(() => {
                   try {
                     const translatedText = tempElement.textContent || text;
@@ -62,7 +62,7 @@ export async function translateText(texts: string | string[]): Promise<string | 
                     console.error('Error al obtener el texto traducido:', err);
                     resolve(text);
                   }
-                }, 300);
+                }, 500); // Aumentamos el timeout para dar más tiempo en entornos de producción
               } catch (error) {
                 console.error('Error al configurar el elemento para traducción:', error);
                 resolve(text);
