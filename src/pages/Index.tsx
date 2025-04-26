@@ -24,7 +24,7 @@ const Index = () => {
   }, []);
   
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-black">
       {/* Hero Section */}
       <div className="min-h-screen relative overflow-hidden">
         {/* Background image with preload and loading optimization */}
@@ -70,7 +70,7 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Form Section - Lazy loaded with loading transition */}
+      {/* Form Section - With fade in transition */}
       <div className="min-h-screen bg-background py-0">
         <div className="container mx-auto px-4">
           <Suspense fallback={<LoadingTransition />}>
