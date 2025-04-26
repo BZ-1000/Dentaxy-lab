@@ -1,12 +1,11 @@
-
 import {
   Mail,
-  ScrollText,
+  RefreshCw,
   HomeIcon,
   UserCircle,
   SunMoon,
   Crown,
-  Save, // Importa el ícono Save
+  Save,
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -23,6 +22,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils'; // Asegúrate de importar la utilidad cn
+import ResetConfirmationDialog from '@/components/historia-clinica/ResetConfirmationDialog';
 
 const data = [
   {
@@ -40,16 +40,17 @@ const data = [
     href: '#',
   },
   {
-    title: 'Historial',
+    title: 'Reiniciar',
     icon: (
-      <ScrollText className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+      <RefreshCw className='h-full w-full text-white' />
     ),
     href: '#',
+    customClass: 'bg-amber-400 hover:bg-amber-500'
   },
   {
     title: 'Comentarios',
     icon: (
-      <Mail className='h-full w-full text-red-500 dark:text-red-400' /> // Color rojo estilo Apple
+      <Mail className='h-full w-full text-red-500 dark:text-red-400' />
     ),
     href: '#',
   },
@@ -66,6 +67,7 @@ export function AppleStyleDock() {
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [isVisible, setIsVisible] = useState(false); // Estado para la visibilidad del botón
+  const [showResetConfirmation, setShowResetConfirmation] = useState(false);
 
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -108,8 +110,8 @@ export function AppleStyleDock() {
         setSession(currentSession);
         setShowProfile(true);
         break;
-      case 'Historial':
-        setShowInstructions(true);
+      case 'Reiniciar':
+        setShowResetConfirmation(true);
         break;
       case 'Comentarios':
         setShowFeedback(true);
@@ -155,6 +157,13 @@ export function AppleStyleDock() {
     toast.success('Sesión cerrada exitosamente');
   };
 
+  const handleReset = () => {
+    // Clear localStorage form data
+    localStorage.removeItem('AUTO_SAVE_KEY');
+    // Reload the page to reset all forms
+    window.location.reload();
+  };
+
   return (
     <>
       <div className='fixed bottom-2 left-1/2 max-w-full -translate-x-1/2 z-50'>
@@ -163,7 +172,10 @@ export function AppleStyleDock() {
             <DockItem
               key={idx}
               onClick={() => handleItemClick(item.title)}
-              className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer'
+              className={cn(
+                'aspect-square rounded-full cursor-pointer',
+                item.customClass || 'bg-gray-200 dark:bg-neutral-800'
+              )}
             >
               <DockLabel>{item.title}</DockLabel>
               <DockIcon>{item.icon}</DockIcon>
@@ -349,6 +361,12 @@ export function AppleStyleDock() {
           animation: slideIn 0.3s ease-out;
         }
       `}</style>
+      
+      <ResetConfirmationDialog 
+        isOpen={showResetConfirmation} 
+        onClose={() => setShowResetConfirmation(false)}
+        onConfirm={handleReset}
+      />
     </>
   );
 }
