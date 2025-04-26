@@ -1,9 +1,7 @@
 
 interface TranslateResponse {
-  responseData: {
-    translatedText: string;
-  };
-  responseStatus: number;
+  translatedText: string;
+  error?: string;
 }
 
 export async function translateText(texts: string | string[]): Promise<string | string[]> {
@@ -20,13 +18,24 @@ export async function translateText(texts: string | string[]): Promise<string | 
   try {
     // Crear un array de promesas para todas las traducciones en paralelo
     const translationPromises = validTexts.map(text => 
-      fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|es`)
-        .then(response => response.ok ? response.json() : { responseData: { translatedText: text } })
+      fetch('https://libretranslate.de/translate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          q: text,
+          source: 'en',
+          target: 'es'
+        })
+      })
+      .then(response => response.ok ? response.json() : { translatedText: text })
+      .catch(() => ({ translatedText: text }))
     );
 
     // Ejecutar todas las traducciones en paralelo
     const results = await Promise.all(translationPromises);
-    const translatedTexts = results.map(result => result.responseData.translatedText);
+    const translatedTexts = results.map(result => result.translatedText);
     
     console.log('Textos traducidos:', translatedTexts);
 
@@ -48,3 +57,4 @@ export async function translateText(texts: string | string[]): Promise<string | 
     return texts; // Devolver textos originales si falla la traducción
   }
 }
+
