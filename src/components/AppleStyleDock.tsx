@@ -6,7 +6,8 @@ import {
   SunMoon,
   Crown,
   Save,
-  Trash, // Importamos el icono de basura
+  Trash, 
+  PillBottle, // Add PillBottle for our new icon
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -22,7 +23,8 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { cn } from '@/lib/utils'; // Asegúrate de importar la utilidad cn
+import { cn } from '@/lib/utils'; 
+import { MedicationSearch } from './MedicationSearch'; // Import our new component
 
 const data = [
   {
@@ -32,10 +34,11 @@ const data = [
     ),
     href: '/',
   },
+  // Replace the previous icon with our new PillBottle icon
   {
-    title: 'Actividad',
+    title: 'Medicamentos',
     icon: (
-      <UserCircle className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+      <PillBottle className='h-full w-full text-emerald-500 dark:text-emerald-400' />
     ),
     href: '#',
   },
@@ -49,7 +52,7 @@ const data = [
   {
     title: 'Comentarios',
     icon: (
-      <Mail className='h-full w-full text-red-500 dark:text-red-400' /> // Color rojo estilo Apple
+      <Mail className='h-full w-full text-red-500 dark:text-red-400' />
     ),
     href: '#',
   },
@@ -60,20 +63,22 @@ export function AppleStyleDock() {
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showMedicationSearch, setShowMedicationSearch] = useState(false); // New state for medication modal
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [session, setSession] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
-  const [isVisible, setIsVisible] = useState(false); // Estado para la visibilidad del botón
+  const [isVisible, setIsVisible] = useState(false);
 
+  // Keep existing useEffect for scroll detection
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
 
     const checkScroll = () => {
       if (nameInput) {
         const rect = nameInput.getBoundingClientRect();
-        setIsVisible(rect.top < 0); // Lógica para mostrar/ocultar el botón
+        setIsVisible(rect.top < 0);
       }
     };
 
@@ -89,7 +94,7 @@ export function AppleStyleDock() {
       if (input) {
         setTimeout(() => {
           input.focus();
-        }, 300); // Espera a que termine el scroll antes de enfocar
+        }, 300);
       }
     }
   };
@@ -99,6 +104,15 @@ export function AppleStyleDock() {
       case 'Inicio':
         navigate('/');
         break;
+      case 'Medicamentos': // Handle click on our new medication button
+        setShowMedicationSearch(true);
+        break;
+      case 'Historial':
+        setShowInstructions(true);
+        break;
+      case 'Comentarios':
+        setShowFeedback(true);
+        break;
       case 'Actividad':
         const { data: { session: currentSession } } = await supabase.auth.getSession();
         if (!currentSession) {
@@ -107,12 +121,6 @@ export function AppleStyleDock() {
         }
         setSession(currentSession);
         setShowProfile(true);
-        break;
-      case 'Historial':
-        setShowInstructions(true);
-        break;
-      case 'Comentarios':
-        setShowFeedback(true);
         break;
     }
   };
@@ -212,6 +220,12 @@ export function AppleStyleDock() {
           )}
         </Dock>
       </div>
+
+      {/* Include our new Medication Search modal */}
+      <MedicationSearch 
+        open={showMedicationSearch} 
+        onOpenChange={setShowMedicationSearch} 
+      />
 
       <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
         <DialogContent>
