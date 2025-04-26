@@ -3,6 +3,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
 import { FormDataState } from '@/types/historiaClinica';
 import { getInitialFormState } from '@/utils/initialFormState';
+import { defaultFormTexts } from '@/utils/defaultFormTexts';
 
 const AUTO_SAVE_KEY = 'formDataAutoSave';
 
@@ -11,14 +12,55 @@ export const useHistoriaClinica = () => {
   const [resumen, setResumen] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  // Initialize with a clean state always
-  const [formData, setFormData] = useState<FormDataState>(getInitialFormState());
+  const [formData, setFormData] = useState<FormDataState>(() => {
+    // Al inicializar, intentar cargar formData desde localStorage para autoguardado
+    const saved = localStorage.getItem(AUTO_SAVE_KEY);
+    if (saved) {
+      try {
+        const parsedData = JSON.parse(saved) as FormDataState;
+        // Ensure default texts are preserved even when loading saved data
+        return {
+          ...parsedData,
+          padecimientoActual: {
+            ...parsedData.padecimientoActual,
+            motivoConsulta: parsedData.padecimientoActual.motivoConsulta || defaultFormTexts.padecimientoActual.motivoConsulta,
+            historiaPadecimiento: parsedData.padecimientoActual.historiaPadecimiento || defaultFormTexts.padecimientoActual.historiaPadecimiento,
+            dolor: {
+              ...parsedData.padecimientoActual.dolor,
+              causaProvocado: parsedData.padecimientoActual.dolor.causaProvocado || defaultFormTexts.padecimientoActual.causaProvocado,
+              localizacion: {
+                tipo: parsedData.padecimientoActual.dolor.localizacion?.tipo || '',
+                descripcion: parsedData.padecimientoActual.dolor.localizacion?.descripcion || defaultFormTexts.padecimientoActual.padecimientoActual.localizacionDescripcion
+              }
+            }
+          },
+          interrogatorioSistemas: {
+            cardiovascular: parsedData.interrogatorioSistemas?.cardiovascular || defaultFormTexts.interrogatorioSistemas.cardiovascular,
+            respiratorio: parsedData.interrogatorioSistemas?.respiratorio || defaultFormTexts.interrogatorioSistemas.respiratorio,
+            digestivo: parsedData.interrogatorioSistemas?.digestivo || defaultFormTexts.interrogatorioSistemas.digestivo,
+            urinario: parsedData.interrogatorioSistemas?.urinario || defaultFormTexts.interrogatorioSistemas.urinario,
+            musculoEsqueletico: parsedData.interrogatorioSistemas?.musculoEsqueletico || defaultFormTexts.interrogatorioSistemas.musculoEsqueletico,
+            nervioso: parsedData.interrogatorioSistemas?.nervioso || defaultFormTexts.interrogatorioSistemas.nervioso,
+            endocrino: parsedData.interrogatorioSistemas?.endocrino || defaultFormTexts.interrogatorioSistemas.endocrino,
+            tegumentario: parsedData.interrogatorioSistemas?.tegumentario || defaultFormTexts.interrogatorioSistemas.tegumentario
+          }
+        };
+      } catch {
+        // Si ocurre error, cargar estado inicial usual
+        return getInitialFormState();
+      }
+    }
+    return getInitialFormState();
+  });
 
-  // Clear localStorage and reset form when component mounts
+  // Guardar automáticamente en localStorage cada vez que formData cambia
   useEffect(() => {
-    localStorage.removeItem(AUTO_SAVE_KEY);
-    setFormData(getInitialFormState());
-  }, []);
+    try {
+      localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(formData));
+    } catch {
+      // En caso de error, se ignora
+    }
+  }, [formData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -439,9 +481,14 @@ export const useHistoriaClinica = () => {
   };
 
   const resetFormulario = () => {
+    // Get a fresh initial state
     const initialState = getInitialFormState();
+    
+    // Reset the form data to initial state
     setFormData(initialState);
     setResumen('');
+    
+    // Clear localStorage to ensure fresh start on page reload
     localStorage.removeItem(AUTO_SAVE_KEY);
     
     toast({
@@ -477,7 +524,23 @@ export const useHistoriaClinica = () => {
       // Clear auto-save to ensure fresh state on next reload
       localStorage.removeItem(AUTO_SAVE_KEY);
     } else {
-      setFormData(data);
+      // Ensure default texts are preserved when loading data
+      setFormData({
+        ...data,
+        padecimientoActual: {
+          ...data.padecimientoActual,
+          motivoConsulta: data.padecimientoActual.motivoConsulta || defaultFormTexts.padecimientoActual.motivoConsulta,
+          historiaPadecimiento: data.padecimientoActual.historiaPadecimiento || defaultFormTexts.padecimientoActual.historiaPadecimiento,
+          dolor: {
+            ...data.padecimientoActual.dolor,
+            causaProvocado: data.padecimientoActual.dolor.causaProvocado || defaultFormTexts.padecimientoActual.causaProvocado,
+            localizacion: {
+              tipo: data.padecimientoActual.dolor.localizacion?.tipo || '',
+              descripcion: data.padecimientoActual.dolor.localizacion?.descripcion || defaultFormTexts.padecimientoActual.localizacionDescripcion
+            }
+          }
+        }
+      });
     }
   };
 
