@@ -23,7 +23,6 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils'; // Asegúrate de importar la utilidad cn
-import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 
 const data = [
   {
@@ -67,7 +66,6 @@ export function AppleStyleDock() {
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [isVisible, setIsVisible] = useState(false); // Estado para la visibilidad del botón
-  const { resetFormulario } = useHistoriaClinica();
 
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -162,11 +160,8 @@ export function AppleStyleDock() {
       // Limpiar localStorage
       localStorage.removeItem('currentFormData');
       localStorage.removeItem('formBackup');
-      // Resetear el formulario sin recargar la página
-      resetFormulario();
-      // Forzar la actualización de todos los campos a su estado inicial
-      window.dispatchEvent(new Event('formReset'));
-      toast.success('Formulario limpiado exitosamente');
+      // Recargar la página
+      window.location.reload();
     }
   };
 
