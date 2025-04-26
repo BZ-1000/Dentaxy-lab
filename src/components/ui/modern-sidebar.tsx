@@ -1,226 +1,286 @@
+import React, { useState, useEffect, useRef, ReactNode } from "react";
+import { motion, useTransform, useScroll } from "framer-motion";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Menu } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { useUser } from "@/context/UserContext";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { translateText } from "@/utils/translate";
 
-import { cn } from "@/lib/utils";
-import React, { useState, createContext, useContext, ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-
-interface Links {
-  label: string;
-  href?: string;
-  icon: React.JSX.Element | React.ReactNode;
-  onClick?: () => void;
+interface ModernSidebarProps {
+  children: ReactNode;
 }
 
-interface SidebarContextProps {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  animate: boolean;
-}
-
-const SidebarContext = createContext<SidebarContextProps | undefined>(undefined);
-
-export const useSidebar = () => {
-  const context = useContext(SidebarContext);
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider");
-  }
-  return context;
-};
-
-export const SidebarProvider = ({
-  children,
-  open: openProp,
-  setOpen: setOpenProp,
-  animate = true
-}: {
-  children: React.ReactNode;
-  open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
-}) => {
-  const [openState, setOpenState] = useState(false);
-  const open = openProp !== undefined ? openProp : openState;
-  const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
-
-  return (
-    <SidebarContext.Provider value={{
-      open,
-      setOpen,
-      animate
-    }}>
-      {children}
-    </SidebarContext.Provider>
-  );
-};
-
-export const Sidebar = ({
-  children,
-  open,
-  setOpen,
-  animate
-}: {
-  children: React.ReactNode;
-  open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
-}) => {
-  return (
-    <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
-      {children}
-    </SidebarProvider>
-  );
-};
-
-export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
-  return (
-    <>
-      <DesktopSidebar {...props} />
-      <MobileSidebar {...props} />
-    </>
-  );
-};
-
-export const DesktopSidebar = ({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen, animate } = useSidebar();
-  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
-
-  return (
-    <motion.div
-      className={cn(
-        "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
-        className
-      )}
-      style={{ width: sidebarWidth }}
-      animate={{ width: sidebarWidth }}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      {...props}
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-export const MobileSidebar = ({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen } = useSidebar();
-
-  return (
-    <>
-      <div className="h-14 md:hidden flex items-center px-4 bg-neutral-100 dark:bg-neutral-800">
-        <button
-          onClick={() => setOpen(true)}
-          className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg"
-        >
-          <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
-        </button>
-      </div>
-      
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-            className={cn(
-              "fixed inset-0 z-50 bg-white dark:bg-neutral-900 md:hidden",
-              className
-            )}
-            {...props}
-          >
-            <div className="flex flex-col h-full p-4">
-              <button
-                onClick={() => setOpen(false)}
-                className="self-end p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg mb-4"
-              >
-                <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
-              </button>
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-};
-
-export const SidebarLink = ({
-  link,
-  className,
-  ...props
-}: {
-  link: Links;
-  className?: string;
-}) => {
-  const { open, animate } = useSidebar();
+const ModernSidebar: React.FC<ModernSidebarProps> = ({ children }) => {
+  const [isMounted, setIsMounted] = useState(false);
+  const { user, setUser } = useUser();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [translatedName, setTranslatedName] = useState<string | null>(null);
 
-  const handleLinkClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default browser navigation
-    
-    if (link.onClick) {
-      link.onClick();
-      return;
-    }
-    
-    if (link.href) {
-      if (link.href.startsWith('http') || link.href.startsWith('#')) {
-        window.location.href = link.href; // For external links only
-      } else {
-        navigate(link.href, { replace: false }); // Use replace: false to maintain history
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const translateUserName = async () => {
+      if (user?.user_metadata?.full_name) {
+        const translated = await translateText(user.user_metadata.full_name);
+        if (typeof translated === 'string') {
+          setTranslatedName(translated);
+        } else if (Array.isArray(translated) && translated.length > 0) {
+          setTranslatedName(translated[0]);
+        }
       }
+    };
+
+    translateUserName();
+  }, [user]);
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error signing out",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setUser(null);
+      localStorage.removeItem("userSession");
+      navigate("/auth/login");
+      toast({
+        title: "Signed out",
+        description: "You have been signed out successfully.",
+      });
     }
   };
 
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end end"],
+  });
+  const width = useTransform(scrollYProgress, [0, 1], [200, 50]);
+
+  if (!isMounted) {
+    return null;
+  }
+
   return (
-    <Link
-      to={link.href || '#'}
-      className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)}
-      onClick={handleLinkClick}
-      {...props}
-    >
-      {link.icon}
-      {animate ? (
-        open ? (
-          <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
-            {link.label}
-          </span>
-        ) : null
-      ) : (
-        <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
-          {link.label}
-        </span>
-      )}
-    </Link>
+    <div className="relative min-h-screen md:flex">
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger asChild className="md:hidden absolute top-4 left-4 z-50">
+          <Button variant="ghost" size="icon">
+            <Menu className="h-6 w-6" />
+            <span className="sr-only">Open menu</span>
+          </Button>
+        </SheetTrigger>
+        <SheetContent className="w-64">
+          <SheetHeader className="space-y-2 text-left">
+            <SheetTitle>Menu</SheetTitle>
+            <SheetDescription>
+              Explore the app and manage your account.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="py-4">
+            {user ? (
+              <div className="flex items-center space-x-4 p-2">
+                <Avatar>
+                  <AvatarImage src={user?.user_metadata?.avatar_url as string} />
+                  <AvatarFallback>
+                    {user?.user_metadata?.full_name
+                      ?.split(" ")
+                      .map((n: string) => n?.[0])
+                      .join("")
+                      .toUpperCase() || "NA"}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-medium">
+                    {translatedName || user?.user_metadata?.full_name || "N/A"}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {user?.email || "N/A"}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-2">
+                <Link to="/auth/login">
+                  <Button variant="outline">Login</Button>
+                </Link>
+              </div>
+            )}
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="menu">
+                <AccordionTrigger>Menu</AccordionTrigger>
+                <AccordionContent>
+                  <Link to="/app">
+                    <Button variant="ghost" className="w-full justify-start">
+                      Dashboard
+                    </Button>
+                  </Link>
+                  <Link to="/about">
+                    <Button variant="ghost" className="w-full justify-start">
+                      About
+                    </Button>
+                  </Link>
+                  <Link to="/contact">
+                    <Button variant="ghost" className="w-full justify-start">
+                      Contact
+                    </Button>
+                  </Link>
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="legal">
+                <AccordionTrigger>Legal</AccordionTrigger>
+                <AccordionContent>
+                  <Link to="/terms">
+                    <Button variant="ghost" className="w-full justify-start">
+                      Terms of Service
+                    </Button>
+                  </Link>
+                  <Link to="/privacy">
+                    <Button variant="ghost" className="w-full justify-start">
+                      Privacy Policy
+                    </Button>
+                  </Link>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+            {user && (
+              <Button
+                variant="destructive"
+                className="w-full mt-4"
+                onClick={handleSignOut}
+              >
+                Sign Out
+              </Button>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      <motion.div
+        ref={ref}
+        className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-gray-50 border-r dark:bg-gray-800 dark:border-gray-700"
+        style={{ width: typeof width === 'object' ? width : `${width}px` }}
+      >
+        <div className="flex items-center justify-center h-16 shrink-0">
+          <Link to="/" className="font-bold text-xl">
+            DENTAXY.ai
+          </Link>
+        </div>
+        <div className="flex-1 overflow-y-auto">
+          <nav className="flex flex-col space-y-1">
+            {user ? (
+              <div className="flex items-center space-x-4 p-4">
+                <Avatar>
+                  <AvatarImage src={user?.user_metadata?.avatar_url as string} />
+                  <AvatarFallback>
+                    {user?.user_metadata?.full_name
+                      ?.split(" ")
+                      .map((n: string) => n?.[0])
+                      .join("")
+                      .toUpperCase() || "NA"}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-medium">
+                    {translatedName || user?.user_metadata?.full_name || "N/A"}
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    {user?.email || "N/A"}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4">
+                <Link to="/auth/login">
+                  <Button variant="outline">Login</Button>
+                </Link>
+              </div>
+            )}
+            <Link
+              to="/app"
+              className="block py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              Dashboard
+            </Link>
+            <Link
+              to="/about"
+              className="block py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              About
+            </Link>
+            <Link
+              to="/contact"
+              className="block py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
+            >
+              Contact
+            </Link>
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="legal">
+                <AccordionTrigger>Legal</AccordionTrigger>
+                <AccordionContent>
+                  <Link to="/terms">
+                    <Button variant="ghost" className="w-full justify-start">
+                      Terms of Service
+                    </Button>
+                  </Link>
+                  <Link to="/privacy">
+                    <Button variant="ghost" className="w-full justify-start">
+                      Privacy Policy
+                    </Button>
+                  </Link>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+            {user && (
+              <Button
+                variant="destructive"
+                className="w-full mt-4"
+                onClick={handleSignOut}
+              >
+                Sign Out
+              </Button>
+            )}
+          </nav>
+        </div>
+      </motion.div>
+
+      <div className="flex-1 md:ml-64">
+        <main ref={ref}>{children}</main>
+      </div>
+    </div>
   );
 };
 
-export const Logo = ({
-  children
-}: {
-  children: ReactNode;
-}) => {
-  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
-      {children}
-      <div className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</div>
-    </div>;
-};
-
-export const LogoIcon = ({
-  children
-}: {
-  children: ReactNode;
-}) => {
-  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
-      {children}
-    </div>;
-};
+export default ModernSidebar;
