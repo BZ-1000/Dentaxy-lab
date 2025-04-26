@@ -72,6 +72,8 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<SearchCategory>("all");
+  const [expandedText, setExpandedText] = useState(false);
+  const [highlightedText, setHighlightedText] = useState<string>("");
   
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -133,11 +135,16 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     searchWikipedia(suggestion);
   };
 
+  const highlightSearchTerm = (text: string, term: string) => {
+    if (!term) return text;
+    const regex = new RegExp(`(${term})`, 'gi');
+    return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
+  };
+
   const searchWikipedia = async (term: string = searchTerm) => {
     if (!term.trim()) return;
     
     setIsLoading(true);
-    setShowSuggestions(false); // Hide suggestions when search is performed
 
     try {
       let gsrsearch = term;
@@ -152,7 +159,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           format: "json",
           prop: "extracts",
           exintro: "true",
-          explaintext: "false", // Changed to false to keep HTML formatting
+          explaintext: "false",
           generator: "search",
           gsrlimit: "1",
           gsrsearch: gsrsearch,
@@ -168,16 +175,32 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
         
         if (pages.length > 0) {
           const extract = pages[0].extract || "No se encontraron resultados.";
+          const highlighted = highlightSearchTerm(extract, term);
+          
           // Format the text with enhanced styling
           const formattedExtract = `
             <div class="prose-lg">
               <div class="bg-gray-50 dark:bg-neutral-900 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-neutral-800">
+                <h2 class="text-2xl font-bold mb-4 text-blue-600 dark:text-blue-400">${pages[0].title}</h2>
                 <div class="space-y-4">
-                  ${extract}
+                  <div class="text-justify leading-relaxed ${expandedText ? '' : 'line-clamp-4'}">
+                    ${highlighted}
+                  </div>
+                  ${!expandedText ? `
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <button 
+                        class="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                        onclick="window.expandText()"
+                      >
+                        Leer más...
+                      </button>
+                    </div>
+                  ` : ''}
                 </div>
               </div>
             </div>
           `;
+          setHighlightedText(highlighted);
           setSearchResults(formattedExtract);
         } else {
           setSearchResults("No se encontraron resultados.");
@@ -191,6 +214,16 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
       setIsLoading(false);
     }
   };
+
+  // Add window function for expanding text
+  useEffect(() => {
+    window.expandText = () => {
+      setExpandedText(true);
+    };
+    return () => {
+      delete window.expandText;
+    };
+  }, []);
 
   const handleClearSearch = () => {
     setSearchTerm("");
@@ -219,11 +252,17 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     setShowSuggestions(false);
   };
 
+  const handleResultClick = () => {
+    setShowSuggestions(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Búsqueda de Información</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+            Búsqueda de Información
+          </DialogTitle>
         </DialogHeader>
         
         <div className="relative">
@@ -320,7 +359,10 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           </div>
         )}
 
-        <ScrollArea className="flex-1 p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900">
+        <ScrollArea 
+          className="flex-1 p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900"
+          onClick={handleResultClick}
+        >
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
