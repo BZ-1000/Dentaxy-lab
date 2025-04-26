@@ -26,7 +26,7 @@
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p&family=Knewave&display=swap" rel="stylesheet">
     
     <!-- Google Translate Compatibility -->
-    <meta name="google" content="default" />
+    <meta name="google" content="notranslate" content-type="notranslate" />
     
     <script>
       // Prevenir acceso view-source
@@ -55,10 +55,24 @@
       /* Fix for Google Translate blank screen issue */
       body {
         top: 0 !important;
+        position: static !important;
       }
       
       .goog-te-banner-frame {
         display: none !important;
+      }
+      
+      .goog-te-menu-value:hover {
+        text-decoration: none !important;
+      }
+      
+      .goog-text-highlight {
+        background-color: transparent !important;
+        box-shadow: none !important;
+      }
+      
+      #google_translate_element {
+        display: inline-block;
       }
     </style>
   </head>
