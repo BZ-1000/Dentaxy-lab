@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
 import { FormDataState } from '@/types/historiaClinica';
@@ -9,7 +8,32 @@ export const useHistoriaClinica = () => {
   const { toast } = useToast();
   const [resumen, setResumen] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [formData, setFormData] = useState<FormDataState>(getInitialFormState());
+  const [formData, setFormData] = useState<FormDataState>(() => {
+    const savedData = localStorage.getItem('currentFormData');
+    return savedData ? JSON.parse(savedData) : getInitialFormState();
+  });
+
+  // Persistir cambios en formData
+  useEffect(() => {
+    localStorage.setItem('currentFormData', JSON.stringify(formData));
+  }, [formData]);
+
+  // Restaurar datos al volver a la pestaña
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        const savedData = localStorage.getItem('currentFormData');
+        if (savedData) {
+          setFormData(JSON.parse(savedData));
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -434,6 +458,7 @@ export const useHistoriaClinica = () => {
   const resetFormulario = () => {
     setFormData(getInitialFormState());
     setResumen('');
+    localStorage.removeItem('currentFormData');
   };
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {

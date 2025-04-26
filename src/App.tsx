@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
@@ -30,19 +29,60 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Persistir la sesión usando localStorage
+    const savedSession = localStorage.getItem('userSession');
+    if (savedSession) {
+      setSession(JSON.parse(savedSession));
+    }
+
     // Obtener la sesión actual al cargar
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      if (session) {
+        localStorage.setItem('userSession', JSON.stringify(session));
+      }
       setLoading(false);
     });
 
     // Escuchar cambios en el estado de autenticación
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (session) {
+        localStorage.setItem('userSession', JSON.stringify(session));
+      } else {
+        localStorage.removeItem('userSession');
+      }
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Manejar eventos de visibilidad del documento
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        // Verificar sesión al volver a la pestaña
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          setSession(session);
+        });
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Prevenir recargas automáticas
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      const formData = localStorage.getItem('formData');
+      if (formData) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, []);
 
   // Componente protegido que verifica si el usuario está autenticado
