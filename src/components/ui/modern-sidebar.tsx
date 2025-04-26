@@ -5,6 +5,7 @@ import {
   AnimatePresence,
   useScroll,
   useMotionValueEvent,
+  HTMLMotionProps,
 } from "framer-motion";
 import { ComponentPropsWithoutRef, useEffect, useState } from "react";
 import { X, Menu } from "lucide-react";
@@ -138,7 +139,7 @@ export function ModernSidebar({
       </motion.button>
 
       {/* Desktop and Mobile sidebar */}
-      <motion.aside
+      <motion.div
         className={cn(
           "fixed top-0 bottom-0 bg-sidebar border-r border-border shadow-lg z-40 flex flex-col",
           position === "left" ? "left-0" : "right-0",
@@ -167,7 +168,7 @@ export function ModernSidebar({
             <ArrowButton collapsed={collapsed} />
           </button>
         )}
-      </motion.aside>
+      </motion.div>
     </>
   );
 }
