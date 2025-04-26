@@ -183,7 +183,7 @@ export function AppleStyleDock() {
               key={idx}
               onClick={() => handleItemClick(item.title)}
               className={`aspect-square rounded-full cursor-pointer ${
-                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'Búsqueda' ? 'bg-sky-200' : 'bg-gray-200 dark:bg-neutral-800')
+                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'Búsqueda' ? 'bg-sky-400' : 'bg-gray-200 dark:bg-neutral-800')
               }`}
             >
               <DockLabel>{item.title}</DockLabel>
@@ -229,7 +229,7 @@ export function AppleStyleDock() {
         open={showMedicationSearch}
         onOpenChange={setShowMedicationSearch}
       />
-      
+
       {/* Include the WikiSearch component */}
       <WikiSearch
         open={showWikiSearch}
