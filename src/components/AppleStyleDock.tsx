@@ -104,7 +104,7 @@ export function AppleStyleDock() {
     }
   };
 
-  const handleItemClick = async (title: string) => {
+  const handleItemClick = async (title) => {
     switch (title) {
       case 'Inicio':
         navigate('/');

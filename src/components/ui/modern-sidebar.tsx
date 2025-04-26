@@ -1,249 +1,278 @@
 
 import { cn } from "@/lib/utils";
-import React, { useState, createContext, useContext, ReactNode } from "react";
-import { AnimatePresence, motion, MotionValue, useTransform } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useMotionValueEvent,
+} from "framer-motion";
+import { ComponentPropsWithoutRef, useEffect, useState } from "react";
+import { X, Menu } from "lucide-react";
 
-interface Links {
-  label: string;
-  href?: string;
-  icon: React.JSX.Element | React.ReactNode;
-  onClick?: () => void;
+interface SidebarProps extends ComponentPropsWithoutRef<"div"> {
+  /**
+   * The position of the Sidebar
+   * @default "left"
+   */
+  position?: "left" | "right";
+
+  /**
+   * The children to render
+   */
+  children: React.ReactNode;
+
+  /**
+   * The width of the Sidebar
+   * @default "w-72"
+   */
+  sidebarWidth?: string;
+
+  /**
+   * The width of the Sidebar when collapsed
+   * @default "w-20"
+   */
+  sidebarCollapsedWidth?: string;
+
+  /**
+   * Whether the Sidebar is collapsed by default
+   * @default false
+   */
+  defaultCollapsed?: boolean;
+
+  /**
+   * Whether the hide sidebar button should be shown
+   * @default true
+   */
+  showSidebarCollapseButton?: boolean;
+
+  /**
+   * The breakpoint at which the Sidebar should be hidden
+   * @default "md"
+   */
+  breakpoint?: "sm" | "md" | "lg" | "xl" | "2xl";
+
+  /**
+   * Whether to enable backdrop on mobile
+   * @default true
+   */
+  enableBackdrop?: boolean;
 }
 
-interface SidebarContextProps {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  animate: boolean;
-}
-
-const SidebarContext = createContext<SidebarContextProps | undefined>(undefined);
-
-export const useSidebar = () => {
-  const context = useContext(SidebarContext);
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider");
-  }
-  return context;
-};
-
-export const SidebarProvider = ({
+export function ModernSidebar({
+  position = "left",
   children,
-  open: openProp,
-  setOpen: setOpenProp,
-  animate = true
-}: {
-  children: React.ReactNode;
-  open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
-}) => {
-  const [openState, setOpenState] = useState(false);
-  const open = openProp !== undefined ? openProp : openState;
-  const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
+  sidebarWidth = "w-72",
+  sidebarCollapsedWidth = "w-20",
+  defaultCollapsed = false,
+  className,
+  showSidebarCollapseButton = true,
+  breakpoint = "md",
+  enableBackdrop = true,
+  ...props
+}: SidebarProps) {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const { scrollY } = useScroll();
+  const [visible, setVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [atTop, setAtTop] = useState(true);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
-  return (
-    <SidebarContext.Provider value={{
-      open,
-      setOpen,
-      animate
-    }}>
-      {children}
-    </SidebarContext.Provider>
-  );
-};
+  // Handle scroll to hide/show the header
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    if (Math.abs(latest - lastScrollY) > 50) {
+      const isScrollingUp = latest < lastScrollY;
+      setVisible(latest < 100 || isScrollingUp);
+      setLastScrollY(latest);
+    }
+    setAtTop(latest < 50);
+  });
 
-export const Sidebar = ({
-  children,
-  open,
-  setOpen,
-  animate
-}: {
-  children: React.ReactNode;
-  open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
-}) => {
-  return (
-    <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
-      {children}
-    </SidebarProvider>
-  );
-};
+  // Close mobile sidebar when screen is resized
+  useEffect(() => {
+    const handleResize = () => {
+      const mobileBreakpoint = {
+        sm: 640,
+        md: 768,
+        lg: 1024,
+        xl: 1280,
+        "2xl": 1536,
+      }[breakpoint];
 
-export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
+      if (window.innerWidth >= mobileBreakpoint) {
+        setShowMobileSidebar(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [breakpoint]);
+
   return (
     <>
-      <DesktopSidebar {...props} />
-      <MobileSidebar {...props} />
+      {/* Mobile sidebar backdrop */}
+      {enableBackdrop && showMobileSidebar && (
+        <div
+          className="fixed inset-0 bg-black/30 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setShowMobileSidebar(false)}
+        />
+      )}
+
+      {/* Mobile sidebar trigger */}
+      <motion.button
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.8 }}
+        transition={{ type: "spring", duration: 0.5, bounce: 0.4 }}
+        onClick={() => setShowMobileSidebar(!showMobileSidebar)}
+        className={cn(
+          "fixed top-4 z-50 rounded-full bg-primary shadow-lg text-primary-foreground p-2 flex items-center justify-center",
+          position === "left" ? "left-4" : "right-4",
+          `block ${breakpoint}:hidden`
+        )}
+      >
+        {showMobileSidebar ? (
+          <X className="h-6 w-6" />
+        ) : (
+          <Menu className="h-6 w-6" />
+        )}
+      </motion.button>
+
+      {/* Desktop and Mobile sidebar */}
+      <motion.aside
+        className={cn(
+          "fixed top-0 bottom-0 bg-sidebar border-r border-border shadow-lg z-40 flex flex-col",
+          position === "left" ? "left-0" : "right-0",
+          `${breakpoint}:relative`,
+          `${breakpoint}:block`,
+          showMobileSidebar ? "block" : "hidden",
+          !collapsed ? sidebarWidth : sidebarCollapsedWidth,
+          className
+        )}
+        {...props}
+      >
+        <div className="overflow-y-auto flex-1 scrollbar-hide">{children}</div>
+
+        {/* Collapse sidebar button */}
+        {showSidebarCollapseButton && (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className={cn(
+              "absolute top-4 bg-muted hover:bg-muted/80 transition-all text-muted-foreground rounded-full shadow-xl z-50",
+              position === "left"
+                ? "-right-3 p-0.5 rotate-180"
+                : "-left-3 p-0.5",
+              `hidden ${breakpoint}:flex`
+            )}
+          >
+            <ArrowButton collapsed={collapsed} />
+          </button>
+        )}
+      </motion.aside>
     </>
   );
-};
+}
 
-export const DesktopSidebar = ({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen, animate } = useSidebar();
-  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
-
+function ArrowButton({ collapsed }: { collapsed: boolean }) {
   return (
-    <motion.div
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className={cn(
-        "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
+        "transition-transform duration-300 ease-out",
+        collapsed ? "rotate-180" : ""
+      )}
+    >
+      <path d="m15 6-6 6 6 6" />
+    </svg>
+  );
+}
+
+interface SidebarHeaderProps extends ComponentPropsWithoutRef<"div"> {
+  /**
+   * The title of the Sidebar
+   */
+  title?: React.ReactNode;
+
+  /**
+   * The description of the Sidebar
+   */
+  description?: React.ReactNode;
+
+  /**
+   * The logo to display in the Sidebar
+   */
+  logo?: React.ReactNode;
+
+  /**
+   * Whether to show the border
+   * @default true
+   */
+  showBorder?: boolean;
+}
+
+export function SidebarHeader({
+  title,
+  description,
+  logo,
+  showBorder = true,
+  className,
+  ...props
+}: SidebarHeaderProps) {
+  return (
+    <div
+      className={cn(
+        "p-4 flex flex-col gap-3",
+        showBorder && "border-b",
         className
       )}
-      style={{ width: sidebarWidth }}
-      animate={{ width: sidebarWidth }}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
       {...props}
     >
-      {children}
-    </motion.div>
+      <div className="flex items-center gap-3">
+        {logo && <div>{logo}</div>}
+        <div>
+          {title && (
+            <h2 className="font-semibold tracking-tight">{title}</h2>
+          )}
+          {description && (
+            <p className="text-xs text-muted-foreground">{description}</p>
+          )}
+        </div>
+      </div>
+    </div>
   );
-};
+}
 
-export const MobileSidebar = ({
+interface SidebarFooterProps extends ComponentPropsWithoutRef<"div"> {
+  /**
+   * Whether to show the border
+   * @default true
+   */
+  showBorder?: boolean;
+}
+
+export function SidebarFooter({
+  showBorder = true,
   className,
   children,
   ...props
-}: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen } = useSidebar();
-
+}: SidebarFooterProps) {
   return (
-    <>
-      <div className="h-14 md:hidden flex items-center px-4 bg-neutral-100 dark:bg-neutral-800">
-        <button
-          onClick={() => setOpen(true)}
-          className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg"
-        >
-          <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
-        </button>
-      </div>
-      
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-            className={cn(
-              "fixed inset-0 z-50 bg-white dark:bg-neutral-900 md:hidden",
-              className
-            )}
-            {...props}
-          >
-            <div className="flex flex-col h-full p-4">
-              <button
-                onClick={() => setOpen(false)}
-                className="self-end p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg mb-4"
-              >
-                <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
-              </button>
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-};
-
-export const SidebarLink = ({
-  link,
-  className,
-  ...props
-}: {
-  link: Links;
-  className?: string;
-}) => {
-  const { open, animate } = useSidebar();
-  const navigate = useNavigate();
-
-  const handleLinkClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default browser navigation
-    
-    if (link.onClick) {
-      link.onClick();
-      return;
-    }
-    
-    if (link.href) {
-      if (link.href.startsWith('http') || link.href.startsWith('#')) {
-        window.location.href = link.href; // For external links only
-      } else {
-        navigate(link.href, { replace: false }); // Use replace: false to maintain history
-      }
-    }
-  };
-
-  return (
-    <Link
-      to={link.href || '#'}
-      className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)}
-      onClick={handleLinkClick}
+    <div
+      className={cn(
+        "p-4",
+        showBorder && "border-t",
+        className
+      )}
       {...props}
     >
-      {link.icon}
-      {animate ? (
-        open ? (
-          <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
-            {link.label}
-          </span>
-        ) : null
-      ) : (
-        <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
-          {link.label}
-        </span>
-      )}
-    </Link>
-  );
-};
-
-export const Logo = ({
-  children
-}: {
-  children: ReactNode;
-}) => {
-  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
       {children}
-      <div className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</div>
-    </div>;
-};
-
-export const LogoIcon = ({
-  children
-}: {
-  children: ReactNode;
-}) => {
-  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
-      {children}
-    </div>;
-};
-
-interface DockIconProps {
-  children: ReactNode;
-  className?: string;
-  width: MotionValue<number>;
-}
-
-function DockIcon({ children, className, width }: DockIconProps) {
-  const widthTransform = useTransform(width, (val) => val / 2);
-
-  return (
-    <motion.div
-      style={{ width: widthTransform }}
-      className={cn('flex items-center justify-center', className)}
-    >
-      {children}
-    </motion.div>
+    </div>
   );
 }
-
-export {
-  DockIcon
-};
