@@ -87,18 +87,14 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   useEffect(() => {
     if (searchTerm.trim()) {
       debouncedSearch(searchTerm);
-      // Only fetch suggestions if not using category filters
-      if (selectedCategory === "all") {
-        fetchSuggestions(searchTerm);
-      } else {
-        setSuggestions([]);
-        setShowSuggestions(false);
-      }
+      // Always fetch suggestions when typing, regardless of category
+      fetchSuggestions(searchTerm);
     } else {
       setSearchResults("");
       setSuggestions([]);
+      setShowSuggestions(false);
     }
-  }, [searchTerm, debouncedSearch, selectedCategory]);
+  }, [searchTerm, debouncedSearch]);
 
   const fetchSuggestions = async (term: string) => {
     if (term.length < 2) {
@@ -131,10 +127,17 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   };
 
+  const handleSelectSuggestion = (suggestion: string) => {
+    setSearchTerm(suggestion);
+    setShowSuggestions(false);
+    searchWikipedia(suggestion);
+  };
+
   const searchWikipedia = async (term: string = searchTerm) => {
     if (!term.trim()) return;
     
     setIsLoading(true);
+    setShowSuggestions(false); // Hide suggestions when search is performed
 
     try {
       let gsrsearch = term;
@@ -189,16 +192,11 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   };
 
-  const handleSelectSuggestion = (suggestion: string) => {
-    setSearchTerm(suggestion);
-    setShowSuggestions(false);
-    searchWikipedia(suggestion);
-  };
-
   const handleClearSearch = () => {
     setSearchTerm("");
     setSearchResults("");
     setShowSuggestions(false);
+    setSuggestions([]);
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -258,8 +256,8 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
             </Button>
           </div>
 
-          {/* Suggestions dropdown - Only show when using direct search and not filters */}
-          {suggestions.length > 0 && showSuggestions && selectedCategory === "all" && (
+          {/* Suggestions dropdown - Show when there are suggestions and showSuggestions is true */}
+          {suggestions.length > 0 && showSuggestions && (
             <div className="absolute z-10 w-[calc(100%-5rem)] bg-white dark:bg-neutral-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 mt-1">
               <ul>
                 {suggestions.map((suggestion, index) => (
@@ -277,7 +275,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           )}
         </div>
 
-        {/* Category filters */}
         {!searchTerm && (
           <div className="bg-gray-50 dark:bg-neutral-900 p-3 rounded-md mb-2 border border-gray-200 dark:border-gray-800">
             <h3 className="text-sm font-medium mb-2">Filtros de búsqueda</h3>
