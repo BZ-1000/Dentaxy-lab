@@ -43,10 +43,6 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     setShowVoiceInput(false);
   };
 
-  const toggleVoiceInput = () => {
-    setShowVoiceInput(!showVoiceInput);
-  };
-
   const craneosTypes = [
     {
       type: 'Mesocefálico',
@@ -291,7 +287,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                   />
                   <button
                     type="button"
-                    onClick={toggleVoiceInput}
+                    onClick={() => setShowVoiceInput(true)}
                     className="absolute right-2 top-2 p-1 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
                     aria-label="Usar reconocimiento de voz"
                   >
