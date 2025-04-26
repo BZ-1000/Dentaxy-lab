@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
@@ -12,28 +11,14 @@ export const useHistoriaClinica = () => {
   const [resumen, setResumen] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const [formData, setFormData] = useState<FormDataState>(() => {
-    // Al inicializar, intentar cargar formData desde localStorage para autoguardado
-    const saved = localStorage.getItem(AUTO_SAVE_KEY);
-    if (saved) {
-      try {
-        return JSON.parse(saved) as FormDataState;
-      } catch {
-        // Si ocurre error, cargar estado inicial usual
-        return getInitialFormState();
-      }
-    }
-    return getInitialFormState();
-  });
+  // Initialize with a clean state always
+  const [formData, setFormData] = useState<FormDataState>(getInitialFormState());
 
-  // Guardar automáticamente en localStorage cada vez que formData cambia
+  // Clear localStorage and reset form when component mounts
   useEffect(() => {
-    try {
-      localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(formData));
-    } catch {
-      // En caso de error, se ignora
-    }
-  }, [formData]);
+    localStorage.removeItem(AUTO_SAVE_KEY);
+    setFormData(getInitialFormState());
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -454,14 +439,9 @@ export const useHistoriaClinica = () => {
   };
 
   const resetFormulario = () => {
-    // Get a fresh initial state
     const initialState = getInitialFormState();
-    
-    // Reset the form data to initial state
     setFormData(initialState);
     setResumen('');
-    
-    // Clear localStorage to ensure fresh start on page reload
     localStorage.removeItem(AUTO_SAVE_KEY);
     
     toast({
