@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -34,7 +35,7 @@ import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
 import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
-
+import { FormDataState } from '@/types/historiaClinica';
 
 const HistoriaClinica = () => {
   const {
@@ -45,6 +46,8 @@ const HistoriaClinica = () => {
   const [alertOpen, setAlertOpen] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [esMujer, setEsMujer] = useState<boolean>(false);
+  const [activeTab, setActiveTab] = useState<string>("InformacionPrincipal");
+  
   const {
     formData,
     resumen,
@@ -118,6 +121,10 @@ const HistoriaClinica = () => {
       title: "Formulario guardado",
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
+  };
+
+  const handleTabChange = (tabName: string) => {
+    setActiveTab(tabName);
   };
 
   const validateForm = () => {
@@ -387,15 +394,222 @@ const HistoriaClinica = () => {
     }
   };
 
+  // Improved function to click the "Generate IA" button for a section
+  const generateSectionRedaction = async (sectionElement: Element) => {
+    try {
+      if (!sectionElement) return false;
+
+      // First make sure we're on the form tab
+      const formTabs = sectionElement.querySelectorAll('button');
+      let formTab = null;
+      for (const tab of formTabs) {
+        if (tab.textContent && tab.textContent.includes('Formulario')) {
+          formTab = tab;
+          break;
+        }
+      }
+      if (formTab) {
+        (formTab as HTMLElement).click();
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+
+      // Find and click the "Generar Redacción IA" button
+      const allButtons = Array.from(sectionElement.querySelectorAll('button'));
+      const generateButton = allButtons.find(button => button.textContent && (button.textContent.includes('Generar Redacción IA') || button.textContent.includes('Generar Redacción') || button.textContent.includes('Generar Informe')));
+      if (!generateButton) {
+        console.warn('No generate button found in section');
+        return false;
+      }
+      console.log('Clicking generate button', generateButton.textContent);
+      (generateButton as HTMLElement).click();
+
+      // Wait for redaction to generate (4 seconds should be enough)
+      await new Promise(resolve => setTimeout(resolve, 4000));
+
+      // Switch to the redaction tab
+      const redactionTabs = sectionElement.querySelectorAll('button');
+      let redactionTab = null;
+      for (const tab of redactionTabs) {
+        if (tab.textContent && (tab.textContent.includes('Redacción IA') || tab.textContent.includes('Informe IA'))) {
+          redactionTab = tab;
+          break;
+        }
+      }
+      if (redactionTab) {
+        (redactionTab as HTMLElement).click();
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
+      return true;
+    } catch (error) {
+      console.error('Error generating redaction:', error);
+      return false;
+    }
+  };
+
+  // Function to extract redaction content from a section
+  const getSectionRedaction = (sectionElement: Element): string | null => {
+    try {
+      if (!sectionElement) return null;
+
+      // Try to find redaction content div (with various selectors to be robust)
+      const possibleContentSelectors = ['div[data-redaction-content]', '.min-h-\\[150px\\], .min-h-\\[200px\\]', 'div.bg-gray-50, div.bg-gray-900', 'div[style*="white-space: pre-wrap"]', 'div.whitespace-pre-wrap'];
+      let contentElement = null;
+      for (const selector of possibleContentSelectors) {
+        const elements = sectionElement.querySelectorAll(selector);
+        for (const el of elements) {
+          if (el.textContent && el.textContent.trim().length > 10) {
+            contentElement = el;
+            break;
+          }
+        }
+        if (contentElement) break;
+      }
+
+      // If still not found, try a more generic approach
+      if (!contentElement) {
+        const allDivs = sectionElement.querySelectorAll('div');
+        for (const div of allDivs) {
+          if (div.textContent && div.textContent.trim().length > 30 && (div.className.includes('bg-gray') || div.hasAttribute('data-redaction-content') || div.style.whiteSpace === 'pre-wrap')) {
+            contentElement = div;
+            break;
+          }
+        }
+      }
+      if (!contentElement) {
+        console.warn('Could not find redaction content');
+        return null;
+      }
+
+      // Get and clean up the content
+      const text = contentElement.textContent || '';
+      return text.trim();
+    } catch (error) {
+      console.error('Error extracting redaction:', error);
+      return null;
+    }
+  };
+
+  // Function to collect redactions from all sections
+  const collectAllRedactions = async () => {
+    pdfSectionsRef.current = {};
+
+    // Define all sections we want to process
+    const sectionSelectors = [{
+      name: 'padecimientoActual',
+      selector: '[data-section-name="padecimientoActual"]'
+    }, {
+      name: 'antecedentesHeredoFamiliares',
+      selector: '[data-section-name="antecedentesHeredoFamiliares"]'
+    }, {
+      name: 'antecedentesPersonalesNoPatologicos',
+      selector: '[data-section-name="antecedentesPersonalesNoPatologicos"]'
+    }, {
+      name: 'antecedentesPersonalesPatologicos',
+      selector: '[data-section-name="antecedentesPersonalesPatologicos"]'
+    }, {
+      name: 'antecedentesAlergicos',
+      selector: '[data-section-name="antecedentesAlergicos"]'
+    }, {
+      name: 'antecedentesQuirurgicos',
+      selector: '[data-section-name="antecedentesQuirurgicos"]'
+    }, {
+      name: 'antecedentesHemorragicos',
+      selector: '[data-section-name="antecedentesHemorragicos"]'
+    }, {
+      name: 'antecedentesGinecoObstetricos',
+      selector: '[data-section-name="antecedentesGinecoObstetricos"]'
+    }, {
+      name: 'interrogatorioSistemas',
+      selector: '[data-section-name="interrogatorioSistemas"]'
+    }, {
+      name: 'exploracionFisica',
+      selector: '[data-section-name="exploracionFisica"]'
+    }, {
+      name: 'examenCabeza',
+      selector: '[data-section-name="examenCabeza"]'
+    }, {
+      name: 'articulacionCraneomandibular',
+      selector: '[data-section-name="articulacionCraneomandibular"]'
+    }, {
+      name: 'examenCuello',
+      selector: '[data-section-name="examenCuello"]'
+    }, {
+      name: 'examenIntrabucal',
+      selector: '[data-section-name="examenIntrabucal"]'
+    }, {
+      name: 'glandulasSalivales',
+      selector: '[data-section-name="glandulasSalivales"]'
+    }, {
+      name: 'oclusion',
+      selector: '[data-section-name="oclusion"]'
+    }, {
+      name: 'relacionDientes',
+      selector: '[data-section-name="relacionDientes"]'
+    }, {
+      name: 'lineaMedia',
+      selector: '[data-section-name="lineaMedia"]'
+    }, {
+      name: 'frenillos',
+      selector: '[data-section-name="frenillos"]'
+    }, {
+      name: 'diagnostico',
+      selector: '[data-section-name="diagnostico"]'
+    }, {
+      name: 'pronostico',
+      selector: '[data-section-name="pronostico"]'
+    }];
+
+    // Total steps for progress calculation
+    const totalSteps = sectionSelectors.length * 2; // *2 because we have generate and extract for each section
+    let completedSteps = 0;
+    for (const sectionConfig of sectionSelectors) {
+      console.log(`Processing section: ${sectionConfig.name}`);
+
+      // Find section element
+      const sectionElements = document.querySelectorAll(sectionConfig.selector);
+      if (sectionElements.length === 0) {
+        console.warn(`Section not found: ${sectionConfig.name}`);
+        completedSteps += 2; // Skip both steps for this section
+        setPdfGenerationProgress(completedSteps / totalSteps * 100);
+        continue;
+      }
+      const sectionElement = sectionElements[0];
+
+      // Generate redaction for this section
+      await generateSectionRedaction(sectionElement);
+
+      // Update progress
+      completedSteps++;
+      setPdfGenerationProgress(completedSteps / totalSteps * 100);
+
+      // Wait a moment to ensure the redaction has fully rendered
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Extract redaction content
+      const content = getSectionRedaction(sectionElement);
+      if (content) {
+        pdfSectionsRef.current[sectionConfig.name] = content;
+        console.log(`Added ${sectionConfig.name} redaction to PDF`);
+      }
+
+      // Update progress again
+      completedSteps++;
+      setPdfGenerationProgress(completedSteps / totalSteps * 100);
+    }
+    console.log("All redactions collected:", Object.keys(pdfSectionsRef.current));
+    return pdfSectionsRef.current;
+  };
+
   return (
     <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar 
-        onCargarFormulario={(data, nombre) => {
+        onTabChange={handleTabChange}
+        onCargarFormulario={(data: FormDataState, nombre: string) => {
           cargarFormulario(data);
           setPacienteActual(nombre);
           setNombrePaciente(nombre);
         }} 
-        onGuardarFormulario={nombre => {
+        onGuardarFormulario={(nombre: string) => {
           guardarFormulario(formData, nombre);
           setPacienteActual(nombre);
         }} 

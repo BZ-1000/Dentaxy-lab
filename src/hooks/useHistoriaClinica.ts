@@ -8,6 +8,8 @@ export const useHistoriaClinica = () => {
   const { toast } = useToast();
   const [resumen, setResumen] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [currentTab, setCurrentTab] = useState<string | null>("InformacionPrincipal");
+  const [completedSections, setCompletedSections] = useState<Record<string, { completed: boolean }>>({});
   const [formData, setFormData] = useState<FormDataState>(() => {
     const savedData = localStorage.getItem('currentFormData');
     return savedData ? JSON.parse(savedData) : getInitialFormState();
@@ -35,6 +37,13 @@ export const useHistoriaClinica = () => {
     };
   }, []);
 
+  const updateSection = (sectionName: string, completed: boolean) => {
+    setCompletedSections(prev => ({
+      ...prev,
+      [sectionName]: { completed }
+    }));
+  };
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -51,6 +60,7 @@ export const useHistoriaClinica = () => {
         [field]: value
       }
     }));
+    updateSection("PadecimientoActual", true);
   };
 
   const handleDolorChange = (field: string, value: any) => {
@@ -108,6 +118,7 @@ export const useHistoriaClinica = () => {
         }
       }));
     }
+    updateSection("PadecimientoActual", true);
   };
 
   const handleSinSintomasChange = (checked: boolean) => {
@@ -118,6 +129,7 @@ export const useHistoriaClinica = () => {
         sinSintomas: checked
       }
     }));
+    updateSection("PadecimientoActual", true);
   };
 
   const handleFamiliarChange = (familiar: string, field: string, value: boolean | string) => {
@@ -131,6 +143,7 @@ export const useHistoriaClinica = () => {
         }
       }
     }));
+    updateSection("AntecedentesHeredoFamiliares", true);
   };
 
   const handleCondicionChange = (familiar: string, condicion: string, value: boolean | string) => {
@@ -147,6 +160,7 @@ export const useHistoriaClinica = () => {
         }
       }
     }));
+    updateSection("AntecedentesHeredoFamiliares", true);
   };
 
   const handleAntecedenteChange = (field: string, value: any) => {
@@ -179,6 +193,7 @@ export const useHistoriaClinica = () => {
         }
       }));
     }
+    updateSection("AntecedentesPersonalesNoPatologicos", true);
   };
 
   const handleAntecedentePatologicoChange = (field: string, value: any) => {
@@ -203,6 +218,7 @@ export const useHistoriaClinica = () => {
         }
       }));
     }
+    updateSection("AntecedentesPersonalesPatologicos", true);
   };
 
   const handleAntecedenteAlergicoChange = (field: string, value: any) => {
@@ -227,6 +243,7 @@ export const useHistoriaClinica = () => {
         }
       }));
     }
+    updateSection("AntecedentesAlergicos", true);
   };
 
   const handleAntecedenteQuirurgicoChange = (field: string, value: any) => {
@@ -237,6 +254,7 @@ export const useHistoriaClinica = () => {
         [field]: value
       }
     }));
+    updateSection("AntecedentesQuirurgicos", true);
   };
 
   const handleAntecedenteHemorragicoChange = (field: string, value: any) => {
@@ -247,6 +265,7 @@ export const useHistoriaClinica = () => {
         [field]: value
       }
     }));
+    updateSection("AntecedentesHemorragicos", true);
   };
 
   const handleAntecedenteGinecoObstetricoChange = (field: string, value: any) => {
@@ -257,6 +276,7 @@ export const useHistoriaClinica = () => {
         [field]: value
       }
     }));
+    updateSection("AntecedentesGinecoObstetricos", true);
   };
 
   const handleInterrogatorioChange = (system: string, value: string) => {
@@ -267,6 +287,7 @@ export const useHistoriaClinica = () => {
         [system]: value
       }
     }));
+    updateSection("InterrogatorioSistemas", true);
   };
 
   const handleExploracionFisicaChange = (field: string, value: any) => {
@@ -291,6 +312,7 @@ export const useHistoriaClinica = () => {
         }
       }));
     }
+    updateSection("ExploracionFisica", true);
   };
 
   const handleExamenCabezaChange = (part: string, value: any) => {
@@ -301,6 +323,7 @@ export const useHistoriaClinica = () => {
         [part]: value
       }
     }));
+    updateSection("ExamenCabeza", true);
   };
   
   // New handlers for the added sections
@@ -312,6 +335,7 @@ export const useHistoriaClinica = () => {
         [part]: value
       }
     }));
+    updateSection("ArticulacionCraneomandibular", true);
   };
 
   const handleExamenCuelloChange = (part: string, value: string | boolean) => {
@@ -322,6 +346,7 @@ export const useHistoriaClinica = () => {
         [part]: value
       }
     }));
+    updateSection("ExamenCuello", true);
   };
 
   const handleExamenIntrabucalChange = (part: string, value: string | boolean) => {
@@ -332,6 +357,7 @@ export const useHistoriaClinica = () => {
         [part]: value
       }
     }));
+    updateSection("ExamenIntrabucal", true);
   };
 
   const handleGlandulasSalivalesChange = (part: string, value: string | boolean) => {
@@ -342,6 +368,7 @@ export const useHistoriaClinica = () => {
         [part]: value
       }
     }));
+    updateSection("GlandulasSalivales", true);
   };
 
   const handleOclusionChange = (part: string, value: string | boolean) => {
@@ -352,6 +379,7 @@ export const useHistoriaClinica = () => {
         [part]: value
       }
     }));
+    updateSection("Oclusion", true);
   };
 
   const handleRelacionDientesChange = (part: string, value: string | boolean) => {
@@ -362,6 +390,7 @@ export const useHistoriaClinica = () => {
         [part]: value
       }
     }));
+    updateSection("RelacionDientes", true);
   };
 
   const handleLineaMediaChange = (part: string, value: string | boolean) => {
@@ -372,6 +401,7 @@ export const useHistoriaClinica = () => {
         [part]: value
       }
     }));
+    updateSection("LineaMedia", true);
   };
 
   const handleFrenillosChange = (part: string, value: string | boolean) => {
@@ -382,6 +412,7 @@ export const useHistoriaClinica = () => {
         [part]: value
       }
     }));
+    updateSection("Frenillos", true);
   };
 
   const handleDiagnosticoChange = (part: string, value: string) => {
@@ -392,6 +423,7 @@ export const useHistoriaClinica = () => {
         [part]: value
       }
     }));
+    updateSection("Diagnostico", true);
   };
 
   const handlePronosticoChange = (part: string, value: string) => {
@@ -402,6 +434,7 @@ export const useHistoriaClinica = () => {
         [part]: value
       }
     }));
+    updateSection("Pronostico", true);
   };
 
   const generarResumen = async () => {
@@ -413,6 +446,7 @@ export const useHistoriaClinica = () => {
         title: "Historia Clínica Generada",
         description: "El resumen de la historia clínica ha sido generado exitosamente con IA.",
       });
+      updateSection("ResumenHistoriaClinica", true);
     } catch (error) {
       toast({
         title: "Error",
@@ -453,11 +487,13 @@ export const useHistoriaClinica = () => {
         }
       };
     });
+    updateSection("AntecedentesPersonalesNoPatologicos", true);
   };
 
   const resetFormulario = () => {
     setFormData(getInitialFormState());
     setResumen('');
+    setCompletedSections({});
     localStorage.removeItem('currentFormData');
   };
 
@@ -484,15 +520,38 @@ export const useHistoriaClinica = () => {
     if (data === null) {
       setFormData(getInitialFormState());
       setResumen('');
+      setCompletedSections({});
     } else {
       setFormData(data);
+      // Mark all sections as completed if data is loaded
+      const sections = [
+        "InformacionPrincipal", "PadecimientoActual", "AntecedentesHeredoFamiliares", 
+        "AntecedentesPersonalesNoPatologicos", "AntecedentesPersonalesPatologicos", 
+        "AntecedentesAlergicos", "AntecedentesQuirurgicos", "AntecedentesHemorragicos", 
+        "AntecedentesGinecoObstetricos", "InterrogatorioSistemas", "ExamenCabeza", 
+        "ArticulacionCraneomandibular", "ExamenCuello", "ExamenIntrabucal", 
+        "GlandulasSalivales", "Oclusion", "RelacionDientes", "LineaMedia", 
+        "Frenillos", "Diagnostico", "Pronostico"
+      ];
+      
+      const newCompletedSections = {};
+      sections.forEach(section => {
+        newCompletedSections[section] = { completed: true };
+      });
+      
+      setCompletedSections(newCompletedSections);
     }
   };
 
   return {
     formData,
+    currentFormData: formData,
     resumen,
     isGenerating,
+    currentTab,
+    setCurrentTab,
+    completedSections,
+    updateSection,
     handleInputChange,
     handlePadecimientoChange,
     handleDolorChange,

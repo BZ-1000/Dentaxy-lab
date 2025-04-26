@@ -7,10 +7,10 @@ import {
   useMotionValueEvent,
   HTMLMotionProps,
 } from "framer-motion";
-import { ComponentPropsWithoutRef, useEffect, useState } from "react";
+import { ComponentPropsWithoutRef, useEffect, useState, ReactNode } from "react";
 import { X, Menu } from "lucide-react";
 
-interface SidebarProps extends ComponentPropsWithoutRef<"div"> {
+interface SidebarProps extends Omit<ComponentPropsWithoutRef<"div">, "title"> {
   /**
    * The position of the Sidebar
    * @default "left"
@@ -139,7 +139,7 @@ export function ModernSidebar({
       </motion.button>
 
       {/* Desktop and Mobile sidebar */}
-      <motion.div
+      <div
         className={cn(
           "fixed top-0 bottom-0 bg-sidebar border-r border-border shadow-lg z-40 flex flex-col",
           position === "left" ? "left-0" : "right-0",
@@ -168,7 +168,7 @@ export function ModernSidebar({
             <ArrowButton collapsed={collapsed} />
           </button>
         )}
-      </motion.div>
+      </div>
     </>
   );
 }
@@ -199,17 +199,17 @@ interface SidebarHeaderProps extends ComponentPropsWithoutRef<"div"> {
   /**
    * The title of the Sidebar
    */
-  title?: React.ReactNode;
+  title?: ReactNode;
 
   /**
    * The description of the Sidebar
    */
-  description?: React.ReactNode;
+  description?: ReactNode;
 
   /**
    * The logo to display in the Sidebar
    */
-  logo?: React.ReactNode;
+  logo?: ReactNode;
 
   /**
    * Whether to show the border
