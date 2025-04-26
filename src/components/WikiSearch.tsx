@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
-import { Search, X, Filter, ArrowDown } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
 interface WikiSearchProps {
@@ -12,12 +12,59 @@ interface WikiSearchProps {
   onOpenChange: (open: boolean) => void;
 }
 
-type SearchCategory = "all" | "diseases" | "procedures" | "materials";
+type SearchCategory = "all" | "diseases" | "procedures" | "materials" | "anatomy" | "diagnostics" | "prevention";
 
-interface SearchFilters {
-  category: SearchCategory;
-  precision: "normal" | "high";
-}
+const categoryOptions = {
+  diseases: [
+    "Caries dental",
+    "Gingivitis",
+    "Periodontitis",
+    "Pulpitis",
+    "Absceso dental",
+    "Fluorosis dental",
+    "Bruxismo",
+    "Halitosis",
+    "Maloclusión"
+  ],
+  procedures: [
+    "Endodoncia",
+    "Extracción dental",
+    "Implantes dentales",
+    "Ortodoncia",
+    "Blanqueamiento dental",
+    "Profilaxis dental",
+    "Restauración dental",
+    "Selladores dentales"
+  ],
+  materials: [
+    "Amalgama dental",
+    "Resina compuesta",
+    "Ionómero de vidrio",
+    "Porcelana dental",
+    "Zirconia",
+    "Gutapercha",
+    "Alginato"
+  ],
+  anatomy: [
+    "Esmalte dental",
+    "Dentina",
+    "Pulpa dental",
+    "Ligamento periodontal",
+    "Encía"
+  ],
+  diagnostics: [
+    "Radiografía dental",
+    "Tomografía dental",
+    "Diagnóstico pulpar",
+    "Sondaje periodontal"
+  ],
+  prevention: [
+    "Higiene oral",
+    "Flúor tópico",
+    "Control de placa",
+    "Selladores"
+  ]
+};
 
 export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,22 +72,17 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState<SearchFilters>({
-    category: "all",
-    precision: "normal"
-  });
+  const [selectedCategory, setSelectedCategory] = useState<SearchCategory>("all");
   
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Define debounced search function
   const debouncedSearch = useDebouncedCallback(
     (term: string) => {
       if (term.trim()) {
         searchWikipedia(term);
       }
     },
-    500 // 500ms delay
+    500
   );
 
   useEffect(() => {
@@ -91,14 +133,9 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     setShowSuggestions(false);
 
     try {
-      // Modify the search parameters based on filters
-      let gsrlimit = filters.precision === "high" ? "3" : "1";
-      let gsrnamespace = "0";
-      
-      // Apply category filter if needed
       let gsrsearch = term;
-      if (filters.category !== "all") {
-        gsrsearch = `${term} ${filters.category}`;
+      if (selectedCategory !== "all") {
+        gsrsearch = `${term} ${selectedCategory}`;
       }
       
       const response = await fetch(
@@ -110,9 +147,9 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           exintro: "true",
           explaintext: "true",
           generator: "search",
-          gsrlimit: gsrlimit,
+          gsrlimit: "1",
           gsrsearch: gsrsearch,
-          gsrnamespace: gsrnamespace,
+          gsrnamespace: "0",
           origin: "*"
         })
       );
@@ -123,18 +160,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
         const pages = Object.values(data.query.pages) as any[];
         
         if (pages.length > 0) {
-          // For "high precision" mode, combine multiple results
-          if (filters.precision === "high" && pages.length > 1) {
-            const combinedResults = pages
-              .sort((a, b) => a.index - b.index)
-              .map(page => `<strong>${page.title}</strong>: ${page.extract}`)
-              .join("\n\n");
-            
-            setSearchResults(combinedResults);
-          } else {
-            // Normal mode - just show first result
-            setSearchResults(pages[0].extract || "No se encontraron resultados.");
-          }
+          setSearchResults(pages[0].extract || "No se encontraron resultados.");
         } else {
           setSearchResults("No se encontraron resultados.");
         }
@@ -163,8 +189,9 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   };
 
-  const toggleFilters = () => {
-    setShowFilters(!showFilters);
+  const handleSelectPresetTerm = (term: string) => {
+    setSearchTerm(term);
+    searchWikipedia(term);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -172,47 +199,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
       searchWikipedia();
     }
   };
-
-  const renderCategoryButtons = () => (
-    <div className="flex flex-wrap gap-2 mb-3">
-      {(["all", "diseases", "procedures", "materials"] as SearchCategory[]).map(category => (
-        <Button
-          key={category}
-          size="sm"
-          variant={filters.category === category ? "default" : "outline"}
-          onClick={() => setFilters({...filters, category})}
-          className="text-xs"
-        >
-          {category === "all" ? "Todos" : 
-           category === "diseases" ? "Enfermedades" : 
-           category === "procedures" ? "Procedimientos" : 
-           "Materiales"}
-        </Button>
-      ))}
-    </div>
-  );
-
-  const renderPrecisionToggle = () => (
-    <div className="flex items-center gap-2 mb-3">
-      <span className="text-sm">Precisión:</span>
-      <Button
-        size="sm"
-        variant={filters.precision === "normal" ? "default" : "outline"}
-        onClick={() => setFilters({...filters, precision: "normal"})}
-        className="text-xs"
-      >
-        Normal
-      </Button>
-      <Button
-        size="sm"
-        variant={filters.precision === "high" ? "default" : "outline"}
-        onClick={() => setFilters({...filters, precision: "high"})}
-        className="text-xs"
-      >
-        Alta
-      </Button>
-    </div>
-  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -249,13 +235,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
             >
               <Search className="h-4 w-4" />
             </Button>
-            <Button
-              onClick={toggleFilters}
-              variant="outline"
-              className={showFilters ? "bg-blue-100 dark:bg-blue-900" : ""}
-            >
-              <Filter className="h-4 w-4" />
-            </Button>
           </div>
 
           {/* Suggestions dropdown */}
@@ -272,21 +251,54 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                     {suggestion}
                   </li>
                 ))}
-                <li className="border-t border-gray-200 dark:border-gray-700 px-4 py-2 text-xs text-gray-500 dark:text-gray-400 flex items-center">
-                  <ArrowDown className="h-3 w-3 mr-2" />
-                  Presiona Enter para buscar
-                </li>
               </ul>
             </div>
           )}
         </div>
 
-        {/* Filter options */}
-        {showFilters && (
+        {/* Category filters - always visible when not searching */}
+        {!searchTerm && (
           <div className="bg-gray-50 dark:bg-neutral-900 p-3 rounded-md mb-2 border border-gray-200 dark:border-gray-800">
-            <h3 className="text-sm font-medium mb-2">Filtros avanzados</h3>
-            {renderCategoryButtons()}
-            {renderPrecisionToggle()}
+            <h3 className="text-sm font-medium mb-2">Filtros de búsqueda</h3>
+            <div className="flex flex-wrap gap-2">
+              {(["all", "diseases", "procedures", "materials", "anatomy", "diagnostics", "prevention"] as SearchCategory[]).map(category => (
+                <Button
+                  key={category}
+                  size="sm"
+                  variant={selectedCategory === category ? "default" : "outline"}
+                  onClick={() => setSelectedCategory(category)}
+                  className="text-xs"
+                >
+                  {category === "all" ? "Todos" : 
+                   category === "diseases" ? "Enfermedades" : 
+                   category === "procedures" ? "Procedimientos" : 
+                   category === "materials" ? "Materiales" :
+                   category === "anatomy" ? "Anatomía" :
+                   category === "diagnostics" ? "Diagnósticos" :
+                   "Prevención"}
+                </Button>
+              ))}
+            </div>
+
+            {/* Preset terms based on selected category */}
+            {selectedCategory !== "all" && categoryOptions[selectedCategory as keyof typeof categoryOptions] && (
+              <div className="mt-4">
+                <h4 className="text-sm font-medium mb-2">Términos comunes:</h4>
+                <div className="flex flex-wrap gap-2">
+                  {categoryOptions[selectedCategory as keyof typeof categoryOptions].map((term, index) => (
+                    <Button
+                      key={index}
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleSelectPresetTerm(term)}
+                      className="text-xs bg-white dark:bg-neutral-800"
+                    >
+                      {term}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

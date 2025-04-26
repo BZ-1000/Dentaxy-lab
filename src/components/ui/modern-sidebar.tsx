@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -223,4 +222,28 @@ export const LogoIcon = ({
   return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
       {children}
     </div>;
+};
+
+function DockIcon({ children, className, ...rest }: {
+  children: ReactNode;
+  className?: string;
+  width: MotionValue<number>;
+}) {
+  const restProps = rest as Record<string, unknown>;
+  const width = restProps['width'] as MotionValue<number>;
+
+  const widthTransform = useTransform(width, (val) => val / 2);
+
+  return (
+    <motion.div
+      style={{ width: widthTransform }}
+      className={cn('flex items-center justify-center', className)}
+    >
+      {children as ReactNode}
+    </motion.div>
+  );
+}
+
+export {
+  DockIcon
 };
