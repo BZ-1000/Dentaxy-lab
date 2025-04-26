@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
 import { FormDataState } from '@/types/historiaClinica';
@@ -8,28 +9,7 @@ export const useHistoriaClinica = () => {
   const { toast } = useToast();
   const [resumen, setResumen] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [formData, setFormData] = useState<FormDataState>(() => {
-    // Try to load form data from sessionStorage first (for tab switching persistence)
-    const savedSessionData = sessionStorage.getItem('current_form_data');
-    if (savedSessionData) {
-      try {
-        return JSON.parse(savedSessionData);
-      } catch (error) {
-        console.error('Error parsing saved form data:', error);
-        return getInitialFormState();
-      }
-    }
-    return getInitialFormState();
-  });
-
-  // Save form data to sessionStorage whenever it changes
-  useEffect(() => {
-    try {
-      sessionStorage.setItem('current_form_data', JSON.stringify(formData));
-    } catch (error) {
-      console.error('Error saving form data to sessionStorage:', error);
-    }
-  }, [formData]);
+  const [formData, setFormData] = useState<FormDataState>(getInitialFormState());
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -81,6 +61,7 @@ export const useHistoriaClinica = () => {
         }
       }));
     } else if (field === 'causaProvocado') {
+      // Asegurar que causaProvocado se guarde correctamente
       setFormData(prev => ({
         ...prev,
         padecimientoActual: {
@@ -298,6 +279,7 @@ export const useHistoriaClinica = () => {
     }));
   };
   
+  // New handlers for the added sections
   const handleArticulacionCraneomandibularChange = (part: string, value: string | boolean) => {
     setFormData(prev => ({
       ...prev,
@@ -450,32 +432,8 @@ export const useHistoriaClinica = () => {
   };
 
   const resetFormulario = () => {
-    // Get a fresh initial state
-    const initialState = getInitialFormState();
-    
-    // Clear form data
-    setFormData(initialState);
+    setFormData(getInitialFormState());
     setResumen('');
-    
-    // Clear sessionStorage
-    sessionStorage.removeItem('current_form_data');
-    
-    // Clear all patient-specific data from localStorage
-    // This will only clear forms created with the current app instance
-    const keysToRemove = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('formulario_')) {
-        keysToRemove.push(key);
-      }
-    }
-    
-    // Remove all the keys in a second pass to avoid index issues while iterating
-    keysToRemove.forEach(key => {
-      localStorage.removeItem(key);
-    });
-    
-    console.log('Formulario reiniciado correctamente');
   };
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {
@@ -494,22 +452,15 @@ export const useHistoriaClinica = () => {
       }
     };
     
-    // Save to localStorage (for persistence between sessions)
     localStorage.setItem(`formulario_${nombre}`, JSON.stringify(formDataToSave));
-    
-    // Also update sessionStorage (for tab switching persistence)
-    sessionStorage.setItem('current_form_data', JSON.stringify(formDataToSave));
   };
 
   const cargarFormulario = (data: FormDataState | null) => {
     if (data === null) {
-      const initialState = getInitialFormState();
-      setFormData(initialState);
+      setFormData(getInitialFormState());
       setResumen('');
-      sessionStorage.removeItem('current_form_data');
     } else {
       setFormData(data);
-      sessionStorage.setItem('current_form_data', JSON.stringify(data));
     }
   };
 

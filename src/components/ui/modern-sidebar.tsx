@@ -1,8 +1,8 @@
+
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom"; // Import Link and useNavigate
 
 interface Links {
   label: string;
@@ -159,31 +159,9 @@ export const SidebarLink = ({
   className?: string;
 }) => {
   const { open, animate } = useSidebar();
-  const navigate = useNavigate(); // Use React Router's navigate function
 
-  const handleLinkClick = (e: React.MouseEvent) => {
-    // If there's an onClick handler, use it
-    if (link.onClick) {
-      e.preventDefault();
-      link.onClick();
-      return;
-    }
-    
-    // If there's a href that's an external link or anchor, let the browser handle it
-    if (link.href && (link.href.startsWith('http') || link.href.startsWith('#'))) {
-      return;
-    }
-    
-    // Otherwise, use React Router navigation and prevent default
-    if (link.href) {
-      e.preventDefault();
-      navigate(link.href);
-    }
-  };
-
-  // Use Link component for internal navigation
-  const linkContent = (
-    <>
+  return (
+    <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} onClick={link.onClick} {...props}>
       {link.icon}
       {animate ? (
         open ? (
@@ -196,29 +174,6 @@ export const SidebarLink = ({
           {link.label}
         </span>
       )}
-    </>
-  );
-
-  // For internal links, use Link; for others or with custom onClick, use div
-  if (link.href && !link.href.startsWith('http') && !link.href.startsWith('#') && !link.onClick) {
-    return (
-      <Link 
-        to={link.href}
-        className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)}
-        {...props}
-      >
-        {linkContent}
-      </Link>
-    );
-  }
-
-  return (
-    <div 
-      className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} 
-      onClick={handleLinkClick}
-      {...props}
-    >
-      {linkContent}
     </div>
   );
 };

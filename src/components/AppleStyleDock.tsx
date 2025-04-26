@@ -1,3 +1,4 @@
+
 import {
   Mail,
   ScrollText,
@@ -5,7 +6,7 @@ import {
   UserCircle,
   SunMoon,
   Crown,
-  Save,
+  Save, // Importa el ícono Save
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -21,8 +22,7 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { cn } from '@/lib/utils';
-import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
+import { cn } from '@/lib/utils'; // Asegúrate de importar la utilidad cn
 
 const data = [
   {
@@ -49,7 +49,7 @@ const data = [
   {
     title: 'Comentarios',
     icon: (
-      <Mail className='h-full w-full text-red-500 dark:text-red-400' />
+      <Mail className='h-full w-full text-red-500 dark:text-red-400' /> // Color rojo estilo Apple
     ),
     href: '#',
   },
@@ -65,9 +65,7 @@ export function AppleStyleDock() {
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  // Import the resetFormulario function from the useHistoriaClinica hook
-  const { resetFormulario } = useHistoriaClinica();
+  const [isVisible, setIsVisible] = useState(false); // Estado para la visibilidad del botón
 
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -75,25 +73,12 @@ export function AppleStyleDock() {
     const checkScroll = () => {
       if (nameInput) {
         const rect = nameInput.getBoundingClientRect();
-        setIsVisible(rect.top < 0);
+        setIsVisible(rect.top < 0); // Lógica para mostrar/ocultar el botón
       }
     };
 
     window.addEventListener('scroll', checkScroll);
     return () => window.removeEventListener('scroll', checkScroll);
-  }, []);
-
-  // Store form data in sessionStorage before tab/window is closed or user navigates away
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      // Form data is already being saved by the useHistoriaClinica hook
-      // This is just an additional event listener to ensure data is saved
-      // when the user closes the tab or navigates away
-      return null;
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
   const scrollToName = () => {
@@ -104,12 +89,11 @@ export function AppleStyleDock() {
       if (input) {
         setTimeout(() => {
           input.focus();
-        }, 300);
+        }, 300); // Espera a que termine el scroll antes de enfocar
       }
     }
   };
 
-  // Use React Router for navigation and prevent full page reloads
   const handleItemClick = async (title: string) => {
     switch (title) {
       case 'Inicio':
@@ -171,12 +155,6 @@ export function AppleStyleDock() {
     toast.success('Sesión cerrada exitosamente');
   };
 
-  const handleResetFormulario = () => {
-    // Call resetFormulario from the hook
-    resetFormulario();
-    toast.success('Formulario reiniciado correctamente');
-  };
-
   return (
     <>
       <div className='fixed bottom-2 left-1/2 max-w-full -translate-x-1/2 z-50'>
@@ -200,25 +178,13 @@ export function AppleStyleDock() {
               <SunMoon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
             </DockIcon>
           </DockItem>
-          
-          {/* Agregar botón para reiniciar el formulario */}
-          <DockItem
-            onClick={handleResetFormulario}
-            className='aspect-square rounded-full bg-red-500 hover:bg-red-600 text-white shadow-lg cursor-pointer'
-          >
-            <DockLabel>Reiniciar Formulario</DockLabel>
-            <DockIcon>
-              <ScrollText className='h-full w-full' />
-            </DockIcon>
-          </DockItem>
-          
-          {/* Botón ScrollToName */}
+          {/* Nuevo botón ScrollToName */}
           {isVisible && (
             <DockItem
               onClick={scrollToName}
               className='aspect-square rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg cursor-pointer slide-in'
             >
-              <DockLabel>Volver al nombre</DockLabel>
+              <DockLabel>Scroll to Name</DockLabel>
               <DockIcon>
                 <Save className='h-full w-full' />
               </DockIcon>
