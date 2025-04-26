@@ -9,6 +9,7 @@ import {
   Trash,
   Cross,
   Search,
+  ArrowUp
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -84,6 +85,8 @@ export function AppleStyleDock() {
     };
 
     window.addEventListener('scroll', checkScroll);
+    // Initial check
+    checkScroll();
     return () => window.removeEventListener('scroll', checkScroll);
   }, []);
 
@@ -215,9 +218,9 @@ export function AppleStyleDock() {
               onClick={scrollToName}
               className='aspect-square rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg cursor-pointer slide-in'
             >
-              <DockLabel>Scroll to Name</DockLabel>
+              <DockLabel>Ir a nombre de paciente</DockLabel>
               <DockIcon>
-                <Save className='h-full w-full' />
+                <ArrowUp className='h-full w-full text-white' />
               </DockIcon>
             </DockItem>
           )}
@@ -315,7 +318,7 @@ export function AppleStyleDock() {
                   <p>Por favor, inicia sesión para ver tu perfil</p>
                 )}
               </div>
-            </DialogDescription>
+            DialogDescription>
           </DialogHeader>
         </DialogContent>
       </Dialog>
