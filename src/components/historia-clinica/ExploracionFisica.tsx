@@ -47,11 +47,16 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
   const handleHeightInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '');
     if (value.length <= 3) {
-      const formattedValue = value.length === 3 
+      const formattedValue = value.length === 3
         ? (parseInt(value) / 100).toFixed(2)
         : value;
       handleExploracionFisicaChange('signosVitales.talla', formattedValue);
     }
+  };
+
+  const getBloodPressureValues = (bpString: string) => {
+    const [systolic, diastolic] = bpString.split('/').map(Number);
+    return { systolic, diastolic };
   };
 
   return (
@@ -108,7 +113,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">kg</span>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="talla">Talla</Label>
                     <div className="relative">
@@ -162,9 +167,9 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">mmHg</span>
                 </div>
-                {formData.exploracionFisica?.signosVitales?.ta && getBPCategory(formData.exploracionFisica.signosVitales.ta)?.label && (
-                  <div className={`text-sm ${getBPCategory(formData.exploracionFisica.signosVitales.ta)?.color}`}>
-                    {getBPCategory(formData.exploracionFisica.signosVitales.ta)?.label}
+                {formData.exploracionFisica?.signosVitales?.ta && (
+                  <div className={`text-sm ${getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).color}`}>
+                    {getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).label}
                   </div>
                 )}
               </div>
