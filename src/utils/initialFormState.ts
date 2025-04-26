@@ -1,11 +1,11 @@
-
 import { FormDataState } from '@/types/historiaClinica';
+import { defaultFormTexts } from './defaultFormTexts';
 
 export const getInitialFormState = (): FormDataState => ({
   padecimientoActual: {
     sinSintomas: false,
-    motivoConsulta: '',
-    historiaPadecimiento: '',
+    motivoConsulta: defaultFormTexts.padecimientoActual.motivoConsulta,
+    historiaPadecimiento: defaultFormTexts.padecimientoActual.historiaPadecimiento,
     dolor: {
       fechaInicio: '',
       condicionAparicion: '',
@@ -200,14 +200,14 @@ export const getInitialFormState = (): FormDataState => ({
     complicaciones: ""
   },
   interrogatorioSistemas: {
-    cardiovascular: "",
-    respiratorio: "",
-    digestivo: "",
-    urinario: "",
-    musculoEsqueletico: "",
-    nervioso: "",
-    endocrino: "",
-    tegumentario: ""
+    cardiovascular: defaultFormTexts.interrogatorioSistemas.cardiovascular,
+    respiratorio: defaultFormTexts.interrogatorioSistemas.respiratorio,
+    digestivo: defaultFormTexts.interrogatorioSistemas.digestivo,
+    urinario: defaultFormTexts.interrogatorioSistemas.urinario,
+    musculoEsqueletico: defaultFormTexts.interrogatorioSistemas.musculoEsqueletico,
+    nervioso: defaultFormTexts.interrogatorioSistemas.nervioso,
+    endocrino: defaultFormTexts.interrogatorioSistemas.endocrino,
+    tegumentario: defaultFormTexts.interrogatorioSistemas.tegumentario
   },
   exploracionFisica: {
     signosVitales: {
@@ -220,11 +220,11 @@ export const getInitialFormState = (): FormDataState => ({
       imc: ""
     },
     exploracion: {
-      cabeza: "",
-      cuello: "",
-      torax: "",
-      abdomen: "",
-      extremidades: ""
+      cabeza: defaultFormTexts.exploracionFisica.exploracion.cabeza,
+      cuello: defaultFormTexts.exploracionFisica.exploracion.cuello,
+      torax: defaultFormTexts.exploracionFisica.exploracion.torax,
+      abdomen: defaultFormTexts.exploracionFisica.exploracion.abdomen,
+      extremidades: defaultFormTexts.exploracionFisica.exploracion.extremidades
     }
   },
   examenCabeza: {
@@ -305,14 +305,14 @@ export const getInitialFormState = (): FormDataState => ({
     observaciones: ""
   },
   diagnostico: {
-    principal: "",
-    secundarios: "",
-    observaciones: ""
+    principal: defaultFormTexts.diagnostico.principal,
+    secundarios: defaultFormTexts.diagnostico.secundarios,
+    observaciones: defaultFormTexts.diagnostico.observaciones
   },
   pronostico: {
-    general: "",
-    particular: "",
-    observaciones: ""
+    general: defaultFormTexts.pronostico.general,
+    particular: defaultFormTexts.pronostico.particular,
+    observaciones: defaultFormTexts.pronostico.observaciones
   },
   serviciosDomiciliarios: '',
   pisosVivienda: '',
