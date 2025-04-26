@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Minus, Maximize2, X, ThermometerSun, HeartPulse } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { calculateIMC, getIMCCategory, getBPCategory, vitalSignRanges } from '@/utils/medicalRanges';
@@ -46,20 +44,14 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
     setIsMaximized(false);
   };
 
-  // Parse blood pressure string into systolic and diastolic values
-  const parseBP = (bp: string): { systolic: number, diastolic: number } | null => {
-    const match = bp.match(/^(\d+)\/(\d+)$/);
-    if (!match) return null;
-    return {
-      systolic: parseInt(match[1]),
-      diastolic: parseInt(match[2])
-    };
-  };
-
-  const getBPStatus = (bp: string) => {
-    const values = parseBP(bp);
-    if (!values) return null;
-    return getBPCategory(values.systolic, values.diastolic);
+  const handleHeightInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    if (value.length <= 3) {
+      const formattedValue = value.length === 3 
+        ? (parseInt(value) / 100).toFixed(2)
+        : value;
+      handleExploracionFisicaChange('signosVitales.talla', formattedValue);
+    }
   };
 
   return (
@@ -122,18 +114,18 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     <div className="relative">
                       <Input
                         id="talla"
-                        type="number"
-                        step="0.01"
+                        type="text"
                         value={formData.exploracionFisica?.signosVitales?.talla || ''}
-                        onChange={(e) => handleExploracionFisicaChange('signosVitales.talla', e.target.value)}
+                        onChange={handleHeightInput}
                         className="pr-8"
+                        placeholder="Ej: 170"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">m</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg w-full px-4 py-3">
                   <div className="text-sm">IMC: <span className="font-semibold">{imc}</span></div>
                   <div className={`text-sm ${getIMCCategory(imc).color}`}>
                     Categoría: {getIMCCategory(imc).label}
@@ -160,18 +152,19 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
               <div className="space-y-2">
                 <Label htmlFor="ta">Presión arterial</Label>
                 <div className="relative">
-                  <Textarea
+                  <Input
                     id="ta"
+                    type="text"
                     value={formData.exploracionFisica?.signosVitales?.ta || ''}
                     onChange={(e) => handleExploracionFisicaChange('signosVitales.ta', e.target.value)}
                     placeholder="120/80"
-                    className="resize-none h-[42px] py-2"
+                    className="pr-16"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">mmHg</span>
                 </div>
-                {formData.exploracionFisica?.signosVitales?.ta && getBPStatus(formData.exploracionFisica.signosVitales.ta) && (
-                  <div className={`text-sm ${getBPStatus(formData.exploracionFisica.signosVitales.ta)?.color}`}>
-                    {getBPStatus(formData.exploracionFisica.signosVitales.ta)?.label}
+                {formData.exploracionFisica?.signosVitales?.ta && getBPCategory(formData.exploracionFisica.signosVitales.ta)?.label && (
+                  <div className={`text-sm ${getBPCategory(formData.exploracionFisica.signosVitales.ta)?.color}`}>
+                    {getBPCategory(formData.exploracionFisica.signosVitales.ta)?.label}
                   </div>
                 )}
               </div>
