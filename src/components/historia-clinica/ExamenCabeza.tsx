@@ -287,7 +287,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                   />
                   <button
                     type="button"
-                    onClick={() => setShowVoiceInput(true)}
+                    onClick={() => setShowVoiceInput(!showVoiceInput)}
                     className="absolute right-2 top-2 p-1 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
                     aria-label="Usar reconocimiento de voz"
                   >
