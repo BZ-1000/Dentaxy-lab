@@ -6,6 +6,13 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Search, X } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
+// Add global type declaration for the expandText function
+declare global {
+  interface Window {
+    expandText: () => void;
+  }
+}
+
 interface WikiSearchProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -221,7 +228,8 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
       setExpandedText(true);
     };
     return () => {
-      delete window.expandText;
+      // Use type assertion to avoid TypeScript errors when deleting properties
+      delete (window as any).expandText;
     };
   }, []);
 

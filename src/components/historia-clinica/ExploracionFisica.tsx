@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -55,7 +56,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
   };
 
   const getBloodPressureValues = (bpString: string) => {
-    const [systolic, diastolic] = bpString.split('/').map(Number);
+    const [systolic = 0, diastolic = 0] = bpString.split('/').map(Number);
     return { systolic, diastolic };
   };
 
@@ -168,8 +169,16 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">mmHg</span>
                 </div>
                 {formData.exploracionFisica?.signosVitales?.ta && (
-                  <div className={`text-sm ${getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).color}`}>
-                    {getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).label}
+                  <div className={`text-sm ${
+                    getBPCategory(
+                      getBloodPressureValues(formData.exploracionFisica.signosVitales.ta).systolic, 
+                      getBloodPressureValues(formData.exploracionFisica.signosVitales.ta).diastolic
+                    ).color
+                  }`}>
+                    {getBPCategory(
+                      getBloodPressureValues(formData.exploracionFisica.signosVitales.ta).systolic, 
+                      getBloodPressureValues(formData.exploracionFisica.signosVitales.ta).diastolic
+                    ).label}
                   </div>
                 )}
               </div>

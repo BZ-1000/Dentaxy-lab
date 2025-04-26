@@ -8,6 +8,24 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { VoiceInput } from '@/components/ui/voice-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+// Create proper interfaces for the nested objects in formData
+interface CaracteristicaFacial {
+  presente: boolean;
+  detalles: string;
+}
+
+interface ExamenCabezaData {
+  tipoCraneo?: string;
+  tipoPerfil?: string;
+  tez?: string;
+  estadoPiel?: string;
+  lunares?: CaracteristicaFacial;
+  cicatrices?: CaracteristicaFacial;
+  asimetriasFaciales?: CaracteristicaFacial;
+  edema?: CaracteristicaFacial;
+  otrosHallazgos?: string;
+}
+
 interface ExamenCabezaProps {
   formData: FormDataState;
   handleExamenCabezaChange: (part: string, value: string | boolean) => void;
@@ -51,12 +69,12 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     },
     {
       type: 'Dolicocéfalo',
-      img: '/dolicocefalo.png',
+      img: '/lovable-uploads/dolicocefalo.png',
       description: 'Cráneo alargado y estrecho. El diámetro anteroposterior es mayor que el transversal.'
     },
     {
       type: 'Braquicéfalo',
-      img: '/braquicefalo.png',
+      img: '/lovable-uploads/braquicefalo.png',
       description: 'Cráneo ancho y corto. El diámetro transversal es proporcionalmente mayor que el anteroposterior.'
     }
   ];
@@ -64,22 +82,22 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const perfilesTypes = [
     {
       type: 'Cóncavo',
-      img: '/concavo.png',
+      img: '/lovable-uploads/concavo.png',
       description: 'Perfil facial que presenta una depresión en la zona media.'
     },
     {
       type: 'Convexo',
-      img: '/convexo.png',
+      img: '/lovable-uploads/convexo.png',
       description: 'Perfil facial que presenta una proyección hacia adelante en la zona media.'
     },
     {
       type: 'Recto',
-      img: '/recto.png',
+      img: '/lovable-uploads/recto.png',
       description: 'Perfil facial que presenta una línea recta sin proyecciones o depresiones marcadas.'
     }
   ];
 
-  // Initialize nested objects if they don't exist
+  // Fix the type issues with nested properties
   const getNestedValue = (path: string, defaultValue: any = '') => {
     if (!formData.examenCabeza) return defaultValue;
 
@@ -101,7 +119,21 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     { id: 'edema', label: 'Edema' }
   ];
 
+  // Helper function to safely check if a facial characteristic is present
+  const isCaracteristicaPresente = (id: string): boolean => {
+    const caracteristica = formData.examenCabeza?.[id] as CaracteristicaFacial | undefined;
+    return caracteristica?.presente || false;
+  };
+
+  // Helper function to safely get caracteristica details
+  const getCaracteristicaDetalles = (id: string): string => {
+    const caracteristica = formData.examenCabeza?.[id] as CaracteristicaFacial | undefined;
+    return caracteristica?.detalles || '';
+  };
+
   return (
+    
+
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -246,7 +278,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                   <div key={caracteristica.id} className="space-y-2">
                     <Label>{caracteristica.label}</Label>
                     <Select
-                      value={(formData.examenCabeza?.[caracteristica.id]?.presente ? 'si' : 'no') || 'no'}
+                      value={isCaracteristicaPresente(caracteristica.id) ? 'si' : 'no'}
                       onValueChange={(value) => {
                         handleExamenCabezaChange(`${caracteristica.id}.presente`, value === 'si');
                         if (value === 'no') {
@@ -263,10 +295,10 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                       </SelectContent>
                     </Select>
 
-                    {formData.examenCabeza?.[caracteristica.id]?.presente && (
+                    {isCaracteristicaPresente(caracteristica.id) && (
                       <Textarea
                         placeholder={`Describa los detalles de ${caracteristica.label.toLowerCase()}`}
-                        value={formData.examenCabeza?.[caracteristica.id]?.detalles || ''}
+                        value={getCaracteristicaDetalles(caracteristica.id)}
                         onChange={(e) => handleExamenCabezaChange(`${caracteristica.id}.detalles`, e.target.value)}
                         className="mt-2"
                       />
@@ -278,20 +310,22 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
               {/* Otros hallazgos con botón de voz a texto */}
               <div className="space-y-2">
                 <Label>Otros hallazgos</Label>
-                <div className="relative">
-                  <Textarea
-                    placeholder="Ingrese otros hallazgos relevantes"
-                    value={formData.examenCabeza?.otrosHallazgos || ''}
-                    onChange={(e) => handleExamenCabezaChange('otrosHallazgos', e.target.value)}
-                    className="pr-10"
-                  />
+                <div className="flex items-start gap-2">
+                  <div className="flex-1">
+                    <Textarea
+                      placeholder="Ingrese otros hallazgos relevantes"
+                      value={formData.examenCabeza?.otrosHallazgos || ''}
+                      onChange={(e) => handleExamenCabezaChange('otrosHallazgos', e.target.value)}
+                      className="w-full"
+                    />
+                  </div>
                   <button
                     type="button"
-                    onClick={() => setShowVoiceInput(true)}
-                    className="absolute right-2 top-2 p-1 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                    onClick={() => setShowVoiceInput(!showVoiceInput)}
+                    className="p-2 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
                     aria-label="Usar reconocimiento de voz"
                   >
-                    <Mic className="h-4 w-4" />
+                    <Mic className="h-5 w-5" />
                   </button>
                 </div>
 
