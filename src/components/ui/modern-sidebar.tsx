@@ -64,7 +64,7 @@ export const Sidebar = ({
 }) => {
   return <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
       {children}
-    </SidebarContext.Provider>;
+    </SidebarProvider>;
 };
 
 export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
