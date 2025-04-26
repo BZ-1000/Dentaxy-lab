@@ -1,83 +1,226 @@
-import React, { useRef } from 'react';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
-import { Menu } from "lucide-react"
-import { motion, MotionValue } from 'framer-motion';
 
-interface ModernSidebarProps {
-  children: React.ReactNode;
+import { cn } from "@/lib/utils";
+import React, { useState, createContext, useContext, ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+
+interface Links {
+  label: string;
+  href?: string;
+  icon: React.JSX.Element | React.ReactNode;
+  onClick?: () => void;
 }
 
-const ModernSidebar = ({ children }: ModernSidebarProps) => {
-  const ref = useRef(null);
-  const [width, setWidth] = React.useState<number | MotionValue>(64);
+interface SidebarContextProps {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  animate: boolean;
+}
 
-  React.useEffect(() => {
-    function handleResize() {
-      if (ref.current && ref.current.offsetWidth > 64) {
-        setWidth(256);
-      } else {
-        setWidth(64);
-      }
-    }
+const SidebarContext = createContext<SidebarContextProps | undefined>(undefined);
 
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+export const useSidebar = () => {
+  const context = useContext(SidebarContext);
+  if (!context) {
+    throw new Error("useSidebar must be used within a SidebarProvider");
+  }
+  return context;
+};
+
+export const SidebarProvider = ({
+  children,
+  open: openProp,
+  setOpen: setOpenProp,
+  animate = true
+}: {
+  children: React.ReactNode;
+  open?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  animate?: boolean;
+}) => {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp !== undefined ? openProp : openState;
+  const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
 
   return (
-    <div className="relative min-h-screen md:flex">
-      <Sheet>
-        <SheetTrigger asChild>
-          <button className="md:hidden absolute top-4 left-4 rounded-sm border border-input bg-background px-4 py-2 font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
-            <Menu className="w-5 h-5" />
-          </button>
-        </SheetTrigger>
-        <SheetContent className="md:hidden w-64">
-          <SheetHeader>
-            <SheetTitle>Menu</SheetTitle>
-            <SheetDescription>
-              Take control of your finances with our app.
-            </SheetDescription>
-          </SheetHeader>
-        </SheetContent>
-      </Sheet>
-      
-      <motion.div
-        ref={ref}
-        className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 bg-gray-50 border-r dark:bg-gray-800 dark:border-gray-700"
-        style={{
-          width: width instanceof MotionValue ? `${width.get()}px` : '64px'
-        }}
-      >
-        <div className="flex items-center justify-center h-16 border-b dark:border-gray-700">
-          <span className="text-lg font-semibold">DENTAXY.ai</span>
-        </div>
-        <div className="flex flex-col flex-grow p-4">
-          <a href="#" className="flex items-center py-2 px-4 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
-            Dashboard
-          </a>
-          <a href="#" className="flex items-center py-2 px-4 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
-            Settings
-          </a>
-          <a href="#" className="flex items-center py-2 px-4 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700">
-            Logout
-          </a>
-        </div>
-      </motion.div>
-      
-      <div className="flex-1 md:ml-64">
-        <main ref={ref}>{children}</main>
-      </div>
-    </div>
+    <SidebarContext.Provider value={{
+      open,
+      setOpen,
+      animate
+    }}>
+      {children}
+    </SidebarContext.Provider>
   );
 };
 
-export default ModernSidebar;
+export const Sidebar = ({
+  children,
+  open,
+  setOpen,
+  animate
+}: {
+  children: React.ReactNode;
+  open?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  animate?: boolean;
+}) => {
+  return (
+    <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
+      {children}
+    </SidebarProvider>
+  );
+};
+
+export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
+  return (
+    <>
+      <DesktopSidebar {...props} />
+      <MobileSidebar {...props} />
+    </>
+  );
+};
+
+export const DesktopSidebar = ({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof motion.div>) => {
+  const { open, setOpen, animate } = useSidebar();
+  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
+
+  return (
+    <motion.div
+      className={cn(
+        "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
+        className
+      )}
+      style={{ width: sidebarWidth }}
+      animate={{ width: sidebarWidth }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      {...props}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+export const MobileSidebar = ({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof motion.div>) => {
+  const { open, setOpen } = useSidebar();
+
+  return (
+    <>
+      <div className="h-14 md:hidden flex items-center px-4 bg-neutral-100 dark:bg-neutral-800">
+        <button
+          onClick={() => setOpen(true)}
+          className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg"
+        >
+          <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+        </button>
+      </div>
+      
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+            className={cn(
+              "fixed inset-0 z-50 bg-white dark:bg-neutral-900 md:hidden",
+              className
+            )}
+            {...props}
+          >
+            <div className="flex flex-col h-full p-4">
+              <button
+                onClick={() => setOpen(false)}
+                className="self-end p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg mb-4"
+              >
+                <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+              </button>
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+export const SidebarLink = ({
+  link,
+  className,
+  ...props
+}: {
+  link: Links;
+  className?: string;
+}) => {
+  const { open, animate } = useSidebar();
+  const navigate = useNavigate();
+
+  const handleLinkClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default browser navigation
+    
+    if (link.onClick) {
+      link.onClick();
+      return;
+    }
+    
+    if (link.href) {
+      if (link.href.startsWith('http') || link.href.startsWith('#')) {
+        window.location.href = link.href; // For external links only
+      } else {
+        navigate(link.href, { replace: false }); // Use replace: false to maintain history
+      }
+    }
+  };
+
+  return (
+    <Link
+      to={link.href || '#'}
+      className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)}
+      onClick={handleLinkClick}
+      {...props}
+    >
+      {link.icon}
+      {animate ? (
+        open ? (
+          <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
+            {link.label}
+          </span>
+        ) : null
+      ) : (
+        <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
+          {link.label}
+        </span>
+      )}
+    </Link>
+  );
+};
+
+export const Logo = ({
+  children
+}: {
+  children: ReactNode;
+}) => {
+  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
+      {children}
+      <div className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</div>
+    </div>;
+};
+
+export const LogoIcon = ({
+  children
+}: {
+  children: ReactNode;
+}) => {
+  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
+      {children}
+    </div>;
+};
