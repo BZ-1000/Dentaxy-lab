@@ -7,7 +7,8 @@ import {
   Crown,
   Save,
   Trash,
-  PillBottle, // Add PillBottle for our new icon
+  PillBottle,
+  Search, // Add Search icon
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -25,6 +26,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { MedicationSearch } from './MedicationSearch'; // Import our new component
+import { WikiSearch } from './WikiSearch';
 
 const data = [
   {
@@ -34,18 +36,17 @@ const data = [
     ),
     href: '/',
   },
-  // Cambios en el botón de Medicamentos
   {
     title: 'Medicamentos',
     icon: (
-      <PillBottle className='h-full w-full text-white' /> // Cambiar el color del icono a blanco
+      <PillBottle className='h-full w-full text-white' />
     ),
     href: '#',
   },
   {
-    title: 'Historial',
+    title: 'Búsqueda',
     icon: (
-      <ScrollText className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+      <Search className='h-full w-full text-white' />
     ),
     href: '#',
   },
@@ -70,8 +71,8 @@ export function AppleStyleDock() {
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [showWikiSearch, setShowWikiSearch] = useState(false); // Add new state
 
-  // Keep existing useEffect for scroll detection
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
 
@@ -104,11 +105,11 @@ export function AppleStyleDock() {
       case 'Inicio':
         navigate('/');
         break;
-      case 'Medicamentos': // Handle click on our new medication button
+      case 'Medicamentos':
         setShowMedicationSearch(true);
         break;
-      case 'Historial':
-        setShowInstructions(true);
+      case 'Búsqueda':
+        setShowWikiSearch(true);
         break;
       case 'Comentarios':
         setShowFeedback(true);
@@ -182,8 +183,8 @@ export function AppleStyleDock() {
               key={idx}
               onClick={() => handleItemClick(item.title)}
               className={`aspect-square rounded-full cursor-pointer ${
-                item.title === 'Medicamentos' ? 'bg-emerald-500' : 'bg-gray-200 dark:bg-neutral-800'
-              }`} // Cambiar el fondo del botón a verde esmeralda
+                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'Búsqueda' ? 'bg-sky-200' : 'bg-gray-200 dark:bg-neutral-800')
+              }`}
             >
               <DockLabel>{item.title}</DockLabel>
               <DockIcon>{item.icon}</DockIcon>
@@ -227,6 +228,12 @@ export function AppleStyleDock() {
       <MedicationSearch
         open={showMedicationSearch}
         onOpenChange={setShowMedicationSearch}
+      />
+      
+      {/* Include the WikiSearch component */}
+      <WikiSearch
+        open={showWikiSearch}
+        onOpenChange={setShowWikiSearch}
       />
 
       <Dialog open={showInstructions} onOpenChange={setShowInstructions}>

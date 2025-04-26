@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -87,7 +86,6 @@ export const DesktopSidebar = ({
   ...props
 }: React.ComponentProps<typeof motion.div>) => {
   const { open, setOpen, animate } = useSidebar();
-  // Fix TypeScript error by ensuring sidebarWidth is a string
   const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
 
   return (
