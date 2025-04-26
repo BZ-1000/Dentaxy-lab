@@ -164,6 +164,8 @@ export function AppleStyleDock() {
       localStorage.removeItem('formBackup');
       // Resetear el formulario sin recargar la página
       resetFormulario();
+      // Forzar la actualización de todos los campos a su estado inicial
+      window.dispatchEvent(new Event('formReset'));
       toast.success('Formulario limpiado exitosamente');
     }
   };

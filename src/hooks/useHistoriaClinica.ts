@@ -456,10 +456,28 @@ export const useHistoriaClinica = () => {
   };
 
   const resetFormulario = () => {
-    setFormData(getInitialFormState());
+    const initialState = getInitialFormState();
+    setFormData(initialState);
     setResumen('');
     localStorage.removeItem('currentFormData');
+    
+    // Forzar la actualización de todos los campos
+    setTimeout(() => {
+      const event = new Event('formReset');
+      window.dispatchEvent(event);
+    }, 0);
   };
+
+  // Agregar un efecto para escuchar el evento de reset
+  useEffect(() => {
+    const handleFormReset = () => {
+      setFormData(getInitialFormState());
+      setResumen('');
+    };
+
+    window.addEventListener('formReset', handleFormReset);
+    return () => window.removeEventListener('formReset', handleFormReset);
+  }, []);
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {
     if (!nombre.trim()) return;
