@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Mic } from "lucide-react";
@@ -87,15 +86,15 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   // Initialize nested objects if they don't exist
   const getNestedValue = (path: string, defaultValue: any = '') => {
     if (!formData.examenCabeza) return defaultValue;
-    
+
     const parts = path.split('.');
     let current: any = formData.examenCabeza;
-    
+
     for (const part of parts) {
       if (!current[part]) return defaultValue;
       current = current[part];
     }
-    
+
     return current;
   };
 
@@ -159,8 +158,8 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                       handleExamenCabezaChange('tipoCraneo', craneo.type);
                     }}
                   >
-                    <img 
-                      src={craneo.img} 
+                    <img
+                      src={craneo.img}
                       alt={craneo.type}
                       className="w-full h-48 object-cover"
                     />
@@ -190,8 +189,8 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                       handleExamenCabezaChange('tipoPerfil', perfil.type);
                     }}
                   >
-                    <img 
-                      src={perfil.img} 
+                    <img
+                      src={perfil.img}
                       alt={perfil.type}
                       className="w-full h-48 object-contain"
                     />
@@ -205,76 +204,80 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
             </div>
 
             {/* Características Faciales */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               <h3 className="text-lg font-semibold">Cara</h3>
-              
-              {/* Tez - Dropdown */}
-              <div className="space-y-2">
-                <Label>Tez</Label>
-                <Select 
-                  value={formData.examenCabeza?.tez || ''}
-                  onValueChange={(value) => handleExamenCabezaChange('tez', value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Seleccione la tez" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="clara">Clara</SelectItem>
-                    <SelectItem value="morena">Morena</SelectItem>
-                    <SelectItem value="oscura">Oscura</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
 
-              {/* Estado de la piel - Dropdown */}
-              <div className="space-y-2">
-                <Label>Estado de la piel</Label>
-                <Select 
-                  value={formData.examenCabeza?.estadoPiel || ''}
-                  onValueChange={(value) => handleExamenCabezaChange('estadoPiel', value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Seleccione el estado de la piel" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="reseca">Reseca</SelectItem>
-                    <SelectItem value="humectada">Humectada</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Tez - Dropdown */}
+                <div className="space-y-2">
+                  <Label>Tez</Label>
+                  <Select
+                    value={formData.examenCabeza?.tez || ''}
+                    onValueChange={(value) => handleExamenCabezaChange('tez', value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Seleccione la tez" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="clara">Clara</SelectItem>
+                      <SelectItem value="morena">Morena</SelectItem>
+                      <SelectItem value="oscura">Oscura</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Estado de la piel - Dropdown */}
+                <div className="space-y-2">
+                  <Label>Estado de la piel</Label>
+                  <Select
+                    value={formData.examenCabeza?.estadoPiel || ''}
+                    onValueChange={(value) => handleExamenCabezaChange('estadoPiel', value)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Seleccione el estado de la piel" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="reseca">Reseca</SelectItem>
+                      <SelectItem value="humectada">Humectada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {/* Características con detalles opcionales */}
-              {caracteristicasFaciales.map((caracteristica) => (
-                <div key={caracteristica.id} className="space-y-2">
-                  <Label>{caracteristica.label}</Label>
-                  <Select 
-                    value={(formData.examenCabeza?.[caracteristica.id]?.presente ? 'si' : 'no') || 'no'}
-                    onValueChange={(value) => {
-                      handleExamenCabezaChange(`${caracteristica.id}.presente`, value === 'si');
-                      if (value === 'no') {
-                        handleExamenCabezaChange(`${caracteristica.id}.detalles`, '');
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Seleccione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="si">Sí</SelectItem>
-                      <SelectItem value="no">No</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  {formData.examenCabeza?.[caracteristica.id]?.presente && (
-                    <Textarea
-                      placeholder={`Describa los detalles de ${caracteristica.label.toLowerCase()}`}
-                      value={formData.examenCabeza?.[caracteristica.id]?.detalles || ''}
-                      onChange={(e) => handleExamenCabezaChange(`${caracteristica.id}.detalles`, e.target.value)}
-                      className="mt-2"
-                    />
-                  )}
-                </div>
-              ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {caracteristicasFaciales.map((caracteristica) => (
+                  <div key={caracteristica.id} className="space-y-2">
+                    <Label>{caracteristica.label}</Label>
+                    <Select
+                      value={(formData.examenCabeza?.[caracteristica.id]?.presente ? 'si' : 'no') || 'no'}
+                      onValueChange={(value) => {
+                        handleExamenCabezaChange(`${caracteristica.id}.presente`, value === 'si');
+                        if (value === 'no') {
+                          handleExamenCabezaChange(`${caracteristica.id}.detalles`, '');
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Seleccione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="si">Sí</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    {formData.examenCabeza?.[caracteristica.id]?.presente && (
+                      <Textarea
+                        placeholder={`Describa los detalles de ${caracteristica.label.toLowerCase()}`}
+                        value={formData.examenCabeza?.[caracteristica.id]?.detalles || ''}
+                        onChange={(e) => handleExamenCabezaChange(`${caracteristica.id}.detalles`, e.target.value)}
+                        className="mt-2"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
 
               {/* Otros hallazgos con botón de voz a texto */}
               <div className="space-y-2">
@@ -295,7 +298,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                     <Mic className="h-4 w-4" />
                   </button>
                 </div>
-                
+
                 {showVoiceInput && (
                   <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
                     <VoiceInput onTranscriptionComplete={handleVoiceTranscription} />
