@@ -1,5 +1,7 @@
+
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import React, { createContext, useContext, ReactNode } from 'react';
 
 type ThemeStore = {
   theme: 'light' | 'dark';
@@ -19,3 +21,25 @@ export const useTheme = create<ThemeStore>()(
     }
   )
 );
+
+// Create a React context wrapper around the Zustand store
+type ThemeProviderProps = {
+  children: ReactNode;
+};
+
+export const ThemeProvider = ({ children }: ThemeProviderProps) => {
+  const { theme } = useTheme();
+  
+  // Apply theme class to document
+  React.useEffect(() => {
+    const root = window.document.documentElement;
+    
+    // Remove both classes first
+    root.classList.remove('light', 'dark');
+    
+    // Add the current theme class
+    root.classList.add(theme);
+  }, [theme]);
+  
+  return <>{children}</>;
+};
