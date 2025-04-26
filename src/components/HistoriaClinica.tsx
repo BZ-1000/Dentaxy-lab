@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -540,12 +539,10 @@ const HistoriaClinica = () => {
               </div>
             )}
 
-            <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
-              <InterrogatorioSistemas 
-                formData={formData.interrogatorioSistemas} 
-                handleInterrogatorioChange={handleInterrogatorioChange} 
-              />
-            </div>
+            <InterrogatorioSistemas 
+              formData={formData.interrogatorioSistemas} 
+              handleInterrogatorioChange={handleInterrogatorioChange} 
+            />
 
             <div data-section-redaction="true" data-section-name="exploracionFisica">
               <ExploracionFisica formData={formData} handleExploracionFisicaChange={handleExploracionFisicaChange} />
@@ -594,37 +591,45 @@ const HistoriaClinica = () => {
             <div data-section-redaction="true" data-section-name="pronostico">
               <Pronostico formData={formData} handlePronosticoChange={handlePronosticoChange} />
             </div>
-            
-            <div className="mt-8">
-              <ResumenHistoriaClinica 
-                formData={formData}
-                resumen={resumen}
-                isGenerating={isGenerating}
-                onGenerateResumen={generarResumen}
-                onGeneratePDF={handleGeneratePDF}
-                isGeneratingPDF={isGeneratingPDF}
-                pdfGenerationProgress={pdfGenerationProgress}
-              />
+
+            <div className="flex justify-center pt-6">
+              <Button 
+                onClick={handleGeneratePDF} 
+                disabled={isGeneratingPDF} 
+                className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-base font-normal"
+              >
+                {isGeneratingPDF ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    Generando PDF...
+                  </>
+                ) : (
+                  <>
+                    <FileText className="mr-2 h-5 w-5" />
+                    Generar Historia Clínica en PDF
+                  </>
+                )}
+              </Button>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Confirmación de formulario incompleto */}
+      
       <ConfirmationAlert 
-        open={alertOpen} 
-        onOpenChange={setAlertOpen}
-        title="Formulario incompleto"
-        description={`Por favor complete los siguientes campos obligatorios: ${missingFields.join(', ')}`}
-        actionText="Generar PDF de todos modos"
-        cancelText="Volver al formulario"
-        onAction={generatePDFDocument}
+        isOpen={alertOpen} 
+        onClose={() => setAlertOpen(false)} 
+        onConfirm={() => {
+          setAlertOpen(false);
+          generatePDFDocument();
+        }} 
+        title="Formulario incompleto" 
+        description="Hay campos sin completar en el formulario." 
+        missingFields={missingFields} 
       />
-
-      {/* Overlay de carga mientras se genera el PDF */}
+      
       {isGeneratingPDF && (
         <LoadingOverlay 
-          message="Generando Historia Clínica. Por favor espere..." 
+          message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." 
           progress={pdfGenerationProgress} 
         />
       )}
