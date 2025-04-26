@@ -17,6 +17,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { translateText } from '../utils/translate';
 
 // Type definitions
 type Medication = {
@@ -96,25 +97,60 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
     
     try {
       setIsLoading(true);
-      // Updated API call with better search parameters
       const response = await fetch(`https://api.fda.gov/drug/label.json?search=(openfda.brand_name:"${term}"+openfda.generic_name:"${term}")+AND+_exists_:openfda.brand_name&limit=10`);
       const data = await response.json();
       
       if (data.results) {
-        const formattedResults: Medication[] = data.results.map((item: any) => ({
-          id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
-          brand_name: item.openfda?.brand_name?.[0] || 'N/A',
-          generic_name: item.openfda?.generic_name?.[0] || 'N/A',
-          route: item.openfda?.route?.[0] || 'N/A',
-          dosage_form: item.openfda?.dosage_form?.[0] || 'N/A',
-          active_ingredients: item.active_ingredient?.map((ing: string) => {
-            const parts = ing.split(' ');
-            return { name: parts.slice(0, -1).join(' '), strength: parts[parts.length - 1] };
-          }),
-          indications_and_usage: item.indications_and_usage?.[0],
-          warnings: item.warnings?.[0],
-          drug_class: item.openfda?.pharm_class_epc?.[0] || 'N/A'
-        }));
+        // Create an array of promises for all translations
+        const translationPromises = data.results.map(async (item: any) => {
+          const brandName = item.openfda?.brand_name?.[0] || 'N/A';
+          const genericName = item.openfda?.generic_name?.[0] || 'N/A';
+          const route = item.openfda?.route?.[0] || 'N/A';
+          const dosageForm = item.openfda?.dosage_form?.[0] || 'N/A';
+          const indications = item.indications_and_usage?.[0] || '';
+          const warnings = item.warnings?.[0] || '';
+          const drugClass = item.openfda?.pharm_class_epc?.[0] || 'N/A';
+
+          // Translate each field
+          const [
+            translatedBrandName,
+            translatedGenericName,
+            translatedRoute,
+            translatedDosageForm,
+            translatedIndications,
+            translatedWarnings,
+            translatedDrugClass
+          ] = await Promise.all([
+            translateText(brandName),
+            translateText(genericName),
+            translateText(route),
+            translateText(dosageForm),
+            translateText(indications),
+            translateText(warnings),
+            translateText(drugClass)
+          ]);
+
+          return {
+            id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
+            brand_name: translatedBrandName,
+            generic_name: translatedGenericName,
+            route: translatedRoute,
+            dosage_form: translatedDosageForm,
+            active_ingredients: item.active_ingredient?.map(async (ing: string) => {
+              const parts = ing.split(' ');
+              const name = parts.slice(0, -1).join(' ');
+              const strength = parts[parts.length - 1];
+              const translatedName = await translateText(name);
+              return { name: translatedName, strength };
+            }),
+            indications_and_usage: translatedIndications,
+            warnings: translatedWarnings,
+            drug_class: translatedDrugClass
+          };
+        });
+
+        // Wait for all translations to complete
+        let formattedResults = await Promise.all(translationPromises);
 
         // Apply filters
         let filteredResults = formattedResults;
