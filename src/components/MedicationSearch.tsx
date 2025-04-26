@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { X, Search, Star, StarOff, Filter, PillBottle, Stethoscope, Syringe, Bandage } from 'lucide-react';
 import {
@@ -97,8 +96,8 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
     
     try {
       setIsLoading(true);
-      // OpenFDA API endpoint
-      const response = await fetch(`https://api.fda.gov/drug/label.json?search=openfda.brand_name:"${term}"+openfda.generic_name:"${term}"&limit=10`);
+      // Updated API call with better search parameters
+      const response = await fetch(`https://api.fda.gov/drug/label.json?search=(openfda.brand_name:"${term}"+openfda.generic_name:"${term}")+AND+_exists_:openfda.brand_name&limit=10`);
       const data = await response.json();
       
       if (data.results) {
@@ -166,10 +165,11 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
         }
       } else {
         setResults([]);
+        toast.info('No se encontraron resultados. Intente con otro término.');
       }
     } catch (error) {
       console.error('Error searching medications:', error);
-      toast.error('Error al buscar medicamentos');
+      toast.error('Error al buscar medicamentos. Por favor intente de nuevo.');
     } finally {
       setIsLoading(false);
     }
@@ -205,7 +205,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl w-full p-0 max-h-[90vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-4xl w-[95%] h-[85vh] p-0 overflow-hidden flex flex-col bg-white dark:bg-neutral-900 rounded-xl">
         <DialogHeader className="p-6 pb-2">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl flex items-center gap-2">
@@ -226,8 +226,12 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
         <Tabs defaultValue="search" className="flex-1 overflow-hidden flex flex-col">
           <div className="px-6 pb-2">
             <TabsList className="w-full grid grid-cols-2">
-              <TabsTrigger value="search">Búsqueda</TabsTrigger>
-              <TabsTrigger value="favorites">Favoritos y Recientes</TabsTrigger>
+              <TabsTrigger value="search" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-900">
+                Búsqueda
+              </TabsTrigger>
+              <TabsTrigger value="favorites" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-900">
+                Favoritos y Recientes
+              </TabsTrigger>
             </TabsList>
           </div>
           
@@ -238,8 +242,12 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                   <Input 
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && searchMedications(searchTerm)}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      if (e.target.value.length >= 3) {
+                        searchMedications(e.target.value);
+                      }
+                    }}
                     placeholder="Buscar medicamentos..." 
                     className="pl-10"
                   />
@@ -247,6 +255,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                 <Button 
                   onClick={() => searchMedications(searchTerm)} 
                   disabled={searchTerm.length < 3 || isLoading}
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white"
                 >
                   {isLoading ? "Buscando..." : "Buscar"}
                 </Button>
@@ -371,8 +380,44 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
               </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto mt-4 space-y-4">
-              {results.length > 0 ? (
+            <div className="flex-1 overflow-y-auto mt-4 space-y-4 pr-2">
+              {searchTerm.length < 3 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>Escriba al menos 3 caracteres para buscar</p>
+                  <div className="mt-4 space-y-2">
+                    <p className="text-sm font-medium">Sugerencias:</p>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setSearchTerm('acetaminophen');
+                        searchMedications('acetaminophen');
+                      }}
+                      className="mr-2"
+                    >
+                      Acetaminophen
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setSearchTerm('ibuprofen');
+                        searchMedications('ibuprofen');
+                      }}
+                      className="mr-2"
+                    >
+                      Ibuprofen
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setSearchTerm('amoxicillin');
+                        searchMedications('amoxicillin');
+                      }}
+                    >
+                      Amoxicillin
+                    </Button>
+                  </div>
+                </div>
+              ) : results.length > 0 ? (
                 <Accordion type="single" collapsible className="w-full">
                   {results.map((med) => (
                     <AccordionItem key={med.id} value={med.id}>
@@ -487,7 +532,14 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                 </Accordion>
               ) : (
                 <div className="text-center py-8 text-gray-500">
-                  {isLoading ? 'Buscando medicamentos...' : 'No se encontraron resultados'}
+                  {isLoading ? (
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                      <p>Buscando medicamentos...</p>
+                    </div>
+                  ) : (
+                    <p>No se encontraron resultados</p>
+                  )}
                 </div>
               )}
             </div>
