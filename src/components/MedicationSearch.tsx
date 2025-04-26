@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { translateToSpanish, translateSearchTerm } from '@/utils/medicationTranslations';
+import { translateToSpanishWithGoogle } from '@/utils/translate';
 
 // Type definitions
 type Medication = {
@@ -104,23 +105,25 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
       const data = await response.json();
       
       if (data.results) {
-        const formattedResults: Medication[] = data.results.map((item: any) => ({
-          id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
-          brand_name: item.openfda?.brand_name?.[0] || 'N/A',
-          generic_name: item.openfda?.generic_name?.[0] || 'N/A',
-          route: translateToSpanish(item.openfda?.route?.[0] || 'N/A'),
-          dosage_form: translateToSpanish(item.openfda?.dosage_form?.[0] || 'N/A'),
-          active_ingredients: item.active_ingredient?.map((ing: string) => {
-            const parts = ing.split(' ');
-            return { 
-              name: parts.slice(0, -1).join(' '), 
-              strength: parts[parts.length - 1] 
-            };
-          }),
-          indications_and_usage: translateToSpanish(item.indications_and_usage?.[0] || ''),
-          warnings: translateToSpanish(item.warnings?.[0] || ''),
-          drug_class: item.openfda?.pharm_class_epc?.[0] || 'N/A'
-        }));
+        const formattedResults: Medication[] = await Promise.all(
+          data.results.map(async (item: any) => ({
+            id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
+            brand_name: item.openfda?.brand_name?.[0] || 'N/A',
+            generic_name: item.openfda?.generic_name?.[0] || 'N/A',
+            route: await translateToSpanishWithGoogle(item.openfda?.route?.[0] || 'N/A'),
+            dosage_form: await translateToSpanishWithGoogle(item.openfda?.dosage_form?.[0] || 'N/A'),
+            active_ingredients: item.active_ingredient?.map((ing: string) => {
+              const parts = ing.split(' ');
+              return { 
+                name: parts.slice(0, -1).join(' '), 
+                strength: parts[parts.length - 1] 
+              };
+            }),
+            indications_and_usage: await translateToSpanishWithGoogle(item.indications_and_usage?.[0] || ''),
+            warnings: await translateToSpanishWithGoogle(item.warnings?.[0] || ''),
+            drug_class: item.openfda?.pharm_class_epc?.[0] || 'N/A'
+          }))
+        );
 
         // Apply filters (translate filter terms if needed)
         let filteredResults = formattedResults;

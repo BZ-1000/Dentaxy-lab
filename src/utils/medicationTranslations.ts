@@ -18,7 +18,6 @@ export const translateToSpanish = (text: string): string => {
     'toothache': 'dolor de muelas',
     'fever': 'fiebre',
     'pain': 'dolor',
-    'tablet': 'tableta',
     'capsule': 'cápsula',
     'oral': 'oral',
     'injection': 'inyección',
@@ -67,3 +66,4 @@ export const translateSearchTerm = (term: string): string => {
   // If no direct translation, return original term
   return term;
 };
+
