@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
@@ -29,6 +30,15 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check if this is a manual reload (F5 or browser refresh button)
+    const isManualReload = performance.navigation.type === 1;
+    if (isManualReload) {
+      // Clear form data on manual reload
+      localStorage.removeItem('currentFormData');
+      localStorage.removeItem('formBackup');
+      console.log('Manual page reload detected - form data cleared');
+    }
+
     // Persistir la sesión usando localStorage
     const savedSession = localStorage.getItem('userSession');
     if (savedSession) {
@@ -62,6 +72,12 @@ function App() {
         supabase.auth.getSession().then(({ data: { session } }) => {
           setSession(session);
         });
+        
+        // Restaurar datos del formulario si existen
+        const savedData = localStorage.getItem('currentFormData');
+        if (savedData) {
+          console.log('Restoring form data from localStorage');
+        }
       }
     };
 
@@ -69,7 +85,7 @@ function App() {
 
     // Prevenir recargas automáticas
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      const formData = localStorage.getItem('formData');
+      const formData = localStorage.getItem('currentFormData');
       if (formData) {
         e.preventDefault();
         e.returnValue = '';
