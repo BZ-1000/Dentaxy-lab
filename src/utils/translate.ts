@@ -4,6 +4,9 @@ interface TranslateResponse {
 }
 
 export async function translateText(text: string): Promise<string> {
+  // Si el texto está vacío o es 'N/A', devolvemos el texto original
+  if (!text || text === 'N/A') return text;
+  
   try {
     const response = await fetch('https://libretranslate.de/translate', {
       method: 'POST',

@@ -46,6 +46,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
   const [activeRoute, setActiveRoute] = useState<RouteType>('all');
   const [activeUsage, setActiveUsage] = useState<UsageType>('all');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [translating, setTranslating] = useState(false);
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -88,6 +89,75 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
     localStorage.setItem('medication-recent', JSON.stringify(recentSearches));
   }, [recentSearches]);
 
+  // Efecto para traducir los resultados después de cargarlos
+  useEffect(() => {
+    if (results.length > 0 && !translating) {
+      translateResults();
+    }
+  }, [results]);
+
+  const translateResults = async () => {
+    if (results.length === 0 || isOffline) return;
+    
+    setTranslating(true);
+    const translatedResults = [...results];
+    
+    // Traducir los resultados uno por uno y actualizar la UI
+    for (let i = 0; i < translatedResults.length; i++) {
+      const med = translatedResults[i];
+      
+      // Traducir los campos principales
+      const [
+        translatedBrandName,
+        translatedGenericName,
+        translatedRoute,
+        translatedDosageForm,
+        translatedIndications,
+        translatedWarnings,
+        translatedDrugClass
+      ] = await Promise.all([
+        translateText(med.brand_name),
+        translateText(med.generic_name),
+        translateText(med.route),
+        translateText(med.dosage_form),
+        translateText(med.indications_and_usage || ''),
+        translateText(med.warnings || ''),
+        translateText(med.drug_class || '')
+      ]);
+      
+      // Actualizar el medicamento con las traducciones
+      translatedResults[i] = {
+        ...med,
+        brand_name: translatedBrandName,
+        generic_name: translatedGenericName,
+        route: translatedRoute,
+        dosage_form: translatedDosageForm,
+        indications_and_usage: translatedIndications,
+        warnings: translatedWarnings,
+        drug_class: translatedDrugClass
+      };
+      
+      // Actualizar la UI después de traducir cada medicamento
+      setResults([...translatedResults]);
+      
+      // Traducir ingredientes activos si existen
+      if (med.active_ingredients && med.active_ingredients.length > 0) {
+        const translatedIngredients = [...med.active_ingredients];
+        
+        for (let j = 0; j < translatedIngredients.length; j++) {
+          const ing = translatedIngredients[j];
+          const translatedName = await translateText(ing.name);
+          translatedIngredients[j] = { ...ing, name: translatedName };
+        }
+        
+        translatedResults[i].active_ingredients = translatedIngredients;
+        setResults([...translatedResults]);
+      }
+    }
+    
+    setTranslating(false);
+  };
+
   const searchMedications = async (term: string) => {
     if (!term || term.length < 3) return;
     if (isOffline) {
@@ -101,56 +171,21 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
       const data = await response.json();
       
       if (data.results) {
-        // Create an array of promises for all translations
-        const translationPromises = data.results.map(async (item: any) => {
-          const brandName = item.openfda?.brand_name?.[0] || 'N/A';
-          const genericName = item.openfda?.generic_name?.[0] || 'N/A';
-          const route = item.openfda?.route?.[0] || 'N/A';
-          const dosageForm = item.openfda?.dosage_form?.[0] || 'N/A';
-          const indications = item.indications_and_usage?.[0] || '';
-          const warnings = item.warnings?.[0] || '';
-          const drugClass = item.openfda?.pharm_class_epc?.[0] || 'N/A';
-
-          // Translate each field
-          const [
-            translatedBrandName,
-            translatedGenericName,
-            translatedRoute,
-            translatedDosageForm,
-            translatedIndications,
-            translatedWarnings,
-            translatedDrugClass
-          ] = await Promise.all([
-            translateText(brandName),
-            translateText(genericName),
-            translateText(route),
-            translateText(dosageForm),
-            translateText(indications),
-            translateText(warnings),
-            translateText(drugClass)
-          ]);
-
-          return {
-            id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
-            brand_name: translatedBrandName,
-            generic_name: translatedGenericName,
-            route: translatedRoute,
-            dosage_form: translatedDosageForm,
-            active_ingredients: item.active_ingredient?.map(async (ing: string) => {
-              const parts = ing.split(' ');
-              const name = parts.slice(0, -1).join(' ');
-              const strength = parts[parts.length - 1];
-              const translatedName = await translateText(name);
-              return { name: translatedName, strength };
-            }),
-            indications_and_usage: translatedIndications,
-            warnings: translatedWarnings,
-            drug_class: translatedDrugClass
-          };
-        });
-
-        // Wait for all translations to complete
-        let formattedResults = await Promise.all(translationPromises);
+        // Primero formatear los resultados sin traducir
+        const formattedResults: Medication[] = data.results.map((item: any) => ({
+          id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
+          brand_name: item.openfda?.brand_name?.[0] || 'N/A',
+          generic_name: item.openfda?.generic_name?.[0] || 'N/A',
+          route: item.openfda?.route?.[0] || 'N/A',
+          dosage_form: item.openfda?.dosage_form?.[0] || 'N/A',
+          active_ingredients: item.active_ingredient?.map((ing: string) => {
+            const parts = ing.split(' ');
+            return { name: parts.slice(0, -1).join(' '), strength: parts[parts.length - 1] };
+          }),
+          indications_and_usage: item.indications_and_usage?.[0],
+          warnings: item.warnings?.[0],
+          drug_class: item.openfda?.pharm_class_epc?.[0] || 'N/A'
+        }));
 
         // Apply filters
         let filteredResults = formattedResults;
@@ -247,6 +282,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
             <DialogTitle className="text-xl flex items-center gap-2">
               <PillBottle className="h-6 w-6 text-emerald-500" />
               Búsqueda de Medicamentos
+              {translating && <span className="text-xs ml-2 text-emerald-500 animate-pulse">(Traduciendo...)</span>}
             </DialogTitle>
           </div>
         </DialogHeader>
@@ -454,118 +490,126 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   </div>
                 </div>
               ) : results.length > 0 ? (
-                <Accordion type="single" collapsible className="w-full">
-                  {results.map((med) => (
-                    <AccordionItem key={med.id} value={med.id}>
-                      <AccordionTrigger className="hover:bg-gray-50 p-2 rounded-md">
-                        <div className="flex items-center justify-between w-full pr-4">
-                          <div className="flex flex-col items-start">
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold">{med.brand_name}</span>
-                              <button 
-                                onClick={(e) => { 
-                                  e.stopPropagation();
-                                  toggleFavorite(med);
-                                }}
-                                className="p-1 rounded-full hover:bg-gray-100"
-                              >
-                                {isFavorite(med.id) ? (
-                                  <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                                ) : (
-                                  <StarOff className="h-4 w-4 text-gray-400" />
-                                )}
-                              </button>
-                            </div>
-                            <span className="text-sm text-gray-500">{med.generic_name}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Badge variant="outline" className="ml-2">
-                              {med.dosage_form}
-                            </Badge>
-                            <Badge variant="outline" className="ml-2">
-                              {med.route}
-                            </Badge>
-                          </div>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <div className="space-y-4 p-2">
-                          <div>
-                            <h4 className="font-semibold text-sm">Ingredientes Activos:</h4>
-                            <ul className="list-disc pl-5 text-sm">
-                              {med.active_ingredients ? (
-                                med.active_ingredients.map((ing, i) => (
-                                  <li key={i}>{ing.name} ({ing.strength})</li>
-                                ))
-                              ) : (
-                                <li>Información no disponible</li>
-                              )}
-                            </ul>
-                          </div>
-                          
-                          <div>
-                            <h4 className="font-semibold text-sm">Indicaciones y Uso:</h4>
-                            <p className="text-sm whitespace-pre-wrap">
-                              {med.indications_and_usage || 'Información no disponible'}
-                            </p>
-                          </div>
-                          
-                          <div>
-                            <h4 className="font-semibold text-sm">Advertencias:</h4>
-                            <p className="text-sm whitespace-pre-wrap">
-                              {med.warnings || 'Información no disponible'}
-                            </p>
-                          </div>
-                          
-                          <div className="bg-blue-50 p-4 rounded-md">
-                            <h4 className="font-semibold text-sm flex items-center gap-2">
-                              <Bandage className="h-4 w-4" />
-                              Dosificación Referencial:
-                            </h4>
-                            
-                            <div className="mt-2">
-                              <p className="text-xs mb-2">
-                                Ingrese el peso del paciente para obtener una dosificación orientativa:
-                              </p>
-                              
+                <div>
+                  {translating && (
+                    <div className="bg-emerald-50 text-emerald-800 p-2 rounded-md mb-4 flex items-center gap-2">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-600"></div>
+                      <p className="text-sm">Traduciendo resultados al español...</p>
+                    </div>
+                  )}
+                  <Accordion type="single" collapsible className="w-full">
+                    {results.map((med) => (
+                      <AccordionItem key={med.id} value={med.id}>
+                        <AccordionTrigger className="hover:bg-gray-50 p-2 rounded-md">
+                          <div className="flex items-center justify-between w-full pr-4">
+                            <div className="flex flex-col items-start">
                               <div className="flex items-center gap-2">
-                                <Input 
-                                  type="number" 
-                                  placeholder="Peso (kg)" 
-                                  className="w-24 text-sm" 
-                                  id={`weight-${med.id}`}
-                                  min="1"
-                                  max="150"
-                                />
-                                <Button 
-                                  size="sm" 
-                                  variant="secondary"
-                                  onClick={() => {
-                                    const weightInput = document.getElementById(`weight-${med.id}`) as HTMLInputElement;
-                                    const weight = parseFloat(weightInput.value);
-                                    if (weight && weight > 0) {
-                                      const dosage = calculateDosage(med.generic_name, weight);
-                                      document.getElementById(`dosage-${med.id}`)!.textContent = dosage;
-                                    }
+                                <span className="font-semibold">{med.brand_name}</span>
+                                <button 
+                                  onClick={(e) => { 
+                                    e.stopPropagation();
+                                    toggleFavorite(med);
                                   }}
+                                  className="p-1 rounded-full hover:bg-gray-100"
                                 >
-                                  Calcular
-                                </Button>
+                                  {isFavorite(med.id) ? (
+                                    <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                                  ) : (
+                                    <StarOff className="h-4 w-4 text-gray-400" />
+                                  )}
+                                </button>
                               </div>
+                              <span className="text-sm text-gray-500">{med.generic_name}</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Badge variant="outline" className="ml-2">
+                                {med.dosage_form}
+                              </Badge>
+                              <Badge variant="outline" className="ml-2">
+                                {med.route}
+                              </Badge>
+                            </div>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-4 p-2">
+                            <div>
+                              <h4 className="font-semibold text-sm">Ingredientes Activos:</h4>
+                              <ul className="list-disc pl-5 text-sm">
+                                {med.active_ingredients ? (
+                                  med.active_ingredients.map((ing, i) => (
+                                    <li key={i}>{ing.name} ({ing.strength})</li>
+                                  ))
+                                ) : (
+                                  <li>Información no disponible</li>
+                                )}
+                              </ul>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold text-sm">Indicaciones y Uso:</h4>
+                              <p className="text-sm whitespace-pre-wrap">
+                                {med.indications_and_usage || 'Información no disponible'}
+                              </p>
+                            </div>
+                            
+                            <div>
+                              <h4 className="font-semibold text-sm">Advertencias:</h4>
+                              <p className="text-sm whitespace-pre-wrap">
+                                {med.warnings || 'Información no disponible'}
+                              </p>
+                            </div>
+                            
+                            <div className="bg-blue-50 p-4 rounded-md">
+                              <h4 className="font-semibold text-sm flex items-center gap-2">
+                                <Bandage className="h-4 w-4" />
+                                Dosificación Referencial:
+                              </h4>
                               
                               <div className="mt-2">
-                                <p className="text-sm">Dosis sugerida: <span id={`dosage-${med.id}`}>-</span></p>
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Nota: Esta es una referencia general. La dosificación debe ser determinada por un profesional médico.
+                                <p className="text-xs mb-2">
+                                  Ingrese el peso del paciente para obtener una dosificación orientativa:
                                 </p>
+                                
+                                <div className="flex items-center gap-2">
+                                  <Input 
+                                    type="number" 
+                                    placeholder="Peso (kg)" 
+                                    className="w-24 text-sm" 
+                                    id={`weight-${med.id}`}
+                                    min="1"
+                                    max="150"
+                                  />
+                                  <Button 
+                                    size="sm" 
+                                    variant="secondary"
+                                    onClick={() => {
+                                      const weightInput = document.getElementById(`weight-${med.id}`) as HTMLInputElement;
+                                      const weight = parseFloat(weightInput.value);
+                                      if (weight && weight > 0) {
+                                        const dosage = calculateDosage(med.generic_name, weight);
+                                        document.getElementById(`dosage-${med.id}`)!.textContent = dosage;
+                                      }
+                                    }}
+                                  >
+                                    Calcular
+                                  </Button>
+                                </div>
+                                
+                                <div className="mt-2">
+                                  <p className="text-sm">Dosis sugerida: <span id={`dosage-${med.id}`}>-</span></p>
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    Nota: Esta es una referencia general. La dosificación debe ser determinada por un profesional médico.
+                                  </p>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   {isLoading ? (
