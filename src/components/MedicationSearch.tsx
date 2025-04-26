@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { X, Search, Star, StarOff, Filter, PillBottle, Stethoscope, Syringe, Bandage } from 'lucide-react';
 import {
@@ -608,54 +609,55 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                                       Nota: Esta es una referencia general. La dosificación debe ser determinada por un profesional médico.
                                     </p>
                                   </div>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    );
-                  })}
-                </Accordion>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                {isLoading ? (
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
-                    <p>Buscando medicamentos...</p>
-                  </div>
-                ) : (
-                  <p>No se encontraron resultados</p>
-                )}
-              </div>
-            )}
-          </div>
-        </TabsContent>
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    })}
+                  </Accordion>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  {isLoading ? (
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                      <p>Buscando medicamentos...</p>
+                    </div>
+                  ) : (
+                    <p>No se encontraron resultados</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </TabsContent>
         
-        <TabsContent value="favorites" className="flex-1 overflow-y-auto p-6 pt-0">
-          <div className="space-y-6">
-            {recentSearches.length > 0 && (
-              <div>
-                <h3 className="font-medium mb-2 text-gray-500 text-sm">Búsquedas recientes</h3>
-                <div className="space-y-2">
-                  {recentSearches.map(med => (
-                    <div key={`recent-${med.id}`} className="p-2 border rounded-md flex items-center justify-between">
-                      <div>
-                        <p className="font-medium">{med.brand_name}</p>
-                        <p className="text-sm text-gray-500">{med.generic_name}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{med.dosage_form}</Badge>
-                        <button 
-                          onClick={() => toggleFavorite(med)}
-                          className="p-1 rounded-full hover:bg-gray-100"
-                        >
-                          {isFavorite(med.id) ? (
-                            <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                          ) : (
-                            <StarOff className="h-4 w-4 text-gray-400" />
-                          )}
-                        </button>
+          <TabsContent value="favorites" className="flex-1 overflow-y-auto p-6 pt-0">
+            <div className="space-y-6">
+              {recentSearches.length > 0 && (
+                <div>
+                  <h3 className="font-medium mb-2 text-gray-500 text-sm">Búsquedas recientes</h3>
+                  <div className="space-y-2">
+                    {recentSearches.map(med => (
+                      <div key={`recent-${med.id}`} className="p-2 border rounded-md flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">{med.brand_name}</p>
+                          <p className="text-sm text-gray-500">{med.generic_name}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">{med.dosage_form}</Badge>
+                          <button 
+                            onClick={() => toggleFavorite(med)}
+                            className="p-1 rounded-full hover:bg-gray-100"
+                          >
+                            {isFavorite(med.id) ? (
+                              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                            ) : (
+                              <StarOff className="h-4 w-4 text-gray-400" />
+                            )}
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
