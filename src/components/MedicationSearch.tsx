@@ -209,26 +209,17 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
       <DialogContent className="max-w-4xl w-[95%] h-[85vh] p-0 overflow-hidden flex flex-col bg-white dark:bg-neutral-900 rounded-xl">
         <DialogHeader className="p-6 pb-2">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl flex items-center gap-2">
+            <DialogTitle className="text-xl flex items-center gap-2 relative">
               <PillBottle className="h-6 w-6 text-emerald-500" />
               Búsqueda de Medicamentos
+              <span className="text-xs text-blue-500 absolute top-full left-0 mt-1 whitespace-nowrap opacity-75">
+                Recomendación: Utiliza Google Translate para traducciones
+              </span>
             </DialogTitle>
           </div>
         </DialogHeader>
         
-        {isOffline && (
-          <div className="bg-amber-50 border-l-4 border-amber-500 text-amber-700 p-4 mx-6">
-            <p className="text-sm">
-              Sin conexión a internet. Mostrando solo medicamentos guardados en caché.
-            </p>
-          </div>
-        )}
         
-        <div className="p-6 bg-blue-50 border-l-4 border-blue-500 text-blue-700 mb-4">
-          <p className="text-sm">
-            Recomendación: Utiliza Google Translate en tu navegador para traducciones al español.
-          </p>
-        </div>
         
         <Tabs defaultValue="search" className="flex-1 overflow-hidden flex flex-col">
           <div className="px-6 pb-2">
