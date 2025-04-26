@@ -8,6 +8,7 @@ import { BookOpen, Lightbulb } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Typewriter } from "@/components/ui/typewriter-text";
+import { defaultFormTexts } from "@/utils/defaultFormTexts";
 
 interface CaracteristicasDolorProps {
   dolor: {
@@ -22,7 +23,7 @@ interface CaracteristicasDolorProps {
     };
     atenuacion: string;
     causaProvocado?: string;
-    ubicacion?: string;  // Added ubicacion field
+    ubicacion?: string;
   };
   onDolorChange: (field: string, value: string | any) => void;
 }
@@ -75,6 +76,12 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
     }, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  // Update local state when dolor prop changes (for example, when form is reset)
+  useEffect(() => {
+    setLocalizacionText(dolor.localizacion?.descripcion || defaultLocalizacion);
+    setCausaProvocadoText(dolor.causaProvocado || defaultCausaProvocado);
+  }, [dolor.localizacion?.descripcion, dolor.causaProvocado]);
 
   const handleLocalizacionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     let newValue = event.target.value;
