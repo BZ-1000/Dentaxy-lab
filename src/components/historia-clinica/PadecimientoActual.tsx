@@ -8,6 +8,8 @@ import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
+import { defaultFormTexts } from "@/utils/defaultFormTexts";
+
 interface PadecimientoActualProps {
   formData: {
     padecimientoActual: {
@@ -34,6 +36,7 @@ interface PadecimientoActualProps {
   handleDolorChange: (field: string, value: any) => void;
   handleSinSintomasChange: (checked: boolean) => void;
 }
+
 function revisarRedaccion(text: string): string {
   let textoCorregido = text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
   const frasesRedundantes = [{
@@ -102,8 +105,9 @@ const PadecimientoActual = ({
   const redaccionRef = useRef(null);
   const defaultMotivoConsulta = "El paciente acude a consulta por ";
   const motivosEjemplo = ["dolor dental intenso en molar superior derecho...", "sangrado de encías al cepillarse...", "revisión y limpieza dental de rutina...", "sensibilidad al frío y calor en dientes anteriores...", "inflamación y dolor en zona de muelas del juicio...", "aplicación de resina en diente fracturado...", "evaluación para tratamiento de ortodoncia...", "manchas oscuras en los dientes frontales...", "mal aliento persistente...", "dolor al masticar alimentos..."];
-  const defaultCausaProvocado = "Provocado con ";
+  const defaultCausaProvocado = defaultFormTexts.padecimientoActual.causaProvocado; 
   const causasProvocadoEjemplo = ["alimentos fríos o helados en contacto con el diente...", "la presión durante la masticación de alimentos duros...", "bebidas calientes que generan dolor inmediato...", "el cepillado en la zona vestibular de los premolares...", "dulces y alimentos azucarados que desencadenan molestias..."];
+
   useEffect(() => {
     if (!formData.padecimientoActual.motivoConsulta) {
       handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
@@ -112,6 +116,7 @@ const PadecimientoActual = ({
       handleDolorChange("causaProvocado", defaultCausaProvocado);
     }
   }, []);
+
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
@@ -132,7 +137,6 @@ const PadecimientoActual = ({
  textoGenerado = `Motivo de consulta:
 ${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
 
-
 Actualmente no refiere sintomatología`;
     } else {
       const {
@@ -149,7 +153,6 @@ Actualmente no refiere sintomatología`;
       
       textoGenerado = `Motivo de consulta:
 ${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
-
 
 Historia del padecimiento:
 El paciente refiere la presencia de dolor ${ubicacion || ''} en ${ubicacion === 'localizado' ? (localizacion.descripcion || 'una localización no especificada') : 'varias zonas con irradiación'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'}`;

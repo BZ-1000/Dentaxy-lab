@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
@@ -453,8 +454,20 @@ export const useHistoriaClinica = () => {
   };
 
   const resetFormulario = () => {
-    setFormData(getInitialFormState());
+    // Get a fresh initial state
+    const initialState = getInitialFormState();
+    
+    // Reset the form data to initial state
+    setFormData(initialState);
     setResumen('');
+    
+    // Clear localStorage to ensure fresh start on page reload
+    localStorage.removeItem(AUTO_SAVE_KEY);
+    
+    toast({
+      title: "Formulario reiniciado",
+      description: "El formulario ha sido restablecido a su estado inicial.",
+    });
   };
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {
@@ -477,8 +490,12 @@ export const useHistoriaClinica = () => {
 
   const cargarFormulario = (data: FormDataState | null) => {
     if (data === null) {
-      setFormData(getInitialFormState());
+      const initialState = getInitialFormState();
+      setFormData(initialState);
       setResumen('');
+      
+      // Clear auto-save to ensure fresh state on next reload
+      localStorage.removeItem(AUTO_SAVE_KEY);
     } else {
       setFormData(data);
     }

@@ -3,6 +3,8 @@ export const defaultFormTexts = {
   padecimientoActual: {
     motivoConsulta: "Paciente que acude a consulta para valoración y atención dental integral.",
     historiaPadecimiento: "El paciente refiere que desde hace un tiempo ha presentado molestias dentales que requieren atención profesional.",
+    causaProvocado: "Provocado con alimentos fríos o helados en contacto con el diente...",
+    localizacionDescripcion: "localizado en la papila interdentaria..."
   },
   interrogatorioSistemas: {
     cardiovascular: "Sin alteraciones cardiovasculares aparentes. Presión arterial dentro de rangos normales.",
