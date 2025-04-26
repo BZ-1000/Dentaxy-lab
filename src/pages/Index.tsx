@@ -2,6 +2,7 @@
 import { lazy, Suspense } from "react";
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import { Typewriter } from "@/components/ui/typewriter-text";
+import LoadingScreen from "@/components/ui/loading-screen";
 import { useEffect, useState } from "react";
 
 // Lazy load HistoriaClinica since it's not needed immediately
@@ -73,7 +74,7 @@ const Index = () => {
       {/* Form Section - Lazy loaded */}
       <div className="min-h-screen bg-background py-0">
         <div className="container mx-auto px-4">
-          <Suspense fallback={<div className="text-center py-8">Cargando formulario...</div>}>
+          <Suspense fallback={<LoadingScreen />}>
             <HistoriaClinica />
           </Suspense>
         </div>
