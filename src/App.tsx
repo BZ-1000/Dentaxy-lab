@@ -1,7 +1,7 @@
-
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
+import LoadingScreen from './components/ui/loading-screen';
 import Index from './pages/Index';
 import Landing from './pages/Landing';
 import NotFound from './pages/NotFound';
@@ -28,6 +28,7 @@ import PrivacyPolicy from './pages/policies/PrivacyPolicy';
 function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [appReady, setAppReady] = useState(false);
 
   useEffect(() => {
     // Check if this is a manual reload (F5 or browser refresh button)
@@ -101,6 +102,13 @@ function App() {
     };
   }, []);
 
+  // Add a slight delay before showing the app to ensure smooth transition
+  useEffect(() => {
+    setTimeout(() => {
+      setAppReady(true);
+    }, 2000);
+  }, []);
+
   // Componente protegido que verifica si el usuario está autenticado
   const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     if (loading) return <div>Cargando...</div>;
@@ -114,6 +122,7 @@ function App() {
 
   return (
     <>
+      {!appReady && <LoadingScreen />}
       <Toaster richColors position="top-right" />
       <Router>
         <Routes>
