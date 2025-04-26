@@ -1,11 +1,12 @@
+
 import {
   Mail,
-  RefreshCw,
+  ScrollText,
   HomeIcon,
   UserCircle,
   SunMoon,
   Crown,
-  Save,
+  Save, // Importa el ícono Save
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -21,9 +22,7 @@ import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { cn } from '@/lib/utils';
-import ResetConfirmationDialog from '@/components/historia-clinica/ResetConfirmationDialog';
-import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
+import { cn } from '@/lib/utils'; // Asegúrate de importar la utilidad cn
 
 const data = [
   {
@@ -41,24 +40,22 @@ const data = [
     href: '#',
   },
   {
-    title: 'Reiniciar',
+    title: 'Historial',
     icon: (
-      <RefreshCw className='h-full w-full text-white' />
+      <ScrollText className='h-full w-full text-neutral-600 dark:text-neutral-300' />
     ),
     href: '#',
-    customClass: 'bg-amber-400 hover:bg-amber-500'
   },
   {
     title: 'Comentarios',
     icon: (
-      <Mail className='h-full w-full text-red-500 dark:text-red-400' />
+      <Mail className='h-full w-full text-red-500 dark:text-red-400' /> // Color rojo estilo Apple
     ),
     href: '#',
   },
 ];
 
 export function AppleStyleDock() {
-  const { resetFormulario } = useHistoriaClinica();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
@@ -68,8 +65,7 @@ export function AppleStyleDock() {
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [showResetConfirmation, setShowResetConfirmation] = useState(false);
+  const [isVisible, setIsVisible] = useState(false); // Estado para la visibilidad del botón
 
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -112,8 +108,8 @@ export function AppleStyleDock() {
         setSession(currentSession);
         setShowProfile(true);
         break;
-      case 'Reiniciar':
-        setShowResetConfirmation(true);
+      case 'Historial':
+        setShowInstructions(true);
         break;
       case 'Comentarios':
         setShowFeedback(true);
@@ -159,19 +155,6 @@ export function AppleStyleDock() {
     toast.success('Sesión cerrada exitosamente');
   };
 
-  const handleReset = () => {
-    console.log("Ejecutando reinicio de formulario");
-    
-    // Resetear todos los campos del formulario al estado inicial
-    resetFormulario();
-    
-    // Cerrar diálogo de confirmación
-    setShowResetConfirmation(false);
-    
-    // Mostrar mensaje de éxito
-    toast.success('Formulario reiniciado exitosamente');
-  };
-
   return (
     <>
       <div className='fixed bottom-2 left-1/2 max-w-full -translate-x-1/2 z-50'>
@@ -180,10 +163,7 @@ export function AppleStyleDock() {
             <DockItem
               key={idx}
               onClick={() => handleItemClick(item.title)}
-              className={cn(
-                'aspect-square rounded-full cursor-pointer',
-                item.customClass || 'bg-gray-200 dark:bg-neutral-800'
-              )}
+              className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer'
             >
               <DockLabel>{item.title}</DockLabel>
               <DockIcon>{item.icon}</DockIcon>
@@ -198,7 +178,7 @@ export function AppleStyleDock() {
               <SunMoon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
             </DockIcon>
           </DockItem>
-          {/* Botón ScrollToName */}
+          {/* Nuevo botón ScrollToName */}
           {isVisible && (
             <DockItem
               onClick={scrollToName}
@@ -353,12 +333,6 @@ export function AppleStyleDock() {
           </div>
         </div>
       )}
-
-      <ResetConfirmationDialog 
-        isOpen={showResetConfirmation} 
-        onClose={() => setShowResetConfirmation(false)}
-        onConfirm={handleReset}
-      />
 
       <style>{`
         @keyframes slideIn {

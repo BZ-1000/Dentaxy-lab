@@ -90,11 +90,9 @@ export const DesktopSidebar = ({
         "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
         className
       )}
-      // Corregir tipo del objeto animate usando array para transform instead de object con width prop (framer-motion no acepta width como objeto animado)
-      // Usamos 'animate' con estilo width en style
       animate={{
         width: sidebarWidth
-      } as any}
+      }}
       style={{ width: sidebarWidth }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
@@ -143,8 +141,7 @@ export const MobileSidebar = ({
               >
                 <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
               </button>
-              {/* Here explicitly cast children to ReactNode to fix type casting issues */}
-              {children as React.ReactNode}
+              {children}
             </div>
           </motion.div>
         )}

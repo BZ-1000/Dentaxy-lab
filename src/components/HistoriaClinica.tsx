@@ -34,10 +34,7 @@ import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
 import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
-import { FormDataState } from '@/types/historiaClinica';
 
-// Constante para clave auto guardado localStorage
-const AUTO_SAVE_KEY = 'formDataAutoSave';
 
 const HistoriaClinica = () => {
   const {
@@ -89,17 +86,6 @@ const HistoriaClinica = () => {
     [key: string]: string;
   }>({});
 
-  // Al montar componente, tratar de cargar formData desde auto guardado para retomar sesión
-  useEffect(() => {
-    const saved = localStorage.getItem(AUTO_SAVE_KEY);
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        cargarFormulario(data);
-      } catch {}
-    }
-  }, []);
-
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
@@ -113,21 +99,8 @@ const HistoriaClinica = () => {
   };
 
   const handleResetFormulario = () => {
-    // Limpiar nombres de paciente
     setPacienteActual('');
-    setNombrePaciente('');
-    
-    // Usar la función resetFormulario del hook para restablecer todo el formulario
     resetFormulario();
-    
-    // También limpiar auto guardado para evitar reaparecer datos borrados
-    localStorage.removeItem(AUTO_SAVE_KEY);
-    
-    // Mostrar mensaje de éxito
-    toast({
-      title: "Formulario reiniciado",
-      description: "Todos los campos han sido restablecidos a su estado original"
-    });
   };
 
   const handleGuardarFormulario = () => {
@@ -414,8 +387,6 @@ const HistoriaClinica = () => {
     }
   };
 
-  
-
   return (
     <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar 
@@ -553,10 +524,9 @@ const HistoriaClinica = () => {
               </div>
             )}
 
-            <InterrogatorioSistemas 
-              formData={formData.interrogatorioSistemas} 
-              handleInterrogatorioChange={handleInterrogatorioChange} 
-            />
+            <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
+              <InterrogatorioSistemas formData={formData} handleInterrogatorioChange={handleInterrogatorioChange} />
+            </div>
 
             <div data-section-redaction="true" data-section-name="exploracionFisica">
               <ExploracionFisica formData={formData} handleExploracionFisicaChange={handleExploracionFisicaChange} />
