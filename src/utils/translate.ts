@@ -4,8 +4,8 @@ interface TranslateResponse {
 }
 
 export async function translateText(text: string): Promise<string> {
-  // Si el texto está vacío o es 'N/A', devolvemos el texto original
-  if (!text || text === 'N/A') return text;
+  // Si el texto está vacío, es 'N/A' o undefined, devolvemos el texto original
+  if (!text || text === 'N/A' || text.trim() === '') return text;
   
   try {
     const response = await fetch('https://libretranslate.de/translate', {
@@ -26,7 +26,7 @@ export async function translateText(text: string): Promise<string> {
     }
 
     const data: TranslateResponse = await response.json();
-    return data.translatedText;
+    return data.translatedText || text; // Ensure we return the original text if translation is empty
   } catch (error) {
     console.error('Translation error:', error);
     return text; // Return original text if translation fails

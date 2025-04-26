@@ -47,6 +47,8 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
   const [activeUsage, setActiveUsage] = useState<UsageType>('all');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [translating, setTranslating] = useState(false);
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [translatedMeds, setTranslatedMeds] = useState<{[key: string]: Medication}>({});
 
   // Load saved data from localStorage
   useEffect(() => {
@@ -89,24 +91,16 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
     localStorage.setItem('medication-recent', JSON.stringify(recentSearches));
   }, [recentSearches]);
 
-  // Efecto para traducir los resultados después de cargarlos
-  useEffect(() => {
-    if (results.length > 0 && !translating) {
-      translateResults();
-    }
-  }, [results]);
+  const translateMedicationSection = async (medicationId: string) => {
+    if (isOffline || !medicationId) return;
+    
+    const medication = results.find(med => med.id === medicationId);
+    if (!medication || translatedMeds[medicationId]) return;
 
-  const translateResults = async () => {
-    if (results.length === 0 || isOffline) return;
-    
     setTranslating(true);
-    const translatedResults = [...results];
     
-    // Traducir los resultados uno por uno y actualizar la UI
-    for (let i = 0; i < translatedResults.length; i++) {
-      const med = translatedResults[i];
-      
-      // Traducir los campos principales
+    try {
+      // Translate all relevant fields for the selected medication
       const [
         translatedBrandName,
         translatedGenericName,
@@ -116,46 +110,46 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
         translatedWarnings,
         translatedDrugClass
       ] = await Promise.all([
-        translateText(med.brand_name),
-        translateText(med.generic_name),
-        translateText(med.route),
-        translateText(med.dosage_form),
-        translateText(med.indications_and_usage || ''),
-        translateText(med.warnings || ''),
-        translateText(med.drug_class || '')
+        translateText(medication.brand_name),
+        translateText(medication.generic_name),
+        translateText(medication.route),
+        translateText(medication.dosage_form),
+        translateText(medication.indications_and_usage || ''),
+        translateText(medication.warnings || ''),
+        translateText(medication.drug_class || '')
       ]);
-      
-      // Actualizar el medicamento con las traducciones
-      translatedResults[i] = {
-        ...med,
+
+      let translatedIngredients = medication.active_ingredients;
+      if (medication.active_ingredients && medication.active_ingredients.length > 0) {
+        translatedIngredients = await Promise.all(
+          medication.active_ingredients.map(async (ing) => ({
+            ...ing,
+            name: await translateText(ing.name)
+          }))
+        );
+      }
+
+      const translatedMedication = {
+        ...medication,
         brand_name: translatedBrandName,
         generic_name: translatedGenericName,
         route: translatedRoute,
         dosage_form: translatedDosageForm,
         indications_and_usage: translatedIndications,
         warnings: translatedWarnings,
-        drug_class: translatedDrugClass
+        drug_class: translatedDrugClass,
+        active_ingredients: translatedIngredients
       };
-      
-      // Actualizar la UI después de traducir cada medicamento
-      setResults([...translatedResults]);
-      
-      // Traducir ingredientes activos si existen
-      if (med.active_ingredients && med.active_ingredients.length > 0) {
-        const translatedIngredients = [...med.active_ingredients];
-        
-        for (let j = 0; j < translatedIngredients.length; j++) {
-          const ing = translatedIngredients[j];
-          const translatedName = await translateText(ing.name);
-          translatedIngredients[j] = { ...ing, name: translatedName };
-        }
-        
-        translatedResults[i].active_ingredients = translatedIngredients;
-        setResults([...translatedResults]);
-      }
+
+      setTranslatedMeds(prev => ({
+        ...prev,
+        [medicationId]: translatedMedication
+      }));
+    } catch (error) {
+      console.error('Translation error:', error);
+    } finally {
+      setTranslating(false);
     }
-    
-    setTranslating(false);
   };
 
   const searchMedications = async (term: string) => {
@@ -491,165 +485,177 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                 </div>
               ) : results.length > 0 ? (
                 <div>
-                  {translating && (
-                    <div className="bg-emerald-50 text-emerald-800 p-2 rounded-md mb-4 flex items-center gap-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-600"></div>
-                      <p className="text-sm">Traduciendo resultados al español...</p>
-                    </div>
-                  )}
-                  <Accordion type="single" collapsible className="w-full">
-                    {results.map((med) => (
-                      <AccordionItem key={med.id} value={med.id}>
-                        <AccordionTrigger className="hover:bg-gray-50 p-2 rounded-md">
-                          <div className="flex items-center justify-between w-full pr-4">
-                            <div className="flex flex-col items-start">
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold">{med.brand_name}</span>
-                                <button 
-                                  onClick={(e) => { 
-                                    e.stopPropagation();
-                                    toggleFavorite(med);
-                                  }}
-                                  className="p-1 rounded-full hover:bg-gray-100"
-                                >
-                                  {isFavorite(med.id) ? (
-                                    <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                                  ) : (
-                                    <StarOff className="h-4 w-4 text-gray-400" />
-                                  )}
-                                </button>
-                              </div>
-                              <span className="text-sm text-gray-500">{med.generic_name}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <Badge variant="outline" className="ml-2">
-                                {med.dosage_form}
-                              </Badge>
-                              <Badge variant="outline" className="ml-2">
-                                {med.route}
-                              </Badge>
-                            </div>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-4 p-2">
-                            <div>
-                              <h4 className="font-semibold text-sm">Ingredientes Activos:</h4>
-                              <ul className="list-disc pl-5 text-sm">
-                                {med.active_ingredients ? (
-                                  med.active_ingredients.map((ing, i) => (
-                                    <li key={i}>{ing.name} ({ing.strength})</li>
-                                  ))
-                                ) : (
-                                  <li>Información no disponible</li>
-                                )}
-                              </ul>
-                            </div>
-                            
-                            <div>
-                              <h4 className="font-semibold text-sm">Indicaciones y Uso:</h4>
-                              <p className="text-sm whitespace-pre-wrap">
-                                {med.indications_and_usage || 'Información no disponible'}
-                              </p>
-                            </div>
-                            
-                            <div>
-                              <h4 className="font-semibold text-sm">Advertencias:</h4>
-                              <p className="text-sm whitespace-pre-wrap">
-                                {med.warnings || 'Información no disponible'}
-                              </p>
-                            </div>
-                            
-                            <div className="bg-blue-50 p-4 rounded-md">
-                              <h4 className="font-semibold text-sm flex items-center gap-2">
-                                <Bandage className="h-4 w-4" />
-                                Dosificación Referencial:
-                              </h4>
-                              
-                              <div className="mt-2">
-                                <p className="text-xs mb-2">
-                                  Ingrese el peso del paciente para obtener una dosificación orientativa:
-                                </p>
-                                
+                  <Accordion 
+                    type="single" 
+                    collapsible 
+                    className="w-full"
+                    onValueChange={(value) => {
+                      setExpandedItem(value);
+                      if (value) {
+                        translateMedicationSection(value);
+                      }
+                    }}
+                  >
+                    {results.map((med) => {
+                      const translatedMed = translatedMeds[med.id] || med;
+                      return (
+                        <AccordionItem key={med.id} value={med.id}>
+                          <AccordionTrigger className="hover:bg-gray-50 p-2 rounded-md">
+                            <div className="flex items-center justify-between w-full pr-4">
+                              <div className="flex flex-col items-start">
                                 <div className="flex items-center gap-2">
-                                  <Input 
-                                    type="number" 
-                                    placeholder="Peso (kg)" 
-                                    className="w-24 text-sm" 
-                                    id={`weight-${med.id}`}
-                                    min="1"
-                                    max="150"
-                                  />
-                                  <Button 
-                                    size="sm" 
-                                    variant="secondary"
-                                    onClick={() => {
-                                      const weightInput = document.getElementById(`weight-${med.id}`) as HTMLInputElement;
-                                      const weight = parseFloat(weightInput.value);
-                                      if (weight && weight > 0) {
-                                        const dosage = calculateDosage(med.generic_name, weight);
-                                        document.getElementById(`dosage-${med.id}`)!.textContent = dosage;
-                                      }
+                                  <span className="font-semibold">{translatedMed.brand_name}</span>
+                                  <button 
+                                    onClick={(e) => { 
+                                      e.stopPropagation();
+                                      toggleFavorite(med);
                                     }}
+                                    className="p-1 rounded-full hover:bg-gray-100"
                                   >
-                                    Calcular
-                                  </Button>
+                                    {isFavorite(med.id) ? (
+                                      <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                                    ) : (
+                                      <StarOff className="h-4 w-4 text-gray-400" />
+                                    )}
+                                  </button>
                                 </div>
+                                <span className="text-sm text-gray-500">{translatedMed.generic_name}</span>
+                              </div>
+                              <div className="flex items-center">
+                                <Badge variant="outline" className="ml-2">
+                                  {translatedMed.dosage_form}
+                                </Badge>
+                                <Badge variant="outline" className="ml-2">
+                                  {translatedMed.route}
+                                </Badge>
+                              </div>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4 p-2">
+                              {expandedItem === med.id && translating && (
+                                <div className="bg-emerald-50 text-emerald-800 p-2 rounded-md mb-4 flex items-center gap-2">
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-emerald-600"></div>
+                                  <p className="text-sm">Traduciendo contenido al español...</p>
+                                </div>
+                              )}
+                              <div>
+                                <h4 className="font-semibold text-sm">Ingredientes Activos:</h4>
+                                <ul className="list-disc pl-5 text-sm">
+                                  {translatedMed.active_ingredients ? (
+                                    translatedMed.active_ingredients.map((ing, i) => (
+                                      <li key={i}>{ing.name} ({ing.strength})</li>
+                                    ))
+                                  ) : (
+                                    <li>Información no disponible</li>
+                                  )}
+                                </ul>
+                              </div>
+                              
+                              <div>
+                                <h4 className="font-semibold text-sm">Indicaciones y Uso:</h4>
+                                <p className="text-sm whitespace-pre-wrap">
+                                  {translatedMed.indications_and_usage || 'Información no disponible'}
+                                </p>
+                              </div>
+                              
+                              <div>
+                                <h4 className="font-semibold text-sm">Advertencias:</h4>
+                                <p className="text-sm whitespace-pre-wrap">
+                                  {translatedMed.warnings || 'Información no disponible'}
+                                </p>
+                              </div>
+                              
+                              <div className="bg-blue-50 p-4 rounded-md">
+                                <h4 className="font-semibold text-sm flex items-center gap-2">
+                                  <Bandage className="h-4 w-4" />
+                                  Dosificación Referencial:
+                                </h4>
                                 
                                 <div className="mt-2">
-                                  <p className="text-sm">Dosis sugerida: <span id={`dosage-${med.id}`}>-</span></p>
-                                  <p className="text-xs text-gray-500 mt-1">
-                                    Nota: Esta es una referencia general. La dosificación debe ser determinada por un profesional médico.
+                                  <p className="text-xs mb-2">
+                                    Ingrese el peso del paciente para obtener una dosificación orientativa:
                                   </p>
-                                </div>
+                                  
+                                  <div className="flex items-center gap-2">
+                                    <Input 
+                                      type="number" 
+                                      placeholder="Peso (kg)" 
+                                      className="w-24 text-sm" 
+                                      id={`weight-${med.id}`}
+                                      min="1"
+                                      max="150"
+                                    />
+                                    <Button 
+                                      size="sm" 
+                                      variant="secondary"
+                                      onClick={() => {
+                                        const weightInput = document.getElementById(`weight-${med.id}`) as HTMLInputElement;
+                                        const weight = parseFloat(weightInput.value);
+                                        if (weight && weight > 0) {
+                                          const dosage = calculateDosage(med.generic_name, weight);
+                                          document.getElementById(`dosage-${med.id}`)!.textContent = dosage;
+                                        }
+                                      }}
+                                    >
+                                      Calcular
+                                    </Button>
+                                  </div>
+                                  
+                                  <div className="mt-2">
+                                    <p className="text-sm">Dosis sugerida: <span id={`dosage-${med.id}`}>-</span></p>
+                                    <p className="text-xs text-gray-500 mt-1">
+                                      Nota: Esta es una referencia general. La dosificación debe ser determinada por un profesional médico.
+                                    </p>
+                                  </div>
                               </div>
                             </div>
                           </div>
                         </AccordionContent>
                       </AccordionItem>
-                    ))}
-                  </Accordion>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  {isLoading ? (
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
-                      <p>Buscando medicamentos...</p>
-                    </div>
-                  ) : (
-                    <p>No se encontraron resultados</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="favorites" className="flex-1 overflow-y-auto p-6 pt-0">
-            <div className="space-y-6">
-              {recentSearches.length > 0 && (
-                <div>
-                  <h3 className="font-medium mb-2 text-gray-500 text-sm">Búsquedas recientes</h3>
-                  <div className="space-y-2">
-                    {recentSearches.map(med => (
-                      <div key={`recent-${med.id}`} className="p-2 border rounded-md flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">{med.brand_name}</p>
-                          <p className="text-sm text-gray-500">{med.generic_name}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">{med.dosage_form}</Badge>
-                          <button 
-                            onClick={() => toggleFavorite(med)}
-                            className="p-1 rounded-full hover:bg-gray-100"
-                          >
-                            {isFavorite(med.id) ? (
-                              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                            ) : (
-                              <StarOff className="h-4 w-4 text-gray-400" />
-                            )}
-                          </button>
-                        </div>
+                    );
+                  })}
+                </Accordion>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                {isLoading ? (
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                    <p>Buscando medicamentos...</p>
+                  </div>
+                ) : (
+                  <p>No se encontraron resultados</p>
+                )}
+              </div>
+            )}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="favorites" className="flex-1 overflow-y-auto p-6 pt-0">
+          <div className="space-y-6">
+            {recentSearches.length > 0 && (
+              <div>
+                <h3 className="font-medium mb-2 text-gray-500 text-sm">Búsquedas recientes</h3>
+                <div className="space-y-2">
+                  {recentSearches.map(med => (
+                    <div key={`recent-${med.id}`} className="p-2 border rounded-md flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{med.brand_name}</p>
+                        <p className="text-sm text-gray-500">{med.generic_name}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{med.dosage_form}</Badge>
+                        <button 
+                          onClick={() => toggleFavorite(med)}
+                          className="p-1 rounded-full hover:bg-gray-100"
+                        >
+                          {isFavorite(med.id) ? (
+                            <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                          ) : (
+                            <StarOff className="h-4 w-4 text-gray-400" />
+                          )}
+                        </button>
                       </div>
                     ))}
                   </div>
