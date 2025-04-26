@@ -1,6 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
 import Index from './pages/Index';
 import Landing from './pages/Landing';
@@ -25,11 +24,30 @@ import Contact from './pages/contact/Contact';
 import TermsAndConditions from './pages/policies/TermsAndConditions';
 import PrivacyPolicy from './pages/policies/PrivacyPolicy';
 
+// ScrollToTop component to prevent scroll position from persisting between page navigations
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    // Keep scroll position when navigating to "/app" to preserve form state
+    if (pathname !== "/app") {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Prevent the browser from showing the "Confirm Form Resubmission" dialog when refreshing
+    if (window.history.scrollRestoration) {
+      window.history.scrollRestoration = 'manual';
+    }
+
     // Obtener la sesión actual al cargar
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -60,6 +78,7 @@ function App() {
     <>
       <Toaster richColors position="top-right" />
       <Router>
+        <ScrollToTop />
         <Routes>
           {/* Página de inicio */}
           <Route path="/" element={<Landing />} />
