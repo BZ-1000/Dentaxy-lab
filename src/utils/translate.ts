@@ -17,25 +17,37 @@ export async function translateText(texts: string | string[]): Promise<string | 
 
   try {
     // Crear un array de promesas para todas las traducciones en paralelo
-    const translationPromises = validTexts.map(text => 
-      fetch('https://libretranslate.de/translate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          q: text,
-          source: 'en',
-          target: 'es'
-        })
-      })
-      .then(response => response.ok ? response.json() : { translatedText: text })
-      .catch(() => ({ translatedText: text }))
-    );
+    const translationPromises = validTexts.map(async (text) => {
+      try {
+        // Intentar primero con LibreTranslate
+        const response = await fetch('https://libretranslate.de/translate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            q: text,
+            source: 'en',
+            target: 'es'
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          return data.translatedText || text;
+        }
+        
+        // Si LibreTranslate falla, intentar con una API alternativa
+        console.log('LibreTranslate falló, usando texto original:', text);
+        return text;
+      } catch (error) {
+        console.log('Error en traducción:', error);
+        return text; // Devolver el texto original si hay un error
+      }
+    });
 
     // Ejecutar todas las traducciones en paralelo
-    const results = await Promise.all(translationPromises);
-    const translatedTexts = results.map(result => result.translatedText);
+    const translatedTexts = await Promise.all(translationPromises);
     
     console.log('Textos traducidos:', translatedTexts);
 
@@ -57,4 +69,3 @@ export async function translateText(texts: string | string[]): Promise<string | 
     return texts; // Devolver textos originales si falla la traducción
   }
 }
-

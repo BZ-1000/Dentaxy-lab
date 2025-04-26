@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -87,8 +86,8 @@ export const DesktopSidebar = ({
   ...props
 }: React.ComponentProps<typeof motion.div>) => {
   const { open, setOpen, animate } = useSidebar();
-  // Fix: explicitly cast the width as a string to resolve TypeScript error
-  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
+  // Solucionar el problema de TypeScript especificando el tipo correcto
+  const sidebarWidth: string = animate ? (open ? "300px" : "60px") : "300px";
 
   return (
     <motion.div
@@ -97,8 +96,7 @@ export const DesktopSidebar = ({
         className
       )}
       style={{ width: sidebarWidth }}
-      // Fix: explicitly set the width as a string for the animate property
-      animate={{ width: sidebarWidth as string }}
+      animate={{ width: sidebarWidth }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       {...props}
