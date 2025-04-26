@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X } from "lucide-react";
+import { Minus, Maximize2, X, Mic } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
-import { Select } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { VoiceInput } from '@/components/ui/voice-input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ExamenCabezaProps {
   formData: FormDataState;
@@ -21,6 +22,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const [isMaximized, setIsMaximized] = useState(false);
   const [selectedCraneoTipo, setSelectedCraneoTipo] = useState<string>('');
   const [selectedPerfilTipo, setSelectedPerfilTipo] = useState<string>('');
+  const [showVoiceInput, setShowVoiceInput] = useState(false);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -37,20 +39,29 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     setIsMaximized(false);
   };
 
+  const handleVoiceTranscription = (text: string) => {
+    handleExamenCabezaChange('otrosHallazgos', text);
+    setShowVoiceInput(false);
+  };
+
+  const toggleVoiceInput = () => {
+    setShowVoiceInput(!showVoiceInput);
+  };
+
   const craneosTypes = [
     {
       type: 'Mesocefálico',
-      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/lovable-uploads/mesocefalo.png',
+      img: '/lovable-uploads/mesocefalo.png',
       description: 'Forma craneal intermedia, proporcionada y armoniosa. La relación entre el ancho y el largo del cráneo es equilibrada.'
     },
     {
       type: 'Dolicocéfalo',
-      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/dolicocefalo.png',
+      img: '/dolicocefalo.png',
       description: 'Cráneo alargado y estrecho. El diámetro anteroposterior es mayor que el transversal.'
     },
     {
       type: 'Braquicéfalo',
-      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/braquicefalo.png',
+      img: '/braquicefalo.png',
       description: 'Cráneo ancho y corto. El diámetro transversal es proporcionalmente mayor que el anteroposterior.'
     }
   ];
@@ -58,19 +69,41 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const perfilesTypes = [
     {
       type: 'Cóncavo',
-      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/concavo.png',
+      img: '/concavo.png',
       description: 'Perfil facial que presenta una depresión en la zona media.'
     },
     {
       type: 'Convexo',
-      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/convexo.png',
+      img: '/convexo.png',
       description: 'Perfil facial que presenta una proyección hacia adelante en la zona media.'
     },
     {
       type: 'Recto',
-      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/recto.png',
+      img: '/recto.png',
       description: 'Perfil facial que presenta una línea recta sin proyecciones o depresiones marcadas.'
     }
+  ];
+
+  // Initialize nested objects if they don't exist
+  const getNestedValue = (path: string, defaultValue: any = '') => {
+    if (!formData.examenCabeza) return defaultValue;
+    
+    const parts = path.split('.');
+    let current: any = formData.examenCabeza;
+    
+    for (const part of parts) {
+      if (!current[part]) return defaultValue;
+      current = current[part];
+    }
+    
+    return current;
+  };
+
+  const caracteristicasFaciales = [
+    { id: 'lunares', label: 'Lunares' },
+    { id: 'cicatrices', label: 'Cicatrices' },
+    { id: 'asimetriasFaciales', label: 'Asimetrías Faciales' },
+    { id: 'edema', label: 'Edema' }
   ];
 
   return (
@@ -175,91 +208,99 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
             <div className="space-y-6">
               <h3 className="text-lg font-semibold">Cara</h3>
               
-              {/* Tez */}
+              {/* Tez - Dropdown */}
               <div className="space-y-2">
                 <Label>Tez</Label>
-                <RadioGroup
+                <Select 
                   value={formData.examenCabeza?.tez || ''}
                   onValueChange={(value) => handleExamenCabezaChange('tez', value)}
-                  className="flex space-x-4"
                 >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="clara" id="tez-clara" />
-                    <Label htmlFor="tez-clara">Clara</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="morena" id="tez-morena" />
-                    <Label htmlFor="tez-morena">Morena</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="oscura" id="tez-oscura" />
-                    <Label htmlFor="tez-oscura">Oscura</Label>
-                  </div>
-                </RadioGroup>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Seleccione la tez" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="clara">Clara</SelectItem>
+                    <SelectItem value="morena">Morena</SelectItem>
+                    <SelectItem value="oscura">Oscura</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* Estado de la piel */}
+              {/* Estado de la piel - Dropdown */}
               <div className="space-y-2">
                 <Label>Estado de la piel</Label>
-                <RadioGroup
+                <Select 
                   value={formData.examenCabeza?.estadoPiel || ''}
                   onValueChange={(value) => handleExamenCabezaChange('estadoPiel', value)}
-                  className="flex space-x-4"
                 >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="reseca" id="piel-reseca" />
-                    <Label htmlFor="piel-reseca">Reseca</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="humectada" id="piel-humectada" />
-                    <Label htmlFor="piel-humectada">Humectada</Label>
-                  </div>
-                </RadioGroup>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Seleccione el estado de la piel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="reseca">Reseca</SelectItem>
+                    <SelectItem value="humectada">Humectada</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Características con detalles opcionales */}
-              {['lunares', 'cicatrices', 'asimetriasFaciales', 'edema'].map((caracteristica) => (
-                <div key={caracteristica} className="space-y-2">
-                  <Label className="capitalize">{caracteristica.replace(/([A-Z])/g, ' $1').trim()}</Label>
-                  <RadioGroup
-                    value={formData.examenCabeza?.[caracteristica]?.presente ? 'si' : 'no'}
+              {caracteristicasFaciales.map((caracteristica) => (
+                <div key={caracteristica.id} className="space-y-2">
+                  <Label>{caracteristica.label}</Label>
+                  <Select 
+                    value={(formData.examenCabeza?.[caracteristica.id]?.presente ? 'si' : 'no') || 'no'}
                     onValueChange={(value) => {
-                      handleExamenCabezaChange(`${caracteristica}.presente`, value === 'si');
+                      handleExamenCabezaChange(`${caracteristica.id}.presente`, value === 'si');
                       if (value === 'no') {
-                        handleExamenCabezaChange(`${caracteristica}.detalles`, '');
+                        handleExamenCabezaChange(`${caracteristica.id}.detalles`, '');
                       }
                     }}
-                    className="flex space-x-4"
                   >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="si" id={`${caracteristica}-si`} />
-                      <Label htmlFor={`${caracteristica}-si`}>Sí</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="no" id={`${caracteristica}-no`} />
-                      <Label htmlFor={`${caracteristica}-no`}>No</Label>
-                    </div>
-                  </RadioGroup>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Seleccione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="si">Sí</SelectItem>
+                      <SelectItem value="no">No</SelectItem>
+                    </SelectContent>
+                  </Select>
                   
-                  {formData.examenCabeza?.[caracteristica]?.presente && (
+                  {formData.examenCabeza?.[caracteristica.id]?.presente && (
                     <Textarea
-                      placeholder={`Describa los detalles de ${caracteristica.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
-                      value={formData.examenCabeza?.[caracteristica]?.detalles || ''}
-                      onChange={(e) => handleExamenCabezaChange(`${caracteristica}.detalles`, e.target.value)}
+                      placeholder={`Describa los detalles de ${caracteristica.label.toLowerCase()}`}
+                      value={formData.examenCabeza?.[caracteristica.id]?.detalles || ''}
+                      onChange={(e) => handleExamenCabezaChange(`${caracteristica.id}.detalles`, e.target.value)}
                       className="mt-2"
                     />
                   )}
                 </div>
               ))}
 
-              {/* Otros hallazgos */}
+              {/* Otros hallazgos con botón de voz a texto */}
               <div className="space-y-2">
                 <Label>Otros hallazgos</Label>
-                <Textarea
-                  placeholder="Ingrese otros hallazgos relevantes"
-                  value={formData.examenCabeza?.otrosHallazgos || ''}
-                  onChange={(e) => handleExamenCabezaChange('otrosHallazgos', e.target.value)}
-                />
+                <div className="relative">
+                  <Textarea
+                    placeholder="Ingrese otros hallazgos relevantes"
+                    value={formData.examenCabeza?.otrosHallazgos || ''}
+                    onChange={(e) => handleExamenCabezaChange('otrosHallazgos', e.target.value)}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={toggleVoiceInput}
+                    className="absolute right-2 top-2 p-1 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 transition-colors"
+                    aria-label="Usar reconocimiento de voz"
+                  >
+                    <Mic className="h-4 w-4" />
+                  </button>
+                </div>
+                
+                {showVoiceInput && (
+                  <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+                    <VoiceInput onTranscriptionComplete={handleVoiceTranscription} />
+                  </div>
+                )}
               </div>
             </div>
           </div>
