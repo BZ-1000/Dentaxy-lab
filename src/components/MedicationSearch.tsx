@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { X, Search, Star, StarOff, Filter, PillBottle, Stethoscope, Syringe, Bandage } from 'lucide-react';
 import {
@@ -206,7 +207,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[95%] h-[85vh] p-0 overflow-hidden flex flex-col bg-white dark:bg-neutral-900 rounded-xl">
+      <DialogContent className="max-w-4xl w-[95%] h-[85vh] p-0 overflow-hidden flex flex-col bg-white dark:bg-neutral-900 rounded-xl MedicationSearch">
         <DialogHeader className="p-6 pb-2">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl flex items-center gap-2 relative">
@@ -218,8 +219,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
             </DialogTitle>
           </div>
         </DialogHeader>
-        
-        
         
         <Tabs defaultValue="search" className="flex-1 overflow-hidden flex flex-col">
           <div className="px-6 pb-2">

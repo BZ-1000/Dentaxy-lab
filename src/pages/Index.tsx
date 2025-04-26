@@ -1,19 +1,26 @@
 
+import { lazy, Suspense } from "react";
 import { AppleStyleDock } from "@/components/AppleStyleDock";
-import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import { useEffect, useState } from "react";
+import LoadingTransition from "@/components/LoadingTransition";
+
+// Lazy load HistoriaClinica since it's not needed immediately
+const HistoriaClinica = lazy(() => import("@/components/HistoriaClinica"));
 
 const Index = () => {
   const [offset, setOffset] = useState(0);
   
   useEffect(() => {
+    // Force background color to be black
+    document.documentElement.style.backgroundColor = '#000000';
+    document.body.style.backgroundColor = '#000000';
+    
     const handleScroll = () => {
       setOffset(window.pageYOffset);
     };
     window.addEventListener('scroll', handleScroll);
     
-    // Actualizar el título de la página
     document.title = "DENTAXY.ai";
     
     return () => {
@@ -21,21 +28,35 @@ const Index = () => {
     };
   }, []);
   
-  return <div className="min-h-screen">
+  return (
+    <div className="min-h-screen bg-black">
       {/* Hero Section */}
       <div className="min-h-screen relative overflow-hidden">
-        {/* Background image with parallax effect */}
-        <img src="/lovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png" alt="Background" className="absolute inset-0 w-full h-full object-cover" style={{
-        transform: `translateY(${offset * 0.5}px)`,
-        transition: 'transform 0 ease-out'
-      }} />
+        {/* Background image with preload and loading optimization */}
+        <img 
+          src="/lovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png" 
+          alt="Background" 
+          className="absolute inset-0 w-full h-full object-cover" 
+          style={{
+            transform: `translateY(${offset * 0.5}px)`,
+            transition: 'transform 0 ease-out'
+          }}
+          loading="eager"
+          fetchPriority="high"
+        />
         
         <div className="relative z-10 container mx-auto px-4 py-16">
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
             {/* Logo and Title */}
             <div className="flex items-center gap-2 mb-12">
               <div className="w-12 h-12">
-                <img src="/lovable-uploads/5636450b-9d56-40a0-b095-dd830e161077.png" alt="Dental Logo" className="w-full h-full object-contain" />
+                <img 
+                  src="/lovable-uploads/5636450b-9d56-40a0-b095-dd830e161077.png" 
+                  alt="Dental Logo" 
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                  fetchPriority="high"
+                />
               </div>
               <div className="text-white font-mplus text-justify">
                 <div className="text-lg font-semibold leading-tight">DENTAL BASICS</div>
@@ -54,15 +75,19 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Form Section */}
+      {/* Form Section - With fade in transition */}
       <div className="min-h-screen bg-background py-0">
         <div className="container mx-auto px-4">
-          <HistoriaClinica />
+          <Suspense fallback={<LoadingTransition />}>
+            <HistoriaClinica />
+          </Suspense>
         </div>
       </div>
 
       <AppleStyleDock />
       <div className="h-24" /> {/* Spacer for dock */}
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
