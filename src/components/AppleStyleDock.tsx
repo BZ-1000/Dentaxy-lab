@@ -2,7 +2,6 @@ import {
   Mail,
   ScrollText,
   HomeIcon,
-  UserCircle,
   SunMoon,
   Crown,
   Save,
