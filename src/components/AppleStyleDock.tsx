@@ -7,7 +7,7 @@ import {
   Crown,
   Save,
   Trash, 
-  Pill, // Use Pill icon instead of PillBottle which isn't in lucide-react core
+  PillBottle, // Add PillBottle for our new icon
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -34,13 +34,11 @@ const data = [
     ),
     href: '/',
   },
-  // Updated icon with emerald green background and white text
+  // Replace the previous icon with our new PillBottle icon
   {
     title: 'Medicamentos',
     icon: (
-      <div className="h-full w-full bg-emerald-500 rounded-full flex items-center justify-center">
-        <Pill className='h-3/5 w-3/5 text-white' />
-      </div>
+      <PillBottle className='h-full w-full text-emerald-500 dark:text-emerald-400' />
     ),
     href: '#',
   },
@@ -73,6 +71,7 @@ export function AppleStyleDock() {
   const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
+  // Keep existing useEffect for scroll detection
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
 
@@ -105,7 +104,7 @@ export function AppleStyleDock() {
       case 'Inicio':
         navigate('/');
         break;
-      case 'Medicamentos':
+      case 'Medicamentos': // Handle click on our new medication button
         setShowMedicationSearch(true);
         break;
       case 'Historial':
@@ -222,7 +221,7 @@ export function AppleStyleDock() {
         </Dock>
       </div>
 
-      {/* Include our Medication Search modal */}
+      {/* Include our new Medication Search modal */}
       <MedicationSearch 
         open={showMedicationSearch} 
         onOpenChange={setShowMedicationSearch} 

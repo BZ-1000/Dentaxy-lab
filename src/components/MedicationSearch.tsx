@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { X, Search, Star, StarOff, Filter, Pill, Stethoscope, Syringe, Bandage } from 'lucide-react';
+import { X, Search, Star, StarOff, Filter, PillBottle, Stethoscope, Syringe, Bandage } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -96,47 +97,25 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
     
     try {
       setIsLoading(true);
-      // Fix the OpenFDA API query to use proper syntax
-      // Using exact parameter with term enclosed in quotes for better search results
-      const encodedTerm = encodeURIComponent(term);
-      console.log(`Searching for: ${encodedTerm}`);
-      
-      // Modified search query to work better with OpenFDA API
-      const url = `https://api.fda.gov/drug/label.json?search=(openfda.brand_name:"${encodedTerm}"+openfda.generic_name:"${encodedTerm}")&limit=10`;
-      console.log(`API URL: ${url}`);
-      
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`API responded with status: ${response.status}`);
-      }
-      
+      // OpenFDA API endpoint
+      const response = await fetch(`https://api.fda.gov/drug/label.json?search=openfda.brand_name:"${term}"+openfda.generic_name:"${term}"&limit=10`);
       const data = await response.json();
-      console.log('API response:', data);
       
-      if (data.results && data.results.length > 0) {
-        const formattedResults: Medication[] = data.results.map((item: any) => {
-          // Extract openfda data safely
-          const openfda = item.openfda || {};
-          
-          return {
-            id: item.id || openfda.application_number?.[0] || Math.random().toString(36),
-            brand_name: openfda.brand_name?.[0] || 'N/A',
-            generic_name: openfda.generic_name?.[0] || 'N/A',
-            route: openfda.route?.[0] || 'N/A',
-            dosage_form: openfda.dosage_form?.[0] || 'N/A',
-            active_ingredients: item.active_ingredient?.map((ing: string) => {
-              const parts = ing.split(' ');
-              return { 
-                name: parts.slice(0, -1).join(' ') || 'Unknown', 
-                strength: parts[parts.length - 1] || 'N/A' 
-              };
-            }) || [],
-            indications_and_usage: item.indications_and_usage?.[0] || 'No disponible',
-            warnings: item.warnings?.[0] || 'No disponible',
-            drug_class: openfda.pharm_class_epc?.[0] || 'N/A'
-          };
-        });
+      if (data.results) {
+        const formattedResults: Medication[] = data.results.map((item: any) => ({
+          id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
+          brand_name: item.openfda?.brand_name?.[0] || 'N/A',
+          generic_name: item.openfda?.generic_name?.[0] || 'N/A',
+          route: item.openfda?.route?.[0] || 'N/A',
+          dosage_form: item.openfda?.dosage_form?.[0] || 'N/A',
+          active_ingredients: item.active_ingredient?.map((ing: string) => {
+            const parts = ing.split(' ');
+            return { name: parts.slice(0, -1).join(' '), strength: parts[parts.length - 1] };
+          }),
+          indications_and_usage: item.indications_and_usage?.[0],
+          warnings: item.warnings?.[0],
+          drug_class: item.openfda?.pharm_class_epc?.[0] || 'N/A'
+        }));
 
         // Apply filters
         let filteredResults = formattedResults;
@@ -172,7 +151,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
           });
         }
         
-        console.log('Filtered results:', filteredResults);
         setResults(filteredResults);
         
         // Add to recent searches
@@ -187,52 +165,11 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
           });
         }
       } else {
-        console.log('No results found or invalid response format');
         setResults([]);
-        toast.info('No se encontraron medicamentos con ese término');
       }
     } catch (error) {
       console.error('Error searching medications:', error);
-      toast.error('Error al buscar medicamentos: ' + (error instanceof Error ? error.message : 'Error desconocido'));
-      setResults([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Function to try alternate search if first one fails
-  const tryAlternateSearch = async (term: string) => {
-    try {
-      setIsLoading(true);
-      // Use a more generic search that might yield more results
-      const url = `https://api.fda.gov/drug/label.json?search=${term}&limit=10`;
-      const response = await fetch(url);
-      const data = await response.json();
-      
-      if (data.results && data.results.length > 0) {
-        // Format results same as before
-        const formattedResults = data.results.map((item: any) => {
-          const openfda = item.openfda || {};
-          return {
-            id: Math.random().toString(36),
-            brand_name: openfda.brand_name?.[0] || 'N/A',
-            generic_name: openfda.generic_name?.[0] || 'N/A',
-            route: openfda.route?.[0] || 'N/A',
-            dosage_form: openfda.dosage_form?.[0] || 'N/A',
-            active_ingredients: [],
-            indications_and_usage: item.indications_and_usage?.[0] || 'No disponible',
-            warnings: item.warnings?.[0] || 'No disponible',
-            drug_class: openfda.pharm_class_epc?.[0] || 'N/A'
-          };
-        });
-        
-        setResults(formattedResults);
-      } else {
-        setResults([]);
-      }
-    } catch (error) {
-      console.error('Error in alternate search:', error);
-      setResults([]);
+      toast.error('Error al buscar medicamentos');
     } finally {
       setIsLoading(false);
     }
@@ -266,14 +203,13 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
     }
   };
 
-  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl w-full p-0 max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="p-6 pb-2">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl flex items-center gap-2">
-              <Pill className="h-6 w-6 text-emerald-500" />
+              <PillBottle className="h-6 w-6 text-emerald-500" />
               Búsqueda de Medicamentos
             </DialogTitle>
           </div>
@@ -476,7 +412,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                           <div>
                             <h4 className="font-semibold text-sm">Ingredientes Activos:</h4>
                             <ul className="list-disc pl-5 text-sm">
-                              {med.active_ingredients && med.active_ingredients.length > 0 ? (
+                              {med.active_ingredients ? (
                                 med.active_ingredients.map((ing, i) => (
                                   <li key={i}>{ing.name} ({ing.strength})</li>
                                 ))
@@ -544,18 +480,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                               </div>
                             </div>
                           </div>
-                          
-                          {/* Add attempt alternate search button for when no active ingredients found */}
-                          {(!med.active_ingredients || med.active_ingredients.length === 0) && (
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => tryAlternateSearch(med.generic_name || med.brand_name)}
-                              className="w-full mt-2"
-                            >
-                              Buscar más información
-                            </Button>
-                          )}
                         </div>
                       </AccordionContent>
                     </AccordionItem>
@@ -564,26 +488,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
               ) : (
                 <div className="text-center py-8 text-gray-500">
                   {isLoading ? 'Buscando medicamentos...' : 'No se encontraron resultados'}
-                  {!isLoading && searchTerm.length >= 3 && (
-                    <div className="mt-4">
-                      <p className="text-sm mb-2">Prueba estas búsquedas populares:</p>
-                      <div className="flex flex-wrap gap-2 justify-center">
-                        {['acetaminophen', 'ibuprofen', 'amoxicillin', 'lidocaine'].map(term => (
-                          <Badge 
-                            key={term}
-                            variant="outline" 
-                            className="cursor-pointer"
-                            onClick={() => {
-                              setSearchTerm(term);
-                              searchMedications(term);
-                            }}
-                          >
-                            {term}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  )}
                 </div>
               )}
             </div>
