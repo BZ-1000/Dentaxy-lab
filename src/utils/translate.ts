@@ -15,57 +15,61 @@ export async function translateText(texts: string | string[]): Promise<string | 
     return Array.isArray(texts) ? textsArray : textsArray[0];
   }
 
-  try {
-    // Crear un array de promesas para todas las traducciones en paralelo
-    const translationPromises = validTexts.map(async (text) => {
+  // Verificar si el navegador tiene la funcionalidad de traducción de Google
+  if (typeof window !== 'undefined' && window.chrome && window.chrome.i18n) {
+    const userConfirmed = await new Promise<boolean>((resolve) => {
+      if (confirm('¿Desea traducir el texto usando Google Translate del navegador?')) {
+        resolve(true);
+      } else {
+        resolve(false);
+      }
+    });
+
+    if (userConfirmed) {
       try {
-        // Intentar primero con LibreTranslate
-        const response = await fetch('https://libretranslate.de/translate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            q: text,
-            source: 'en',
-            target: 'es'
-          })
+        // Crear un elemento temporal para la traducción
+        const tempElement = document.createElement('div');
+        tempElement.style.display = 'none';
+        document.body.appendChild(tempElement);
+
+        // Procesar cada texto
+        const translatedTexts = validTexts.map(text => {
+          tempElement.textContent = text;
+          // Trigger la traducción del navegador
+          tempElement.setAttribute('translate', 'yes');
+          // Esperar un momento para que la traducción ocurra
+          return new Promise<string>(resolve => {
+            setTimeout(() => {
+              const translatedText = tempElement.textContent || text;
+              resolve(translatedText);
+            }, 100);
+          });
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          return data.translatedText || text;
-        }
-        
-        // Si LibreTranslate falla, intentar con una API alternativa
-        console.log('LibreTranslate falló, usando texto original:', text);
-        return text;
+        const results = await Promise.all(translatedTexts);
+        document.body.removeChild(tempElement);
+
+        // Reemplazar solo los textos válidos en el array original
+        let currentIndex = 0;
+        const finalTexts = textsArray.map(text => {
+          if (text && text !== 'N/A' && text.trim() !== '') {
+            const translatedText = results[currentIndex];
+            currentIndex++;
+            return translatedText;
+          }
+          return text;
+        });
+
+        console.log('Textos traducidos:', finalTexts);
+        return Array.isArray(texts) ? finalTexts : finalTexts[0];
       } catch (error) {
-        console.log('Error en traducción:', error);
-        return text; // Devolver el texto original si hay un error
+        console.error('Error al traducir con Google Translate:', error);
+        return texts;
       }
-    });
-
-    // Ejecutar todas las traducciones en paralelo
-    const translatedTexts = await Promise.all(translationPromises);
-    
-    console.log('Textos traducidos:', translatedTexts);
-
-    // Reemplazar solo los textos válidos en el array original
-    let currentIndex = 0;
-    const finalTexts = textsArray.map(text => {
-      if (text && text !== 'N/A' && text.trim() !== '') {
-        const translatedText = translatedTexts[currentIndex];
-        currentIndex++;
-        return translatedText;
-      }
-      return text;
-    });
-
-    // Retornar en el mismo formato que se recibió
-    return Array.isArray(texts) ? finalTexts : finalTexts[0];
-  } catch (error) {
-    console.error('Error de traducción:', error);
-    return texts; // Devolver textos originales si falla la traducción
+    }
   }
+
+  // Si el usuario no confirma o no está disponible Google Translate, devolver textos originales
+  console.log('Traducción cancelada o no disponible, usando textos originales');
+  return texts;
 }
