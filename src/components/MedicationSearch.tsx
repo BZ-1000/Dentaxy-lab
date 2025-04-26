@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { X, Search, Star, StarOff, Filter, PillBottle, Stethoscope, Syringe, Bandage } from 'lucide-react';
 import {
@@ -92,66 +91,57 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
     localStorage.setItem('medication-recent', JSON.stringify(recentSearches));
   }, [recentSearches]);
 
-  const translateMedicationSection = async (medicationId: string) => {
-    if (isOffline || !medicationId) return;
-    
-    const medication = results.find(med => med.id === medicationId);
-    if (!medication || translatedMeds[medicationId]) return;
+const translateMedicationSection = async (medicationId: string) => {
+  if (isOffline || !medicationId) return;
+  
+  const medication = results.find(med => med.id === medicationId);
+  if (!medication || translatedMeds[medicationId]) return;
 
-    setTranslating(true);
-    
-    try {
-      // Translate all relevant fields for the selected medication
-      const [
-        translatedBrandName,
-        translatedGenericName,
-        translatedRoute,
-        translatedDosageForm,
-        translatedIndications,
-        translatedWarnings,
-        translatedDrugClass
-      ] = await Promise.all([
-        translateText(medication.brand_name),
-        translateText(medication.generic_name),
-        translateText(medication.route),
-        translateText(medication.dosage_form),
-        translateText(medication.indications_and_usage || ''),
-        translateText(medication.warnings || ''),
-        translateText(medication.drug_class || '')
-      ]);
+  setTranslating(true);
+  
+  try {
+    // Preparar todos los textos para traducir en un solo array
+    const textsToTranslate = [
+      medication.brand_name,
+      medication.generic_name,
+      medication.route,
+      medication.dosage_form,
+      medication.indications_and_usage || '',
+      medication.warnings || '',
+      medication.drug_class || '',
+      ...(medication.active_ingredients?.map(ing => ing.name) || [])
+    ];
 
-      let translatedIngredients = medication.active_ingredients;
-      if (medication.active_ingredients && medication.active_ingredients.length > 0) {
-        translatedIngredients = await Promise.all(
-          medication.active_ingredients.map(async (ing) => ({
-            ...ing,
-            name: await translateText(ing.name)
-          }))
-        );
-      }
+    // Traducir todos los textos en paralelo
+    const translatedTexts = await translateText(textsToTranslate) as string[];
+    let translationIndex = 0;
 
-      const translatedMedication = {
-        ...medication,
-        brand_name: translatedBrandName,
-        generic_name: translatedGenericName,
-        route: translatedRoute,
-        dosage_form: translatedDosageForm,
-        indications_and_usage: translatedIndications,
-        warnings: translatedWarnings,
-        drug_class: translatedDrugClass,
-        active_ingredients: translatedIngredients
-      };
+    // Construir el objeto traducido
+    const translatedMedication = {
+      ...medication,
+      brand_name: translatedTexts[translationIndex++],
+      generic_name: translatedTexts[translationIndex++],
+      route: translatedTexts[translationIndex++],
+      dosage_form: translatedTexts[translationIndex++],
+      indications_and_usage: translatedTexts[translationIndex++] || 'Información no disponible',
+      warnings: translatedTexts[translationIndex++] || 'Información no disponible',
+      drug_class: translatedTexts[translationIndex++],
+      active_ingredients: medication.active_ingredients?.map((ing, i) => ({
+        ...ing,
+        name: translatedTexts[translationIndex + i] || ing.name
+      }))
+    };
 
-      setTranslatedMeds(prev => ({
-        ...prev,
-        [medicationId]: translatedMedication
-      }));
-    } catch (error) {
-      console.error('Translation error:', error);
-    } finally {
-      setTranslating(false);
-    }
-  };
+    setTranslatedMeds(prev => ({
+      ...prev,
+      [medicationId]: translatedMedication
+    }));
+  } catch (error) {
+    console.error('Translation error:', error);
+  } finally {
+    setTranslating(false);
+  }
+};
 
   const searchMedications = async (term: string) => {
     if (!term || term.length < 3) return;
