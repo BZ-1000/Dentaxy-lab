@@ -1,4 +1,3 @@
-
 import {
   Mail,
   ScrollText,
@@ -8,9 +7,8 @@ import {
   Crown,
   Save,
   Trash,
-  Cross,
-  Search,
-  ArrowUp
+  PillBottle,
+  Search, // Add Search icon
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -27,21 +25,21 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { MedicationSearch } from './MedicationSearch';
+import { MedicationSearch } from './MedicationSearch'; // Import our new component
 import { WikiSearch } from './WikiSearch';
 
 const data = [
   {
     title: 'Inicio',
     icon: (
-      <HomeIcon className='h-full w-full text-white' />
+      <HomeIcon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
     ),
     href: '/',
   },
   {
     title: 'Medicamentos',
     icon: (
-      <Cross className='h-full w-full text-white' />
+      <PillBottle className='h-full w-full text-white' />
     ),
     href: '#',
   },
@@ -66,14 +64,14 @@ export function AppleStyleDock() {
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [showMedicationSearch, setShowMedicationSearch] = useState(false);
+  const [showMedicationSearch, setShowMedicationSearch] = useState(false); // New state for medication modal
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [session, setSession] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [showWikiSearch, setShowWikiSearch] = useState(false);
+  const [showWikiSearch, setShowWikiSearch] = useState(false); // Add new state
 
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -86,8 +84,6 @@ export function AppleStyleDock() {
     };
 
     window.addEventListener('scroll', checkScroll);
-    // Initial check
-    checkScroll();
     return () => window.removeEventListener('scroll', checkScroll);
   }, []);
 
@@ -187,7 +183,7 @@ export function AppleStyleDock() {
               key={idx}
               onClick={() => handleItemClick(item.title)}
               className={`aspect-square rounded-full cursor-pointer ${
-                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'Búsqueda' ? 'bg-sky-400' : (item.title === 'Inicio' ? 'bg-amber-400' : 'bg-gray-200 dark:bg-neutral-800'))
+                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'Búsqueda' ? 'bg-sky-200' : 'bg-gray-200 dark:bg-neutral-800')
               }`}
             >
               <DockLabel>{item.title}</DockLabel>
@@ -196,11 +192,11 @@ export function AppleStyleDock() {
           ))}
           <DockItem
             onClick={toggleTheme}
-            className='aspect-square rounded-full bg-gray-700 cursor-pointer'
+            className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer'
           >
             <DockLabel>{theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}</DockLabel>
             <DockIcon>
-              <SunMoon className='h-full w-full text-white' />
+              <SunMoon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
             </DockIcon>
           </DockItem>
           {/* Botón de reset con icono de basura */}
@@ -219,21 +215,21 @@ export function AppleStyleDock() {
               onClick={scrollToName}
               className='aspect-square rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg cursor-pointer slide-in'
             >
-              <DockLabel>Ir a nombre de paciente</DockLabel>
+              <DockLabel>Scroll to Name</DockLabel>
               <DockIcon>
-                <ArrowUp className='h-full w-full text-white' />
+                <Save className='h-full w-full' />
               </DockIcon>
             </DockItem>
           )}
         </Dock>
       </div>
 
-      {/* Include our Medication Search modal */}
+      {/* Include our new Medication Search modal */}
       <MedicationSearch
         open={showMedicationSearch}
         onOpenChange={setShowMedicationSearch}
       />
-
+      
       {/* Include the WikiSearch component */}
       <WikiSearch
         open={showWikiSearch}
@@ -357,6 +353,7 @@ export function AppleStyleDock() {
                 </ul>
                 <Button
                   onClick={() => {
+                    // Aquí implementaría el cambio de plan
                     setShowPricingPopup(false);
                     toast.success('Plan Beta seleccionado');
                   }}
