@@ -402,6 +402,19 @@ const HistoriaClinica = () => {
     }
   };
 
+  const cargarFormulario = (data: FormDataState | null) => {
+    const initialState = getInitialFormState();
+    if (data === null) {
+      setFormData(initialState);
+      setResumen('');
+      // Clear patient name when resetting
+      setNombrePaciente('');
+      setPacienteActual('');
+    } else {
+      setFormData(data);
+    }
+  };
+
   return (
     <div className={`${theme} min-h-screen w-full flex`}>
       <FormulariosSidebar 

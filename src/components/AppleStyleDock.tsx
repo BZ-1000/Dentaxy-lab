@@ -160,8 +160,12 @@ export function AppleStyleDock() {
   const handleReset = () => {
     // Clear localStorage form data
     localStorage.removeItem('AUTO_SAVE_KEY');
-    // Reload the page to reset all forms
-    window.location.reload();
+    // Reset form data using the existing cargarFormulario function from context
+    cargarFormulario(null); 
+    // Close the confirmation dialog
+    setShowResetConfirmation(false);
+    // Show success message
+    toast.success('Formulario reiniciado exitosamente');
   };
 
   return (
