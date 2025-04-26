@@ -130,7 +130,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     if (!term.trim()) return;
     
     setIsLoading(true);
-    setShowSuggestions(false);
 
     try {
       let gsrsearch = term;
@@ -145,7 +144,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           format: "json",
           prop: "extracts",
           exintro: "true",
-          explaintext: "true",
+          explaintext: "false", // Changed to false to keep HTML formatting
           generator: "search",
           gsrlimit: "1",
           gsrsearch: gsrsearch,
@@ -160,7 +159,18 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
         const pages = Object.values(data.query.pages) as any[];
         
         if (pages.length > 0) {
-          setSearchResults(pages[0].extract || "No se encontraron resultados.");
+          const extract = pages[0].extract || "No se encontraron resultados.";
+          // Format the text with enhanced styling
+          const formattedExtract = `
+            <div class="prose-lg">
+              <div class="bg-gray-50 dark:bg-neutral-900 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-neutral-800">
+                <div class="space-y-4">
+                  ${extract}
+                </div>
+              </div>
+            </div>
+          `;
+          setSearchResults(formattedExtract);
         } else {
           setSearchResults("No se encontraron resultados.");
         }
@@ -237,8 +247,8 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
             </Button>
           </div>
 
-          {/* Suggestions dropdown */}
-          {showSuggestions && suggestions.length > 0 && (
+          {/* Suggestions dropdown - Now persistent until search or selection */}
+          {suggestions.length > 0 && showSuggestions && (
             <div className="absolute z-10 w-[calc(100%-5rem)] bg-white dark:bg-neutral-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 mt-1">
               <ul>
                 {suggestions.map((suggestion, index) => (
@@ -291,7 +301,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                       size="sm"
                       variant="outline"
                       onClick={() => handleSelectPresetTerm(term)}
-                      className="text-xs bg-white dark:bg-neutral-800"
+                      className="text-xs bg-white dark:bg-neutral-800 hover:bg-blue-50 dark:hover:bg-neutral-700"
                     >
                       {term}
                     </Button>
@@ -311,7 +321,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
             <div className="prose dark:prose-invert max-w-none">
               {searchResults ? (
                 <div 
-                  className="text-sm leading-relaxed"
+                  className="text-sm leading-relaxed space-y-4"
                   dangerouslySetInnerHTML={{ __html: searchResults }}
                 />
               ) : (
