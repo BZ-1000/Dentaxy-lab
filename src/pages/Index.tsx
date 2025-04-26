@@ -1,3 +1,4 @@
+
 import { lazy, Suspense } from "react";
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import { Typewriter } from "@/components/ui/typewriter-text";
@@ -11,6 +12,10 @@ const Index = () => {
   const [offset, setOffset] = useState(0);
   
   useEffect(() => {
+    // Force background color to be black
+    document.documentElement.style.backgroundColor = '#000000';
+    document.body.style.backgroundColor = '#000000';
+    
     const handleScroll = () => {
       setOffset(window.pageYOffset);
     };
