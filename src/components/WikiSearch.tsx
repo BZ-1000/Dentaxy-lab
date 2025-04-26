@@ -1,387 +1,360 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+import { useState } from 'react';
+import { X, Search, ExternalLink } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState, useRef } from "react";
-import { Button } from "./ui/button";
-import { ScrollArea } from "./ui/scroll-area";
-import { Search, X } from "lucide-react";
-import { useDebouncedCallback } from "use-debounce";
+import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 
-interface WikiSearchProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-type SearchCategory = "all" | "diseases" | "procedures" | "materials" | "anatomy" | "diagnostics" | "prevention";
-
-const categoryOptions = {
-  diseases: [
-    "Caries dental",
-    "Gingivitis",
-    "Periodontitis",
-    "Pulpitis",
-    "Absceso dental",
-    "Fluorosis dental",
-    "Bruxismo",
-    "Halitosis",
-    "Maloclusión"
-  ],
-  procedures: [
-    "Endodoncia",
-    "Extracción dental",
-    "Implantes dentales",
-    "Ortodoncia",
-    "Blanqueamiento dental",
-    "Profilaxis dental",
-    "Restauración dental",
-    "Selladores dentales"
-  ],
-  materials: [
-    "Amalgama dental",
-    "Resina compuesta",
-    "Ionómero de vidrio",
-    "Porcelana dental",
-    "Zirconia",
-    "Gutapercha",
-    "Alginato"
-  ],
-  anatomy: [
-    "Esmalte dental",
-    "Dentina",
-    "Pulpa dental",
-    "Ligamento periodontal",
-    "Encía"
-  ],
-  diagnostics: [
-    "Radiografía dental",
-    "Tomografía dental",
-    "Diagnóstico pulpar",
-    "Sondaje periodontal"
-  ],
-  prevention: [
-    "Higiene oral",
-    "Flúor tópico",
-    "Control de placa",
-    "Selladores"
-  ]
+type WikiResult = {
+  id: string;
+  title: string;
+  snippet: string;
+  url: string;
+  fullText?: string;
 };
 
-export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [searchResults, setSearchResults] = useState<string>("");
+export function WikiSearch({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<SearchCategory>("all");
-  const [expandedText, setExpandedText] = useState(false);
-  const [highlightedText, setHighlightedText] = useState<string>("");
-  
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [results, setResults] = useState<WikiResult[]>([]);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
 
-  const debouncedSearch = useDebouncedCallback(
-    (term: string) => {
-      if (term.trim()) {
-        searchWikipedia(term);
+  // Load saved data from localStorage
+  useState(() => {
+    const savedRecent = localStorage.getItem('wiki-recent-searches');
+    
+    if (savedRecent) {
+      try {
+        setRecentSearches(JSON.parse(savedRecent));
+      } catch (e) {
+        console.error('Error parsing saved recent searches:', e);
       }
-    },
-    500
-  );
-
-  useEffect(() => {
-    if (searchTerm.trim()) {
-      debouncedSearch(searchTerm);
-      // Always fetch suggestions when typing, regardless of category
-      fetchSuggestions(searchTerm);
-    } else {
-      setSearchResults("");
-      setSuggestions([]);
-      setShowSuggestions(false);
     }
-  }, [searchTerm, debouncedSearch]);
+    
+    // Set up online/offline detection
+    const handleOnlineStatus = () => setIsOffline(!navigator.onLine);
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOnlineStatus);
+    
+    return () => {
+      window.removeEventListener('online', handleOnlineStatus);
+      window.removeEventListener('offline', handleOnlineStatus);
+    };
+  });
 
-  const fetchSuggestions = async (term: string) => {
-    if (term.length < 2) {
-      setSuggestions([]);
-      setShowSuggestions(false);
+  // Save to localStorage when recent searches change
+  useState(() => {
+    localStorage.setItem('wiki-recent-searches', JSON.stringify(recentSearches));
+  }, [recentSearches]);
+
+  const searchWikipedia = async (term: string) => {
+    if (!term || term.length < 3) return;
+    if (isOffline) {
+      toast.error('Sin conexión. No se puede realizar la búsqueda.');
       return;
     }
-
-    try {
-      const response = await fetch(
-        `https://es.wikipedia.org/w/api.php?` +
-        new URLSearchParams({
-          action: "opensearch",
-          format: "json",
-          search: term,
-          limit: "5",
-          namespace: "0",
-          origin: "*"
-        })
-      );
-
-      const data = await response.json();
-      if (data && data[1]) {
-        setSuggestions(data[1]);
-        setShowSuggestions(true);
-      }
-    } catch (error) {
-      console.error("Error fetching suggestions:", error);
-      setSuggestions([]);
-    }
-  };
-
-  const handleSelectSuggestion = (suggestion: string) => {
-    setSearchTerm(suggestion);
-    setShowSuggestions(false);
-    searchWikipedia(suggestion);
-  };
-
-  const highlightSearchTerm = (text: string, term: string) => {
-    if (!term) return text;
-    const regex = new RegExp(`(${term})`, 'gi');
-    return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
-  };
-
-  const searchWikipedia = async (term: string = searchTerm) => {
-    if (!term.trim()) return;
     
-    setIsLoading(true);
-
     try {
-      let gsrsearch = term;
-      if (selectedCategory !== "all") {
-        gsrsearch = `${term} ${selectedCategory}`;
-      }
-      
-      const response = await fetch(
-        `https://es.wikipedia.org/w/api.php?` +
-        new URLSearchParams({
-          action: "query",
-          format: "json",
-          prop: "extracts",
-          exintro: "true",
-          explaintext: "false",
-          generator: "search",
-          gsrlimit: "1",
-          gsrsearch: gsrsearch,
-          gsrnamespace: "0",
-          origin: "*"
-        })
-      );
-
+      setIsLoading(true);
+      // Use the MediaWiki API to search Wikipedia
+      const response = await fetch(`https://es.wikipedia.org/w/api.php?action=query&format=json&origin=*&list=search&srsearch=${encodeURIComponent(term)}&utf8=1&srlimit=10`);
       const data = await response.json();
       
-      if (data.query && data.query.pages) {
-        const pages = Object.values(data.query.pages) as any[];
+      if (data.query && data.query.search) {
+        const formattedResults: WikiResult[] = data.query.search.map((item: any) => ({
+          id: item.pageid.toString(),
+          title: item.title,
+          snippet: item.snippet.replace(/<\/?span[^>]*>/g, ''),
+          url: `https://es.wikipedia.org/wiki/${encodeURIComponent(item.title.replace(/ /g, '_'))}`,
+        }));
+
+        setResults(formattedResults);
         
-        if (pages.length > 0) {
-          const extract = pages[0].extract || "No se encontraron resultados.";
-          const highlighted = highlightSearchTerm(extract, term);
-          
-          // Format the text with enhanced styling
-          const formattedExtract = `
-            <div class="prose-lg">
-              <div class="bg-gray-50 dark:bg-neutral-900 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-neutral-800">
-                <h2 class="text-2xl font-bold mb-4 text-blue-600 dark:text-blue-400">${pages[0].title}</h2>
-                <div class="space-y-4">
-                  <div class="text-justify leading-relaxed ${expandedText ? '' : 'line-clamp-4'}">
-                    ${highlighted}
-                  </div>
-                  ${!expandedText ? `
-                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <button 
-                        class="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-                        onclick="window.expandText()"
-                      >
-                        Leer más...
-                      </button>
-                    </div>
-                  ` : ''}
-                </div>
-              </div>
-            </div>
-          `;
-          setHighlightedText(highlighted);
-          setSearchResults(formattedExtract);
-        } else {
-          setSearchResults("No se encontraron resultados.");
-        }
+        // Add to recent searches
+        setRecentSearches(prev => {
+          const exists = prev.includes(term);
+          if (!exists) {
+            return [term, ...prev].slice(0, 5);
+          }
+          return prev;
+        });
       } else {
-        setSearchResults("No se encontraron resultados.");
+        setResults([]);
+        toast.info('No se encontraron resultados. Intente con otro término.');
       }
     } catch (error) {
-      setSearchResults("Error al buscar. Por favor, intente nuevamente.");
+      console.error('Error searching Wikipedia:', error);
+      toast.error('Error al buscar en Wikipedia. Por favor intente de nuevo.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Add window function for expanding text
-  useEffect(() => {
-    window.expandText = () => {
-      setExpandedText(true);
-    };
-    return () => {
-      delete window.expandText;
-    };
-  }, []);
-
-  const handleClearSearch = () => {
-    setSearchTerm("");
-    setSearchResults("");
-    setShowSuggestions(false);
-    setSuggestions([]);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-
-  const handleSelectPresetTerm = (term: string) => {
+  const handleRecentSearch = (term: string) => {
     setSearchTerm(term);
     searchWikipedia(term);
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      searchWikipedia();
+  const fetchArticleContent = async (pageId: string) => {
+    try {
+      const response = await fetch(`https://es.wikipedia.org/w/api.php?action=query&format=json&origin=*&prop=extracts&pageids=${pageId}&exintro=1&explaintext=1`);
+      const data = await response.json();
+      
+      if (data.query && data.query.pages && data.query.pages[pageId]) {
+        const article = data.query.pages[pageId];
+        
+        // Update the result with the full text
+        setResults(prev => prev.map(result => {
+          if (result.id === pageId) {
+            return { ...result, fullText: article.extract };
+          }
+          return result;
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching article content:', error);
     }
   };
 
-  const handleSelectCategory = (category: SearchCategory) => {
-    setSelectedCategory(category);
-    setSuggestions([]);
-    setShowSuggestions(false);
-  };
-
-  const handleResultClick = () => {
-    setShowSuggestions(false);
+  // This function handles the text expansion without using window.expandText
+  const handleExpandText = (event: React.MouseEvent<HTMLButtonElement>) => {
+    const textElement = event.currentTarget.previousElementSibling as HTMLElement;
+    if (textElement) {
+      if (textElement.classList.contains('line-clamp-3')) {
+        textElement.classList.remove('line-clamp-3');
+        event.currentTarget.textContent = 'Ver menos';
+      } else {
+        textElement.classList.add('line-clamp-3');
+        event.currentTarget.textContent = 'Ver más';
+      }
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl h-[80vh] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-            Búsqueda de Información
-          </DialogTitle>
+      <DialogContent className="max-w-4xl w-[95%] h-[85vh] p-0 overflow-hidden flex flex-col bg-white dark:bg-neutral-900 rounded-xl">
+        <DialogHeader className="p-6 pb-2">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-xl flex items-center gap-2">
+              <Search className="h-6 w-6 text-blue-500" />
+              Búsqueda en Wikipedia Dental
+            </DialogTitle>
+          </div>
         </DialogHeader>
         
-        <div className="relative">
-          <div className="flex gap-2 my-4">
-            <div className="relative flex-1">
-              <Input
-                ref={inputRef}
-                placeholder="¿Qué deseas buscar?"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className="pr-10"
-              />
-              {searchTerm && (
-                <button
-                  onClick={handleClearSearch}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                  aria-label="Limpiar búsqueda"
+        <Tabs defaultValue="search" className="flex-1 overflow-hidden flex flex-col">
+          <div className="px-6 pb-2">
+            <TabsList className="w-full grid grid-cols-2">
+              <TabsTrigger value="search" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-900">
+                Búsqueda
+              </TabsTrigger>
+              <TabsTrigger value="recent" className="data-[state=active]:bg-blue-100 data-[state=active]:text-blue-900">
+                Búsquedas Recientes
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <TabsContent value="search" className="flex-1 overflow-hidden flex flex-col p-6 pt-0">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  <Input 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Buscar en Wikipedia..." 
+                    className="pl-10"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        searchWikipedia(searchTerm);
+                      }
+                    }}
+                  />
+                </div>
+                <Button 
+                  onClick={() => searchWikipedia(searchTerm)} 
+                  disabled={searchTerm.length < 3 || isLoading}
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
                 >
-                  <X className="h-4 w-4" />
-                </button>
+                  {isLoading ? "Buscando..." : "Buscar"}
+                </Button>
+              </div>
+              
+              <div className="flex flex-wrap gap-2">
+                <Badge 
+                  variant="outline" 
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSearchTerm('Caries dental');
+                    searchWikipedia('Caries dental');
+                  }}
+                >
+                  Caries dental
+                </Badge>
+                <Badge 
+                  variant="outline" 
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSearchTerm('Periodontitis');
+                    searchWikipedia('Periodontitis');
+                  }}
+                >
+                  Periodontitis
+                </Badge>
+                <Badge 
+                  variant="outline" 
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSearchTerm('Endodoncia');
+                    searchWikipedia('Endodoncia');
+                  }}
+                >
+                  Endodoncia
+                </Badge>
+                <Badge 
+                  variant="outline" 
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setSearchTerm('Ortodoncia');
+                    searchWikipedia('Ortodoncia');
+                  }}
+                >
+                  Ortodoncia
+                </Badge>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto mt-4 space-y-4 pr-2">
+              {searchTerm.length < 3 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>Escriba al menos 3 caracteres para buscar</p>
+                </div>
+              ) : results.length > 0 ? (
+                <div>
+                  <Accordion 
+                    type="single" 
+                    collapsible 
+                    className="w-full"
+                    value={expandedItem || undefined}
+                    onValueChange={(value) => {
+                      setExpandedItem(value);
+                      if (value) {
+                        fetchArticleContent(value);
+                      }
+                    }}
+                  >
+                    {results.map((result) => (
+                      <AccordionItem key={result.id} value={result.id}>
+                        <AccordionTrigger className="hover:bg-gray-50 p-2 rounded-md">
+                          <div className="text-left">
+                            <h3 className="font-medium">{result.title}</h3>
+                            <p className="text-sm text-gray-500 line-clamp-1" 
+                               dangerouslySetInnerHTML={{ __html: result.snippet }}
+                            />
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="p-4">
+                          {result.fullText ? (
+                            <div className="space-y-4">
+                              <div>
+                                <p className="line-clamp-3 text-sm">{result.fullText}</p>
+                                <button 
+                                  className="text-blue-500 text-sm mt-2"
+                                  onClick={handleExpandText}
+                                >
+                                  Ver más
+                                </button>
+                              </div>
+                              <div>
+                                <a 
+                                  href={result.url} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="flex items-center gap-2 text-sm text-blue-500"
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                  Ver artículo completo en Wikipedia
+                                </a>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-center justify-center p-4">
+                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+                            </div>
+                          )}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  {isLoading ? (
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                      <p>Buscando en Wikipedia...</p>
+                    </div>
+                  ) : (
+                    <p>No se encontraron resultados</p>
+                  )}
+                </div>
               )}
             </div>
-            <Button 
-              onClick={() => searchWikipedia()}
-              disabled={isLoading}
-              className="bg-blue-500 hover:bg-blue-600"
-            >
-              <Search className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* Suggestions dropdown - Show when there are suggestions and showSuggestions is true */}
-          {suggestions.length > 0 && showSuggestions && (
-            <div className="absolute z-10 w-[calc(100%-5rem)] bg-white dark:bg-neutral-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 mt-1">
-              <ul>
-                {suggestions.map((suggestion, index) => (
-                  <li 
-                    key={index}
-                    className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer flex items-center"
-                    onClick={() => handleSelectSuggestion(suggestion)}
-                  >
-                    <Search className="h-3 w-3 mr-2 text-gray-400" />
-                    {suggestion}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-
-        {!searchTerm && (
-          <div className="bg-gray-50 dark:bg-neutral-900 p-3 rounded-md mb-2 border border-gray-200 dark:border-gray-800">
-            <h3 className="text-sm font-medium mb-2">Filtros de búsqueda</h3>
-            <div className="flex flex-wrap gap-2">
-              {(["all", "diseases", "procedures", "materials", "anatomy", "diagnostics", "prevention"] as SearchCategory[]).map(category => (
-                <Button
-                  key={category}
-                  size="sm"
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  onClick={() => handleSelectCategory(category)}
-                  className="text-xs"
-                >
-                  {category === "all" ? "Todos" : 
-                   category === "diseases" ? "Enfermedades" : 
-                   category === "procedures" ? "Procedimientos" : 
-                   category === "materials" ? "Materiales" :
-                   category === "anatomy" ? "Anatomía" :
-                   category === "diagnostics" ? "Diagnósticos" :
-                   "Prevención"}
-                </Button>
-              ))}
-            </div>
-
-            {/* Preset terms based on selected category */}
-            {selectedCategory !== "all" && categoryOptions[selectedCategory as keyof typeof categoryOptions] && (
-              <div className="mt-4">
-                <h4 className="text-sm font-medium mb-2">Términos comunes:</h4>
-                <div className="flex flex-wrap gap-2">
-                  {categoryOptions[selectedCategory as keyof typeof categoryOptions].map((term, index) => (
-                    <Button
-                      key={index}
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleSelectPresetTerm(term)}
-                      className="text-xs bg-white dark:bg-neutral-800 hover:bg-blue-50 dark:hover:bg-neutral-700"
+          </TabsContent>
+          
+          <TabsContent value="recent" className="flex-1 overflow-hidden p-6 pt-0">
+            <div className="space-y-4">
+              <h3 className="font-medium mb-2">Búsquedas recientes</h3>
+              {recentSearches.length > 0 ? (
+                <div className="space-y-2">
+                  {recentSearches.map((term, index) => (
+                    <div 
+                      key={index} 
+                      className="p-3 border rounded-md flex justify-between items-center cursor-pointer hover:bg-gray-50"
+                      onClick={() => handleRecentSearch(term)}
                     >
-                      {term}
-                    </Button>
+                      <div className="flex items-center gap-2">
+                        <Search className="h-4 w-4 text-gray-400" />
+                        <span>{term}</span>
+                      </div>
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setRecentSearches(prev => prev.filter((_, i) => i !== index));
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
                   ))}
                 </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        <ScrollArea 
-          className="flex-1 p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900"
-          onClick={handleResultClick}
-        >
-          {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
-            </div>
-          ) : (
-            <div className="prose dark:prose-invert max-w-none">
-              {searchResults ? (
-                <div 
-                  className="text-sm leading-relaxed space-y-4"
-                  dangerouslySetInnerHTML={{ __html: searchResults }}
-                />
               ) : (
-                <p className="text-center text-neutral-500">
-                  Ingresa un término para comenzar la búsqueda
+                <p className="text-center text-gray-500 py-4">
+                  No hay búsquedas recientes
                 </p>
               )}
             </div>
-          )}
-        </ScrollArea>
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

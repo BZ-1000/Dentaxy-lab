@@ -7,8 +7,8 @@ import {
   Crown,
   Save,
   Trash,
-  Cross, // Importa el icono de la cruz
-  Search, // Add Search icon
+  Cross,
+  Search,
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -25,7 +25,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { MedicationSearch } from './MedicationSearch'; // Import our new component
+import { MedicationSearch } from './MedicationSearch';
 import { WikiSearch } from './WikiSearch';
 
 const data = [
@@ -39,7 +39,7 @@ const data = [
   {
     title: 'Medicamentos',
     icon: (
-      <Cross className='h-full w-full text-white' /> // Cambia PillBottle por Cross
+      <Cross className='h-full w-full text-white' />
     ),
     href: '#',
   },
@@ -64,14 +64,14 @@ export function AppleStyleDock() {
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [showMedicationSearch, setShowMedicationSearch] = useState(false); // New state for medication modal
+  const [showMedicationSearch, setShowMedicationSearch] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [session, setSession] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [showWikiSearch, setShowWikiSearch] = useState(false); // Add new state
+  const [showWikiSearch, setShowWikiSearch] = useState(false);
 
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -224,7 +224,7 @@ export function AppleStyleDock() {
         </Dock>
       </div>
 
-      {/* Include our new Medication Search modal */}
+      {/* Include our Medication Search modal */}
       <MedicationSearch
         open={showMedicationSearch}
         onOpenChange={setShowMedicationSearch}
@@ -353,7 +353,6 @@ export function AppleStyleDock() {
                 </ul>
                 <Button
                   onClick={() => {
-                    // Aquí implementaría el cambio de plan
                     setShowPricingPopup(false);
                     toast.success('Plan Beta seleccionado');
                   }}
