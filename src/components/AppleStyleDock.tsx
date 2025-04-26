@@ -1,3 +1,4 @@
+
 import {
   Mail,
   ScrollText,
@@ -318,7 +319,7 @@ export function AppleStyleDock() {
                   <p>Por favor, inicia sesión para ver tu perfil</p>
                 )}
               </div>
-            DialogDescription>
+            </DialogDescription>
           </DialogHeader>
         </DialogContent>
       </Dialog>
