@@ -17,8 +17,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { translateToSpanish, translateSearchTerm } from '@/utils/medicationTranslations';
-import { translateToSpanishWithGoogle } from '@/utils/translate';
 
 // Type definitions
 type Medication = {
@@ -98,34 +96,27 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
     
     try {
       setIsLoading(true);
-      // Translate search term to English for API query
-      const englishTerm = translateSearchTerm(term);
-      
-      const response = await fetch(`https://api.fda.gov/drug/label.json?search=(openfda.brand_name:"${englishTerm}"+openfda.generic_name:"${englishTerm}")+AND+_exists_:openfda.brand_name&limit=10`);
+      // Updated API call with better search parameters
+      const response = await fetch(`https://api.fda.gov/drug/label.json?search=(openfda.brand_name:"${term}"+openfda.generic_name:"${term}")+AND+_exists_:openfda.brand_name&limit=10`);
       const data = await response.json();
       
       if (data.results) {
-        const formattedResults: Medication[] = await Promise.all(
-          data.results.map(async (item: any) => ({
-            id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
-            brand_name: item.openfda?.brand_name?.[0] || 'N/A',
-            generic_name: item.openfda?.generic_name?.[0] || 'N/A',
-            route: await translateToSpanishWithGoogle(item.openfda?.route?.[0] || 'N/A'),
-            dosage_form: await translateToSpanishWithGoogle(item.openfda?.dosage_form?.[0] || 'N/A'),
-            active_ingredients: item.active_ingredient?.map((ing: string) => {
-              const parts = ing.split(' ');
-              return { 
-                name: parts.slice(0, -1).join(' '), 
-                strength: parts[parts.length - 1] 
-              };
-            }),
-            indications_and_usage: await translateToSpanishWithGoogle(item.indications_and_usage?.[0] || ''),
-            warnings: await translateToSpanishWithGoogle(item.warnings?.[0] || ''),
-            drug_class: item.openfda?.pharm_class_epc?.[0] || 'N/A'
-          }))
-        );
+        const formattedResults: Medication[] = data.results.map((item: any) => ({
+          id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
+          brand_name: item.openfda?.brand_name?.[0] || 'N/A',
+          generic_name: item.openfda?.generic_name?.[0] || 'N/A',
+          route: item.openfda?.route?.[0] || 'N/A',
+          dosage_form: item.openfda?.dosage_form?.[0] || 'N/A',
+          active_ingredients: item.active_ingredient?.map((ing: string) => {
+            const parts = ing.split(' ');
+            return { name: parts.slice(0, -1).join(' '), strength: parts[parts.length - 1] };
+          }),
+          indications_and_usage: item.indications_and_usage?.[0],
+          warnings: item.warnings?.[0],
+          drug_class: item.openfda?.pharm_class_epc?.[0] || 'N/A'
+        }));
 
-        // Apply filters (translate filter terms if needed)
+        // Apply filters
         let filteredResults = formattedResults;
         
         if (activeFilter !== 'all') {
@@ -158,7 +149,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
             }
           });
         }
-
+        
         setResults(filteredResults);
         
         // Add to recent searches
@@ -398,31 +389,31 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                     <Button 
                       variant="outline" 
                       onClick={() => {
-                        setSearchTerm('paracetamol');
-                        searchMedications('paracetamol');
+                        setSearchTerm('acetaminophen');
+                        searchMedications('acetaminophen');
                       }}
                       className="mr-2"
                     >
-                      Paracetamol
+                      Acetaminophen
                     </Button>
                     <Button 
                       variant="outline" 
                       onClick={() => {
-                        setSearchTerm('ibuprofeno');
-                        searchMedications('ibuprofeno');
+                        setSearchTerm('ibuprofen');
+                        searchMedications('ibuprofen');
                       }}
                       className="mr-2"
                     >
-                      Ibuprofeno
+                      Ibuprofen
                     </Button>
                     <Button 
                       variant="outline" 
                       onClick={() => {
-                        setSearchTerm('amoxicilina');
-                        searchMedications('amoxicilina');
+                        setSearchTerm('amoxicillin');
+                        searchMedications('amoxicillin');
                       }}
                     >
-                      Amoxicilina
+                      Amoxicillin
                     </Button>
                   </div>
                 </div>

@@ -1,120 +1,228 @@
 
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { cn } from "@/lib/utils";
+import React, { useState, createContext, useContext, ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
-interface SidebarProps {
-  children: React.ReactNode;
+interface Links {
+  label: string;
+  href?: string;
+  icon: React.JSX.Element | React.ReactNode;
+  onClick?: () => void;
 }
 
-// Main ModernSidebar component
-const ModernSidebar = ({ children }: SidebarProps) => {
-  const [sidebarWidth, setSidebarWidth] = useState(250); // Default width
-  const [isCollapsed, setIsCollapsed] = useState(false);
+interface SidebarContextProps {
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  animate: boolean;
+}
 
-  useEffect(() => {
-    // Load sidebar width from localStorage or default
-    const storedWidth = localStorage.getItem('sidebarWidth');
-    if (storedWidth) {
-      setSidebarWidth(parseInt(storedWidth, 10));
-    }
+const SidebarContext = createContext<SidebarContextProps | undefined>(undefined);
 
-    // Load collapsed state from localStorage or default
-    const storedCollapsed = localStorage.getItem('sidebarCollapsed');
-    if (storedCollapsed) {
-      setIsCollapsed(storedCollapsed === 'true');
-    }
-  }, []);
+export const useSidebar = () => {
+  const context = useContext(SidebarContext);
+  if (!context) {
+    throw new Error("useSidebar must be used within a SidebarProvider");
+  }
+  return context;
+};
 
-  useEffect(() => {
-    // Save sidebar width to localStorage
-    localStorage.setItem('sidebarWidth', sidebarWidth.toString());
+export const SidebarProvider = ({
+  children,
+  open: openProp,
+  setOpen: setOpenProp,
+  animate = true
+}: {
+  children: React.ReactNode;
+  open?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  animate?: boolean;
+}) => {
+  const [openState, setOpenState] = useState(false);
+  const open = openProp !== undefined ? openProp : openState;
+  const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
 
-    // Save collapsed state to localStorage
-    localStorage.setItem('sidebarCollapsed', isCollapsed.toString());
-  }, [sidebarWidth, isCollapsed]);
-  
   return (
-    <motion.div 
-      className="fixed left-0 top-0 h-screen bg-white dark:bg-gray-900 shadow-lg z-50"
-      style={{ width: isCollapsed ? 80 : sidebarWidth }}
+    <SidebarContext.Provider value={{
+      open,
+      setOpen,
+      animate
+    }}>
+      {children}
+    </SidebarContext.Provider>
+  );
+};
+
+export const Sidebar = ({
+  children,
+  open,
+  setOpen,
+  animate
+}: {
+  children: React.ReactNode;
+  open?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  animate?: boolean;
+}) => {
+  return (
+    <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
+      {children}
+    </SidebarProvider>
+  );
+};
+
+export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
+  return (
+    <>
+      <DesktopSidebar {...props} />
+      <MobileSidebar {...props} />
+    </>
+  );
+};
+
+export const DesktopSidebar = ({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof motion.div>) => {
+  const { open, setOpen, animate } = useSidebar();
+  // Fix: explicitly cast the width as a string to resolve TypeScript error
+  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
+
+  return (
+    <motion.div
+      className={cn(
+        "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
+        className
+      )}
+      style={{ width: sidebarWidth }}
+      // Fix: explicitly set the width as a string for the animate property
+      animate={{ width: sidebarWidth as string }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+      {...props}
     >
       {children}
     </motion.div>
   );
 };
 
-// Sidebar component that wraps the ModernSidebar
-export const Sidebar = ({ children, open, setOpen, animate = true }: { 
-  children: React.ReactNode; 
-  open?: boolean; 
-  setOpen?: (open: boolean) => void;
-  animate?: boolean;
-}) => {
-  return <ModernSidebar>{children}</ModernSidebar>;
-};
+export const MobileSidebar = ({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<typeof motion.div>) => {
+  const { open, setOpen } = useSidebar();
 
-// SidebarBody component
-export const SidebarBody = ({ children, className = "" }: { 
-  children: React.ReactNode;
-  className?: string;
-}) => {
   return (
-    <div className={`flex flex-col h-screen p-4 ${className}`}>
-      {children}
-    </div>
+    <>
+      <div className="h-14 md:hidden flex items-center px-4 bg-neutral-100 dark:bg-neutral-800">
+        <button
+          onClick={() => setOpen(true)}
+          className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg"
+        >
+          <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+        </button>
+      </div>
+      
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+            className={cn(
+              "fixed inset-0 z-50 bg-white dark:bg-neutral-900 md:hidden",
+              className
+            )}
+            {...props}
+          >
+            <div className="flex flex-col h-full p-4">
+              <button
+                onClick={() => setOpen(false)}
+                className="self-end p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg mb-4"
+              >
+                <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
+              </button>
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
-// SidebarLink component
-export const SidebarLink = ({ 
-  link, 
-  className = "" 
-}: { 
-  link: {
-    label: string;
-    icon: React.ReactNode;
-    onClick: () => void;
-  };
+export const SidebarLink = ({
+  link,
+  className,
+  ...props
+}: {
+  link: Links;
   className?: string;
 }) => {
+  const { open, animate } = useSidebar();
+  const navigate = useNavigate();
+
+  const handleLinkClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default browser navigation
+    
+    if (link.onClick) {
+      link.onClick();
+      return;
+    }
+    
+    if (link.href) {
+      if (link.href.startsWith('http') || link.href.startsWith('#')) {
+        window.location.href = link.href; // For external links only
+      } else {
+        navigate(link.href, { replace: false }); // Use replace: false to maintain history
+      }
+    }
+  };
+
   return (
-    <button 
-      onClick={link.onClick}
-      className={`flex items-center gap-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors ${className}`}
+    <Link
+      to={link.href || '#'}
+      className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)}
+      onClick={handleLinkClick}
+      {...props}
     >
       {link.icon}
-      <span>{link.label}</span>
-    </button>
+      {animate ? (
+        open ? (
+          <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
+            {link.label}
+          </span>
+        ) : null
+      ) : (
+        <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
+          {link.label}
+        </span>
+      )}
+    </Link>
   );
 };
 
-// Logo component
-export const Logo = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex items-center justify-center p-2 mb-4">
+export const Logo = ({
+  children
+}: {
+  children: ReactNode;
+}) => {
+  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
       {children}
-    </div>
-  );
+      <div className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</div>
+    </div>;
 };
 
-// LogoIcon component for collapsed state
-export const LogoIcon = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="flex items-center justify-center p-2 mb-4">
+export const LogoIcon = ({
+  children
+}: {
+  children: ReactNode;
+}) => {
+  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
       {children}
-    </div>
-  );
+    </div>;
 };
-
-// Custom hook for sidebar
-export const useSidebar = () => {
-  const [isOpen, setIsOpen] = useState(true);
-  
-  const toggleSidebar = () => {
-    setIsOpen(prev => !prev);
-  };
-  
-  return { isOpen, setIsOpen, toggleSidebar };
-};
-
-export default ModernSidebar;
