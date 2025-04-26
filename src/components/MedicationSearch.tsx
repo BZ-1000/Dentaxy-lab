@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { X, Search, Star, StarOff, Filter, PillBottle, Stethoscope, Syringe, Bandage } from 'lucide-react';
 import {
@@ -219,6 +218,8 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
             </DialogTitle>
           </div>
         </DialogHeader>
+        
+        
         
         <Tabs defaultValue="search" className="flex-1 overflow-hidden flex flex-col">
           <div className="px-6 pb-2">
