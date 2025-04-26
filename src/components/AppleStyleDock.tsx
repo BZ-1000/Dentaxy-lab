@@ -7,7 +7,7 @@ import {
   Crown,
   Save,
   Trash,
-  PillBottle,
+  Cross, // Importa el icono de la cruz
   Search, // Add Search icon
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
@@ -39,7 +39,7 @@ const data = [
   {
     title: 'Medicamentos',
     icon: (
-      <PillBottle className='h-full w-full text-white' />
+      <Cross className='h-full w-full text-white' /> // Cambia PillBottle por Cross
     ),
     href: '#',
   },
@@ -192,7 +192,7 @@ export function AppleStyleDock() {
           ))}
           <DockItem
             onClick={toggleTheme}
-            className='aspect-square rounded-full bg-gray-900 cursor-pointer'
+            className='aspect-square rounded-full bg-gray-700 cursor-pointer'
           >
             <DockLabel>{theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}</DockLabel>
             <DockIcon>
