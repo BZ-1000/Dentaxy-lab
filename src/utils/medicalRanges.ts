@@ -1,4 +1,3 @@
-
 // IMC ranges according to WHO
 export const imcRanges = {
   underweight: { min: 0, max: 18.5, label: 'Bajo peso', color: 'text-blue-500' },
@@ -56,7 +55,12 @@ export const getIMCCategory = (imc: number) => {
 };
 
 export const getBPCategory = (systolic: number, diastolic: number) => {
-  if (systolic <= bpRanges.low.systolic.max || diastolic <= bpRanges.low.diastolic.max) return bpRanges.low;
-  if (systolic >= bpRanges.high.systolic.min || diastolic >= bpRanges.high.diastolic.min) return bpRanges.high;
-  return bpRanges.normal;
+  if (systolic < bpRanges.normal.systolic.min || diastolic < bpRanges.normal.diastolic.min) {
+    return bpRanges.low;
+  }
+  if (systolic >= bpRanges.normal.systolic.min && systolic <= bpRanges.normal.systolic.max &&
+      diastolic >= bpRanges.normal.diastolic.min && diastolic <= bpRanges.normal.diastolic.max) {
+    return bpRanges.normal;
+  }
+  return bpRanges.high;
 };
