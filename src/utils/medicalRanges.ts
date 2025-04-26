@@ -58,8 +58,7 @@ export const getBPCategory = (systolic: number, diastolic: number) => {
   if (systolic < bpRanges.normal.systolic.min || diastolic < bpRanges.normal.diastolic.min) {
     return bpRanges.low;
   }
-  if (systolic >= bpRanges.normal.systolic.min && systolic <= bpRanges.normal.systolic.max &&
-      diastolic >= bpRanges.normal.diastolic.min && diastolic <= bpRanges.normal.diastolic.max) {
+  if (systolic <= bpRanges.normal.systolic.max && diastolic <= bpRanges.normal.diastolic.max) {
     return bpRanges.normal;
   }
   return bpRanges.high;
