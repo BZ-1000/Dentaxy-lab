@@ -1,4 +1,3 @@
-
 import {
   Mail,
   RefreshCw,
@@ -162,12 +161,13 @@ export function AppleStyleDock() {
 
   const handleReset = () => {
     console.log("Ejecutando reinicio de formulario");
-    // Limpiar localStorage
-    localStorage.removeItem('AUTO_SAVE_KEY');
+    
     // Resetear todos los campos del formulario al estado inicial
     resetFormulario();
+    
     // Cerrar diálogo de confirmación
     setShowResetConfirmation(false);
+    
     // Mostrar mensaje de éxito
     toast.success('Formulario reiniciado exitosamente');
   };
@@ -354,6 +354,12 @@ export function AppleStyleDock() {
         </div>
       )}
 
+      <ResetConfirmationDialog 
+        isOpen={showResetConfirmation} 
+        onClose={() => setShowResetConfirmation(false)}
+        onConfirm={handleReset}
+      />
+
       <style>{`
         @keyframes slideIn {
           from {
@@ -369,12 +375,6 @@ export function AppleStyleDock() {
           animation: slideIn 0.3s ease-out;
         }
       `}</style>
-      
-      <ResetConfirmationDialog 
-        isOpen={showResetConfirmation} 
-        onClose={() => setShowResetConfirmation(false)}
-        onConfirm={handleReset}
-      />
     </>
   );
 }

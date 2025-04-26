@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
@@ -453,14 +452,22 @@ export const useHistoriaClinica = () => {
     });
   };
 
+  // Función para reiniciar completamente el formulario
   const resetFormulario = () => {
     console.log("Reiniciando formulario...");
+    // Obtener el estado inicial fresco desde la función
+    const initialState = getInitialFormState();
+    
     // Establecer todos los campos de vuelta a su estado inicial
-    setFormData(getInitialFormState());
+    setFormData(initialState);
+    
+    // Resetear también el resumen
     setResumen('');
+    
     // Eliminar datos guardados automáticamente
     localStorage.removeItem(AUTO_SAVE_KEY);
-    console.log("Formulario reiniciado");
+    
+    console.log("Formulario reiniciado correctamente");
   };
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {
@@ -483,7 +490,9 @@ export const useHistoriaClinica = () => {
 
   const cargarFormulario = (data: FormDataState | null) => {
     if (data === null) {
-      setFormData(getInitialFormState());
+      // Si se pasa null, cargar el estado inicial
+      const initialState = getInitialFormState();
+      setFormData(initialState);
       setResumen('');
     } else {
       setFormData(data);

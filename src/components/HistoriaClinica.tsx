@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -114,11 +113,21 @@ const HistoriaClinica = () => {
   };
 
   const handleResetFormulario = () => {
+    // Limpiar nombres de paciente
     setPacienteActual('');
     setNombrePaciente('');
+    
+    // Usar la función resetFormulario del hook para restablecer todo el formulario
     resetFormulario();
+    
     // También limpiar auto guardado para evitar reaparecer datos borrados
     localStorage.removeItem(AUTO_SAVE_KEY);
+    
+    // Mostrar mensaje de éxito
+    toast({
+      title: "Formulario reiniciado",
+      description: "Todos los campos han sido restablecidos a su estado original"
+    });
   };
 
   const handleGuardarFormulario = () => {
