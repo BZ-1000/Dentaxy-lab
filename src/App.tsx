@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
@@ -29,10 +30,9 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Persistir la sesión usando localStorage
-    const savedSession = localStorage.getItem('userSession');
-    if (savedSession) {
-      setSession(JSON.parse(savedSession));
+    // Limpiar todo el localStorage en caso de recarga manual
+    if (performance.navigation.type === 1) {
+      localStorage.clear();
     }
 
     // Obtener la sesión actual al cargar
