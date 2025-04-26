@@ -1,6 +1,7 @@
+
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, MotionValue, useTransform } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -224,14 +225,13 @@ export const LogoIcon = ({
     </div>;
 };
 
-function DockIcon({ children, className, ...rest }: {
+interface DockIconProps {
   children: ReactNode;
   className?: string;
   width: MotionValue<number>;
-}) {
-  const restProps = rest as Record<string, unknown>;
-  const width = restProps['width'] as MotionValue<number>;
+}
 
+function DockIcon({ children, className, width }: DockIconProps) {
   const widthTransform = useTransform(width, (val) => val / 2);
 
   return (
@@ -239,7 +239,7 @@ function DockIcon({ children, className, ...rest }: {
       style={{ width: widthTransform }}
       className={cn('flex items-center justify-center', className)}
     >
-      {children as ReactNode}
+      {children}
     </motion.div>
   );
 }

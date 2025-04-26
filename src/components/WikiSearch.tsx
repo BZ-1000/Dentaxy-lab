@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
@@ -73,6 +72,8 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<SearchCategory>("all");
+  const [expandedText, setExpandedText] = useState(false);
+  const [highlightedText, setHighlightedText] = useState<string>("");
   
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -88,10 +89,12 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   useEffect(() => {
     if (searchTerm.trim()) {
       debouncedSearch(searchTerm);
+      // Always fetch suggestions when typing, regardless of category
       fetchSuggestions(searchTerm);
     } else {
       setSearchResults("");
       setSuggestions([]);
+      setShowSuggestions(false);
     }
   }, [searchTerm, debouncedSearch]);
 
@@ -126,11 +129,22 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   };
 
+  const handleSelectSuggestion = (suggestion: string) => {
+    setSearchTerm(suggestion);
+    setShowSuggestions(false);
+    searchWikipedia(suggestion);
+  };
+
+  const highlightSearchTerm = (text: string, term: string) => {
+    if (!term) return text;
+    const regex = new RegExp(`(${term})`, 'gi');
+    return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
+  };
+
   const searchWikipedia = async (term: string = searchTerm) => {
     if (!term.trim()) return;
     
     setIsLoading(true);
-    setShowSuggestions(false);
 
     try {
       let gsrsearch = term;
@@ -145,7 +159,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           format: "json",
           prop: "extracts",
           exintro: "true",
-          explaintext: "true",
+          explaintext: "false",
           generator: "search",
           gsrlimit: "1",
           gsrsearch: gsrsearch,
@@ -160,7 +174,34 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
         const pages = Object.values(data.query.pages) as any[];
         
         if (pages.length > 0) {
-          setSearchResults(pages[0].extract || "No se encontraron resultados.");
+          const extract = pages[0].extract || "No se encontraron resultados.";
+          const highlighted = highlightSearchTerm(extract, term);
+          
+          // Format the text with enhanced styling
+          const formattedExtract = `
+            <div class="prose-lg">
+              <div class="bg-gray-50 dark:bg-neutral-900 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-neutral-800">
+                <h2 class="text-2xl font-bold mb-4 text-blue-600 dark:text-blue-400">${pages[0].title}</h2>
+                <div class="space-y-4">
+                  <div class="text-justify leading-relaxed ${expandedText ? '' : 'line-clamp-4'}">
+                    ${highlighted}
+                  </div>
+                  ${!expandedText ? `
+                    <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                      <button 
+                        class="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                        onclick="window.expandText()"
+                      >
+                        Leer más...
+                      </button>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+          setHighlightedText(highlighted);
+          setSearchResults(formattedExtract);
         } else {
           setSearchResults("No se encontraron resultados.");
         }
@@ -174,16 +215,21 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   };
 
-  const handleSelectSuggestion = (suggestion: string) => {
-    setSearchTerm(suggestion);
-    setShowSuggestions(false);
-    searchWikipedia(suggestion);
-  };
+  // Add window function for expanding text
+  useEffect(() => {
+    window.expandText = () => {
+      setExpandedText(true);
+    };
+    return () => {
+      delete window.expandText;
+    };
+  }, []);
 
   const handleClearSearch = () => {
     setSearchTerm("");
     setSearchResults("");
     setShowSuggestions(false);
+    setSuggestions([]);
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -200,11 +246,23 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   };
 
+  const handleSelectCategory = (category: SearchCategory) => {
+    setSelectedCategory(category);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const handleResultClick = () => {
+    setShowSuggestions(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl h-[80vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Búsqueda de Información</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+            Búsqueda de Información
+          </DialogTitle>
         </DialogHeader>
         
         <div className="relative">
@@ -237,8 +295,8 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
             </Button>
           </div>
 
-          {/* Suggestions dropdown */}
-          {showSuggestions && suggestions.length > 0 && (
+          {/* Suggestions dropdown - Show when there are suggestions and showSuggestions is true */}
+          {suggestions.length > 0 && showSuggestions && (
             <div className="absolute z-10 w-[calc(100%-5rem)] bg-white dark:bg-neutral-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 mt-1">
               <ul>
                 {suggestions.map((suggestion, index) => (
@@ -256,7 +314,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           )}
         </div>
 
-        {/* Category filters - always visible when not searching */}
         {!searchTerm && (
           <div className="bg-gray-50 dark:bg-neutral-900 p-3 rounded-md mb-2 border border-gray-200 dark:border-gray-800">
             <h3 className="text-sm font-medium mb-2">Filtros de búsqueda</h3>
@@ -266,7 +323,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                   key={category}
                   size="sm"
                   variant={selectedCategory === category ? "default" : "outline"}
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => handleSelectCategory(category)}
                   className="text-xs"
                 >
                   {category === "all" ? "Todos" : 
@@ -291,7 +348,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                       size="sm"
                       variant="outline"
                       onClick={() => handleSelectPresetTerm(term)}
-                      className="text-xs bg-white dark:bg-neutral-800"
+                      className="text-xs bg-white dark:bg-neutral-800 hover:bg-blue-50 dark:hover:bg-neutral-700"
                     >
                       {term}
                     </Button>
@@ -302,7 +359,10 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           </div>
         )}
 
-        <ScrollArea className="flex-1 p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900">
+        <ScrollArea 
+          className="flex-1 p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900"
+          onClick={handleResultClick}
+        >
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
@@ -311,7 +371,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
             <div className="prose dark:prose-invert max-w-none">
               {searchResults ? (
                 <div 
-                  className="text-sm leading-relaxed"
+                  className="text-sm leading-relaxed space-y-4"
                   dangerouslySetInnerHTML={{ __html: searchResults }}
                 />
               ) : (

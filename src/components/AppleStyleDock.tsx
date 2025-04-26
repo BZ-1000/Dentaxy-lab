@@ -7,7 +7,7 @@ import {
   Crown,
   Save,
   Trash,
-  PillBottle,
+  Cross, // Importa el icono de la cruz
   Search, // Add Search icon
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
@@ -32,14 +32,14 @@ const data = [
   {
     title: 'Inicio',
     icon: (
-      <HomeIcon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+      <HomeIcon className='h-full w-full text-white' />
     ),
     href: '/',
   },
   {
     title: 'Medicamentos',
     icon: (
-      <PillBottle className='h-full w-full text-white' />
+      <Cross className='h-full w-full text-white' /> // Cambia PillBottle por Cross
     ),
     href: '#',
   },
@@ -183,7 +183,7 @@ export function AppleStyleDock() {
               key={idx}
               onClick={() => handleItemClick(item.title)}
               className={`aspect-square rounded-full cursor-pointer ${
-                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'Búsqueda' ? 'bg-sky-200' : 'bg-gray-200 dark:bg-neutral-800')
+                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'Búsqueda' ? 'bg-sky-400' : (item.title === 'Inicio' ? 'bg-amber-400' : 'bg-gray-200 dark:bg-neutral-800'))
               }`}
             >
               <DockLabel>{item.title}</DockLabel>
@@ -192,11 +192,11 @@ export function AppleStyleDock() {
           ))}
           <DockItem
             onClick={toggleTheme}
-            className='aspect-square rounded-full bg-gray-200 dark:bg-neutral-800 cursor-pointer'
+            className='aspect-square rounded-full bg-gray-700 cursor-pointer'
           >
             <DockLabel>{theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}</DockLabel>
             <DockIcon>
-              <SunMoon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
+              <SunMoon className='h-full w-full text-white' />
             </DockIcon>
           </DockItem>
           {/* Botón de reset con icono de basura */}
@@ -229,7 +229,7 @@ export function AppleStyleDock() {
         open={showMedicationSearch}
         onOpenChange={setShowMedicationSearch}
       />
-      
+
       {/* Include the WikiSearch component */}
       <WikiSearch
         open={showWikiSearch}
