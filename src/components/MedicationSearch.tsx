@@ -108,36 +108,49 @@ const translateMedicationSection = async (medicationId: string) => {
       medication.dosage_form,
       medication.indications_and_usage || '',
       medication.warnings || '',
-      medication.drug_class || '',
-      ...(medication.active_ingredients?.map(ing => ing.name) || [])
+      medication.drug_class || ''
     ];
+
+    // Añadir los nombres de ingredientes activos si existen
+    const ingredientNames: string[] = [];
+    if (medication.active_ingredients && medication.active_ingredients.length > 0) {
+      medication.active_ingredients.forEach(ing => {
+        ingredientNames.push(ing.name);
+      });
+      textsToTranslate.push(...ingredientNames);
+    }
 
     // Traducir todos los textos en paralelo
     const translatedTexts = await translateText(textsToTranslate) as string[];
-    let translationIndex = 0;
-
-    // Construir el objeto traducido
-    const translatedMedication = {
+    
+    // Construir el objeto de medicamento traducido
+    const translatedMedication: Medication = {
       ...medication,
-      brand_name: translatedTexts[translationIndex++],
-      generic_name: translatedTexts[translationIndex++],
-      route: translatedTexts[translationIndex++],
-      dosage_form: translatedTexts[translationIndex++],
-      indications_and_usage: translatedTexts[translationIndex++] || 'Información no disponible',
-      warnings: translatedTexts[translationIndex++] || 'Información no disponible',
-      drug_class: translatedTexts[translationIndex++],
-      active_ingredients: medication.active_ingredients?.map((ing, i) => ({
-        ...ing,
-        name: translatedTexts[translationIndex + i] || ing.name
-      }))
+      brand_name: translatedTexts[0],
+      generic_name: translatedTexts[1],
+      route: translatedTexts[2],
+      dosage_form: translatedTexts[3],
+      indications_and_usage: translatedTexts[4] || 'Información no disponible',
+      warnings: translatedTexts[5] || 'Información no disponible',
+      drug_class: translatedTexts[6] || 'N/A',
     };
+    
+    // Si hay ingredientes activos, actualizarlos con los nombres traducidos
+    if (medication.active_ingredients && medication.active_ingredients.length > 0) {
+      translatedMedication.active_ingredients = medication.active_ingredients.map((ing, i) => ({
+        ...ing,
+        name: translatedTexts[7 + i] || ing.name
+      }));
+    }
 
+    // Actualizar el estado con el medicamento traducido
     setTranslatedMeds(prev => ({
       ...prev,
       [medicationId]: translatedMedication
     }));
+    
   } catch (error) {
-    console.error('Translation error:', error);
+    console.error('Error de traducción:', error);
   } finally {
     setTranslating(false);
   }

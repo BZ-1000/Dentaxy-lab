@@ -1,6 +1,9 @@
 
 interface TranslateResponse {
-  translatedText: string;
+  responseData: {
+    translatedText: string;
+  };
+  responseStatus: number;
 }
 
 export async function translateText(texts: string | string[]): Promise<string | string[]> {
@@ -15,24 +18,17 @@ export async function translateText(texts: string | string[]): Promise<string | 
   }
 
   try {
-    // Crear un array de promesas para todas las traducciones
+    // Crear un array de promesas para todas las traducciones en paralelo
     const translationPromises = validTexts.map(text => 
-      fetch('https://libretranslate.de/translate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          q: text,
-          source: 'en',
-          target: 'es',
-        }),
-      }).then(response => response.ok ? response.json() : { translatedText: text })
+      fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|es`)
+        .then(response => response.ok ? response.json() : { responseData: { translatedText: text } })
     );
 
     // Ejecutar todas las traducciones en paralelo
     const results = await Promise.all(translationPromises);
-    const translatedTexts = results.map(result => result.translatedText);
+    const translatedTexts = results.map(result => result.responseData.translatedText);
+    
+    console.log('Textos traducidos:', translatedTexts);
 
     // Reemplazar solo los textos válidos en el array original
     let currentIndex = 0;
@@ -48,7 +44,7 @@ export async function translateText(texts: string | string[]): Promise<string | 
     // Retornar en el mismo formato que se recibió
     return Array.isArray(texts) ? finalTexts : finalTexts[0];
   } catch (error) {
-    console.error('Translation error:', error);
-    return texts; // Return original text(s) if translation fails
+    console.error('Error de traducción:', error);
+    return texts; // Devolver textos originales si falla la traducción
   }
 }
