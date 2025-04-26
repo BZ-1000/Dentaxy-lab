@@ -1,8 +1,8 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 interface Links {
   label: string;
@@ -42,13 +42,15 @@ export const SidebarProvider = ({
   const open = openProp !== undefined ? openProp : openState;
   const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
 
-  return <SidebarContext.Provider value={{
-    open,
-    setOpen,
-    animate
-  }}>
+  return (
+    <SidebarContext.Provider value={{
+      open,
+      setOpen,
+      animate
+    }}>
       {children}
-    </SidebarContext.Provider>;
+    </SidebarContext.Provider>
+  );
 };
 
 export const Sidebar = ({
@@ -62,16 +64,20 @@ export const Sidebar = ({
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
   animate?: boolean;
 }) => {
-  return <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
+  return (
+    <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
       {children}
-    </SidebarProvider>;
+    </SidebarProvider>
+  );
 };
 
 export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
-  return <>
+  return (
+    <>
       <DesktopSidebar {...props} />
       <MobileSidebar {...props} />
-    </>;
+    </>
+  );
 };
 
 export const DesktopSidebar = ({
@@ -80,8 +86,6 @@ export const DesktopSidebar = ({
   ...props
 }: React.ComponentProps<typeof motion.div>) => {
   const { open, setOpen, animate } = useSidebar();
-
-  // Fixed width property - use explicit string width
   const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
 
   return (
@@ -90,10 +94,8 @@ export const DesktopSidebar = ({
         "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
         className
       )}
-      animate={{
-        width: sidebarWidth
-      }}
       style={{ width: sidebarWidth }}
+      animate={{ width: sidebarWidth }}
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       {...props}
@@ -159,9 +161,32 @@ export const SidebarLink = ({
   className?: string;
 }) => {
   const { open, animate } = useSidebar();
+  const navigate = useNavigate();
+
+  const handleLinkClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default browser navigation
+    
+    if (link.onClick) {
+      link.onClick();
+      return;
+    }
+    
+    if (link.href) {
+      if (link.href.startsWith('http') || link.href.startsWith('#')) {
+        window.location.href = link.href; // For external links only
+      } else {
+        navigate(link.href, { replace: false }); // Use replace: false to maintain history
+      }
+    }
+  };
 
   return (
-    <div className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)} onClick={link.onClick} {...props}>
+    <Link
+      to={link.href || '#'}
+      className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)}
+      onClick={handleLinkClick}
+      {...props}
+    >
       {link.icon}
       {animate ? (
         open ? (
@@ -174,7 +199,7 @@ export const SidebarLink = ({
           {link.label}
         </span>
       )}
-    </div>
+    </Link>
   );
 };
 
