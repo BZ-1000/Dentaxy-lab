@@ -250,8 +250,14 @@ const Landing = () => {
       });
       return;
     }
+
+    // Clear all form data from localStorage
+    localStorage.removeItem('currentFormData');
+    localStorage.removeItem('formBackup');
+    
     if (hasBetaPlan) {
-      navigate('/app');
+      // Force a complete app reload to reset all states
+      window.location.href = '/app';
     } else {
       setShowPricingPopup(true);
     }
