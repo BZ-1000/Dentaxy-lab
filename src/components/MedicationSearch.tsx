@@ -17,6 +17,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
+import { translateToSpanish, translateSearchTerm } from '@/utils/medicationTranslations';
 
 // Type definitions
 type Medication = {
@@ -96,8 +97,10 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
     
     try {
       setIsLoading(true);
-      // Updated API call with better search parameters
-      const response = await fetch(`https://api.fda.gov/drug/label.json?search=(openfda.brand_name:"${term}"+openfda.generic_name:"${term}")+AND+_exists_:openfda.brand_name&limit=10`);
+      // Translate search term to English for API query
+      const englishTerm = translateSearchTerm(term);
+      
+      const response = await fetch(`https://api.fda.gov/drug/label.json?search=(openfda.brand_name:"${englishTerm}"+openfda.generic_name:"${englishTerm}")+AND+_exists_:openfda.brand_name&limit=10`);
       const data = await response.json();
       
       if (data.results) {
@@ -105,18 +108,21 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
           id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
           brand_name: item.openfda?.brand_name?.[0] || 'N/A',
           generic_name: item.openfda?.generic_name?.[0] || 'N/A',
-          route: item.openfda?.route?.[0] || 'N/A',
-          dosage_form: item.openfda?.dosage_form?.[0] || 'N/A',
+          route: translateToSpanish(item.openfda?.route?.[0] || 'N/A'),
+          dosage_form: translateToSpanish(item.openfda?.dosage_form?.[0] || 'N/A'),
           active_ingredients: item.active_ingredient?.map((ing: string) => {
             const parts = ing.split(' ');
-            return { name: parts.slice(0, -1).join(' '), strength: parts[parts.length - 1] };
+            return { 
+              name: parts.slice(0, -1).join(' '), 
+              strength: parts[parts.length - 1] 
+            };
           }),
-          indications_and_usage: item.indications_and_usage?.[0],
-          warnings: item.warnings?.[0],
+          indications_and_usage: translateToSpanish(item.indications_and_usage?.[0] || ''),
+          warnings: translateToSpanish(item.warnings?.[0] || ''),
           drug_class: item.openfda?.pharm_class_epc?.[0] || 'N/A'
         }));
 
-        // Apply filters
+        // Apply filters (translate filter terms if needed)
         let filteredResults = formattedResults;
         
         if (activeFilter !== 'all') {
@@ -149,7 +155,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
             }
           });
         }
-        
+
         setResults(filteredResults);
         
         // Add to recent searches
@@ -389,31 +395,31 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                     <Button 
                       variant="outline" 
                       onClick={() => {
-                        setSearchTerm('acetaminophen');
-                        searchMedications('acetaminophen');
+                        setSearchTerm('paracetamol');
+                        searchMedications('paracetamol');
                       }}
                       className="mr-2"
                     >
-                      Acetaminophen
+                      Paracetamol
                     </Button>
                     <Button 
                       variant="outline" 
                       onClick={() => {
-                        setSearchTerm('ibuprofen');
-                        searchMedications('ibuprofen');
+                        setSearchTerm('ibuprofeno');
+                        searchMedications('ibuprofeno');
                       }}
                       className="mr-2"
                     >
-                      Ibuprofen
+                      Ibuprofeno
                     </Button>
                     <Button 
                       variant="outline" 
                       onClick={() => {
-                        setSearchTerm('amoxicillin');
-                        searchMedications('amoxicillin');
+                        setSearchTerm('amoxicilina');
+                        searchMedications('amoxicilina');
                       }}
                     >
-                      Amoxicillin
+                      Amoxicilina
                     </Button>
                   </div>
                 </div>
