@@ -1,4 +1,3 @@
-
 import { FormDataState } from '@/types/historiaClinica';
 import { defaultFormTexts } from './defaultFormTexts';
 
@@ -17,9 +16,7 @@ export const getInitialFormState = (): FormDataState => ({
         tipo: '',
         descripcion: ''
       },
-      atenuacion: '',
-      causaProvocado: defaultFormTexts.padecimientoActual.causaProvocado,
-      ubicacion: ''
+      atenuacion: ''
     }
   },
   antecedentesHeredoFamiliares: {
