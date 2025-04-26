@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -114,6 +115,7 @@ const HistoriaClinica = () => {
 
   const handleResetFormulario = () => {
     setPacienteActual('');
+    setNombrePaciente('');
     resetFormulario();
     // También limpiar auto guardado para evitar reaparecer datos borrados
     localStorage.removeItem(AUTO_SAVE_KEY);

@@ -161,13 +161,14 @@ export function AppleStyleDock() {
   };
 
   const handleReset = () => {
-    // Clear localStorage form data
+    console.log("Ejecutando reinicio de formulario");
+    // Limpiar localStorage
     localStorage.removeItem('AUTO_SAVE_KEY');
-    // Reset all form fields to initial state
+    // Resetear todos los campos del formulario al estado inicial
     resetFormulario();
-    // Close the confirmation dialog
+    // Cerrar diálogo de confirmación
     setShowResetConfirmation(false);
-    // Show success message
+    // Mostrar mensaje de éxito
     toast.success('Formulario reiniciado exitosamente');
   };
 
@@ -197,7 +198,7 @@ export function AppleStyleDock() {
               <SunMoon className='h-full w-full text-neutral-600 dark:text-neutral-300' />
             </DockIcon>
           </DockItem>
-          {/* Nuevo botón ScrollToName */}
+          {/* Botón ScrollToName */}
           {isVisible && (
             <DockItem
               onClick={scrollToName}
