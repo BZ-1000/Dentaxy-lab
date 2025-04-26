@@ -59,7 +59,7 @@ const data = [
 ];
 
 export function AppleStyleDock() {
-  const { cargarFormulario } = useHistoriaClinica();
+  const { resetFormulario } = useHistoriaClinica();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
@@ -69,7 +69,7 @@ export function AppleStyleDock() {
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
-  const [isVisible, setIsVisible] = useState(false); // Estado para la visibilidad del botón
+  const [isVisible, setIsVisible] = useState(false);
   const [showResetConfirmation, setShowResetConfirmation] = useState(false);
 
   useEffect(() => {
@@ -163,8 +163,8 @@ export function AppleStyleDock() {
   const handleReset = () => {
     // Clear localStorage form data
     localStorage.removeItem('AUTO_SAVE_KEY');
-    // Reset form data using the imported cargarFormulario function
-    cargarFormulario(null); 
+    // Reset all form fields to initial state
+    resetFormulario();
     // Close the confirmation dialog
     setShowResetConfirmation(false);
     // Show success message
