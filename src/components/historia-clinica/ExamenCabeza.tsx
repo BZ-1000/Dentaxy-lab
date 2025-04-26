@@ -40,17 +40,17 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const craneosTypes = [
     {
       type: 'Mesocefálico',
-      img: '/lovable-uploads/4b2f41fa-3d14-4d72-b253-53b094c3ea33.png',
+      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/lovable-uploads/mesocefalo.png',
       description: 'Forma craneal intermedia, proporcionada y armoniosa. La relación entre el ancho y el largo del cráneo es equilibrada.'
     },
     {
       type: 'Dolicocéfalo',
-      img: '/lovable-uploads/40014849-397d-4649-b504-ae9bbf90e571.png',
+      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/dolicocefalo.png',
       description: 'Cráneo alargado y estrecho. El diámetro anteroposterior es mayor que el transversal.'
     },
     {
       type: 'Braquicéfalo',
-      img: '/lovable-uploads/fa80bbb8-adc2-461f-8606-bd494c90a8ec.png',
+      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/braquicefalo.png',
       description: 'Cráneo ancho y corto. El diámetro transversal es proporcionalmente mayor que el anteroposterior.'
     }
   ];
@@ -58,17 +58,17 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const perfilesTypes = [
     {
       type: 'Cóncavo',
-      img: '/lovable-uploads/b8b26a5c-e938-49f5-a516-83479cf2788c.png',
+      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/concavo.png',
       description: 'Perfil facial que presenta una depresión en la zona media.'
     },
     {
       type: 'Convexo',
-      img: '/lovable-uploads/f46cdd2e-13e9-44d0-9faa-9e07d9b99814.png',
+      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/convexo.png',
       description: 'Perfil facial que presenta una proyección hacia adelante en la zona media.'
     },
     {
       type: 'Recto',
-      img: '/lovable-uploads/aee46598-7fcf-4e59-ae1a-8146ac199fe3.png',
+      img: 'DentalBasicsAcademy1/historia-odontologica-ia/public/recto.png',
       description: 'Perfil facial que presenta una línea recta sin proyecciones o depresiones marcadas.'
     }
   ];
