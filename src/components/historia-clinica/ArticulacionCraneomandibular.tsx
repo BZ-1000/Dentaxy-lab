@@ -39,7 +39,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
   React.useEffect(() => {
     // Inicializar labios si no existe
     if (!formData.articulacionCraneomandibular.labios) {
-      handleArticulacionCraneomandibularChange('labios', {});
+      handleArticulacionCraneomandibularChange('labios', '{}' as any);
     }
   }, [formData.articulacionCraneomandibular]);
 

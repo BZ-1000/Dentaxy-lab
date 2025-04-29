@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
@@ -5,7 +6,16 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip as ChartTooltip,
+  Legend
+} from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, ChartTooltip, Legend);
@@ -22,6 +32,24 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
   const neurologicoLabels = ["Estado Mental", "Pares Craneales", "Fuerza Motora", "Sensibilidad", "Reflejos", "Marcha", "Equilibrio", "Coordinación"];
   const pielYFanerasLabels = ["Color", "Textura", "Lesiones", "Distribución del Pelo", "Uñas"];
   const mentalLabels = ["Estado de Conciencia", "Orientación", "Atención", "Memoria", "Lenguaje", "Pensamiento", "Afecto", "Juicio", "Introspección"];
+
+  const [isMinimized, setIsMinimized] = React.useState(false);
+  const [isMaximized, setIsMaximized] = React.useState(false);
+
+  const handleMinimize = () => {
+    setIsMinimized(!isMinimized);
+    setIsMaximized(false);
+  };
+
+  const handleMaximize = () => {
+    setIsMaximized(!isMaximized);
+    setIsMinimized(false);
+  };
+
+  const handleClose = () => {
+    setIsMinimized(false);
+    setIsMaximized(false);
+  };
 
   const chartData = {
     labels: ['Consulta 1', 'Consulta 2', 'Consulta 3', 'Consulta 4', 'Consulta 5'],
@@ -50,8 +78,39 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
       }
     }
   };
+  
+  // Ensure the formData has the necessary structure
+  React.useEffect(() => {
+    const defaultDataStructure = {
+      signosVitales: {},
+      examenGeneral: {},
+      cabezaYCuello: {},
+      toraxYPulmones: {},
+      cardiovascular: {},
+      abdomen: {},
+      genitourinario: {},
+      musculoesqueletico: {},
+      neurologico: {},
+      pielYFaneras: {},
+      mental: {},
+      exploracion: {}
+    };
+    
+    // Initialize any missing properties with empty objects
+    for (const [key, value] of Object.entries(defaultDataStructure)) {
+      if (!formData.exploracionFisica[key]) {
+        handleExploracionFisicaChange(key, {});
+      }
+    }
+  }, []);
 
-  const handleSignosVitalesChange = (label, value) => {
+  // Safely access nested properties
+  const getNestedValue = (sectionName: string, fieldName: string) => {
+    const section = formData.exploracionFisica?.[sectionName] || {};
+    return section[fieldName] || '';
+  };
+
+  const handleSignosVitalesChange = (label: string, value: string) => {
     const updatedSignosVitales = {
       ...formData.exploracionFisica.signosVitales,
       [label]: value
@@ -59,7 +118,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     handleExploracionFisicaChange('signosVitales', updatedSignosVitales);
   };
 
-  const handleExamenGeneralChange = (label, value) => {
+  const handleExamenGeneralChange = (label: string, value: string) => {
     const updatedExamenGeneral = {
       ...formData.exploracionFisica.examenGeneral,
       [label]: value
@@ -67,7 +126,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     handleExploracionFisicaChange('examenGeneral', updatedExamenGeneral);
   };
 
-  const handleCabezaYCuelloChange = (label, value) => {
+  const handleCabezaYCuelloChange = (label: string, value: string) => {
     const updatedCabezaYCuello = {
       ...formData.exploracionFisica.cabezaYCuello,
       [label]: value
@@ -75,7 +134,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     handleExploracionFisicaChange('cabezaYCuello', updatedCabezaYCuello);
   };
 
-  const handleToraxYPulmonesChange = (label, value) => {
+  const handleToraxYPulmonesChange = (label: string, value: string) => {
     const updatedToraxYPulmones = {
       ...formData.exploracionFisica.toraxYPulmones,
       [label]: value
@@ -83,7 +142,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     handleExploracionFisicaChange('toraxYPulmones', updatedToraxYPulmones);
   };
 
-  const handleCardiovascularChange = (label, value) => {
+  const handleCardiovascularChange = (label: string, value: string) => {
     const updatedCardiovascular = {
       ...formData.exploracionFisica.cardiovascular,
       [label]: value
@@ -91,7 +150,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     handleExploracionFisicaChange('cardiovascular', updatedCardiovascular);
   };
 
-  const handleAbdomenChange = (label, value) => {
+  const handleAbdomenChange = (label: string, value: string) => {
     const updatedAbdomen = {
       ...formData.exploracionFisica.abdomen,
       [label]: value
@@ -99,7 +158,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     handleExploracionFisicaChange('abdomen', updatedAbdomen);
   };
 
-  const handleGenitourinarioChange = (label, value) => {
+  const handleGenitourinarioChange = (label: string, value: string) => {
     const updatedGenitourinario = {
       ...formData.exploracionFisica.genitourinario,
       [label]: value
@@ -107,7 +166,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     handleExploracionFisicaChange('genitourinario', updatedGenitourinario);
   };
 
-  const handleMusculoesqueleticoChange = (label, value) => {
+  const handleMusculoesqueleticoChange = (label: string, value: string) => {
     const updatedMusculoesqueletico = {
       ...formData.exploracionFisica.musculoesqueletico,
       [label]: value
@@ -115,7 +174,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     handleExploracionFisicaChange('musculoesqueletico', updatedMusculoesqueletico);
   };
 
-  const handleNeurologicoChange = (label, value) => {
+  const handleNeurologicoChange = (label: string, value: string) => {
     const updatedNeurologico = {
       ...formData.exploracionFisica.neurologico,
       [label]: value
@@ -123,7 +182,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     handleExploracionFisicaChange('neurologico', updatedNeurologico);
   };
 
-  const handlePielYFanerasChange = (label, value) => {
+  const handlePielYFanerasChange = (label: string, value: string) => {
     const updatedPielYFaneras = {
       ...formData.exploracionFisica.pielYFaneras,
       [label]: value
@@ -131,7 +190,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     handleExploracionFisicaChange('pielYFaneras', updatedPielYFaneras);
   };
 
-  const handleMentalChange = (label, value) => {
+  const handleMentalChange = (label: string, value: string) => {
     const updatedMental = {
       ...formData.exploracionFisica.mental,
       [label]: value
@@ -139,7 +198,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     handleExploracionFisicaChange('mental', updatedMental);
   };
 
-  const updateVitalSigns = (vitalSign, value) => {
+  const updateVitalSigns = (vitalSign: string, value: string) => {
     const updatedSignosVitales = {
       ...formData.exploracionFisica.signosVitales,
       [vitalSign]: value
@@ -173,7 +232,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
                 <Input
                   type="text"
                   id={label}
-                  value={formData.exploracionFisica.signosVitales[label] || ''}
+                  value={getNestedValue('signosVitales', label)}
                   onChange={(e) => handleSignosVitalesChange(label, e.target.value)}
                   className="text-sm"
                 />
@@ -207,7 +266,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
                 <Input
                   type="text"
                   id={label}
-                  value={formData.exploracionFisica.examenGeneral[label] || ''}
+                  value={getNestedValue('examenGeneral', label)}
                   onChange={(e) => handleExamenGeneralChange(label, e.target.value)}
                   className="text-sm"
                 />
