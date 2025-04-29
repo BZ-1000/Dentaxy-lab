@@ -6,7 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Save, FileText, BookOpen, Trash, Pencil, Share2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
-import ModernSidebar from '@/components/ui/modern-sidebar';
+import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@/components/ui/modern-sidebar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
@@ -144,36 +144,6 @@ const FormulariosSidebar = ({
     });
   };
 
-  // Define custom components for sidebar that integrate with our existing ModernSidebar component
-  const Sidebar = ({ children, open, setOpen, animate }: { children: React.ReactNode, open: boolean, setOpen: (open: boolean) => void, animate: boolean }) => {
-    return (
-      <div className="sticky top-0 h-screen hidden md:block">
-        <ModernSidebar isOpen={open} onClose={() => setOpen(!open)} />
-        {children}
-      </div>
-    );
-  };
-
-  const SidebarBody = ({ children, className }: { children: React.ReactNode, className?: string }) => {
-    return <div className={`flex flex-col flex-1 overflow-y-auto overflow-x-hidden ${className || ''}`}>{children}</div>;
-  };
-
-  const Logo = ({ children }: { children: React.ReactNode }) => {
-    return <div className="p-4">{children}</div>;
-  };
-
-  const LogoIcon = ({ children }: { children: React.ReactNode }) => {
-    return <div className="p-2 flex justify-center">{children}</div>;
-  };
-
-  const SidebarLink = ({ link, className }: { link: { label: string, icon: React.ReactNode, onClick: () => void }, className?: string }) => {
-    return (
-      <div className={`flex items-center px-4 py-2 cursor-pointer ${className || ''}`} onClick={link.onClick}>
-        <span className="mr-2">{link.icon}</span>
-        <span>{link.label}</span>
-      </div>
-    );
-  };
   
   return <div className="">
       <div className="sticky top-0 h-screen hidden md:block">
@@ -278,3 +248,4 @@ const FormulariosSidebar = ({
 };
 
 export default FormulariosSidebar;
+

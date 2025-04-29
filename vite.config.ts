@@ -22,7 +22,6 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     minify: 'terser',
-    chunkSizeWarningLimit: 1000, // Increase chunk size warning limit to 1000 kB
     terserOptions: {
       compress: {
         drop_console: true,
@@ -38,20 +37,7 @@ export default defineConfig(({ mode }) => ({
     },
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Split large dependencies into separate chunks
-          if (id.includes('node_modules')) {
-            if (id.includes('react')) {
-              return 'vendor-react';
-            } else if (id.includes('@radix-ui')) {
-              return 'vendor-radix';
-            } else if (id.includes('lucide')) {
-              return 'vendor-icons';
-            } else {
-              return 'vendor-other';
-            }
-          }
-        }
+        manualChunks: undefined
       }
     }
   }

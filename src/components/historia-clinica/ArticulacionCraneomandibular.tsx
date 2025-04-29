@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
-import { FormDataState, ArticulacionCraneomandibular as ArticulacionCraneomandibularType } from '@/types/historiaClinica';
+import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 
 interface ArticulacionCraneomandibularProps {
@@ -20,23 +20,6 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
   const [redaccionContent, setRedaccionContent] = useState('');
   const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
 
-  // Utility function to safely get nested properties
-  const getNestedProperty = (obj: any, path: string, defaultValue: any = '') => {
-    if (!obj) return defaultValue;
-    
-    const parts = path.split('.');
-    let current = obj;
-    
-    for (const part of parts) {
-      if (!current[part] && current[part] !== false) {
-        return defaultValue;
-      }
-      current = current[part];
-    }
-    
-    return current;
-  };
-
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
@@ -52,13 +35,21 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
     setIsMaximized(false);
   };
 
+  // Asegurando que exista la estructura para labios
+  React.useEffect(() => {
+    // Inicializar labios si no existe
+    if (!formData.articulacionCraneomandibular.labios) {
+      handleArticulacionCraneomandibularChange('labios', {});
+    }
+  }, [formData.articulacionCraneomandibular]);
+
   const handleToggleButton = (field: string, section: 'articulacionCraneomandibular' | 'labios') => {
     if (section === 'articulacionCraneomandibular') {
-      const currentValue = getNestedProperty(formData.articulacionCraneomandibular, field, false);
-      handleArticulacionCraneomandibularChange(field, !currentValue);
+      handleArticulacionCraneomandibularChange(field, !formData.articulacionCraneomandibular[field]);
     } else {
-      const currentValue = getNestedProperty(formData.articulacionCraneomandibular.labios, field, false);
-      handleArticulacionCraneomandibularChange(`labios.${field}`, !currentValue);
+      // Aseguramos que labios existe
+      const labios = formData.articulacionCraneomandibular.labios || {};
+      handleArticulacionCraneomandibularChange(`labios.${field}`, !labios[field]);
     }
   };
 

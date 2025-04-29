@@ -13,28 +13,6 @@ interface ExamenCabezaProps {
   handleExamenCabezaChange: (part: string, value: string | boolean) => void;
 }
 
-// Define interfaces for nested structures to ensure type safety
-interface CaracteristicaFacial {
-  presente: boolean;
-  detalles: string;
-}
-
-// Extend ExamenCabeza type to account for complex nested properties
-interface ExamenCabezaExtended {
-  sinHallazgos?: boolean;
-  tipoCraneo?: string;
-  tipoPerfil?: string;
-  tez?: string;
-  estadoPiel?: string;
-  otrosHallazgos?: string;
-  // Add nested objects for facial features
-  lunares?: CaracteristicaFacial;
-  cicatrices?: CaracteristicaFacial;
-  asimetriasFaciales?: CaracteristicaFacial;
-  edema?: CaracteristicaFacial;
-  [key: string]: boolean | string | CaracteristicaFacial | undefined;
-}
-
 const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   formData,
   handleExamenCabezaChange
@@ -105,7 +83,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     }
   ];
 
-  // Helper function to safely handle the nested structure
+  // Initialize nested objects if they don't exist
   const getNestedValue = (path: string, defaultValue: any = '') => {
     if (!formData.examenCabeza) return defaultValue;
 
@@ -118,29 +96,6 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     }
 
     return current;
-  };
-
-  // Helper function to safely check if a property exists
-  const hasProperty = (obj: any, prop: string): boolean => {
-    return obj && typeof obj === 'object' && prop in obj;
-  };
-
-  // Safe helper for checking if a facial feature is present
-  const isFeaturePresent = (feature: string): boolean => {
-    const examenCabeza = formData.examenCabeza as any;
-    return hasProperty(examenCabeza, feature) && 
-           hasProperty(examenCabeza[feature], 'presente') && 
-           examenCabeza[feature].presente === true;
-  };
-
-  // Safe accessor for feature details
-  const getFeatureDetails = (feature: string): string => {
-    const examenCabeza = formData.examenCabeza as any;
-    if (hasProperty(examenCabeza, feature) && 
-        hasProperty(examenCabeza[feature], 'detalles')) {
-      return examenCabeza[feature].detalles || '';
-    }
-    return '';
   };
 
   const caracteristicasFaciales = [
@@ -248,7 +203,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
               </div>
             </div>
 
-            {/* Características Faciales - Updating to use safe accessors */}
+            {/* Características Faciales */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Cara</h3>
 
@@ -257,7 +212,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                 <div className="space-y-2">
                   <Label>Tez</Label>
                   <Select
-                    value={getNestedValue('tez', '')}
+                    value={formData.examenCabeza?.tez || ''}
                     onValueChange={(value) => handleExamenCabezaChange('tez', value)}
                   >
                     <SelectTrigger className="w-full">
@@ -275,7 +230,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                 <div className="space-y-2">
                   <Label>Estado de la piel</Label>
                   <Select
-                    value={getNestedValue('estadoPiel', '')}
+                    value={formData.examenCabeza?.estadoPiel || ''}
                     onValueChange={(value) => handleExamenCabezaChange('estadoPiel', value)}
                   >
                     <SelectTrigger className="w-full">
@@ -289,13 +244,13 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                 </div>
               </div>
 
-              {/* Características con detalles opcionales - Updated with safe accessors */}
+              {/* Características con detalles opcionales */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {caracteristicasFaciales.map((caracteristica) => (
                   <div key={caracteristica.id} className="space-y-2">
                     <Label>{caracteristica.label}</Label>
                     <Select
-                      value={isFeaturePresent(caracteristica.id) ? 'si' : 'no'}
+                      value={(formData.examenCabeza?.[caracteristica.id]?.presente ? 'si' : 'no') || 'no'}
                       onValueChange={(value) => {
                         handleExamenCabezaChange(`${caracteristica.id}.presente`, value === 'si');
                         if (value === 'no') {
@@ -305,17 +260,17 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Seleccione" />
-                    </SelectTrigger>
+                      </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="si">Sí</SelectItem>
                         <SelectItem value="no">No</SelectItem>
                       </SelectContent>
                     </Select>
 
-                    {isFeaturePresent(caracteristica.id) && (
+                    {formData.examenCabeza?.[caracteristica.id]?.presente && (
                       <Textarea
                         placeholder={`Describa los detalles de ${caracteristica.label.toLowerCase()}`}
-                        value={getFeatureDetails(caracteristica.id)}
+                        value={formData.examenCabeza?.[caracteristica.id]?.detalles || ''}
                         onChange={(e) => handleExamenCabezaChange(`${caracteristica.id}.detalles`, e.target.value)}
                         className="mt-2"
                       />
@@ -330,7 +285,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                 <div className="relative">
                   <Textarea
                     placeholder="Ingrese otros hallazgos relevantes"
-                    value={getNestedValue('otrosHallazgos', '')}
+                    value={formData.examenCabeza?.otrosHallazgos || ''}
                     onChange={(e) => handleExamenCabezaChange('otrosHallazgos', e.target.value)}
                     className="pr-10"
                   />
