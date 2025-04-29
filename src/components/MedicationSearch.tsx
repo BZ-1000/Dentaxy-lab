@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { X, Search, Star, StarOff, Filter, PillBottle, Stethoscope, Syringe, Bandage } from 'lucide-react';
 import {
@@ -210,10 +209,10 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
       <DialogContent className="max-w-4xl w-[95%] h-[85vh] p-0 overflow-hidden flex flex-col bg-white dark:bg-neutral-900 rounded-xl">
         <DialogHeader className="p-6 pb-2">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl flex items-center gap-2 relative" translate="yes">
+            <DialogTitle className="text-xl flex items-center gap-2 relative">
               <PillBottle className="h-6 w-6 text-emerald-500" />
               Búsqueda de Medicamentos
-              <span className="text-xs text-blue-500 absolute top-full left-0 mt-1 whitespace-nowrap opacity-75" translate="yes">
+              <span className="text-xs text-blue-500 absolute top-full left-0 mt-1 whitespace-nowrap opacity-75">
                 Recomendación: Utiliza Google Translate para traducciones
               </span>
             </DialogTitle>
@@ -225,10 +224,10 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
         <Tabs defaultValue="search" className="flex-1 overflow-hidden flex flex-col">
           <div className="px-6 pb-2">
             <TabsList className="w-full grid grid-cols-2">
-              <TabsTrigger value="search" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-900" translate="yes">
+              <TabsTrigger value="search" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-900">
                 Búsqueda
               </TabsTrigger>
-              <TabsTrigger value="favorites" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-900" translate="yes">
+              <TabsTrigger value="favorites" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-900">
                 Favoritos y Recientes
               </TabsTrigger>
             </TabsList>
@@ -256,7 +255,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   onClick={() => searchMedications(searchTerm)} 
                   disabled={searchTerm.length < 3 || isLoading}
                   className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                  translate="yes"
                 >
                   {isLoading ? "Buscando..." : "Buscar"}
                 </Button>
@@ -265,7 +263,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
               <div className="flex flex-wrap gap-2">
                 <div className="flex items-center gap-1 mr-2">
                   <Filter className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-500" translate="yes">Filtros:</span>
+                  <span className="text-sm text-gray-500">Filtros:</span>
                 </div>
                 
                 {/* Medication Type Filters */}
@@ -273,7 +271,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeFilter === 'all' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveFilter('all')}
-                  translate="yes"
                 >
                   Todos
                 </Badge>
@@ -281,7 +278,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeFilter === 'antibiotics' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveFilter('antibiotics')}
-                  translate="yes"
                 >
                   Antibióticos
                 </Badge>
@@ -289,7 +285,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeFilter === 'analgesics' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveFilter('analgesics')}
-                  translate="yes"
                 >
                   Analgésicos
                 </Badge>
@@ -297,7 +292,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeFilter === 'anesthetics' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveFilter('anesthetics')}
-                  translate="yes"
                 >
                   Anestésicos
                 </Badge>
@@ -305,7 +299,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeFilter === 'antiinflammatories' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveFilter('antiinflammatories')}
-                  translate="yes"
                 >
                   Antiinflamatorios
                 </Badge>
@@ -314,7 +307,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
               <div className="flex flex-wrap gap-2">
                 <div className="flex items-center gap-1 mr-2">
                   <Syringe className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-500" translate="yes">Administración:</span>
+                  <span className="text-sm text-gray-500">Administración:</span>
                 </div>
                 
                 {/* Route Filters */}
@@ -322,7 +315,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeRoute === 'all' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveRoute('all')}
-                  translate="yes"
                 >
                   Todas
                 </Badge>
@@ -330,7 +322,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeRoute === 'oral' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveRoute('oral')}
-                  translate="yes"
                 >
                   Oral
                 </Badge>
@@ -338,7 +329,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeRoute === 'topical' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveRoute('topical')}
-                  translate="yes"
                 >
                   Tópica
                 </Badge>
@@ -346,7 +336,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeRoute === 'injection' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveRoute('injection')}
-                  translate="yes"
                 >
                   Inyectable
                 </Badge>
@@ -355,7 +344,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
               <div className="flex flex-wrap gap-2">
                 <div className="flex items-center gap-1 mr-2">
                   <Stethoscope className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-500" translate="yes">Uso Dental:</span>
+                  <span className="text-sm text-gray-500">Uso Dental:</span>
                 </div>
                 
                 {/* Usage Filters */}
@@ -363,7 +352,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeUsage === 'all' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveUsage('all')}
-                  translate="yes"
                 >
                   Todos
                 </Badge>
@@ -371,7 +359,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeUsage === 'post-surgical' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveUsage('post-surgical')}
-                  translate="yes"
                 >
                   Post-quirúrgico
                 </Badge>
@@ -379,7 +366,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeUsage === 'infections' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveUsage('infections')}
-                  translate="yes"
                 >
                   Infecciones
                 </Badge>
@@ -387,7 +373,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   variant={activeUsage === 'acute-pain' ? "default" : "outline"} 
                   className="cursor-pointer"
                   onClick={() => setActiveUsage('acute-pain')}
-                  translate="yes"
                 >
                   Dolor Agudo
                 </Badge>
@@ -396,7 +381,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
             
             <div className="flex-1 overflow-y-auto mt-4 space-y-4 pr-2">
               {searchTerm.length < 3 ? (
-                <div className="text-center py-8 text-gray-500" translate="yes">
+                <div className="text-center py-8 text-gray-500">
                   <p>Escriba al menos 3 caracteres para buscar</p>
                   <div className="mt-4 space-y-2">
                     <p className="text-sm font-medium">Sugerencias:</p>
@@ -407,7 +392,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                         searchMedications('acetaminophen');
                       }}
                       className="mr-2"
-                      translate="yes"
                     >
                       Acetaminophen
                     </Button>
@@ -418,7 +402,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                         searchMedications('ibuprofen');
                       }}
                       className="mr-2"
-                      translate="yes"
                     >
                       Ibuprofen
                     </Button>
@@ -428,14 +411,13 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                         setSearchTerm('amoxicillin');
                         searchMedications('amoxicillin');
                       }}
-                      translate="yes"
                     >
                       Amoxicillin
                     </Button>
                   </div>
                 </div>
               ) : results.length > 0 ? (
-                <div translate="yes">
+                <div>
                   <Accordion 
                     type="single" 
                     collapsible 
@@ -525,7 +507,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                                     id={`weight-${med.id}`}
                                     min="1"
                                     max="150"
-                                    translate="yes"
                                   />
                                   <Button 
                                     size="sm" 
@@ -538,7 +519,6 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                                         document.getElementById(`dosage-${med.id}`)!.textContent = dosage;
                                       }
                                     }}
-                                    translate="yes"
                                   >
                                     Calcular
                                   </Button>
@@ -559,7 +539,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                   </Accordion>
                 </div>
               ) : (
-                <div className="text-center py-8 text-gray-500" translate="yes">
+                <div className="text-center py-8 text-gray-500">
                   {isLoading ? (
                     <div className="flex flex-col items-center gap-4">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
@@ -574,7 +554,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
           </TabsContent>
         
           <TabsContent value="favorites" className="flex-1 overflow-y-auto p-6 pt-0">
-            <div className="space-y-6" translate="yes">
+            <div className="space-y-6">
               {recentSearches.length > 0 && (
                 <div>
                   <h3 className="font-medium mb-2 text-gray-500 text-sm">Búsquedas recientes</h3>

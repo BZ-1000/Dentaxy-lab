@@ -244,4 +244,6 @@ function DockIcon({ children, className, width }: DockIconProps) {
   );
 }
 
-export { DockIcon };
+export {
+  DockIcon
+};

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Mic } from "lucide-react";
@@ -11,12 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface ExamenCabezaProps {
   formData: FormDataState;
-  handleExamenCabezaChange: (part: string, value: string | boolean | Record<string, any>) => void;
-}
-
-interface CaracteristicaFacial {
-  presente: boolean;
-  detalles: string;
+  handleExamenCabezaChange: (part: string, value: string | boolean) => void;
 }
 
 const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
@@ -110,15 +104,6 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     { id: 'asimetriasFaciales', label: 'Asimetrías Faciales' },
     { id: 'edema', label: 'Edema' }
   ];
-  
-  // Helper function to safely access nested properties
-  const getCaracteristicaValue = (id: string, property: 'presente' | 'detalles'): boolean | string => {
-    const caracteristica = formData.examenCabeza?.[id] as CaracteristicaFacial | undefined;
-    if (caracteristica && typeof caracteristica === 'object') {
-      return caracteristica[property] || (property === 'presente' ? false : '');
-    }
-    return property === 'presente' ? false : '';
-  };
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
@@ -265,13 +250,12 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                   <div key={caracteristica.id} className="space-y-2">
                     <Label>{caracteristica.label}</Label>
                     <Select
-                      value={getCaracteristicaValue(caracteristica.id, 'presente') ? 'si' : 'no'}
+                      value={(formData.examenCabeza?.[caracteristica.id]?.presente ? 'si' : 'no') || 'no'}
                       onValueChange={(value) => {
-                        const isPresente = value === 'si';
-                        handleExamenCabezaChange(caracteristica.id, { 
-                          presente: isPresente, 
-                          detalles: isPresente ? getCaracteristicaValue(caracteristica.id, 'detalles') : '' 
-                        });
+                        handleExamenCabezaChange(`${caracteristica.id}.presente`, value === 'si');
+                        if (value === 'no') {
+                          handleExamenCabezaChange(`${caracteristica.id}.detalles`, '');
+                        }
                       }}
                     >
                       <SelectTrigger className="w-full">
@@ -283,14 +267,11 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                       </SelectContent>
                     </Select>
 
-                    {getCaracteristicaValue(caracteristica.id, 'presente') && (
+                    {formData.examenCabeza?.[caracteristica.id]?.presente && (
                       <Textarea
                         placeholder={`Describa los detalles de ${caracteristica.label.toLowerCase()}`}
-                        value={getCaracteristicaValue(caracteristica.id, 'detalles') as string}
-                        onChange={(e) => handleExamenCabezaChange(caracteristica.id, { 
-                          presente: true, 
-                          detalles: e.target.value 
-                        })}
+                        value={formData.examenCabeza?.[caracteristica.id]?.detalles || ''}
+                        onChange={(e) => handleExamenCabezaChange(`${caracteristica.id}.detalles`, e.target.value)}
                         className="mt-2"
                       />
                     )}
