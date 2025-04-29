@@ -248,6 +248,7 @@ export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpen
                     }}
                     placeholder="Buscar medicamentos..." 
                     className="pl-10"
+                    translate="yes"
                   />
                 </div>
                 <Button 
