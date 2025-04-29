@@ -1,33 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Minus, Maximize2, X, ThermometerSun, HeartPulse } from "lucide-react";
+import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
-import { calculateIMC, getIMCCategory, getBPCategory, vitalSignRanges } from '@/utils/medicalRanges';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface ExploracionFisicaProps {
   formData: FormDataState;
-  handleExploracionFisicaChange: (field: string, value: any) => void;
+  handleExploracionFisicaChange: (part: string, value: string) => void;
 }
 
 const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
   formData,
   handleExploracionFisicaChange
 }) => {
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [ageRange, setAgeRange] = useState<keyof typeof vitalSignRanges>('adult');
-  const [imc, setIMC] = useState(0);
-
-  useEffect(() => {
-    const weight = parseFloat(formData.exploracionFisica?.signosVitales?.peso || '0');
-    const height = parseFloat(formData.exploracionFisica?.signosVitales?.talla || '0');
-    const calculatedIMC = calculateIMC(weight, height);
-    setIMC(calculatedIMC);
-    handleExploracionFisicaChange('signosVitales.imc', calculatedIMC.toString());
-  }, [formData.exploracionFisica?.signosVitales?.peso, formData.exploracionFisica?.signosVitales?.talla]);
+  const [isMinimized, setIsMinimized] = React.useState(false);
+  const [isMaximized, setIsMaximized] = React.useState(false);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -44,19 +56,68 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
     setIsMaximized(false);
   };
 
-  const handleHeightInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '');
-    if (value.length <= 3) {
-      const formattedValue = value.length === 3
-        ? (parseInt(value) / 100).toFixed(2)
-        : value;
-      handleExploracionFisicaChange('signosVitales.talla', formattedValue);
+  const calculateBMI = () => {
+    const weight = parseFloat(formData.exploracionFisica.signosVitales.peso);
+    const height = parseFloat(formData.exploracionFisica.signosVitales.talla) / 100; // Convert cm to meters
+
+    if (!isNaN(weight) && !isNaN(height) && height > 0) {
+      const bmi = weight / (height * height);
+      handleExploracionFisicaChange('signosVitales.imc', bmi.toFixed(2));
+      return {
+        labels: ['IMC'],
+        datasets: [
+          {
+            label: 'Índice de Masa Corporal',
+            data: [bmi.toFixed(2)],
+            fill: false,
+            backgroundColor: 'rgb(75, 192, 192)',
+            borderColor: 'rgba(75, 192, 192, 0.2)',
+          },
+        ],
+      };
+    } else {
+      handleExploracionFisicaChange('signosVitales.imc', 'N/A');
+      return {
+        labels: ['IMC'],
+        datasets: [
+          {
+            label: 'Índice de Masa Corporal',
+            data: [],
+            fill: false,
+            backgroundColor: 'rgb(75, 192, 192)',
+            borderColor: 'rgba(75, 192, 192, 0.2)',
+          },
+        ],
+      };
     }
   };
 
-  const getBloodPressureValues = (bpString: string) => {
-    const [systolic, diastolic] = bpString.split('/').map(Number);
-    return { systolic, diastolic };
+  const bmiData = calculateBMI();
+
+  const chart = {
+    type: 'line',
+    data: bmiData,
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    },
+    update: (labels: string[], datasets: any[], options: any) => {
+      chart.data.labels = labels;
+      chart.data.datasets = datasets;
+      chart.options = options;
+    }
+  };
+
+  const updateVitalSigns = (vitalSign: string, value: string) => {
+    const updatedSignosVitales = {
+      ...formData.exploracionFisica.signosVitales,
+      pulso: formData.exploracionFisica.signosVitales.pulso || "", // Add the missing property
+      [vitalSign]: value
+    };
+    handleExploracionFisicaChange('signosVitales', JSON.stringify(updatedSignosVitales));
   };
 
   return (
@@ -94,144 +155,176 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
         </div>
 
         {!isMinimized && (
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* IMC Section */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="peso">Peso</Label>
-                    <div className="relative">
-                      <Input
-                        id="peso"
-                        type="number"
-                        step="0.1"
-                        value={formData.exploracionFisica?.signosVitales?.peso || ''}
-                        onChange={(e) => handleExploracionFisicaChange('signosVitales.peso', e.target.value)}
-                        className="pr-12"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">kg</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="talla">Talla</Label>
-                    <div className="relative">
-                      <Input
-                        id="talla"
-                        type="text"
-                        value={formData.exploracionFisica?.signosVitales?.talla || ''}
-                        onChange={handleHeightInput}
-                        className="pr-8"
-                        placeholder="Ej: 170"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">m</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg w-full px-4 py-3">
-                  <div className="text-sm">IMC: <span className="font-semibold">{imc}</span></div>
-                  <div className={`text-sm ${getIMCCategory(imc).color}`}>
-                    Categoría: {getIMCCategory(imc).label}
-                  </div>
-                </div>
-              </div>
-
-              {/* Vital Signs Section */}
-              <div className="space-y-4">
-                <Label>Rango de edad</Label>
-                <Select value={ageRange} onValueChange={(value: keyof typeof vitalSignRanges) => setAgeRange(value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar rango de edad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(vitalSignRanges).map(([key, value]) => (
-                      <SelectItem key={key} value={key}>{value.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Blood Pressure */}
-              <div className="space-y-2">
-                <Label htmlFor="ta">Presión arterial</Label>
-                <div className="relative">
+          <div className="p-6 space-y-8">
+            {/* Signos Vitales */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Signos Vitales</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="ta">Tensión Arterial</Label>
                   <Input
-                    id="ta"
                     type="text"
-                    value={formData.exploracionFisica?.signosVitales?.ta || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.ta', e.target.value)}
-                    placeholder="120/80"
-                    className="pr-16"
+                    id="ta"
+                    value={formData.exploracionFisica.signosVitales.ta || ''}
+                    onChange={(e) => updateVitalSigns('ta', e.target.value)}
+                    placeholder="Ej: 120/80"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">mmHg</span>
                 </div>
-                {formData.exploracionFisica?.signosVitales?.ta && (
-                  <div className={`text-sm ${getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).color}`}>
-                    {getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).label}
-                  </div>
-                )}
-              </div>
-
-              {/* Pulse */}
-              <div className="space-y-2">
-                <Label htmlFor="pulso">Pulso</Label>
-                <div className="relative">
+                <div>
+                  <Label htmlFor="fc">Frecuencia Cardíaca</Label>
                   <Input
-                    id="pulso"
-                    type="number"
-                    value={formData.exploracionFisica?.signosVitales?.pulso || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.pulso', e.target.value)}
-                    className="pr-16"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">ppm</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].pulse.min}-{vitalSignRanges[ageRange].pulse.max} ppm
-                </div>
-              </div>
-
-              {/* Heart Rate */}
-              <div className="space-y-2">
-                <Label htmlFor="fc" className="flex items-center gap-2">
-                  <HeartPulse className="w-4 h-4" />
-                  Frecuencia cardíaca
-                </Label>
-                <div className="relative">
-                  <Input
+                    type="text"
                     id="fc"
-                    type="number"
-                    value={formData.exploracionFisica?.signosVitales?.fc || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.fc', e.target.value)}
-                    className="pr-16"
+                    value={formData.exploracionFisica.signosVitales.fc || ''}
+                    onChange={(e) => updateVitalSigns('fc', e.target.value)}
+                    placeholder="Ej: 72 lpm"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">lpm</span>
                 </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].heartRate.min}-{vitalSignRanges[ageRange].heartRate.max} lpm
+                <div>
+                  <Label htmlFor="fr">Frecuencia Respiratoria</Label>
+                  <Input
+                    type="text"
+                    id="fr"
+                    value={formData.exploracionFisica.signosVitales.fr || ''}
+                    onChange={(e) => updateVitalSigns('fr', e.target.value)}
+                    placeholder="Ej: 16 rpm"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="temperatura">Temperatura</Label>
+                  <Input
+                    type="text"
+                    id="temperatura"
+                    value={formData.exploracionFisica.signosVitales.temperatura || ''}
+                    onChange={(e) => updateVitalSigns('temperatura', e.target.value)}
+                    placeholder="Ej: 36.5 °C"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="peso">Peso</Label>
+                  <Input
+                    type="text"
+                    id="peso"
+                    value={formData.exploracionFisica.signosVitales.peso || ''}
+                    onChange={(e) => {
+                      updateVitalSigns('peso', e.target.value);
+                      const weight = parseFloat(e.target.value);
+                      const height = parseFloat(formData.exploracionFisica.signosVitales.talla) / 100;
+                      if (!isNaN(weight) && !isNaN(height) && height > 0) {
+                        const bmi = weight / (height * height);
+                        handleExploracionFisicaChange('signosVitales.imc', bmi.toFixed(2));
+                      } else {
+                        handleExploracionFisicaChange('signosVitales.imc', 'N/A');
+                      }
+                    }}
+                    placeholder="Ej: 70 kg"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="talla">Talla</Label>
+                  <Input
+                    type="text"
+                    id="talla"
+                    value={formData.exploracionFisica.signosVitales.talla || ''}
+                    onChange={(e) => {
+                      updateVitalSigns('talla', e.target.value);
+                      const height = parseFloat(e.target.value) / 100;
+                      const weight = parseFloat(formData.exploracionFisica.signosVitales.peso);
+                      if (!isNaN(weight) && !isNaN(height) && height > 0) {
+                        const bmi = weight / (height * height);
+                        handleExploracionFisicaChange('signosVitales.imc', bmi.toFixed(2));
+                      } else {
+                        handleExploracionFisicaChange('signosVitales.imc', 'N/A');
+                      }
+                    }}
+                    placeholder="Ej: 175 cm"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="pulso">Pulso</Label>
+                  <Input
+                    type="text"
+                    id="pulso"
+                    value={formData.exploracionFisica.signosVitales.pulso || ''}
+                    onChange={(e) => updateVitalSigns('pulso', e.target.value)}
+                    placeholder="Ej: 70 bpm"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="imc">IMC</Label>
+                  <Input
+                    type="text"
+                    id="imc"
+                    value={formData.exploracionFisica.signosVitales.imc || 'N/A'}
+                    placeholder="Índice de Masa Corporal"
+                    readOnly
+                  />
                 </div>
               </div>
+            </div>
 
-              {/* Temperature */}
-              <div className="space-y-2">
-                <Label htmlFor="temperatura" className="flex items-center gap-2">
-                  <ThermometerSun className="w-4 h-4" />
-                  Temperatura
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="temperatura"
-                    type="number"
-                    step="0.1"
-                    value={formData.exploracionFisica?.signosVitales?.temperatura || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.temperatura', e.target.value)}
-                    className="pr-12"
+            {/* Gráfico de IMC */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Gráfico de IMC</h3>
+              <ScrollArea className="rounded-md border p-4">
+                {bmiData.datasets[0].data.length > 0 ? (
+                  <Line data={chart.data} options={chart.options} />
+                ) : (
+                  <p className="text-center text-gray-500">
+                    Ingrese peso y talla para calcular el IMC y mostrar el gráfico.
+                  </p>
+                )}
+              </ScrollArea>
+            </div>
+
+            {/* Exploración General */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Exploración General</h3>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <Label htmlFor="cabeza">Cabeza</Label>
+                  <Textarea
+                    id="cabeza"
+                    value={formData.exploracionFisica.exploracion?.cabeza || ''}
+                    onChange={(e) => handleExploracionFisicaChange('exploracion.cabeza', e.target.value)}
+                    placeholder="Descripción de la exploración de la cabeza"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">°C</span>
                 </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].temperature.min}-{vitalSignRanges[ageRange].temperature.max}°C
+                <div>
+                  <Label htmlFor="cuello">Cuello</Label>
+                  <Textarea
+                    id="cuello"
+                    value={formData.exploracionFisica.exploracion?.cuello || ''}
+                    onChange={(e) => handleExploracionFisicaChange('exploracion.cuello', e.target.value)}
+                    placeholder="Descripción de la exploración del cuello"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="torax">Tórax</Label>
+                  <Textarea
+                    id="torax"
+                    value={formData.exploracionFisica.exploracion?.torax || ''}
+                    onChange={(e) => handleExploracionFisicaChange('exploracion.torax', e.target.value)}
+                    placeholder="Descripción de la exploración del tórax"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="abdomen">Abdomen</Label>
+                  <Textarea
+                    id="abdomen"
+                    value={formData.exploracionFisica.exploracion?.abdomen || ''}
+                    onChange={(e) => handleExploracionFisicaChange('exploracion.abdomen', e.target.value)}
+                    placeholder="Descripción de la exploración del abdomen"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="extremidades">Extremidades</Label>
+                  <Textarea
+                    id="extremidades"
+                    value={formData.exploracionFisica.exploracion?.extremidades || ''}
+                    onChange={(e) => handleExploracionFisicaChange('exploracion.extremidades', e.target.value)}
+                    placeholder="Descripción de la exploración de las extremidades"
+                  />
                 </div>
               </div>
             </div>

@@ -220,6 +220,7 @@ export interface ExploracionFisica {
     peso: string;
     talla: string;
     imc: string;
+    pulso?: string; // Add optional pulso field
   };
   exploracion: {
     cabeza: string;
@@ -243,6 +244,7 @@ export interface ExamenCabeza {
   [key: string]: boolean | string;
 }
 
+// Fix the ArticulacionCraneomandibular interface to include proper typing for labios
 export interface ArticulacionCraneomandibular {
   sinHallazgos?: boolean;
   aperturaBucal?: string;
@@ -251,7 +253,6 @@ export interface ArticulacionCraneomandibular {
   crepitacion?: boolean;
   dolor?: boolean;
   observaciones?: string;
-  [key: string]: boolean | string | undefined | {[key: string]: string | boolean | undefined};
   dolorMasticarHablar?: boolean;
   tipoDolor?: string;
   duracionDolor?: string;
@@ -272,6 +273,7 @@ export interface ArticulacionCraneomandibular {
     otrasObservaciones?: string;
     [key: string]: string | boolean | undefined;
   };
+  [key: string]: string | boolean | undefined | {[key: string]: string | boolean | undefined};
 }
 
 export interface ExamenCuello {
