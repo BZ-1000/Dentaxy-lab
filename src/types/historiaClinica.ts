@@ -1,4 +1,3 @@
-
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -252,7 +251,27 @@ export interface ArticulacionCraneomandibular {
   crepitacion?: boolean;
   dolor?: boolean;
   observaciones?: string;
-  [key: string]: boolean | string | undefined;
+  [key: string]: boolean | string | undefined | {[key: string]: string | boolean | undefined};
+  dolorMasticarHablar?: boolean;
+  tipoDolor?: string;
+  duracionDolor?: string;
+  dolorEspecifico?: boolean;
+  motivoDolor?: string;
+  ruidoArticular?: string;
+  patronAbertura?: string;
+  otroPatronAbertura?: string;
+  otrasObservaciones?: string;
+  labios?: {
+    simetria?: string;
+    volumen?: string;
+    coloracion?: string;
+    hidratacion?: string;
+    integridad?: string;
+    comisuras?: string;
+    movimiento?: string;
+    otrasObservaciones?: string;
+    [key: string]: string | boolean | undefined;
+  };
 }
 
 export interface ExamenCuello {
