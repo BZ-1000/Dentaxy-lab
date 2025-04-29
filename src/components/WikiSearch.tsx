@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
@@ -65,6 +66,12 @@ const categoryOptions = {
   ]
 };
 
+// Función para hacer la URL compatible con CORS usando un proxy
+const createCorsUrl = (url: string) => {
+  // Utilizamos un proxy CORS gratuito
+  return `https://corsproxy.io/?${encodeURIComponent(url)}`;
+};
+
 export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<string>("");
@@ -106,17 +113,10 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
 
     try {
-      const response = await fetch(
-        `https://es.wikipedia.org/w/api.php?` +
-        new URLSearchParams({
-          action: "opensearch",
-          format: "json",
-          search: term,
-          limit: "5",
-          namespace: "0",
-          origin: "*"
-        })
-      );
+      const apiUrl = `https://es.wikipedia.org/w/api.php?action=opensearch&format=json&search=${term}&limit=5&namespace=0&origin=*`;
+      const corsUrl = createCorsUrl(apiUrl);
+      
+      const response = await fetch(corsUrl);
 
       const data = await response.json();
       if (data && data[1]) {
@@ -152,21 +152,10 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
         gsrsearch = `${term} ${selectedCategory}`;
       }
       
-      const response = await fetch(
-        `https://es.wikipedia.org/w/api.php?` +
-        new URLSearchParams({
-          action: "query",
-          format: "json",
-          prop: "extracts",
-          exintro: "true",
-          explaintext: "false",
-          generator: "search",
-          gsrlimit: "1",
-          gsrsearch: gsrsearch,
-          gsrnamespace: "0",
-          origin: "*"
-        })
-      );
+      const apiUrl = `https://es.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=true&explaintext=false&generator=search&gsrlimit=1&gsrsearch=${encodeURIComponent(gsrsearch)}&gsrnamespace=0&origin=*`;
+      const corsUrl = createCorsUrl(apiUrl);
+      
+      const response = await fetch(corsUrl);
 
       const data = await response.json();
       
@@ -209,6 +198,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
         setSearchResults("No se encontraron resultados.");
       }
     } catch (error) {
+      console.error("Error al buscar en Wikipedia:", error);
       setSearchResults("Error al buscar. Por favor, intente nuevamente.");
     } finally {
       setIsLoading(false);
@@ -275,6 +265,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className="pr-10"
+                translate="yes"
               />
               {searchTerm && (
                 <button
@@ -304,6 +295,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                     key={index}
                     className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer flex items-center"
                     onClick={() => handleSelectSuggestion(suggestion)}
+                    translate="yes"
                   >
                     <Search className="h-3 w-3 mr-2 text-gray-400" />
                     {suggestion}
@@ -325,6 +317,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                   variant={selectedCategory === category ? "default" : "outline"}
                   onClick={() => handleSelectCategory(category)}
                   className="text-xs"
+                  translate="yes"
                 >
                   {category === "all" ? "Todos" : 
                    category === "diseases" ? "Enfermedades" : 
@@ -349,6 +342,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                       variant="outline"
                       onClick={() => handleSelectPresetTerm(term)}
                       className="text-xs bg-white dark:bg-neutral-800 hover:bg-blue-50 dark:hover:bg-neutral-700"
+                      translate="yes"
                     >
                       {term}
                     </Button>
@@ -373,6 +367,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                 <div 
                   className="text-sm leading-relaxed space-y-4"
                   dangerouslySetInnerHTML={{ __html: searchResults }}
+                  translate="yes"
                 />
               ) : (
                 <p className="text-center text-neutral-500">
@@ -385,4 +380,11 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
       </DialogContent>
     </Dialog>
   );
+}
+
+// Agregamos esta definición para TypeScript
+declare global {
+  interface Window {
+    expandText: () => void;
+  }
 }
