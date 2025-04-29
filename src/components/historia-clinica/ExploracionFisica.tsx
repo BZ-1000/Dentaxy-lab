@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
@@ -5,17 +6,16 @@ import { FormDataState } from '@/types/historiaClinica';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
+import { 
+  Chart as ChartJS, 
+  CategoryScale, 
+  LinearScale, 
+  PointElement, 
+  LineElement, 
+  Title as ChartTitle,  
+  Tooltip as ChartTooltip, 
+  Legend as ChartLegend
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
@@ -24,9 +24,9 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
-  Title,
-  Tooltip,
-  Legend
+  ChartTitle,
+  ChartTooltip,
+  ChartLegend
 );
 
 interface ExploracionFisicaProps {
@@ -160,6 +160,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Signos Vitales</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* TA */}
                 <div>
                   <Label htmlFor="ta">Tensión Arterial</Label>
                   <Input
@@ -170,6 +171,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     placeholder="Ej: 120/80"
                   />
                 </div>
+                {/* FC */}
                 <div>
                   <Label htmlFor="fc">Frecuencia Cardíaca</Label>
                   <Input
@@ -180,6 +182,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     placeholder="Ej: 72 lpm"
                   />
                 </div>
+                {/* FR */}
                 <div>
                   <Label htmlFor="fr">Frecuencia Respiratoria</Label>
                   <Input
@@ -190,6 +193,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     placeholder="Ej: 16 rpm"
                   />
                 </div>
+                {/* Temperatura */}
                 <div>
                   <Label htmlFor="temperatura">Temperatura</Label>
                   <Input
@@ -200,6 +204,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     placeholder="Ej: 36.5 °C"
                   />
                 </div>
+                {/* Peso */}
                 <div>
                   <Label htmlFor="peso">Peso</Label>
                   <Input
@@ -220,6 +225,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     placeholder="Ej: 70 kg"
                   />
                 </div>
+                {/* Talla */}
                 <div>
                   <Label htmlFor="talla">Talla</Label>
                   <Input
@@ -240,6 +246,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     placeholder="Ej: 175 cm"
                   />
                 </div>
+                {/* Pulso */}
                 <div>
                   <Label htmlFor="pulso">Pulso</Label>
                   <Input
@@ -250,6 +257,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     placeholder="Ej: 70 bpm"
                   />
                 </div>
+                {/* IMC */}
                 <div>
                   <Label htmlFor="imc">IMC</Label>
                   <Input
