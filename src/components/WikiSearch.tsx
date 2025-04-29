@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
@@ -65,6 +66,13 @@ const categoryOptions = {
   ]
 };
 
+// Define la función expandText para resolver el error TS2339
+declare global {
+  interface Window {
+    expandText: () => void;
+  }
+}
+
 export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState<string>("");
@@ -98,6 +106,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   }, [searchTerm, debouncedSearch]);
 
+  // Añadimos un proxy CORS-anywhere para que funcione en producción
   const fetchSuggestions = async (term: string) => {
     if (term.length < 2) {
       setSuggestions([]);
@@ -106,16 +115,12 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
 
     try {
+      // Usar un proxy para evitar problemas CORS con Wikipedia
+      const proxyUrl = 'https://corsproxy.io/?';
+      const wikipediaUrl = `https://es.wikipedia.org/w/api.php?action=opensearch&format=json&search=${term}&limit=5&namespace=0`;
+      
       const response = await fetch(
-        `https://es.wikipedia.org/w/api.php?` +
-        new URLSearchParams({
-          action: "opensearch",
-          format: "json",
-          search: term,
-          limit: "5",
-          namespace: "0",
-          origin: "*"
-        })
+        `${proxyUrl}${encodeURIComponent(wikipediaUrl)}`
       );
 
       const data = await response.json();
@@ -152,20 +157,12 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
         gsrsearch = `${term} ${selectedCategory}`;
       }
       
+      // Usar un proxy para evitar problemas CORS con Wikipedia
+      const proxyUrl = 'https://corsproxy.io/?';
+      const wikipediaUrl = `https://es.wikipedia.org/w/api.php?action=query&format=json&prop=extracts&exintro=true&explaintext=false&generator=search&gsrlimit=1&gsrsearch=${gsrsearch}&gsrnamespace=0`;
+      
       const response = await fetch(
-        `https://es.wikipedia.org/w/api.php?` +
-        new URLSearchParams({
-          action: "query",
-          format: "json",
-          prop: "extracts",
-          exintro: "true",
-          explaintext: "false",
-          generator: "search",
-          gsrlimit: "1",
-          gsrsearch: gsrsearch,
-          gsrnamespace: "0",
-          origin: "*"
-        })
+        `${proxyUrl}${encodeURIComponent(wikipediaUrl)}`
       );
 
       const data = await response.json();
@@ -209,6 +206,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
         setSearchResults("No se encontraron resultados.");
       }
     } catch (error) {
+      console.error("Error al buscar en Wikipedia:", error);
       setSearchResults("Error al buscar. Por favor, intente nuevamente.");
     } finally {
       setIsLoading(false);
@@ -221,7 +219,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
       setExpandedText(true);
     };
     return () => {
-      delete window.expandText;
+      window.expandText = () => {}; // Función vacía en lugar de undefined
     };
   }, []);
 

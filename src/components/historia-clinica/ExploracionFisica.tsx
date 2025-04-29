@@ -1,242 +1,573 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Minus, Maximize2, X, ThermometerSun, HeartPulse } from "lucide-react";
-import { FormDataState } from '@/types/historiaClinica';
-import { calculateIMC, getIMCCategory, getBPCategory, vitalSignRanges } from '@/utils/medicalRanges';
+import { Minus, Maximize2, X } from "lucide-react";
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js';
+import { Line } from 'react-chartjs-2';
 
-interface ExploracionFisicaProps {
-  formData: FormDataState;
-  handleExploracionFisicaChange: (field: string, value: any) => void;
-}
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, ChartTooltip, Legend);
 
-const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
-  formData,
-  handleExploracionFisicaChange
-}) => {
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [ageRange, setAgeRange] = useState<keyof typeof vitalSignRanges>('adult');
-  const [imc, setIMC] = useState(0);
+const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
+  const signosVitalesLabels = ["Presión Arterial", "Frecuencia Cardíaca", "Frecuencia Respiratoria", "Temperatura", "Peso", "Talla", "IMC"];
+  const examenGeneralLabels = ["Estado General", "Estado de Conciencia", "Orientación", "Cooperación", "Actitud", "Decúbito", "Fascies", "Piel y Mucosas", "Tejido Celular Subcutáneo", "Sistema Linfático", "Faneras"];
+  const cabezaYCuelloLabels = ["Cráneo", "Cara", "Cuero Cabelludo", "Ojos", "Oídos", "Nariz", "Boca", "Faringe", "Cuello", "Tiroides", "Tráquea"];
+  const toraxYPulmonesLabels = ["Inspección", "Palpación", "Percusión", "Auscultación", "Ruidos Agregados"];
+  const cardiovascularLabels = ["Inspección", "Palpación", "Auscultación", "Ruidos Cardiacos", "Soplos", "Pulsos Periféricos"];
+  const abdomenLabels = ["Inspección", "Auscultación", "Percusión", "Palpación", "Visceromegalias", "Masas", "Dolor", "Hernias", "Ruidos Hidroaéreos"];
+  const genitourinarioLabels = ["Inspección", "Palpación", "Percusión", "Auscultación", "Dolor", "Masas"];
+  const musculoesqueleticoLabels = ["Inspección", "Palpación", "Movilidad", "Fuerza", "Dolor", "Deformidades"];
+  const neurologicoLabels = ["Estado Mental", "Pares Craneales", "Fuerza Motora", "Sensibilidad", "Reflejos", "Marcha", "Equilibrio", "Coordinación"];
+  const pielYFanerasLabels = ["Color", "Textura", "Lesiones", "Distribución del Pelo", "Uñas"];
+  const mentalLabels = ["Estado de Conciencia", "Orientación", "Atención", "Memoria", "Lenguaje", "Pensamiento", "Afecto", "Juicio", "Introspección"];
 
-  useEffect(() => {
-    const weight = parseFloat(formData.exploracionFisica?.signosVitales?.peso || '0');
-    const height = parseFloat(formData.exploracionFisica?.signosVitales?.talla || '0');
-    const calculatedIMC = calculateIMC(weight, height);
-    setIMC(calculatedIMC);
-    handleExploracionFisicaChange('signosVitales.imc', calculatedIMC.toString());
-  }, [formData.exploracionFisica?.signosVitales?.peso, formData.exploracionFisica?.signosVitales?.talla]);
-
-  const handleMinimize = () => {
-    setIsMinimized(!isMinimized);
-    setIsMaximized(false);
+  const chartData = {
+    labels: ['Consulta 1', 'Consulta 2', 'Consulta 3', 'Consulta 4', 'Consulta 5'],
+    datasets: [
+      {
+        label: 'Peso (kg)',
+        data: [70, 72, 71, 73, 74],
+        fill: false,
+        backgroundColor: 'rgb(255, 99, 132)',
+        borderColor: 'rgba(255, 99, 132, 0.2)',
+      },
+      {
+        label: 'Talla (cm)',
+        data: [175, 175, 176, 176, 177],
+        fill: false,
+        backgroundColor: 'rgb(54, 162, 235)',
+        borderColor: 'rgba(54, 162, 235, 0.2)',
+      },
+    ],
   };
 
-  const handleMaximize = () => {
-    setIsMaximized(!isMaximized);
-    setIsMinimized(false);
-  };
-
-  const handleClose = () => {
-    setIsMinimized(false);
-    setIsMaximized(false);
-  };
-
-  const handleHeightInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '');
-    if (value.length <= 3) {
-      const formattedValue = value.length === 3
-        ? (parseInt(value) / 100).toFixed(2)
-        : value;
-      handleExploracionFisicaChange('signosVitales.talla', formattedValue);
+  const chartOptions = {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
     }
   };
 
-  const getBloodPressureValues = (bpString: string) => {
-    const [systolic, diastolic] = bpString.split('/').map(Number);
-    return { systolic, diastolic };
+  const handleSignosVitalesChange = (label, value) => {
+    const updatedSignosVitales = {
+      ...formData.exploracionFisica.signosVitales,
+      [label]: value
+    };
+    handleExploracionFisicaChange('signosVitales', updatedSignosVitales);
+  };
+
+  const handleExamenGeneralChange = (label, value) => {
+    const updatedExamenGeneral = {
+      ...formData.exploracionFisica.examenGeneral,
+      [label]: value
+    };
+    handleExploracionFisicaChange('examenGeneral', updatedExamenGeneral);
+  };
+
+  const handleCabezaYCuelloChange = (label, value) => {
+    const updatedCabezaYCuello = {
+      ...formData.exploracionFisica.cabezaYCuello,
+      [label]: value
+    };
+    handleExploracionFisicaChange('cabezaYCuello', updatedCabezaYCuello);
+  };
+
+  const handleToraxYPulmonesChange = (label, value) => {
+    const updatedToraxYPulmones = {
+      ...formData.exploracionFisica.toraxYPulmones,
+      [label]: value
+    };
+    handleExploracionFisicaChange('toraxYPulmones', updatedToraxYPulmones);
+  };
+
+  const handleCardiovascularChange = (label, value) => {
+    const updatedCardiovascular = {
+      ...formData.exploracionFisica.cardiovascular,
+      [label]: value
+    };
+    handleExploracionFisicaChange('cardiovascular', updatedCardiovascular);
+  };
+
+  const handleAbdomenChange = (label, value) => {
+    const updatedAbdomen = {
+      ...formData.exploracionFisica.abdomen,
+      [label]: value
+    };
+    handleExploracionFisicaChange('abdomen', updatedAbdomen);
+  };
+
+  const handleGenitourinarioChange = (label, value) => {
+    const updatedGenitourinario = {
+      ...formData.exploracionFisica.genitourinario,
+      [label]: value
+    };
+    handleExploracionFisicaChange('genitourinario', updatedGenitourinario);
+  };
+
+  const handleMusculoesqueleticoChange = (label, value) => {
+    const updatedMusculoesqueletico = {
+      ...formData.exploracionFisica.musculoesqueletico,
+      [label]: value
+    };
+    handleExploracionFisicaChange('musculoesqueletico', updatedMusculoesqueletico);
+  };
+
+  const handleNeurologicoChange = (label, value) => {
+    const updatedNeurologico = {
+      ...formData.exploracionFisica.neurologico,
+      [label]: value
+    };
+    handleExploracionFisicaChange('neurologico', updatedNeurologico);
+  };
+
+  const handlePielYFanerasChange = (label, value) => {
+    const updatedPielYFaneras = {
+      ...formData.exploracionFisica.pielYFaneras,
+      [label]: value
+    };
+    handleExploracionFisicaChange('pielYFaneras', updatedPielYFaneras);
+  };
+
+  const handleMentalChange = (label, value) => {
+    const updatedMental = {
+      ...formData.exploracionFisica.mental,
+      [label]: value
+    };
+    handleExploracionFisicaChange('mental', updatedMental);
+  };
+
+  const updateVitalSigns = (vitalSign, value) => {
+    const updatedSignosVitales = {
+      ...formData.exploracionFisica.signosVitales,
+      [vitalSign]: value
+    };
+    handleExploracionFisicaChange('signosVitales', updatedSignosVitales);
   };
 
   return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm bg-blue-500 text-white shadow-md">
-                Formulario
-              </button>
-              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm text-gray-700 dark:text-gray-300">
-                Redacción IA
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-4 h-4" />
+    <div className="grid grid-cols-1 gap-4">
+      {/* Signos Vitales */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Signos Vitales</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
             </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-4 h-4" />
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
             </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-4 h-4" />
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
             </button>
           </div>
         </div>
-
-        <div className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">IX.</span> EXPLORACIÓN FÍSICA
-          </h2>
-        </div>
-
-        {!isMinimized && (
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* IMC Section */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="peso">Peso</Label>
-                    <div className="relative">
-                      <Input
-                        id="peso"
-                        type="number"
-                        step="0.1"
-                        value={formData.exploracionFisica?.signosVitales?.peso || ''}
-                        onChange={(e) => handleExploracionFisicaChange('signosVitales.peso', e.target.value)}
-                        className="pr-12"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">kg</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="talla">Talla</Label>
-                    <div className="relative">
-                      <Input
-                        id="talla"
-                        type="text"
-                        value={formData.exploracionFisica?.signosVitales?.talla || ''}
-                        onChange={handleHeightInput}
-                        className="pr-8"
-                        placeholder="Ej: 170"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">m</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg w-full px-4 py-3">
-                  <div className="text-sm">IMC: <span className="font-semibold">{imc}</span></div>
-                  <div className={`text-sm ${getIMCCategory(imc).color}`}>
-                    Categoría: {getIMCCategory(imc).label}
-                  </div>
-                </div>
+        <ScrollArea className="h-[300px] p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {signosVitalesLabels.map((label) => (
+              <div key={label} className="space-y-2">
+                <Label htmlFor={label} className="text-sm font-medium">{label}</Label>
+                <Input
+                  type="text"
+                  id={label}
+                  value={formData.exploracionFisica.signosVitales[label] || ''}
+                  onChange={(e) => handleSignosVitalesChange(label, e.target.value)}
+                  className="text-sm"
+                />
               </div>
-
-              {/* Vital Signs Section */}
-              <div className="space-y-4">
-                <Label>Rango de edad</Label>
-                <Select value={ageRange} onValueChange={(value: keyof typeof vitalSignRanges) => setAgeRange(value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar rango de edad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(vitalSignRanges).map(([key, value]) => (
-                      <SelectItem key={key} value={key}>{value.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Blood Pressure */}
-              <div className="space-y-2">
-                <Label htmlFor="ta">Presión arterial</Label>
-                <div className="relative">
-                  <Input
-                    id="ta"
-                    type="text"
-                    value={formData.exploracionFisica?.signosVitales?.ta || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.ta', e.target.value)}
-                    placeholder="120/80"
-                    className="pr-16"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">mmHg</span>
-                </div>
-                {formData.exploracionFisica?.signosVitales?.ta && (
-                  <div className={`text-sm ${getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).color}`}>
-                    {getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).label}
-                  </div>
-                )}
-              </div>
-
-              {/* Pulse */}
-              <div className="space-y-2">
-                <Label htmlFor="pulso">Pulso</Label>
-                <div className="relative">
-                  <Input
-                    id="pulso"
-                    type="number"
-                    value={formData.exploracionFisica?.signosVitales?.pulso || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.pulso', e.target.value)}
-                    className="pr-16"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">ppm</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].pulse.min}-{vitalSignRanges[ageRange].pulse.max} ppm
-                </div>
-              </div>
-
-              {/* Heart Rate */}
-              <div className="space-y-2">
-                <Label htmlFor="fc" className="flex items-center gap-2">
-                  <HeartPulse className="w-4 h-4" />
-                  Frecuencia cardíaca
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="fc"
-                    type="number"
-                    value={formData.exploracionFisica?.signosVitales?.fc || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.fc', e.target.value)}
-                    className="pr-16"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">lpm</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].heartRate.min}-{vitalSignRanges[ageRange].heartRate.max} lpm
-                </div>
-              </div>
-
-              {/* Temperature */}
-              <div className="space-y-2">
-                <Label htmlFor="temperatura" className="flex items-center gap-2">
-                  <ThermometerSun className="w-4 h-4" />
-                  Temperatura
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="temperatura"
-                    type="number"
-                    step="0.1"
-                    value={formData.exploracionFisica?.signosVitales?.temperatura || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.temperatura', e.target.value)}
-                    className="pr-12"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">°C</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].temperature.min}-{vitalSignRanges[ageRange].temperature.max}°C
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
-        )}
+        </ScrollArea>
+      </Card>
+
+      {/* Examen General */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Examen General</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <ScrollArea className="h-[300px] p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {examenGeneralLabels.map((label) => (
+              <div key={label} className="space-y-2">
+                <Label htmlFor={label} className="text-sm font-medium">{label}</Label>
+                <Input
+                  type="text"
+                  id={label}
+                  value={formData.exploracionFisica.examenGeneral[label] || ''}
+                  onChange={(e) => handleExamenGeneralChange(label, e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Card>
+
+      {/* Cabeza y Cuello */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Cabeza y Cuello</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <ScrollArea className="h-[300px] p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {cabezaYCuelloLabels.map((label) => (
+              <div key={label} className="space-y-2">
+                <Label htmlFor={label} className="text-sm font-medium">{label}</Label>
+                <Input
+                  type="text"
+                  id={label}
+                  value={formData.exploracionFisica.cabezaYCuello[label] || ''}
+                  onChange={(e) => handleCabezaYCuelloChange(label, e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Card>
+
+      {/* Tórax y Pulmones */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Tórax y Pulmones</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <ScrollArea className="h-[300px] p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {toraxYPulmonesLabels.map((label) => (
+              <div key={label} className="space-y-2">
+                <Label htmlFor={label} className="text-sm font-medium">{label}</Label>
+                <Input
+                  type="text"
+                  id={label}
+                  value={formData.exploracionFisica.toraxYPulmones[label] || ''}
+                  onChange={(e) => handleToraxYPulmonesChange(label, e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Card>
+
+      {/* Cardiovascular */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Cardiovascular</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <ScrollArea className="h-[300px] p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {cardiovascularLabels.map((label) => (
+              <div key={label} className="space-y-2">
+                <Label htmlFor={label} className="text-sm font-medium">{label}</Label>
+                <Input
+                  type="text"
+                  id={label}
+                  value={formData.exploracionFisica.cardiovascular[label] || ''}
+                  onChange={(e) => handleCardiovascularChange(label, e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Card>
+
+      {/* Abdomen */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Abdomen</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <ScrollArea className="h-[300px] p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {abdomenLabels.map((label) => (
+              <div key={label} className="space-y-2">
+                <Label htmlFor={label} className="text-sm font-medium">{label}</Label>
+                <Input
+                  type="text"
+                  id={label}
+                  value={formData.exploracionFisica.abdomen[label] || ''}
+                  onChange={(e) => handleAbdomenChange(label, e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Card>
+
+      {/* Genitourinario */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Genitourinario</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <ScrollArea className="h-[300px] p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {genitourinarioLabels.map((label) => (
+              <div key={label} className="space-y-2">
+                <Label htmlFor={label} className="text-sm font-medium">{label}</Label>
+                <Input
+                  type="text"
+                  id={label}
+                  value={formData.exploracionFisica.genitourinario[label] || ''}
+                  onChange={(e) => handleGenitourinarioChange(label, e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Card>
+
+      {/* Musculoesquelético */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Musculoesquelético</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <ScrollArea className="h-[300px] p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {musculoesqueleticoLabels.map((label) => (
+              <div key={label} className="space-y-2">
+                <Label htmlFor={label} className="text-sm font-medium">{label}</Label>
+                <Input
+                  type="text"
+                  id={label}
+                  value={formData.exploracionFisica.musculoesqueletico[label] || ''}
+                  onChange={(e) => handleMusculoesqueleticoChange(label, e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Card>
+
+      {/* Neurológico */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Neurológico</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <ScrollArea className="h-[300px] p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {neurologicoLabels.map((label) => (
+              <div key={label} className="space-y-2">
+                <Label htmlFor={label} className="text-sm font-medium">{label}</Label>
+                <Input
+                  type="text"
+                  id={label}
+                  value={formData.exploracionFisica.neurologico[label] || ''}
+                  onChange={(e) => handleNeurologicoChange(label, e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Card>
+
+      {/* Piel y Faneras */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Piel y Faneras</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <ScrollArea className="h-[300px] p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {pielYFanerasLabels.map((label) => (
+              <div key={label} className="space-y-2">
+                <Label htmlFor={label} className="text-sm font-medium">{label}</Label>
+                <Input
+                  type="text"
+                  id={label}
+                  value={formData.exploracionFisica.pielYFaneras[label] || ''}
+                  onChange={(e) => handlePielYFanerasChange(label, e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Card>
+
+      {/* Mental */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Mental</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <ScrollArea className="h-[300px] p-4">
+          <div className="grid grid-cols-2 gap-4">
+            {mentalLabels.map((label) => (
+              <div key={label} className="space-y-2">
+                <Label htmlFor={label} className="text-sm font-medium">{label}</Label>
+                <Input
+                  type="text"
+                  id={label}
+                  value={formData.exploracionFisica.mental[label] || ''}
+                  onChange={(e) => handleMentalChange(label, e.target.value)}
+                  className="text-sm"
+                />
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Card>
+
+      {/* Gráfico de Signos Vitales */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Gráfico de Signos Vitales</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div className="p-4">
+          <Line data={chartData} options={chartOptions} />
+        </div>
+      </Card>
+
+      {/* Observaciones */}
+      <Card className="col-span-1">
+        <div className="flex items-center justify-between p-4">
+          <h2 className="text-lg font-semibold">Observaciones</h2>
+          <div className="space-x-2">
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Minus className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <Maximize2 className="h-4 w-4" />
+            </button>
+            <button className="p-2 rounded-full hover:bg-gray-100">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div className="p-4">
+          <Textarea
+            placeholder="Ingrese sus observaciones aquí..."
+            value={formData.exploracionFisica.observaciones || ''}
+            onChange={(e) => handleExploracionFisicaChange('observaciones', e.target.value)}
+            className="w-full h-32 text-sm"
+          />
+        </div>
       </Card>
     </div>
   );
