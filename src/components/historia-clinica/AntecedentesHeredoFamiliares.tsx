@@ -1,498 +1,451 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from 'react'; // Añadir useCallback
 import { Card } from "@/components/ui/card";
+import { Minus, Maximize2, X, Edit, FileText } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
-import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
-import './AntecedentesHeredoFamiliares.css';
 
-interface AntecedentesHeredoFamiliaresProps {
-  formData: FormDataState;
-  handleFamiliarChange: (familiar: string, field: string, value: string | boolean) => void;
-  handleCondicionChange: (familiar: string, condicion: string, value: string | boolean) => void;
-}
-
-const familiares = [
-  "Padre",
-  "Madre",
-  "Abuelo Paterno",
-  "Abuela Paterna",
-  "Abuelo Materno",
-  "Abuela Materna",
-];
-
-const condiciones = ["Diabetes Mellitus", "Hipertensión Arterial", "Cáncer", "Otras"];
-
-interface Familiar extends OriginalFamiliar {
-  vivoSano: boolean;
-}
-
-interface FamiliaRowProps {
-  familiar: string;
-  formData: FormDataState;
-  handleFamiliarChange: (familiar: string, field: string, value: string | boolean) => void;
-  handleCondicionChange: (familiar: string, condicion: string, value: string | boolean) => void;
-}
-
-const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionChange }: FamiliaRowProps) => {
-  const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
-    const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
-      "Padre": "padre",
-      "Madre": "madre",
-      "Abuelo Paterno": "abueloPaterno",
-      "Abuela Paterna": "abuelaPaterna",
-      "Abuelo Materno": "abueloMaterno",
-      "Abuela Materna": "abuelaMaterna"
+// Interfaz y Estado Inicial (sin cambios respecto a la versión autocontenida)
+interface ArticulacionCraneomandibularState {
+    dolorMasticarHablar?: boolean | null;
+    tipoDolor?: string;
+    duracionDolor?: string;
+    dolorEspecifico?: boolean | null;
+    motivoDolor?: string;
+    ruidoArticular?: string | null;
+    patronAbertura?: string | null;
+    otroPatronAbertura?: string;
+    otrasObservaciones?: string;
+    labios: {
+        simetria?: string | null;
+        volumen?: string | null;
+        coloracion?: string | null;
+        hidratacion?: string | null;
+        integridad?: string | null;
+        comisuras?: string | null;
+        movimiento?: string | null;
+        otrasObservaciones?: string;
     };
-    return mapping[familiar];
-  };
+}
 
-  const familiarKey = getFamiliarKey(familiar);
-  const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
-
-  const getCondicionKey = (condicion: string) => {
-    const mapping: { [key: string]: string } = {
-      "Diabetes Mellitus": "diabetesMellitus",
-      "Hipertensión Arterial": "hipertensionArterial",
-      "Cáncer": "cancer",
-      "Otras": "otras"
-    };
-    return mapping[condicion];
-  };
-
-  const handleVivoSano = () => {
-    const newVivoSano = !familiarData.vivoSano;
-    handleFamiliarChange(familiarKey, 'finado', false);
-    handleFamiliarChange(familiarKey, 'vivoSano', newVivoSano);
-    if (newVivoSano) {
-      condiciones.forEach((cond) => {
-        const condKey = getCondicionKey(cond);
-        handleCondicionChange(familiarKey, condKey, false);
-      });
+const initialState: ArticulacionCraneomandibularState = {
+    dolorMasticarHablar: null, tipoDolor: '', duracionDolor: '', dolorEspecifico: null, motivoDolor: '',
+    ruidoArticular: null, patronAbertura: null, otroPatronAbertura: '', otrasObservaciones: '',
+    labios: {
+        simetria: null, volumen: null, coloracion: null, hidratacion: null, integridad: null,
+        comisuras: null, movimiento: null, otrasObservaciones: ''
     }
-  };
-
-  const handleFinado = () => {
-    const newFinado = !familiarData.finado;
-    handleFamiliarChange(familiarKey, 'finado', newFinado);
-    if (newFinado) {
-      handleFamiliarChange(familiarKey, 'vivoSano', false);
-      condiciones.forEach((cond) => {
-        const condKey = getCondicionKey(cond);
-        handleCondicionChange(familiarKey, condKey, false);
-      });
-    }
-  };
-
-  return (
-    <div className="flex flex-col gap-4 border-b pb-6">
-      <div className="grid grid-cols-7 gap-4 items-center">
-        <span className="font-semibold text-base text-center col-span-1 text-gray-700">{familiar}</span>
-        {!familiarData.vivoSano && (
-          <button
-            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
-              familiarData.finado ? "bg-red-600 text-white" : "bg-white text-gray-700 border-gray-300"
-            }`}
-            onClick={handleFinado}
-          >
-            Finado
-          </button>
-        )}
-        {!familiarData.finado && (
-          <button
-            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium ${
-              familiarData.vivoSano ? "bg-green-600 text-white col-span-7" : "bg-white text-gray-700 border-gray-300 col-span-1"
-            }`}
-            onClick={handleVivoSano}
-          >
-            Vivo y Sano
-          </button>
-        )}
-        {!familiarData.finado && !familiarData.vivoSano &&
-          condiciones.map((cond) => {
-            const condKey = getCondicionKey(cond);
-            return (
-              <button
-                key={cond}
-                className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
-                  familiarData.condiciones[condKey] ? "bg-blue-600 text-white" : "bg-white text-gray-700 border-gray-300"
-                }`}
-                onClick={() => handleCondicionChange(familiarKey, condKey, !familiarData.condiciones[condKey])}
-              >
-                {cond}
-              </button>
-            );
-          })}
-      </div>
-      {familiarData.finado && (
-        <input
-          value={familiarData.causaMuerte}
-          onChange={(e) => handleFamiliarChange(familiarKey, 'causaMuerte', e.target.value)}
-          placeholder="Causa de fallecimiento"
-          className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
-        />
-      )}
-      {familiarData.condiciones.otras && !familiarData.finado && !familiarData.vivoSano && (
-        <input
-          value={typeof familiarData.condiciones.otras === 'string' ? familiarData.condiciones.otras : ''}
-          onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
-          placeholder="Especifique otras condiciones"
-          className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
-        />
-      )}
-    </div>
-  );
 };
 
-const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCondicionChange }: AntecedentesHeredoFamiliaresProps) => {
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [showRedaccion, setShowRedaccion] = useState(false);
-  const [redaccionIA, setRedaccionIA] = useState("");
-  const [copied, setCopied] = useState(false);
-  const [displayedText, setDisplayedText] = useState("");
-  const [progress, setProgress] = useState(0);
-  const [showModal, setShowModal] = useState(false);
-  const [missingFamiliares, setMissingFamiliares] = useState<string[]>([]);
-  const redaccionRef = useRef(null);
+// Opciones (Actualizar etiqueta de movimiento)
+type Option = { label: string; value: string };
+const simetriaOptions: Option[] = [ { label: "Simétricos", value: "simetricos" },{ label: "Desviación Derecha", value: "asimetricosDerecha" },{ label: "Desviación Izquierda", value: "asimetricosIzquierda" },];
+const volumenOptions: Option[] = [ { label: "Delgados", value: "delgados" },{ label: "Medianos", value: "medianos" },{ label: "Gruesos", value: "gruesos" },];
+const coloracionOptions: Option[] = [ { label: "Rosados (Normal)", value: "normal" },{ label: "Pálidos", value: "palidos" },{ label: "Cianóticos", value: "cianoticos" },{ label: "Eritematosos", value: "eritematosos" },];
+const hidratacionOptions: Option[] = [ { label: "Hidratados", value: "hidratados" },{ label: "Secos", value: "secos" },{ label: "Agrietados", value: "agrietados" },{ label: "Con Costras", value: "costras" },];
+const integridadOptions: Option[] = [ { label: "Íntegros", value: "intactos" },{ label: "Heridas", value: "heridas" },{ label: "Ulceraciones", value: "ulceraciones" },{ label: "Fisuras Comisurales", value: "fisuras" },]; // Nota: Fisuras Comisurales podría ir mejor en Comisuras
+const comisurasOptions: Option[] = [ { label: "Normales", value: "normales" },{ label: "Erosionadas", value: "erosionadas" },{ label: "Queilitis Angular", value: "queilitis" },];
+// Cambiar etiqueta 'Normales' por algo más descriptivo si se quiere, o manejar en la redacción
+const movimientoOptions: Option[] = [ { label: "Movimientos Conservados", value: "normales" }, { label: "Restricción Movimiento", value: "restriccion" }, { label: "Incompetencia Labial", value: "incompetencia" },];
+const patronAberturaOptions: Option[] = [ { label: "Recto", value: "recto" },{ label: "Desviación Derecha", value: "desviacionDerecha" },{ label: "Desviación Izquierda", value: "desviacionIzquierda" },{ label: "Forma de 'S'", value: "formaS" },{ label: "Otro", value: "otro" }];
+const ruidoArticularOptions: Option[] = [ { label: "Abertura", value: "abertura" },{ label: "Cierre", value: "cierre" },{ label: "No", value: "ninguno" },];
 
-  useEffect(() => {
-    const missing = familiares.filter(familiar => {
-      const familiarKey = getFamiliarKey(familiar);
-      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
-      return !(familiarData.vivoSano || familiarData.finado || Object.values(familiarData.condiciones).some(value => value));
-    });
-    setMissingFamiliares(missing);
-  }, [formData]);
 
-  const handleMinimize = () => {
-    setIsMinimized(!isMinimized);
-    setIsMaximized(false);
-  };
+const ArticulacionCraneomandibular: React.FC = () => {
+    const [formData, setFormData] = useState<ArticulacionCraneomandibularState>(initialState);
+    const [isMinimized, setIsMinimized] = useState(false);
+    const [isMaximized, setIsMaximized] = useState(false);
+    const [activeTab, setActiveTab] = useState('formulario');
 
-  const handleMaximize = () => {
-    setIsMaximized(!isMaximized);
-    setIsMinimized(false);
-  };
+    // Estados para la generación y animación
+    const [isGeneratingLipsNarrative, setIsGeneratingLipsNarrative] = useState(false);
+    const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
+    const [lipsViewMode, setLipsViewMode] = useState<'form' | 'narrative'>('form');
 
-  const handleClose = () => {
-    setIsMinimized(false);
-    setIsMaximized(false);
-  };
+    // Estados para el Typewriter Effect
+    const [targetLipsNarrative, setTargetLipsNarrative] = useState('');
+    const [displayedLipsNarrative, setDisplayedLipsNarrative] = useState('');
+    const [targetRedaccion, setTargetRedaccion] = useState('');
+    const [displayedRedaccion, setDisplayedRedaccion] = useState('');
 
-  const generarRedaccionIA = () => {
-    if (missingFamiliares.length > 0) {
-      setShowModal(true);
-      return;
-    }
+    const labiosData = formData.labios || {};
 
-    const textoGenerado = familiares.map(familiar => {
-      const familiarKey = getFamiliarKey(familiar);
-      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+    const handleMinimize = () => { setIsMinimized(!isMinimized); setIsMaximized(false); };
+    const handleMaximize = () => { setIsMaximized(!isMaximized); setIsMinimized(false); };
+    const handleClose = () => { setIsMinimized(true); setIsMaximized(false); };
 
-      // Obtener las condiciones en un formato legible
-      const condicionesText = Object.entries(familiarData.condiciones)
-        .filter(([key, value]) => value)
-        .map(([key, value]) => {
-          switch (key) {
-            case "diabetesMellitus":
-              return "Diabetes mellitus";
-            case "hipertensionArterial":
-              return "Hipertensión arterial";
-            case "cancer":
-              return "Cáncer";
-            case "otras":
-              return typeof value === 'string' ? value : ''; // Asegúrate de que 'otras' sea un string
-            default:
-              return "";
-          }
+    // --- Typewriter Effect Hooks ---
+    const typewriterSpeed = 30; // ms por caracter (ajusta según preferencia)
+
+    useEffect(() => {
+        if (!targetLipsNarrative) {
+            setDisplayedLipsNarrative('');
+            return;
+        }
+        setDisplayedLipsNarrative(''); // Reset display text when target changes
+        let index = 0;
+        const intervalId = setInterval(() => {
+            setDisplayedLipsNarrative((prev) => prev + targetLipsNarrative[index]);
+            index++;
+            if (index === targetLipsNarrative.length) {
+                clearInterval(intervalId);
+                setIsGeneratingLipsNarrative(false); // Finaliza "carga" cuando termina de escribir
+            }
+        }, typewriterSpeed);
+        return () => clearInterval(intervalId); // Cleanup
+    }, [targetLipsNarrative]); // Depende del texto OBJETIVO
+
+    useEffect(() => {
+        if (!targetRedaccion) {
+            setDisplayedRedaccion('');
+            return;
+        }
+        setDisplayedRedaccion(''); // Reset display text
+        let index = 0;
+        const intervalId = setInterval(() => {
+            setDisplayedRedaccion((prev) => prev + targetRedaccion[index]);
+            index++;
+            if (index === targetRedaccion.length) {
+                clearInterval(intervalId);
+                setIsGeneratingRedaccion(false); // Finaliza "carga"
+            }
+        }, typewriterSpeed);
+        return () => clearInterval(intervalId); // Cleanup
+    }, [targetRedaccion]); // Depende del texto OBJETIVO
+
+    // --- Funciones de Actualización de Estado (igual) ---
+    const handleArticulacionCraneomandibularChange = useCallback((fieldPath: string, value: any) => {
+        setFormData(prevData => {
+            const parts = fieldPath.split('.');
+            const newState = structuredClone(prevData);
+            let currentLevel: any = newState;
+            for (let i = 0; i < parts.length - 1; i++) {
+                const part = parts[i];
+                if (currentLevel[part] === undefined || currentLevel[part] === null) {
+                    currentLevel[part] = {};
+                }
+                currentLevel = currentLevel[part];
+            }
+            currentLevel[parts[parts.length - 1]] = value;
+            return newState;
         });
+    }, []); // useCallback para estabilidad si se pasara como prop
 
-      // Construir la redacción para cada familiar
-      const esFemenino = familiar.includes("Madre") || familiar.includes("Abuela");
-      const articuloFemenino = esFemenino ? "La " : "El ";
-      const verboSerFemenino = esFemenino ? "está viva" : "está vivo";
-      const verboEstarFemenino = esFemenino ? "finada" : "finado";
-      const ySanoFemenino = esFemenino ? "y sana" : "y sano";
+    const handleOptionChange = useCallback((fieldPath: string, value: string) => {
+        handleArticulacionCraneomandibularChange(fieldPath, value);
+    }, [handleArticulacionCraneomandibularChange]);
 
-      let condicionesConectadas = "";
-      if (condicionesText.length === 1) {
-        condicionesConectadas = condicionesText[0];
-      } else if (condicionesText.length === 2) {
-        const [primera, segunda] = condicionesText;
-        if ((primera === "Diabetes mellitus" && segunda === "Hipertensión arterial") ||
-            (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
-          condicionesConectadas = `${primera} e ${segunda}`;
+    const handleTextChange = useCallback((fieldPath: string, value: string) => {
+        handleArticulacionCraneomandibularChange(fieldPath, value);
+    }, [handleArticulacionCraneomandibularChange]);
+
+    const handleBooleanChange = useCallback((fieldPath: string, value: boolean) => {
+        handleArticulacionCraneomandibularChange(fieldPath, value);
+    }, [handleArticulacionCraneomandibularChange]);
+
+
+    // --- **Redacción Mejorada: Labios** ---
+    const generateLipsNarrative = () => {
+        setIsGeneratingLipsNarrative(true); // Inicia estado de carga
+        setTargetLipsNarrative(''); // Limpia target anterior inmediato
+        setDisplayedLipsNarrative(''); // Limpia display anterior inmediato
+
+        const data = formData.labios || {};
+        let fragments: string[] = [];
+
+        // 1. Simetría y Volumen
+        const simetriaDesc = simetriaOptions.find(o => o.value === data.simetria)?.label;
+        const volumenDesc = volumenOptions.find(o => o.value === data.volumen)?.label?.toLowerCase();
+        if (simetriaDesc) {
+            if (data.simetria === 'simetricos') {
+                fragments.push(volumenDesc ? `labios simétricos, de volumen ${volumenDesc}` : "labios simétricos");
+            } else {
+                fragments.push(volumenDesc ? `se observa asimetría (${simetriaDesc.toLowerCase()}), siendo de volumen ${volumenDesc}` : `se observa asimetría (${simetriaDesc.toLowerCase()})`);
+            }
+        } else if (volumenDesc) {
+            fragments.push(`labios de volumen ${volumenDesc}`);
+        }
+
+        // 2. Coloración e Hidratación
+        const colorDesc = coloracionOptions.find(o => o.value === data.coloracion)?.label;
+        const hidratacionDesc = hidratacionOptions.find(o => o.value === data.hidratacion)?.label?.toLowerCase();
+        if (colorDesc) {
+            let colorText = `presentan una coloración ${colorDesc.toLowerCase()}`;
+            if (data.coloracion !== 'normal' && hidratacionDesc) {
+                colorText += `, asociada posiblemente a una superficie ${hidratacionDesc}`;
+            } else if (hidratacionDesc) {
+                colorText += ` y se encuentran ${hidratacionDesc}`;
+            }
+            fragments.push(colorText);
+        } else if (hidratacionDesc) {
+            fragments.push(`la superficie labial se encuentra ${hidratacionDesc}`);
+        }
+
+        // 3. Integridad y Comisuras
+        const integridadDesc = integridadOptions.find(o => o.value === data.integridad)?.label?.toLowerCase();
+        const comisurasDesc = comisurasOptions.find(o => o.value === data.comisuras)?.label?.toLowerCase();
+        let integridadText = "";
+        if (integridadDesc) {
+             integridadText = data.integridad === 'intactos' ? "se encuentran íntegros" : `se observan ${integridadDesc}`;
+        }
+        let comisurasText = "";
+        if (comisurasDesc) {
+             comisurasText = data.comisuras === 'normales' ? "comisuras normales" : `se evidencia ${comisurasDesc} en comisuras`;
+             // Ajuste para fisuras si se movió la opción
+             if (data.integridad === 'fisuras') { // Si 'fisuras' está en integridad
+                comisurasText = `con fisuras comisurales`;
+                if(data.comisuras && data.comisuras !== 'normales') { // Añadir si hay otro problema en comisura
+                    comisurasText += ` y ${comisurasDesc}`;
+                }
+             }
+        }
+
+        if (integridadText && comisurasText) {
+            fragments.push(`${integridadText}, con ${comisurasText}`);
+        } else if (integridadText) {
+            fragments.push(integridadText);
+        } else if (comisurasText) {
+            fragments.push(comisurasText.charAt(0).toUpperCase() + comisurasText.slice(1)); // Capitalizar si empieza frase
+        }
+
+
+        // 4. Movimiento
+        const movimientoDesc = movimientoOptions.find(o => o.value === data.movimiento)?.label; // Usar la etiqueta actualizada
+        if (movimientoDesc) {
+            fragments.push(`respecto a la función, ${movimientoDesc.toLowerCase()}`);
+        }
+
+        // 5. Observaciones Adicionales
+        if (data.otrasObservaciones) {
+            fragments.push(`adicionalmente, se anota: "${data.otrasObservaciones}"`);
+        }
+
+        // Construcción final
+        let fullContent = "Al examen clínico de los labios, ";
+        if (fragments.length > 0) {
+            fullContent += fragments.join('. ') + '.';
         } else {
-          condicionesConectadas = `${primera} y ${segunda}`;
+            fullContent = "No se han registrado hallazgos específicos sobre los labios.";
         }
-      } else if (condicionesText.length > 2) {
-        const ultimaCondicion = condicionesText.pop();
-        condicionesConectadas = `${condicionesText.join(", ")} y ${ultimaCondicion}`;
-      }
 
-      if (familiarData.vivoSano) {
-        return `${articuloFemenino}${familiar} ${verboSerFemenino} ${ySanoFemenino}.`;
-      } else if (familiarData.finado) {
-        return `${articuloFemenino}${familiar} ${verboEstarFemenino} por ${familiarData.causaMuerte}.`;
-      } else {
-        return `${articuloFemenino}${familiar} ${verboSerFemenino} con diagnóstico de ${condicionesConectadas}.`;
-      }
-    }).join(" ");
+        // Simula un pequeño delay antes de empezar a escribir para que se vea el cambio
+        setTimeout(() => {
+           setTargetLipsNarrative(fullContent.replace(/\.\./g, '.')); // Reemplaza dobles puntos
+           setLipsViewMode('narrative'); // Cambia a vista narrativa
+           //setIsGeneratingLipsNarrative(false); // Se mueve al final del typewriter
+        }, 100); // Pequeño delay
 
-    // Determinar las enfermedades más repetidas en la familia
-    const enfermedadesContador: { [key: string]: number } = {};
-    familiares.forEach(familiar => {
-      const familiarKey = getFamiliarKey(familiar);
-      const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
-      Object.entries(familiarData.condiciones).forEach(([key, value]) => {
-        if (value) {
-          enfermedadesContador[key] = (enfermedadesContador[key] || 0) + 1;
-        }
-      });
-    });
-
-    const enfermedadesRepetidas = Object.entries(enfermedadesContador)
-      .filter(([key, value]) => value >= 2)
-      .map(([key]) => {
-        switch (key) {
-          case "diabetesMellitus":
-            return "Diabetes mellitus";
-          case "hipertensionArterial":
-            return "Hipertensión arterial";
-          case "cancer":
-            return "Cáncer";
-          default:
-            return "";
-        }
-      })
-      .filter(Boolean);
-
-    let enfermedadesConectadas = "";
-    if (enfermedadesRepetidas.length === 1) {
-      enfermedadesConectadas = enfermedadesRepetidas[0];
-    } else if (enfermedadesRepetidas.length === 2) {
-      const [primera, segunda] = enfermedadesRepetidas;
-      if ((primera === "Diabetes mellitus" && segunda === "Hipertensión arterial") ||
-          (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
-        enfermedadesConectadas = `${primera} e ${segunda}`;
-      } else {
-        enfermedadesConectadas = `${primera} y ${segunda}`;
-      }
-    } else if (enfermedadesRepetidas.length > 2) {
-      const ultimaEnfermedad = enfermedadesRepetidas.pop();
-      enfermedadesConectadas = `${enfermedadesRepetidas.join(", ")} y ${ultimaEnfermedad}`;
-    }
-
-    const redaccionFinal = `${textoGenerado.trim()}\n\n Nota: En la familia predominan los antecedentes de: ${enfermedadesConectadas}.`;
-    setRedaccionIA(redaccionFinal);
-    setDisplayedText(""); // Reset the displayed text
-    setShowRedaccion(true);
-
-    setTimeout(() => {
-      redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setTimeout(() => {
-        window.scrollBy(0, -200);
-      }, 300);
-    }, 100);
-  };
-
-  const limpiarFormulario = () => {
-    familiares.forEach(familiar => {
-      const familiarKey = getFamiliarKey(familiar);
-      handleFamiliarChange(familiarKey, 'finado', false);
-      handleFamiliarChange(familiarKey, 'vivoSano', false);
-      handleFamiliarChange(familiarKey, 'causaMuerte', '');
-      condiciones.forEach(cond => {
-        const condKey = getCondicionKey(cond);
-        handleCondicionChange(familiarKey, condKey, false);
-      });
-    });
-    setRedaccionIA("");
-    setShowRedaccion(false);
-  };
-
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(redaccionIA);
-    setCopied(true);
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
-  };
-
-  useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < redaccionIA.length) {
-        setDisplayedText(redaccionIA.substring(0, index + 1));
-        setProgress((index / redaccionIA.length) * 100);
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
-
-    return () => clearInterval(interval);
-  }, [redaccionIA]);
-
-  const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
-    const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
-      "Padre": "padre",
-      "Madre": "madre",
-      "Abuelo Paterno": "abueloPaterno",
-      "Abuela Paterna": "abuelaPaterna",
-      "Abuelo Materno": "abueloMaterno",
-      "Abuela Materna": "abuelaMaterna"
     };
-    return mapping[familiar];
-  };
 
-  const getCondicionKey = (condicion: string) => {
-    const mapping: { [key: string]: string } = {
-      "Diabetes Mellitus": "diabetesMellitus",
-      "Hipertensión Arterial": "hipertensionArterial",
-      "Cáncer": "cancer",
-      "Otras": "otras"
+    // --- **Redacción Mejorada: General (ATM + Labios)** ---
+    const generateRedaccion = () => {
+        setIsGeneratingRedaccion(true); // Inicia carga
+        setTargetRedaccion(''); // Limpia target
+        setDisplayedRedaccion(''); // Limpia display
+
+        const atm = formData;
+        const labios = formData.labios || {};
+        let fullContent = "";
+        let atmFragments: string[] = [];
+        let lipsFragments: string[] = []; // Usará lógica similar a generateLipsNarrative
+
+        // -- Sección ATM --
+        // Dolor general y específico
+        let dolorGeneral = "";
+        if (atm.dolorMasticarHablar === true) {
+            dolorGeneral = "refiere dolor al masticar y/o hablar";
+            if (atm.tipoDolor) dolorGeneral += ` (tipo ${atm.tipoDolor.toLowerCase()})`;
+            if (atm.duracionDolor) dolorGeneral += ` de duración ${atm.duracionDolor.toLowerCase()}`;
+        } else if (atm.dolorMasticarHablar === false) {
+            dolorGeneral = "no refiere dolor al masticar o hablar";
+        }
+
+        let dolorEspecifico = "";
+        if (atm.dolorEspecifico === true && atm.motivoDolor) {
+            dolorEspecifico = `presenta dolor específico en ${atm.motivoDolor.toLowerCase()}`;
+        } else if (atm.dolorEspecifico === false) {
+            // Opcional: añadir "no refiere dolor específico localizado"
+        }
+
+        if (dolorGeneral && dolorEspecifico) atmFragments.push(`${dolorGeneral} y ${dolorEspecifico}`);
+        else if (dolorGeneral) atmFragments.push(dolorGeneral);
+        else if (dolorEspecifico) atmFragments.push(dolorEspecifico.charAt(0).toUpperCase() + dolorEspecifico.slice(1)); // Capitalizar
+
+        // Ruido y Patrón de Abertura
+        const ruidoDesc = ruidoArticularOptions.find(o => o.value === atm.ruidoArticular)?.label?.toLowerCase();
+        const patronDesc = patronAberturaOptions.find(o => o.value === atm.patronAbertura)?.label?.toLowerCase();
+        let ruidoPatronText = "";
+        if (ruidoDesc && ruidoDesc !== 'no') {
+            ruidoPatronText = `se ausculta ruido articular (${ruidoDesc})`;
+        } else if (ruidoDesc === 'no') {
+             ruidoPatronText = "no se detectan ruidos articulares";
+        }
+
+        if (patronDesc) {
+            let patronCompleto = `el patrón de abertura mandibular es ${patronDesc}`;
+            if (atm.patronAbertura === 'otro' && atm.otroPatronAbertura) {
+                patronCompleto += `: ${atm.otroPatronAbertura}`;
+            }
+            if (ruidoPatronText) {
+                 ruidoPatronText += `, y ${patronCompleto}`;
+            } else {
+                 ruidoPatronText = patronCompleto.charAt(0).toUpperCase() + patronCompleto.slice(1); // Capitalizar si empieza
+            }
+        }
+        if(ruidoPatronText) atmFragments.push(ruidoPatronText);
+
+        // Observaciones ATM
+        if (atm.otrasObservaciones) {
+            atmFragments.push(`observaciones adicionales de ATM: "${atm.otrasObservaciones}"`);
+        }
+
+        // Construcción ATM
+        if (atmFragments.length > 0) {
+            fullContent += "Evaluación de la Articulación Craneomandibular:\n";
+            fullContent += atmFragments.map(f => f.charAt(0).toUpperCase() + f.slice(1)).join('. ') + '.\n\n'; // Capitalizar inicio de cada frase
+        } else {
+             fullContent += "Evaluación de la Articulación Craneomandibular: No se registraron hallazgos específicos.\n\n";
+        }
+
+
+        // -- Sección Labios (reutilizar lógica adaptada de generateLipsNarrative) --
+         const simetriaDesc = simetriaOptions.find(o => o.value === labios.simetria)?.label;
+         const volumenDesc = volumenOptions.find(o => o.value === labios.volumen)?.label?.toLowerCase();
+         // ... (copiar/adaptar lógica de fragments de generateLipsNarrative aquí) ...
+         if (simetriaDesc) { if (labios.simetria === 'simetricos') { lipsFragments.push(volumenDesc ? `labios simétricos, de volumen ${volumenDesc}` : "labios simétricos"); } else { lipsFragments.push(volumenDesc ? `se observa asimetría (${simetriaDesc.toLowerCase()}), siendo de volumen ${volumenDesc}` : `se observa asimetría (${simetriaDesc.toLowerCase()})`); } } else if (volumenDesc) { lipsFragments.push(`labios de volumen ${volumenDesc}`); }
+         const colorDesc = coloracionOptions.find(o => o.value === labios.coloracion)?.label; const hidratacionDesc = hidratacionOptions.find(o => o.value === labios.hidratacion)?.label?.toLowerCase(); if (colorDesc) { let colorText = `presentan una coloración ${colorDesc.toLowerCase()}`; if (labios.coloracion !== 'normal' && hidratacionDesc) { colorText += `, asociada posiblemente a una superficie ${hidratacionDesc}`; } else if (hidratacionDesc) { colorText += ` y se encuentran ${hidratacionDesc}`; } lipsFragments.push(colorText); } else if (hidratacionDesc) { lipsFragments.push(`la superficie labial se encuentra ${hidratacionDesc}`); }
+         const integridadDesc = integridadOptions.find(o => o.value === labios.integridad)?.label?.toLowerCase(); const comisurasDesc = comisurasOptions.find(o => o.value === labios.comisuras)?.label?.toLowerCase(); let integridadText = ""; if (integridadDesc) { integridadText = labios.integridad === 'intactos' ? "se encuentran íntegros" : `se observan ${integridadDesc}`; } let comisurasText = ""; if (comisurasDesc) { comisurasText = labios.comisuras === 'normales' ? "comisuras normales" : `se evidencia ${comisurasDesc} en comisuras`; if (labios.integridad === 'fisuras') { comisurasText = `con fisuras comisurales`; if(labios.comisuras && labios.comisuras !== 'normales') { comisurasText += ` y ${comisurasDesc}`; } } } if (integridadText && comisurasText) { lipsFragments.push(`${integridadText}, con ${comisurasText}`); } else if (integridadText) { lipsFragments.push(integridadText); } else if (comisurasText) { lipsFragments.push(comisurasText.charAt(0).toUpperCase() + comisurasText.slice(1)); }
+         const movimientoDesc = movimientoOptions.find(o => o.value === labios.movimiento)?.label; if (movimientoDesc) { lipsFragments.push(`respecto a la función, ${movimientoDesc.toLowerCase()}`); }
+         if (labios.otrasObservaciones) { lipsFragments.push(`observaciones adicionales en labios: "${labios.otrasObservaciones}"`); }
+
+
+        // Construcción Labios
+        fullContent += "Examen de Labios:\n";
+        if (lipsFragments.length > 0) {
+            fullContent += lipsFragments.map(f => f.charAt(0).toUpperCase() + f.slice(1)).join('. ') + '.';
+        } else {
+            fullContent += "No se han registrado hallazgos específicos.";
+        }
+
+        // Simula delay y empieza a escribir
+         setTimeout(() => {
+            setTargetRedaccion(fullContent.replace(/\.\./g, '.').replace('.\n\n.', '.\n\n')); // Limpieza final
+            setActiveTab('redaccion'); // Cambia a la pestaña
+            //setIsGeneratingRedaccion(false); // Se mueve al final del typewriter
+        }, 100);
+
     };
-    return mapping[condicion];
-  };
 
-  return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button
-                onClick={() => setShowRedaccion(false)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Formulario
-              </button>
-              <button
-                onClick={() => setShowRedaccion(true)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
-  
-          <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
-              <Minus className="w-4 h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" aria-label={isMaximized ? "Restaurar" : "Maximizar"}>
-              <Maximize2 className="w-4 h-4" />
-            </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" aria-label="Cerrar">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+    // --- Reset (limpia también los targets de animación) ---
+    const resetForm = () => {
+        setFormData(initialState);
+        setLipsViewMode('form');
+        // Limpiar estados de animación
+        setTargetLipsNarrative('');
+        setDisplayedLipsNarrative('');
+        setTargetRedaccion('');
+        setDisplayedRedaccion('');
+        setActiveTab('formulario');
+    };
+
+    // --- Render Helper (sin cambios) ---
+    const renderOptionButtons = /* ... (igual que antes) ... */ ( title: string, options: Option[], currentValue: string | undefined | null, fieldPath: string ) => ( <div> <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">{title}:</h4> <div className="flex flex-wrap gap-2 mb-4"> {options.map(item => ( <button key={item.value} type="button" className={`px-3 py-1 text-sm rounded-full transition-colors ${ currentValue === item.value ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200' }`} onClick={() => handleOptionChange(fieldPath, item.value)} > {item.label} </button> ))} </div> </div> );
+
+
+    // --- JSX (adaptar Textareas para mostrar texto animado) ---
+    return (
+        <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : "my-4"}`} data-section-name="articulacionCraneomandibular">
+            <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""} ${isMinimized ? "h-16 overflow-hidden" : ""}`}>
+                {/* Header, Título (sin cambios) */}
+                 <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700"> <div className="flex justify-center w-full"> <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1"> <button className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`} onClick={() => setActiveTab('formulario')} > Formulario </button> <button className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'redaccion' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}`} onClick={() => setActiveTab('redaccion')} > Redacción IA (General) </button> </div> </div> <div className="flex items-center gap-2"> <button onClick={handleMinimize} title={isMinimized ? "Restaurar" : "Minimizar"} className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"> <Minus className="w-4 h-4 text-gray-600 dark:text-gray-300" /> </button> <button onClick={handleMaximize} title={isMaximized ? "Restaurar" : "Maximizar"} className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"> <Maximize2 className="w-4 h-4 text-gray-600 dark:text-gray-300" /> </button> </div> </div>
+                 <div className={`flex justify-start px-6 py-2 ${isMinimized ? 'hidden' : ''}`}> <h2 className="text-xl font-semibold flex items-center gap-2 text-gray-800 dark:text-white"> <span className="text-gray-400 dark:text-gray-500">XI.</span> ARTICULACIÓN CRANEOMANDIBULAR Y LABIOS </h2> </div>
+
+                {!isMinimized && (
+                    <>
+                        {activeTab === 'formulario' ? (
+                            <div className="p-6">
+                                <div className="space-y-6">
+                                    {/* --- Sección ATM (Formulario sin cambios) --- */}
+                                    <h3 className="text-lg font-semibold mb-4 border-b pb-2 text-gray-700 dark:text-gray-300">Articulación Craneomandibular</h3>
+                                     <div> <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">¿Dolor al masticar o al hablar?</h4> <div className="flex gap-4"> <button type="button" className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.dolorMasticarHablar === true ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'}`} onClick={() => handleBooleanChange('dolorMasticarHablar', true)}>Sí</button> <button type="button" className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.dolorMasticarHablar === false ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'}`} onClick={() => handleBooleanChange('dolorMasticarHablar', false)}>No</button> </div> </div>
+                                     {formData.dolorMasticarHablar === true && ( <> <div className="relative pl-4 border-l-2 border-emerald-200 dark:border-emerald-700 space-y-2"> <div> <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">Tipo de dolor:</label> <Textarea value={formData.tipoDolor || ''} onChange={e => handleTextChange('tipoDolor', e.target.value)} placeholder="Describa el tipo de dolor (ej. punzante, sordo)" className="min-h-[60px] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-emerald-500 focus:border-emerald-500" /> </div> <div> <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">Duración:</label> <Textarea value={formData.duracionDolor || ''} onChange={e => handleTextChange('duracionDolor', e.target.value)} placeholder="Describa la duración (ej. constante, intermitente)" className="min-h-[60px] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-emerald-500 focus:border-emerald-500" /> </div> </div> </> )}
+                                     <div> <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">¿Dolor específico en alguna zona?</h4> <div className="flex gap-4"> <button type="button" className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.dolorEspecifico === true ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'}`} onClick={() => handleBooleanChange('dolorEspecifico', true)}>Sí</button> <button type="button" className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.dolorEspecifico === false ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200'}`} onClick={() => handleBooleanChange('dolorEspecifico', false)}>No</button> </div> </div>
+                                     {formData.dolorEspecifico === true && ( <div className="relative pl-4 border-l-2 border-emerald-200 dark:border-emerald-700"> <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">Motivo/Zona del dolor:</label> <Textarea value={formData.motivoDolor || ''} onChange={e => handleTextChange('motivoDolor', e.target.value)} placeholder="Describa la zona o motivo (ej. preauricular, muscular)" className="min-h-[60px] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-emerald-500 focus:border-emerald-500" /> </div> )}
+                                     {renderOptionButtons( "Ruido articular", ruidoArticularOptions, formData.ruidoArticular, 'ruidoArticular' )}
+                                     {renderOptionButtons( "Patrón de abertura mandibular", patronAberturaOptions, formData.patronAbertura, 'patronAbertura' )}
+                                     {formData.patronAbertura === 'otro' && ( <div className="relative pl-4 border-l-2 border-blue-200 dark:border-blue-700"> <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">Especifique otro patrón:</label> <Textarea value={formData.otroPatronAbertura || ''} onChange={e => handleTextChange('otroPatronAbertura', e.target.value)} placeholder="Especifique el patrón observado" className="min-h-[60px] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" /> </div> )}
+                                     <div className="relative"> <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Otras observaciones (ATM):</label> <Textarea value={formData.otrasObservaciones || ''} onChange={e => handleTextChange('otrasObservaciones', e.target.value)} placeholder="Anote aquí cualquier otra observación relevante sobre la ATM" className="min-h-[80px] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" /> </div>
+
+                                    {/* --- Sección Labios (Formulario) --- */}
+                                    <div className="mt-8 border-t pt-6 border-gray-200 dark:border-gray-700">
+                                        <div className="flex justify-between items-center mb-4">
+                                             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Labios</h3>
+                                             {lipsViewMode === 'form' ? (
+                                                 <Button variant="outline" size="sm" onClick={generateLipsNarrative} disabled={isGeneratingLipsNarrative} /* ... */ >
+                                                     {/* Icono y Texto Botón */}
+                                                     {isGeneratingLipsNarrative ? <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle> <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path> </svg> : <FileText className="w-4 h-4 mr-2" />}
+                                                     Generar Redacción Labios
+                                                 </Button>
+                                             ) : (
+                                                 <Button variant="outline" size="sm" onClick={() => setLipsViewMode('form')} /* ... */ >
+                                                     <Edit className="w-4 h-4 mr-2" /> Editar Labios
+                                                 </Button>
+                                             )}
+                                        </div>
+
+                                        {lipsViewMode === 'form' ? (
+                                            <div className="space-y-4">
+                                                {/* Render options para labios (sin cambios) */}
+                                                {renderOptionButtons("Simetría", simetriaOptions, labiosData?.simetria, 'labios.simetria')}
+                                                {renderOptionButtons("Tamaño/Volumen", volumenOptions, labiosData?.volumen, 'labios.volumen')}
+                                                {renderOptionButtons("Coloración", coloracionOptions, labiosData?.coloracion, 'labios.coloracion')}
+                                                {renderOptionButtons("Hidratación/Superficie", hidratacionOptions, labiosData?.hidratacion, 'labios.hidratacion')}
+                                                {renderOptionButtons("Integridad", integridadOptions, labiosData?.integridad, 'labios.integridad')}
+                                                {renderOptionButtons("Comisuras labiales", comisurasOptions, labiosData?.comisuras, 'labios.comisuras')}
+                                                {renderOptionButtons("Movimiento y función", movimientoOptions, labiosData?.movimiento, 'labios.movimiento')}
+                                                <div className="relative"> <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Otras observaciones (Labios):</label> <Textarea value={labiosData?.otrasObservaciones || ''} onChange={e => handleTextChange('labios.otrasObservaciones', e.target.value)} placeholder="Observaciones adicionales sobre los labios" className="min-h-[80px] bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" /> </div>
+                                            </div>
+                                        ) : (
+                                            // **Mostrar texto ANIMADO para labios**
+                                            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-md border border-gray-200 dark:border-gray-700 min-h-[100px]">
+                                                <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+                                                    {displayedLipsNarrative}
+                                                    {/* Cursor intermitente al final (opcional) */}
+                                                    {isGeneratingLipsNarrative && displayedLipsNarrative.length < targetLipsNarrative.length && <span className="animate-pulse">▋</span>}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div> {/* Fin Sección Labios */}
+                                </div> {/* Fin space-y-6 */}
+                            </div> /* Fin p-6 formulario */
+                        ) : ( /* Inicio Pestaña Redacción IA General */
+                            <div className="p-6">
+                                <div className="flex justify-center mb-4">
+                                    <Button onClick={generateRedaccion} disabled={isGeneratingRedaccion} /* Estilos botón ... */>
+                                         {isGeneratingRedaccion ? <>{/* spinner */} Generando...</> : '✨ Generar Redacción General (ATM y Labios)'}
+                                    </Button>
+                                </div>
+                                {/* **Mostrar texto ANIMADO general** */}
+                                <Textarea
+                                    readOnly
+                                    value={displayedRedaccion} // Usa el estado animado
+                                    placeholder="La redacción generada aparecerá aquí..."
+                                    className="min-h-[250px] w-full bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 rounded-md p-4 border border-gray-200 dark:border-gray-700 whitespace-pre-wrap font-mono" // Font mono opcional para typewriter
+                                />
+                                 {/* Cursor intermitente (opcional) */}
+                                 {isGeneratingRedaccion && displayedRedaccion.length < targetRedaccion.length && <span className="text-gray-400 dark:text-gray-600 animate-pulse">▋</span>}
+
+                                <div className="mt-4 flex justify-end">
+                                    <button type="button" onClick={resetForm} className="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors font-medium">
+                                        Limpiar Todo
+                                    </button>
+                                </div>
+                            </div> /* Fin p-6 redacción general */
+                        )}
+                    </>
+                )}
+            </Card>
         </div>
-  
-        <div className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">II.</span> Antecedentes Heredo Familiares
-          </h2>
-        </div>
-  
-        {!isMinimized && (
-          <>
-            {showRedaccion ? (
-              <div ref={redaccionRef} className="p-6">
-                <label className="font-mono text-sm font-medium text-gray-800">
-                  Redacción IA...
-                </label>
-                <div
-                  className="progress-bar-container"
-                  style={{
-                    width: '100%',
-                    backgroundColor: '#d3d3d3',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    marginBottom: '1rem',
-                    boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)',
-                  }}
-                >
-                  <div
-                    className="progress-bar"
-                    style={{
-                      height: '8px',
-                      backgroundColor: '#34c759',
-                      transition: 'width 0.015s ease-in-out',
-                      width: `${progress}%`,
-                      borderRadius: '12px',
-                    }}
-                  ></div>
-                </div>
-                <div
-                  className="min-h-[200px] w-full bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 p-2 rounded-md justify-text"
-                  style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}
-                >
-                  {displayedText}
-                </div>
-  
-                <Button
-                  onClick={handleCopy}
-                  className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
-                >
-                  <Copy className="w-4 h-4" />
-                  <span>Copiar Redacción</span>
-                  {copied && (
-                    <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" />
-                      <span>Copiado</span>
-                    </div>
-                  )}
-                </Button>
-              </div>
-            ) : (
-              <div className="p-6 space-y-6">
-                {familiares.map((familiar) => (
-                  <FamiliaRow
-                    key={familiar}
-                    familiar={familiar}
-                    formData={formData}
-                    handleFamiliarChange={handleFamiliarChange}
-                    handleCondicionChange={handleCondicionChange}
-                  />
-                ))}
-              </div>
-            )}
-  
-            {!showRedaccion && (
-              <div className="p-6 flex justify-center gap-4">
-                <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
-                  <span>Generar Redacción IA</span>
-                </Button>
-                <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
-                  <Eraser className="w-4 h-4" />
-                  <span>Limpiar Formulario</span>
-                </Button>
-              </div>
-            )}
-          </>
-        )}
-      </Card>
-  
-      {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Faltan datos</h2>
-            <p className="mb-4">Por favor, selecciona al menos una opción para los siguientes familiares:</p>
-            <ul className="list-disc list-inside mb-4">
-              {missingFamiliares.map((familiar, index) => (
-                <li key={index}>{familiar}</li>
-              ))}
-            </ul>
-            <Button onClick={() => setShowModal(false)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full">
-              Cerrar
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
-  );  
+    );
 };
 
-export default AntecedentesHeredoFamiliares;
+export default ArticulacionCraneomandibular;
