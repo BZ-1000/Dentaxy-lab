@@ -74,7 +74,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const [selectedCategory, setSelectedCategory] = useState<SearchCategory>("all");
   const [expandedText, setExpandedText] = useState(false);
   const [highlightedText, setHighlightedText] = useState<string>("");
-
+  
   const inputRef = useRef<HTMLInputElement>(null);
 
   const debouncedSearch = useDebouncedCallback(
@@ -107,7 +107,15 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
 
     try {
       const response = await fetch(
-        `/api/wiki-search?search=${encodeURIComponent(term)}&action=opensearch&limit=5`
+        `https://es.wikipedia.org/w/api.php?` +
+        new URLSearchParams({
+          action: "opensearch",
+          format: "json",
+          search: term,
+          limit: "5",
+          namespace: "0",
+          origin: "*"
+        })
       );
 
       const data = await response.json();
@@ -135,7 +143,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
 
   const searchWikipedia = async (term: string = searchTerm) => {
     if (!term.trim()) return;
-
+    
     setIsLoading(true);
 
     try {
@@ -143,20 +151,32 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
       if (selectedCategory !== "all") {
         gsrsearch = `${term} ${selectedCategory}`;
       }
-
+      
       const response = await fetch(
-        `/api/wiki-search?search=${encodeURIComponent(gsrsearch)}&action=query&prop=extracts&exintro=true&explaintext=false&generator=search&gsrlimit=1`
+        `https://es.wikipedia.org/w/api.php?` +
+        new URLSearchParams({
+          action: "query",
+          format: "json",
+          prop: "extracts",
+          exintro: "true",
+          explaintext: "false",
+          generator: "search",
+          gsrlimit: "1",
+          gsrsearch: gsrsearch,
+          gsrnamespace: "0",
+          origin: "*"
+        })
       );
 
       const data = await response.json();
-
+      
       if (data.query && data.query.pages) {
         const pages = Object.values(data.query.pages) as any[];
-
+        
         if (pages.length > 0) {
           const extract = pages[0].extract || "No se encontraron resultados.";
           const highlighted = highlightSearchTerm(extract, term);
-
+          
           // Format the text with enhanced styling
           const formattedExtract = `
             <div class="prose-lg">
@@ -168,7 +188,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                   </div>
                   ${!expandedText ? `
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <button
+                      <button 
                         class="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
                         onclick="window.expandText()"
                       >
@@ -244,7 +264,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
             Búsqueda de Información
           </DialogTitle>
         </DialogHeader>
-
+        
         <div className="relative">
           <div className="flex gap-2 my-4">
             <div className="relative flex-1">
@@ -266,7 +286,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                 </button>
               )}
             </div>
-            <Button
+            <Button 
               onClick={() => searchWikipedia()}
               disabled={isLoading}
               className="bg-blue-500 hover:bg-blue-600"
@@ -280,7 +300,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
             <div className="absolute z-10 w-[calc(100%-5rem)] bg-white dark:bg-neutral-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 mt-1">
               <ul>
                 {suggestions.map((suggestion, index) => (
-                  <li
+                  <li 
                     key={index}
                     className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-neutral-700 cursor-pointer flex items-center"
                     onClick={() => handleSelectSuggestion(suggestion)}
@@ -306,9 +326,9 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                   onClick={() => handleSelectCategory(category)}
                   className="text-xs"
                 >
-                  {category === "all" ? "Todos" :
-                   category === "diseases" ? "Enfermedades" :
-                   category === "procedures" ? "Procedimientos" :
+                  {category === "all" ? "Todos" : 
+                   category === "diseases" ? "Enfermedades" : 
+                   category === "procedures" ? "Procedimientos" : 
                    category === "materials" ? "Materiales" :
                    category === "anatomy" ? "Anatomía" :
                    category === "diagnostics" ? "Diagnósticos" :
@@ -339,7 +359,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           </div>
         )}
 
-        <ScrollArea
+        <ScrollArea 
           className="flex-1 p-4 rounded-lg bg-neutral-50 dark:bg-neutral-900"
           onClick={handleResultClick}
         >
@@ -350,7 +370,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           ) : (
             <div className="prose dark:prose-invert max-w-none">
               {searchResults ? (
-                <div
+                <div 
                   className="text-sm leading-relaxed space-y-4"
                   dangerouslySetInnerHTML={{ __html: searchResults }}
                 />
