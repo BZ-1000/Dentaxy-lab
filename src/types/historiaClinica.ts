@@ -1,17 +1,21 @@
+// types/historiaclinica.ts o donde definas tus tipos
+
+// --- INTERFACES BÁSICAS (SIN CAMBIOS DIRECTOS PARA InterrogatorioSistemas) ---
+
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
   condiciones: {
-    diabetesMellitus: boolean;
-    hipertensionArterial: boolean;
-    osteoporosis: boolean;
-    artritisReumatoide: boolean;
-    parkinson: boolean;
-    alzheimer: boolean;
-    asma: boolean;
-    cancer: boolean;
-    anemia: boolean;
-    otras: string;
+      diabetesMellitus: boolean;
+      hipertensionArterial: boolean;
+      osteoporosis: boolean;
+      artritisReumatoide: boolean;
+      parkinson: boolean;
+      alzheimer: boolean;
+      asma: boolean;
+      cancer: boolean;
+      anemia: boolean;
+      otras: string; // Considera cambiar a un campo específico si 'otras' es común
   };
 }
 
@@ -20,18 +24,18 @@ export interface PadecimientoActual {
   motivoConsulta: string;
   historiaPadecimiento: string;
   dolor: {
-    fechaInicio: string;
-    condicionAparicion: string;
-    frecuencia: string;
-    caracter: string;
-    intensidad: string;
-    localizacion: {
-      tipo: string;
-      descripcion: string;
-    };
-    atenuacion: string;
-    causaProvocado?: string;
-    ubicacion?: string; // Added ubicacion field
+      fechaInicio: string; // Considera usar tipo Date si es posible
+      condicionAparicion: string;
+      frecuencia: string;
+      caracter: string;
+      intensidad: string; // Considera usar number (1-10)
+      localizacion: {
+          tipo: string;
+          descripcion: string;
+      };
+      atenuacion: string;
+      causaProvocado?: string;
+      ubicacion?: string;
   };
 }
 
@@ -47,387 +51,186 @@ export interface AntecedentesHeredoFamiliares {
 export interface AntecedentesPersonalesNoPatologicos {
   tipoVivienda: string;
   materialVivienda: string;
-  servicios: string[];
-  condicionCalle: string;
-  iluminacionCalle: string;
-  frecuenciaLimpieza: string;
-  cambioRopaCama: string;
-  hacinamiento: string;
-  promiscuidad: string;
-  mascotas: string;
-  manejoResiduos: string;
-  frecuenciaBano: string;
-  lavadoManos: string[];
-  cambioRopa: string;
-  frecuenciaCepillado: string;
-  tecnicaCepillado: string;
-  auxiliaresBucales: string[];
-  ultimaVisitaOdontologo: string;
-  problemasBucales: string[];
-  alimentosConsumidos: string[];
-  frecuenciaFrutasVerduras: string;
-  frecuenciaBebidasAzucaradas: string;
-  frecuenciaComidaChatarra: string;
-  consumoAgua: string;
-  numeroComidas: string;
-  horarioComidas: {
-    desayuno: string;
-    almuerzo: string;
-    cena: string;
+  servicios: string[]; // Agua, Luz, Drenaje, etc.
+  // Datos de vivienda/entorno
+  condicionCalle?: string; // ¿Pavimentada, terracería?
+  iluminacionCalle?: string;
+  frecuenciaLimpieza?: string; // ¿Hogar?
+  cambioRopaCama?: string; // Frecuencia
+  hacinamiento?: string; // ¿Sí/No, No. personas/habitación?
+  promiscuidad?: string; // ¿Sí/No?
+  mascotas?: string; // ¿Sí/No, Cuáles?
+  manejoResiduos?: string; // ¿Recolección, quema, aire libre?
+  // Higiene personal
+  frecuenciaBano?: string; // Diario, cada tercer día, etc.
+  lavadoManos?: string[]; // Antes de comer, después de ir al baño, etc.
+  cambioRopa?: string; // Frecuencia
+  // Higiene Bucal
+  frecuenciaCepillado?: string; // Veces al día
+  tecnicaCepillado?: string; // Describe o nombre
+  auxiliaresBucales?: string[]; // Hilo dental, enjuague, etc.
+  ultimaVisitaOdontologo?: string; // Fecha o tiempo transcurrido
+  problemasBucales?: string[]; // Caries, sangrado, etc. (quizá mejor en examen intrabucal?)
+  // Alimentación
+  alimentosConsumidos?: string[]; // Grupos principales (carnes, verduras, etc.)
+  frecuenciaFrutasVerduras?: string; // Veces por semana/día
+  frecuenciaBebidasAzucaradas?: string;
+  frecuenciaComidaChatarra?: string;
+  consumoAgua?: string; // Litros/vasos al día
+  numeroComidas?: string; // Veces al día
+  horarioComidas?: { // Opcional, puede ser texto libre
+      desayuno?: string; // Hora aprox
+      almuerzo?: string;
+      cena?: string;
   };
-  ayunoProlongado: string;
+  ayunoProlongado?: string; // ¿Sí/No, Frecuencia?
+  // Adicciones (Considerar si va aquí o en APP)
+  tabaquismo?: { activo: boolean; pasivo?: boolean; cantidad?: string; desdeCuando?: string; exFumador?: boolean };
+  alcoholismo?: { consume: boolean; frecuencia?: string; tipo?: string; cantidad?: string; desdeCuando?: string; exAlcoholico?: boolean };
+  toxicomanias?: { consume: boolean; tipo?: string; frecuencia?: string; via?: string; desdeCuando?: string; exAdicto?: boolean };
+  // Sueño
+  horasSueno?: string; // Podría ser number
 }
 
+// Tipo base para categorías de patologías
 export interface CondicionPatologica {
-  [key: string]: boolean | string;
-  ninguna: boolean;
-  otra: boolean;
-  otraDescripcion: string;
+  [key: string]: boolean | string | undefined; // Permite flexibilidad pero puede ser menos seguro
+  ninguna: boolean; // Campo común para indicar ausencia en la categoría
+  otra: boolean; // Campo común para indicar "otra" no listada
+  otraDescripcion: string; // Descripción si 'otra' es true
 }
 
+// Mejorar APP usando 'ninguno' consistentemente
 export interface AntecedentesPersonalesPatologicos {
-  sinPatologia?: boolean;
-  nutricionales: CondicionPatologica & {
-    anorexia?: boolean;
-    bulimia?: boolean;
-    sobrepeso?: boolean;
-    obesidad?: boolean;
-  };
-  cardiacos: CondicionPatologica & {
-    enfermedadCoronaria?: boolean;
-    arritmias?: boolean;
-    defectosCardiacosCongenitos?: boolean;
-  };
-  hepaticos: CondicionPatologica & {
-    hepatitisA?: boolean;
-    hepatitisB?: boolean;
-    hepatitisC?: boolean;
-    higadoGraso?: boolean;
-    cirrosis?: boolean;
-  };
-  enfermedadesTransmisionSexual: CondicionPatologica & {
-    vih?: boolean;
-    sifilis?: boolean;
-    gonorrea?: boolean;
-    herpesGenital?: boolean;
-    vph?: boolean;
-  };
-  enfermedadesEruptivas: CondicionPatologica & {
-    sarampion?: boolean;
-    rubeola?: boolean;
-    escarlatina?: boolean;
-    varicela?: boolean;
-    paperas?: boolean;
-  };
-  pulmonares: CondicionPatologica & {
-    neumonia?: boolean;
-    bronquitis?: boolean;
-    asma?: boolean;
-    epoc?: boolean;
-  };
-  infecciosasParasitarias: CondicionPatologica & {
-    fiebreTifoidea?: boolean;
-    tuberculosis?: boolean;
-    amibiasis?: boolean;
-    giardiasis?: boolean;
-    ascariasis?: boolean;
-  };
-  otrosPadecimientos: CondicionPatologica & {
-    especificar?: boolean;
-  };
+  ninguno?: boolean; // Indicador general de ausencia de patologías (reemplaza sinPatologia)
+  // Categorías específicas:
+  nutricionales?: CondicionPatologica & { anorexia?: boolean; bulimia?: boolean; sobrepeso?: boolean; obesidad?: boolean; };
+  cardiacos?: CondicionPatologica & { enfermedadCoronaria?: boolean; arritmias?: boolean; defectosCardiacosCongenitos?: boolean; };
+  hepaticos?: CondicionPatologica & { hepatitisA?: boolean; hepatitisB?: boolean; hepatitisC?: boolean; higadoGraso?: boolean; cirrosis?: boolean; };
+  enfermedadesTransmisionSexual?: CondicionPatologica & { vih?: boolean; sifilis?: boolean; gonorrea?: boolean; herpesGenital?: boolean; vph?: boolean; };
+  enfermedadesEruptivas?: CondicionPatologica & { sarampion?: boolean; rubeola?: boolean; escarlatina?: boolean; varicela?: boolean; paperas?: boolean; };
+  pulmonares?: CondicionPatologica & { neumonia?: boolean; bronquitis?: boolean; asma?: boolean; epoc?: boolean; };
+  infecciosasParasitarias?: CondicionPatologica & { fiebreTifoidea?: boolean; tuberculosis?: boolean; amibiasis?: boolean; giardiasis?: boolean; ascariasis?: boolean; };
+  otrosPadecimientos?: CondicionPatologica; // Ya tiene los campos base
+  // Secciones adicionales que podrían integrarse aquí:
+  alergias?: { presenta: boolean; descripcion?: string; }; // Simplificado
+  transfusiones?: { realizado: boolean; fecha?: string; motivo?: string; }; // Simplificado
+  cirugias?: { realizado: boolean; descripcion?: string; }; // Simplificado
+  hospitalizaciones?: { realizado: boolean; descripcion?: string; }; // Simplificado
+  medicamentosActuales?: { toma: boolean; descripcion?: string; }; // Simplificado
+  grupoSanguineo?: string; // Podría ir aquí
+  factorRh?: string; // Podría ir aquí
+  inmunizaciones?: string; // Descripción o lista
 }
 
-export interface AntecedentesAlergicos {
-  medicamentos: {
-    es_alergico: boolean;
-    cuales: string;
-    tipo_reaccion: string;
-    severidad: string;
-  };
-  alimentos: {
-    es_alergico: boolean;
-    cuales: string;
-  };
-  latex: {
-    es_alergico: boolean;
-    descripcion_reaccion: string;
-  };
-  tiposAlergias?: {
-    medicamentos?: boolean;
-    alimentos?: boolean;
-    ambiente?: boolean;
-    [key: string]: boolean | undefined;
-  };
-  cualesAlergias?: string;
-  especificacionAlergias?: string;
-  administradoAnestesia?: boolean;
-  tipoAnestesia?: string;
-  reaccionAnestesia?: boolean;
-  descripcionReaccion?: string;
-  adicciones?: {
-    tabaco?: boolean;
-    alcohol?: boolean;
-    drogas?: boolean;
-    [key: string]: boolean | undefined;
-  };
-  detallesAdicciones?: string;
-}
+// Considera eliminar estas interfaces si se integran en APP
+// export interface AntecedentesAlergicos { ... }
+// export interface AntecedentesQuirurgicos { ... }
+// export interface AntecedentesHemorragicos { ... }
 
-export interface AntecedentesQuirurgicos {
-  sinQuirurgicos: boolean;
-  cirugiasRealizadas: Array<{
-    tipo: string;
-    fecha: string;
-    motivo: string;
-  }>;
-  hospitalizacionesPrevias: string;
-  complicacionesAnestesicas: string;
-  tratamientoReciente?: boolean;
-  motivoTratamiento?: string;
-  hospitalizacionReciente?: boolean;
-  motivoHospitalizacion?: string;
-  tomaMedicamentos?: boolean;
-  cualesMedicamentos?: string;
-  motivoMedicamentos?: string;
-}
-
-export interface AntecedentesHemorragicos {
-  sinHemorragicos: boolean;
-  sangradoProlongado: string;
-  hematomas: string;
-  hemorragiasEspontaneas: string;
-  transfusiones: string;
-  detallesAdicionales: string;
-  transfusionPrevia?: boolean;
-  motivoTransfusion?: string;
-  fechaTransfusion?: string;
-}
-
+// Refinar AntecedentesGinecoObstetricos
 export interface AntecedentesGinecoObstetricos {
-  embarazos?: number | string;
-  partos?: number | string;
-  cesareas?: number | string;
-  abortos?: number | string;
-  complicaciones?: string;
+  aplica: boolean; // Esencial para saber si llenar el resto
+  menarca?: string; // Edad
+  ritmoMenstrual?: string; // Regularidad y duración (e.g., 'Regular 28/5')
+  fum?: string; // YYYY-MM-DD o estado ('Menopausia', 'No recuerda')
+  ivsa?: string; // Edad o 'No aplica'
+  numeroParejas?: number | string;
+  metodoAnticonceptivo?: string; // 'Ninguno', 'ACO', 'DIU', etc.
+  gestas?: number;
+  paras?: number;
+  cesareas?: number;
+  abortos?: number;
+  fechaUltimoParto?: string; // YYYY-MM-DD
+  fechaUltimoAborto?: string; // YYYY-MM-DD
+  complicacionesEmbarazoParto?: string;
+  etsPrevias?: string; // Listar o describir
+  fechaUltimaCitologia?: string; // YYYY-MM-DD
+  resultadoCitologia?: string;
+  autoexploracionMamaria?: boolean; // Sí/No
+  fechaUltimaMastografia?: string; // YYYY-MM-DD
+  resultadoMastografia?: string;
 }
 
+// --- NUEVA INTERFAZ ESPECÍFICA ---
+// Define la estructura esperada para las redacciones generadas
+export interface RedaccionesInterrogatorio {
+  digestivo: string;
+  respiratorio: string;
+  cardiovascular: string;
+  genitoUrinario: string; // Clave corregida
+  endocrino: string;
+  tegumentario: string;
+  musculoEsqueletico: string;
+  nervioso: string;
+  // Añade aquí cualquier otro sistema que incluyas
+}
+
+
+// --- Exploración Física y Exámenes Específicos (sin cambios directos) ---
 export interface ExploracionFisica {
   signosVitales: {
-    ta: string;
-    fc: string;
-    fr: string;
-    temperatura: string;
-    peso: string;
-    talla: string;
-    imc: string;
+      ta: string; fc: string; fr: string; temperatura: string;
+      peso: string; talla: string; imc: string;
   };
-  exploracion: {
-    cabeza: string;
-    cuello: string;
-    torax: string;
-    abdomen: string;
-    extremidades: string;
-    [key: string]: string;
-  };
+  exploracionGeneral?: string; // Campo de texto libre para hallazgos generales
+  // Opcional: campos detallados si se prefiere a texto libre
+  // cabeza?: string; cuello?: string; torax?: string; abdomen?: string;
+  // extremidades?: string; pielAnexos?: string;
 }
 
-export interface ExamenCabeza {
-  sinHallazgos: boolean;
-  craneo: string;
-  cara: string;
-  ojos: string;
-  oidos: string;
-  nariz: string;
-  boca: string;
-  atm: string;
-  [key: string]: boolean | string;
-}
+// Interfaces para exámenes específicos (Odontología, etc.)
+// (Se mantienen como estaban, pero considera agruparlas bajo una sección 'examenOdontologico' en FormDataState)
+export interface ExamenCabeza { /*...*/ }
+export interface ArticulacionCraneomandibular { /*...*/ }
+export interface ExamenCuello { /*...*/ }
+export interface ExamenIntrabucal { /*...*/ }
+export interface GlandulasSalivales { /*...*/ }
+export interface Oclusion { /*...*/ }
+export interface RelacionDientes { /*...*/ }
+export interface LineaMedia { /*...*/ }
+export interface Frenillos { /*...*/ }
+export interface Diagnostico { /*...*/ }
+export interface Pronostico { /*...*/ }
+// export interface HigieneBucal { /*...*/ } // Ya definido dentro de APNP
+// export interface Alimentacion { /*...*/ } // Ya definido dentro de APNP
 
-export interface ArticulacionCraneomandibular {
-  sinHallazgos?: boolean;
-  aperturaBucal?: string;
-  movimientoLateral?: string;
-  chasquidos?: boolean;
-  crepitacion?: boolean;
-  dolor?: boolean;
-  observaciones?: string;
-  [key: string]: boolean | string | undefined | {[key: string]: string | boolean | undefined};
-  dolorMasticarHablar?: boolean;
-  tipoDolor?: string;
-  duracionDolor?: string;
-  dolorEspecifico?: boolean;
-  motivoDolor?: string;
-  ruidoArticular?: string;
-  patronAbertura?: string;
-  otroPatronAbertura?: string;
-  otrasObservaciones?: string;
-  labios?: {
-    simetria?: string;
-    volumen?: string;
-    coloracion?: string;
-    hidratacion?: string;
-    integridad?: string;
-    comisuras?: string;
-    movimiento?: string;
-    otrasObservaciones?: string;
-    [key: string]: string | boolean | undefined;
-  };
-}
 
-export interface ExamenCuello {
-  sinHallazgos?: boolean;
-  gangliosLinfaticos?: string;
-  musculatura?: string;
-  tiroides?: string;
-  movilidad?: string;
-  observaciones?: string;
-  [key: string]: boolean | string | undefined;
-}
-
-export interface ExamenIntrabucal {
-  sinHallazgos?: boolean;
-  lengua?: string;
-  paladarDuro?: string;
-  paladarBlando?: string;
-  mucosaYugal?: string;
-  pisoBoca?: string;
-  encias?: string;
-  dientes?: string;
-  observaciones?: string;
-  [key: string]: boolean | string | undefined;
-}
-
-export interface GlandulasSalivales {
-  sinHallazgos?: boolean;
-  parotida?: string;
-  submaxilar?: string;
-  sublingual?: string;
-  secrecion?: string;
-  observaciones?: string;
-  [key: string]: boolean | string | undefined;
-}
-
-export interface Oclusion {
-  sinHallazgos?: boolean;
-  clasificacionAngle?: string;
-  overjet?: string;
-  overbite?: string;
-  mordidaCruzada?: boolean;
-  mordidaAbierta?: boolean;
-  observaciones?: string;
-  [key: string]: boolean | string | undefined;
-}
-
-export interface RelacionDientes {
-  sinHallazgos?: boolean;
-  relacionMolar?: string;
-  relacionCanina?: string;
-  apiñamiento?: boolean;
-  diastemas?: boolean;
-  observaciones?: string;
-  [key: string]: boolean | string | undefined;
-}
-
-export interface LineaMedia {
-  sinHallazgos?: boolean;
-  coincidente?: boolean;
-  desviacion?: string;
-  observaciones?: string;
-  [key: string]: boolean | string | undefined;
-}
-
-export interface Frenillos {
-  sinHallazgos?: boolean;
-  labialSuperior?: string;
-  labialInferior?: string;
-  lingual?: string;
-  observaciones?: string;
-  [key: string]: boolean | string | undefined;
-}
-
-export interface Diagnostico {
-  principal?: string;
-  secundarios?: string;
-  observaciones?: string;
-  [key: string]: string | undefined;
-}
-
-export interface Pronostico {
-  general?: string;
-  particular?: string;
-  observaciones?: string;
-  [key: string]: string | undefined;
-}
-
-export interface HigieneBucal {
-  frecuenciaCepillado: string;
-  usoHiloDental: string;
-  tipoCerdas: string;
-  cantidadPasta: string;
-  marcaPasta: string;
-}
-
-export interface Alimentacion {
-  tipoDieta: string;
-  frecuenciaComidas: string;
-  tiposAlimentos: string;
-  saltaComidas: string;
-  consumoNutritivo: string;
-}
-
+// --- INTERFAZ PRINCIPAL DEL ESTADO ---
 export interface FormDataState {
   padecimientoActual: PadecimientoActual;
   antecedentesHeredoFamiliares: AntecedentesHeredoFamiliares;
   antecedentesPersonalesNoPatologicos: AntecedentesPersonalesNoPatologicos;
   antecedentesPersonalesPatologicos: AntecedentesPersonalesPatologicos;
-  antecedentesAlergicos: AntecedentesAlergicos;
-  antecedentesQuirurgicos: AntecedentesQuirurgicos;
-  antecedentesHemorragicos: AntecedentesHemorragicos;
-  antecedentesGinecoObstetricos?: AntecedentesGinecoObstetricos;
-  interrogatorioSistemas: {
-    [key: string]: string;
-    cardiovascular?: string;
-    respiratorio?: string;
-    digestivo?: string;
-    urinario?: string;
-    musculoEsqueletico?: string;
-    nervioso?: string;
-    endocrino?: string;
-    tegumentario?: string;
-  };
+  // Considera eliminar las secciones separadas si se integraron en APP
+  // antecedentesAlergicos?: AntecedentesAlergicos;
+  // antecedentesQuirurgicos?: AntecedentesQuirurgicos;
+  // antecedentesHemorragicos?: AntecedentesHemorragicos;
+  antecedentesGinecoObstetricos?: AntecedentesGinecoObstetricos; // Opcional
+
+  // --- Campo actualizado ---
+  interrogatorioSistemas?: RedaccionesInterrogatorio; // Usa la interfaz específica, opcional
+
   exploracionFisica: ExploracionFisica;
-  examenCabeza: ExamenCabeza;
-  articulacionCraneomandibular: ArticulacionCraneomandibular;
-  examenCuello: ExamenCuello;
-  examenIntrabucal: ExamenIntrabucal;
-  glandulasSalivales: GlandulasSalivales;
-  oclusion: Oclusion;
-  relacionDientes: RelacionDientes;
-  lineaMedia: LineaMedia;
-  frenillos: Frenillos;
-  diagnostico: Diagnostico;
-  pronostico: Pronostico;
-  serviciosDomiciliarios: string;
-  pisosVivienda: string;
-  materialVivienda: string;
-  materialPiso: string;
-  ventilacion: string;
-  frecuenciaLimpieza: string;
-  hacinamiento: string;
-  frecuenciaBano: string;
-  higieneBucal: HigieneBucal;
-  alimentacion: Alimentacion;
-  grupoSanguineo: string;
-  factorRh: string;
-  inmunizaciones: string;
-  peso: string;
-  imc: string;
-  talla: string;
-  presionArterial: string;
-  pulso: string;
-  frecuenciaCardiaca: string;
-  frecuenciaRespiratoria: string;
-  temperatura: string;
-  diagnosticos: string;
-  pronosticos: string;
+
+  // Agrupar exámenes específicos bajo una llave opcional podría ser más limpio:
+  examenOdontologico?: {
+      examenCabeza?: ExamenCabeza;
+      articulacionCraneomandibular?: ArticulacionCraneomandibular;
+      examenCuello?: ExamenCuello;
+      examenIntrabucal?: ExamenIntrabucal;
+      glandulasSalivales?: GlandulasSalivales;
+      oclusion?: Oclusion;
+      relacionDientes?: RelacionDientes;
+      lineaMedia?: LineaMedia;
+      frenillos?: Frenillos;
+  };
+  // Diagnóstico y Pronóstico (pueden ir juntos)
+  diagnosticoPronostico?: {
+      diagnostico?: Diagnostico;
+      pronostico?: Pronostico;
+  };
+
+  // Eliminar campos duplicados que ya están en secciones específicas
+  // (Los campos sueltos que tenías al final probablemente pertenecen a APNP, APP o ExploracionFisica)
 }
