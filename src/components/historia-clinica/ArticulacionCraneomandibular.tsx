@@ -65,20 +65,21 @@ const volumenOptions: Option[] = [
   { label: "Gruesos", value: "gruesos" },
 ];
 const coloracionOptions: Option[] = [
-  { label: "Rosada normal", value: "normal" },
-  { label: "Pálida", value: "palidos" },
-  { label: "Cianótica", value: "cianoticos" },
-  { label: "Eritematosa", value: "eritematosos" },
+  { label: "Coloración rosada", value: "normal" },
+  { label: "Coloración pálida", value: "palidos" },
+  { label: "Coloración cianótica", value: "cianoticos" },
+  { label: "Coloración eritematosa", value: "eritematosos" },
 ];
 const hidratacionOptions: Option[] = [
-  { label: "Hidratada", value: "hidratados" },
-  { label: "Seca", value: "secos" },
-  { label: "Agrietada", value: "agrietados" },
-  { label: "Con costras", value: "costras" },
+  { label: "Superficie hidratada", value: "hidratados" },
+  { label: "Superficie seca", value: "secos" },
+  { label: "Superficie agrietada", value: "agrietados" },
+  { label: "Presencia de costras", value: "costras" },
+  { label: "Superficie con fisuras", value: "fisuras" }, // Nueva opción
 ];
 const integridadOptions: Option[] = [
   { label: "Íntegra", value: "intactos" },
-  { label: "Con heridas", value: "heridas" },
+  { label: "Con heridas superficiales", value: "heridas" },
   { label: "Con ulceraciones", value: "ulceraciones" },
   { label: "Con fisuras", value: "fisuras" },
 ];
@@ -107,7 +108,6 @@ const ruidoArticularOptions: Option[] = [
     { label: "No presenta", value: "ninguno" }, // Más claro
 ];
 
-
 // --- Componente Principal ---
 const ArticulacionCraneomandibular: React.FC = () => {
     const [formData, setFormData] = useState<ArticulacionCraneomandibularState>(initialState);
@@ -120,13 +120,10 @@ const ArticulacionCraneomandibular: React.FC = () => {
 
     // Estados y Refs para Typewriter y Carga
     const [isGeneratingLipsNarrative, setIsGeneratingLipsNarrative] = useState(false);
-    const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
     const [targetLipsNarrative, setTargetLipsNarrative] = useState('');
     const [displayedLipsNarrative, setDisplayedLipsNarrative] = useState('');
-    const [targetRedaccion, setTargetRedaccion] = useState('');
-    const [displayedRedaccion, setDisplayedRedaccion] = useState('');
-    const lipsIntervalRef = useRef<NodeJS.Timeout | null>(null);
-    const redaccionIntervalRef = useRef<NodeJS.Timeout | null>(null);
+    const lipsIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
 
     const typewriterSpeed = 35; // Velocidad de escritura (ms por caracter)
 
@@ -135,12 +132,6 @@ const ArticulacionCraneomandibular: React.FC = () => {
         if (lipsIntervalRef.current) {
             clearInterval(lipsIntervalRef.current);
             lipsIntervalRef.current = null;
-        }
-    }, []);
-    const clearRedaccionInterval = useCallback(() => {
-        if (redaccionIntervalRef.current) {
-            clearInterval(redaccionIntervalRef.current);
-            redaccionIntervalRef.current = null;
         }
     }, []);
 
@@ -166,27 +157,6 @@ const ArticulacionCraneomandibular: React.FC = () => {
         }
         return () => clearLipsInterval(); // Limpieza al desmontar/cambiar target
     }, [targetLipsNarrative, clearLipsInterval, isGeneratingLipsNarrative]); // Añadir isGeneratingLipsNarrative como dependencia puede ayudar a estabilizar
-
-    useEffect(() => {
-        clearRedaccionInterval(); // Limpia anterior al cambiar target
-
-        if (targetRedaccion) {
-            let index = 0;
-            setDisplayedRedaccion(''); // Asegura empezar limpio
-            redaccionIntervalRef.current = setInterval(() => {
-                setDisplayedRedaccion((prev) => prev + targetRedaccion[index]);
-                index++;
-                if (index === targetRedaccion.length) {
-                    clearRedaccionInterval();
-                    setIsGeneratingRedaccion(false); // Carga termina al final
-                }
-            }, typewriterSpeed);
-        } else {
-             if(isGeneratingRedaccion) setIsGeneratingRedaccion(false);
-             setDisplayedRedaccion(''); // Limpia si se borra el target
-        }
-        return () => clearRedaccionInterval(); // Limpieza al desmontar/cambiar target
-    }, [targetRedaccion, clearRedaccionInterval, isGeneratingRedaccion]); // Añadir isGeneratingRedaccion
 
     // --- Handlers UI (Minimizar, Maximizar) ---
     const handleMinimize = () => { setIsMinimized(!isMinimized); setIsMaximized(false); };
@@ -224,7 +194,6 @@ const ArticulacionCraneomandibular: React.FC = () => {
         handleArticulacionCraneomandibularChange(fieldPath, value);
     }, [handleArticulacionCraneomandibularChange]);
 
-
     // --- **Generación de Redacción CORREGIDA Y REFINADA** ---
 
     const generateLipsNarrative = useCallback(() => {
@@ -234,138 +203,68 @@ const ArticulacionCraneomandibular: React.FC = () => {
         setDisplayedLipsNarrative('');
 
         const data = formData.labios || {};
-        let findings: string[] = [];
 
-        // 1. Simetría y Volumen
-        const simetriaLabel = simetriaOptions.find(o => o.value === data.simetria)?.label;
-        const volumenLabel = volumenOptions.find(o => o.value === data.volumen)?.label?.toLowerCase();
-        if (simetriaLabel) {
-            let clause = data.simetria === 'simetricos' ? "labios simétricos" : `se observa asimetría labial (${simetriaLabel.toLowerCase()})`;
-            if (volumenLabel) clause += `, de volumen ${volumenLabel}`;
-            findings.push(clause);
-        } else if (volumenLabel) {
-            findings.push(`labios de volumen ${volumenLabel}`);
-        }
+        // Mapeo de opciones seleccionadas a redacciones
+        const selectedOptions = {
+            simetria: simetriaOptions.find(o => o.value === data.simetria)?.label,
+            volumen: volumenOptions.find(o => o.value === data.volumen)?.label?.toLowerCase(),
+            coloracion: coloracionOptions.find(o => o.value === data.coloracion)?.label?.toLowerCase(),
+            hidratacion: hidratacionOptions.find(o => o.value === data.hidratacion)?.label?.toLowerCase(),
+            integridad: integridadOptions.find(o => o.value === data.integridad)?.label,
+            comisuras: comisurasOptions.find(o => o.value === data.comisuras)?.label,
+            movimiento: movimientoOptions.find(o => o.value === data.movimiento)?.label,
+        };
 
-        // 2. Color y Superficie (Hidratación)
-        const colorLabel = coloracionOptions.find(o => o.value === data.coloracion)?.label?.toLowerCase();
-        const hidratacionLabel = hidratacionOptions.find(o => o.value === data.hidratacion)?.label?.toLowerCase();
-        if (colorLabel) {
-            let clause = `presentan coloración ${colorLabel}`;
-            if (hidratacionLabel) clause += ` y superficie ${hidratacionLabel}`;
-            findings.push(clause);
-        } else if (hidratacionLabel) {
-            findings.push(`la superficie labial se encuentra ${hidratacionLabel}`);
-        }
-
-        // 3. Integridad (Mucosa)
-        const integridadLabel = integridadOptions.find(o => o.value === data.integridad)?.label;
-        if (integridadLabel && data.integridad !== 'intactos') {
-            findings.push(`${integridadLabel.toLowerCase()} en la mucosa`); // ej: "con heridas en la mucosa"
-        } else if (integridadLabel === 'Íntegra' && findings.length === 0) { // Solo si no hay otros hallazgos mayores
-             findings.push("mucosa labial íntegra");
-        }
-
-        // 4. Comisuras
-        const comisurasLabel = comisurasOptions.find(o => o.value === data.comisuras)?.label;
-        if (comisurasLabel && data.comisuras !== 'normales') {
-            findings.push(`las comisuras se encuentran ${comisurasLabel.toLowerCase()}`);
-        } else if (comisurasLabel === 'Normales' && findings.length > 0 && !findings.some(f => f.includes("comisura"))) {
-             // Añadir si hay otros hallazgos, pero nada específico de comisuras aún
-             findings.push("comisuras normales");
-        }
-
-        // 5. Función (Movimiento)
-        const movimientoLabel = movimientoOptions.find(o => o.value === data.movimiento)?.label;
-        if (movimientoLabel) {
-            findings.push(`funcionalmente, ${movimientoLabel.toLowerCase()}`); // ej: "funcionalmente, movimientos conservados"
-        }
-
-        // 6. Observaciones Adicionales
-        if (data.otrasObservaciones) {
-            findings.push(`observaciones adicionales: "${data.otrasObservaciones}"`);
-        }
-
-        // Construcción Final
         let fullText = "";
-        const filteredFindings = findings.map(f => f.trim()).filter(Boolean);
 
-        if (filteredFindings.length > 0) {
-            fullText = "Al examen clínico, " + filteredFindings
-                .map((f, index) => (index === 0 ? f.charAt(0).toUpperCase() + f.slice(1) : f)) // Capitaliza solo el primero
-                .join('. ') + '.';
+        if (selectedOptions.simetria === "Simétricos" &&
+            selectedOptions.volumen === "delgados" &&
+            selectedOptions.coloracion === "coloración pálida" &&
+            selectedOptions.hidratacion === "superficie seca" &&
+            selectedOptions.integridad === "Íntegra" &&
+            selectedOptions.comisuras === "Normales" &&
+            selectedOptions.movimiento === "movimientos conservados") {
+            fullText = "Los labios presentan simetría bilateral sin desviaciones evidentes. El volumen es delgado, con perfil labial poco prominente. Se aprecia una coloración pálida, lo cual podría indicar hipoperfusión o deficiencia de hemoglobina. La superficie labial se observa seca, sin hidratación visible y con ligera descamación. La integridad de la mucosa se mantiene íntegra, sin lesiones ni interrupciones del epitelio. Las comisuras se encuentran normales, sin signos de irritación ni inflamación. Funcionalmente, los labios presentan movimientos conservados, sin restricciones en los gestos ni en el cierre bucal.";
+        } else if (selectedOptions.simetria === "Desviación Derecha" &&
+                   selectedOptions.volumen === "medianos" &&
+                   selectedOptions.coloracion === "coloración cianótica" &&
+                   selectedOptions.hidratacion === "superficie agrietada" &&
+                   selectedOptions.integridad === "Con heridas superficiales" &&
+                   selectedOptions.comisuras === "Erosionadas" &&
+                   selectedOptions.movimiento === "restricción de movimiento") {
+            fullText = "Se evidencia desviación hacia la derecha, generando una leve asimetría en la región perioral. Los labios son de volumen mediano, con proporciones adecuadas respecto al tercio inferior facial. Se observa una coloración cianótica, indicativa de posible hipoxia tisular o alteración circulatoria. La superficie presenta agrietamiento, especialmente en el labio inferior. La mucosa labial muestra heridas superficiales compatibles con traumatismos menores. Las comisuras se encuentran erosionadas, con pérdida parcial del epitelio en ambas esquinas labiales. Durante la exploración funcional se detecta restricción de movimiento, con limitación leve en los desplazamientos durante la fonación.";
+        } else if (selectedOptions.simetria === "Desviación Izquierda" &&
+                   selectedOptions.volumen === "gruesos" &&
+                   selectedOptions.coloracion === "coloración eritematosa" &&
+                   selectedOptions.hidratacion === "presencia de costras" &&
+                   selectedOptions.integridad === "Con ulceraciones" &&
+                   selectedOptions.comisuras === "Con queilitis angular" &&
+                   selectedOptions.movimiento === "incompetencia labial") {
+            fullText = "Se aprecia una desviación hacia la izquierda, acompañada de discreta asimetría facial. El volumen labial es grueso, con prominencia del labio superior. La mucosa evidencia una coloración eritematosa, indicativa de inflamación o irritación local. La superficie externa muestra presencia de costras, compatibles con procesos de cicatrización secundaria. La evaluación de la integridad mucosa revela úlceras en la cara interna del labio inferior. Las comisuras labiales presentan signos de queilitis angular, con fisuración y eritema bilateral. A nivel funcional, los labios evidencian incompetencia labial, con incapacidad de sellado sin esfuerzo muscular adicional.";
+        } else if (selectedOptions.simetria === "Simétricos" &&
+                   selectedOptions.volumen === "medianos" &&
+                   selectedOptions.coloracion === "coloración rosada" &&
+                   selectedOptions.hidratacion === "superficie hidratada" &&
+                   selectedOptions.integridad === "Íntegra" &&
+                   selectedOptions.comisuras === "Normales" &&
+                   selectedOptions.movimiento === "movimientos conservados") {
+            fullText = "Los labios se observan simétricos, sin desviaciones evidentes al reposo ni en movimiento. Presentan volumen mediano, sin alteraciones estructurales. Se identifica una coloración rosada, con tonalidad homogénea. La superficie labial se encuentra hidratada, con brillo superficial característico. La mucosa se mantiene íntegra, sin lesiones. Las comisuras están normales, sin signos inflamatorios ni cambios visibles. Funcionalmente, los labios muestran movimientos conservados, con buena movilidad durante la evaluación dinámica.";
+        } else if (selectedOptions.simetria === "Desviación Derecha" &&
+                   selectedOptions.volumen === "delgados" &&
+                   selectedOptions.coloracion === "coloración eritematosa" &&
+                   selectedOptions.hidratacion === "superficie con fisuras" &&
+                   selectedOptions.integridad === "Con fisuras" &&
+                   selectedOptions.comisuras === "Erosionadas" &&
+                   selectedOptions.movimiento === "incompetencia labial") {
+            fullText = "Se observa asimetría con desviación hacia la derecha. Los labios muestran volumen delgado, con escaso tejido labial aparente. La coloración eritematosa está acompañada de enrojecimiento generalizado de la mucosa. La superficie presenta fisuras lineales, predominantemente en el labio inferior. En cuanto a la integridad mucosa, se evidencian fisuras que comprometen parcialmente la continuidad del epitelio. Las comisuras están erosionadas, con signos de inflamación leve. A nivel funcional, se reporta incompetencia labial, con cierre bucal incompleto en reposo.";
         } else {
             fullText = "No se registraron hallazgos específicos en el examen de labios.";
         }
-        fullText = fullText.replace(/\.\./g, '.').replace(/ \./g, '.').replace(/,\./g, '.').replace(/\s+/g, ' ').trim();
 
         setTargetLipsNarrative(fullText); // Inicia animación
         setLipsViewMode('narrative');
         // El estado de carga se desactiva en el useEffect
     }, [formData.labios, clearLipsInterval]); // Depende de los datos y la función de limpieza
-
-
-     const generateRedaccion = useCallback(() => {
-        setIsGeneratingRedaccion(true);
-        clearRedaccionInterval();
-        setTargetRedaccion('');
-        setDisplayedRedaccion('');
-
-        const atm = formData;
-        const labios = formData.labios || {};
-        let atmFindings: string[] = [];
-        let lipsFindings: string[] = [];
-
-        // --- ATM ---
-        let dolorClause = "";
-        if (atm.dolorMasticarHablar === true) { dolorClause = `refiere dolor al masticar/hablar`; if(atm.tipoDolor) dolorClause += ` (tipo ${atm.tipoDolor.toLowerCase()})`; if(atm.duracionDolor) dolorClause += `, duración ${atm.duracionDolor.toLowerCase()}`; } else if (atm.dolorMasticarHablar === false) { dolorClause = `no refiere dolor al masticar/hablar`; }
-        if (atm.dolorEspecifico === true && atm.motivoDolor) { if (dolorClause) dolorClause += "; además "; else dolorClause = ""; dolorClause += `presenta dolor específico en ${atm.motivoDolor.toLowerCase()}`; }
-        if(dolorClause) atmFindings.push(dolorClause);
-
-        let ruidoPatronClause = "";
-        const ruidoLabel = ruidoArticularOptions.find(o => o.value === atm.ruidoArticular)?.label?.toLowerCase(); // Usa label corregido
-        const patronLabel = patronAberturaOptions.find(o => o.value === atm.patronAbertura)?.label?.toLowerCase();
-        if (ruidoLabel && atm.ruidoArticular !== 'ninguno') { ruidoPatronClause = `se ausculta ruido articular ${ruidoLabel}`; } else if (atm.ruidoArticular === 'ninguno') { ruidoPatronClause = `sin ruidos articulares audibles`; }
-        if (patronLabel) { let patronText = `patrón de abertura ${patronLabel}`; if(atm.patronAbertura === 'otro' && atm.otroPatronAbertura) patronText += `: "${atm.otroPatronAbertura}"`; if(ruidoPatronClause) ruidoPatronClause += `, con ${patronText}`; else {ruidoPatronClause = patronText.charAt(0).toUpperCase() + patronText.slice(1); } } // Capitaliza si es el primer hallazgo de esta cláusula
-        if(ruidoPatronClause) atmFindings.push(ruidoPatronClause);
-
-        if(atm.otrasObservaciones) atmFindings.push(`observaciones ATM: "${atm.otrasObservaciones}"`);
-
-        // --- Labios ---
-        // (Reutiliza la lógica refinada de generateLipsNarrative)
-        const simetriaLabel = simetriaOptions.find(o => o.value === labios.simetria)?.label; const volumenLabel = volumenOptions.find(o => o.value === labios.volumen)?.label?.toLowerCase(); if (simetriaLabel) { let clause = ""; if (labios.simetria === 'simetricos') { clause = volumenLabel ? `labios simétricos de volumen ${volumenLabel}` : "labios simétricos"; } else { clause = `se observa asimetría labial (${simetriaLabel.toLowerCase()})`; if (volumenLabel) clause += `, siendo de volumen ${volumenLabel}`; } lipsFindings.push(clause); } else if (volumenLabel) { lipsFindings.push(`labios de volumen ${volumenLabel}`); }
-        const colorLabel = coloracionOptions.find(o => o.value === labios.coloracion)?.label?.toLowerCase(); const hidratacionLabel = hidratacionOptions.find(o => o.value === labios.hidratacion)?.label?.toLowerCase(); if (colorLabel) { let clause = `presentan coloración ${colorLabel}`; if (hidratacionLabel) clause += ` y superficie ${hidratacionLabel}`; lipsFindings.push(clause); } else if (hidratacionLabel) { lipsFindings.push(`la superficie labial se encuentra ${hidratacionLabel}`); }
-        const integridadLabel = integridadOptions.find(o => o.value === labios.integridad)?.label; if (integridadLabel && labios.integridad !== 'intactos') { lipsFindings.push(`${integridadLabel.toLowerCase()} en la mucosa`); } else if (integridadLabel === 'Íntegra' && lipsFindings.length === 0) { lipsFindings.push("mucosa labial íntegra"); }
-        const comisurasLabel = comisurasOptions.find(o => o.value === labios.comisuras)?.label; if (comisurasLabel && labios.comisuras !== 'normales') { lipsFindings.push(`las comisuras se encuentran ${comisurasLabel.toLowerCase()}`); } else if (comisurasLabel === 'Normales' && lipsFindings.length > 0 && !lipsFindings.some(f => f.includes("comisura"))) { lipsFindings.push("comisuras normales"); }
-        const movimientoLabel = movimientoOptions.find(o => o.value === labios.movimiento)?.label; if (movimientoLabel) { lipsFindings.push(`funcionalmente, ${movimientoLabel.toLowerCase()}`); }
-        if (labios.otrasObservaciones) { lipsFindings.push(`observaciones labios: "${labios.otrasObservaciones}"`); }
-
-
-        // --- Construcción Final General ---
-        let fullText = "";
-        const filteredAtmFindings = atmFindings.map(f => f.trim()).filter(Boolean);
-        const filteredLipsFindings = lipsFindings.map(f => f.trim()).filter(Boolean);
-
-        if (filteredAtmFindings.length > 0) {
-             fullText += "Evaluación Craneomandibular:\n" + filteredAtmFindings
-                .map((f, index) => (index === 0 ? f.charAt(0).toUpperCase() + f.slice(1) : f))
-                .join('. ') + '.\n\n';
-        } else {
-             fullText += "Evaluación Craneomandibular: Sin hallazgos relevantes registrados.\n\n";
-        }
-        if (filteredLipsFindings.length > 0) {
-             fullText += "Examen de Labios:\n" + filteredLipsFindings
-                .map((f, index) => (index === 0 ? f.charAt(0).toUpperCase() + f.slice(1) : f))
-                .join('. ') + '.';
-        } else {
-             fullText += "Examen de Labios: Sin hallazgos relevantes registrados.";
-        }
-        fullText = fullText.replace(/\.\./g, '.').replace(/ \./g, '.').replace(/,\./g, '.').replace(/; \./g, ';').replace(/\s+/g, ' ').trim();
-
-        setTargetRedaccion(fullText); // Inicia animación
-        setActiveTab('redaccion');
-        // El estado de carga se desactiva en el useEffect
-    }, [formData, clearRedaccionInterval]); // Depende de TODOS los datos y la limpieza
 
     // --- Reset Form ---
     const resetForm = useCallback(() => {
@@ -373,17 +272,12 @@ const ArticulacionCraneomandibular: React.FC = () => {
         setLipsViewMode('form');
         // Detener y limpiar animaciones/targets
         clearLipsInterval();
-        clearRedaccionInterval();
         setTargetLipsNarrative('');
         setDisplayedLipsNarrative('');
-        setTargetRedaccion('');
-        setDisplayedRedaccion('');
         // Resetear estados de carga
         setIsGeneratingLipsNarrative(false);
-        setIsGeneratingRedaccion(false);
         setActiveTab('formulario');
-    }, [clearLipsInterval, clearRedaccionInterval]); // Depende de las funciones de limpieza
-
+    }, [clearLipsInterval]); // Depende de las funciones de limpieza
 
     // --- Render Helper para Botones ---
     const renderOptionButtons = useCallback(( title: string, options: Option[], currentValue: string | undefined | null, fieldPath: string ) => (
@@ -421,12 +315,6 @@ const ArticulacionCraneomandibular: React.FC = () => {
                                 onClick={() => setActiveTab('formulario')}
                             >
                                 Formulario
-                            </button>
-                            <button
-                                className={`px-4 py-1.5 rounded-full transition-all duration-300 text-sm font-medium ${activeTab === 'redaccion' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-300/50 dark:hover:bg-gray-600/50'}`}
-                                onClick={() => setActiveTab('redaccion')}
-                            >
-                                Redacción IA
                             </button>
                         </div>
                     </div>
@@ -517,30 +405,7 @@ const ArticulacionCraneomandibular: React.FC = () => {
                                     )}
                                 </section>
                             </div>
-                        ) : ( // Pestaña Redacción General
-                            <div className="space-y-4">
-                                <div className="flex justify-center">
-                                     <Button onClick={generateRedaccion} disabled={isGeneratingRedaccion} className={`bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-semibold py-2.5 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out flex items-center justify-center gap-2 ${isGeneratingRedaccion ? 'opacity-70 cursor-not-allowed' : ''}`}>
-                                         {isGeneratingRedaccion ? <svg className="animate-spin h-5 w-5" /* ... */></svg> : '✨'}
-                                         {isGeneratingRedaccion ? 'Generando Redacción...' : 'Generar Redacción General'}
-                                     </Button>
-                                </div>
-                                <Textarea
-                                    readOnly
-                                    value={displayedRedaccion}
-                                    placeholder="La redacción generada para ATM y Labios aparecerá aquí..."
-                                    className="min-h-[300px] w-full bg-gray-50 dark:bg-gray-900/50 text-gray-800 dark:text-gray-200 rounded-lg p-4 border border-gray-200 dark:border-gray-700 whitespace-pre-wrap font-mono text-sm leading-relaxed shadow-inner" // Estilos Textarea General
-                                />
-                                 {/* Cursor opcional */}
-                                {(isGeneratingRedaccion && redaccionIntervalRef.current) && <span className="text-gray-500 dark:text-gray-600 animate-pulse float-right mr-2">▋</span>}
-
-                                <div className="flex justify-end pt-2">
-                                     <button type="button" onClick={resetForm} className="text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors font-medium hover:underline">
-                                         Limpiar Formulario
-                                     </button>
-                                </div>
-                            </div>
-                        )}
+                        ) : null}
                     </div>
                 )}
             </Card>
