@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Mic, Edit, FileText } from "lucide-react"; // Importar Edit y FileText
-import { FormDataState, ExamenCabezaState } from '@/types/historiaClinica'; // Asegúrate que ExamenCabezaState esté definido en tus tipos
+import { FormDataState } from '@/types/historiaClinica'; // Asegúrate que ExamenCabezaState esté definido en tus tipos
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -9,43 +10,39 @@ import { VoiceInput } from '@/components/ui/voice-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from "@/components/ui/button"; // Importar Button
 
-// 1. Asegúrate de que la interfaz ExamenCabezaState esté definida correctamente en tus tipos
-// Ejemplo (ajusta según tu definición real en '@/types/historiaClinica'):
-// interface ExamenCabezaState {
-//   tipoCraneo?: string;
-//   tipoPerfil?: string;
-//   tez?: string;
-//   estadoPiel?: string;
-//   lunares?: { presente?: boolean | null; detalles?: string };
-//   cicatrices?: { presente?: boolean | null; detalles?: string };
-//   asimetriasFaciales?: { presente?: boolean | null; detalles?: string };
-//   edema?: { presente?: boolean | null; detalles?: string };
-//   otrosHallazgos?: string;
-// }
+// Mapeo de frases para redacción dinámica de Cara
+const caraNarrativePhrases: { [key: string]: { [value: string]: string } | ((details?: string) => string) } = {
+  tez: {
+    clara: "El paciente presenta tez clara",
+    morena: "El paciente presenta tez morena",
+    oscura: "El paciente presenta tez oscura"
+  },
+  estadoPiel: {
+    reseca: "piel de aspecto reseco",
+    humectada: "piel adecuadamente humectada con buena turgencia"
+  },
+  lunares: {
+    true: (details?: string) => `Se observan lunares${details ? `: ${details}` : ''}`,
+    false: "No se evidencian lunares durante la evaluación clínica"
+  },
+  cicatrices: {
+    true: (details?: string) => `Se observan cicatrices${details ? `: ${details}` : ''}`,
+    false: "No se evidencian cicatrices durante la evaluación clínica"
+  },
+  asimetriasFaciales: {
+    true: (details?: string) => `Presenta asimetría facial${details ? `: ${details}` : ''}`,
+    false: "No se observan asimetrías faciales durante la evaluación"
+  },
+  edema: {
+    true: (details?: string) => `Se evidencia edema${details ? `: ${details}` : ''}`,
+    false: "No se observan signos de edema facial durante la evaluación"
+  }
+};
 
 interface ExamenCabezaProps {
   formData: FormDataState;
-  // Ajusta el tipo de 'part' para permitir rutas anidadas como 'lunares.presente'
   handleExamenCabezaChange: (part: string, value: string | boolean | null) => void;
 }
-
-// --- Mapeo de frases para redacción dinámica de Cara ---
-const caraNarrativePhrases: { [key: string]: { [value: string]: string } | ((details?: string) => string) } = {
-  tez: {
-    clara: "La tez del paciente es clara.",
-    morena: "Se observa una tez morena.",
-    oscura: "El paciente presenta una tez oscura."
-  },
-  estadoPiel: {
-    reseca: "La piel de la cara se presenta reseca.",
-    humectada: "La piel facial se encuentra humectada y con turgencia conservada."
-  },
-  lunares: (details?: string) => `Se observan lunares${details ? `: ${details}` : '.'}`,
-  cicatrices: (details?: string) => `Presenta cicatrices faciales${details ? `: ${details}` : '.'}`,
-  asimetriasFaciales: (details?: string) => `Se evidencia asimetría facial${details ? `: ${details}` : '.'}`,
-  edema: (details?: string) => `Se detecta edema facial${details ? `: ${details}` : '.'}`
-};
-
 
 const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   formData,
@@ -129,72 +126,86 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   };
 
   // --- Generación de Redacción DINÁMICA para Cara ---
-   const generateCaraNarrative = useCallback(() => {
-     setIsGeneratingCaraNarrative(true);
-     clearCaraInterval();
-     setTargetCaraNarrative(''); // Inicia limpieza para useEffect
+  const generateCaraNarrative = useCallback(() => {
+    setIsGeneratingCaraNarrative(true);
+    clearCaraInterval();
+    setTargetCaraNarrative(''); // Inicia limpieza para useEffect
 
-     const data = formData.examenCabeza || {}; // Usar {} como fallback
-     let sentences: string[] = [];
+    const data = formData.examenCabeza || {}; // Usar {} como fallback
+    let sentences: string[] = [];
 
-     // Construir frases
-     if (data.tez && caraNarrativePhrases.tez && typeof caraNarrativePhrases.tez !== 'function' && caraNarrativePhrases.tez[data.tez]) {
-       sentences.push(caraNarrativePhrases.tez[data.tez]);
-     }
-     if (data.estadoPiel && caraNarrativePhrases.estadoPiel && typeof caraNarrativePhrases.estadoPiel !== 'function' && caraNarrativePhrases.estadoPiel[data.estadoPiel]) {
-       sentences.push(caraNarrativePhrases.estadoPiel[data.estadoPiel]);
-     }
+    // Construir la primera frase con tez
+    if (data.tez && caraNarrativePhrases.tez && typeof caraNarrativePhrases.tez !== 'function') {
+      const tezPhrase = caraNarrativePhrases.tez[data.tez];
+      if (tezPhrase) {
+        sentences.push(tezPhrase);
+      }
+    }
 
-     // Características booleanas con detalles
-     if (data.lunares?.presente) {
-        const phraseFn = caraNarrativePhrases.lunares;
-        if(typeof phraseFn === 'function'){
-            sentences.push(phraseFn(data.lunares.detalles?.trim()));
+    // Agregar estado de la piel a la primera frase si existe
+    if (data.estadoPiel && caraNarrativePhrases.estadoPiel && typeof caraNarrativePhrases.estadoPiel !== 'function') {
+      const pielPhrase = caraNarrativePhrases.estadoPiel[data.estadoPiel];
+      if (pielPhrase) {
+        if (sentences.length > 0) {
+          // Si ya hay una frase de tez, concatenar con "con"
+          sentences[0] = `${sentences[0]} con ${pielPhrase}`;
+        } else {
+          sentences.push(`El paciente presenta ${pielPhrase}`);
         }
-     }
-     if (data.cicatrices?.presente) {
-        const phraseFn = caraNarrativePhrases.cicatrices;
-         if(typeof phraseFn === 'function'){
-             sentences.push(phraseFn(data.cicatrices.detalles?.trim()));
-         }
-     }
-     if (data.asimetriasFaciales?.presente) {
-         const phraseFn = caraNarrativePhrases.asimetriasFaciales;
-         if(typeof phraseFn === 'function'){
-            sentences.push(phraseFn(data.asimetriasFaciales.detalles?.trim()));
-         }
-     }
-     if (data.edema?.presente) {
-        const phraseFn = caraNarrativePhrases.edema;
-         if(typeof phraseFn === 'function'){
-            sentences.push(phraseFn(data.edema.detalles?.trim()));
-         }
-     }
+      }
+    }
+    
+    // Si no hay ninguna primera frase aún
+    if (sentences.length === 0) {
+      sentences.push("Se realiza evaluación dermatológica facial del paciente");
+    }
 
+    // Características con valores booleanos (presente/ausente)
+    const dermatologicFeatures = ['lunares', 'cicatrices', 'asimetriasFaciales', 'edema'];
+    
+    dermatologicFeatures.forEach(feature => {
+      if (data[feature as keyof typeof data]) {
+        const featureValue = data[feature as keyof typeof data];
+        
+        // Determinar si la característica está presente
+        const isPresent = featureValue?.presente === true;
+        
+        // Obtener la frase correspondiente
+        const phrasesForFeature = caraNarrativePhrases[feature];
+        if (phrasesForFeature) {
+          // Si está presente y tiene detalles
+          if (isPresent) {
+            const phraseFunction = phrasesForFeature.true;
+            if (typeof phraseFunction === 'function') {
+              sentences.push(phraseFunction(featureValue?.detalles?.trim()));
+            }
+          } else {
+            // Si no está presente
+            const phraseFunction = phrasesForFeature.false;
+            if (typeof phraseFunction === 'string') {
+              sentences.push(phraseFunction);
+            }
+          }
+        }
+      }
+    });
 
-     let fullText = "";
-     if (sentences.length > 0) {
-        // Unir frases asegurando formato correcto.
-         fullText = sentences.map(s => s.trim().replace(/\.$/, '')).join('. ') + '.';
-     } else {
-       fullText = "No se han descrito características faciales específicas.";
-     }
+    // Texto final con puntuación correcta
+    let fullText = sentences.join('. ');
+    
+    // Asegurar que termine en punto
+    if (fullText && !fullText.endsWith('.')) {
+      fullText += '.';
+    }
 
-     // Añadir otros hallazgos si existen
-     if (data.otrosHallazgos && data.otrosHallazgos.trim() !== '') {
-       const observaciones = `Otros hallazgos relevantes: ${data.otrosHallazgos.trim()}.`;
-       if (fullText === "No se han descrito características faciales específicas.") {
-         fullText = observaciones;
-       } else {
-         fullText += " " + observaciones;
-       }
-     }
+    // Añadir otros hallazgos si existen
+    if (data.otrosHallazgos && data.otrosHallazgos.trim() !== '') {
+      fullText += ` Otros hallazgos: ${data.otrosHallazgos.trim()}.`;
+    }
 
-     setTargetCaraNarrative(fullText); // Dispara el useEffect
-     setCaraViewMode('narrative');
-     // setIsGeneratingCaraNarrative(false) se maneja en useEffect
-   }, [formData.examenCabeza, clearCaraInterval]);
-
+    setTargetCaraNarrative(fullText); // Dispara el useEffect
+    setCaraViewMode('narrative');
+  }, [formData.examenCabeza, clearCaraInterval]);
 
   const craneosTypes = [
     {
@@ -231,9 +242,6 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
       description: 'Perfil facial que presenta una línea recta.'
     }
   ];
-
-   // Ajustar getNestedValue si es necesario o eliminar si handleExamenCabezaChange ya maneja la profundidad
-   // const getNestedValue = ... (puede que no sea necesario si handleExamenCabezaChange lo cubre)
 
   const caracteristicasFaciales = [
     { id: 'lunares', label: 'Lunares' },
@@ -440,8 +448,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                                  <div key={caracteristica.id} className="space-y-2">
                                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">{caracteristica.label}</Label>
                                      <Select
-                                         // Usa una función para obtener el valor de forma segura
-                                         value={formData.examenCabeza?.[caracteristica.id as keyof ExamenCabezaState]?.presente ? 'si' : 'no'}
+                                         value={formData.examenCabeza?.[caracteristica.id]?.presente ? 'si' : 'no'}
                                          onValueChange={(value) => {
                                              const isPresent = value === 'si';
                                              handleExamenCabezaChange(`${caracteristica.id}.presente`, isPresent);
@@ -461,11 +468,10 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                                      </Select>
 
                                     {/* Mostrar Textarea solo si 'presente' es true */}
-                                     {formData.examenCabeza?.[caracteristica.id as keyof ExamenCabezaState]?.presente === true && (
+                                     {formData.examenCabeza?.[caracteristica.id]?.presente === true && (
                                          <Textarea
                                              placeholder={`Detalles (ej. ubicación, tamaño, cantidad)`}
-                                             // Usa una función para obtener el valor de forma segura
-                                             value={formData.examenCabeza?.[caracteristica.id as keyof ExamenCabezaState]?.detalles || ''}
+                                             value={formData.examenCabeza?.[caracteristica.id]?.detalles || ''}
                                              onChange={(e) => handleExamenCabezaChange(`${caracteristica.id}.detalles`, e.target.value)}
                                              className="min-h-[50px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm mt-1.5" // Añadir margen superior
                                          />

@@ -1,3 +1,4 @@
+
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -232,15 +233,32 @@ export interface ExploracionFisica {
 }
 
 export interface ExamenCabeza {
-  sinHallazgos: boolean;
-  craneo: string;
-  cara: string;
-  ojos: string;
-  oidos: string;
-  nariz: string;
-  boca: string;
-  atm: string;
-  [key: string]: boolean | string;
+  sinHallazgos?: boolean;
+  tipoCraneo?: string;
+  tipoPerfil?: string;
+  tez?: string;
+  estadoPiel?: string;
+  lunares?: {
+    presente?: boolean;
+    detalles?: string;
+  };
+  cicatrices?: {
+    presente?: boolean;
+    detalles?: string;
+  };
+  asimetriasFaciales?: {
+    presente?: boolean;
+    detalles?: string;
+  };
+  edema?: {
+    presente?: boolean;
+    detalles?: string;
+  };
+  otrosHallazgos?: string;
+  [key: string]: boolean | string | undefined | {
+    presente?: boolean;
+    detalles?: string;
+  } | undefined;
 }
 
 export interface ArticulacionCraneomandibular {
