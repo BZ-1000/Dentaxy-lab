@@ -211,6 +211,24 @@ export interface AntecedentesGinecoObstetricos {
   complicaciones?: string;
 }
 
+export interface InterrogatorioSistema {
+  valor: string;
+  opciones?: string[];
+  seleccionados?: string[];
+}
+
+export interface InterrogatorioSistemas {
+  cardiovascular: InterrogatorioSistema;
+  respiratorio: InterrogatorioSistema;
+  digestivo: InterrogatorioSistema;
+  urinario: InterrogatorioSistema;
+  musculoEsqueletico: InterrogatorioSistema;
+  nervioso: InterrogatorioSistema;
+  endocrino: InterrogatorioSistema;
+  tegumentario: InterrogatorioSistema;
+  [key: string]: InterrogatorioSistema;
+}
+
 export interface ExploracionFisica {
   signosVitales: {
     ta: string;
@@ -384,17 +402,7 @@ export interface FormDataState {
   antecedentesQuirurgicos: AntecedentesQuirurgicos;
   antecedentesHemorragicos: AntecedentesHemorragicos;
   antecedentesGinecoObstetricos?: AntecedentesGinecoObstetricos;
-  interrogatorioSistemas: {
-    [key: string]: string;
-    cardiovascular?: string;
-    respiratorio?: string;
-    digestivo?: string;
-    urinario?: string;
-    musculoEsqueletico?: string;
-    nervioso?: string;
-    endocrino?: string;
-    tegumentario?: string;
-  };
+  interrogatorioSistemas: InterrogatorioSistemas;
   exploracionFisica: ExploracionFisica;
   examenCabeza: ExamenCabeza;
   articulacionCraneomandibular: ArticulacionCraneomandibular;
