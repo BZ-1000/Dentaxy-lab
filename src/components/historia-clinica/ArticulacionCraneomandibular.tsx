@@ -457,7 +457,7 @@ const ArticulacionCraneomandibular: React.FC = () => {
                         {activeTab === 'formulario' ? <div className="space-y-8">
                                 {/* --- ATM Formulario --- */}
                                 <section>
-                                    <h3 className="text-lg font-semibold mb-4 border-b border-gray-300 dark:border-gray-600 pb-2 text-gray-700 dark:text-gray-300">Articulación Craneomandibular</h3>
+                                    
                                     <div className="space-y-5">
                                         {/* Dolor Masticar/Hablar */}
                                         <div>
