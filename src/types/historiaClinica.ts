@@ -222,8 +222,6 @@ export interface ExploracionFisica {
     imc: string;
   };
   exploracion: {
-    // Estos campos son muy generales, considera si necesitas más detalle aquí
-    // o si se cubren en secciones específicas como ExamenCabeza, ExamenCuello, etc.
     cabeza: string;
     cuello: string;
     torax: string;
@@ -233,62 +231,17 @@ export interface ExploracionFisica {
   };
 }
 
-
-// --- INTERFAZ AUXILIAR PARA DETALLES DE CARACTERÍSTICAS FACIALES ---
-interface CaracteristicaDetallada {
-  presente?: boolean | null; // Sí/No/No seleccionado
-  // Sub-options for Lunares
-  tamano?: 'Pequeño' | 'Mediano' | 'Grande' | '' | null;
-  color?: 'Marrón claro' | 'Marrón oscuro' | 'Negro' | '' | null;
-  bordes?: 'Regulares' | 'Irregulares' | '' | null;
-  localizacion?: string;
-  elevacion?: 'Plano' | 'Elevado' | '' | null;
-  // Sub-options for Cicatrices
-  tipoCicatriz?: 'Quirúrgica' | 'Traumática' | 'Acneica' | 'Queloide' | '' | null;
-  antiguedad?: 'Nueva' | 'Antigua' | '' | null;
-  // localizacion?: string; // Se puede reusar la de lunares si es la misma estructura
-  tamanoCicatriz?: 'Pequeña' | 'Mediana' | 'Grande' | '' | null; // Evitar conflicto de nombres
-  coloracion?: 'Hipopigmentada' | 'Hiperpigmentada' | 'Normal' | '' | null;
-  // Sub-options for Asimetrias
-  zonaAfectada?: 'Mandíbula' | 'Mejillas' | 'Ojos' | 'Nariz' | 'Frente' | '' | null;
-  grado?: 'Leve' | 'Moderado' | 'Severo' | '' | null;
-  posibleCausa?: string; // Incluye Congénita, Traumática, Muscular, Otra (texto)
-  // Sub-options for Edema
-  // localizacion?: string; // Se puede reusar la de lunares
-  tipoEdema?: 'Localizado' | 'Difuso' | '' | null;
-  dolor?: 'Presente' | 'Ausente' | '' | null;
-  consistencia?: 'Blando' | 'Duro' | '' | null;
-}
-
-// --- INTERFAZ MODIFICADA PARA EXAMEN DE CABEZA ---
 export interface ExamenCabeza {
-  // Tipos de Cráneo y Perfil basados en el componente UI
-  tipoCraneo?: 'Mesocefálico' | 'Dolicocéfalo' | 'Braquicéfalo' | '' | null;
-  tipoPerfil?: 'Cóncavo' | 'Convexo' | 'Recto' | '' | null;
-
-  // Estructura detallada para la evaluación de la Cara
-  tez?: 'clara' | 'morena' | 'oscura' | '' | null;
-  estadoPiel?: 'reseca' | 'humectada' | '' | null;
-  lunares?: CaracteristicaDetallada;
-  cicatrices?: CaracteristicaDetallada;
-  asimetriasFaciales?: CaracteristicaDetallada;
-  edema?: CaracteristicaDetallada;
-  otrosHallazgosCara?: string; // Campo específico para otros hallazgos de la cara
-
-  // Opcional: Mantener campos simples para otras áreas si no se detallan en otro lugar
-  // Si 'ExamenCuello', 'ExamenIntrabucal', 'ArticulacionCraneomandibular' cubren
-  // cuello, boca, ATM, etc., puedes eliminar los campos redundantes de aquí.
-  // ojos?: string;
-  // oidos?: string;
-  // nariz?: string;
-
-  // Opcional: Un campo general de observaciones para toda la cabeza si es útil
-  observacionesGeneralesCabeza?: string;
-
-  // Opcional: Si quieres un booleano para indicar que no hay hallazgos en toda la cabeza
-  sinHallazgosGenerales?: boolean;
+  sinHallazgos: boolean;
+  craneo: string;
+  cara: string;
+  ojos: string;
+  oidos: string;
+  nariz: string;
+  boca: string;
+  atm: string;
+  [key: string]: boolean | string;
 }
-
 
 export interface ArticulacionCraneomandibular {
   sinHallazgos?: boolean;
@@ -298,26 +251,26 @@ export interface ArticulacionCraneomandibular {
   crepitacion?: boolean;
   dolor?: boolean;
   observaciones?: string;
-  // [key: string]: boolean | string | undefined | {[key: string]: string | boolean | undefined}; // Quitar índice si no es necesario
-  dolorMasticarHablar?: boolean | null; // Permitir null
+  [key: string]: boolean | string | undefined | {[key: string]: string | boolean | undefined};
+  dolorMasticarHablar?: boolean;
   tipoDolor?: string;
   duracionDolor?: string;
-  dolorEspecifico?: boolean | null; // Permitir null
+  dolorEspecifico?: boolean;
   motivoDolor?: string;
-  ruidoArticular?: string | null; // Permitir null
-  patronAbertura?: string | null; // Permitir null
+  ruidoArticular?: string;
+  patronAbertura?: string;
   otroPatronAbertura?: string;
-  otrasObservaciones?: string; // Renombrado para evitar confusión con 'observaciones'
+  otrasObservaciones?: string;
   labios?: {
-    simetria?: string | null; // Permitir null
-    volumen?: string | null; // Permitir null
-    coloracion?: string | null; // Permitir null
-    hidratacion?: string | null; // Permitir null (representa superficie)
-    integridad?: string | null; // Permitir null
-    comisuras?: string | null; // Permitir null
-    movimiento?: string | null; // Permitir null
+    simetria?: string;
+    volumen?: string;
+    coloracion?: string;
+    hidratacion?: string;
+    integridad?: string;
+    comisuras?: string;
+    movimiento?: string;
     otrasObservaciones?: string;
-    // [key: string]: string | boolean | undefined; // Quitar índice si no es necesario
+    [key: string]: string | boolean | undefined;
   };
 }
 
@@ -328,7 +281,7 @@ export interface ExamenCuello {
   tiroides?: string;
   movilidad?: string;
   observaciones?: string;
-  // [key: string]: boolean | string | undefined; // Quitar índice
+  [key: string]: boolean | string | undefined;
 }
 
 export interface ExamenIntrabucal {
@@ -341,7 +294,7 @@ export interface ExamenIntrabucal {
   encias?: string;
   dientes?: string;
   observaciones?: string;
-  // [key: string]: boolean | string | undefined; // Quitar índice
+  [key: string]: boolean | string | undefined;
 }
 
 export interface GlandulasSalivales {
@@ -351,7 +304,7 @@ export interface GlandulasSalivales {
   sublingual?: string;
   secrecion?: string;
   observaciones?: string;
-  // [key: string]: boolean | string | undefined; // Quitar índice
+  [key: string]: boolean | string | undefined;
 }
 
 export interface Oclusion {
@@ -362,7 +315,7 @@ export interface Oclusion {
   mordidaCruzada?: boolean;
   mordidaAbierta?: boolean;
   observaciones?: string;
-  // [key: string]: boolean | string | undefined; // Quitar índice
+  [key: string]: boolean | string | undefined;
 }
 
 export interface RelacionDientes {
@@ -372,7 +325,7 @@ export interface RelacionDientes {
   apiñamiento?: boolean;
   diastemas?: boolean;
   observaciones?: string;
-  // [key: string]: boolean | string | undefined; // Quitar índice
+  [key: string]: boolean | string | undefined;
 }
 
 export interface LineaMedia {
@@ -380,7 +333,7 @@ export interface LineaMedia {
   coincidente?: boolean;
   desviacion?: string;
   observaciones?: string;
-  // [key: string]: boolean | string | undefined; // Quitar índice
+  [key: string]: boolean | string | undefined;
 }
 
 export interface Frenillos {
@@ -389,21 +342,21 @@ export interface Frenillos {
   labialInferior?: string;
   lingual?: string;
   observaciones?: string;
-  // [key: string]: boolean | string | undefined; // Quitar índice
+  [key: string]: boolean | string | undefined;
 }
 
 export interface Diagnostico {
   principal?: string;
   secundarios?: string;
   observaciones?: string;
-  // [key: string]: string | undefined; // Quitar índice si no es necesario
+  [key: string]: string | undefined;
 }
 
 export interface Pronostico {
   general?: string;
   particular?: string;
   observaciones?: string;
-  // [key: string]: string | undefined; // Quitar índice si no es necesario
+  [key: string]: string | undefined;
 }
 
 export interface HigieneBucal {
@@ -422,7 +375,6 @@ export interface Alimentacion {
   consumoNutritivo: string;
 }
 
-// --- INTERFAZ PRINCIPAL DEL ESTADO DEL FORMULARIO ---
 export interface FormDataState {
   padecimientoActual: PadecimientoActual;
   antecedentesHeredoFamiliares: AntecedentesHeredoFamiliares;
@@ -431,9 +383,9 @@ export interface FormDataState {
   antecedentesAlergicos: AntecedentesAlergicos;
   antecedentesQuirurgicos: AntecedentesQuirurgicos;
   antecedentesHemorragicos: AntecedentesHemorragicos;
-  antecedentesGinecoObstetricos?: AntecedentesGinecoObstetricos; // Opcional
+  antecedentesGinecoObstetricos?: AntecedentesGinecoObstetricos;
   interrogatorioSistemas: {
-    [key: string]: string; // Mantener índice aquí si es dinámico
+    [key: string]: string;
     cardiovascular?: string;
     respiratorio?: string;
     digestivo?: string;
@@ -444,7 +396,7 @@ export interface FormDataState {
     tegumentario?: string;
   };
   exploracionFisica: ExploracionFisica;
-  examenCabeza: ExamenCabeza; // <--- Usa la nueva interfaz detallada
+  examenCabeza: ExamenCabeza;
   articulacionCraneomandibular: ArticulacionCraneomandibular;
   examenCuello: ExamenCuello;
   examenIntrabucal: ExamenIntrabucal;
@@ -455,33 +407,27 @@ export interface FormDataState {
   frenillos: Frenillos;
   diagnostico: Diagnostico;
   pronostico: Pronostico;
-
-  // Estos campos parecen repetidos de AntecedentesPersonalesNoPatologicos o ExploracionFisica
-  // Considera si son necesarios o si puedes obtenerlos de las otras secciones.
-  // serviciosDomiciliarios?: string; // Ya en APNP?
-  // pisosVivienda?: string; // Relacionado a APNP.tipoVivienda?
-  // materialVivienda?: string; // Ya en APNP
-  // materialPiso?: string;
-  // ventilacion?: string;
-  // frecuenciaLimpieza?: string; // Ya en APNP
-  // hacinamiento?: string; // Ya en APNP
-  // frecuenciaBano?: string; // Ya en APNP
-  higieneBucal?: HigieneBucal; // ¿Debería estar dentro de APNP o ExamenIntrabucal?
-  alimentacion?: Alimentacion; // ¿Debería estar dentro de APNP?
-  grupoSanguineo?: string;
-  factorRh?: string;
-  inmunizaciones?: string;
-
-  // Estos parecen repetidos de ExploracionFisica.signosVitales
-  // peso?: string;
-  // imc?: string;
-  // talla?: string;
-  // presionArterial?: string;
-  // pulso?: string;
-  // frecuenciaCardiaca?: string; // fc en signosVitales
-  // frecuenciaRespiratoria?: string; // fr en signosVitales
-  // temperatura?: string;
-
-  // Estos parecen repetidos de Diagnostico y Pronostico
-  // diagnosticos?: string;
-  // pronosticos?: string;
+  serviciosDomiciliarios: string;
+  pisosVivienda: string;
+  materialVivienda: string;
+  materialPiso: string;
+  ventilacion: string;
+  frecuenciaLimpieza: string;
+  hacinamiento: string;
+  frecuenciaBano: string;
+  higieneBucal: HigieneBucal;
+  alimentacion: Alimentacion;
+  grupoSanguineo: string;
+  factorRh: string;
+  inmunizaciones: string;
+  peso: string;
+  imc: string;
+  talla: string;
+  presionArterial: string;
+  pulso: string;
+  frecuenciaCardiaca: string;
+  frecuenciaRespiratoria: string;
+  temperatura: string;
+  diagnosticos: string;
+  pronosticos: string;
+}
