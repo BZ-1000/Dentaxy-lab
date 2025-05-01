@@ -232,11 +232,11 @@ interface DockIconProps {
 }
 
 function DockIcon({ children, className, width }: DockIconProps) {
-  const widthTransform = useTransform(width, (val) => val / 2);
-
+  // Fix: Properly handle MotionValue<number> by using it directly
+  // without trying to convert it to ReactNode
   return (
     <motion.div
-      style={{ width: widthTransform }}
+      style={{ width: useTransform(width, val => val / 2) }}
       className={cn('flex items-center justify-center', className)}
     >
       {children}
@@ -244,6 +244,4 @@ function DockIcon({ children, className, width }: DockIconProps) {
   );
 }
 
-export {
-  DockIcon
-};
+export { DockIcon };

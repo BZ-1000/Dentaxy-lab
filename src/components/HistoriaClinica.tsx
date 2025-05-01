@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -537,7 +538,10 @@ const HistoriaClinica = () => {
             </div>
             
             <div data-section-redaction="true" data-section-name="articulacionCraneomandibular">
-              <ArticulacionCraneomandibular formData={formData} handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} />
+              <ArticulacionCraneomandibular 
+                formData={formData} 
+                handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} 
+              />
             </div>
             
             <div data-section-redaction="true" data-section-name="examenCuello">

@@ -1,17 +1,23 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Mic, Edit, FileText } from "lucide-react"; // Importar Edit y FileText
-import { FormDataState } from '@/types/historiaClinica'; // Asegúrate que ExamenCabezaState esté definido en tus tipos
+import { Minus, Maximize2, X, Mic, Edit, FileText } from "lucide-react";
+import { FormDataState, CaracteristicaFacial } from '@/types/historiaClinica';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { VoiceInput } from '@/components/ui/voice-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from "@/components/ui/button"; // Importar Button
+import { Button } from "@/components/ui/button";
 
 // Mapeo de frases para redacción dinámica de Cara
-const caraNarrativePhrases: { [key: string]: { [value: string]: string } | ((details?: string) => string) } = {
+const caraNarrativePhrases: { 
+  [key: string]: { 
+    [value: string]: string 
+  } | { 
+    true: (details?: string) => string, 
+    false: string 
+  }
+} = {
   tez: {
     clara: "El paciente presenta tez clara",
     morena: "El paciente presenta tez morena",
@@ -89,9 +95,9 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
      } else {
        // Si no hay target o no está generando, muestra el texto completo
        setDisplayedCaraNarrative(targetCaraNarrative);
-        if (isGeneratingCaraNarrative) { // Asegurar que no se quede cargando
-             setIsGeneratingCaraNarrative(false);
-         }
+       if (isGeneratingCaraNarrative) { // Asegurar que no se quede cargando
+          setIsGeneratingCaraNarrative(false);
+       }
      }
      // Limpieza al desmontar o si las dependencias cambian
      return () => clearCaraInterval();
@@ -135,16 +141,16 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     let sentences: string[] = [];
 
     // Construir la primera frase con tez
-    if (data.tez && caraNarrativePhrases.tez && typeof caraNarrativePhrases.tez !== 'function') {
-      const tezPhrase = caraNarrativePhrases.tez[data.tez];
+    if (data.tez && typeof caraNarrativePhrases.tez === 'object' && !('true' in caraNarrativePhrases.tez)) {
+      const tezPhrase = (caraNarrativePhrases.tez as Record<string, string>)[data.tez];
       if (tezPhrase) {
         sentences.push(tezPhrase);
       }
     }
 
     // Agregar estado de la piel a la primera frase si existe
-    if (data.estadoPiel && caraNarrativePhrases.estadoPiel && typeof caraNarrativePhrases.estadoPiel !== 'function') {
-      const pielPhrase = caraNarrativePhrases.estadoPiel[data.estadoPiel];
+    if (data.estadoPiel && typeof caraNarrativePhrases.estadoPiel === 'object' && !('true' in caraNarrativePhrases.estadoPiel)) {
+      const pielPhrase = (caraNarrativePhrases.estadoPiel as Record<string, string>)[data.estadoPiel];
       if (pielPhrase) {
         if (sentences.length > 0) {
           // Si ya hay una frase de tez, concatenar con "con"
@@ -164,27 +170,23 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
     const dermatologicFeatures = ['lunares', 'cicatrices', 'asimetriasFaciales', 'edema'];
     
     dermatologicFeatures.forEach(feature => {
-      if (data[feature as keyof typeof data]) {
-        const featureValue = data[feature as keyof typeof data];
-        
+      const caracteristicaFacial = data[feature] as CaracteristicaFacial | undefined;
+      
+      if (caracteristicaFacial) {
         // Determinar si la característica está presente
-        const isPresent = featureValue?.presente === true;
+        const isPresent = caracteristicaFacial.presente === true;
         
         // Obtener la frase correspondiente
         const phrasesForFeature = caraNarrativePhrases[feature];
-        if (phrasesForFeature) {
+        if (phrasesForFeature && 'true' in phrasesForFeature) {
           // Si está presente y tiene detalles
           if (isPresent) {
-            const phraseFunction = phrasesForFeature.true;
-            if (typeof phraseFunction === 'function') {
-              sentences.push(phraseFunction(featureValue?.detalles?.trim()));
-            }
+            const truePhrase = (phrasesForFeature as {true: (details?: string) => string, false: string}).true;
+            sentences.push(truePhrase(caracteristicaFacial.detalles));
           } else {
             // Si no está presente
-            const phraseFunction = phrasesForFeature.false;
-            if (typeof phraseFunction === 'string') {
-              sentences.push(phraseFunction);
-            }
+            const falsePhrase = (phrasesForFeature as {true: (details?: string) => string, false: string}).false;
+            sentences.push(falsePhrase);
           }
         }
       }
@@ -259,7 +261,6 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   useEffect(() => {
       setSelectedPerfilTipo(formData.examenCabeza?.tipoPerfil || '');
   }, [formData.examenCabeza?.tipoPerfil]);
-
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : "my-4"}`} data-section-name="examenCabeza">
@@ -448,7 +449,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                                  <div key={caracteristica.id} className="space-y-2">
                                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">{caracteristica.label}</Label>
                                      <Select
-                                         value={formData.examenCabeza?.[caracteristica.id]?.presente ? 'si' : 'no'}
+                                         value={(formData.examenCabeza?.[caracteristica.id] as CaracteristicaFacial)?.presente ? 'si' : 'no'}
                                          onValueChange={(value) => {
                                              const isPresent = value === 'si';
                                              handleExamenCabezaChange(`${caracteristica.id}.presente`, isPresent);
@@ -468,10 +469,10 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                                      </Select>
 
                                     {/* Mostrar Textarea solo si 'presente' es true */}
-                                     {formData.examenCabeza?.[caracteristica.id]?.presente === true && (
+                                     {(formData.examenCabeza?.[caracteristica.id] as CaracteristicaFacial)?.presente === true && (
                                          <Textarea
                                              placeholder={`Detalles (ej. ubicación, tamaño, cantidad)`}
-                                             value={formData.examenCabeza?.[caracteristica.id]?.detalles || ''}
+                                             value={(formData.examenCabeza?.[caracteristica.id] as CaracteristicaFacial)?.detalles || ''}
                                              onChange={(e) => handleExamenCabezaChange(`${caracteristica.id}.detalles`, e.target.value)}
                                              className="min-h-[50px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm mt-1.5" // Añadir margen superior
                                          />

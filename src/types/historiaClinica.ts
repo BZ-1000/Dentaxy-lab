@@ -221,6 +221,7 @@ export interface ExploracionFisica {
     peso: string;
     talla: string;
     imc: string;
+    pulso?: string; // Added pulso field
   };
   exploracion: {
     cabeza: string;
@@ -232,33 +233,23 @@ export interface ExploracionFisica {
   };
 }
 
+export interface CaracteristicaFacial {
+  presente?: boolean;
+  detalles?: string;
+}
+
 export interface ExamenCabeza {
   sinHallazgos?: boolean;
   tipoCraneo?: string;
   tipoPerfil?: string;
   tez?: string;
   estadoPiel?: string;
-  lunares?: {
-    presente?: boolean;
-    detalles?: string;
-  };
-  cicatrices?: {
-    presente?: boolean;
-    detalles?: string;
-  };
-  asimetriasFaciales?: {
-    presente?: boolean;
-    detalles?: string;
-  };
-  edema?: {
-    presente?: boolean;
-    detalles?: string;
-  };
+  lunares?: CaracteristicaFacial;
+  cicatrices?: CaracteristicaFacial;
+  asimetriasFaciales?: CaracteristicaFacial;
+  edema?: CaracteristicaFacial;
   otrosHallazgos?: string;
-  [key: string]: boolean | string | undefined | {
-    presente?: boolean;
-    detalles?: string;
-  } | undefined;
+  [key: string]: boolean | string | CaracteristicaFacial | undefined;
 }
 
 export interface ArticulacionCraneomandibular {
