@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
-import { FormDataState, InterrogatorioSistema } from '@/types/historiaClinica';
+import { FormDataState } from '@/types/historiaClinica';
 import { getInitialFormState } from '@/utils/initialFormState';
 
 export const useHistoriaClinica = () => {
@@ -260,25 +260,13 @@ export const useHistoriaClinica = () => {
   };
 
   const handleInterrogatorioChange = (system: string, value: string) => {
-    setFormData(prev => {
-      // Get the current system state or initialize it
-      const currentSystem = prev.interrogatorioSistemas[system] || { valor: '' };
-      
-      // Parse selected options from the value if it's a comma-separated list
-      const seleccionados = value.split(', ').filter(Boolean);
-      
-      return {
-        ...prev,
-        interrogatorioSistemas: {
-          ...prev.interrogatorioSistemas,
-          [system]: {
-            ...currentSystem,
-            valor: value,
-            seleccionados: seleccionados
-          }
-        }
-      };
-    });
+    setFormData(prev => ({
+      ...prev,
+      interrogatorioSistemas: {
+        ...prev.interrogatorioSistemas,
+        [system]: value
+      }
+    }));
   };
 
   const handleExploracionFisicaChange = (field: string, value: any) => {
@@ -476,20 +464,9 @@ export const useHistoriaClinica = () => {
   const guardarFormulario = (data: FormDataState, nombre: string) => {
     if (!nombre.trim()) return;
     
-    // Process the data to ensure all selections are properly stored
-    const processedData = {
+    // Asegurar que se guarden completos los valores de localizacion y causaProvocado
+    const formDataToSave = {
       ...data,
-      interrogatorioSistemas: Object.entries(data.interrogatorioSistemas).reduce((acc, [key, value]) => {
-        // Ensure each system has both valor and seleccionados
-        const seleccionados = value.seleccionados || value.valor?.split(', ').filter(Boolean) || [];
-        return {
-          ...acc,
-          [key]: {
-            ...value,
-            seleccionados
-          }
-        };
-      }, {} as Record<string, InterrogatorioSistema>),
       padecimientoActual: {
         ...data.padecimientoActual,
         dolor: {
@@ -500,7 +477,7 @@ export const useHistoriaClinica = () => {
       }
     };
     
-    localStorage.setItem(`formulario_${nombre}`, JSON.stringify(processedData));
+    localStorage.setItem(`formulario_${nombre}`, JSON.stringify(formDataToSave));
   };
 
   const cargarFormulario = (data: FormDataState | null) => {
@@ -513,7 +490,6 @@ export const useHistoriaClinica = () => {
   };
 
   return {
-    // ... keep existing code (returned properties and methods)
     formData,
     resumen,
     isGenerating,
