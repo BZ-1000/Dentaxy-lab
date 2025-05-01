@@ -9,47 +9,6 @@ import { VoiceInput } from '@/components/ui/voice-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from "@/components/ui/button";
 
-// 1. ACTUALIZA ExamenCabezaState en '@/types/historiaClinica.ts'
-//    Debe incluir todas las subopciones como se definió en el pensamiento anterior.
-//    Ejemplo Parcial:
-/*
-interface CaracteristicaDetallada {
-  presente?: boolean | null;
-  // Lunares
-  tamano?: 'Pequeño' | 'Mediano' | 'Grande' | '';
-  color?: 'Marrón claro' | 'Marrón oscuro' | 'Negro' | '';
-  bordes?: 'Regulares' | 'Irregulares' | '';
-  localizacion?: string;
-  elevacion?: 'Plano' | 'Elevado' | '';
-  // Cicatrices
-  tipoCicatriz?: 'Quirúrgica' | 'Traumática' | 'Acneica' | 'Queloide' | '';
-  antiguedad?: 'Nueva' | 'Antigua' | '';
-  // localizacion: string; // Reusar o definir específico
-  tamanoCicatriz?: 'Pequeña' | 'Mediana' | 'Grande' | '';
-  coloracion?: 'Hipopigmentada' | 'Hiperpigmentada' | 'Normal' | '';
-  // Asimetrias
-  zonaAfectada?: 'Mandíbula' | 'Mejillas' | 'Ojos' | 'Nariz' | 'Frente' | '';
-  grado?: 'Leve' | 'Moderado' | 'Severo' | '';
-  posibleCausa?: string; // Incluye Congénita, Traumática, Muscular, Otra (texto)
-  // Edema
-  // localizacion: string; // Reusar o definir específico
-  tipoEdema?: 'Localizado' | 'Difuso' | '';
-  dolor?: 'Presente' | 'Ausente' | '';
-  consistencia?: 'Blando' | 'Duro' | '';
-}
-
-interface ExamenCabezaState {
-  // ... tipoCraneo, tipoPerfil
-  tez?: 'clara' | 'morena' | 'oscura' | '' | null;
-  estadoPiel?: 'reseca' | 'humectada' | '' | null;
-  lunares?: CaracteristicaDetallada;
-  cicatrices?: CaracteristicaDetallada;
-  asimetriasFaciales?: CaracteristicaDetallada;
-  edema?: CaracteristicaDetallada;
-  otrosHallazgos?: string;
-}
-*/
-
 interface ExamenCabezaProps {
   formData: FormDataState;
   handleExamenCabezaChange: (part: string, value: string | boolean | null) => void;
