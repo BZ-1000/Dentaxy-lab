@@ -488,7 +488,7 @@ const ArticulacionCraneomandibular: React.FC = () => {
                                          </div>
                                          {/* Motivo Dolor */}
                                         {formData.dolorEspecifico === true && <div className="pl-4 border-l-2 border-emerald-300 dark:border-emerald-600 ml-1">
-                                                <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">Zona o motivo del dolor:</label>
+                                                <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">Motivo</label>
                                                 <Textarea value={formData.motivoDolor || ''} onChange={e => handleTextChange('motivoDolor', e)} placeholder="Ej. preauricular, masetero..." className="min-h-[50px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-emerald-500 focus:border-emerald-500 rounded-md shadow-sm" />
                                             </div>}
                                         {/* Ruido Articular */}
