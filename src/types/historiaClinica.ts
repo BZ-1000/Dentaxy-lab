@@ -1,4 +1,3 @@
-
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -236,6 +235,21 @@ export interface ExploracionFisica {
 export interface CaracteristicaFacial {
   presente?: boolean;
   detalles?: string;
+  // Add subfield options
+  tamanio?: string;  // pequeño, mediano, grande
+  color?: string;    // marrón claro, marrón oscuro, negro
+  bordes?: string;   // regulares, irregulares
+  localizacion?: string;
+  elevacion?: string; // plano, elevado
+  tipo?: string;      // quirúrgica, traumática, acneica, queloide
+  antiguedad?: string; // nueva, antigua
+  coloracion?: string; // hipopigmentada, hiperpigmentada, normal
+  zonaAfectada?: string; // mandíbula, mejillas, ojos, nariz, frente
+  grado?: string;      // leve, moderado, severo
+  posibleCausa?: string; // congénita, traumática, muscular, otra
+  tipoEdema?: string;   // localizado, difuso
+  dolor?: string;      // presente, ausente
+  consistencia?: string; // blando, etc.
 }
 
 export interface ExamenCabeza {
@@ -382,7 +396,7 @@ export interface Alimentacion {
   tiposAlimentos: string;
   saltaComidas: string;
   consumoNutritivo: string;
-}
+  }
 
 export interface FormDataState {
   padecimientoActual: PadecimientoActual;
