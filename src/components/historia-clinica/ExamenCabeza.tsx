@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Mic, Edit, FileText } from "lucide-react";
@@ -548,14 +549,17 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
 
                          {/* Características con detalles opcionales (dos columnas) */}
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6"> {/* Ajustar gap */}
-                             {caracteristicasFaciales.map((caracteristica) => (
+                             {caracteristicasFaciales.map((caracteristica) => {
+                               const caracteristicaData = (formData.examenCabeza?.[caracteristica.id as keyof ExamenCabezaType] || {}) as CaracteristicaFacial;
+                               const isPresent = caracteristicaData?.presente === true;
+                               
+                               return (
                                  <div key={caracteristica.id} className="space-y-2 border p-4 rounded-md shadow-sm">
                                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">{caracteristica.label}</Label>
                                      <Select
-                                         value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.presente ? 'si' : 'no'}
+                                         value={isPresent ? 'si' : 'no'}
                                          onValueChange={(value) => {
-                                             const isPresent = value === 'si';
-                                             handleCaracteristicaFacialChange(caracteristica.id, 'presente', isPresent);
+                                             handleCaracteristicaFacialChange(caracteristica.id, 'presente', value === 'si');
                                          }}
                                      >
                                          <SelectTrigger className="w-full bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm">
@@ -568,7 +572,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                                      </Select>
 
                                     {/* Mostrar subOptions basadas en la característica seleccionada */}
-                                    {((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.presente === true && (
+                                    {isPresent && (
                                         <div className="mt-2 space-y-3 border-t pt-2">
                                             {/* Mostrar diferentes opciones según el tipo de característica */}
                                             {caracteristica.id === 'lunares' && (
@@ -576,7 +580,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                                                     <div>
                                                         <Label className="text-xs text-gray-600 dark:text-gray-400">Tamaño</Label>
                                                         <Select
-                                                            value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.tamanio || ''}
+                                                            value={caracteristicaData?.tamanio || ''}
                                                             onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tamanio', value)}
                                                         >
                                                             <SelectTrigger className="w-full h-8 text-sm mt-1">
@@ -592,7 +596,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                                                     <div>
                                                         <Label className="text-xs text-gray-600 dark:text-gray-400">Color</Label>
                                                         <Select
-                                                            value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.color || ''}
+                                                            value={caracteristicaData?.color || ''}
                                                             onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'color', value)}
                                                         >
                                                             <SelectTrigger className="w-full h-8 text-sm mt-1">
@@ -608,7 +612,7 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                                                     <div>
                                                         <Label className="text-xs text-gray-600 dark:text-gray-400">Bordes</Label>
                                                         <Select
-                                                            value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.bordes || ''}
+                                                            value={caracteristicaData?.bordes || ''}
                                                             onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'bordes', value)}
                                                         >
                                                             <SelectTrigger className="w-full h-8 text-sm mt-1">
@@ -619,3 +623,302 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                                                                     <SelectItem key={option} value={option}>{option}</SelectItem>
                                                                 ))}
                                                             </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Elevación</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.elevacion || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'elevacion', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione elevación" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {lunaresOptions.elevacion.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Localización</Label>
+                                                        <Textarea 
+                                                            value={caracteristicaData?.localizacion || ''}
+                                                            onChange={(e) => handleCaracteristicaFacialChange(caracteristica.id, 'localizacion', e.target.value)}
+                                                            placeholder="Especifique localización"
+                                                            className="mt-1 h-16 text-sm"
+                                                        />
+                                                    </div>
+                                                </>
+                                            )}
+                                            
+                                            {caracteristica.id === 'cicatrices' && (
+                                                <>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Tipo</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.tipo || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tipo', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione tipo" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {cicatricesOptions.tipo.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Antigüedad</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.antiguedad || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'antiguedad', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione antigüedad" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {cicatricesOptions.antiguedad.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Tamaño</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.tamanio || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tamanio', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione tamaño" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {cicatricesOptions.tamanio.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Coloración</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.coloracion || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'coloracion', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione coloración" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {cicatricesOptions.coloracion.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Localización</Label>
+                                                        <Textarea 
+                                                            value={caracteristicaData?.localizacion || ''}
+                                                            onChange={(e) => handleCaracteristicaFacialChange(caracteristica.id, 'localizacion', e.target.value)}
+                                                            placeholder="Especifique localización"
+                                                            className="mt-1 h-16 text-sm"
+                                                        />
+                                                    </div>
+                                                </>
+                                            )}
+                                            
+                                            {caracteristica.id === 'asimetriasFaciales' && (
+                                                <>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Zona afectada</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.zonaAfectada || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'zonaAfectada', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione zona afectada" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {asimetriasOptions.zonaAfectada.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Grado</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.grado || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'grado', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione grado" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {asimetriasOptions.grado.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Posible causa</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.posibleCausa || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'posibleCausa', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione posible causa" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {asimetriasOptions.posibleCausa.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </>
+                                            )}
+                                            
+                                            {caracteristica.id === 'edema' && (
+                                                <>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Localización</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.localizacion || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'localizacion', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione localización" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {edemaOptions.localizacion.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Tipo</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.tipoEdema || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tipoEdema', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione tipo" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {edemaOptions.tipoEdema.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Dolor</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.dolor || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'dolor', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione dolor" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {edemaOptions.dolor.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                    <div>
+                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Consistencia</Label>
+                                                        <Select
+                                                            value={caracteristicaData?.consistencia || ''}
+                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'consistencia', value)}
+                                                        >
+                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                                <SelectValue placeholder="Seleccione consistencia" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {edemaOptions.consistencia.map(option => (
+                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </>
+                                            )}
+                                            
+                                            {/* Campo de detalles para todas las características */}
+                                            <div>
+                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Detalles adicionales</Label>
+                                                <Textarea 
+                                                    value={caracteristicaData?.detalles || ''}
+                                                    onChange={(e) => handleCaracteristicaFacialChange(caracteristica.id, 'detalles', e.target.value)}
+                                                    placeholder="Especifique detalles adicionales"
+                                                    className="mt-1 h-20 text-sm"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                 </div>
+                               );
+                             })}
+                         </div>
+
+                         {/* Otros Hallazgos */}
+                         <div className="space-y-2 border p-4 rounded-md border-gray-300 dark:border-gray-600 my-4">
+                             <div className="flex justify-between items-center">
+                                 <Label htmlFor="otrosHallazgos" className="text-sm font-medium text-gray-700 dark:text-gray-300">Otros hallazgos</Label>
+                                 <button
+                                     type="button"
+                                     onClick={toggleVoiceInput}
+                                     className="p-1 rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-600 dark:text-blue-300"
+                                     title="Activar entrada por voz"
+                                 >
+                                     <Mic className="w-4 h-4" />
+                                 </button>
+                             </div>
+                             {showVoiceInput ? (
+                                 <VoiceInput onTranscription={handleVoiceTranscription} placeholder="Hable para iniciar la transcripción..." />
+                             ) : (
+                                 <Textarea
+                                     id="otrosHallazgos"
+                                     value={formData.examenCabeza?.otrosHallazgos || ''}
+                                     onChange={(e) => handleExamenCabezaChange('otrosHallazgos', e.target.value)}
+                                     placeholder="Registrar otros hallazgos relevantes..."
+                                     className="min-h-[100px] border-gray-300 dark:border-gray-600"
+                                 />
+                             )}
+                         </div>
+                     </div>
+                 ) : (
+                     <div className="space-y-4">
+                         <div className="relative bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 min-h-[100px]">
+                             {isGeneratingCaraNarrative && (
+                                 <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-lg">
+                                     <div className="flex flex-col items-center">
+                                         <svg className="animate-spin h-8 w-8 text-blue-600 dark:text-blue-400 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle> <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path> </svg>
+                                         <p className="text-sm text-gray-600 dark:text-gray-400">Generando narrativa clínica...</p>
+                                     </div>
+                                 </div>
+                             )}
+                             <p className="text-gray-800 dark:text-gray-300 leading-relaxed text-justify">
+                                 {displayedCaraNarrative || "No hay suficientes datos para generar una narrativa clínica."}
+                             </p>
+                         </div>
+                     </div>
+                 )}
+             </section>
+          </div>
+         </div>
+       </Card>
+    </div>
+  );
+};
+
+export default ExamenCabeza;

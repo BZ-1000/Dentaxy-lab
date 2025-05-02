@@ -1,7 +1,6 @@
 
 import React from 'react';
 
-// Fix the 'expandText' property issue by not assuming it exists on window
 const WikiSearch = () => {
   const handleExpandText = (text: string) => {
     // Use a local function instead of window.expandText

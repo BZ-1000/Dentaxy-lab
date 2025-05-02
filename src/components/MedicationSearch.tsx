@@ -1,6 +1,5 @@
 
 import React from 'react';
-// Fix the error by removing any reference to 'M'
 
 const MedicationSearch = () => {
   return (
