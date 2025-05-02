@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -540,7 +539,7 @@ const HistoriaClinica = () => {
             <div data-section-redaction="true" data-section-name="articulacionCraneomandibular">
               <ArticulacionCraneomandibular 
                 formData={formData} 
-                handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} 
+                handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange}
               />
             </div>
             
