@@ -1,923 +1,198 @@
-
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React from 'react';
+import { FormDataState } from '@/types/historiaClinica';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Mic, Edit, FileText } from "lucide-react";
-import { FormDataState, CaracteristicaFacial, ExamenCabeza as ExamenCabezaType } from '@/types/historiaClinica';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { VoiceInput } from '@/components/ui/voice-input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from "@/components/ui/button";
 
-// Mapeo de frases para redacción dinámica de Cara
-const caraNarrativePhrases: { 
-  [key: string]: { 
-    [value: string]: string 
-  } | { 
-    true: (details?: any) => string, 
-    false: string 
-  }
-} = {
-  tez: {
-    clara: "El paciente presenta tez clara",
-    morena: "El paciente presenta tez morena",
-    oscura: "El paciente presenta tez oscura"
-  },
-  estadoPiel: {
-    reseca: "piel de aspecto reseco",
-    humectada: "piel adecuadamente humectada con buena turgencia"
-  },
-  lunares: {
-    true: (details?: any) => {
-      let description = "Se observan lunares";
-      if (details) {
-        const parts = [];
-        if (details.tamanio) parts.push(`de tamaño ${details.tamanio.toLowerCase()}`);
-        if (details.color) parts.push(`color ${details.color.toLowerCase()}`);
-        if (details.bordes) parts.push(`con bordes ${details.bordes.toLowerCase()}`);
-        if (details.elevacion) parts.push(`${details.elevacion.toLowerCase()}`);
-        if (details.localizacion) parts.push(`localizados en ${details.localizacion.toLowerCase()}`);
-        
-        if (parts.length > 0) {
-          description += ` ${parts.join(", ")}`;
-        } else if (details.detalles) {
-          description += `: ${details.detalles}`;
-        }
-      }
-      return description;
-    },
-    false: "No se evidencian lunares durante la evaluación clínica"
-  },
-  cicatrices: {
-    true: (details?: any) => {
-      let description = "Se observan cicatrices";
-      if (details) {
-        const parts = [];
-        if (details.tipo) parts.push(`de tipo ${details.tipo.toLowerCase()}`);
-        if (details.antiguedad) parts.push(`${details.antiguedad.toLowerCase()}`);
-        if (details.tamanio) parts.push(`de tamaño ${details.tamanio.toLowerCase()}`);
-        if (details.coloracion) parts.push(`con coloración ${details.coloracion.toLowerCase()}`);
-        if (details.localizacion) parts.push(`localizadas en ${details.localizacion.toLowerCase()}`);
-        
-        if (parts.length > 0) {
-          description += ` ${parts.join(", ")}`;
-        } else if (details.detalles) {
-          description += `: ${details.detalles}`;
-        }
-      }
-      return description;
-    },
-    false: "No se evidencian cicatrices durante la evaluación clínica"
-  },
-  asimetriasFaciales: {
-    true: (details?: any) => {
-      let description = "Presenta asimetría facial";
-      if (details) {
-        const parts = [];
-        if (details.zonaAfectada) parts.push(`en ${details.zonaAfectada.toLowerCase()}`);
-        if (details.grado) parts.push(`de grado ${details.grado.toLowerCase()}`);
-        if (details.posibleCausa) parts.push(`de origen posiblemente ${details.posibleCausa.toLowerCase()}`);
-        
-        if (parts.length > 0) {
-          description += ` ${parts.join(", ")}`;
-        } else if (details.detalles) {
-          description += `: ${details.detalles}`;
-        }
-      }
-      return description;
-    },
-    false: "No se observan asimetrías faciales durante la evaluación"
-  },
-  edema: {
-    true: (details?: any) => {
-      let description = "Se evidencia edema";
-      if (details) {
-        const parts = [];
-        if (details.localizacion) parts.push(`${details.localizacion.toLowerCase()}`);
-        if (details.tipoEdema) parts.push(`de tipo ${details.tipoEdema.toLowerCase()}`);
-        if (details.dolor) parts.push(`con dolor ${details.dolor.toLowerCase()}`);
-        if (details.consistencia) parts.push(`de consistencia ${details.consistencia.toLowerCase()}`);
-        
-        if (parts.length > 0) {
-          description += ` ${parts.join(", ")}`;
-        } else if (details.detalles) {
-          description += `: ${details.detalles}`;
-        }
-      }
-      return description;
-    },
-    false: "No se observan signos de edema facial durante la evaluación"
-  }
-};
-
-interface ExamenCabezaProps {
-  formData: FormDataState;
-  handleExamenCabezaChange: (part: string, value: string | boolean | CaracteristicaFacial | null) => void;
+interface VoiceInputProps {
+  placeholder: string;
+  onTranscription: (text: string) => void;
 }
 
-const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
-  formData,
-  handleExamenCabezaChange
+const ExamenCabeza = ({ 
+  formData, 
+  handleExamenCabezaChange 
 }) => {
-  // Estados UI existentes
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [selectedCraneoTipo, setSelectedCraneoTipo] = useState<string>(formData.examenCabeza?.tipoCraneo || '');
-  const [selectedPerfilTipo, setSelectedPerfilTipo] = useState<string>(formData.examenCabeza?.tipoPerfil || '');
-  const [showVoiceInput, setShowVoiceInput] = useState(false);
-
-  // --- Estados para la Narrativa de Cara ---
-  const [caraViewMode, setCaraViewMode] = useState<'form' | 'narrative'>('form');
-  const [isGeneratingCaraNarrative, setIsGeneratingCaraNarrative] = useState(false);
-  const [targetCaraNarrative, setTargetCaraNarrative] = useState('');
-  const [displayedCaraNarrative, setDisplayedCaraNarrative] = useState('');
-  const caraIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const typewriterSpeed = 35; // Velocidad de escritura (ms por caracter)
-
-  // --- Funciones de Limpieza de Intervalos (Cara) ---
-   const clearCaraInterval = useCallback(() => {
-     if (caraIntervalRef.current) {
-       clearInterval(caraIntervalRef.current);
-       caraIntervalRef.current = null;
-     }
-   }, []);
-
-   // --- Hook useEffect para la animación Typewriter (Cara) ---
-   useEffect(() => {
-     clearCaraInterval();
-     if (targetCaraNarrative && isGeneratingCaraNarrative) {
-       let index = 0;
-       setDisplayedCaraNarrative(''); // Empezar limpio
-
-       caraIntervalRef.current = setInterval(() => {
-         setDisplayedCaraNarrative(prev => prev + targetCaraNarrative[index]);
-         index++;
-         if (index === targetCaraNarrative.length) {
-           clearCaraInterval();
-           setIsGeneratingCaraNarrative(false); // Termina carga
-         }
-       }, typewriterSpeed);
-     } else {
-       // Si no hay target o no está generando, muestra el texto completo
-       setDisplayedCaraNarrative(targetCaraNarrative);
-       if (isGeneratingCaraNarrative) { // Asegurar que no se quede cargando
-          setIsGeneratingCaraNarrative(false);
-       }
-     }
-     // Limpieza al desmontar o si las dependencias cambian
-     return () => clearCaraInterval();
-   }, [targetCaraNarrative, isGeneratingCaraNarrative, clearCaraInterval]); // isGeneratingCaraNarrative es dependencia
-
-  // --- Handlers UI existentes ---
-  const handleMinimize = () => {
-    setIsMinimized(!isMinimized);
-    setIsMaximized(false);
+  // State and handlers for the component
+  const handleInputChange = (field, value) => {
+    handleExamenCabezaChange(field, value);
   };
-
-  const handleMaximize = () => {
-    setIsMaximized(!isMaximized);
-    setIsMinimized(false);
-  };
-
-  // Definir handleClose si no existe o reutilizar una lógica similar
-  const handleClose = () => {
-     console.log("Cerrando card..."); // O alguna acción real si es necesaria
-     // Podría ocultar el componente o llamar a una función del padre
-     setIsMinimized(false); // Ejemplo: restaurar tamaño
-     setIsMaximized(false);
-   };
-
-  const handleVoiceTranscription = (text: string) => {
-    handleExamenCabezaChange('otrosHallazgos', text);
-    setShowVoiceInput(false);
-  };
-
-  const toggleVoiceInput = () => {
-    setShowVoiceInput(!showVoiceInput);
-  };
-
-  // --- Generación de Redacción DINÁMICA para Cara ---
-  const generateCaraNarrative = useCallback(() => {
-    setIsGeneratingCaraNarrative(true);
-    clearCaraInterval();
-    setTargetCaraNarrative(''); // Inicia limpieza para useEffect
-
-    const data = formData.examenCabeza || {}; // Usar {} como fallback
-    let sentences: string[] = [];
-
-    // Construir la primera frase con tez
-    if (data.tez && typeof caraNarrativePhrases.tez === 'object' && !('true' in caraNarrativePhrases.tez)) {
-      const tezPhrase = (caraNarrativePhrases.tez as Record<string, string>)[data.tez];
-      if (tezPhrase) {
-        sentences.push(tezPhrase);
-      }
-    }
-
-    // Agregar estado de la piel a la primera frase si existe
-    if (data.estadoPiel && typeof caraNarrativePhrases.estadoPiel === 'object' && !('true' in caraNarrativePhrases.estadoPiel)) {
-      const pielPhrase = (caraNarrativePhrases.estadoPiel as Record<string, string>)[data.estadoPiel];
-      if (pielPhrase) {
-        if (sentences.length > 0) {
-          // Si ya hay una frase de tez, concatenar con "con"
-          sentences[0] = `${sentences[0]} con ${pielPhrase}`;
-        } else {
-          sentences.push(`El paciente presenta ${pielPhrase}`);
-        }
-      }
-    }
+  
+  // VoiceInput component implementation
+  const VoiceInput = ({ placeholder, onTranscription }: VoiceInputProps) => {
+    const [isListening, setIsListening] = React.useState(false);
     
-    // Si no hay ninguna primera frase aún
-    if (sentences.length === 0) {
-      sentences.push("Se realiza evaluación dermatológica facial del paciente");
-    }
-
-    // Características con valores booleanos (presente/ausente)
-    const dermatologicFeatures = ['lunares', 'cicatrices', 'asimetriasFaciales', 'edema'];
-    
-    dermatologicFeatures.forEach(feature => {
-      const caracteristica = data[feature as keyof ExamenCabezaType] as CaracteristicaFacial | undefined;
-      
-      if (caracteristica) {
-        // Determinar si la característica está presente
-        const isPresent = caracteristica.presente === true;
+    const startListening = () => {
+      setIsListening(true);
+      // Implementation for speech recognition
+      if ('webkitSpeechRecognition' in window) {
+        const SpeechRecognition = window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'es-ES';
         
-        // Obtener la frase correspondiente
-        const phrasesForFeature = caraNarrativePhrases[feature];
-        if (phrasesForFeature && 'true' in phrasesForFeature && 'false' in phrasesForFeature) {
-          const typedPhraseFeature = phrasesForFeature as {true: (details?: any) => string, false: string};
-          // Si está presente y tiene detalles
-          if (isPresent) {
-            sentences.push(typedPhraseFeature.true(caracteristica));
-          } else {
-            // Si no está presente
-            sentences.push(typedPhraseFeature.false);
-          }
-        }
+        recognition.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map(result => result[0])
+            .map(result => result.transcript)
+            .join('');
+          
+          onTranscription(transcript);
+        };
+        
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error', event.error);
+          setIsListening(false);
+        };
+        
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+        
+        recognition.start();
+      } else {
+        alert('Tu navegador no soporta reconocimiento de voz');
+        setIsListening(false);
       }
-    });
-
-    // Texto final con puntuación correcta
-    let fullText = sentences.join('. ');
-    
-    // Asegurar que termine en punto
-    if (fullText && !fullText.endsWith('.')) {
-      fullText += '.';
-    }
-
-    // Añadir otros hallazgos si existen
-    if (data.otrosHallazgos && data.otrosHallazgos.trim() !== '') {
-      fullText += ` Otros hallazgos: ${data.otrosHallazgos.trim()}.`;
-    }
-
-    setTargetCaraNarrative(fullText); // Dispara el useEffect
-    setCaraViewMode('narrative');
-  }, [formData.examenCabeza, clearCaraInterval]);
-
-  const craneosTypes = [
-    {
-      type: 'Mesocefálico',
-      img: '/lovable-uploads/mesocefalo.png',
-      description: 'Forma craneal intermedia, proporcionada y armoniosa.'
-    },
-    {
-      type: 'Dolicocéfalo',
-      img: '/dolicocefalo.png',
-      description: 'Cráneo alargado y estrecho.'
-    },
-    {
-      type: 'Braquicéfalo',
-      img: '/braquicefalo.png',
-      description: 'Cráneo ancho y corto.'
-    }
-  ];
-
-  const perfilesTypes = [
-    {
-      type: 'Cóncavo',
-      img: '/concavo.png',
-      description: 'Perfil facial que presenta una depresión en la zona media.'
-    },
-    {
-      type: 'Convexo',
-      img: '/convexo.png',
-      description: 'Perfil facial que presenta una proyección hacia adelante en la zona media.'
-    },
-    {
-      type: 'Recto',
-      img: '/recto.png',
-      description: 'Perfil facial que presenta una línea recta.'
-    }
-  ];
-
-  const caracteristicasFaciales = [
-    { id: 'lunares', label: 'Lunares' },
-    { id: 'cicatrices', label: 'Cicatrices' },
-    { id: 'asimetriasFaciales', label: 'Asimetrías Faciales' },
-    { id: 'edema', label: 'Edema' }
-  ];
-
-  // Opciones para subopciones de cada característica
-  const lunaresOptions = {
-    tamanio: ['Pequeño', 'Mediano', 'Grande'],
-    color: ['Marrón claro', 'Marrón oscuro', 'Negro'],
-    bordes: ['Regulares', 'Irregulares'],
-    elevacion: ['Plano', 'Elevado']
-  };
-
-  const cicatricesOptions = {
-    tipo: ['Quirúrgica', 'Traumática', 'Acneica', 'Queloide'],
-    antiguedad: ['Nueva', 'Antigua'],
-    tamanio: ['Pequeña', 'Mediana', 'Grande'],
-    coloracion: ['Hipopigmentada', 'Hiperpigmentada', 'Normal']
-  };
-
-  const asimetriasOptions = {
-    zonaAfectada: ['Mandíbula', 'Mejillas', 'Ojos', 'Nariz', 'Frente'],
-    grado: ['Leve', 'Moderado', 'Severo'],
-    posibleCausa: ['Congénita', 'Traumática', 'Muscular', 'Otra']
-  };
-
-  const edemaOptions = {
-    localizacion: ['Facial', 'Periorbitaria', 'Labial', 'Otra'],
-    tipoEdema: ['Localizado', 'Difuso'],
-    dolor: ['Presente', 'Ausente'],
-    consistencia: ['Blando', 'Firme', 'Duro']
-  };
-
-  // --- Actualización del Estado del Cráneo/Perfil ---
-  // Actualizar estado local cuando cambian las props o se selecciona algo
-  useEffect(() => {
-      setSelectedCraneoTipo(formData.examenCabeza?.tipoCraneo || '');
-  }, [formData.examenCabeza?.tipoCraneo]);
-
-  useEffect(() => {
-      setSelectedPerfilTipo(formData.examenCabeza?.tipoPerfil || '');
-  }, [formData.examenCabeza?.tipoPerfil]);
-
-  // Helper para actualizar características faciales
-  const handleCaracteristicaFacialChange = (id: string, field: string, value: string | boolean) => {
-    const currentData = formData.examenCabeza?.[id as keyof ExamenCabezaType] as CaracteristicaFacial || {};
-    
-    const updatedValue: CaracteristicaFacial = {
-      ...currentData,
-      [field]: value
     };
     
-    handleExamenCabezaChange(id, updatedValue);
+    const stopListening = () => {
+      setIsListening(false);
+      // Stop speech recognition
+      if ('webkitSpeechRecognition' in window) {
+        const SpeechRecognition = window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.stop();
+      }
+    };
+    
+    return (
+      <div className="flex items-center border rounded-md p-2">
+        <input
+          type="text"
+          placeholder={placeholder}
+          className="flex-grow outline-none"
+          readOnly
+        />
+        <button
+          onClick={isListening ? stopListening : startListening}
+          className={`ml-2 p-2 rounded-full ${isListening ? 'bg-red-500' : 'bg-blue-500'} text-white`}
+        >
+          {isListening ? 'Detener' : 'Hablar'}
+        </button>
+      </div>
+    );
   };
-
+  
   return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : "my-4"}`} data-section-name="examenCabeza">
-        {/* Card y Header (sin cambios mayores, excepto botones de control si quieres unificar estilo) */}
-       <Card className={`bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-xl rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col ${isMaximized ? "h-[calc(100vh-2rem)]" : ""} ${isMinimized ? "h-16 overflow-hidden" : ""}`}>
-                {/* Header (Sticky) */}
-                <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm z-10 flex-shrink-0">
-                    {/* Tabs (simplificado a uno por ahora) */}
-                    <div className="flex-1 flex justify-center">
-                        <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-                            <button className={`px-4 py-1.5 rounded-full transition-all duration-300 text-sm font-medium bg-blue-600 text-white shadow-md`}>
-                                Formulario
-                            </button>
-                            {/* Puedes añadir más tabs aquí si es necesario */}
-                        </div>
-                    </div>
-                    {/* Controles (usando el estilo del primer ejemplo) */}
-                    <div className="flex items-center gap-2 pl-2">
-                        <button onClick={handleMinimize} title={isMinimized ? "Restaurar" : "Minimizar"} className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                            <Minus className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-                        </button>
-                        <button onClick={handleMaximize} title={isMaximized ? "Restaurar" : "Maximizar"} className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-                            <Maximize2 className="w-4 h-4 text-gray-700 dark:text-gray-300" />
-                        </button>
-                       {/* Opcional: Botón de cierre si es necesario */}
-                       {/* <button onClick={handleClose} title="Cerrar" className="p-1.5 rounded-full hover:bg-red-200 dark:hover:bg-red-700 transition-colors">
-                           <X className="w-4 h-4 text-red-600 dark:text-red-300" />
-                       </button> */}
-                    </div>
-                </div>
-
-        {/* Contenedor de Contenido Scrollable */}
-         <div className={`flex-grow overflow-y-auto ${isMinimized ? 'hidden' : ''}`}>
-              {/* Título Principal */}
-             <div className="flex justify-start px-6 pt-4 pb-2">
-                 <h2 className="text-xl font-bold flex items-center gap-2 text-gray-800 dark:text-white tracking-tight">
-                     <span className="text-blue-500 dark:text-blue-400 font-semibold">X.</span> EXAMEN DE CABEZA Y CARA
-                 </h2>
-             </div>
-
-          <div className="p-6 space-y-8">
-            {/* --- Tipos de Cráneo --- */}
-             <section>
-               <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Tipos de Cráneo</h3>
-               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {craneosTypes.map((craneo) => (
-                  <div
-                    key={craneo.type}
-                     className={`relative cursor-pointer transition-all duration-300 rounded-lg overflow-hidden border dark:border-gray-700 ${
-                      selectedCraneoTipo === craneo.type
-                         ? 'ring-2 ring-blue-500 dark:ring-blue-400 shadow-lg transform scale-[1.02]' // Realce mejorado
-                         : 'hover:shadow-md hover:scale-[1.01] dark:bg-gray-800' // Efecto hover sutil
-                     }`}
-                    onClick={() => {
-                       // Quitar selección si se clickea de nuevo
-                       const newValue = selectedCraneoTipo === craneo.type ? null : craneo.type;
-                       setSelectedCraneoTipo(newValue ?? '');
-                       handleExamenCabezaChange('tipoCraneo', newValue);
-                    }}
-                  >
-                    <img
-                      src={craneo.img}
-                      alt={craneo.type}
-                      className="w-full h-40 object-cover" // Altura ajustada
-                    />
-                    <div className={`p-3 ${selectedCraneoTipo !== craneo.type ? 'bg-white dark:bg-gray-800' : 'bg-blue-50 dark:bg-gray-700'}`}>
-                      <h4 className="font-medium text-center mb-1 text-gray-800 dark:text-gray-100">{craneo.type}</h4>
-                      <p className="text-xs text-center text-gray-600 dark:text-gray-300">{craneo.description}</p>
-                    </div>
-                  </div>
-                 ))}
-               </div>
-             </section>
-
-             {/* --- Tipos de Perfil --- */}
-             <section>
-               <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-300">Tipos de Perfil Facial</h3>
-               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                 {perfilesTypes.map((perfil) => (
-                   <div
-                     key={perfil.type}
-                     className={`relative cursor-pointer transition-all duration-300 rounded-lg overflow-hidden border dark:border-gray-700 ${
-                       selectedPerfilTipo === perfil.type
-                         ? 'ring-2 ring-blue-500 dark:ring-blue-400 shadow-lg transform scale-[1.02]'
-                         : 'hover:shadow-md hover:scale-[1.01] dark:bg-gray-800'
-                     }`}
-                     onClick={() => {
-                       const newValue = selectedPerfilTipo === perfil.type ? null : perfil.type;
-                       setSelectedPerfilTipo(newValue ?? '');
-                       handleExamenCabezaChange('tipoPerfil', newValue);
-                     }}
-                   >
-                     <img
-                       src={perfil.img}
-                       alt={perfil.type}
-                       className="w-full h-40 object-contain bg-gray-50 dark:bg-gray-700/50" // object-contain y fondo
-                     />
-                     <div className={`p-3 ${selectedPerfilTipo !== perfil.type ? 'bg-white dark:bg-gray-800' : 'bg-blue-50 dark:bg-gray-700'}`}>
-                       <h4 className="font-medium text-center mb-1 text-gray-800 dark:text-gray-100">{perfil.type}</h4>
-                       <p className="text-xs text-center text-gray-600 dark:text-gray-300">{perfil.description}</p>
-                     </div>
-                   </div>
-                 ))}
-               </div>
-             </section>
-
-            {/* --- Cara: Formulario / Narrativa --- */}
-             <section>
-                {/* Header de la sección Cara con botón de cambio */}
-                 <div className="flex justify-between items-center mb-4 border-t border-gray-300 dark:border-gray-600 pt-6">
-                     <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Cara</h3>
-                     {caraViewMode === 'form' ? (
-                         <Button
-                             variant="outline"
-                             size="sm"
-                             onClick={generateCaraNarrative}
-                             disabled={isGeneratingCaraNarrative}
-                             className={`flex items-center gap-1.5 ${isGeneratingCaraNarrative ? 'text-gray-500 cursor-not-allowed' : 'text-blue-600 dark:text-blue-400 border-blue-500/50 dark:border-blue-400/50 hover:bg-blue-50 dark:hover:bg-blue-900/30'}`}
-                         >
-                           {isGeneratingCaraNarrative ? (
-                               <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle> <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path> </svg>
-                           ) : (
-                               <FileText className="w-4 h-4" />
-                           )}
-                             {isGeneratingCaraNarrative ? 'Generando...' : 'Redacción Cara'}
-                         </Button>
-                     ) : (
-                         <Button
-                             variant="outline"
-                             size="sm"
-                             onClick={() => setCaraViewMode('form')}
-                             disabled={isGeneratingCaraNarrative} // Deshabilitar mientras genera
-                             className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400 border-gray-400/50 dark:border-gray-500/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 disabled:opacity-50"
-                         >
-                             <Edit className="w-4 h-4" /> Editar
-                         </Button>
-                     )}
-                 </div>
-
-                 {/* Contenido Condicional: Formulario o Narrativa */}
-                 {caraViewMode === 'form' ? (
-                     <div className="space-y-6"> {/* Aumentar espacio entre elementos del form */}
-                         {/* Tez y Estado de la Piel en una fila */}
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                             {/* Tez - Dropdown */}
-                             <div className="space-y-1.5"> {/* Reducir espacio interno */}
-                                 <Label htmlFor="tez-select" className="text-sm font-medium text-gray-700 dark:text-gray-300">Tez</Label>
-                                 <Select
-                                     value={formData.examenCabeza?.tez || ''}
-                                     onValueChange={(value) => handleExamenCabezaChange('tez', value === 'none' ? null : value)} // Permitir deseleccionar
-                                 >
-                                     <SelectTrigger id="tez-select" className="w-full bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm">
-                                         <SelectValue placeholder="Seleccione..." />
-                                     </SelectTrigger>
-                                     <SelectContent>
-                                         <SelectItem value="none">-- Ninguno --</SelectItem>
-                                         <SelectItem value="clara">Clara</SelectItem>
-                                         <SelectItem value="morena">Morena</SelectItem>
-                                         <SelectItem value="oscura">Oscura</SelectItem>
-                                     </SelectContent>
-                                 </Select>
-                             </div>
-
-                             {/* Estado de la piel - Dropdown */}
-                             <div className="space-y-1.5">
-                                 <Label htmlFor='estado-piel-select' className="text-sm font-medium text-gray-700 dark:text-gray-300">Estado de la piel</Label>
-                                 <Select
-                                     value={formData.examenCabeza?.estadoPiel || ''}
-                                     onValueChange={(value) => handleExamenCabezaChange('estadoPiel', value === 'none' ? null : value)}
-                                 >
-                                     <SelectTrigger id='estado-piel-select' className="w-full bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm">
-                                         <SelectValue placeholder="Seleccione..." />
-                                     </SelectTrigger>
-                                     <SelectContent>
-                                          <SelectItem value="none">-- Ninguno --</SelectItem>
-                                         <SelectItem value="reseca">Reseca</SelectItem>
-                                         <SelectItem value="humectada">Humectada</SelectItem>
-                                     </SelectContent>
-                                 </Select>
-                             </div>
-                         </div>
-
-                         {/* Características con detalles opcionales (dos columnas) */}
-                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-6"> {/* Ajustar gap */}
-                             {caracteristicasFaciales.map((caracteristica) => {
-                               const caracteristicaData = (formData.examenCabeza?.[caracteristica.id as keyof ExamenCabezaType] || {}) as CaracteristicaFacial;
-                               const isPresent = caracteristicaData?.presente === true;
-                               
-                               return (
-                                 <div key={caracteristica.id} className="space-y-2 border p-4 rounded-md shadow-sm">
-                                     <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">{caracteristica.label}</Label>
-                                     <Select
-                                         value={isPresent ? 'si' : 'no'}
-                                         onValueChange={(value) => {
-                                             handleCaracteristicaFacialChange(caracteristica.id, 'presente', value === 'si');
-                                         }}
-                                     >
-                                         <SelectTrigger className="w-full bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm">
-                                             <SelectValue placeholder="Seleccione" />
-                                         </SelectTrigger>
-                                         <SelectContent>
-                                             <SelectItem value="si">Sí</SelectItem>
-                                             <SelectItem value="no">No</SelectItem>
-                                         </SelectContent>
-                                     </Select>
-
-                                    {/* Mostrar subOptions basadas en la característica seleccionada */}
-                                    {isPresent && (
-                                        <div className="mt-2 space-y-3 border-t pt-2">
-                                            {/* Mostrar diferentes opciones según el tipo de característica */}
-                                            {caracteristica.id === 'lunares' && (
-                                                <>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Tamaño</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.tamanio || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tamanio', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione tamaño" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {lunaresOptions.tamanio.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Color</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.color || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'color', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione color" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {lunaresOptions.color.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Bordes</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.bordes || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'bordes', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione tipo de bordes" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {lunaresOptions.bordes.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Elevación</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.elevacion || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'elevacion', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione elevación" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {lunaresOptions.elevacion.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Localización</Label>
-                                                        <Textarea 
-                                                            value={caracteristicaData?.localizacion || ''}
-                                                            onChange={(e) => handleCaracteristicaFacialChange(caracteristica.id, 'localizacion', e.target.value)}
-                                                            placeholder="Especifique localización"
-                                                            className="mt-1 h-16 text-sm"
-                                                        />
-                                                    </div>
-                                                </>
-                                            )}
-                                            
-                                            {caracteristica.id === 'cicatrices' && (
-                                                <>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Tipo</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.tipo || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tipo', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione tipo" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {cicatricesOptions.tipo.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Antigüedad</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.antiguedad || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'antiguedad', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione antigüedad" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {cicatricesOptions.antiguedad.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Tamaño</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.tamanio || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tamanio', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione tamaño" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {cicatricesOptions.tamanio.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Coloración</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.coloracion || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'coloracion', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione coloración" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {cicatricesOptions.coloracion.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Localización</Label>
-                                                        <Textarea 
-                                                            value={caracteristicaData?.localizacion || ''}
-                                                            onChange={(e) => handleCaracteristicaFacialChange(caracteristica.id, 'localizacion', e.target.value)}
-                                                            placeholder="Especifique localización"
-                                                            className="mt-1 h-16 text-sm"
-                                                        />
-                                                    </div>
-                                                </>
-                                            )}
-                                            
-                                            {caracteristica.id === 'asimetriasFaciales' && (
-                                                <>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Zona afectada</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.zonaAfectada || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'zonaAfectada', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione zona afectada" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {asimetriasOptions.zonaAfectada.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Grado</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.grado || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'grado', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione grado" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {asimetriasOptions.grado.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Posible causa</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.posibleCausa || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'posibleCausa', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione posible causa" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {asimetriasOptions.posibleCausa.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                </>
-                                            )}
-                                            
-                                            {caracteristica.id === 'edema' && (
-                                                <>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Localización</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.localizacion || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'localizacion', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione localización" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {edemaOptions.localizacion.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Tipo</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.tipoEdema || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tipoEdema', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione tipo" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {edemaOptions.tipoEdema.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Dolor</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.dolor || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'dolor', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione dolor" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {edemaOptions.dolor.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">Consistencia</Label>
-                                                        <Select
-                                                            value={caracteristicaData?.consistencia || ''}
-                                                            onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'consistencia', value)}
-                                                        >
-                                                            <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                <SelectValue placeholder="Seleccione consistencia" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {edemaOptions.consistencia.map(option => (
-                                                                    <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                </>
-                                            )}
-                                            
-                                            {/* Campo de detalles para todas las características */}
-                                            <div>
-                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Detalles adicionales</Label>
-                                                <Textarea 
-                                                    value={caracteristicaData?.detalles || ''}
-                                                    onChange={(e) => handleCaracteristicaFacialChange(caracteristica.id, 'detalles', e.target.value)}
-                                                    placeholder="Especifique detalles adicionales"
-                                                    className="mt-1 h-20 text-sm"
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-                                 </div>
-                               );
-                             })}
-                         </div>
-
-                         {/* Otros Hallazgos */}
-                         <div className="space-y-2 border p-4 rounded-md border-gray-300 dark:border-gray-600 my-4">
-                             <div className="flex justify-between items-center">
-                                 <Label htmlFor="otrosHallazgos" className="text-sm font-medium text-gray-700 dark:text-gray-300">Otros hallazgos</Label>
-                                 <button
-                                     type="button"
-                                     onClick={toggleVoiceInput}
-                                     className="p-1 rounded-full bg-blue-100 hover:bg-blue-200 dark:bg-blue-900 dark:hover:bg-blue-800 text-blue-600 dark:text-blue-300"
-                                     title="Activar entrada por voz"
-                                 >
-                                     <Mic className="w-4 h-4" />
-                                 </button>
-                             </div>
-                             {showVoiceInput ? (
-                                 <VoiceInput onTranscription={handleVoiceTranscription} placeholder="Hable para iniciar la transcripción..." />
-                             ) : (
-                                 <Textarea
-                                     id="otrosHallazgos"
-                                     value={formData.examenCabeza?.otrosHallazgos || ''}
-                                     onChange={(e) => handleExamenCabezaChange('otrosHallazgos', e.target.value)}
-                                     placeholder="Registrar otros hallazgos relevantes..."
-                                     className="min-h-[100px] border-gray-300 dark:border-gray-600"
-                                 />
-                             )}
-                         </div>
-                     </div>
-                 ) : (
-                     <div className="space-y-4">
-                         <div className="relative bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 min-h-[100px]">
-                             {isGeneratingCaraNarrative && (
-                                 <div className="absolute inset-0 flex items-center justify-center bg-white/50 dark:bg-gray-900/50 backdrop-blur-sm rounded-lg">
-                                     <div className="flex flex-col items-center">
-                                         <svg className="animate-spin h-8 w-8 text-blue-600 dark:text-blue-400 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle> <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path> </svg>
-                                         <p className="text-sm text-gray-600 dark:text-gray-400">Generando narrativa clínica...</p>
-                                     </div>
-                                 </div>
-                             )}
-                             <p className="text-gray-800 dark:text-gray-300 leading-relaxed text-justify">
-                                 {displayedCaraNarrative || "No hay suficientes datos para generar una narrativa clínica."}
-                             </p>
-                         </div>
-                     </div>
-                 )}
-             </section>
-          </div>
-         </div>
-       </Card>
-    </div>
+    <Card className="p-6 shadow-md rounded-lg">
+      <h2 className="text-lg font-semibold mb-4">Examen de Cabeza</h2>
+      <p className="text-sm text-gray-500 mb-4">
+        Registre los hallazgos del examen de la cabeza del paciente.
+      </p>
+      
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium mb-1">Forma de la cabeza</label>
+          <input
+            type="text"
+            className="w-full p-2 border rounded-md"
+            value={formData.examenCabeza?.formaCabeza || ''}
+            onChange={(e) => handleInputChange('formaCabeza', e.target.value)}
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Simetría facial</label>
+          <select
+            className="w-full p-2 border rounded-md"
+            value={formData.examenCabeza?.simetriaFacial || ''}
+            onChange={(e) => handleInputChange('simetriaFacial', e.target.value)}
+          >
+            <option value="">Seleccionar</option>
+            <option value="simetrica">Simétrica</option>
+            <option value="asimetrica">Asimétrica</option>
+          </select>
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Piel</label>
+          <textarea
+            className="w-full p-2 border rounded-md"
+            rows={3}
+            value={formData.examenCabeza?.piel || ''}
+            onChange={(e) => handleInputChange('piel', e.target.value)}
+            placeholder="Describa color, textura, lesiones, etc."
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Cabello</label>
+          <textarea
+            className="w-full p-2 border rounded-md"
+            rows={2}
+            value={formData.examenCabeza?.cabello || ''}
+            onChange={(e) => handleInputChange('cabello', e.target.value)}
+            placeholder="Describa características del cabello"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Ojos</label>
+          <textarea
+            className="w-full p-2 border rounded-md"
+            rows={3}
+            value={formData.examenCabeza?.ojos || ''}
+            onChange={(e) => handleInputChange('ojos', e.target.value)}
+            placeholder="Describa hallazgos en los ojos"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Nariz</label>
+          <textarea
+            className="w-full p-2 border rounded-md"
+            rows={2}
+            value={formData.examenCabeza?.nariz || ''}
+            onChange={(e) => handleInputChange('nariz', e.target.value)}
+            placeholder="Describa hallazgos en la nariz"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Oídos</label>
+          <textarea
+            className="w-full p-2 border rounded-md"
+            rows={2}
+            value={formData.examenCabeza?.oidos || ''}
+            onChange={(e) => handleInputChange('oidos', e.target.value)}
+            placeholder="Describa hallazgos en los oídos"
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Usar reconocimiento de voz</label>
+          <VoiceInput 
+            placeholder="Habla para introducir texto..." 
+            onTranscription={(text) => {
+              // Handle transcription
+              console.log(text);
+              handleInputChange('notasAdicionales', text);
+            }} 
+          />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium mb-1">Notas adicionales</label>
+          <textarea
+            className="w-full p-2 border rounded-md"
+            rows={4}
+            value={formData.examenCabeza?.notasAdicionales || ''}
+            onChange={(e) => handleInputChange('notasAdicionales', e.target.value)}
+            placeholder="Añada cualquier otra observación relevante"
+          />
+        </div>
+      </div>
+    </Card>
   );
 };
 

@@ -1,13 +1,25 @@
 
 import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-const MedicationSearch = () => {
+// Add props interface to accept open state and change handler
+interface MedicationSearchProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+// Export as named export to match the import in AppleStyleDock.tsx
+export function MedicationSearch({ open, onOpenChange }: MedicationSearchProps) {
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Búsqueda de Medicamentos</h2>
-      <p>Componente para búsqueda de medicamentos (en desarrollo)</p>
-    </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Búsqueda de Medicamentos</DialogTitle>
+        </DialogHeader>
+        <div className="p-4">
+          <p>Componente para búsqueda de medicamentos (en desarrollo)</p>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
-};
-
-export default MedicationSearch;
+}

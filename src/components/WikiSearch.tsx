@@ -1,7 +1,15 @@
 
 import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-const WikiSearch = () => {
+// Add props interface
+interface WikiSearchProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+// Export as named export
+export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const handleExpandText = (text: string) => {
     // Use a local function instead of window.expandText
     console.log("Text to expand:", text);
@@ -9,17 +17,21 @@ const WikiSearch = () => {
   };
   
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold mb-4">Búsqueda Wiki</h2>
-      <p>Componente para búsqueda wiki (en desarrollo)</p>
-      <button 
-        onClick={() => handleExpandText("Example text")}
-        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-      >
-        Expandir Texto
-      </button>
-    </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Búsqueda Wiki</DialogTitle>
+        </DialogHeader>
+        <div className="p-4">
+          <p>Componente para búsqueda wiki (en desarrollo)</p>
+          <button 
+            onClick={() => handleExpandText("Example text")}
+            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
+          >
+            Expandir Texto
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
-};
-
-export default WikiSearch;
+}
