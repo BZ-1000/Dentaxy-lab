@@ -7,8 +7,8 @@ import {
   Crown,
   Save,
   Trash,
-  Cross,
-  Search,
+  Cross, // Importa el icono de la cruz
+  Search, // Add Search icon
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -25,7 +25,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { MedicationSearch } from './MedicationSearch'; // Import remains the same
+import { MedicationSearch } from './MedicationSearch'; // Import our new component
 import { WikiSearch } from './WikiSearch';
 
 const data = [
