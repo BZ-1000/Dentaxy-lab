@@ -36,11 +36,11 @@ export const SidebarProvider = ({
   children: React.ReactNode;
   open?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
+  animate?: boolean
 }) => {
   const [openState, setOpenState] = useState(false);
   const open = openProp !== undefined ? openProp : openState;
-  const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
+  const setOpen = setOpenProp !== undefined ? setOpenProp : openState;
 
   return (
     <SidebarContext.Provider value={{
@@ -233,9 +233,10 @@ interface DockIconProps {
 function DockIcon({ children, className, width }: DockIconProps) {
   // Fix: Properly handle MotionValue<number> by using it directly
   // without trying to convert it to ReactNode
+  const transformedWidth = useTransform(width, (val) => val / 2);
   return (
     <motion.div
-      style={{ width: useTransform(width, val => val / 2) }}
+      style={{ width: transformedWidth }}
       className={cn('flex items-center justify-center', className)}
     >
       {children}
