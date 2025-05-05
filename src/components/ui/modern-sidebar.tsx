@@ -231,8 +231,9 @@ interface DockIconProps {
 }
 
 function DockIcon({ children, className, width }: DockIconProps) {
-  // Fix: Use string type for width to avoid ReactNode type issues
-  const transformedWidth = useTransform(width, (val) => `${val / 2}px`);
+  // Fix: Properly handle MotionValue<number> by using it directly
+  // without trying to convert it to ReactNode
+  const transformedWidth = useTransform(width, (val) => val / 2);
   return (
     <motion.div
       style={{ width: transformedWidth }}

@@ -55,9 +55,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
   };
 
   const getBloodPressureValues = (bpString: string) => {
-    const parts = bpString.split('/').map(Number);
-    const systolic = parts[0] || 0;
-    const diastolic = parts[1] || 0;
+    const [systolic, diastolic] = bpString.split('/').map(Number);
     return { systolic, diastolic };
   };
 
