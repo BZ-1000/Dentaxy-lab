@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
@@ -9,7 +10,13 @@ import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateExploracionFisicaReport } from '@/services/geminiService';
 import { AnimatedTextareaWithTyping } from '@/components/ui/AnimatedTextareaWithTyping';
-import { medicalRanges } from '@/utils/medicalRanges';
+import { 
+  calculateIMC, 
+  getIMCCategory, 
+  getBPCategory, 
+  imcRanges,
+  bpRanges
+} from '@/utils/medicalRanges';
 
 // Fix: Add an explicit type definition for values
 interface ExploracionValues {
@@ -76,7 +83,7 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
         const peso = parseFloat(values.peso);
         const talla = parseFloat(values.talla) / 100; // convert to meters
         if (peso > 0 && talla > 0) {
-          const imc = (peso / (talla * talla)).toFixed(2);
+          const imc = calculateIMC(peso, talla).toString();
           setValues(prev => ({ ...prev, imc }));
           handleExploracionFisicaChange('signosVitales.imc', imc);
           updateStatus('imc', imc);
@@ -96,19 +103,55 @@ const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
     
     try {
       const numValue = parseFloat(value);
-      const ranges = medicalRanges[field];
       
-      if (!ranges) {
-        setStatus(prev => ({ ...prev, [field]: 'normal' }));
+      if (field === 'imc') {
+        const category = getIMCCategory(numValue);
+        if (category === imcRanges.underweight) {
+          setStatus(prev => ({ ...prev, [field]: 'low' }));
+        } else if (category === imcRanges.normal) {
+          setStatus(prev => ({ ...prev, [field]: 'normal' }));
+        } else {
+          setStatus(prev => ({ ...prev, [field]: 'high' }));
+        }
         return;
       }
       
-      if (numValue < ranges.low) {
-        setStatus(prev => ({ ...prev, [field]: 'low' }));
-      } else if (numValue > ranges.high) {
-        setStatus(prev => ({ ...prev, [field]: 'high' }));
-      } else {
-        setStatus(prev => ({ ...prev, [field]: 'normal' }));
+      if (field === 'ta') {
+        // Assuming ta is in format "120/80"
+        const parts = value.split('/');
+        if (parts.length === 2) {
+          const systolic = parseFloat(parts[0]);
+          const diastolic = parseFloat(parts[1]);
+          const category = getBPCategory(systolic, diastolic);
+          
+          if (category === bpRanges.low) {
+            setStatus(prev => ({ ...prev, [field]: 'low' }));
+          } else if (category === bpRanges.normal) {
+            setStatus(prev => ({ ...prev, [field]: 'normal' }));
+          } else {
+            setStatus(prev => ({ ...prev, [field]: 'high' }));
+          }
+        }
+        return;
+      }
+      
+      // For other vital signs, use simple ranges
+      // These are simplified ranges and should be adjusted for medical accuracy
+      const ranges = {
+        fc: { low: 60, high: 100 }, // heart rate
+        fr: { low: 12, high: 20 },  // respiratory rate
+        temperatura: { low: 36, high: 37.5 } // body temperature
+      };
+      
+      if (field in ranges) {
+        const range = ranges[field];
+        if (numValue < range.low) {
+          setStatus(prev => ({ ...prev, [field]: 'low' }));
+        } else if (numValue > range.high) {
+          setStatus(prev => ({ ...prev, [field]: 'high' }));
+        } else {
+          setStatus(prev => ({ ...prev, [field]: 'normal' }));
+        }
       }
     } catch (e) {
       console.error(`Error updating status for ${field}:`, e);

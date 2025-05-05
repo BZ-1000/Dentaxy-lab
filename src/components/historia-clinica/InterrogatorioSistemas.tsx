@@ -302,6 +302,37 @@ const InterrogatorioSistemas = ({ formData, handleInterrogatorioChange }: Interr
               </div>
             </div>
             
+            {/* Hábitos Alimenticios */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Hábitos Alimenticios</h3>
+              
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">Hábitos alimenticios</label>
+                <RadioGroup 
+                  className="flex flex-wrap gap-2"
+                  value={formData.interrogatorioSistemas.habitosAlimenticios || ""}
+                  onValueChange={(value) => handleInterrogatorioChange("habitosAlimenticios", value)}
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ninguno" id="habitosAlimenticios-ninguno" />
+                    <Label htmlFor="habitosAlimenticios-ninguno">Ninguno</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ingesta nocturna" id="habitosAlimenticios-ingesta" />
+                    <Label htmlFor="habitosAlimenticios-ingesta">Ingesta nocturna</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="picoteo frecuente" id="habitosAlimenticios-picoteo" />
+                    <Label htmlFor="habitosAlimenticios-picoteo">Picoteo frecuente</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="ayuno prolongado" id="habitosAlimenticios-ayuno" />
+                    <Label htmlFor="habitosAlimenticios-ayuno">Ayuno prolongado</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+            
             {/* Sistema Urinario */}
             <div className="space-y-4">
               <h3 className="text-lg font-medium">Sistema Urinario</h3>
@@ -711,65 +742,27 @@ const InterrogatorioSistemas = ({ formData, handleInterrogatorioChange }: Interr
                   </div>
                 </RadioGroup>
               </div>
-              
-              {/* Hábitos Alimenticios */}
-              <div className="space-y-2">
-                <label className="block text-sm font-medium">Hábitos alimenticios</label>
-                <RadioGroup 
-                  className="flex flex-wrap gap-2"
-                  value={formData.interrogatorioSistemas.habitosAlimenticios || ""}
-                  onValueChange={(value) => handleInterrogatorioChange("habitosAlimenticios", value)}
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ninguno" id="habitosAlimenticios-ninguno" />
-                    <Label htmlFor="habitosAlimenticios-ninguno">Ninguno</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ingesta nocturna" id="habitosAlimenticios-ingesta" />
-                    <Label htmlFor="habitosAlimenticios-ingesta">Ingesta nocturna</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="picoteo frecuente" id="habitosAlimenticios-picoteo" />
-                    <Label htmlFor="habitosAlimenticios-picoteo">Picoteo frecuente</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="ayuno prolongado" id="habitosAlimenticios-ayuno" />
-                    <Label htmlFor="habitosAlimenticios-ayuno">Ayuno prolongado</Label>
-                  </div>
-                </RadioGroup>
-              </div>
             </div>
           </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline">Cancelar</Button>
-            <Button onClick={handleGenerateReport} disabled={isGenerating}>
+          <CardFooter>
+            <Button
+              onClick={handleGenerateReport}
+              disabled={isGenerating}
+              className="w-full"
+            >
               {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generando...
+                  Generando Redacción...
                 </>
-              ) : (
-                "Generar Redacción"
-              )}
+              ) : "Generar Redacción IA"}
             </Button>
           </CardFooter>
         </TabsContent>
         <TabsContent value="redaccion">
-          <CardContent>
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Interrogatorio por Sistemas - Redacción IA</h3>
-              
-              <AnimatedTextareaWithTyping
-                value={redaccion.interrogatorio || "No se ha generado ninguna redacción aún."}
-                readOnly
-                className="min-h-[300px] font-mono text-sm"
-              />
-              
-              <div className="flex justify-end">
-                <Button variant="outline" onClick={() => setActiveTab("formulario")}>
-                  Volver al Formulario
-                </Button>
-              </div>
+          <CardContent className="p-6">
+            <div className="min-h-[200px] bg-gray-50 dark:bg-gray-900 p-4 rounded-md whitespace-pre-wrap" data-redaction-content>
+              {redaccion.interrogatorio || "No se ha generado redacción aún. Complete el formulario y genere la redacción."}
             </div>
           </CardContent>
         </TabsContent>

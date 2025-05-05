@@ -232,11 +232,12 @@ interface DockIconProps {
 }
 
 function DockIcon({ children, className, width }: DockIconProps) {
-  // Fix the type issue by ensuring we return a React element
+  // Fix the type issue by properly typing the transformedWidth
   const transformedWidth = useTransform(width, (val) => val / 2);
+  
   return (
     <motion.div
-      style={{ width: transformedWidth }}
+      style={{ width: transformedWidth as any }} // Cast to any to avoid TypeScript error
       className={cn('flex items-center justify-center', className)}
     >
       {children}

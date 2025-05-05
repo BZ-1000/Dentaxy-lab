@@ -1,448 +1,307 @@
-
-export const generateMedicalReport = async (formData) => {
+export const generatePadecimientoActualReport = async (formData) => {
   try {
-    let report = "Historia Clínica Resumen:\n\n";
+    let report = "Padecimiento Actual:\n\n";
 
-    // Padecimiento Actual
-    report += "Padecimiento Actual:\n";
-    if (formData.padecimientoActual.sinSintomas) {
-      report += "El paciente se presenta sin síntomas.\n";
+    // Motivo de la consulta
+    report += `Motivo de la consulta: ${formData.padecimientoActual?.motivoConsulta || 'No especificado'}\n`;
+
+    // Historia de la enfermedad actual
+    report += `Historia de la enfermedad actual: ${formData.padecimientoActual?.historiaEnfermedadActual || 'No especificado'}\n`;
+
+    // Sintomas
+    if (formData.padecimientoActual?.sintomas?.length > 0) {
+      report += "\nSíntomas:\n";
+      formData.padecimientoActual.sintomas.forEach(sintoma => {
+        report += `- ${sintoma}\n`;
+      });
     } else {
-      report += `Motivo de Consulta: ${formData.padecimientoActual.motivoConsulta}\n`;
-      report += `Historia del Padecimiento: ${formData.padecimientoActual.historiaPadecimiento}\n`;
-      report += `Dolor: ${JSON.stringify(formData.padecimientoActual.dolor)}\n`;
-    }
-    report += "\n";
-
-    // Antecedentes HeredoFamiliares
-    report += "Antecedentes HeredoFamiliares:\n";
-    report += `Padre: ${JSON.stringify(formData.antecedentesHeredoFamiliares.padre)}\n`;
-    report += `Madre: ${JSON.stringify(formData.antecedentesHeredoFamiliares.madre)}\n`;
-    report += `Abuelo Paterno: ${JSON.stringify(formData.antecedentesHeredoFamiliares.abueloPaterno)}\n`;
-    report += `Abuela Paterna: ${JSON.stringify(formData.antecedentesHeredoFamiliares.abuelaPaterna)}\n`;
-    report += `Abuelo Materno: ${JSON.stringify(formData.antecedentesHeredoFamiliares.abueloMaterno)}\n`;
-    report += `Abuela Materna: ${JSON.stringify(formData.antecedentesHeredoFamiliares.abuelaMaterna)}\n`;
-    report += "\n";
-
-    // Antecedentes Personales No Patológicos
-    report += "Antecedentes Personales No Patológicos:\n";
-    report += `Tipo de Vivienda: ${formData.antecedentesPersonalesNoPatologicos.tipoVivienda}\n`;
-    report += `Material de Vivienda: ${formData.antecedentesPersonalesNoPatologicos.materialVivienda}\n`;
-    report += `Servicios: ${formData.antecedentesPersonalesNoPatologicos.servicios.join(', ')}\n`;
-    report += `Condición de la Calle: ${formData.antecedentesPersonalesNoPatologicos.condicionCalle}\n`;
-    report += `Iluminación de la Calle: ${formData.antecedentesPersonalesNoPatologicos.iluminacionCalle}\n`;
-    report += `Frecuencia de Limpieza: ${formData.antecedentesPersonalesNoPatologicos.frecuenciaLimpieza}\n`;
-    report += `Cambio de Ropa de Cama: ${formData.antecedentesPersonalesNoPatologicos.cambioRopaCama}\n`;
-    report += `Hacinamiento: ${formData.antecedentesPersonalesNoPatologicos.hacinamiento}\n`;
-    report += `Promiscuidad: ${formData.antecedentesPersonalesNoPatologicos.promiscuidad}\n`;
-    report += `Mascotas: ${formData.antecedentesPersonalesNoPatologicos.mascotas}\n`;
-    report += `Manejo de Residuos: ${formData.antecedentesPersonalesNoPatologicos.manejoResiduos}\n`;
-    report += `Frecuencia de Baño: ${formData.antecedentesPersonalesNoPatologicos.frecuenciaBano}\n`;
-    report += `Lavado de Manos: ${formData.antecedentesPersonalesNoPatologicos.lavadoManos.join(', ')}\n`;
-    report += `Cambio de Ropa: ${formData.antecedentesPersonalesNoPatologicos.cambioRopa}\n`;
-    report += `Frecuencia de Cepillado: ${formData.antecedentesPersonalesNoPatologicos.frecuenciaCepillado}\n`;
-    report += `Técnica de Cepillado: ${formData.antecedentesPersonalesNoPatologicos.tecnicaCepillado}\n`;
-    report += `Auxiliares Bucales: ${formData.antecedentesPersonalesNoPatologicos.auxiliaresBucales.join(', ')}\n`;
-    report += `Última Visita al Odontólogo: ${formData.antecedentesPersonalesNoPatologicos.ultimaVisitaOdontologo}\n`;
-    report += `Problemas Bucales: ${formData.antecedentesPersonalesNoPatologicos.problemasBucales.join(', ')}\n`;
-    report += `Alimentos Consumidos: ${formData.antecedentesPersonalesNoPatologicos.alimentosConsumidos.join(', ')}\n`;
-    report += `Frecuencia de Frutas y Verduras: ${formData.antecedentesPersonalesNoPatologicos.frecuenciaFrutasVerduras}\n`;
-    report += `Frecuencia de Bebidas Azucaradas: ${formData.antecedentesPersonalesNoPatologicos.frecuenciaBebidasAzucaradas}\n`;
-    report += `Frecuencia de Comida Chatarra: ${formData.antecedentesPersonalesNoPatologicos.frecuenciaComidaChatarra}\n`;
-    report += `Consumo de Agua: ${formData.antecedentesPersonalesNoPatologicos.consumoAgua}\n`;
-    report += `Número de Comidas: ${formData.antecedentesPersonalesNoPatologicos.numeroComidas}\n`;
-    report += `Horario de Comidas: ${JSON.stringify(formData.antecedentesPersonalesNoPatologicos.horarioComidas)}\n`;
-    report += `Ayuno Prolongado: ${formData.antecedentesPersonalesNoPatologicos.ayunoProlongado}\n`;
-    report += "\n";
-
-    // Antecedentes Personales Patológicos
-    report += "Antecedentes Personales Patológicos:\n";
-    report += `Sin Patología: ${formData.antecedentesPersonalesPatologicos.sinPatologia ? 'Sí' : 'No'}\n`;
-    report += `Nutricionales: ${JSON.stringify(formData.antecedentesPersonalesPatologicos.nutricionales)}\n`;
-    report += `Cardiacos: ${JSON.stringify(formData.antecedentesPersonalesPatologicos.cardiacos)}\n`;
-    report += `Hepáticos: ${JSON.stringify(formData.antecedentesPersonalesPatologicos.hepaticos)}\n`;
-    report += `Enfermedades de Transmisión Sexual: ${JSON.stringify(formData.antecedentesPersonalesPatologicos.enfermedadesTransmisionSexual)}\n`;
-    report += `Enfermedades Eruptivas: ${JSON.stringify(formData.antecedentesPersonalesPatologicos.enfermedadesEruptivas)}\n`;
-    report += `Pulmonares: ${JSON.stringify(formData.antecedentesPersonalesPatologicos.pulmonares)}\n`;
-    report += `Infecciosas/Parasitarias: ${JSON.stringify(formData.antecedentesPersonalesPatologicos.infecciosasParasitarias)}\n`;
-    report += `Otros Padecimientos: ${JSON.stringify(formData.antecedentesPersonalesPatologicos.otrosPadecimientos)}\n`;
-    report += "\n";
-
-    // Antecedentes Alérgicos
-    report += "Antecedentes Alérgicos:\n";
-    report += `Medicamentos: ${JSON.stringify(formData.antecedentesAlergicos.medicamentos)}\n`;
-    report += `Alimentos: ${JSON.stringify(formData.antecedentesAlergicos.alimentos)}\n`;
-    report += `Látex: ${JSON.stringify(formData.antecedentesAlergicos.latex)}\n`;
-    report += `Tipos de Alergias: ${JSON.stringify(formData.antecedentesAlergicos.tiposAlergias)}\n`;
-    report += `¿Cuáles Alergias?: ${formData.antecedentesAlergicos.cualesAlergias}\n`;
-    report += `Especificación de Alergias: ${formData.antecedentesAlergicos.especificacionAlergias}\n`;
-    report += `¿Administrado Anestesia?: ${formData.antecedentesAlergicos.administradoAnestesia}\n`;
-    report += `Tipo de Anestesia: ${formData.antecedentesAlergicos.tipoAnestesia}\n`;
-    report += `Reacción a Anestesia: ${formData.antecedentesAlergicos.reaccionAnestesia}\n`;
-    report += `Descripción de Reacción: ${formData.antecedentesAlergicos.descripcionReaccion}\n`;
-    report += `Adicciones: ${JSON.stringify(formData.antecedentesAlergicos.adicciones)}\n`;
-    report += `Detalles de Adicciones: ${formData.antecedentesAlergicos.detallesAdicciones}\n`;
-    report += "\n";
-
-    // Antecedentes Quirúrgicos
-    report += "Antecedentes Quirúrgicos:\n";
-    report += `Sin Quirúrgicos: ${formData.antecedentesQuirurgicos.sinQuirurgicos ? 'Sí' : 'No'}\n`;
-    report += `Cirugías Realizadas: ${JSON.stringify(formData.antecedentesQuirurgicos.cirugiasRealizadas)}\n`;
-    report += `Hospitalizaciones Previas: ${formData.antecedentesQuirurgicos.hospitalizacionesPrevias}\n`;
-    report += `Complicaciones Anestésicas: ${formData.antecedentesQuirurgicos.complicacionesAnestesicas}\n`;
-    report += `¿Tratamiento Reciente?: ${formData.antecedentesQuirurgicos.tratamientoReciente}\n`;
-    report += `Motivo del Tratamiento: ${formData.antecedentesQuirurgicos.motivoTratamiento}\n`;
-    report += `¿Hospitalización Reciente?: ${formData.antecedentesQuirurgicos.hospitalizacionReciente}\n`;
-    report += `Motivo de Hospitalización: ${formData.antecedentesQuirurgicos.motivoHospitalizacion}\n`;
-    report += `¿Toma Medicamentos?: ${formData.antecedentesQuirurgicos.tomaMedicamentos}\n`;
-    report += `¿Cuáles Medicamentos?: ${formData.antecedentesQuirurgicos.cualesMedicamentos}\n`;
-    report += `Motivo de Medicamentos: ${formData.antecedentesQuirurgicos.motivoMedicamentos}\n`;
-    report += "\n";
-
-    // Antecedentes Hemorrágicos
-    report += "Antecedentes Hemorrágicos:\n";
-    report += `Sin Hemorrágicos: ${formData.antecedentesHemorragicos.sinHemorragicos ? 'Sí' : 'No'}\n`;
-    report += `Sangrado Prolongado: ${formData.antecedentesHemorragicos.sangradoProlongado}\n`;
-    report += `Hematomas: ${formData.antecedentesHemorragicos.hematomas}\n`;
-    report += `Hemorragias Espontáneas: ${formData.antecedentesHemorragicos.hemorragiasEspontaneas}\n`;
-    report += `Transfusiones: ${formData.antecedentesHemorragicos.transfusiones}\n`;
-    report += `Detalles Adicionales: ${formData.antecedentesHemorragicos.detallesAdicionales}\n`;
-    report += `¿Transfusión Previa?: ${formData.antecedentesHemorragicos.transfusionPrevia}\n`;
-    report += `Motivo de Transfusión: ${formData.antecedentesHemorragicos.motivoTransfusion}\n`;
-    report += `Fecha de Transfusión: ${formData.antecedentesHemorragicos.fechaTransfusion}\n`;
-    report += "\n";
-
-    // Antecedentes Gineco-Obstétricos (opcional)
-    if (formData.antecedentesGinecoObstetricos) {
-      report += "Antecedentes Gineco-Obstétricos:\n";
-      report += `Embarazos: ${formData.antecedentesGinecoObstetricos.embarazos}\n`;
-      report += `Partos: ${formData.antecedentesGinecoObstetricos.partos}\n`;
-      report += `Cesáreas: ${formData.antecedentesGinecoObstetricos.cesareas}\n`;
-      report += `Abortos: ${formData.antecedentesGinecoObstetricos.abortos}\n`;
-      report += `Complicaciones: ${formData.antecedentesGinecoObstetricos.complicaciones}\n`;
-      report += "\n";
+      report += "\nSin síntomas reportados.\n";
     }
 
-    // Interrogatorio por Sistemas
-    report += "Interrogatorio por Sistemas:\n";
-    report += `Cardiovascular: ${formData.interrogatorioSistemas.cardiovascular}\n`;
-    report += `Respiratorio: ${formData.interrogatorioSistemas.respiratorio}\n`;
-    report += `Digestivo: ${formData.interrogatorioSistemas.digestivo}\n`;
-    report += `Urinario: ${formData.interrogatorioSistemas.urinario}\n`;
-    report += `Músculo-Esquelético: ${formData.interrogatorioSistemas.musculoEsqueletico}\n`;
-    report += `Nervioso: ${formData.interrogatorioSistemas.nervioso}\n`;
-    report += `Endocrino: ${formData.interrogatorioSistemas.endocrino}\n`;
-    report += `Tegumentario: ${formData.interrogatorioSistemas.tegumentario}\n`;
-    report += "\n";
-
-    // Exploración Física
-    report += "Exploración Física:\n";
-    report += `Signos Vitales: ${JSON.stringify(formData.exploracionFisica.signosVitales)}\n`;
-    report += `Exploración: ${JSON.stringify(formData.exploracionFisica.exploracion)}\n`;
-    report += "\n";
-
-    // Examen de Cabeza
-    report += "Examen de Cabeza:\n";
-    report += `Tipo de Cráneo: ${formData.examenCabeza.tipoCraneo}\n`;
-    report += `Tipo de Perfil: ${formData.examenCabeza.tipoPerfil}\n`;
-    report += `Tez: ${formData.examenCabeza.tez}\n`;
-    report += `Estado de la Piel: ${formData.examenCabeza.estadoPiel}\n`;
-    report += `Lunares: ${JSON.stringify(formData.examenCabeza.lunares)}\n`;
-    report += `Cicatrices: ${JSON.stringify(formData.examenCabeza.cicatrices)}\n`;
-    report += `Asimetrías Faciales: ${JSON.stringify(formData.examenCabeza.asimetriasFaciales)}\n`;
-    report += `Edema: ${JSON.stringify(formData.examenCabeza.edema)}\n`;
-    report += `Otros Hallazgos: ${formData.examenCabeza.otrosHallazgos}\n`;
-    report += "\n";
-
-    // Articulación Craneomandibular
-    report += "Articulación Craneomandibular:\n";
-    report += `Apertura Bucal: ${formData.articulacionCraneomandibular.aperturaBucal}\n`;
-    report += `Movimiento Lateral: ${formData.articulacionCraneomandibular.movimientoLateral}\n`;
-    report += `Chasquidos: ${formData.articulacionCraneomandibular.chasquidos}\n`;
-    report += `Crepitación: ${formData.articulacionCraneomandibular.crepitacion}\n`;
-    report += `Dolor: ${formData.articulacionCraneomandibular.dolor}\n`;
-    report += `Observaciones: ${formData.articulacionCraneomandibular.observaciones}\n`;
-    report += "\n";
-
-    // Examen de Cuello
-    report += "Examen de Cuello:\n";
-    report += `Ganglios Linfáticos: ${formData.examenCuello.gangliosLinfaticos}\n`;
-    report += `Musculatura: ${formData.examenCuello.musculatura}\n`;
-    report += `Tiroides: ${formData.examenCuello.tiroides}\n`;
-    report += `Movilidad: ${formData.examenCuello.movilidad}\n`;
-    report += `Observaciones: ${formData.examenCuello.observaciones}\n`;
-    report += "\n";
-
-    // Examen Intrabucal
-    report += "Examen Intrabucal:\n";
-    report += `Lengua: ${formData.examenIntrabucal.lengua}\n`;
-    report += `Paladar Duro: ${formData.examenIntrabucal.paladarDuro}\n`;
-    report += `Paladar Blando: ${formData.examenIntrabucal.paladarBlando}\n`;
-    report += `Mucosa Yugal: ${formData.examenIntrabucal.mucosaYugal}\n`;
-    report += `Piso de Boca: ${formData.examenIntrabucal.pisoBoca}\n`;
-    report += `Encías: ${formData.examenIntrabucal.encias}\n`;
-    report += `Dientes: ${formData.examenIntrabucal.dientes}\n`;
-    report += `Observaciones: ${formData.examenIntrabucal.observaciones}\n`;
-    report += "\n";
-
-    // Glándulas Salivales
-    report += "Glándulas Salivales:\n";
-    report += `Parótida: ${formData.glandulasSalivales.parotida}\n`;
-    report += `Submaxilar: ${formData.glandulasSalivales.submaxilar}\n`;
-    report += `Sublingual: ${formData.glandulasSalivales.sublingual}\n`;
-    report += `Secreción: ${formData.glandulasSalivales.secrecion}\n`;
-    report += `Observaciones: ${formData.glandulasSalivales.observaciones}\n`;
-    report += "\n";
-
-    // Oclusión
-    report += "Oclusión:\n";
-    report += `Clasificación Angle: ${formData.oclusion.clasificacionAngle}\n`;
-    report += `Overjet: ${formData.oclusion.overjet}\n`;
-    report += `Overbite: ${formData.oclusion.overbite}\n`;
-    report += `Mordida Cruzada: ${formData.oclusion.mordidaCruzada}\n`;
-    report += `Mordida Abierta: ${formData.oclusion.mordidaAbierta}\n`;
-    report += `Observaciones: ${formData.oclusion.observaciones}\n`;
-    report += "\n";
-
-    // Relación de Dientes
-    report += "Relación de Dientes:\n";
-    report += `Relación Molar: ${formData.relacionDientes.relacionMolar}\n`;
-    report += `Relación Canina: ${formData.relacionDientes.relacionCanina}\n`;
-    report += `Apiñamiento: ${formData.relacionDientes.apiñamiento}\n`;
-    report += `Diastemas: ${formData.relacionDientes.diastemas}\n`;
-    report += `Observaciones: ${formData.relacionDientes.observaciones}\n`;
-    report += "\n";
-
-    // Línea Media
-    report += "Línea Media:\n";
-    report += `Coincidente: ${formData.lineaMedia.coincidente}\n`;
-    report += `Desviación: ${formData.lineaMedia.desviacion}\n`;
-    report += `Observaciones: ${formData.lineaMedia.observaciones}\n`;
-    report += "\n";
-
-    // Frenillos
-    report += "Frenillos:\n";
-    report += `Labial Superior: ${formData.frenillos.labialSuperior}\n`;
-    report += `Labial Inferior: ${formData.frenillos.labialInferior}\n`;
-    report += `Lingual: ${formData.frenillos.lingual}\n`;
-    report += `Observaciones: ${formData.frenillos.observaciones}\n`;
-    report += "\n";
-
-    // Diagnóstico
-    report += "Diagnóstico:\n";
-    report += `Principal: ${formData.diagnostico.principal}\n`;
-    report += `Secundarios: ${formData.diagnostico.secundarios}\n`;
-    report += `Observaciones: ${formData.diagnostico.observaciones}\n`;
-    report += "\n";
-
-    // Pronóstico
-    report += "Pronóstico:\n";
-    report += `General: ${formData.pronostico.general}\n`;
-    report += `Particular: ${formData.pronostico.particular}\n`;
-    report += `Observaciones: ${formData.pronostico.observaciones}\n`;
-    report += "\n";
+    // Dolor
+    if (formData.padecimientoActual?.dolor?.presente) {
+      report += "\nDolor:\n";
+      report += `  Localización: ${formData.padecimientoActual.dolor.localizacion || 'No especificado'}\n`;
+      report += `  Intensidad: ${formData.padecimientoActual.dolor.intensidad || 'No especificado'}\n`;
+      report += `  Tipo: ${formData.padecimientoActual.dolor.tipo || 'No especificado'}\n`;
+      report += `  Irradiación: ${formData.padecimientoActual.dolor.irradiacion || 'No especificado'}\n`;
+      report += `  Frecuencia: ${formData.padecimientoActual.dolor.frecuencia || 'No especificado'}\n`;
+      report += `  Duración: ${formData.padecimientoActual.dolor.duracion || 'No especificado'}\n`;
+      report += `  Agravantes: ${formData.padecimientoActual.dolor.agravantes || 'No especificado'}\n`;
+      report += `  Atenuantes: ${formData.padecimientoActual.dolor.atenuantes || 'No especificado'}\n`;
+    } else {
+      report += "\nSin dolor reportado.\n";
+    }
 
     return report;
   } catch (error) {
-    console.error("Error generating medical report:", error);
+    console.error("Error generating padecimiento actual report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateAntecedentesHFReport = async (formData) => {
+  try {
+    let report = "Antecedentes Heredo Familiares:\n\n";
+
+    for (const familiar in formData.antecedentesHF) {
+      if (formData.antecedentesHF.hasOwnProperty(familiar)) {
+        const condiciones = formData.antecedentesHF[familiar];
+        if (condiciones && Object.keys(condiciones).length > 0) {
+          report += `${familiar}:\n`;
+          for (const condicion in condiciones) {
+            if (condiciones.hasOwnProperty(condicion) && condiciones[condicion]) {
+              report += `- ${condicion}\n`;
+            }
+          }
+          report += "\n";
+        }
+      }
+    }
+
+    if (report === "Antecedentes Heredo Familiares:\n\n") {
+      report = "Antecedentes Heredo Familiares: Sin antecedentes relevantes.\n";
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating antecedentes heredo familiares report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateAntecedentesPNPReport = async (formData) => {
+  try {
+    let report = "Antecedentes Personales No Patológicos:\n\n";
+
+    // Alimentación
+    report += `Alimentación: ${formData.antecedentesPNP?.alimentacion || 'No especificada'}\n`;
+
+    // Tabaquismo
+    if (formData.antecedentesPNP?.tabaquismo?.fumador) {
+      report += `Tabaquismo: Fumador, ${formData.antecedentesPNP.tabaquismo.cantidad} cigarros al día durante ${formData.antecedentesPNP.tabaquismo.tiempo} años.\n`;
+    } else {
+      report += "Tabaquismo: No fumador.\n";
+    }
+
+    // Alcoholismo
+    if (formData.antecedentesPNP?.alcoholismo?.consumeAlcohol) {
+      report += `Alcoholismo: Consume alcohol, frecuencia ${formData.antecedentesPNP.alcoholismo.frecuencia} y cantidad ${formData.antecedentesPNP.alcoholismo.cantidad}.\n`;
+    } else {
+      report += "Alcoholismo: No consume alcohol.\n";
+    }
+
+    // Actividad física
+    report += `Actividad física: ${formData.antecedentesPNP?.actividadFisica || 'No especificada'}\n`;
+
+    // Higiene
+    report += `Higiene: ${formData.antecedentesPNP?.higiene || 'No especificada'}\n`;
+
+    // Sueño
+    report += `Sueño: ${formData.antecedentesPNP?.sueno || 'No especificado'}\n`;
+
+    return report;
+  } catch (error) {
+    console.error("Error generating antecedentes personales no patológicos report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateAntecedentesPPReport = async (formData) => {
+  try {
+    let report = "Antecedentes Personales Patológicos:\n\n";
+
+    for (const enfermedad in formData.antecedentesPP) {
+      if (formData.antecedentesPP.hasOwnProperty(enfermedad)) {
+        if (formData.antecedentesPP[enfermedad]) {
+          report += `- ${enfermedad}\n`;
+        }
+      }
+    }
+
+    if (report === "Antecedentes Personales Patológicos:\n\n") {
+      report = "Antecedentes Personales Patológicos: Sin antecedentes relevantes.\n";
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating antecedentes personales patológicos report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateAntecedentesAlergicosReport = async (formData) => {
+  try {
+    let report = "Antecedentes Alérgicos:\n\n";
+
+    for (const alergia in formData.antecedentesAlergicos) {
+      if (formData.antecedentesAlergicos.hasOwnProperty(alergia)) {
+        if (formData.antecedentesAlergicos[alergia]) {
+          report += `- ${alergia}\n`;
+        }
+      }
+    }
+
+    if (report === "Antecedentes Alérgicos:\n\n") {
+      report = "Antecedentes Alérgicos: Sin alergias conocidas.\n";
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating antecedentes alérgicos report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateAntecedentesQuirurgicosReport = async (formData) => {
+  try {
+    let report = "Antecedentes Quirúrgicos:\n\n";
+
+    for (const cirugia in formData.antecedentesQuirurgicos) {
+      if (formData.antecedentesQuirurgicos.hasOwnProperty(cirugia)) {
+        if (formData.antecedentesQuirurgicos[cirugia]) {
+          report += `- ${cirugia}\n`;
+        }
+      }
+    }
+
+    if (report === "Antecedentes Quirúrgicos:\n\n") {
+      report = "Antecedentes Quirúrgicos: Sin cirugías previas.\n";
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating antecedentes quirúrgicos report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateAntecedentesHemorragicosReport = async (formData) => {
+  try {
+    let report = "Antecedentes Hemorrágicos:\n\n";
+
+    for (const hemorragia in formData.antecedentesHemorragicos) {
+      if (formData.antecedentesHemorragicos.hasOwnProperty(hemorragia)) {
+        if (formData.antecedentesHemorragicos[hemorragia]) {
+          report += `- ${hemorragia}\n`;
+        }
+      }
+    }
+
+    if (report === "Antecedentes Hemorrágicos:\n\n") {
+      report = "Antecedentes Hemorrágicos: Sin antecedentes hemorrágicos relevantes.\n";
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating antecedentes hemorrágicos report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateAntecedentesGinecoObstetricosReport = async (formData) => {
+  try {
+    let report = "Antecedentes Gineco-Obstétricos:\n\n";
+
+    // Menarca
+    report += `Menarca: ${formData.antecedentesGO?.menarca || 'No especificado'}\n`;
+
+    // Ciclo menstrual
+    report += `Ciclo menstrual: ${formData.antecedentesGO?.cicloMenstrual || 'No especificado'}\n`;
+
+    // Gestas
+    report += `Gestas: ${formData.antecedentesGO?.gestas || '0'}\n`;
+
+    // Paras
+    report += `Paras: ${formData.antecedentesGO?.paras || '0'}\n`;
+
+    // Abortos
+    report += `Abortos: ${formData.antecedentesGO?.abortos || '0'}\n`;
+
+    // Cesáreas
+    report += `Cesáreas: ${formData.antecedentesGO?.cesareas || '0'}\n`;
+
+    // Fecha de última menstruación
+    report += `Fecha de última menstruación: ${formData.antecedentesGO?.fum || 'No especificada'}\n`;
+
+    // Método anticonceptivo
+    report += `Método anticonceptivo: ${formData.antecedentesGO?.metodoAnticonceptivo || 'No especificado'}\n`;
+
+    return report;
+  } catch (error) {
+    console.error("Error generating antecedentes gineco-obstétricos report:", error);
     return "Error generando el reporte. Por favor, intente de nuevo.";
   }
 };
 
 export const generateInterrogatorioReport = async (formData) => {
   try {
-    // Create mapping for specific values
-    const habitosAlimenticiosText = formData.interrogatorioSistemas.habitosAlimenticios === "ninguno" 
-      ? "Sin habitos alimenticios relevantes, se interrogo especificamente por: ingesta nocturna, picoteo frecuente, ayuno prolongado." 
-      : `Refiere ${formData.interrogatorioSistemas.habitosAlimenticios}.`;
+    let report = "Interrogatorio por Sistemas:\n\n";
 
-    const tosExpectoracionText = formData.interrogatorioSistemas.tosExpectoracion === "no presenta"
-      ? "No presenta tos con expectoración."
-      : `Presenta tos con expectoración ${formData.interrogatorioSistemas.tosExpectoracion}.`;
-    
-    const cambiosMenstrualesText = formData.interrogatorioSistemas.cambiosMenstruales === "sin cambios"
-      ? "Sin cambios en el ritmo menstrual."
-      : `Refiere ${formData.interrogatorioSistemas.cambiosMenstruales} en el ritmo menstrual.`;
-    
-    const cambiosUnasText = formData.interrogatorioSistemas.cambiosUnas === "sin cambios"
-      ? "Sin cambios en las uñas."
-      : `Presenta uñas ${formData.interrogatorioSistemas.cambiosUnas}.`;
-    
-    const rigidezMatutinaText = formData.interrogatorioSistemas.rigidezMatutina === "no presenta"
-      ? "No presenta rigidez matutina."
-      : `Presenta rigidez matutina con duración de ${formData.interrogatorioSistemas.rigidezMatutina}.`;
-
-    // Generate basic report based on form data
-    let report = "Interrogatorio por sistemas:\n\n";
-    
     // Sistema Respiratorio
-    report += "Sistema Respiratorio: ";
-    const respiratorioItems = [];
-    
-    if (formData.interrogatorioSistemas.tosExpectoracion) {
-      respiratorioItems.push(tosExpectoracionText);
-    }
-    if (formData.interrogatorioSistemas.disnea) {
-      respiratorioItems.push(`Disnea ${formData.interrogatorioSistemas.disnea}.`);
-    }
-    if (formData.interrogatorioSistemas.sibilancias) {
-      respiratorioItems.push(`Sibilancias: ${formData.interrogatorioSistemas.sibilancias}.`);
-    }
-    if (formData.interrogatorioSistemas.dolorToracico) {
-      respiratorioItems.push(`Dolor torácico: ${formData.interrogatorioSistemas.dolorToracico}.`);
-    }
-    
-    report += respiratorioItems.length > 0 ? respiratorioItems.join(" ") : "Sin hallazgos relevantes.";
-    report += "\n\n";
-    
+    report += "Sistema Respiratorio:\n";
+    report += `- Tos con expectoración: ${formData.interrogatorioSistemas?.tosExpectoracion || 'No especificado'}\n`;
+    report += `- Disnea: ${formData.interrogatorioSistemas?.disnea || 'No especificado'}\n`;
+    report += `- Sibilancias: ${formData.interrogatorioSistemas?.sibilancias === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Dolor torácico: ${formData.interrogatorioSistemas?.dolorToracico === 'si' ? 'Sí' : 'No'}\n\n`;
+
     // Sistema Cardiovascular
-    report += "Sistema Cardiovascular: ";
-    const cardiovascularItems = [];
-    
-    if (formData.interrogatorioSistemas.dolorPrecordial) {
-      cardiovascularItems.push(`Dolor precordial: ${formData.interrogatorioSistemas.dolorPrecordial}.`);
-    }
-    if (formData.interrogatorioSistemas.palpitaciones) {
-      cardiovascularItems.push(`Palpitaciones: ${formData.interrogatorioSistemas.palpitaciones}.`);
-    }
-    if (formData.interrogatorioSistemas.edemaMiembrosInferiores) {
-      cardiovascularItems.push(`Edema en miembros inferiores: ${formData.interrogatorioSistemas.edemaMiembrosInferiores}.`);
-    }
-    if (formData.interrogatorioSistemas.disneaEsfuerzos) {
-      cardiovascularItems.push(`Disnea a esfuerzos: ${formData.interrogatorioSistemas.disneaEsfuerzos}.`);
-    }
-    
-    report += cardiovascularItems.length > 0 ? cardiovascularItems.join(" ") : "Sin hallazgos relevantes.";
-    report += "\n\n";
-    
-    // Sistema Endocrino
-    report += "Sistema Endocrino: ";
-    const endocrinoItems = [];
-    
-    if (formData.interrogatorioSistemas.cambiosMenstruales) {
-      endocrinoItems.push(cambiosMenstrualesText);
-    }
-    if (formData.interrogatorioSistemas.intoleranciaCalorFrio) {
-      endocrinoItems.push(`Intolerancia al calor/frío: ${formData.interrogatorioSistemas.intoleranciaCalorFrio}.`);
-    }
-    if (formData.interrogatorioSistemas.sedExcesiva) {
-      endocrinoItems.push(`Sed excesiva: ${formData.interrogatorioSistemas.sedExcesiva}.`);
-    }
-    if (formData.interrogatorioSistemas.aumentoOrina) {
-      endocrinoItems.push(`Aumento en la frecuencia de orina: ${formData.interrogatorioSistemas.aumentoOrina}.`);
-    }
-    
-    report += endocrinoItems.length > 0 ? endocrinoItems.join(" ") : "Sin hallazgos relevantes.";
-    report += "\n\n";
-    
-    // Sistema Tegumentario
-    report += "Sistema Tegumentario: ";
-    const tegumentarioItems = [];
-    
-    if (formData.interrogatorioSistemas.cambiosCabello) {
-      tegumentarioItems.push(`Cambios en cabello: ${formData.interrogatorioSistemas.cambiosCabello}.`);
-    }
-    if (formData.interrogatorioSistemas.cambiosUnas) {
-      tegumentarioItems.push(cambiosUnasText);
-    }
-    if (formData.interrogatorioSistemas.prurito) {
-      tegumentarioItems.push(`Prurito: ${formData.interrogatorioSistemas.prurito}.`);
-    }
-    if (formData.interrogatorioSistemas.lesionesPiel) {
-      tegumentarioItems.push(`Lesiones en la piel: ${formData.interrogatorioSistemas.lesionesPiel}.`);
-    }
-    
-    report += tegumentarioItems.length > 0 ? tegumentarioItems.join(" ") : "Sin hallazgos relevantes.";
-    report += "\n\n";
-    
-    // Sistema Músculo-esquelético
-    report += "Sistema Músculo-esquelético: ";
-    const musculoesqueleticoItems = [];
-    
-    if (formData.interrogatorioSistemas.rigidezMatutina) {
-      musculoesqueleticoItems.push(rigidezMatutinaText);
-    }
-    if (formData.interrogatorioSistemas.dolorArticular) {
-      musculoesqueleticoItems.push(`Dolor articular: ${formData.interrogatorioSistemas.dolorArticular}.`);
-    }
-    if (formData.interrogatorioSistemas.limitacionMovimiento) {
-      musculoesqueleticoItems.push(`Limitación del movimiento: ${formData.interrogatorioSistemas.limitacionMovimiento}.`);
-    }
-    if (formData.interrogatorioSistemas.debilidadMuscular) {
-      musculoesqueleticoItems.push(`Debilidad muscular: ${formData.interrogatorioSistemas.debilidadMuscular}.`);
-    }
-    
-    report += musculoesqueleticoItems.length > 0 ? musculoesqueleticoItems.join(" ") : "Sin hallazgos relevantes.";
-    report += "\n\n";
-    
-    // Sistema Nervioso
-    report += "Sistema Nervioso: ";
-    const nerviosoItems = [];
-    
-    if (formData.interrogatorioSistemas.cefalea) {
-      nerviosoItems.push(`Cefalea: ${formData.interrogatorioSistemas.cefalea}.`);
-    }
-    if (formData.interrogatorioSistemas.mareos) {
-      nerviosoItems.push(`Mareos: ${formData.interrogatorioSistemas.mareos}.`);
-    }
-    if (formData.interrogatorioSistemas.perdidaFuerza) {
-      nerviosoItems.push(`Pérdida de fuerza: ${formData.interrogatorioSistemas.perdidaFuerza}.`);
-    }
-    if (formData.interrogatorioSistemas.alteracionesSensibilidad) {
-      nerviosoItems.push(`Alteraciones en la sensibilidad: ${formData.interrogatorioSistemas.alteracionesSensibilidad}.`);
-    }
-    
-    report += nerviosoItems.length > 0 ? nerviosoItems.join(" ") : "Sin hallazgos relevantes.";
-    report += "\n\n";
-    
+    report += "Sistema Cardiovascular:\n";
+    report += `- Palpitaciones: ${formData.interrogatorioSistemas?.palpitaciones === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Edema: ${formData.interrogatorioSistemas?.edema === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Síncope: ${formData.interrogatorioSistemas?.sincope === 'si' ? 'Sí' : 'No'}\n\n`;
+
     // Sistema Digestivo
-    report += "Sistema Digestivo: ";
-    const digestivoItems = [];
-    
-    if (formData.interrogatorioSistemas.nauseas) {
-      digestivoItems.push(`Nauseas: ${formData.interrogatorioSistemas.nauseas}.`);
-    }
-    if (formData.interrogatorioSistemas.vomito) {
-      digestivoItems.push(`Vómito: ${formData.interrogatorioSistemas.vomito}.`);
-    }
-    if (formData.interrogatorioSistemas.dolorAbdominal) {
-      digestivoItems.push(`Dolor abdominal: ${formData.interrogatorioSistemas.dolorAbdominal}.`);
-    }
-    if (formData.interrogatorioSistemas.cambiosHabitoIntestinal) {
-      digestivoItems.push(`Cambios en el hábito intestinal: ${formData.interrogatorioSistemas.cambiosHabitoIntestinal}.`);
-    }
-    
-    report += digestivoItems.length > 0 ? digestivoItems.join(" ") : "Sin hallazgos relevantes.";
-    report += "\n\n";
-    
+    report += "Sistema Digestivo:\n";
+    report += `- Náuseas: ${formData.interrogatorioSistemas?.nauseas === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Vómitos: ${formData.interrogatorioSistemas?.vomitos === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Diarrea: ${formData.interrogatorioSistemas?.diarrea === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Estreñimiento: ${formData.interrogatorioSistemas?.estrenimiento === 'si' ? 'Sí' : 'No'}\n\n`;
+
+    // Hábitos Alimenticios
+    report += "Hábitos Alimenticios:\n";
+    report += `- Hábitos: ${formData.interrogatorioSistemas?.habitosAlimenticios || 'No especificado'}\n\n`;
+
     // Sistema Urinario
-    report += "Sistema Urinario: ";
-    const urinarioItems = [];
-    
-    if (formData.interrogatorioSistemas.disuria) {
-      urinarioItems.push(`Disuria: ${formData.interrogatorioSistemas.disuria}.`);
-    }
-    if (formData.interrogatorioSistemas.polaquiuria) {
-      urinarioItems.push(`Polaquiuria: ${formData.interrogatorioSistemas.polaquiuria}.`);
-    }
-    if (formData.interrogatorioSistemas.urgenciaUrinaria) {
-      urinarioItems.push(`Urgencia urinaria: ${formData.interrogatorioSistemas.urgenciaUrinaria}.`);
-    }
-    if (formData.interrogatorioSistemas.hematuria) {
-      urinarioItems.push(`Hematuria: ${formData.interrogatorioSistemas.hematuria}.`);
-    }
-    
-    report += urinarioItems.length > 0 ? urinarioItems.join(" ") : "Sin hallazgos relevantes.";
-    report += "\n\n";
-    
-    // Hábitos alimenticios
-    if (formData.interrogatorioSistemas.habitosAlimenticios) {
-      report += `Hábitos alimenticios: ${habitosAlimenticiosText}\n\n`;
-    }
-    
+    report += "Sistema Urinario:\n";
+    report += `- Disuria: ${formData.interrogatorioSistemas?.disuria === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Polaquiuria: ${formData.interrogatorioSistemas?.polaquiuria === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Urgencia miccional: ${formData.interrogatorioSistemas?.urgenciaMiccional === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Nicturia: ${formData.interrogatorioSistemas?.nicturia === 'si' ? 'Sí' : 'No'}\n\n`;
+
+    // Sistema Músculo-esquelético
+    report += "Sistema Músculo-esquelético:\n";
+    report += `- Artralgias: ${formData.interrogatorioSistemas?.artralgias === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Mialgias: ${formData.interrogatorioSistemas?.mialgias === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Rigidez matutina: ${formData.interrogatorioSistemas?.rigidezMatutina || 'No especificado'}\n\n`;
+
+    // Sistema Nervioso
+    report += "Sistema Nervioso:\n";
+    report += `- Cefalea: ${formData.interrogatorioSistemas?.cefalea === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Mareos: ${formData.interrogatorioSistemas?.mareos === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Parestesias: ${formData.interrogatorioSistemas?.parestesias === 'si' ? 'Sí' : 'No'}\n\n`;
+
+    // Sistema Endocrino
+    report += "Sistema Endocrino:\n";
+    report += `- Polidipsia: ${formData.interrogatorioSistemas?.polidipsia === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Poliuria: ${formData.interrogatorioSistemas?.poliuria === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Polifagia: ${formData.interrogatorioSistemas?.polifagia === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Cambios en el ritmo menstrual: ${formData.interrogatorioSistemas?.cambiosMenstruales || 'No especificado'}\n\n`;
+
+    // Sistema Tegumentario
+    report += "Sistema Tegumentario:\n";
+    report += `- Cambios en piel: ${formData.interrogatorioSistemas?.cambiosPiel === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Cambios en cabello: ${formData.interrogatorioSistemas?.cambiosCabello === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Cambios en uñas: ${formData.interrogatorioSistemas?.cambiosUnas || 'No especificado'}\n\n`;
+
+    // Otros
+    report += "Otros:\n";
+    report += `- Fiebre: ${formData.interrogatorioSistemas?.fiebre === 'si' ? 'Sí' : 'No'}\n`;
+    report += `- Pérdida de peso: ${formData.interrogatorioSistemas?.perdidaPeso === 'si' ? 'Sí' : 'No'}\n`;
+
     return report;
   } catch (error) {
-    console.error("Error generating interrogatorio report:", error);
+    console.error("Error generating interrogatorio por sistemas report:", error);
     return "Error generando el reporte. Por favor, intente de nuevo.";
   }
 };
@@ -451,30 +310,28 @@ export const generateExploracionFisicaReport = async (formData) => {
   try {
     let report = "Exploración Física:\n\n";
 
-    // Signos Vitales
+    // Signos vitales
     report += "Signos Vitales:\n";
-    report += `TA: ${formData.exploracionFisica?.signosVitales?.ta || 'No especificado'}\n`;
-    report += `FC: ${formData.exploracionFisica?.signosVitales?.fc || 'No especificado'}\n`;
-    report += `FR: ${formData.exploracionFisica?.signosVitales?.fr || 'No especificado'}\n`;
-    report += `Temperatura: ${formData.exploracionFisica?.signosVitales?.temperatura || 'No especificado'}\n`;
-    report += `Peso: ${formData.exploracionFisica?.signosVitales?.peso || 'No especificado'}\n`;
-    report += `Talla: ${formData.exploracionFisica?.signosVitales?.talla || 'No especificado'}\n`;
-    report += `IMC: ${formData.exploracionFisica?.signosVitales?.imc || 'No especificado'}\n`;
-    report += `Pulso: ${formData.exploracionFisica?.signosVitales?.pulso || 'No especificado'}\n`;
-    report += "\n";
+    report += `  Presión Arterial (TA): ${formData.exploracionFisica?.signosVitales?.ta || 'No especificada'}\n`;
+    report += `  Frecuencia Cardíaca (FC): ${formData.exploracionFisica?.signosVitales?.fc || 'No especificada'}\n`;
+    report += `  Frecuencia Respiratoria (FR): ${formData.exploracionFisica?.signosVitales?.fr || 'No especificada'}\n`;
+    report += `  Temperatura: ${formData.exploracionFisica?.signosVitales?.temperatura || 'No especificada'}\n`;
+    report += `  Peso: ${formData.exploracionFisica?.signosVitales?.peso || 'No especificado'} kg\n`;
+    report += `  Talla: ${formData.exploracionFisica?.signosVitales?.talla || 'No especificada'} cm\n`;
+    report += `  Índice de Masa Corporal (IMC): ${formData.exploracionFisica?.signosVitales?.imc || 'No especificado'}\n`;
+    report += `  Pulso: ${formData.exploracionFisica?.signosVitales?.pulso || 'No especificado'}\n\n`;
 
-    // Exploración General
+    // Exploración general
     report += "Exploración General:\n";
-    report += `Cabeza: ${formData.exploracionFisica?.exploracion?.cabeza || 'No especificado'}\n`;
-    report += `Cuello: ${formData.exploracionFisica?.exploracion?.cuello || 'No especificado'}\n`;
-    report += `Tórax: ${formData.exploracionFisica?.exploracion?.torax || 'No especificado'}\n`;
-    report += `Abdomen: ${formData.exploracionFisica?.exploracion?.abdomen || 'No especificado'}\n`;
-    report += `Extremidades: ${formData.exploracionFisica?.exploracion?.extremidades || 'No especificado'}\n`;
-    report += "\n";
+    report += `  Cabeza: ${formData.exploracionFisica?.exploracion?.cabeza || 'No especificada'}\n`;
+    report += `  Cuello: ${formData.exploracionFisica?.exploracion?.cuello || 'No especificada'}\n`;
+    report += `  Tórax: ${formData.exploracionFisica?.exploracion?.torax || 'No especificada'}\n`;
+    report += `  Abdomen: ${formData.exploracionFisica?.exploracion?.abdomen || 'No especificada'}\n`;
+    report += `  Extremidades: ${formData.exploracionFisica?.exploracion?.extremidades || 'No especificada'}\n`;
 
     return report;
   } catch (error) {
-    console.error("Error generating exploracion fisica report:", error);
+    console.error("Error generating exploración física report:", error);
     return "Error generando el reporte. Por favor, intente de nuevo.";
   }
 };
@@ -489,9 +346,242 @@ export const generateExamenCabezaReport = async (formData) => {
     report += `Tez: ${formData.examenCabeza?.tez || 'No especificado'}\n`;
     report += `Estado de la piel: ${formData.examenCabeza?.estadoPiel || 'No especificado'}\n`;
 
+    // Add more details about lunares, cicatrices, asimetrias, etc.
+    if (formData.examenCabeza?.lunares) {
+      report += "\nLunares:\n";
+      if (formData.examenCabeza.lunares.presente) {
+        report += `Tamaño: ${formData.examenCabeza.lunares.tamanio || 'No especificado'}\n`;
+        report += `Color: ${formData.examenCabeza.lunares.color || 'No especificado'}\n`;
+        report += `Bordes: ${formData.examenCabeza.lunares.bordes || 'No especificado'}\n`;
+        report += `Localización: ${formData.examenCabeza.lunares.localizacion || 'No especificado'}\n`;
+      } else {
+        report += "No se observan lunares.\n";
+      }
+    }
+
+    if (formData.examenCabeza?.cicatrices) {
+      report += "\nCicatrices:\n";
+      if (formData.examenCabeza.cicatrices.presente) {
+        report += `Tipo: ${formData.examenCabeza.cicatrices.tipo || 'No especificado'}\n`;
+        report += `Antigüedad: ${formData.examenCabeza.cicatrices.antiguedad || 'No especificado'}\n`;
+        report += `Coloración: ${formData.examenCabeza.cicatrices.coloracion || 'No especificado'}\n`;
+        report += `Zona afectada: ${formData.examenCabeza.cicatrices.zonaAfectada || 'No especificado'}\n`;
+      } else {
+        report += "No se observan cicatrices.\n";
+      }
+    }
+
+    if (formData.examenCabeza?.asimetriasFaciales) {
+      report += "\nAsimetrías faciales:\n";
+      if (formData.examenCabeza.asimetriasFaciales.presente) {
+        report += `Lado: ${formData.examenCabeza.asimetriasFaciales.lado || 'No especificado'}\n`;
+        report += `Origen: ${formData.examenCabeza.asimetriasFaciales.origen || 'No especificado'}\n`;
+        report += `Zona afectada: ${formData.examenCabeza.asimetriasFaciales.zonaAfectada || 'No especificado'}\n`;
+      } else {
+        report += "No se observan asimetrías faciales.\n";
+      }
+    }
+
+    if (formData.examenCabeza?.edema) {
+      report += "\nEdema:\n";
+      if (formData.examenCabeza.edema.presente) {
+        report += `Consistencia: ${formData.examenCabeza.edema.consistencia || 'No especificado'}\n`;
+        report += `Localización: ${formData.examenCabeza.edema.localizacion || 'No especificado'}\n`;
+      } else {
+        report += "No se observa edema.\n";
+      }
+    }
+
+    if (formData.examenCabeza?.otrosHallazgos) {
+      report += `\nOtros hallazgos: ${formData.examenCabeza.otrosHallazgos}\n`;
+    }
+
     return report;
   } catch (error) {
     console.error("Error generating examen cabeza report:", error);
     return "Error generando el reporte. Por favor, intente de nuevo.";
   }
 };
+
+export const generateArticulacionCraneomandibularReport = async (formData) => {
+  try {
+    let report = "Articulación Craneomandibular (ATM):\n\n";
+
+    // Ruidos
+    if (formData.articulacionCraneomandibular?.ruidos) {
+      report += "Ruidos:\n";
+      if (formData.articulacionCraneomandibular.ruidos.presente) {
+        report += `  Tipo: ${formData.articulacionCraneomandibular.ruidos.tipo || 'No especificado'}\n`;
+        report += `  Lado: ${formData.articulacionCraneomandibular.ruidos.lado || 'No especificado'}\n`;
+        report += `  Momento: ${formData.articulacionCraneomandibular.ruidos.momento || 'No especificado'}\n`;
+      } else {
+        report += "  No se detectan ruidos.\n";
+      }
+    }
+
+    // Dolor
+    if (formData.articulacionCraneomandibular?.dolor) {
+      report += "\nDolor:\n";
+      if (formData.articulacionCraneomandibular.dolor.presente) {
+        report += `  Localización: ${formData.articulacionCraneomandibular.dolor.localizacion || 'No especificado'}\n`;
+        report += `  Intensidad: ${formData.articulacionCraneomandibular.dolor.intensidad || 'No especificado'}\n`;
+        report += `  Tipo: ${formData.articulacionCraneomandibular.dolor.tipo || 'No especificado'}\n`;
+        report += `  Desencadenantes: ${formData.articulacionCraneomandibular.dolor.desencadenantes || 'No especificado'}\n`;
+      } else {
+        report += "  No se reporta dolor.\n";
+      }
+    }
+
+    // Limitación de apertura
+    if (formData.articulacionCraneomandibular?.limitacionApertura) {
+      report += "\nLimitación de Apertura:\n";
+      if (formData.articulacionCraneomandibular.limitacionApertura.presente) {
+        report += `  Grado: ${formData.articulacionCraneomandibular.limitacionApertura.grado || 'No especificado'}\n`;
+        report += `  Causa: ${formData.articulacionCraneomandibular.limitacionApertura.causa || 'No especificado'}\n`;
+      } else {
+        report += "  No se observa limitación de apertura.\n";
+      }
+    }
+
+    // Desviación
+    if (formData.articulacionCraneomandibular?.desviacion) {
+      report += "\nDesviación:\n";
+      if (formData.articulacionCraneomandibular.desviacion.presente) {
+        report += `  Lado: ${formData.articulacionCraneomandibular.desviacion.lado || 'No especificado'}\n`;
+        report += `  Grado: ${formData.articulacionCraneomandibular.desviacion.grado || 'No especificado'}\n`;
+      } else {
+        report += "  No se observa desviación.\n";
+      }
+    }
+
+    // Otros hallazgos
+    if (formData.articulacionCraneomandibular?.otrosHallazgos) {
+      report += `\nOtros hallazgos: ${formData.articulacionCraneomandibular.otrosHallazgos}\n`;
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating articulación craneomandibular report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateExamenCuelloReport = async (formData) => {
+  try {
+    let report = "Examen de Cuello:\n\n";
+
+    // Ganglios linfáticos
+    if (formData.examenCuello?.gangliosLinfaticos) {
+      report += "Ganglios Linfáticos:\n";
+      if (formData.examenCuello.gangliosLinfaticos.presente) {
+        report += `  Tamaño: ${formData.examenCuello.gangliosLinfaticos.tamanio || 'No especificado'}\n`;
+        report += `  Consistencia: ${formData.examenCuello.gangliosLinfaticos.consistencia || 'No especificado'}\n`;
+        report += `  Sensibilidad: ${formData.examenCuello.gangliosLinfaticos.sensibilidad ? 'Sensible' : 'No sensible'}\n`;
+        report += `  Movilidad: ${formData.examenCuello.gangliosLinfaticos.movilidad ? 'Móvil' : 'Fijo'}\n`;
+        report += `  Localización: ${formData.examenCuello.gangliosLinfaticos.localizacion || 'No especificado'}\n`;
+      } else {
+        report += "  No se palpan ganglios linfáticos.\n";
+      }
+    }
+
+    // Tiroides
+    if (formData.examenCuello?.tiroides) {
+      report += "\nTiroides:\n";
+      if (formData.examenCuello.tiroides.presente) {
+        report += `  Tamaño: ${formData.examenCuello.tiroides.tamanio || 'No especificado'}\n`;
+        report += `  Consistencia: ${formData.examenCuello.tiroides.consistencia || 'No especificado'}\n`;
+        report += `  Sensibilidad: ${formData.examenCuello.tiroides.sensibilidad ? 'Sensible' : 'No sensible'}\n`;
+      } else {
+        report += "  Tiroides no palpable.\n";
+      }
+    }
+
+    // Movilidad
+    report += `\nMovilidad: ${formData.examenCuello?.movilidad || 'No especificada'}\n`;
+
+    // Dolor
+    report += `Dolor: ${formData.examenCuello?.dolor ? 'Presente' : 'Ausente'}\n`;
+
+    // Otros hallazgos
+    if (formData.examenCuello?.otrosHallazgos) {
+      report += `\nOtros hallazgos: ${formData.examenCuello.otrosHallazgos}\n`;
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating examen cuello report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateExamenIntrabucalReport = async (formData) => {
+  try {
+    let report = "Examen Intrabucal:\n\n";
+
+    // Labios
+    report += "Labios:\n";
+    report += `  Color: ${formData.examenIntrabucal?.labios?.color || 'No especificado'}\n`;
+    report += `  Forma: ${formData.examenIntrabucal?.labios?.forma || 'No especificado'}\n`;
+    report += `  Textura: ${formData.examenIntrabucal?.labios?.textura || 'No especificado'}\n`;
+    report += `  Lesiones: ${formData.examenIntrabucal?.labios?.lesiones || 'No especificado'}\n\n`;
+
+    // Mucosa yugal
+    report += "Mucosa Yugal:\n";
+    report += `  Color: ${formData.examenIntrabucal?.mucosaYugal?.color || 'No especificado'}\n`;
+    report += `  Textura: ${formData.examenIntrabucal?.mucosaYugal?.textura || 'No especificado'}\n`;
+    report += `  Lesiones: ${formData.examenIntrabucal?.mucosaYugal?.lesiones || 'No especificado'}\n\n`;
+
+    // Encías
+    report += "Encías:\n";
+    report += `  Color: ${formData.examenIntrabucal?.encias?.color || 'No especificado'}\n`;
+    report += `  Forma: ${formData.examenIntrabucal?.encias?.forma || 'No especificado'}\n`;
+    report += `  Textura: ${formData.examenIntrabucal?.encias?.textura || 'No especificado'}\n`;
+    report += `  Sangrado: ${formData.examenIntrabucal?.encias?.sangrado ? 'Presente' : 'Ausente'}\n\n`;
+
+    // Paladar duro
+    report += "Paladar Duro:\n";
+    report += `  Color: ${formData.examenIntrabucal?.paladarDuro?.color || 'No especificado'}\n`;
+    report += `  Forma: ${formData.examenIntrabucal?.paladarDuro?.forma || 'No especificado'}\n`;
+    report += `  Lesiones: ${formData.examenIntrabucal?.paladarDuro?.lesiones || 'No especificado'}\n\n`;
+
+    // Paladar blando
+    report += "Paladar Blando:\n";
+    report += `  Color: ${formData.examenIntrabucal?.paladarBlando?.color || 'No especificado'}\n`;
+    report += `  Movilidad: ${formData.examenIntrabucal?.paladarBlando?.movilidad || 'No especificado'}\n`;
+    report += `  Lesiones: ${formData.examenIntrabucal?.paladarBlando?.lesiones || 'No especificado'}\n\n`;
+
+    // Lengua
+    report += "Lengua:\n";
+    report += `  Color: ${formData.examenIntrabucal?.lengua?.color || 'No especificado'}\n`;
+    report += `  Papilas: ${formData.examenIntrabucal?.lengua?.papilas || 'No especificado'}\n`;
+    report += `  Movilidad: ${formData.examenIntrabucal?.lengua?.movilidad || 'No especificado'}\n`;
+    report += `  Lesiones: ${formData.examenIntrabucal?.lengua?.lesiones || 'No especificado'}\n\n`;
+
+    // Piso de boca
+    report += "Piso de Boca:\n";
+    report += `  Color: ${formData.examenIntrabucal?.pisoBoca?.color || 'No especificado'}\n`;
+    report += `  Lesiones: ${formData.examenIntrabucal?.pisoBoca?.lesiones || 'No especificado'}\n\n`;
+
+    // Dientes
+    report += "Dientes:\n";
+    report += `  Número: ${formData.examenIntrabucal?.dientes?.numero || 'No especificado'}\n`;
+    report += `  Higiene: ${formData.examenIntrabucal?.dientes?.higiene || 'No especificado'}\n`;
+    report += `  Caries: ${formData.examenIntrabucal?.dientes?.caries ? 'Presente' : 'Ausente'}\n`;
+    report += `  Restauraciones: ${formData.examenIntrabucal?.dientes?.restauraciones ? 'Presente' : 'Ausente'}\n\n`;
+
+    return report;
+  } catch (error) {
+    console.error("Error generating examen intrabucal report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateGlandulasSalivalesReport = async (formData) => {
+  try {
+    let report = "Glándulas Salivales:\n\n";
+
+    // Glándula parótida
+    report += "Glándula Parótida:\n";
+    report += `  Tamaño: ${formData.glandulasSalivales?.parotida?.tamanio || 'No especificado'}\n`;
+    report += `  Sensibilidad: ${formData.glandulasSalivales?.parotida?.sensibilidad ? 'Sensible' : 'No sensible'}\n`;
+    report += `  Secreción: ${formData.glandulasSalivales?.parotida?.secrecion || 'No especificado'}\n\
