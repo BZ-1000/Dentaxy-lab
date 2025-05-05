@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion, MotionValue, useTransform } from "framer-motion";
@@ -225,17 +224,16 @@ export const LogoIcon = ({
     </div>;
 };
 
-// Fixed DockIcon component to correctly handle width as MotionValue<number>
 interface DockIconProps {
   children: ReactNode;
   className?: string;
   width: MotionValue<number>;
 }
 
-export function DockIcon({ children, className, width }: DockIconProps) {
-  // Handle MotionValue<number> by using useTransform
+function DockIcon({ children, className, width }: DockIconProps) {
+  // Fix: Properly handle MotionValue<number> by using it directly
+  // without trying to convert it to ReactNode
   const transformedWidth = useTransform(width, (val) => val / 2);
-  
   return (
     <motion.div
       style={{ width: transformedWidth }}
@@ -245,3 +243,5 @@ export function DockIcon({ children, className, width }: DockIconProps) {
     </motion.div>
   );
 }
+
+export { DockIcon };

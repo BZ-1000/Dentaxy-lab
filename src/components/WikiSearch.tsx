@@ -74,9 +74,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const [selectedCategory, setSelectedCategory] = useState<SearchCategory>("all");
   const [expandedText, setExpandedText] = useState(false);
   const [highlightedText, setHighlightedText] = useState<string>("");
-  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
-  const [isAccordionCustomExpanded, setIsAccordionCustomExpanded] = useState(false);
-  const [isAccordionGeneratingExpanded, setIsAccordionGeneratingExpanded] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -144,11 +141,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
   };
 
-  // Define the expandText function to be used in the component
-  const expandText = () => {
-    setExpandedText(true);
-  };
-
   const searchWikipedia = async (term: string = searchTerm) => {
     if (!term.trim()) return;
     
@@ -198,7 +190,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                       <button 
                         class="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-                        onclick="document.dispatchEvent(new CustomEvent('expandWikiText'))"
+                        onclick="window.expandText()"
                       >
                         Leer más...
                       </button>
@@ -223,16 +215,13 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   };
 
-  // Add event listener for expandText
+  // Add window function for expanding text
   useEffect(() => {
-    const handleExpandText = () => {
+    window.expandText = () => {
       setExpandedText(true);
     };
-    
-    document.addEventListener('expandWikiText', handleExpandText);
-    
     return () => {
-      document.removeEventListener('expandWikiText', handleExpandText);
+      delete window.expandText;
     };
   }, []);
 
