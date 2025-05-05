@@ -232,7 +232,7 @@ interface DockIconProps {
 }
 
 function DockIcon({ children, className, width }: DockIconProps) {
-  // Fix the TypeScript error by using a properly typed component
+  // Fix the type issue by ensuring we return a React element
   const transformedWidth = useTransform(width, (val) => val / 2);
   return (
     <motion.div

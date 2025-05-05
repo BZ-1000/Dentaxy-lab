@@ -1,3 +1,4 @@
+
 export const generateMedicalReport = async (formData) => {
   try {
     let report = "Historia Clínica Resumen:\n\n";
@@ -444,7 +445,7 @@ export const generateInterrogatorioReport = async (formData) => {
     console.error("Error generating interrogatorio report:", error);
     return "Error generando el reporte. Por favor, intente de nuevo.";
   }
-}
+};
 
 export const generateExploracionFisicaReport = async (formData) => {
   try {
@@ -488,4 +489,9 @@ export const generateExamenCabezaReport = async (formData) => {
     report += `Tez: ${formData.examenCabeza?.tez || 'No especificado'}\n`;
     report += `Estado de la piel: ${formData.examenCabeza?.estadoPiel || 'No especificado'}\n`;
 
-    //
+    return report;
+  } catch (error) {
+    console.error("Error generating examen cabeza report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
