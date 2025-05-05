@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
@@ -74,6 +75,9 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const [selectedCategory, setSelectedCategory] = useState<SearchCategory>("all");
   const [expandedText, setExpandedText] = useState(false);
   const [highlightedText, setHighlightedText] = useState<string>("");
+  const [isAccordionExpanded, setIsAccordionExpanded] = useState(false);
+  const [isAccordionCustomExpanded, setIsAccordionCustomExpanded] = useState(false);
+  const [isAccordionGeneratingExpanded, setIsAccordionGeneratingExpanded] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -217,10 +221,12 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
 
   // Add window function for expanding text
   useEffect(() => {
+    // Define the expandText function on the window object
     window.expandText = () => {
       setExpandedText(true);
     };
     return () => {
+      // Clean up by removing the function from window when component unmounts
       delete window.expandText;
     };
   }, []);
