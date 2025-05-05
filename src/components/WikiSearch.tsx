@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
@@ -145,6 +144,11 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     return text.replace(regex, '<mark class="bg-yellow-200 dark:bg-yellow-800">$1</mark>');
   };
 
+  // Define the expandText function to be used in the component
+  const expandText = () => {
+    setExpandedText(true);
+  };
+
   const searchWikipedia = async (term: string = searchTerm) => {
     if (!term.trim()) return;
     
@@ -194,7 +198,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                     <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                       <button 
                         class="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
-                        onclick="window.expandText()"
+                        onclick="document.dispatchEvent(new CustomEvent('expandWikiText'))"
                       >
                         Leer más...
                       </button>
@@ -219,15 +223,16 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   };
 
-  // Add window function for expanding text
+  // Add event listener for expandText
   useEffect(() => {
-    // Define the expandText function on the window object
-    window.expandText = () => {
+    const handleExpandText = () => {
       setExpandedText(true);
     };
+    
+    document.addEventListener('expandWikiText', handleExpandText);
+    
     return () => {
-      // Clean up by removing the function from window when component unmounts
-      delete window.expandText;
+      document.removeEventListener('expandWikiText', handleExpandText);
     };
   }, []);
 

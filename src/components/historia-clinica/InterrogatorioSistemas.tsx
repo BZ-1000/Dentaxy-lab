@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -12,6 +11,103 @@ interface InterrogatorioSistemasProps {
   formData: any;
   handleInterrogatorioChange: (system: string, value: string) => void;
 }
+
+// Define the function before it's used
+const generateRedactionFromFormData = (data: any): string => {
+  let redaction = '';
+
+  // Hábitos alimenticios
+  if (data.habitosAlimenticios === 'ninguno') {
+    redaction += "Sin habitos alimenticios relevantes, se interrogo especificamente por: ingesta nocturna, picoteo frecuente, ayuno prolongado.\n";
+  } else if (data.habitosAlimenticios) {
+    redaction += `Hábitos alimenticios: ${data.habitosAlimenticios}.\n`;
+  }
+
+  // Hidratación
+  if (data.hidratacion) {
+    redaction += `Hidratación: ${data.hidratacion}.\n`;
+  }
+
+  // Ingesta de alcohol
+  if (data.alcohol) {
+    redaction += `Ingesta de alcohol: ${data.alcohol}.\n`;
+  }
+
+  // Tabaquismo
+  if (data.tabaquismo) {
+    redaction += `Tabaquismo: ${data.tabaquismo}.\n`;
+  }
+
+  // Ingesta de café
+  if (data.cafe) {
+    redaction += `Ingesta de café: ${data.cafe}.\n`;
+  }
+
+  // Ingesta de refrescos
+  if (data.refrescos) {
+    redaction += `Ingesta de refrescos: ${data.refrescos}.\n`;
+  }
+
+  // Tipo de dolor
+  if (data.tipoDolor) {
+    redaction += `Tipo de dolor: ${data.tipoDolor}.\n`;
+  }
+
+  // Fiebre
+  if (data.fiebre) {
+    redaction += `Fiebre: ${data.fiebre}.\n`;
+  }
+
+  // Tos
+  if (data.tos) {
+    redaction += `Tos: ${data.tos}.\n`;
+  }
+
+  // Tos con expectoración
+  if (data.tosExpectoracion === 'no presenta tos con expectoracion') {
+    redaction += `No presenta tos con expectoración.\n`;
+  } else if (data.tosExpectoracion) {
+    redaction += `Tos con expectoración: ${data.tosExpectoracion}.\n`;
+  }
+
+  // Disuria
+  if (data.disuria) {
+    redaction += `Disuria: ${data.disuria}.\n`;
+  }
+
+  // Hemianopsia
+  if (data.hemianopsia) {
+    redaction += `Hemianopsia: ${data.hemianopsia}.\n`;
+  }
+
+  // Polidipsia
+  if (data.polidipsia) {
+    redaction += `Polidipsia: ${data.polidipsia}.\n`;
+  }
+
+  // Cambios en el ritmo menstrual
+  if (data.ritmoMenstrual === 'sin cambios en el ritmo menstrual') {
+    redaction += `Sin cambios en el ritmo menstrual.\n`;
+  } else if (data.ritmoMenstrual) {
+    redaction += `Cambios en el ritmo menstrual: ${data.ritmoMenstrual}.\n`;
+  }
+
+  // Cambios en uñas
+  if (data.cambiosUnias === 'sin cambios') {
+    redaction += `Sin cambios en las uñas.\n`;
+  } else if (data.cambiosUnias) {
+    redaction += `Cambios en uñas: ${data.cambiosUnias}.\n`;
+  }
+
+  // Rigidez matutina
+  if (data.rigidezMatutina === 'no presenta rigidez matutina') {
+    redaction += `No presenta rigidez matutina.\n`;
+  } else if (data.rigidezMatutina) {
+    redaction += `Rigidez matutina: ${data.rigidezMatutina}.\n`;
+  }
+
+  return redaction;
+};
 
 const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({ formData, handleInterrogatorioChange }) => {
   const [activeTab, setActiveTab] = useState('formulario');
@@ -35,102 +131,6 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({ formDat
       setIsGeneratingAI(false);
       setActiveTab('redaccion');
     }, 1500);
-  };
-
-  const generateRedactionFromFormData = (data: any): string => {
-    let redaction = '';
-
-    // Hábitos alimenticios
-    if (data.habitosAlimenticios === 'ninguno') {
-      redaction += "Sin habitos alimenticios relevantes, se interrogo especificamente por: ingesta nocturna, picoteo frecuente, ayuno prolongado.\n";
-    } else if (data.habitosAlimenticios) {
-      redaction += `Hábitos alimenticios: ${data.habitosAlimenticios}.\n`;
-    }
-
-    // Hidratación
-    if (data.hidratacion) {
-      redaction += `Hidratación: ${data.hidratacion}.\n`;
-    }
-
-    // Ingesta de alcohol
-    if (data.alcohol) {
-      redaction += `Ingesta de alcohol: ${data.alcohol}.\n`;
-    }
-
-    // Tabaquismo
-    if (data.tabaquismo) {
-      redaction += `Tabaquismo: ${data.tabaquismo}.\n`;
-    }
-
-    // Ingesta de café
-    if (data.cafe) {
-      redaction += `Ingesta de café: ${data.cafe}.\n`;
-    }
-
-    // Ingesta de refrescos
-    if (data.refrescos) {
-      redaction += `Ingesta de refrescos: ${data.refrescos}.\n`;
-    }
-
-    // Tipo de dolor
-    if (data.tipoDolor) {
-      redaction += `Tipo de dolor: ${data.tipoDolor}.\n`;
-    }
-
-    // Fiebre
-    if (data.fiebre) {
-      redaction += `Fiebre: ${data.fiebre}.\n`;
-    }
-
-    // Tos
-    if (data.tos) {
-      redaction += `Tos: ${data.tos}.\n`;
-    }
-
-    // Tos con expectoración
-    if (data.tosExpectoracion === 'no presenta tos con expectoracion') {
-      redaction += `No presenta tos con expectoración.\n`;
-    } else if (data.tosExpectoracion) {
-      redaction += `Tos con expectoración: ${data.tosExpectoracion}.\n`;
-    }
-
-    // Disuria
-    if (data.disuria) {
-      redaction += `Disuria: ${data.disuria}.\n`;
-    }
-
-    // Hemianopsia
-    if (data.hemianopsia) {
-      redaction += `Hemianopsia: ${data.hemianopsia}.\n`;
-    }
-
-    // Polidipsia
-    if (data.polidipsia) {
-      redaction += `Polidipsia: ${data.polidipsia}.\n`;
-    }
-
-    // Cambios en el ritmo menstrual
-    if (data.ritmoMenstrual === 'sin cambios en el ritmo menstrual') {
-      redaction += `Sin cambios en el ritmo menstrual.\n`;
-    } else if (data.ritmoMenstrual) {
-      redaction += `Cambios en el ritmo menstrual: ${data.ritmoMenstrual}.\n`;
-    }
-
-    // Cambios en uñas
-    if (data.cambiosUnias === 'sin cambios') {
-      redaction += `Sin cambios en las uñas.\n`;
-    } else if (data.cambiosUnias) {
-      redaction += `Cambios en uñas: ${data.cambiosUnias}.\n`;
-    }
-
-    // Rigidez matutina
-    if (data.rigidezMatutina === 'no presenta rigidez matutina') {
-      redaction += `No presenta rigidez matutina.\n`;
-    } else if (data.rigidezMatutina) {
-      redaction += `Rigidez matutina: ${data.rigidezMatutina}.\n`;
-    }
-
-    return redaction;
   };
 
   return (

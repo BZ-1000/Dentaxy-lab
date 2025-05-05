@@ -225,13 +225,14 @@ export const LogoIcon = ({
     </div>;
 };
 
+// Fixed DockIcon component to correctly handle width as MotionValue<number>
 interface DockIconProps {
   children: ReactNode;
   className?: string;
   width: MotionValue<number>;
 }
 
-function DockIcon({ children, className, width }: DockIconProps) {
+export function DockIcon({ children, className, width }: DockIconProps) {
   // Handle MotionValue<number> by using useTransform
   const transformedWidth = useTransform(width, (val) => val / 2);
   
@@ -244,5 +245,3 @@ function DockIcon({ children, className, width }: DockIconProps) {
     </motion.div>
   );
 }
-
-export { DockIcon };

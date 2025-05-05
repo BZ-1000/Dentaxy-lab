@@ -168,8 +168,18 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">mmHg</span>
                 </div>
                 {formData.exploracionFisica?.signosVitales?.ta && (
-                  <div className={`text-sm ${getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).color}`}>
-                    {getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).label}
+                  <div className={`text-sm ${
+                    (() => {
+                      const { systolic, diastolic } = getBloodPressureValues(formData.exploracionFisica.signosVitales.ta);
+                      return getBPCategory(systolic, diastolic).color;
+                    })()
+                  }`}>
+                    {
+                      (() => {
+                        const { systolic, diastolic } = getBloodPressureValues(formData.exploracionFisica.signosVitales.ta);
+                        return getBPCategory(systolic, diastolic).label;
+                      })()
+                    }
                   </div>
                 )}
               </div>
