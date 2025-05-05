@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion, MotionValue, useTransform } from "framer-motion";
@@ -37,7 +36,7 @@ export const SidebarProvider = ({
   children: React.ReactNode;
   open?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean
+  animate?: boolean;
 }) => {
   const [openState, setOpenState] = useState(false);
   const open = openProp !== undefined ? openProp : openState;
@@ -232,11 +231,11 @@ interface DockIconProps {
 }
 
 function DockIcon({ children, className, width }: DockIconProps) {
-  // Fix the type issue by using a more specific type for transformedWidth
-  const transformedWidth = useTransform(width, (val) => val / 2);
+  // Fix: Properly handle MotionValue<number> by using it directly
+  // without trying to convert it to ReactNode
   return (
     <motion.div
-      style={{ width: transformedWidth }}
+      style={{ width: useTransform(width, val => val / 2) }}
       className={cn('flex items-center justify-center', className)}
     >
       {children}

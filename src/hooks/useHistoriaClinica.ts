@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
-import { FormDataState } from '@/types/historiaClinica';
+import { FormDataState, CaracteristicaFacial } from '@/types/historiaClinica';
 import { getInitialFormState } from '@/utils/initialFormState';
 
 export const useHistoriaClinica = () => {
@@ -293,7 +293,7 @@ export const useHistoriaClinica = () => {
     }
   };
 
-  const handleExamenCabezaChange = (part: string, value: any) => {
+  const handleExamenCabezaChange = (part: string, value: string | boolean | CaracteristicaFacial | null) => {
     setFormData(prev => ({
       ...prev,
       examenCabeza: {
