@@ -1,3 +1,4 @@
+
 export const generatePadecimientoActualReport = async (formData) => {
   try {
     let report = "Padecimiento Actual:\n\n";
@@ -584,4 +585,181 @@ export const generateGlandulasSalivalesReport = async (formData) => {
     report += "Glándula Parótida:\n";
     report += `  Tamaño: ${formData.glandulasSalivales?.parotida?.tamanio || 'No especificado'}\n`;
     report += `  Sensibilidad: ${formData.glandulasSalivales?.parotida?.sensibilidad ? 'Sensible' : 'No sensible'}\n`;
-    report += `  Secreción: ${formData.glandulasSalivales?.parotida?.secrecion || 'No especificado'}\n\
+    report += `  Secreción: ${formData.glandulasSalivales?.parotida?.secrecion || 'No especificado'}\n`;
+
+    // Glándula submaxilar
+    report += "\nGlándula Submaxilar:\n";
+    report += `  Tamaño: ${formData.glandulasSalivales?.submaxilar?.tamanio || 'No especificado'}\n`;
+    report += `  Sensibilidad: ${formData.glandulasSalivales?.submaxilar?.sensibilidad ? 'Sensible' : 'No sensible'}\n`;
+    report += `  Secreción: ${formData.glandulasSalivales?.submaxilar?.secrecion || 'No especificado'}\n`;
+
+    // Glándula sublingual
+    report += "\nGlándula Sublingual:\n";
+    report += `  Tamaño: ${formData.glandulasSalivales?.sublingual?.tamanio || 'No especificado'}\n`;
+    report += `  Sensibilidad: ${formData.glandulasSalivales?.sublingual?.sensibilidad ? 'Sensible' : 'No sensible'}\n`;
+    report += `  Secreción: ${formData.glandulasSalivales?.sublingual?.secrecion || 'No especificado'}\n`;
+
+    // Otros hallazgos
+    if (formData.glandulasSalivales?.otrosHallazgos) {
+      report += `\nOtros hallazgos: ${formData.glandulasSalivales.otrosHallazgos}\n`;
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating glándulas salivales report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateOclusionReport = async (formData) => {
+  try {
+    let report = "Oclusión:\n\n";
+
+    report += `Clasificación Angle: ${formData.oclusion?.clasificacionAngle || 'No especificado'}\n`;
+    report += `Overjet: ${formData.oclusion?.overjet || 'No especificado'}\n`;
+    report += `Overbite: ${formData.oclusion?.overbite || 'No especificado'}\n`;
+    report += `Mordida Cruzada: ${formData.oclusion?.mordidaCruzada || 'No especificado'}\n`;
+    report += `Mordida Abierta: ${formData.oclusion?.mordidaAbierta || 'No especificado'}\n`;
+
+    if (formData.oclusion?.otrosHallazgos) {
+      report += `\nOtros hallazgos: ${formData.oclusion.otrosHallazgos}\n`;
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating oclusión report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateRelacionDientesReport = async (formData) => {
+  try {
+    let report = "Relación de Dientes:\n\n";
+
+    report += `Relación Molar: ${formData.relacionDientes?.relacionMolar || 'No especificado'}\n`;
+    report += `Relación Canina: ${formData.relacionDientes?.relacionCanina || 'No especificado'}\n`;
+    report += `Apiñamiento: ${formData.relacionDientes?.apiñamiento || 'No especificado'}\n`;
+    report += `Diastemas: ${formData.relacionDientes?.diastemas || 'No especificado'}\n`;
+
+    if (formData.relacionDientes?.otrosHallazgos) {
+      report += `\nOtros hallazgos: ${formData.relacionDientes.otrosHallazgos}\n`;
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating relación dientes report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateLineaMediaReport = async (formData) => {
+  try {
+    let report = "Línea Media:\n\n";
+
+    report += `Coincidente: ${formData.lineaMedia?.coincidente || 'No especificado'}\n`;
+    report += `Desviación: ${formData.lineaMedia?.desviacion || 'No especificado'}\n`;
+
+    if (formData.lineaMedia?.otrosHallazgos) {
+      report += `\nOtros hallazgos: ${formData.lineaMedia.otrosHallazgos}\n`;
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating línea media report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateFrenillosReport = async (formData) => {
+  try {
+    let report = "Frenillos:\n\n";
+
+    report += `Labial Superior: ${formData.frenillos?.labialSuperior || 'No especificado'}\n`;
+    report += `Labial Inferior: ${formData.frenillos?.labialInferior || 'No especificado'}\n`;
+    report += `Lingual: ${formData.frenillos?.lingual || 'No especificado'}\n`;
+
+    if (formData.frenillos?.otrosHallazgos) {
+      report += `\nOtros hallazgos: ${formData.frenillos.otrosHallazgos}\n`;
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating frenillos report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateDiagnosticoReport = async (formData) => {
+  try {
+    let report = "Diagnóstico:\n\n";
+
+    report += `Principal: ${formData.diagnostico?.principal || 'No especificado'}\n`;
+    report += `Secundarios: ${formData.diagnostico?.secundarios || 'No especificado'}\n`;
+
+    if (formData.diagnostico?.otrosHallazgos) {
+      report += `\nOtros hallazgos: ${formData.diagnostico.otrosHallazgos}\n`;
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating diagnóstico report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generatePronosticoReport = async (formData) => {
+  try {
+    let report = "Pronóstico:\n\n";
+
+    report += `General: ${formData.pronostico?.general || 'No especificado'}\n`;
+    report += `Particular: ${formData.pronostico?.particular || 'No especificado'}\n`;
+
+    if (formData.pronostico?.otrosHallazgos) {
+      report += `\nOtros hallazgos: ${formData.pronostico.otrosHallazgos}\n`;
+    }
+
+    return report;
+  } catch (error) {
+    console.error("Error generating pronóstico report:", error);
+    return "Error generando el reporte. Por favor, intente de nuevo.";
+  }
+};
+
+export const generateMedicalReport = async (formData) => {
+  try {
+    let report = "Historia Clínica Resumen:\n\n";
+
+    // Añadir cada sección del reporte
+    report += await generatePadecimientoActualReport(formData) + "\n";
+    report += await generateAntecedentesHFReport(formData) + "\n";
+    report += await generateAntecedentesPNPReport(formData) + "\n";
+    report += await generateAntecedentesPPReport(formData) + "\n";
+    report += await generateAntecedentesAlergicosReport(formData) + "\n";
+    report += await generateAntecedentesQuirurgicosReport(formData) + "\n";
+    report += await generateAntecedentesHemorragicosReport(formData) + "\n";
+    
+    // Incluir antecedentes gineco-obstétricos solo si es mujer
+    if (formData.antecedentesGinecoObstetricos) {
+      report += await generateAntecedentesGinecoObstetricosReport(formData) + "\n";
+    }
+    
+    report += await generateInterrogatorioReport(formData) + "\n";
+    report += await generateExploracionFisicaReport(formData) + "\n";
+    report += await generateExamenCabezaReport(formData) + "\n";
+    report += await generateArticulacionCraneomandibularReport(formData) + "\n";
+    report += await generateExamenCuelloReport(formData) + "\n";
+    report += await generateExamenIntrabucalReport(formData) + "\n";
+    report += await generateGlandulasSalivalesReport(formData) + "\n";
+    report += await generateOclusionReport(formData) + "\n";
+    report += await generateRelacionDientesReport(formData) + "\n";
+    report += await generateLineaMediaReport(formData) + "\n";
+    report += await generateFrenillosReport(formData) + "\n";
+    report += await generateDiagnosticoReport(formData) + "\n";
+    report += await generatePronosticoReport(formData);
+
+    return report;
+  } catch (error) {
+    console.error("Error generating complete medical report:", error);
+    return "Error generando el reporte completo de historia clínica. Por favor, intente de nuevo.";
+  }
+};
