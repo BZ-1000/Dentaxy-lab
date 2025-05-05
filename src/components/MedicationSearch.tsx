@@ -1,661 +1,708 @@
-import { useState, useEffect } from 'react';
-import { X, Search, Star, StarOff, Filter, PillBottle, Stethoscope, Syringe, Bandage } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import React, { useState, useEffect, useRef } from 'react';
 import { Input } from "@/components/ui/input";
-import { toast } from 'sonner';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Search, X, Pill, Info, ExternalLink, Copy, Check } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useToast } from "@/hooks/use-toast";
 
-// Type definitions
-type Medication = {
-  id: string;
-  brand_name: string;
-  generic_name: string;
-  route: string;
-  dosage_form: string;
-  active_ingredients?: { name: string; strength: string }[];
-  indications_and_usage?: string;
-  warnings?: string;
-  drug_class?: string;
+interface MedicationResult {
+  id: string;
+  name: string;
+  active_ingredients: string[];
+  dosage_forms: string[];
+  route: string;
+  description?: string;
+  indications?: string[];
+  contraindications?: string[];
+  side_effects?: string[];
+  interactions?: string[];
+  warnings?: string[];
+  pregnancy_category?: string;
+  nursing_mothers?: string;
+  pediatric_use?: string;
+  geriatric_use?: string;
+  dosage?: string;
+  administration?: string;
+  storage?: string;
+  pharmacology?: string;
+  mechanism_of_action?: string;
+  pharmacokinetics?: string;
+  half_life?: string;
+  excretion?: string;
+  drug_class?: string;
+}
+
+const MedicationSearch: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [results, setResults] = useState<MedicationResult[]>([]);
+  const [selectedMedication, setSelectedMedication] = useState<MedicationResult | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('general');
+  const [copiedSection, setCopiedSection] = useState<string | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  // Mock API call - replace with actual API in production
+  const searchMedications = async (term: string): Promise<MedicationResult[]> => {
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    // Mock data
+    const mockData: MedicationResult[] = [
+      {
+        id: '1',
+        name: 'Amoxicillin',
+        active_ingredients: ['Amoxicillin trihydrate'],
+        dosage_forms: ['Capsule', 'Tablet', 'Suspension'],
+        route: 'Oral',
+        description: 'Amoxicillin is a penicillin antibiotic that fights bacteria. It is used to treat many different types of infection caused by bacteria, such as tonsillitis, bronchitis, pneumonia, and infections of the ear, nose, throat, skin, or urinary tract.',
+        indications: ['Infections caused by susceptible strains of gram-positive and gram-negative bacteria', 'Upper and lower respiratory tract infections', 'Genitourinary tract infections', 'Skin and skin structure infections'],
+        contraindications: ['Hypersensitivity to penicillins', 'History of penicillin-associated cholestatic jaundice/hepatic dysfunction'],
+        side_effects: ['Diarrhea', 'Nausea', 'Vomiting', 'Rash', 'Urticaria', 'Anaphylaxis (rare)'],
+        interactions: ['Probenecid', 'Allopurinol', 'Oral contraceptives', 'Anticoagulants'],
+        warnings: ['Clostridium difficile-associated diarrhea', 'Potential for superinfection'],
+        pregnancy_category: 'B',
+        nursing_mothers: 'Amoxicillin is excreted in human milk in small amounts. Caution should be exercised when administered to nursing women.',
+        pediatric_use: 'Safe for use in children. Dosage should be adjusted based on age and weight.',
+        geriatric_use: 'No overall differences in safety or effectiveness have been observed between elderly and younger patients.',
+        dosage: 'Adults: 250-500 mg every 8 hours or 500-875 mg every 12 hours depending on the severity of infection. Children: 20-90 mg/kg/day in divided doses.',
+        administration: 'May be taken with or without food. Capsules should be swallowed whole with water.',
+        storage: 'Store at room temperature away from moisture, heat, and light.',
+        pharmacology: 'Bactericidal action against susceptible organisms during the stage of active multiplication.',
+        mechanism_of_action: 'Inhibits bacterial cell wall synthesis by binding to penicillin-binding proteins.',
+        pharmacokinetics: 'Rapidly absorbed from the gastrointestinal tract. Food does not interfere with absorption.',
+        half_life: '1-1.5 hours',
+        excretion: 'Primarily renal',
+        drug_class: 'Penicillin antibiotic'
+      },
+      {
+        id: '2',
+        name: 'Ibuprofen',
+        active_ingredients: ['Ibuprofen'],
+        dosage_forms: ['Tablet', 'Capsule', 'Suspension', 'Gel'],
+        route: 'Oral, Topical',
+        description: 'Ibuprofen is a nonsteroidal anti-inflammatory drug (NSAID). It works by reducing hormones that cause inflammation and pain in the body.',
+        indications: ['Pain relief', 'Inflammation reduction', 'Fever reduction', 'Treatment of rheumatoid arthritis', 'Treatment of osteoarthritis'],
+        contraindications: ['Hypersensitivity to ibuprofen or other NSAIDs', 'History of asthma, urticaria, or allergic-type reactions after taking aspirin or other NSAIDs', 'In the setting of CABG surgery'],
+        side_effects: ['Dyspepsia', 'Nausea', 'Heartburn', 'Dizziness', 'Rash', 'Edema', 'Hypertension'],
+        interactions: ['Aspirin', 'Anticoagulants', 'ACE inhibitors', 'Diuretics', 'Lithium'],
+        warnings: ['Cardiovascular thrombotic events', 'GI bleeding, ulceration, and perforation', 'Hepatotoxicity', 'Hypertension', 'Renal toxicity'],
+        pregnancy_category: 'C (D in 3rd trimester)',
+        nursing_mothers: 'Ibuprofen is excreted in human milk in very small amounts. Caution should be exercised when administered to nursing women.',
+        pediatric_use: 'Safety and effectiveness in pediatric patients have been established for fever reduction and pain relief.',
+        geriatric_use: 'Elderly patients are at increased risk for serious GI events and renal toxicity.',
+        dosage: 'Adults: 200-400 mg every 4-6 hours as needed, not to exceed 3200 mg per day. Children: 5-10 mg/kg every 6-8 hours, not to exceed 40 mg/kg/day.',
+        administration: 'Take with food or milk to reduce stomach upset.',
+        storage: 'Store at room temperature away from moisture and heat.',
+        pharmacology: 'Inhibits prostaglandin synthesis by decreasing the activity of the enzyme cyclooxygenase.',
+        mechanism_of_action: 'Inhibits both COX-1 and COX-2 enzymes, reducing prostaglandin synthesis.',
+        pharmacokinetics: 'Rapidly absorbed from the gastrointestinal tract. Food delays absorption.',
+        half_life: '1.8-2 hours',
+        excretion: 'Primarily renal',
+        drug_class: 'Nonsteroidal anti-inflammatory drug (NSAID)'
+      },
+      {
+        id: '3',
+        name: 'Metformin',
+        active_ingredients: ['Metformin hydrochloride'],
+        dosage_forms: ['Tablet', 'Extended-release tablet', 'Solution'],
+        route: 'Oral',
+        description: 'Metformin is an oral diabetes medicine that helps control blood sugar levels. It is used together with diet and exercise to improve blood sugar control in adults with type 2 diabetes mellitus.',
+        indications: ['Type 2 diabetes mellitus'],
+        contraindications: ['Renal disease or renal dysfunction', 'Acute or chronic metabolic acidosis', 'Hypersensitivity to metformin'],
+        side_effects: ['Diarrhea', 'Nausea', 'Vomiting', 'Flatulence', 'Abdominal discomfort', 'Lactic acidosis (rare but serious)'],
+        interactions: ['Cationic drugs', 'Alcohol', 'Iodinated contrast materials', 'Carbonic anhydrase inhibitors'],
+        warnings: ['Lactic acidosis', 'Vitamin B12 deficiency', 'Hypoglycemia when used with other glucose-lowering medications'],
+        pregnancy_category: 'B',
+        nursing_mothers: 'Metformin is excreted in human milk in small amounts. Caution should be exercised when administered to nursing women.',
+        pediatric_use: 'Safety and effectiveness have been established in pediatric patients 10-16 years of age.',
+        geriatric_use: 'Elderly patients are at increased risk for lactic acidosis. Dose selection should be cautious.',
+        dosage: 'Initial: 500 mg twice daily or 850 mg once daily. Maintenance: 2000-2550 mg daily in divided doses.',
+        administration: 'Take with meals to reduce gastrointestinal side effects.',
+        storage: 'Store at room temperature away from moisture and heat.',
+        pharmacology: 'Decreases hepatic glucose production, decreases intestinal absorption of glucose, and improves insulin sensitivity.',
+        mechanism_of_action: 'Decreases hepatic glucose production and intestinal absorption of glucose and improves insulin sensitivity by increasing peripheral glucose uptake and utilization.',
+        pharmacokinetics: 'Slowly and incompletely absorbed from the gastrointestinal tract. Food decreases the extent and slightly delays absorption.',
+        half_life: '6.2 hours',
+        excretion: 'Primarily renal',
+        drug_class: 'Biguanide'
+      }
+    ];
+    
+    // Filter based on search term
+    if (!term) return [];
+    return mockData.filter(med => 
+      med.name.toLowerCase().includes(term.toLowerCase()) || 
+      med.active_ingredients.some(ing => ing.toLowerCase().includes(term.toLowerCase()))
+    );
+  };
+
+  const handleSearch = async () => {
+    if (!searchTerm.trim()) return;
+    
+    setIsLoading(true);
+    setResults([]);
+    setSelectedMedication(null);
+    
+    try {
+      const searchResults = await searchMedications(searchTerm);
+      setResults(searchResults);
+    } catch (error) {
+      console.error('Error searching medications:', error);
+      toast({
+        title: "Error",
+        description: "Failed to search medications. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setResults([]);
+    setSelectedMedication(null);
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  };
+
+  const handleSelectMedication = (medication: MedicationResult) => {
+    setSelectedMedication(medication);
+    setActiveTab('general');
+  };
+
+  const handleCopySection = (section: string, content: string) => {
+    navigator.clipboard.writeText(content);
+    setCopiedSection(section);
+    
+    toast({
+      title: "Copied to clipboard",
+      description: `${section} information copied successfully.`,
+    });
+    
+    setTimeout(() => {
+      setCopiedSection(null);
+    }, 2000);
+  };
+
+  return (
+    <div className="w-full max-w-5xl mx-auto p-4">
+      <div className="flex flex-col space-y-4">
+        <div className="flex items-center space-x-2">
+          <div className="relative flex-1">
+            <Input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search for medications..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleKeyPress}
+              className="pl-10 pr-10"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            {searchTerm && (
+              <button
+                onClick={handleClearSearch}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <Button onClick={handleSearch} disabled={!searchTerm.trim() || isLoading}>
+            {isLoading ? 'Searching...' : 'Search'}
+          </Button>
+        </div>
+
+        {isLoading ? (
+          <div className="grid grid-cols-1 gap-4">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="overflow-hidden">
+                <CardContent className="p-4">
+                  <div className="space-y-2">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-4 w-5/6" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : results.length > 0 && !selectedMedication ? (
+          <div className="grid grid-cols-1 gap-4">
+            {results.map((medication) => (
+              <Card 
+                key={medication.id} 
+                className="overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleSelectMedication(medication)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold flex items-center">
+                        <Pill className="h-4 w-4 mr-2 text-blue-500" />
+                        {medication.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        {medication.active_ingredients.join(', ')}
+                      </p>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {medication.dosage_forms.map((form, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {form}
+                          </Badge>
+                        ))}
+                        <Badge variant="outline" className="text-xs bg-blue-50">
+                          {medication.route}
+                        </Badge>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" className="text-blue-500">
+                      <Info className="h-4 w-4 mr-1" /> Details
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : selectedMedication ? (
+          <Card className="overflow-hidden">
+            <CardContent className="p-0">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold flex items-center">
+                    <Pill className="h-5 w-5 mr-2 text-blue-500" />
+                    {selectedMedication.name}
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {selectedMedication.active_ingredients.join(', ')}
+                  </p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setSelectedMedication(null)}
+                >
+                  Back to Results
+                </Button>
+              </div>
+              
+              <Tabs defaultValue="general" value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <div className="px-4 border-b">
+                  <TabsList className="w-full justify-start h-12 bg-transparent">
+                    <TabsTrigger value="general" className="data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20">
+                      General
+                    </TabsTrigger>
+                    <TabsTrigger value="indications" className="data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20">
+                      Indications
+                    </TabsTrigger>
+                    <TabsTrigger value="dosage" className="data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20">
+                      Dosage
+                    </TabsTrigger>
+                    <TabsTrigger value="warnings" className="data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20">
+                      Warnings
+                    </TabsTrigger>
+                    <TabsTrigger value="pharmacology" className="data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-900/20">
+                      Pharmacology
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+                
+                <ScrollArea className="h-[500px]">
+                  <TabsContent value="general" className="p-4 space-y-4 mt-0">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <h3 className="text-lg font-semibold">Description</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleCopySection('Description', selectedMedication.description || '')}
+                                className="h-6 px-2"
+                              >
+                                {copiedSection === 'Description' ? (
+                                  <Check className="h-3.5 w-3.5 text-green-500" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy to clipboard</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <p className="text-sm">{selectedMedication.description}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <h3 className="text-md font-semibold">Drug Class</h3>
+                        <p className="text-sm">{selectedMedication.drug_class}</p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="text-md font-semibold">Route</h3>
+                        <p className="text-sm">{selectedMedication.route}</p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="text-md font-semibold">Dosage Forms</h3>
+                        <div className="flex flex-wrap gap-1">
+                          {selectedMedication.dosage_forms.map((form, idx) => (
+                            <Badge key={idx} variant="outline" className="text-xs">
+                              {form}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="text-md font-semibold">Pregnancy Category</h3>
+                        <p className="text-sm">{selectedMedication.pregnancy_category || 'Not specified'}</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="indications" className="p-4 space-y-4 mt-0">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <h3 className="text-lg font-semibold">Indications</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleCopySection('Indications', (selectedMedication.indications || []).join('\n• '))}
+                                className="h-6 px-2"
+                              >
+                                {copiedSection === 'Indications' ? (
+                                  <Check className="h-3.5 w-3.5 text-green-500" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy to clipboard</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {selectedMedication.indications?.map((indication, idx) => (
+                          <li key={idx} className="text-sm">{indication}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <h3 className="text-lg font-semibold">Contraindications</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleCopySection('Contraindications', (selectedMedication.contraindications || []).join('\n• '))}
+                                className="h-6 px-2"
+                              >
+                                {copiedSection === 'Contraindications' ? (
+                                  <Check className="h-3.5 w-3.5 text-green-500" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy to clipboard</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {selectedMedication.contraindications?.map((contraindication, idx) => (
+                          <li key={idx} className="text-sm">{contraindication}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="dosage" className="p-4 space-y-4 mt-0">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <h3 className="text-lg font-semibold">Dosage</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleCopySection('Dosage', selectedMedication.dosage || '')}
+                                className="h-6 px-2"
+                              >
+                                {copiedSection === 'Dosage' ? (
+                                  <Check className="h-3.5 w-3.5 text-green-500" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy to clipboard</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <p className="text-sm">{selectedMedication.dosage}</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <h3 className="text-lg font-semibold">Administration</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleCopySection('Administration', selectedMedication.administration || '')}
+                                className="h-6 px-2"
+                              >
+                                {copiedSection === 'Administration' ? (
+                                  <Check className="h-3.5 w-3.5 text-green-500" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy to clipboard</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <p className="text-sm">{selectedMedication.administration}</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold">Special Populations</h3>
+                      
+                      <div className="space-y-1">
+                        <h4 className="text-md font-medium">Pediatric Use</h4>
+                        <p className="text-sm">{selectedMedication.pediatric_use}</p>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <h4 className="text-md font-medium">Geriatric Use</h4>
+                        <p className="text-sm">{selectedMedication.geriatric_use}</p>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <h4 className="text-md font-medium">Nursing Mothers</h4>
+                        <p className="text-sm">{selectedMedication.nursing_mothers}</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="warnings" className="p-4 space-y-4 mt-0">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <h3 className="text-lg font-semibold">Warnings</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleCopySection('Warnings', (selectedMedication.warnings || []).join('\n• '))}
+                                className="h-6 px-2"
+                              >
+                                {copiedSection === 'Warnings' ? (
+                                  <Check className="h-3.5 w-3.5 text-green-500" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy to clipboard</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {selectedMedication.warnings?.map((warning, idx) => (
+                          <li key={idx} className="text-sm">{warning}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <h3 className="text-lg font-semibold">Side Effects</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleCopySection('Side Effects', (selectedMedication.side_effects || []).join('\n• '))}
+                                className="h-6 px-2"
+                              >
+                                {copiedSection === 'Side Effects' ? (
+                                  <Check className="h-3.5 w-3.5 text-green-500" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy to clipboard</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {selectedMedication.side_effects?.map((effect, idx) => (
+                          <li key={idx} className="text-sm">{effect}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <h3 className="text-lg font-semibold">Drug Interactions</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleCopySection('Drug Interactions', (selectedMedication.interactions || []).join('\n• '))}
+                                className="h-6 px-2"
+                              >
+                                {copiedSection === 'Drug Interactions' ? (
+                                  <Check className="h-3.5 w-3.5 text-green-500" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy to clipboard</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {selectedMedication.interactions?.map((interaction, idx) => (
+                          <li key={idx} className="text-sm">{interaction}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="pharmacology" className="p-4 space-y-4 mt-0">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <h3 className="text-lg font-semibold">Mechanism of Action</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleCopySection('Mechanism of Action', selectedMedication.mechanism_of_action || '')}
+                                className="h-6 px-2"
+                              >
+                                {copiedSection === 'Mechanism of Action' ? (
+                                  <Check className="h-3.5 w-3.5 text-green-500" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy to clipboard</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <p className="text-sm">{selectedMedication.mechanism_of_action}</p>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <h3 className="text-lg font-semibold">Pharmacokinetics</h3>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                onClick={() => handleCopySection('Pharmacokinetics', selectedMedication.pharmacokinetics || '')}
+                                className="h-6 px-2"
+                              >
+                                {copiedSection === 'Pharmacokinetics' ? (
+                                  <Check className="h-3.5 w-3.5 text-green-500" />
+                                ) : (
+                                  <Copy className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy to clipboard</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      <p className="text-sm">{selectedMedication.pharmacokinetics}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <h3 className="text-md font-semibold">Half-life</h3>
+                        <p className="text-sm">{selectedMedication.half_life}</p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="text-md font-semibold">Excretion</h3>
+                        <p className="text-sm">{selectedMedication.excretion}</p>
+                      </div>
+                    </div>
+                  </TabsContent>
+                </ScrollArea>
+              </Tabs>
+            </CardContent>
+          </Card>
+        ) : searchTerm && !isLoading ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No medications found matching "{searchTerm}"</p>
+            <p className="text-sm text-gray-400 mt-2">Try a different search term or check the spelling</p>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
 };
 
-type FilterType = 'all' | 'antibiotics' | 'analgesics' | 'anesthetics' | 'antiinflammatories';
-type RouteType = 'all' | 'oral' | 'topical' | 'injection';
-type UsageType = 'all' | 'post-surgical' | 'infections' | 'acute-pain';
-
-export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [results, setResults] = useState<Medication[]>([]);
-  const [favorites, setFavorites] = useState<Medication[]>([]);
-  const [recentSearches, setRecentSearches] = useState<Medication[]>([]);
-  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-  const [activeRoute, setActiveRoute] = useState<RouteType>('all');
-  const [activeUsage, setActiveUsage] = useState<UsageType>('all');
-  const [isOffline, setIsOffline] = useState(!navigator.onLine);
-  const [expandedItem, setExpandedItem] = useState<string | null>(null);
-
-  // Load saved data from localStorage
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem('medication-favorites');
-    const savedRecent = localStorage.getItem('medication-recent');
-
-    if (savedFavorites) {
-      try {
-        setFavorites(JSON.parse(savedFavorites));
-      } catch (e) {
-        console.error('Error parsing saved favorites:', e);
-      }
-    }
-
-    if (savedRecent) {
-      try {
-        setRecentSearches(JSON.parse(savedRecent));
-      } catch (e) {
-        console.error('Error parsing saved recent searches:', e);
-      }
-    }
-
-    // Set up online/offline detection
-    const handleOnlineStatus = () => setIsOffline(!navigator.onLine);
-    window.addEventListener('online', handleOnlineStatus);
-    window.addEventListener('offline', handleOnlineStatus);
-
-    return () => {
-      window.removeEventListener('online', handleOnlineStatus);
-      window.removeEventListener('offline', handleOnlineStatus);
-    };
-  }, []);
-
-  // Save to localStorage when favorites or recent searches change
-  useEffect(() => {
-    localStorage.setItem('medication-favorites', JSON.stringify(favorites));
-  }, [favorites]);
-
-  useEffect(() => {
-    localStorage.setItem('medication-recent', JSON.stringify(recentSearches));
-  }, [recentSearches]);
-
-  const searchMedications = async (term: string) => {
-    if (!term || term.length < 3) return;
-    if (isOffline) {
-      // Use translate="yes" on the parent element or directly in the toast call if possible
-      toast.error(<span translate="yes">Sin conexión. Mostrando resultados guardados.</span>);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const response = await fetch(`https://api.fda.gov/drug/label.json?search=(openfda.brand_name:"${term}"+openfda.generic_name:"${term}")+AND+_exists_:openfda.brand_name&limit=10`);
-      const data = await response.json();
-
-      if (data.results) {
-        // First, format the results without translating
-        const formattedResults: Medication[] = data.results.map((item: any) => ({
-          id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
-          brand_name: item.openfda?.brand_name?.[0] || 'N/A',
-          generic_name: item.openfda?.generic_name?.[0] || 'N/A',
-          route: item.openfda?.route?.[0] || 'N/A',
-          dosage_form: item.openfda?.dosage_form?.[0] || 'N/A',
-          active_ingredients: item.active_ingredient?.map((ing: string) => {
-            const parts = ing.split(' ');
-            return { name: parts.slice(0, -1).join(' '), strength: parts[parts.length - 1] };
-          }),
-          indications_and_usage: item.indications_and_usage?.[0],
-          warnings: item.warnings?.[0],
-          drug_class: item.openfda?.pharm_class_epc?.[0] || 'N/A'
-        }));
-
-        // Apply filters
-        let filteredResults = formattedResults;
-
-        if (activeFilter !== 'all') {
-          filteredResults = filteredResults.filter(med => {
-            const className = (med.drug_class || '').toLowerCase();
-            switch (activeFilter) {
-              case 'antibiotics': return className.includes('antibiotic');
-              case 'analgesics': return className.includes('analgesic');
-              case 'anesthetics': return className.includes('anesthetic');
-              case 'antiinflammatories': return className.includes('antiinflammatory');
-              default: return true;
-            }
-          });
-        }
-
-        if (activeRoute !== 'all') {
-          filteredResults = filteredResults.filter(med =>
-            (med.route || '').toLowerCase().includes(activeRoute)
-          );
-        }
-
-        if (activeUsage !== 'all') {
-          filteredResults = filteredResults.filter(med => {
-            const indications = (med.indications_and_usage || '').toLowerCase();
-            switch (activeUsage) {
-              case 'post-surgical': return indications.includes('surgery') || indications.includes('surgical');
-              case 'infections': return indications.includes('infection');
-              case 'acute-pain': return indications.includes('pain') && indications.includes('acute');
-              default: return true;
-            }
-          });
-        }
-
-        setResults(filteredResults);
-
-        // Add to recent searches
-        if (filteredResults.length > 0) {
-          const firstResult = filteredResults[0];
-          setRecentSearches(prev => {
-            const exists = prev.some(item => item.id === firstResult.id);
-            if (!exists) {
-              return [firstResult, ...prev].slice(0, 5);
-            }
-            return prev;
-          });
-        }
-      } else {
-        setResults([]);
-        // Use translate="yes" on the parent element or directly in the toast call if possible
-        toast.info(<span translate="yes">No se encontraron resultados. Intente con otro término.</span>);
-      }
-    } catch (error) {
-      console.error('Error searching medications:', error);
-      // Use translate="yes" on the parent element or directly in the toast call if possible
-      toast.error(<span translate="yes">Error al buscar medicamentos. Por favor intente de nuevo.</span>);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const toggleFavorite = (medication: Medication) => {
-    setFavorites(prev => {
-      const existingIndex = prev.findIndex(item => item.id === medication.id);
-      if (existingIndex >= 0) {
-        return prev.filter(item => item.id !== medication.id);
-      } else {
-        return [...prev, medication];
-      }
-    });
-  };
-
-  const isFavorite = (id: string) => favorites.some(item => item.id === id);
-
-  // Calculate dosage by weight (simplified example)
-  // NOTE: The output strings should ideally be translatable if needed.
-  // For simplicity, keeping them in Spanish for now.
-  const calculateDosage = (genericName: string, weight: number) => {
-    const lowerGenericName = genericName.toLowerCase();
-
-    if (lowerGenericName.includes('amoxicillin')) {
-      return `${(weight * 12.5).toFixed(1)} mg cada 8 horas`;
-    } else if (lowerGenericName.includes('ibuprofen')) {
-      return `${(weight * 5).toFixed(1)} mg cada 6-8 horas`;
-    } else if (lowerGenericName.includes('acetaminophen') || lowerGenericName.includes('paracetamol')) {
-      return `${(weight * 10).toFixed(1)} mg cada 6 horas`;
-    } else {
-      return 'Dosificación no disponible'; // This string should also be translatable
-    }
-  };
-
-  return (
-    // Setting translate="yes" on the top-level Dialog might influence children,
-    // but we will add it explicitly to text elements for clarity.
-    <Dialog open={open} onOpenChange={onOpenChange} >
-      <DialogContent className="max-w-4xl w-[95%] h-[85vh] p-0 overflow-hidden flex flex-col bg-white dark:bg-neutral-900 rounded-xl">
-        <DialogHeader className="p-6 pb-2">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl flex items-center gap-2 relative" translate="yes">
-              <PillBottle className="h-6 w-6 text-emerald-500" />
-              Búsqueda de Medicamentos
-              <span className="text-xs text-blue-500 absolute top-full left-0 mt-1 whitespace-nowrap opacity-75" translate="yes">
-                Recomendación: Utiliza Google Translate para traducciones
-              </span>
-            </DialogTitle>
-          </div>
-        </DialogHeader>
-
-        <Tabs defaultValue="search" className="flex-1 overflow-hidden flex flex-col">
-          <div className="px-6 pb-2">
-            <TabsList className="w-full grid grid-cols-2">
-              <TabsTrigger value="search" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-900" translate="yes">
-                Búsqueda
-              </TabsTrigger>
-              <TabsTrigger value="favorites" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-900" translate="yes">
-                Favoritos y Recientes
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          <TabsContent value="search" className="flex-1 overflow-hidden flex flex-col p-6 pt-0">
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                  <Input
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      if (e.target.value.length >= 3) {
-                        searchMedications(e.target.value);
-                      }
-                    }}
-                    placeholder="Buscar medicamentos..." // Placeholder text should be translatable by default, but explicitly marking input is good practice
-                    className="pl-10"
-                    translate="yes" // Explicitly mark the placeholder as translatable
-                  />
-                </div>
-                <Button
-                  onClick={() => searchMedications(searchTerm)}
-                  disabled={searchTerm.length < 3 || isLoading}
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                  translate="yes" // Make button text translatable
-                >
-                  {isLoading ? "Buscando..." : "Buscar"}
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <div className="flex items-center gap-1 mr-2">
-                  <Filter className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-500" translate="yes">Filtros:</span>
-                </div>
-
-                {/* Medication Type Filters */}
-                <Badge
-                  variant={activeFilter === 'all' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveFilter('all')}
-                  translate="yes"
-                >
-                  Todos
-                </Badge>
-                <Badge
-                  variant={activeFilter === 'antibiotics' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveFilter('antibiotics')}
-                  translate="yes"
-                >
-                  Antibióticos
-                </Badge>
-                <Badge
-                  variant={activeFilter === 'analgesics' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveFilter('analgesics')}
-                  translate="yes"
-                >
-                  Analgésicos
-                </Badge>
-                <Badge
-                  variant={activeFilter === 'anesthetics' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveFilter('anesthetics')}
-                  translate="yes"
-                >
-                  Anestésicos
-                </Badge>
-                <Badge
-                  variant={activeFilter === 'antiinflammatories' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveFilter('antiinflammatories')}
-                  translate="yes"
-                >
-                  Antiinflamatorios
-                </Badge>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <div className="flex items-center gap-1 mr-2">
-                  <Syringe className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-500" translate="yes">Administración:</span>
-                </div>
-
-                {/* Route Filters */}
-                <Badge
-                  variant={activeRoute === 'all' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveRoute('all')}
-                  translate="yes"
-                >
-                  Todas
-                </Badge>
-                <Badge
-                  variant={activeRoute === 'oral' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveRoute('oral')}
-                  translate="yes"
-                >
-                  Oral
-                </Badge>
-                <Badge
-                  variant={activeRoute === 'topical' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveRoute('topical')}
-                  translate="yes"
-                >
-                  Tópica
-                </Badge>
-                <Badge
-                  variant={activeRoute === 'injection' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveRoute('injection')}
-                  translate="yes"
-                >
-                  Inyectable
-                </Badge>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <div className="flex items-center gap-1 mr-2">
-                  <Stethoscope className="h-4 w-4 text-gray-500" />
-                  <span className="text-sm text-gray-500" translate="yes">Uso Dental:</span>
-                </div>
-
-                {/* Usage Filters */}
-                <Badge
-                  variant={activeUsage === 'all' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveUsage('all')}
-                  translate="yes"
-                >
-                  Todos
-                </Badge>
-                <Badge
-                  variant={activeUsage === 'post-surgical' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveUsage('post-surgical')}
-                  translate="yes"
-                >
-                  Post-quirúrgico
-                </Badge>
-                <Badge
-                  variant={activeUsage === 'infections' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveUsage('infections')}
-                  translate="yes"
-                >
-                  Infecciones
-                </Badge>
-                <Badge
-                  variant={activeUsage === 'acute-pain' ? "default" : "outline"}
-                  className="cursor-pointer"
-                  onClick={() => setActiveUsage('acute-pain')}
-                  translate="yes"
-                >
-                  Dolor Agudo
-                </Badge>
-              </div>
-            </div>
-
-            <div className="flex-1 overflow-y-auto mt-4 space-y-4 pr-2">
-              {searchTerm.length < 3 ? (
-                <div className="text-center py-8 text-gray-500" translate="yes">
-                  <p translate="yes">Escriba al menos 3 caracteres para buscar</p>
-                  <div className="mt-4 space-y-2">
-                    <p className="text-sm font-medium" translate="yes">Sugerencias:</p>
-                    {/* While drug names ideally aren't translated, allowing translate might be desired here */}
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSearchTerm('acetaminophen');
-                        searchMedications('acetaminophen');
-                      }}
-                      className="mr-2"
-                      translate="yes"
-                    >
-                      Acetaminophen
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSearchTerm('ibuprofen');
-                        searchMedications('ibuprofen');
-                      }}
-                      className="mr-2"
-                      translate="yes"
-                    >
-                      Ibuprofen
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSearchTerm('amoxicillin');
-                        searchMedications('amoxicillin');
-                      }}
-                      translate="yes"
-                    >
-                      Amoxicillin
-                    </Button>
-                  </div>
-                </div>
-              ) : results.length > 0 ? (
-                <div>
-                  <Accordion
-                    type="single"
-                    collapsible
-                    className="w-full"
-                    onValueChange={(value) => {
-                      setExpandedItem(value);
-                    }}
-                  >
-                    {results.map((med) => (
-                      <AccordionItem key={med.id} value={med.id}>
-                        {/* Adding translate here might be redundant if parent has it, but explicit is safer */}
-                        <AccordionTrigger className="hover:bg-gray-50 p-2 rounded-md" translate="yes">
-                          <div className="flex items-center justify-between w-full pr-4">
-                            <div className="flex flex-col items-start">
-                              <div className="flex items-center gap-2">
-                                {/* Data-driven text, translation depends on the API data and translator capabilities */}
-                                <span className="font-semibold" translate="yes">{med.brand_name}</span>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    toggleFavorite(med);
-                                  }}
-                                  className="p-1 rounded-full hover:bg-gray-100"
-                                  // Tooltip/aria-label could be added here and marked translate="yes"
-                                >
-                                  {isFavorite(med.id) ? (
-                                    <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                                  ) : (
-                                    <StarOff className="h-4 w-4 text-gray-400" />
-                                  )}
-                                </button>
-                              </div>
-                              <span className="text-sm text-gray-500" translate="yes">{med.generic_name}</span>
-                            </div>
-                            <div className="flex items-center">
-                              {/* Data-driven text */}
-                              <Badge variant="outline" className="ml-2" translate="yes">
-                                {med.dosage_form}
-                              </Badge>
-                              <Badge variant="outline" className="ml-2" translate="yes">
-                                {med.route}
-                              </Badge>
-                            </div>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-4 p-2" translate="yes"> {/* Add translate to content parent */}
-                            <div>
-                              <h4 className="font-semibold text-sm" translate="yes">Ingredientes Activos:</h4>
-                              <ul className="list-disc pl-5 text-sm" translate="yes"> {/* Translate list items */}
-                                {med.active_ingredients ? (
-                                  med.active_ingredients.map((ing, i) => (
-                                    // Data-driven text, allow translation
-                                    <li key={i}>{ing.name} ({ing.strength})</li>
-                                  ))
-                                ) : (
-                                  <li translate="yes">Información no disponible</li>
-                                )}
-                              </ul>
-                            </div>
-
-                            <div>
-                              <h4 className="font-semibold text-sm" translate="yes">Indicaciones y Uso:</h4>
-                              <p className="text-sm whitespace-pre-wrap" translate="yes">
-                                {/* Data-driven text, allow translation */}
-                                {med.indications_and_usage || 'Información no disponible'}
-                              </p>
-                            </div>
-
-                            <div>
-                              <h4 className="font-semibold text-sm" translate="yes">Advertencias:</h4>
-                              <p className="text-sm whitespace-pre-wrap" translate="yes">
-                                {/* Data-driven text, allow translation */}
-                                {med.warnings || 'Información no disponible'}
-                              </p>
-                            </div>
-
-                            <div className="bg-blue-50 p-4 rounded-md" translate="yes"> {/* Translate dosage section */}
-                              <h4 className="font-semibold text-sm flex items-center gap-2" translate="yes">
-                                <Bandage className="h-4 w-4" />
-                                Dosificación Referencial:
-                              </h4>
-
-                              <div className="mt-2">
-                                <p className="text-xs mb-2" translate="yes">
-                                  Ingrese el peso del paciente para obtener una dosificación orientativa:
-                                </p>
-
-                                <div className="flex items-center gap-2">
-                                  <Input
-                                    type="number"
-                                    placeholder="Peso (kg)" // Translate placeholder
-                                    className="w-24 text-sm"
-                                    id={`weight-${med.id}`}
-                                    min="1"
-                                    max="150"
-                                    translate="yes" // Explicitly mark placeholder
-                                  />
-                                  <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    onClick={() => {
-                                      const weightInput = document.getElementById(`weight-${med.id}`) as HTMLInputElement;
-                                      const weight = parseFloat(weightInput.value);
-                                      if (weight && weight > 0) {
-                                        const dosage = calculateDosage(med.generic_name, weight);
-                                        const dosageElement = document.getElementById(`dosage-${med.id}`);
-                                        if (dosageElement) {
-                                          dosageElement.textContent = dosage;
-                                          // Mark the dosage text content container as translatable if needed,
-                                          // though calculateDosage returns Spanish strings currently.
-                                          dosageElement.setAttribute('translate', 'yes');
-                                        }
-                                      }
-                                 M   }}
-                                    translate="yes" // Translate button text
-                                  >
-                                    Calcular
-                                  </Button>
-                                </div>
-
-                                <div className="mt-2">
-                                  <p className="text-sm" translate="yes">Dosis sugerida: <span id={`dosage-${med.id}`} translate="yes">-</span></p>
-                                  <p className="text-xs text-gray-500 mt-1" translate="yes">
-                                    Nota: Esta es una referencia general. La dosificación debe ser determinada por un profesional médico.
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500" translate="yes"> {/* Translate fallback messages */}
-                  {isLoading ? (
-                    <div className="flex flex-col items-center gap-4">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
-                      <p translate="yes">Buscando medicamentos...</p>
-                    </div>
-                  ) : (
-                    <p translate="yes">No se encontraron resultados</p>
-                  )}
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="favorites" className="flex-1 overflow-y-auto p-6 pt-0">
-            <div className="space-y-6" translate="yes"> {/* Translate favorites/recent section */}
-              {recentSearches.length > 0 && (
-                <div>
-                  <h3 className="font-medium mb-2 text-gray-500 text-sm" translate="yes">Búsquedas recientes</h3>
-                  <div className="space-y-2">
-                    {recentSearches.map(med => (
-                      <div key={`recent-${med.id}`} className="p-2 border rounded-md flex items-center justify-between" translate="yes">
-                        <div>
-                          {/* Data-driven text */}
-                          <p className="font-medium" translate="yes">{med.brand_name}</p>
-                          <p className="text-sm text-gray-500" translate="yes">{med.generic_name}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" translate="yes">{med.dosage_form}</Badge>
-                          <button
-                            onClick={() => toggleFavorite(med)}
-                            className="p-1 rounded-full hover:bg-gray-100"
-                          >
-                            {isFavorite(med.id) ? (
-                              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                            ) : (
-                              <StarOff className="h-4 w-4 text-gray-400" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <h3 className="font-medium mb-2 text-gray-500 text-sm" translate="yes">Medicamentos favoritos</h3>
-                {favorites.length > 0 ? (
-                  <div className="space-y-2">
-                    {favorites.map(med => (
-                      <div key={`fav-${med.id}`} className="p-2 border rounded-md flex items-center justify-between" translate="yes">
-                        <div>
-                          {/* Data-driven text */}
-                          <p className="font-medium" translate="yes">{med.brand_name}</p>
-                          <p className="text-sm text-gray-500" translate="yes">{med.generic_name}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" translate="yes">{med.dosage_form}</Badge>
-                          <button
-                            onClick={() => toggleFavorite(med)}
-                            className="p-1 rounded-full hover:bg-gray-100"
-                          >
-                            <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-center text-gray-500 py-4" translate="yes">
-                    Aún no has añadido medicamentos a favoritos
-                  </p>
-                )}
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
-  );
-}
+export default MedicationSearch;
