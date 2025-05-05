@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion, MotionValue, useTransform } from "framer-motion";
@@ -232,12 +231,12 @@ interface DockIconProps {
 }
 
 function DockIcon({ children, className, width }: DockIconProps) {
-  // Fix the type issue by properly typing the transformedWidth
+  // Fix: Properly handle MotionValue<number> by using it directly
+  // without trying to convert it to ReactNode
   const transformedWidth = useTransform(width, (val) => val / 2);
-  
   return (
     <motion.div
-      style={{ width: transformedWidth as any }} // Cast to any to avoid TypeScript error
+      style={{ width: transformedWidth }}
       className={cn('flex items-center justify-center', className)}
     >
       {children}
