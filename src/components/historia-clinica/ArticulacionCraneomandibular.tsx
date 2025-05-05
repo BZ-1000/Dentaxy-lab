@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Edit, FileText } from "lucide-react";
@@ -426,26 +427,29 @@ const ArticulacionCraneomandibular: React.FC = () => {
   return (
     // Contenedor principal y Card (sin cambios significativos)
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : "my-4"}`} data-section-name="articulacionCraneomandibular">
-      <Card className={`bg-white/90 dark:bg-gray-800/90 backdrop-blur-md shadow-xl rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col ${isMaximized ? "h-[calc(100vh-2rem)]" : ""} ${isMinimized ? "h-16 overflow-hidden" : ""}`}>
-        {/* Header (Sticky) */}
+      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)]" : ""} ${isMinimized ? "h-16 overflow-hidden" : ""}`}>
+        {/* Header (Sticky) - Updated to match ExamenCuello */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-            <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm bg-blue-500 text-white shadow-md">
-              Formulario
-            </button>
-            <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm text-gray-700 dark:text-gray-300">
-              Redacción IA
-            </button>
+          <div className="flex justify-center w-full">
+            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
+              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm bg-blue-500 text-white shadow-md">
+                Formulario
+              </button>
+              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm text-gray-700 dark:text-gray-300">
+                Redacción IA
+              </button>
+            </div>
           </div>
+
           <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} title={isMinimized ? "Restaurar" : "Minimizar"} className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-              <Minus className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
+              <Minus className="w-4 h-4" />
             </button>
-            <button onClick={handleMaximize} title={isMaximized ? "Restaurar" : "Maximizar"} className="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-              <Maximize2 className="w-4 h-4 text-gray-700 dark:text-gray-300" />
+            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
+              <Maximize2 className="w-4 h-4" />
             </button>
-            <button onClick={() => setActiveTab('formulario')} title="Cerrar" className="p-1.5 rounded-full hover:bg-red-200 dark:hover:bg-red-700 transition-colors">
-              <X className="w-4 h-4 text-red-600 dark:text-red-300" />
+            <button onClick={() => setActiveTab('formulario')} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
