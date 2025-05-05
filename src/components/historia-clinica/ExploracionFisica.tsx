@@ -1,244 +1,350 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Minus, Maximize2, X, ThermometerSun, HeartPulse } from "lucide-react";
-import { FormDataState } from '@/types/historiaClinica';
-import { calculateIMC, getIMCCategory, getBPCategory, vitalSignRanges } from '@/utils/medicalRanges';
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { generateExploracionFisicaReport } from '@/services/geminiService';
+import { AnimatedTextareaWithTyping } from '@/components/ui/AnimatedTextareaWithTyping';
+import { medicalRanges } from '@/utils/medicalRanges';
 
-interface ExploracionFisicaProps {
-  formData: FormDataState;
-  handleExploracionFisicaChange: (field: string, value: any) => void;
+// Fix: Add an explicit type definition for values
+interface ExploracionValues {
+  ta: string;
+  fc: string;
+  fr: string;
+  temperatura: string;
+  peso: string;
+  talla: string;
+  imc: string;
+  pulso: string;
 }
 
-const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
-  formData,
-  handleExploracionFisicaChange
-}) => {
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [ageRange, setAgeRange] = useState<keyof typeof vitalSignRanges>('adult');
-  const [imc, setIMC] = useState(0);
-
+const ExploracionFisica = ({ formData, handleExploracionFisicaChange }) => {
+  const [activeTab, setActiveTab] = useState("formulario");
+  const [redaccion, setRedaccion] = useState({});
+  const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
+  const [values, setValues] = useState<ExploracionValues>({
+    ta: '',
+    fc: '',
+    fr: '',
+    temperatura: '',
+    peso: '',
+    talla: '',
+    imc: '',
+    pulso: ''
+  });
+  const [status, setStatus] = useState({
+    ta: 'normal',
+    fc: 'normal',
+    fr: 'normal',
+    temperatura: 'normal',
+    imc: 'normal'
+  });
+  
+  // Update local state when formData changes
   useEffect(() => {
-    const weight = parseFloat(formData.exploracionFisica?.signosVitales?.peso || '0');
-    const height = parseFloat(formData.exploracionFisica?.signosVitales?.talla || '0');
-    const calculatedIMC = calculateIMC(weight, height);
-    setIMC(calculatedIMC);
-    handleExploracionFisicaChange('signosVitales.imc', calculatedIMC.toString());
-  }, [formData.exploracionFisica?.signosVitales?.peso, formData.exploracionFisica?.signosVitales?.talla]);
-
-  const handleMinimize = () => {
-    setIsMinimized(!isMinimized);
-    setIsMaximized(false);
-  };
-
-  const handleMaximize = () => {
-    setIsMaximized(!isMaximized);
-    setIsMinimized(false);
-  };
-
-  const handleClose = () => {
-    setIsMinimized(false);
-    setIsMaximized(false);
-  };
-
-  const handleHeightInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '');
-    if (value.length <= 3) {
-      const formattedValue = value.length === 3
-        ? (parseInt(value) / 100).toFixed(2)
-        : value;
-      handleExploracionFisicaChange('signosVitales.talla', formattedValue);
+    if (formData?.exploracionFisica?.signosVitales) {
+      setValues({
+        ta: formData.exploracionFisica.signosVitales.ta || '',
+        fc: formData.exploracionFisica.signosVitales.fc || '',
+        fr: formData.exploracionFisica.signosVitales.fr || '',
+        temperatura: formData.exploracionFisica.signosVitales.temperatura || '',
+        peso: formData.exploracionFisica.signosVitales.peso || '',
+        talla: formData.exploracionFisica.signosVitales.talla || '',
+        imc: formData.exploracionFisica.signosVitales.imc || '',
+        pulso: formData.exploracionFisica.signosVitales.pulso || ''
+      });
+    }
+  }, [formData]);
+  
+  // Calculate status for each vital sign
+  useEffect(() => {
+    // Fix: Call updateStatus without using spread operator
+    updateStatus('ta', values.ta);
+    updateStatus('fc', values.fc);
+    updateStatus('fr', values.fr);
+    updateStatus('temperatura', values.temperatura);
+    
+    // Calculate IMC
+    if (values.peso && values.talla) {
+      try {
+        const peso = parseFloat(values.peso);
+        const talla = parseFloat(values.talla) / 100; // convert to meters
+        if (peso > 0 && talla > 0) {
+          const imc = (peso / (talla * talla)).toFixed(2);
+          setValues(prev => ({ ...prev, imc }));
+          handleExploracionFisicaChange('signosVitales.imc', imc);
+          updateStatus('imc', imc);
+        }
+      } catch (e) {
+        console.error("Error calculating IMC:", e);
+      }
+    }
+  }, [values.ta, values.fc, values.fr, values.temperatura, values.peso, values.talla]);
+  
+  // Update status based on medical ranges
+  const updateStatus = (field: string, value: string) => {
+    if (!value) {
+      setStatus(prev => ({ ...prev, [field]: 'normal' }));
+      return;
+    }
+    
+    try {
+      const numValue = parseFloat(value);
+      const ranges = medicalRanges[field];
+      
+      if (!ranges) {
+        setStatus(prev => ({ ...prev, [field]: 'normal' }));
+        return;
+      }
+      
+      if (numValue < ranges.low) {
+        setStatus(prev => ({ ...prev, [field]: 'low' }));
+      } else if (numValue > ranges.high) {
+        setStatus(prev => ({ ...prev, [field]: 'high' }));
+      } else {
+        setStatus(prev => ({ ...prev, [field]: 'normal' }));
+      }
+    } catch (e) {
+      console.error(`Error updating status for ${field}:`, e);
+      setStatus(prev => ({ ...prev, [field]: 'normal' }));
     }
   };
-
-  const getBloodPressureValues = (bpString: string) => {
-    const [systolic, diastolic] = bpString.split('/').map(Number);
-    return { systolic, diastolic };
+  
+  // Handle input change
+  const handleInputChange = (field: string, value: string) => {
+    setValues(prev => ({ ...prev, [field]: value }));
+    handleExploracionFisicaChange(`signosVitales.${field}`, value);
   };
-
+  
+  // Handle textarea change for exploracion fields
+  const handleAreaChange = (field: string, value: string) => {
+    handleExploracionFisicaChange(`exploracion.${field}`, value);
+  };
+  
+  const handleGenerateReport = async () => {
+    try {
+      setIsGenerating(true);
+      const report = await generateExploracionFisicaReport(formData);
+      setRedaccion(prev => ({ ...prev, exploracionFisica: report }));
+      setActiveTab("redaccion");
+      toast({
+        title: "Redacción generada",
+        description: "La redacción de la exploración física ha sido generada exitosamente."
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo generar la redacción. Por favor, intente nuevamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+  
   return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm bg-blue-500 text-white shadow-md">
-                Formulario
-              </button>
-              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm text-gray-700 dark:text-gray-300">
-                Redacción IA
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-4 h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-4 h-4" />
-            </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        <div className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">IX.</span> EXPLORACIÓN FÍSICA
-          </h2>
-        </div>
-
-        {!isMinimized && (
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* IMC Section */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="peso">Peso</Label>
-                    <div className="relative">
-                      <Input
-                        id="peso"
-                        type="number"
-                        step="0.1"
-                        value={formData.exploracionFisica?.signosVitales?.peso || ''}
-                        onChange={(e) => handleExploracionFisicaChange('signosVitales.peso', e.target.value)}
-                        className="pr-12"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">kg</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="talla">Talla</Label>
-                    <div className="relative">
-                      <Input
-                        id="talla"
-                        type="text"
-                        value={formData.exploracionFisica?.signosVitales?.talla || ''}
-                        onChange={handleHeightInput}
-                        className="pr-8"
-                        placeholder="Ej: 170"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">m</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg w-full px-4 py-3">
-                  <div className="text-sm">IMC: <span className="font-semibold">{imc}</span></div>
-                  <div className={`text-sm ${getIMCCategory(imc).color}`}>
-                    Categoría: {getIMCCategory(imc).label}
-                  </div>
-                </div>
-              </div>
-
-              {/* Vital Signs Section */}
-              <div className="space-y-4">
-                <Label>Rango de edad</Label>
-                <Select value={ageRange} onValueChange={(value: keyof typeof vitalSignRanges) => setAgeRange(value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar rango de edad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(vitalSignRanges).map(([key, value]) => (
-                      <SelectItem key={key} value={key}>{value.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Blood Pressure */}
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Exploración Física</CardTitle>
+        <CardDescription>
+          Signos vitales y exploración general del paciente
+        </CardDescription>
+      </CardHeader>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="formulario">Formulario</TabsTrigger>
+          <TabsTrigger value="redaccion">Redacción IA</TabsTrigger>
+        </TabsList>
+        <TabsContent value="formulario">
+          <CardContent className="space-y-6">
+            {/* Signos vitales */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="ta">Presión arterial</Label>
-                <div className="relative">
-                  <Input
-                    id="ta"
-                    type="text"
-                    value={formData.exploracionFisica?.signosVitales?.ta || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.ta', e.target.value)}
-                    placeholder="120/80"
-                    className="pr-16"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">mmHg</span>
-                </div>
-                {formData.exploracionFisica?.signosVitales?.ta && (
-                  <div className={`text-sm ${getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).color}`}>
-                    {getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).label}
-                  </div>
+                <Label htmlFor="ta">Presión Arterial (TA)</Label>
+                <Input
+                  type="text"
+                  id="ta"
+                  value={values.ta}
+                  onChange={(e) => handleInputChange('ta', e.target.value)}
+                  placeholder="Ej: 120/80"
+                />
+                {status.ta !== 'normal' && (
+                  <p className={`text-sm ${status.ta === 'low' ? 'text-blue-500' : 'text-red-500'}`}>
+                    {status.ta === 'low' ? 'Presión arterial baja' : 'Presión arterial alta'}
+                  </p>
                 )}
               </div>
-
-              {/* Pulse */}
+              <div className="space-y-2">
+                <Label htmlFor="fc">Frecuencia Cardíaca (FC)</Label>
+                <Input
+                  type="text"
+                  id="fc"
+                  value={values.fc}
+                  onChange={(e) => handleInputChange('fc', e.target.value)}
+                  placeholder="Ej: 72"
+                />
+                {status.fc !== 'normal' && (
+                  <p className={`text-sm ${status.fc === 'low' ? 'text-blue-500' : 'text-red-500'}`}>
+                    {status.fc === 'low' ? 'Frecuencia cardíaca baja' : 'Frecuencia cardíaca alta'}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="fr">Frecuencia Respiratoria (FR)</Label>
+                <Input
+                  type="text"
+                  id="fr"
+                  value={values.fr}
+                  onChange={(e) => handleInputChange('fr', e.target.value)}
+                  placeholder="Ej: 16"
+                />
+                {status.fr !== 'normal' && (
+                  <p className={`text-sm ${status.fr === 'low' ? 'text-blue-500' : 'text-red-500'}`}>
+                    {status.fr === 'low' ? 'Frecuencia respiratoria baja' : 'Frecuencia respiratoria alta'}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="temperatura">Temperatura</Label>
+                <Input
+                  type="text"
+                  id="temperatura"
+                  value={values.temperatura}
+                  onChange={(e) => handleInputChange('temperatura', e.target.value)}
+                  placeholder="Ej: 36.5"
+                />
+                {status.temperatura !== 'normal' && (
+                  <p className={`text-sm ${status.temperatura === 'low' ? 'text-blue-500' : 'text-red-500'}`}>
+                    {status.temperatura === 'low' ? 'Temperatura baja' : 'Temperatura alta'}
+                  </p>
+                )}
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="peso">Peso (kg)</Label>
+                <Input
+                  type="text"
+                  id="peso"
+                  value={values.peso}
+                  onChange={(e) => handleInputChange('peso', e.target.value)}
+                  placeholder="Ej: 70"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="talla">Talla (cm)</Label>
+                <Input
+                  type="text"
+                  id="talla"
+                  value={values.talla}
+                  onChange={(e) => handleInputChange('talla', e.target.value)}
+                  placeholder="Ej: 175"
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="pulso">Pulso</Label>
-                <div className="relative">
-                  <Input
-                    id="pulso"
-                    type="number"
-                    value={formData.exploracionFisica?.signosVitales?.pulso || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.pulso', e.target.value)}
-                    className="pr-16"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">ppm</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].pulse.min}-{vitalSignRanges[ageRange].pulse.max} ppm
-                </div>
+                <Input
+                  type="text"
+                  id="pulso"
+                  value={values.pulso}
+                  onChange={(e) => handleInputChange('pulso', e.target.value)}
+                  placeholder="Ej: 70"
+                />
               </div>
-
-              {/* Heart Rate */}
               <div className="space-y-2">
-                <Label htmlFor="fc" className="flex items-center gap-2">
-                  <HeartPulse className="w-4 h-4" />
-                  Frecuencia cardíaca
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="fc"
-                    type="number"
-                    value={formData.exploracionFisica?.signosVitales?.fc || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.fc', e.target.value)}
-                    className="pr-16"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">lpm</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].heartRate.min}-{vitalSignRanges[ageRange].heartRate.max} lpm
-                </div>
-              </div>
-
-              {/* Temperature */}
-              <div className="space-y-2">
-                <Label htmlFor="temperatura" className="flex items-center gap-2">
-                  <ThermometerSun className="w-4 h-4" />
-                  Temperatura
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="temperatura"
-                    type="number"
-                    step="0.1"
-                    value={formData.exploracionFisica?.signosVitales?.temperatura || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.temperatura', e.target.value)}
-                    className="pr-12"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">°C</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].temperature.min}-{vitalSignRanges[ageRange].temperature.max}°C
-                </div>
+                <Label htmlFor="imc">Índice de Masa Corporal (IMC)</Label>
+                <Input
+                  type="text"
+                  id="imc"
+                  value={values.imc}
+                  placeholder="Calculado automáticamente"
+                  readOnly
+                />
+                {status.imc !== 'normal' && (
+                  <p className={`text-sm ${status.imc === 'low' ? 'text-blue-500' : 'text-red-500'}`}>
+                    {status.imc === 'low' ? 'Bajo peso' : 'Sobrepeso/Obesidad'}
+                  </p>
+                )}
               </div>
             </div>
-          </div>
-        )}
-      </Card>
-    </div>
+            
+            {/* Exploración */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="cabeza">Cabeza</Label>
+                <Textarea
+                  id="cabeza"
+                  placeholder="Descripción de la exploración de la cabeza"
+                  value={formData?.exploracionFisica?.exploracion?.cabeza || ""}
+                  onChange={(e) => handleAreaChange('cabeza', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="cuello">Cuello</Label>
+                <Textarea
+                  id="cuello"
+                  placeholder="Descripción de la exploración del cuello"
+                  value={formData?.exploracionFisica?.exploracion?.cuello || ""}
+                  onChange={(e) => handleAreaChange('cuello', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="torax">Tórax</Label>
+                <Textarea
+                  id="torax"
+                  placeholder="Descripción de la exploración del tórax"
+                  value={formData?.exploracionFisica?.exploracion?.torax || ""}
+                  onChange={(e) => handleAreaChange('torax', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="abdomen">Abdomen</Label>
+                <Textarea
+                  id="abdomen"
+                  placeholder="Descripción de la exploración del abdomen"
+                  value={formData?.exploracionFisica?.exploracion?.abdomen || ""}
+                  onChange={(e) => handleAreaChange('abdomen', e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="extremidades">Extremidades</Label>
+                <Textarea
+                  id="extremidades"
+                  placeholder="Descripción de la exploración de las extremidades"
+                  value={formData?.exploracionFisica?.exploracion?.extremidades || ""}
+                  onChange={(e) => handleAreaChange('extremidades', e.target.value)}
+                />
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button
+              onClick={handleGenerateReport}
+              disabled={isGenerating}
+              className="w-full"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generando Redacción...
+                </>
+              ) : "Generar Redacción IA"}
+            </Button>
+          </CardFooter>
+        </TabsContent>
+        <TabsContent value="redaccion">
+          <CardContent className="p-6">
+            <div className="min-h-[200px] bg-gray-50 dark:bg-gray-900 p-4 rounded-md whitespace-pre-wrap" data-redaction-content>
+              {redaccion.exploracionFisica || "No se ha generado redacción aún. Complete el formulario y genere la redacción."}
+            </div>
+          </CardContent>
+        </TabsContent>
+      </Tabs>
+    </Card>
   );
 };
 

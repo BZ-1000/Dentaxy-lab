@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion, MotionValue, useTransform } from "framer-motion";
@@ -231,8 +232,7 @@ interface DockIconProps {
 }
 
 function DockIcon({ children, className, width }: DockIconProps) {
-  // Fix: Properly handle MotionValue<number> by using it directly
-  // without trying to convert it to ReactNode
+  // Fix the TypeScript error by using a properly typed component
   const transformedWidth = useTransform(width, (val) => val / 2);
   return (
     <motion.div
