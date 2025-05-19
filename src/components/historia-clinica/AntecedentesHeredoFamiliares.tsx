@@ -84,12 +84,12 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
   };
 
   return (
-    <div className="flex flex-col gap-4 border-b pb-6">
-      <div className="grid grid-cols-7 gap-4 items-center">
-        <span className="font-semibold text-base text-center col-span-1 text-gray-700">{familiar}</span>
+    <div className="flex flex-col gap-2 md:gap-4 border-b pb-4 md:pb-6">
+      <div className="grid grid-cols-4 md:grid-cols-7 gap-1 md:gap-4 items-center">
+        <span className="font-semibold text-sm md:text-base text-center col-span-1 text-gray-700">{familiar}</span>
         {!familiarData.vivoSano && (
           <button
-            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
+            className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium col-span-1 ${
               familiarData.finado ? "bg-red-600 text-white" : "bg-white text-gray-700 border-gray-300"
             }`}
             onClick={handleFinado}
@@ -99,8 +99,10 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
         )}
         {!familiarData.finado && (
           <button
-            className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium ${
-              familiarData.vivoSano ? "bg-green-600 text-white col-span-7" : "bg-white text-gray-700 border-gray-300 col-span-1"
+            className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium ${
+              familiarData.vivoSano 
+                ? "bg-green-600 text-white col-span-4 md:col-span-7" 
+                : "bg-white text-gray-700 border-gray-300 col-span-1"
             }`}
             onClick={handleVivoSano}
           >
@@ -113,7 +115,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
             return (
               <button
                 key={cond}
-                className={`px-4 py-2 rounded-full border shadow-sm transition-colors text-sm font-medium col-span-1 ${
+                className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium col-span-1 ${
                   familiarData.condiciones[condKey] ? "bg-blue-600 text-white" : "bg-white text-gray-700 border-gray-300"
                 }`}
                 onClick={() => handleCondicionChange(familiarKey, condKey, !familiarData.condiciones[condKey])}
@@ -128,7 +130,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
           value={familiarData.causaMuerte}
           onChange={(e) => handleFamiliarChange(familiarKey, 'causaMuerte', e.target.value)}
           placeholder="Causa de fallecimiento"
-          className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
+          className="w-full border rounded-md px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm mt-1 md:mt-2 shadow-inner"
         />
       )}
       {familiarData.condiciones.otras && !familiarData.finado && !familiarData.vivoSano && (
@@ -136,7 +138,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
           value={typeof familiarData.condiciones.otras === 'string' ? familiarData.condiciones.otras : ''}
           onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
           placeholder="Especifique otras condiciones"
-          className="w-full border rounded-md px-3 py-2 text-sm mt-2 shadow-inner"
+          className="w-full border rounded-md px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm mt-1 md:mt-2 shadow-inner"
         />
       )}
     </div>
@@ -359,39 +361,39 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-2 md:p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
+            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 md:p-1">
               <button
                 onClick={() => setShowRedaccion(false)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+                className={`px-2 md:px-5 py-1 md:py-1.5 rounded-full transition-all duration-300 text-xs md:text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
                 Formulario
               </button>
               <button
                 onClick={() => setShowRedaccion(true)}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+                className={`px-2 md:px-5 py-1 md:py-1.5 rounded-full transition-all duration-300 text-xs md:text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
                 Redacción IA
               </button>
             </div>
           </div>
   
-          <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
-              <Minus className="w-4 h-4" />
+          <div className="flex items-center gap-1 md:gap-2">
+            <button onClick={handleMinimize} className="p-0.5 md:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
+              <Minus className="w-3 h-3 md:w-4 md:h-4" />
             </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" aria-label={isMaximized ? "Restaurar" : "Maximizar"}>
-              <Maximize2 className="w-4 h-4" />
+            <button onClick={handleMaximize} className="p-0.5 md:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" aria-label={isMaximized ? "Restaurar" : "Maximizar"}>
+              <Maximize2 className="w-3 h-3 md:w-4 md:h-4" />
             </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" aria-label="Cerrar">
-              <X className="w-4 h-4" />
+            <button onClick={handleClose} className="p-0.5 md:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" aria-label="Cerrar">
+              <X className="w-3 h-3 md:w-4 md:h-4" />
             </button>
           </div>
         </div>
   
-        <div className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
+        <div className="flex justify-start px-3 md:px-6 py-1 md:py-2">
+          <h2 className="text-base md:text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">II.</span> Antecedentes Heredo Familiares
           </h2>
         </div>
@@ -399,8 +401,8 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         {!isMinimized && (
           <>
             {showRedaccion ? (
-              <div ref={redaccionRef} className="p-6">
-                <label className="font-mono text-sm font-medium text-gray-800">
+              <div ref={redaccionRef} className="p-3 md:p-6">
+                <label className="font-mono text-xs md:text-sm font-medium text-gray-800">
                   Redacción IA...
                 </label>
                 <div
@@ -417,7 +419,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
                   <div
                     className="progress-bar"
                     style={{
-                      height: '8px',
+                      height: '6px',
                       backgroundColor: '#34c759',
                       transition: 'width 0.015s ease-in-out',
                       width: `${progress}%`,
@@ -434,20 +436,20 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   
                 <Button
                   onClick={handleCopy}
-                  className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative"
+                  className="mt-2 bg-blue-500 text-white px-2 md:px-4 py-1 md:py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 md:gap-2 relative text-xs md:text-sm"
                 >
-                  <Copy className="w-4 h-4" />
+                  <Copy className="w-3 h-3 md:w-4 md:h-4" />
                   <span>Copiar Redacción</span>
                   {copied && (
-                    <div className="absolute -top-8 left-0 bg-green-500 text-white text-sm rounded-lg px-3 py-1 flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" />
+                    <div className="absolute -top-6 md:-top-8 left-0 bg-green-500 text-white text-xs md:text-sm rounded-lg px-2 md:px-3 py-0.5 md:py-1 flex items-center gap-0.5 md:gap-1">
+                      <CheckCircle className="w-3 h-3 md:w-4 md:h-4" />
                       <span>Copiado</span>
                     </div>
                   )}
                 </Button>
               </div>
             ) : (
-              <div className="p-6 space-y-6">
+              <div className="p-3 md:p-6 space-y-3 md:space-y-6">
                 {familiares.map((familiar) => (
                   <FamiliaRow
                     key={familiar}
@@ -461,12 +463,12 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             )}
   
             {!showRedaccion && (
-              <div className="p-6 flex justify-center gap-4">
-                <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
+              <div className="p-3 md:p-6 flex justify-center gap-2 md:gap-4">
+                <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-2 md:px-4 py-1 md:py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 md:gap-2 text-xs md:text-sm">
                   <span>Generar Redacción IA</span>
                 </Button>
-                <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2">
-                  <Eraser className="w-4 h-4" />
+                <Button onClick={limpiarFormulario} className="bg-red-500 text-white px-2 md:px-4 py-1 md:py-2 rounded-lg hover:bg-red-600 flex items-center gap-1 md:gap-2 text-xs md:text-sm">
+                  <Eraser className="w-3 h-3 md:w-4 md:h-4" />
                   <span>Limpiar Formulario</span>
                 </Button>
               </div>

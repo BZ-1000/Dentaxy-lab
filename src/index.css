@@ -76,7 +76,26 @@
   button,
   .button, /* in case some buttons have this class */
   [role="button"] {
-    @apply px-3 py-1.5 text-sm rounded-md;
+    @apply px-2 py-1 text-xs rounded-md;
+  }
+  
+  /* More specific selector for the AntecedentesHeredoFamiliares buttons */
+  .grid.grid-cols-7 button {
+    @apply px-1 py-0.5 text-xs whitespace-nowrap overflow-hidden text-ellipsis;
+    min-width: 40px;
+    max-width: 100%;
+  }
+
+  /* Make sure the grid layout is optimized for mobile */
+  .grid.grid-cols-7 {
+    @apply grid-cols-4 gap-1;
+  }
+
+  /* Ensure buttons in form controls are properly sized */
+  .form-group button,
+  .space-y-6 button {
+    @apply text-xs px-1 py-0.5;
+    min-height: 24px;
   }
 
   /* Inputs smaller height */
@@ -169,5 +188,17 @@
   .typewriter-text {
     font-size: 0.9rem !important;
   }
+  
+  /* More specific styles for Historia Clinica section buttons */
+  .historia-clinica button,
+  .historia-clinica .button {
+    @apply px-1 py-0.5 text-xs;
+    font-size: 0.65rem !important;
+  }
+  
+  /* Specific styles for rounded-full buttons that need to be even smaller */
+  button.rounded-full {
+    @apply px-1.5 py-0.5;
+    min-width: min-content;
+  }
 }
-
