@@ -175,6 +175,7 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
+  
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -199,30 +200,35 @@ const Landing = () => {
       toast.error('Error al activar el plan');
     }
   };
+  
   const handleItemClick = (label: string) => {
     setActiveItem(label);
     if (label === "perfil." && session) {
       setShowDropdown(!showDropdown);
     }
   };
+  
   const handleLogin = () => {
     setAuthDialog({
       isOpen: true,
       mode: "login"
     });
   };
+  
   const handleRegister = () => {
     setAuthDialog({
       isOpen: true,
       mode: "register"
     });
   };
+  
   const handleAuthSuccess = () => {
     setAuthDialog({
       isOpen: false,
       mode: "login"
     });
   };
+  
   const handleLogout = async () => {
     const {
       error
@@ -262,6 +268,7 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
+  
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
       nutricionales: {
@@ -434,7 +441,8 @@ const Landing = () => {
   
   if (loading && mounted) return <LoadingScreen visible={loading} onComplete={handleLoadingComplete} />;
   
-  return <div className="min-h-screen w-full bg-white apple-minimalist">
+  return (
+    <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="sticky top-0 bg-white z-50 flex items-center justify-between px-6 py-4 border-b border-gray-100 shadow-sm">
         <div className="flex items-center gap-2">
@@ -453,26 +461,32 @@ const Landing = () => {
 
         {/* Auth buttons */}
         <div className="flex gap-4">
-          {!session ? <>
+          {!session ? (
+            <>
               <Button variant="default" onClick={handleLogin} className="bg-black text-white hover:bg-black/80 rounded-full">
                 Iniciar sesión
               </Button>
               <Button variant="outline" onClick={handleRegister} className="bg-white text-black hover:bg-white/90 border-black rounded-full">
                 Registrarse
               </Button>
-            </> : <div className="flex items-center gap-4">
+            </>
+          ) : (
+            <div className="flex items-center gap-4">
               <span className="text-black text-sm">{username}</span>
               <button onClick={() => setShowDropdown(!showDropdown)} className="relative">
                 <UserCircle className="h-6 w-6 text-black" />
-                {showDropdown && <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
-                    {hasBetaPlan && <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
+                {showDropdown && (
+                  <div className="absolute top-full right-0 mt-2 w-48 p-2 bg-white rounded-xl shadow-lg z-50 border border-gray-200">
+                    {hasBetaPlan && (
+                      <div className="px-2 py-3 text-blue-600 text-sm rounded-lg w-full text-left flex items-center gap-x-2">
                         <Crown className="h-4 w-4" />
                         Plan Beta
-                      </div>}
+                      </div>
+                    )}
                     <button onClick={handleChangeUsername} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100">
                       Cambiar nombre
                     </button>
-                    <button onClick={()={() => setShowPricingPopup(true)} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2">
+                    <button onClick={() => setShowPricingPopup(true)} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2">
                       <Crown className="h-4 w-4" />
                       Cambiar plan
                     </button>
@@ -480,21 +494,28 @@ const Landing = () => {
                       <LogOut className="h-4 w-4" />
                       Cerrar sesión
                     </button>
-                  </div>}
+                  </div>
+                )}
               </button>
-            </div>}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Mobile Menu */}
-      {isMobile && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
+      {isMobile && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
           <div className="flex justify-around">
-            {menuItems.map(item => <Link key={item.label} to={item.href} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`} onClick={() => setActiveItem(item.label)}>
+            {menuItems.map(item => (
+              <Link key={item.label} to={item.href} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`} onClick={() => setActiveItem(item.label)}>
                 {item.label}
-              </Link>)}
+              </Link>
+            ))}
           </div>
-          {showDropdown && <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
-              {session ? <>
+          {showDropdown && (
+            <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
+              {session ? (
+                <>
                   <button onClick={handleChangeUsername} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Cambiar nombre
                   </button>
@@ -505,16 +526,21 @@ const Landing = () => {
                   <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100">
                     Cerrar sesión
                   </button>
-                </> : <>
+                </>
+              ) : (
+                <>
                   <button onClick={handleLogin} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Iniciar sesión
                   </button>
                   <button onClick={handleRegister} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
                     Registrarse
                   </button>
-                </>}
-            </div>}
-        </div>}
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto py-[4px]">
@@ -649,11 +675,13 @@ const Landing = () => {
             <div>
               <h3 className="text-sm font-medium text-gray-800 mb-4">Enlaces</h3>
               <ul className="space-y-2">
-                {menuItems.map(item => <li key={item.label}>
+                {menuItems.map(item => (
+                  <li key={item.label}>
                     <Link to={item.href} className="text-gray-500 hover:text-gray-800 transition-colors text-sm">
                       {item.label}
                     </Link>
-                  </li>)}
+                  </li>
+                ))}
               </ul>
             </div>
             
@@ -682,46 +710,49 @@ const Landing = () => {
       </footer>
 
       {/* Username Popup - Updated with welcome message and terms checkboxes */}
-      {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-        <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
-          <h2 className="text-2xl font-bold text-black mb-2">
-            ¡Bienvenido a Dental Basics Academy!
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Para comenzar a utilizar nuestra plataforma, por favor ingresa tu nombre de usuario.
-          </p>
-          
-          <Input type="text" placeholder="Ingresa tu nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="mb-6" />
-          
-          <div className="space-y-3 mb-6">
-            <div className="flex items-center space-x-2">
-              <Checkbox id="terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked === true)} />
-              <label htmlFor="terms" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Acepto los <Link to="/terms" className="text-blue-600 hover:underline" target="_blank">Términos y Condiciones</Link>
-              </label>
+      {showPopup && session && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
+            <h2 className="text-2xl font-bold text-black mb-2">
+              ¡Bienvenido a Dental Basics Academy!
+            </h2>
+            <p className="text-gray-600 mb-6">
+              Para comenzar a utilizar nuestra plataforma, por favor ingresa tu nombre de usuario.
+            </p>
+            
+            <Input type="text" placeholder="Ingresa tu nombre de usuario" value={username} onChange={e => setUsername(e.target.value)} className="mb-6" />
+            
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="terms" checked={acceptTerms} onCheckedChange={checked => setAcceptTerms(checked === true)} />
+                <label htmlFor="terms" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Acepto los <Link to="/terms" className="text-blue-600 hover:underline" target="_blank">Términos y Condiciones</Link>
+                </label>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox id="privacy" checked={acceptPrivacy} onCheckedChange={checked => setAcceptPrivacy(checked === true)} />
+                <label htmlFor="privacy" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Acepto la <Link to="/privacy" className="text-blue-600 hover:underline" target="_blank">Política de Privacidad</Link>
+                </label>
+              </div>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Checkbox id="privacy" checked={acceptPrivacy} onCheckedChange={checked => setAcceptPrivacy(checked === true)} />
-              <label htmlFor="privacy" className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                Acepto la <Link to="/privacy" className="text-blue-600 hover:underline" target="_blank">Política de Privacidad</Link>
-              </label>
+            <div className="flex justify-end gap-4">
+              <Button variant="ghost" onClick={() => setShowPopup(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveUsername} disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy} className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                {loading ? "Guardando..." : "Guardar"}
+              </Button>
             </div>
           </div>
-          
-          <div className="flex justify-end gap-4">
-            <Button variant="ghost" onClick={() => setShowPopup(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSaveUsername} disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy} className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              {loading ? "Guardando..." : "Guardar"}
-            </Button>
-          </div>
         </div>
-      </div>}
+      )}
 
       {/* Pricing Popup */}
-      {showPricingPopup && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {showPricingPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold text-black">Planes Disponibles</h2>
@@ -774,14 +805,16 @@ const Landing = () => {
               </div>
             </div>
           </div>
-        </div>}
+        </div>
+      )}
 
       {/* Auth Dialog */}
       <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({
       ...authDialog,
       isOpen: false
     })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
-    </div>;
+    </div>
+  );
 };
 
 export default Landing;

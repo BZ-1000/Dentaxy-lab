@@ -210,4 +210,28 @@
     width: 100%;
     display: block;
   }
+  
+  /* Enhance the DENTAXY.ai title specifically for mobile */
+  h1.mb-5.font-black.text-black.text-5xl.text-center.sm\:text-8xl {
+    font-size: 4.25rem !important;
+    line-height: 1.1 !important;
+    width: 94%; /* Leave small margin */
+    margin-left: auto;
+    margin-right: auto;
+    letter-spacing: -1px;
+  }
+  
+  /* Make beta button taller and more prominent on mobile */
+  button.rounded-full.text-xl.bg-emerald-500.hover\:bg-emerald-400.text-gray-50 {
+    padding: 14px 24px !important; 
+    font-size: 1.25rem !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(0);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  button.rounded-full.text-xl.bg-emerald-500.hover\:bg-emerald-400.text-gray-50:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
 }
