@@ -201,4 +201,19 @@
     @apply px-1.5 py-0.5;
     min-width: min-content;
   }
+  
+  /* Enhanced styles for beta button on mobile */
+  .rounded-full.bg-gradient-to-br {
+    @apply shadow-lg;
+    box-shadow: 0 4px 10px rgba(16, 185, 129, 0.5);
+    transform: translateZ(0);
+  }
+  
+  /* Custom styles for the DENTAXY.ai title on mobile */
+  .text-center.w-full h1 {
+    font-size: 2.5rem !important;
+    line-height: 1.1 !important;
+    letter-spacing: -0.02em;
+    padding: 0 0.5rem;
+  }
 }
