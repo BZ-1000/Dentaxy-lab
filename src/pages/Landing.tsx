@@ -472,7 +472,7 @@ const Landing = () => {
                     <button onClick={handleChangeUsername} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100">
                       Cambiar nombre
                     </button>
-                    <button onClick={() => setShowPricingPopup(true)} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2">
+                    <button onClick={()={() => setShowPricingPopup(true)} className="px-2 py-3 text-gray-700 text-sm rounded-lg w-full text-left hover:bg-gray-100 flex items-center gap-x-2">
                       <Crown className="h-4 w-4" />
                       Cambiar plan
                     </button>
@@ -519,7 +519,7 @@ const Landing = () => {
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center px-4 pt-12 pb-32 max-w-5xl mx-auto py-[4px]">
         <div className="text-center w-full">
-          <h1 className="mb-5 font-black text-black text-5xl text-center sm:text-8xl">
+          <h1 className="mb-5 font-black text-black text-5xl text-center sm:text-8xl md:mx-auto mx-1">
             DENTAXY
             <Typewriter 
               text={[".ai", ".com"]} 
@@ -539,76 +539,79 @@ const Landing = () => {
           </div>
 
           <div className="mb-12">
-            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle">
+            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[12px] md:py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle">
               PRUEBA BETA
             </button>
           </div>
 
           <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
-            <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
+            {/* Only show the header text on non-mobile screens */}
+            {!isMobile && (
+              <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
                 🔽 Demostracion de redacción automatica...
-            </h2>
+              </h2>
+            )}
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
               <AntecedentesPersonalesPatologicos 
-        formData={{
-          antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-          padecimientoActual: {} as any,
-          antecedentesHeredoFamiliares: {} as any,
-          antecedentesPersonalesNoPatologicos: {} as any,
-          antecedentesAlergicos: {} as any,
-          antecedentesHemorragicos: {} as any,
-          antecedentesQuirurgicos: {} as any,
-          interrogatorioSistemas: {} as any,
-          exploracionFisica: {} as any,
-          examenCabeza: {} as any,
-          articulacionCraneomandibular: {} as any,
-          examenCuello: {} as any,
-          examenIntrabucal: {} as any,
-          glandulasSalivales: {} as any,
-          oclusion: {} as any,
-          relacionDientes: {} as any,
-          lineaMedia: {} as any,
-          frenillos: {} as any,
-          diagnostico: {} as any,
-          pronostico: {} as any,
-          serviciosDomiciliarios: '',
-          pisosVivienda: '',
-          materialVivienda: '',
-          materialPiso: '',
-          ventilacion: '',
-          frecuenciaLimpieza: '',
-          hacinamiento: '',
-          frecuenciaBano: '',
-          higieneBucal: {
-            frecuenciaCepillado: '',
-            usoHiloDental: '',
-            tipoCerdas: '',
-            cantidadPasta: '',
-            marcaPasta: ''
-          },
-          alimentacion: {
-            tipoDieta: '',
-            frecuenciaComidas: '',
-            tiposAlimentos: '',
-            saltaComidas: '',
-            consumoNutritivo: ''
-          },
-          grupoSanguineo: '',
-          factorRh: '',
-          inmunizaciones: '',
-          peso: '',
-          imc: '',
-          talla: '',
-          presionArterial: '',
-          pulso: '',
-          frecuenciaCardiaca: '',
-          frecuenciaRespiratoria: '',
-          temperatura: '',
-          diagnosticos: '',
-          pronosticos: ''
-        }} 
-        handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
-      />
+                formData={{
+                  antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+                  padecimientoActual: {} as any,
+                  antecedentesHeredoFamiliares: {} as any,
+                  antecedentesPersonalesNoPatologicos: {} as any,
+                  antecedentesAlergicos: {} as any,
+                  antecedentesHemorragicos: {} as any,
+                  antecedentesQuirurgicos: {} as any,
+                  interrogatorioSistemas: {} as any,
+                  exploracionFisica: {} as any,
+                  examenCabeza: {} as any,
+                  articulacionCraneomandibular: {} as any,
+                  examenCuello: {} as any,
+                  examenIntrabucal: {} as any,
+                  glandulasSalivales: {} as any,
+                  oclusion: {} as any,
+                  relacionDientes: {} as any,
+                  lineaMedia: {} as any,
+                  frenillos: {} as any,
+                  diagnostico: {} as any,
+                  pronostico: {} as any,
+                  serviciosDomiciliarios: '',
+                  pisosVivienda: '',
+                  materialVivienda: '',
+                  materialPiso: '',
+                  ventilacion: '',
+                  frecuenciaLimpieza: '',
+                  hacinamiento: '',
+                  frecuenciaBano: '',
+                  higieneBucal: {
+                    frecuenciaCepillado: '',
+                    usoHiloDental: '',
+                    tipoCerdas: '',
+                    cantidadPasta: '',
+                    marcaPasta: ''
+                  },
+                  alimentacion: {
+                    tipoDieta: '',
+                    frecuenciaComidas: '',
+                    tiposAlimentos: '',
+                    saltaComidas: '',
+                    consumoNutritivo: ''
+                  },
+                  grupoSanguineo: '',
+                  factorRh: '',
+                  inmunizaciones: '',
+                  peso: '',
+                  imc: '',
+                  talla: '',
+                  presionArterial: '',
+                  pulso: '',
+                  frecuenciaCardiaca: '',
+                  frecuenciaRespiratoria: '',
+                  temperatura: '',
+                  diagnosticos: '',
+                  pronosticos: ''
+                }} 
+                handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
+              />
             </div>
           </div>
         </div>
