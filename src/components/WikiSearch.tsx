@@ -162,7 +162,7 @@ export function WikiSearch({
         {/* Input Area */}
         <div className="flex gap-2 p-4 bg-gray-50 dark:bg-neutral-900 rounded-lg border">
           <Input ref={inputRef} placeholder="Escribe tu consulta médica aquí..." value={message} onChange={e => setMessage(e.target.value)} onKeyPress={handleKeyPress} disabled={isLoading} className="flex-1" />
-          <Button onClick={sendMessage} disabled={isLoading || !message.trim()} className="bg-blue-500 hover:bg-blue-600">
+          <Button onClick={sendMessage} disabled={isLoading || !message.trim()} className="bg-emerald-500 hover:bg-emerald-400">
             <Send className="h-4 w-4" />
           </Button>
         </div>
