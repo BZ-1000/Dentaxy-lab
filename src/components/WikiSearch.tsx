@@ -65,7 +65,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           'X-Title': 'Dentaxy Medical AI'
         },
         body: JSON.stringify({
-          model: 'meta-llama/llama-3.1-8b-instruct:free',
+          model: 'mistralai/mistral-7b-instruct:free',
           messages: [
             {
               role: 'system',
