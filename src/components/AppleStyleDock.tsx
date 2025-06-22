@@ -1,4 +1,3 @@
-```javascript
 import {
   Mail,
   ScrollText,
@@ -184,7 +183,7 @@ export function AppleStyleDock() {
               key={idx}
               onClick={() => handleItemClick(item.title)}
               className={`aspect-square rounded-full cursor-pointer ${
-                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'DentaxyGPT' ? 'bg-black' : (item.title === 'Inicio' ? 'bg-amber-400' : 'bg-gray-200 dark:bg-neutral-800'))
+                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'DentaxyGPT' ? 'bg-sky-400' : (item.title === 'Inicio' ? 'bg-amber-400' : 'bg-gray-200 dark:bg-neutral-800'))
               }`}
             >
               <DockLabel>{item.title}</DockLabel>
@@ -274,7 +273,7 @@ export function AppleStyleDock() {
                   placeholder="Describe el error o sugerencia de mejora..."
                 />
                 <Button onClick={handleSendFeedback} className="w-full">
-                  Enviar sugerencias
+                 Enviar sugerencias
                 </Button>
               </div>
             </DialogDescription>
@@ -396,4 +395,3 @@ export function AppleStyleDock() {
     </>
   );
 }
-```
