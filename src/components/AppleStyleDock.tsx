@@ -44,7 +44,7 @@ const data = [
     href: '#',
   },
   {
-    title: 'IA Médico',
+    title: 'DentaxyGPT',
     icon: (
       <Search className='h-full w-full text-white' />
     ),
@@ -108,7 +108,7 @@ export function AppleStyleDock() {
       case 'Medicamentos':
         setShowMedicationSearch(true);
         break;
-      case 'IA Médico':
+      case 'DentaxyGPT':
         setShowWikiSearch(true);
         break;
       case 'Comentarios':
@@ -183,7 +183,7 @@ export function AppleStyleDock() {
               key={idx}
               onClick={() => handleItemClick(item.title)}
               className={`aspect-square rounded-full cursor-pointer ${
-                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'IA Médico' ? 'bg-sky-400' : (item.title === 'Inicio' ? 'bg-amber-400' : 'bg-gray-200 dark:bg-neutral-800'))
+                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'DentaxyGPT' ? 'bg-sky-400' : (item.title === 'Inicio' ? 'bg-amber-400' : 'bg-gray-200 dark:bg-neutral-800'))
               }`}
             >
               <DockLabel>{item.title}</DockLabel>

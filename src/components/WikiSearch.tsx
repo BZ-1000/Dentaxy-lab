@@ -129,8 +129,8 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
       <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
         <DialogHeader className="flex flex-row items-center justify-between">
           <DialogTitle className="text-2xl font-bold text-blue-600 dark:text-blue-400 flex items-center gap-2">
-            <Bot className="h-6 w-6" />
-            IA Médico - Asistente Odontológico
+            <img src="/lovable-uploads/f3d0d575-258c-44ef-a500-2a819a3d7043.png" alt="DentaxyGPT" className="h-6 w-6" />
+            DentaxyGPT - Asistente Odontológico
           </DialogTitle>
           {messages.length > 0 && (
             <Button
@@ -151,8 +151,8 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
         >
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center text-neutral-500">
-              <Bot className="h-12 w-12 mb-4 text-blue-400" />
-              <h3 className="text-lg font-medium mb-2">¡Hola! Soy tu asistente médico</h3>
+              <img src="/lovable-uploads/f3d0d575-258c-44ef-a500-2a819a3d7043.png" alt="DentaxyGPT" className="h-12 w-12 mb-4 opacity-60" />
+              <h3 className="text-lg font-medium mb-2">¡Hola! Soy DentaxyGPT</h3>
               <p className="text-sm max-w-md">
                 Puedes preguntarme sobre síntomas, diagnósticos, tratamientos odontológicos, 
                 medicamentos y cualquier consulta médica general. ¿En qué puedo ayudarte hoy?
@@ -177,7 +177,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                     {msg.role === 'user' ? (
                       <User className="h-4 w-4" />
                     ) : (
-                      <Bot className="h-4 w-4" />
+                      <img src="/lovable-uploads/f3d0d575-258c-44ef-a500-2a819a3d7043.png" alt="DentaxyGPT" className="h-4 w-4" />
                     )}
                   </div>
                   <div
@@ -204,7 +204,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
               {isLoading && (
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center">
-                    <Bot className="h-4 w-4" />
+                    <img src="/lovable-uploads/f3d0d575-258c-44ef-a500-2a819a3d7043.png" alt="DentaxyGPT" className="h-4 w-4" />
                   </div>
                   <div className="bg-white dark:bg-neutral-800 border border-gray-200 dark:border-gray-700 p-3 rounded-lg">
                     <div className="flex items-center gap-2">
