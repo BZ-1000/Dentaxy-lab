@@ -8,6 +8,7 @@ import {
   Save,
   Trash,
   Cross, // Importa el icono de la cruz
+  Search, // Add Search icon
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -45,7 +46,7 @@ const data = [
   {
     title: 'DentaxyGPT',
     icon: (
-      <img src="/lovable-uploads/01ff3e84-dc5c-4f26-a0d6-2e4d8a8fca04.png" alt="DentaxyGPT" className='h-full w-full object-contain' />
+      <Search className='h-full w-full text-white' />
     ),
     href: '#',
   },
