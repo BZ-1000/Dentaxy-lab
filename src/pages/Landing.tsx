@@ -87,6 +87,10 @@ const Landing = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
   
+  // New state for sequential flow
+  const [flowStep, setFlowStep] = useState<'idle' | 'authenticating' | 'username' | 'plan' | 'complete'>('idle');
+  const [isProcessingFlow, setIsProcessingFlow] = useState(false);
+  
   useEffect(() => {
     // Load username from localStorage first
     const storedUsername = localStorage.getItem('dentaxy_username');
@@ -118,12 +122,17 @@ const Landing = () => {
       if (session) {
         checkUsername(session.user.id);
         checkUserPlan(session.user.id);
+        
+        // Handle sequential flow after authentication
+        if (isProcessingFlow && flowStep === 'authenticating') {
+          handlePostAuthFlow(session.user.id);
+        }
       }
     });
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [flowStep, isProcessingFlow]);
   
   // Handle loading screen completion
   const handleLoadingComplete = () => {
@@ -137,7 +146,7 @@ const Landing = () => {
       if (storedUsername) {
         setUsername(storedUsername);
         setShowPopup(false);
-        return;
+        return true; // User has username
       }
 
       const {
@@ -152,11 +161,14 @@ const Landing = () => {
         // Store username in localStorage to avoid future prompts
         localStorage.setItem('dentaxy_username', data.username);
         setShowPopup(false);
+        return true; // User has username
       } else {
         setShowPopup(true);
+        return false; // User needs to set username
       }
     } catch (error) {
       console.error('Error checking username:', error);
+      return false;
     }
   };
   
@@ -168,13 +180,46 @@ const Landing = () => {
       } = await supabase.from('user_plans').select('plan_type').eq('id', userId).maybeSingle();
       if (error) {
         console.error('Error checking plan:', error);
-        return;
+        return false;
       }
-      setHasBetaPlan(data?.plan_type === 'beta');
+      const hasPlan = data?.plan_type === 'beta';
+      setHasBetaPlan(hasPlan);
+      return hasPlan;
     } catch (error) {
       console.error('Error checking user plan:', error);
+      return false;
     }
   };
+
+  const handlePostAuthFlow = async (userId: string) => {
+    try {
+      // Check if user has username and plan
+      const hasUsername = await checkUsername(userId);
+      const hasPlan = await checkUserPlan(userId);
+      
+      if (!hasUsername) {
+        setFlowStep('username');
+        setShowPopup(true);
+      } else if (!hasPlan) {
+        setFlowStep('plan');
+        setShowPricingPopup(true);
+      } else {
+        // User is complete, go to app
+        setFlowStep('complete');
+        // Clear all form data from localStorage
+        localStorage.removeItem('currentFormData');
+        localStorage.removeItem('formBackup');
+        
+        // Force a complete app reload to reset all states
+        window.location.href = '/app';
+      }
+    } catch (error) {
+      console.error('Error in post-auth flow:', error);
+      setIsProcessingFlow(false);
+      setFlowStep('idle');
+    }
+  };
+
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -194,35 +239,53 @@ const Landing = () => {
       setHasBetaPlan(true);
       setShowPricingPopup(false);
       toast.success('¡Plan Beta activado exitosamente!');
+      
+      // Continue flow to app
+      if (isProcessingFlow) {
+        setFlowStep('complete');
+        // Clear all form data from localStorage
+        localStorage.removeItem('currentFormData');
+        localStorage.removeItem('formBackup');
+        
+        // Force a complete app reload to reset all states
+        setTimeout(() => {
+          window.location.href = '/app';
+        }, 1000);
+      }
     } catch (error) {
       console.error('Error:', error);
       toast.error('Error al activar el plan');
     }
   };
+
   const handleItemClick = (label: string) => {
     setActiveItem(label);
     if (label === "perfil." && session) {
       setShowDropdown(!showDropdown);
     }
   };
+
   const handleLogin = () => {
     setAuthDialog({
       isOpen: true,
       mode: "login"
     });
   };
+
   const handleRegister = () => {
     setAuthDialog({
       isOpen: true,
       mode: "register"
     });
   };
+
   const handleAuthSuccess = () => {
     setAuthDialog({
       isOpen: false,
       mode: "login"
     });
   };
+
   const handleLogout = async () => {
     const {
       error
@@ -233,6 +296,8 @@ const Landing = () => {
     setSession(null);
     setShowDropdown(false);
     setHasBetaPlan(false);
+    setFlowStep('idle');
+    setIsProcessingFlow(false);
     toast.success('Sesión cerrada exitosamente');
   };
 
@@ -243,7 +308,10 @@ const Landing = () => {
   
   const handleBetaAccess = () => {
     if (!session) {
-      toast.error('Debes iniciar sesión para acceder a la versión beta');
+      // Start the sequential flow
+      setIsProcessingFlow(true);
+      setFlowStep('authenticating');
+      toast.info('Iniciando sesión automáticamente...');
       setAuthDialog({
         isOpen: true,
         mode: "login"
@@ -251,17 +319,15 @@ const Landing = () => {
       return;
     }
 
-    // Clear all form data from localStorage
-    localStorage.removeItem('currentFormData');
-    localStorage.removeItem('formBackup');
-    
-    if (hasBetaPlan) {
-      // Force a complete app reload to reset all states
-      window.location.href = '/app';
-    } else {
-      setShowPricingPopup(true);
+    // User is already logged in, check if they need to complete steps
+    if (isProcessingFlow) {
+      return; // Flow already in progress
     }
+
+    setIsProcessingFlow(true);
+    handlePostAuthFlow(session.user.id);
   };
+
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
       nutricionales: {
@@ -353,7 +419,7 @@ const Landing = () => {
     window.open('https://instagram.com/dentalbasicsacademy', '_blank');
   };
 
-  // Fixed handleSaveUsername function to properly handle username existence
+  // Updated handleSaveUsername function for sequential flow
   const handleSaveUsername = async () => {
     if (!username.trim() || !acceptTerms || !acceptPrivacy) {
       toast.error('Por favor complete todos los campos requeridos');
@@ -420,11 +486,17 @@ const Landing = () => {
       toast.success('Nombre de usuario guardado exitosamente');
       console.log('Username saved successfully, closing popup');
 
-      // Close the popup with a small delay to ensure state updates properly
-      setTimeout(() => {
-        setShowPopup(false);
-        setLoading(false);
-      }, 500);
+      // Close the popup and continue flow
+      setShowPopup(false);
+      setLoading(false);
+      
+      // Continue sequential flow
+      if (isProcessingFlow && flowStep === 'username') {
+        setFlowStep('plan');
+        setTimeout(() => {
+          setShowPricingPopup(true);
+        }, 500);
+      }
     } catch (error: any) {
       console.error('Error saving username:', error);
       toast.error('Error al guardar nombre de usuario: ' + (error.message || 'Error desconocido'));
@@ -539,8 +611,12 @@ const Landing = () => {
           </div>
 
           <div className="mb-12">
-            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle flex items-center gap-2 mx-auto">
-              PRUEBA BETA
+            <button 
+              onClick={handleBetaAccess} 
+              disabled={isProcessingFlow}
+              className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle flex items-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isProcessingFlow ? 'PROCESANDO...' : 'PRUEBA BETA'}
               <ArrowRight className="h-5 w-5 text-white" />
             </button>
           </div>
@@ -679,7 +755,7 @@ const Landing = () => {
         </div>
       </footer>
 
-      {/* Username Popup - Updated with welcome message and terms checkboxes */}
+      {/* Username Popup - Updated with "Siguiente" button for sequential flow */}
       {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
         <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
           <h2 className="text-2xl font-bold text-black mb-2">
@@ -708,24 +784,30 @@ const Landing = () => {
           </div>
           
           <div className="flex justify-end gap-4">
-            <Button variant="ghost" onClick={() => setShowPopup(false)}>
-              Cancelar
-            </Button>
+            {!isProcessingFlow && (
+              <Button variant="ghost" onClick={() => setShowPopup(false)}>
+                Cancelar
+              </Button>
+            )}
             <Button onClick={handleSaveUsername} disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy} className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              {loading ? "Guardando..." : "Guardar"}
+              {loading ? "Guardando..." : isProcessingFlow ? "Siguiente" : "Guardar"}
             </Button>
           </div>
         </div>
       </div>}
 
-      {/* Pricing Popup */}
+      {/* Pricing Popup - Updated for sequential flow */}
       {showPricingPopup && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold text-black">Planes Disponibles</h2>
-              <Button variant="ghost" onClick={() => setShowPricingPopup(false)} className="text-gray-500 hover:text-gray-700">
-                ✕
-              </Button>
+              <h2 className="text-2xl font-bold text-black">
+                {isProcessingFlow ? 'Selecciona tu Plan' : 'Planes Disponibles'}
+              </h2>
+              {!isProcessingFlow && (
+                <Button variant="ghost" onClick={() => setShowPricingPopup(false)} className="text-gray-500 hover:text-gray-700">
+                  ✕
+                </Button>
+              )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="relative p-6 rounded-xl border border-gray-200 shadow-sm">
@@ -753,7 +835,7 @@ const Landing = () => {
                   </li>
                 </ul>
                 <Button onClick={handleSelectBetaPlan} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
-                  {hasBetaPlan ? "Plan Actual" : "Seleccionar Plan Beta"}
+                  {hasBetaPlan ? "Plan Actual" : isProcessingFlow ? "Continuar con Beta" : "Seleccionar Plan Beta"}
                 </Button>
               </div>
 
