@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
-import { Send, User, AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { Send, Bot, User, X, AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { useDebouncedCallback } from "use-debounce";
 
 interface WikiSearchProps {
   open: boolean;
@@ -24,7 +25,7 @@ IMPORTANTE:
 - Responde SIEMPRE en español
 - Sé DIRECTO y CONCISO
 - Responde únicamente lo que se pregunta, sin información adicional
-- Máximo 100 palabras por respuesta
+- Máximo 150 palabras por respuesta
 - Ve al grano inmediatamente
 
 Tu especialidad:
@@ -50,22 +51,12 @@ const loadingMessages = [
   "Consultando base de datos odontológica...",
   "Evaluando diagnóstico diferencial...",
   "Verificando protocolos de tratamiento...",
-  "Revisando guías clínicas actualizadas...",
+  "Revisando guías clínicas...",
   "Procesando información médica...",
   "Calculando nivel de urgencia...",
   "Preparando recomendaciones...",
   "Validando información clínica...",
-  "Generando respuesta especializada...",
-  "Comparando con casos similares...",
-  "Revisando literatura científica...",
-  "Evaluando opciones de tratamiento...",
-  "Analizando factores de riesgo...",
-  "Verificando contraindicaciones...",
-  "Procesando datos del paciente...",
-  "Consultando protocolos internacionales...",
-  "Evaluando urgencia del caso...",
-  "Preparando diagnóstico diferencial...",
-  "Finalizando recomendaciones..."
+  "Generando respuesta especializada..."
 ];
 
 export function WikiSearch({
@@ -76,8 +67,6 @@ export function WikiSearch({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
-  const [apiKey, setApiKey] = useState("");
-  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -104,7 +93,7 @@ export function WikiSearch({
       interval = setInterval(() => {
         index = (index + 1) % loadingMessages.length;
         setLoadingMessage(loadingMessages[index]);
-      }, 600); // Más rápido para mantener atención
+      }, 800);
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -142,23 +131,6 @@ export function WikiSearch({
   const sendMessage = async () => {
     if (!message.trim() || isLoading) return;
     
-    // Verificar si necesitamos API key
-    if (!apiKey && !showApiKeyInput) {
-      setShowApiKeyInput(true);
-      return;
-    }
-    
-    if (!apiKey) {
-      const errorMessage: ChatMessage = {
-        role: 'assistant',
-        content: 'Por favor, ingresa tu API key de OpenRouter para continuar.',
-        timestamp: new Date(),
-        urgency: 'medium'
-      };
-      setMessages(prev => [...prev, errorMessage]);
-      return;
-    }
-    
     const userMessage = message.trim();
     setMessage("");
 
@@ -172,8 +144,8 @@ export function WikiSearch({
     setIsLoading(true);
 
     try {
-      // Prepare conversation context (last 4 messages for context)
-      const conversationHistory = messages.slice(-4).map(msg => ({
+      // Prepare conversation context (last 6 messages for context)
+      const conversationHistory = messages.slice(-6).map(msg => ({
         role: msg.role,
         content: msg.content
       }));
@@ -181,7 +153,7 @@ export function WikiSearch({
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${apiKey}`,
+          'Authorization': 'Bearer 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',
           'Content-Type': 'application/json',
           'HTTP-Referer': window.location.origin,
           'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado'
@@ -199,21 +171,20 @@ export function WikiSearch({
               content: userMessage
             }
           ],
-          temperature: 0.1, // Muy bajo para respuestas precisas
-          max_tokens: 200, // Limitado para respuestas concisas
-          top_p: 0.7,
-          frequency_penalty: 0.6,
-          presence_penalty: 0.4
+          temperature: 0.2, // Reduced for more focused responses
+          max_tokens: 300, // Reduced for concise answers
+          top_p: 0.8,
+          frequency_penalty: 0.5, // Higher to reduce repetition
+          presence_penalty: 0.3
         })
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Error de API (${response.status}): ${errorData.error?.message || 'Problema de conexión'}`);
+        throw new Error(`Error de API: ${response.status}`);
       }
 
       const data = await response.json();
-      let aiResponse = data.choices[0]?.message?.content || 'No pude procesar tu consulta. Reformula tu pregunta de manera más específica.';
+      let aiResponse = data.choices[0]?.message?.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta de manera más específica.';
 
       // Detect urgency level from AI response
       const urgency = detectUrgency(aiResponse);
@@ -229,24 +200,9 @@ export function WikiSearch({
 
     } catch (error) {
       console.error('Error calling OpenRouter API:', error);
-      let errorContent = 'Error técnico temporal. ';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('401')) {
-          errorContent = 'API key inválida. Verifica tu clave de OpenRouter. ';
-          setShowApiKeyInput(true);
-        } else if (error.message.includes('429')) {
-          errorContent = 'Límite de uso alcanzado. Intenta en unos minutos. ';
-        } else if (error.message.includes('500')) {
-          errorContent = 'Error del servidor. Intenta nuevamente. ';
-        }
-      }
-      
-      errorContent += 'Consulta directamente con un profesional odontológico. Si es emergencia, acude al servicio de urgencias.';
-      
       const errorMessage: ChatMessage = {
         role: 'assistant',
-        content: errorContent,
+        content: 'Error técnico temporal. Consulta directamente con un profesional odontológico. Si es emergencia, acude al servicio de urgencias.',
         timestamp: new Date(),
         urgency: 'medium'
       };
@@ -267,21 +223,6 @@ export function WikiSearch({
     setMessages([]);
   };
 
-  const saveApiKey = () => {
-    if (apiKey.trim()) {
-      localStorage.setItem('openrouter_api_key', apiKey);
-      setShowApiKeyInput(false);
-    }
-  };
-
-  // Load API key from localStorage on component mount
-  useEffect(() => {
-    const savedApiKey = localStorage.getItem('openrouter_api_key');
-    if (savedApiKey) {
-      setApiKey(savedApiKey);
-    }
-  }, []);
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl h-[85vh] flex flex-col bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
@@ -299,50 +240,17 @@ export function WikiSearch({
               </span>
             </div>
           </DialogTitle>
-          <div className="flex items-center gap-2">
-            {messages.length > 0 && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={clearChat} 
-                className="text-xs hover:bg-slate-100 dark:hover:bg-slate-700"
-              >
-                Limpiar chat
-              </Button>
-            )}
+          {messages.length > 0 && (
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={() => setShowApiKeyInput(!showApiKeyInput)} 
+              onClick={clearChat} 
               className="text-xs hover:bg-slate-100 dark:hover:bg-slate-700"
             >
-              {apiKey ? 'Cambiar API' : 'Configurar API'}
+              Limpiar chat
             </Button>
-          </div>
+          )}
         </DialogHeader>
-
-        {showApiKeyInput && (
-          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg mx-6 mt-4">
-            <h3 className="text-sm font-semibold mb-2 text-amber-800 dark:text-amber-200">
-              Configurar API Key de OpenRouter
-            </h3>
-            <p className="text-xs text-amber-700 dark:text-amber-300 mb-3">
-              Necesitas una API key de OpenRouter para usar DentaxyGPT. Puedes obtenerla gratis en openrouter.ai
-            </p>
-            <div className="flex gap-2">
-              <Input
-                type="password"
-                placeholder="sk-or-v1-..."
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                className="flex-1 text-xs"
-              />
-              <Button size="sm" onClick={saveApiKey} disabled={!apiKey.trim()}>
-                Guardar
-              </Button>
-            </div>
-          </div>
-        )}
         
         {/* Chat Messages */}
         <ScrollArea className="flex-1 p-6 rounded-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border shadow-inner" ref={scrollRef}>
@@ -384,7 +292,7 @@ export function WikiSearch({
                       <img 
                         src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" 
                         alt="DentaxyGPT" 
-                        className="h-6 w-6" 
+                        className="h-8 w-8" 
                       />
                     )}
                   </div>
@@ -418,7 +326,7 @@ export function WikiSearch({
                     <img 
                       src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" 
                       alt="DentaxyGPT" 
-                      className="h-6 w-6" 
+                      className="h-8 w-8" 
                     />
                   </div>
                   <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 p-4 rounded-2xl shadow-sm">
