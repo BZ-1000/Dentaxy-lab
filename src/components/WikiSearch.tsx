@@ -164,11 +164,11 @@ export function WikiSearch({
         headers: {
           'Authorization': 'Bearer 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',
           'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.origin,
+          'HTTP-Referer': 'https://dentaxy.com',
           'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado'
         },
         body: JSON.stringify({
-          model: 'deepseek/deepseek-r1-distill-qwen-14b:free',
+          model: 'meta-llama/llama-3.2-3b-instruct:free',
           messages: [
             {
               role: 'system',
@@ -180,10 +180,10 @@ export function WikiSearch({
               content: userMessage
             }
           ],
-          temperature: 0.1, // Very low for precise responses
-          max_tokens: 200, // Reduced for concise answers
+          temperature: 0.1,
+          max_tokens: 200,
           top_p: 0.7,
-          frequency_penalty: 0.6, // Higher to reduce repetition
+          frequency_penalty: 0.6,
           presence_penalty: 0.4
         })
       });
