@@ -21,6 +21,8 @@ interface ChatMessage {
 
 const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente de inteligencia artificial especializado en odontología y medicina oral. Tu misión es proporcionar información médica precisa, confiable y actualizada en el campo odontológico.
 
+**IMPORTANTE: Responde SIEMPRE en español, a menos que específicamente te pidan responder en inglés.**
+
 **Tu identidad y presentación:**
 - Siempre te presentas como "DentaxyGPT, tu asistente odontológico especializado"
 - Eres profesional, empático y preciso en tus respuestas
@@ -211,9 +213,9 @@ export function WikiSearch({
         <DialogHeader className="flex flex-row items-center justify-between border-b pb-4">
           <DialogTitle className="text-2xl font-bold flex items-center gap-3 text-slate-800 dark:text-slate-100">
             <img 
-              src="/lovable-uploads/f3d0d575-258c-44ef-a500-2a819a3d7043.png" 
+              src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" 
               alt="DentaxyGPT" 
-              className="h-8 w-8 rounded-lg shadow-md" 
+              className="h-8 w-8" 
             />
             <div className="flex flex-col">
               <span>DentaxyGPT</span>
@@ -238,13 +240,11 @@ export function WikiSearch({
         <ScrollArea className="flex-1 p-6 rounded-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border shadow-inner" ref={scrollRef}>
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
-              <div className="bg-gradient-to-br from-blue-500 to-emerald-500 p-4 rounded-2xl shadow-lg mb-6">
-                <img 
-                  src="/lovable-uploads/f3d0d575-258c-44ef-a500-2a819a3d7043.png" 
-                  alt="DentaxyGPT" 
-                  className="h-12 w-12" 
-                />
-              </div>
+              <img 
+                src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" 
+                alt="DentaxyGPT" 
+                className="h-16 w-16 mb-6" 
+              />
               <h3 className="text-xl font-semibold mb-3 text-slate-800 dark:text-slate-100">
                 ¡Hola! Soy DentaxyGPT
               </h3>
@@ -268,15 +268,15 @@ export function WikiSearch({
                   <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center shadow-md ${
                     msg.role === 'user' 
                       ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white' 
-                      : 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white'
+                      : 'bg-white dark:bg-slate-700'
                   }`}>
                     {msg.role === 'user' ? (
                       <User className="h-5 w-5" />
                     ) : (
                       <img 
-                        src="/lovable-uploads/f3d0d575-258c-44ef-a500-2a819a3d7043.png" 
+                        src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" 
                         alt="DentaxyGPT" 
-                        className="h-5 w-5" 
+                        className="h-8 w-8" 
                       />
                     )}
                   </div>
@@ -306,11 +306,11 @@ export function WikiSearch({
               
               {isLoading && (
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-white flex items-center justify-center shadow-md">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center shadow-md">
                     <img 
-                      src="/lovable-uploads/f3d0d575-258c-44ef-a500-2a819a3d7043.png" 
+                      src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" 
                       alt="DentaxyGPT" 
-                      className="h-5 w-5" 
+                      className="h-8 w-8" 
                     />
                   </div>
                   <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 p-4 rounded-2xl shadow-sm">
