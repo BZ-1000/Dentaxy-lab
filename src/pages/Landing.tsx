@@ -76,7 +76,7 @@ const Landing = () => {
     mode: "login"
   });
   const [username, setUsername] = useState<string>("");
-  const [showPopup, setShowPopup] = useState<boolean>(false);
+  const [showUsernamePopup, setShowUsernamePopup] = useState<boolean>(false);
   const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -108,8 +108,7 @@ const Landing = () => {
       } = await supabase.auth.getSession();
       setSession(session);
       if (session) {
-        checkUsername(session.user.id);
-        checkUserPlan(session.user.id);
+        checkUserFlow(session.user.id);
       }
     };
     getSession();
@@ -119,24 +118,51 @@ const Landing = () => {
       }
     } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
-      if (session) {
+      if (session && isProcessingFlow) {
+        checkUserFlow(session.user.id);
+      } else if (session) {
+        // Regular login without flow
         checkUsername(session.user.id);
         checkUserPlan(session.user.id);
-        
-        // Handle sequential flow after authentication
-        if (isProcessingFlow && flowStep === 'authenticating') {
-          handlePostAuthFlow(session.user.id);
-        }
       }
     });
     return () => {
       subscription.unsubscribe();
     };
-  }, [flowStep, isProcessingFlow]);
+  }, [isProcessingFlow]);
   
   // Handle loading screen completion
   const handleLoadingComplete = () => {
     setLoading(false);
+  };
+  
+  const checkUserFlow = async (userId: string) => {
+    try {
+      // Check if user has username
+      const hasUsername = await checkUsername(userId);
+      
+      if (!hasUsername) {
+        // User needs to set username and accept terms
+        setFlowStep('username');
+        setShowUsernamePopup(true);
+      } else {
+        // Check if user has plan
+        const hasPlan = await checkUserPlan(userId);
+        if (!hasPlan) {
+          // User needs to select plan
+          setFlowStep('plan');
+          setShowPricingPopup(true);
+        } else {
+          // User is complete, go to app
+          setFlowStep('complete');
+          redirectToApp();
+        }
+      }
+    } catch (error) {
+      console.error('Error in user flow:', error);
+      setIsProcessingFlow(false);
+      setFlowStep('idle');
+    }
   };
   
   const checkUsername = async (userId: string) => {
@@ -145,7 +171,6 @@ const Landing = () => {
       const storedUsername = localStorage.getItem('dentaxy_username');
       if (storedUsername) {
         setUsername(storedUsername);
-        setShowPopup(false);
         return true; // User has username
       }
 
@@ -160,10 +185,8 @@ const Landing = () => {
         setUsername(data.username);
         // Store username in localStorage to avoid future prompts
         localStorage.setItem('dentaxy_username', data.username);
-        setShowPopup(false);
         return true; // User has username
       } else {
-        setShowPopup(true);
         return false; // User needs to set username
       }
     } catch (error) {
@@ -191,33 +214,15 @@ const Landing = () => {
     }
   };
 
-  const handlePostAuthFlow = async (userId: string) => {
-    try {
-      // Check if user has username and plan
-      const hasUsername = await checkUsername(userId);
-      const hasPlan = await checkUserPlan(userId);
-      
-      if (!hasUsername) {
-        setFlowStep('username');
-        setShowPopup(true);
-      } else if (!hasPlan) {
-        setFlowStep('plan');
-        setShowPricingPopup(true);
-      } else {
-        // User is complete, go to app
-        setFlowStep('complete');
-        // Clear all form data from localStorage
-        localStorage.removeItem('currentFormData');
-        localStorage.removeItem('formBackup');
-        
-        // Force a complete app reload to reset all states
-        window.location.href = '/app';
-      }
-    } catch (error) {
-      console.error('Error in post-auth flow:', error);
-      setIsProcessingFlow(false);
-      setFlowStep('idle');
-    }
+  const redirectToApp = () => {
+    // Clear all form data from localStorage
+    localStorage.removeItem('currentFormData');
+    localStorage.removeItem('formBackup');
+    
+    // Force a complete app reload to reset all states
+    setTimeout(() => {
+      window.location.href = '/app';
+    }, 1000);
   };
 
   const handleSelectBetaPlan = async () => {
@@ -240,17 +245,10 @@ const Landing = () => {
       setShowPricingPopup(false);
       toast.success('¡Plan Beta activado exitosamente!');
       
-      // Continue flow to app
+      // Complete flow and redirect to app
       if (isProcessingFlow) {
         setFlowStep('complete');
-        // Clear all form data from localStorage
-        localStorage.removeItem('currentFormData');
-        localStorage.removeItem('formBackup');
-        
-        // Force a complete app reload to reset all states
-        setTimeout(() => {
-          window.location.href = '/app';
-        }, 1000);
+        redirectToApp();
       }
     } catch (error) {
       console.error('Error:', error);
@@ -302,7 +300,7 @@ const Landing = () => {
   };
 
   const handleChangeUsername = () => {
-    setShowPopup(true);
+    setShowUsernamePopup(true);
     setShowDropdown(false);
   };
   
@@ -311,7 +309,6 @@ const Landing = () => {
       // Start the sequential flow
       setIsProcessingFlow(true);
       setFlowStep('authenticating');
-      toast.info('Iniciando sesión automáticamente...');
       setAuthDialog({
         isOpen: true,
         mode: "login"
@@ -319,13 +316,9 @@ const Landing = () => {
       return;
     }
 
-    // User is already logged in, check if they need to complete steps
-    if (isProcessingFlow) {
-      return; // Flow already in progress
-    }
-
+    // User is already logged in, check their flow status
     setIsProcessingFlow(true);
-    handlePostAuthFlow(session.user.id);
+    checkUserFlow(session.user.id);
   };
 
   const [formData, setFormData] = useState({
@@ -484,13 +477,12 @@ const Landing = () => {
 
       // Success path - username was saved
       toast.success('Nombre de usuario guardado exitosamente');
-      console.log('Username saved successfully, closing popup');
 
       // Close the popup and continue flow
-      setShowPopup(false);
+      setShowUsernamePopup(false);
       setLoading(false);
       
-      // Continue sequential flow
+      // Continue sequential flow to plan selection
       if (isProcessingFlow && flowStep === 'username') {
         setFlowStep('plan');
         setTimeout(() => {
@@ -502,6 +494,14 @@ const Landing = () => {
       toast.error('Error al guardar nombre de usuario: ' + (error.message || 'Error desconocido'));
       setLoading(false);
     }
+  };
+
+  const handleNextToPlans = () => {
+    setFlowStep('plan');
+    setShowUsernamePopup(false);
+    setTimeout(() => {
+      setShowPricingPopup(true);
+    }, 300);
   };
   
   if (loading && mounted) return <LoadingScreen visible={loading} onComplete={handleLoadingComplete} />;
@@ -755,8 +755,8 @@ const Landing = () => {
         </div>
       </footer>
 
-      {/* Username Popup - Updated with "Siguiente" button for sequential flow */}
-      {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {/* Username Popup - Updated with arrow for flow */}
+      {showUsernamePopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
         <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
           <h2 className="text-2xl font-bold text-black mb-2">
             ¡Bienvenido a Dental Basics Academy!
@@ -785,12 +785,17 @@ const Landing = () => {
           
           <div className="flex justify-end gap-4">
             {!isProcessingFlow && (
-              <Button variant="ghost" onClick={() => setShowPopup(false)}>
+              <Button variant="ghost" onClick={() => setShowUsernamePopup(false)}>
                 Cancelar
               </Button>
             )}
-            <Button onClick={handleSaveUsername} disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy} className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              {loading ? "Guardando..." : isProcessingFlow ? "Siguiente" : "Guardar"}
+            <Button 
+              onClick={handleSaveUsername} 
+              disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy} 
+              className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''} ${isProcessingFlow && username.trim() && acceptTerms && acceptPrivacy ? 'bg-blue-500 hover:bg-blue-600' : ''} flex items-center gap-2`}
+            >
+              {loading ? "Guardando..." : "Siguiente"}
+              {isProcessingFlow && username.trim() && acceptTerms && acceptPrivacy && <ArrowRight className="h-4 w-4" />}
             </Button>
           </div>
         </div>
@@ -834,8 +839,12 @@ const Landing = () => {
                     exclusivos
                   </li>
                 </ul>
-                <Button onClick={handleSelectBetaPlan} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
-                  {hasBetaPlan ? "Plan Actual" : isProcessingFlow ? "Continuar con Beta" : "Seleccionar Plan Beta"}
+                <Button 
+                  onClick={handleSelectBetaPlan} 
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center gap-2"
+                >
+                  {hasBetaPlan ? "Plan Actual" : "Seleccionar Plan Beta"}
+                  {isProcessingFlow && <ArrowRight className="h-4 w-4" />}
                 </Button>
               </div>
 
