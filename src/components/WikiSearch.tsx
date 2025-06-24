@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
@@ -161,7 +160,11 @@ export function WikiSearch({
 
       // Detectar el dominio actual y configurar el referer apropiado
       const currentDomain = window.location.hostname;
-      const refererUrl = currentDomain.includes('dentaxy.com') ? 'https://dentaxy.com' : 'https://www.dentaxy.com';
+      let refererUrl = 'https://www.dentaxy.com';
+      
+      if (currentDomain.includes('dentaxy.com')) {
+        refererUrl = currentDomain.includes('www.') ? 'https://www.dentaxy.com' : 'https://dentaxy.com';
+      }
 
       console.log('Enviando request desde:', currentDomain, 'con referer:', refererUrl);
 
@@ -171,7 +174,8 @@ export function WikiSearch({
           'Authorization': 'Bearer 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',
           'Content-Type': 'application/json',
           'HTTP-Referer': refererUrl,
-          'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado'
+          'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado',
+          'Origin': refererUrl
         },
         body: JSON.stringify({
           model: 'meta-llama/llama-3.2-3b-instruct:free',
@@ -208,6 +212,9 @@ export function WikiSearch({
         } else if (response.status >= 500) {
           errorMessage = 'Servidor temporalmente no disponible. Consulta con un profesional.';
           console.error('Error del servidor:', response.status);
+        } else if (response.status === 0 || !response.status) {
+          errorMessage = 'Error de conexión. Verifica tu conexión a internet y el dominio.';
+          console.error('Error de conexión CORS o red');
         } else {
           console.error('Error desconocido:', response.status);
         }
