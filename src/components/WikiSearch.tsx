@@ -19,46 +19,45 @@ interface ChatMessage {
   urgency?: 'low' | 'medium' | 'high' | 'emergency';
 }
 
-const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente de inteligencia artificial especializado en odontología y medicina oral. Tu misión es proporcionar información médica precisa, confiable y actualizada en el campo odontológico.
+const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente de inteligencia artificial especializado en odontología. 
 
-**IMPORTANTE: Responde SIEMPRE en español, a menos que específicamente te pidan responder en inglés.**
+IMPORTANTE: 
+- Responde SIEMPRE en español
+- Sé DIRECTO y CONCISO
+- Responde únicamente lo que se pregunta, sin información adicional
+- Máximo 150 palabras por respuesta
+- Ve al grano inmediatamente
 
-**Tu identidad y presentación:**
-- Siempre te presentas como "DentaxyGPT, tu asistente odontológico especializado"
-- Eres profesional, empático y preciso en tus respuestas
-- Mantienes un enfoque clínico pero accesible para pacientes y profesionales
+Tu especialidad:
+- Diagnósticos diferenciales rápidos
+- Tratamientos específicos
+- Urgencias odontológicas
+- Farmacología dental básica
 
-**Tu conocimiento especializado incluye:**
-- Anatomía dental y estructuras orales (dientes, encías, periodonto, ATM)
-- Patologías orales: caries, gingivitis, periodontitis, pulpitis, abscesos, lesiones de mucosa oral
-- Emergencias odontológicas: traumatismos, infecciones severas, hemorragias, luxaciones
-- Farmacología odontológica: antibióticos, analgésicos, anestésicos locales
-- Procedimientos: endodoncia, periodoncia, cirugía oral, prótesis, ortodoncia
-- Prevención: higiene oral, flúor, selladores, dieta y salud oral
-- Radiología dental: interpretación de radiografías periapicales, panorámicas, CBCT
+Estructura de respuesta:
+1. Respuesta directa a la pregunta
+2. Nivel de urgencia: 🟢 Rutina | 🟡 Preferente | 🔴 Urgencia | 🚨 Emergencia
+3. Acción recomendada (máximo 1 línea)
 
-**Estructura de tus respuestas:**
-1. **Saludo profesional** (solo en la primera interacción)
-2. **Análisis de los síntomas** presentados
-3. **Posibles diagnósticos** (diagnóstico diferencial cuando sea apropiado)
-4. **Nivel de urgencia** usando estos íconos:
-   - 🟢 Consulta de rutina (puede esperar días/semanas)
-   - 🟡 Consulta preferente (dentro de 1-3 días)
-   - 🔴 Urgencia (dentro de 24 horas)
-   - 🚨 Emergencia (atención inmediata)
-5. **Recomendaciones de tratamiento** inicial o medidas de alivio
-6. **Cuándo buscar atención profesional** específica
-7. **Medidas preventivas** cuando sea relevante
+Limitaciones:
+- NO diagnostiques definitivamente
+- NO prescribas medicamentos
+- Siempre recomienda consulta profesional para confirmación
 
-**Limitaciones importantes:**
-- NO puedes diagnosticar definitivamente (solo sugerir posibilidades)
-- NO puedes prescribir medicamentos (solo mencionar opciones que el dentista podría considerar)
-- SIEMPRE recomiendas consulta profesional para confirmación diagnóstica
-- Para emergencias médicas graves, recomiendas acudir al servicio de urgencias
+Responde de forma precisa y sin rodeos.`;
 
-**Responde SIEMPRE en español** con terminología médica apropiada pero explicada de manera comprensible.
-
-Recuerda: Tu información es orientativa y educativa. La consulta con un profesional odontológico es indispensable para un diagnóstico y tratamiento adecuados.`;
+const loadingMessages = [
+  "Analizando síntomas dentales...",
+  "Consultando base de datos odontológica...",
+  "Evaluando diagnóstico diferencial...",
+  "Verificando protocolos de tratamiento...",
+  "Revisando guías clínicas...",
+  "Procesando información médica...",
+  "Calculando nivel de urgencia...",
+  "Preparando recomendaciones...",
+  "Validando información clínica...",
+  "Generando respuesta especializada..."
+];
 
 export function WikiSearch({
   open,
@@ -67,6 +66,7 @@ export function WikiSearch({
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -83,6 +83,22 @@ export function WikiSearch({
       inputRef.current.focus();
     }
   }, [open]);
+
+  // Cycling loading messages
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLoading) {
+      let index = 0;
+      setLoadingMessage(loadingMessages[0]);
+      interval = setInterval(() => {
+        index = (index + 1) % loadingMessages.length;
+        setLoadingMessage(loadingMessages[index]);
+      }, 800);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isLoading]);
 
   const getUrgencyIcon = (urgency?: string) => {
     switch (urgency) {
@@ -128,8 +144,8 @@ export function WikiSearch({
     setIsLoading(true);
 
     try {
-      // Prepare conversation context (last 10 messages for context)
-      const conversationHistory = messages.slice(-10).map(msg => ({
+      // Prepare conversation context (last 6 messages for context)
+      const conversationHistory = messages.slice(-6).map(msg => ({
         role: msg.role,
         content: msg.content
       }));
@@ -143,7 +159,7 @@ export function WikiSearch({
           'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado'
         },
         body: JSON.stringify({
-          model: 'featherless/qwerky-72b:free',
+          model: 'deepseek/deepseek-r1-distill-qwen-14b:free',
           messages: [
             {
               role: 'system',
@@ -155,11 +171,11 @@ export function WikiSearch({
               content: userMessage
             }
           ],
-          temperature: 0.4, // Reduced for more consistent, precise responses
-          max_tokens: 1500, // Increased for more detailed responses
-          top_p: 0.9,
-          frequency_penalty: 0.3, // Reduce repetition
-          presence_penalty: 0.1 // Encourage diverse vocabulary
+          temperature: 0.2, // Reduced for more focused responses
+          max_tokens: 300, // Reduced for concise answers
+          top_p: 0.8,
+          frequency_penalty: 0.5, // Higher to reduce repetition
+          presence_penalty: 0.3
         })
       });
 
@@ -168,7 +184,7 @@ export function WikiSearch({
       }
 
       const data = await response.json();
-      let aiResponse = data.choices[0]?.message?.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta.';
+      let aiResponse = data.choices[0]?.message?.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta de manera más específica.';
 
       // Detect urgency level from AI response
       const urgency = detectUrgency(aiResponse);
@@ -186,7 +202,7 @@ export function WikiSearch({
       console.error('Error calling OpenRouter API:', error);
       const errorMessage: ChatMessage = {
         role: 'assistant',
-        content: 'Disculpa, estoy experimentando dificultades técnicas en este momento. Como DentaxyGPT, te recomiendo que consultes directamente con un profesional odontológico para tu consulta. Si es una emergencia, no dudes en acudir al servicio de urgencias más cercano.',
+        content: 'Error técnico temporal. Consulta directamente con un profesional odontológico. Si es emergencia, acude al servicio de urgencias.',
         timestamp: new Date(),
         urgency: 'medium'
       };
@@ -220,7 +236,7 @@ export function WikiSearch({
             <div className="flex flex-col">
               <span>DentaxyGPT</span>
               <span className="text-sm font-normal text-slate-500 dark:text-slate-400">
-                Asistente Odontológico Especializado
+                Asistente Odontológico Rápido y Preciso
               </span>
             </div>
           </DialogTitle>
@@ -249,12 +265,12 @@ export function WikiSearch({
                 ¡Hola! Soy DentaxyGPT
               </h3>
               <p className="text-slate-600 dark:text-slate-300 max-w-lg leading-relaxed">
-                Tu asistente odontológico especializado. Puedo ayudarte con consultas sobre síntomas dentales, 
-                diagnósticos preliminares, tratamientos, emergencias odontológicas y prevención oral.
+                Tu asistente odontológico rápido y preciso. Pregúntame directamente sobre síntomas dentales, 
+                urgencias o tratamientos. Respondo de forma concisa y al grano.
               </p>
               <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-400">
                 <p className="text-sm text-blue-700 dark:text-blue-300">
-                  <strong>Recuerda:</strong> Mi información es orientativa. Siempre consulta con un profesional para diagnósticos definitivos.
+                  <strong>Optimizado para respuestas rápidas:</strong> Pregunta específicamente lo que necesitas saber.
                 </p>
               </div>
             </div>
@@ -316,8 +332,8 @@ export function WikiSearch({
                   <div className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 p-4 rounded-2xl shadow-sm">
                     <div className="flex items-center gap-3">
                       <div className="animate-spin rounded-full h-5 w-5 border-2 border-emerald-500 border-t-transparent"></div>
-                      <span className="text-sm text-slate-600 dark:text-slate-300">
-                        DentaxyGPT está analizando tu consulta...
+                      <span className="text-sm text-slate-600 dark:text-slate-300 animate-pulse">
+                        {loadingMessage}
                       </span>
                     </div>
                   </div>
@@ -332,7 +348,7 @@ export function WikiSearch({
           <div className="flex gap-3">
             <Input
               ref={inputRef}
-              placeholder="Describe tus síntomas o consulta odontológica..."
+              placeholder="Pregunta específica sobre odontología..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -354,8 +370,7 @@ export function WikiSearch({
           <div className="flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
             <AlertTriangle className="h-4 w-4 text-amber-500" />
             <span>
-              <strong>Importante:</strong> Esta información es orientativa y educativa. 
-              Para diagnósticos definitivos y tratamientos, consulta siempre con un profesional odontológico.
+              <strong>Importante:</strong> Información orientativa. Consulta siempre con un profesional para diagnósticos definitivos.
             </span>
           </div>
         </div>
