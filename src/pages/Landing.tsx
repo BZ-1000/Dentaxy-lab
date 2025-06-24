@@ -76,7 +76,7 @@ const Landing = () => {
     mode: "login"
   });
   const [username, setUsername] = useState<string>("");
-  const [showUsernamePopup, setShowUsernamePopup] = useState<boolean>(false);
+  const [showPopup, setShowPopup] = useState<boolean>(false);
   const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -86,10 +86,6 @@ const Landing = () => {
   // Add new state for terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
-  
-  // New state for sequential flow
-  const [flowStep, setFlowStep] = useState<'idle' | 'authenticating' | 'username' | 'plan' | 'complete'>('idle');
-  const [isProcessingFlow, setIsProcessingFlow] = useState(false);
   
   useEffect(() => {
     // Load username from localStorage first
@@ -108,7 +104,8 @@ const Landing = () => {
       } = await supabase.auth.getSession();
       setSession(session);
       if (session) {
-        checkUserFlow(session.user.id);
+        checkUsername(session.user.id);
+        checkUserPlan(session.user.id);
       }
     };
     getSession();
@@ -118,10 +115,7 @@ const Landing = () => {
       }
     } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
-      if (session && isProcessingFlow) {
-        checkUserFlow(session.user.id);
-      } else if (session) {
-        // Regular login without flow
+      if (session) {
         checkUsername(session.user.id);
         checkUserPlan(session.user.id);
       }
@@ -129,40 +123,11 @@ const Landing = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [isProcessingFlow]);
+  }, []);
   
   // Handle loading screen completion
   const handleLoadingComplete = () => {
     setLoading(false);
-  };
-  
-  const checkUserFlow = async (userId: string) => {
-    try {
-      // Check if user has username
-      const hasUsername = await checkUsername(userId);
-      
-      if (!hasUsername) {
-        // User needs to set username and accept terms
-        setFlowStep('username');
-        setShowUsernamePopup(true);
-      } else {
-        // Check if user has plan
-        const hasPlan = await checkUserPlan(userId);
-        if (!hasPlan) {
-          // User needs to select plan
-          setFlowStep('plan');
-          setShowPricingPopup(true);
-        } else {
-          // User is complete, go to app
-          setFlowStep('complete');
-          redirectToApp();
-        }
-      }
-    } catch (error) {
-      console.error('Error in user flow:', error);
-      setIsProcessingFlow(false);
-      setFlowStep('idle');
-    }
   };
   
   const checkUsername = async (userId: string) => {
@@ -171,7 +136,8 @@ const Landing = () => {
       const storedUsername = localStorage.getItem('dentaxy_username');
       if (storedUsername) {
         setUsername(storedUsername);
-        return true; // User has username
+        setShowPopup(false);
+        return;
       }
 
       const {
@@ -185,13 +151,12 @@ const Landing = () => {
         setUsername(data.username);
         // Store username in localStorage to avoid future prompts
         localStorage.setItem('dentaxy_username', data.username);
-        return true; // User has username
+        setShowPopup(false);
       } else {
-        return false; // User needs to set username
+        setShowPopup(true);
       }
     } catch (error) {
       console.error('Error checking username:', error);
-      return false;
     }
   };
   
@@ -203,28 +168,13 @@ const Landing = () => {
       } = await supabase.from('user_plans').select('plan_type').eq('id', userId).maybeSingle();
       if (error) {
         console.error('Error checking plan:', error);
-        return false;
+        return;
       }
-      const hasPlan = data?.plan_type === 'beta';
-      setHasBetaPlan(hasPlan);
-      return hasPlan;
+      setHasBetaPlan(data?.plan_type === 'beta');
     } catch (error) {
       console.error('Error checking user plan:', error);
-      return false;
     }
   };
-
-  const redirectToApp = () => {
-    // Clear all form data from localStorage
-    localStorage.removeItem('currentFormData');
-    localStorage.removeItem('formBackup');
-    
-    // Force a complete app reload to reset all states
-    setTimeout(() => {
-      window.location.href = '/app';
-    }, 1000);
-  };
-
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -244,46 +194,35 @@ const Landing = () => {
       setHasBetaPlan(true);
       setShowPricingPopup(false);
       toast.success('¡Plan Beta activado exitosamente!');
-      
-      // Complete flow and redirect to app
-      if (isProcessingFlow) {
-        setFlowStep('complete');
-        redirectToApp();
-      }
     } catch (error) {
       console.error('Error:', error);
       toast.error('Error al activar el plan');
     }
   };
-
   const handleItemClick = (label: string) => {
     setActiveItem(label);
     if (label === "perfil." && session) {
       setShowDropdown(!showDropdown);
     }
   };
-
   const handleLogin = () => {
     setAuthDialog({
       isOpen: true,
       mode: "login"
     });
   };
-
   const handleRegister = () => {
     setAuthDialog({
       isOpen: true,
       mode: "register"
     });
   };
-
   const handleAuthSuccess = () => {
     setAuthDialog({
       isOpen: false,
       mode: "login"
     });
   };
-
   const handleLogout = async () => {
     const {
       error
@@ -294,21 +233,17 @@ const Landing = () => {
     setSession(null);
     setShowDropdown(false);
     setHasBetaPlan(false);
-    setFlowStep('idle');
-    setIsProcessingFlow(false);
     toast.success('Sesión cerrada exitosamente');
   };
 
   const handleChangeUsername = () => {
-    setShowUsernamePopup(true);
+    setShowPopup(true);
     setShowDropdown(false);
   };
   
   const handleBetaAccess = () => {
     if (!session) {
-      // Start the sequential flow
-      setIsProcessingFlow(true);
-      setFlowStep('authenticating');
+      toast.error('Debes iniciar sesión para acceder a la versión beta');
       setAuthDialog({
         isOpen: true,
         mode: "login"
@@ -316,11 +251,17 @@ const Landing = () => {
       return;
     }
 
-    // User is already logged in, check their flow status
-    setIsProcessingFlow(true);
-    checkUserFlow(session.user.id);
+    // Clear all form data from localStorage
+    localStorage.removeItem('currentFormData');
+    localStorage.removeItem('formBackup');
+    
+    if (hasBetaPlan) {
+      // Force a complete app reload to reset all states
+      window.location.href = '/app';
+    } else {
+      setShowPricingPopup(true);
+    }
   };
-
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
       nutricionales: {
@@ -412,7 +353,7 @@ const Landing = () => {
     window.open('https://instagram.com/dentalbasicsacademy', '_blank');
   };
 
-  // Updated handleSaveUsername function for sequential flow
+  // Fixed handleSaveUsername function to properly handle username existence
   const handleSaveUsername = async () => {
     if (!username.trim() || !acceptTerms || !acceptPrivacy) {
       toast.error('Por favor complete todos los campos requeridos');
@@ -477,31 +418,18 @@ const Landing = () => {
 
       // Success path - username was saved
       toast.success('Nombre de usuario guardado exitosamente');
+      console.log('Username saved successfully, closing popup');
 
-      // Close the popup and continue flow
-      setShowUsernamePopup(false);
-      setLoading(false);
-      
-      // Continue sequential flow to plan selection
-      if (isProcessingFlow && flowStep === 'username') {
-        setFlowStep('plan');
-        setTimeout(() => {
-          setShowPricingPopup(true);
-        }, 500);
-      }
+      // Close the popup with a small delay to ensure state updates properly
+      setTimeout(() => {
+        setShowPopup(false);
+        setLoading(false);
+      }, 500);
     } catch (error: any) {
       console.error('Error saving username:', error);
       toast.error('Error al guardar nombre de usuario: ' + (error.message || 'Error desconocido'));
       setLoading(false);
     }
-  };
-
-  const handleNextToPlans = () => {
-    setFlowStep('plan');
-    setShowUsernamePopup(false);
-    setTimeout(() => {
-      setShowPricingPopup(true);
-    }, 300);
   };
   
   if (loading && mounted) return <LoadingScreen visible={loading} onComplete={handleLoadingComplete} />;
@@ -611,12 +539,8 @@ const Landing = () => {
           </div>
 
           <div className="mb-12">
-            <button 
-              onClick={handleBetaAccess} 
-              disabled={isProcessingFlow}
-              className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle flex items-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isProcessingFlow ? 'PROCESANDO...' : 'PRUEBA BETA'}
+            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle flex items-center gap-2 mx-auto">
+              PRUEBA BETA
               <ArrowRight className="h-5 w-5 text-white" />
             </button>
           </div>
@@ -755,8 +679,8 @@ const Landing = () => {
         </div>
       </footer>
 
-      {/* Username Popup - Updated with arrow for flow */}
-      {showUsernamePopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
+      {/* Username Popup - Updated with welcome message and terms checkboxes */}
+      {showPopup && session && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
         <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-md">
           <h2 className="text-2xl font-bold text-black mb-2">
             ¡Bienvenido a Dental Basics Academy!
@@ -784,35 +708,24 @@ const Landing = () => {
           </div>
           
           <div className="flex justify-end gap-4">
-            {!isProcessingFlow && (
-              <Button variant="ghost" onClick={() => setShowUsernamePopup(false)}>
-                Cancelar
-              </Button>
-            )}
-            <Button 
-              onClick={handleSaveUsername} 
-              disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy} 
-              className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''} ${isProcessingFlow && username.trim() && acceptTerms && acceptPrivacy ? 'bg-blue-500 hover:bg-blue-600' : ''} flex items-center gap-2`}
-            >
-              {loading ? "Guardando..." : "Siguiente"}
-              {isProcessingFlow && username.trim() && acceptTerms && acceptPrivacy && <ArrowRight className="h-4 w-4" />}
+            <Button variant="ghost" onClick={() => setShowPopup(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveUsername} disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy} className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              {loading ? "Guardando..." : "Guardar"}
             </Button>
           </div>
         </div>
       </div>}
 
-      {/* Pricing Popup - Updated for sequential flow */}
+      {/* Pricing Popup */}
       {showPricingPopup && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
           <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold text-black">
-                {isProcessingFlow ? 'Selecciona tu Plan' : 'Planes Disponibles'}
-              </h2>
-              {!isProcessingFlow && (
-                <Button variant="ghost" onClick={() => setShowPricingPopup(false)} className="text-gray-500 hover:text-gray-700">
-                  ✕
-                </Button>
-              )}
+              <h2 className="text-2xl font-bold text-black">Planes Disponibles</h2>
+              <Button variant="ghost" onClick={() => setShowPricingPopup(false)} className="text-gray-500 hover:text-gray-700">
+                ✕
+              </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="relative p-6 rounded-xl border border-gray-200 shadow-sm">
@@ -839,12 +752,8 @@ const Landing = () => {
                     exclusivos
                   </li>
                 </ul>
-                <Button 
-                  onClick={handleSelectBetaPlan} 
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center gap-2"
-                >
+                <Button onClick={handleSelectBetaPlan} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
                   {hasBetaPlan ? "Plan Actual" : "Seleccionar Plan Beta"}
-                  {isProcessingFlow && <ArrowRight className="h-4 w-4" />}
                 </Button>
               </div>
 
