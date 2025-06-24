@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
@@ -140,7 +141,7 @@ export function WikiSearch({
           'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado'
         },
         body: JSON.stringify({
-          model: 'google/gemma-3n-e4b-it:free',
+          model: 'google/gemma-2-9b-it:free',
           messages: [
             {
               role: 'system',
@@ -152,20 +153,25 @@ export function WikiSearch({
               content: userMessage
             }
           ],
-          temperature: 0.4, // Reduced for more consistent, precise responses
-          max_tokens: 1500, // Increased for more detailed responses
+          temperature: 0.3,
+          max_tokens: 2000,
           top_p: 0.9,
-          frequency_penalty: 0.3, // Reduce repetition
-          presence_penalty: 0.1 // Encourage diverse vocabulary
+          frequency_penalty: 0.2,
+          presence_penalty: 0.1
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Error de API: ${response.status}`);
+        throw new Error(`Error de API: ${response.status} - ${response.statusText}`);
       }
 
       const data = await response.json();
-      let aiResponse = data.choices[0]?.message?.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta.';
+      
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Respuesta de API inválida');
+      }
+
+      let aiResponse = data.choices[0].message.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta con más detalles.';
 
       // Detect urgency level from AI response
       const urgency = detectUrgency(aiResponse);
@@ -183,7 +189,7 @@ export function WikiSearch({
       console.error('Error calling OpenRouter API:', error);
       const errorMessage: ChatMessage = {
         role: 'assistant',
-        content: 'Disculpa, estoy experimentando dificultades técnicas en este momento. Como DentaxyGPT, te recomiendo que consultes directamente con un profesional odontológico para tu consulta. Si es una emergencia, no dudes en acudir al servicio de urgencias más cercano.',
+        content: 'Como DentaxyGPT, estoy experimentando dificultades técnicas temporales. Te recomiendo intentar nuevamente en unos momentos. Mientras tanto, si tienes una emergencia odontológica, no dudes en acudir al servicio de urgencias o contactar a tu dentista de confianza.',
         timestamp: new Date(),
         urgency: 'medium'
       };
