@@ -5,7 +5,6 @@ import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { Send, Bot, User, X, AlertTriangle, CheckCircle, Clock } from "lucide-react";
-import { useDebouncedCallback } from "use-debounce";
 
 interface WikiSearchProps {
   open: boolean;
@@ -56,7 +55,17 @@ const loadingMessages = [
   "Calculando nivel de urgencia...",
   "Preparando recomendaciones...",
   "Validando información clínica...",
-  "Generando respuesta especializada..."
+  "Generando respuesta especializada...",
+  "Accediendo a literatura médica...",
+  "Cruzando datos de síntomas...",
+  "Evaluando factores de riesgo...",
+  "Analizando historial clínico...",
+  "Consultando protocolos actualizados...",
+  "Verificando contraindicaciones...",
+  "Procesando datos clínicos...",
+  "Elaborando diagnóstico diferencial...",
+  "Revisando algoritmos de tratamiento...",
+  "Finalizando análisis especializado..."
 ];
 
 export function WikiSearch({
@@ -93,7 +102,7 @@ export function WikiSearch({
       interval = setInterval(() => {
         index = (index + 1) % loadingMessages.length;
         setLoadingMessage(loadingMessages[index]);
-      }, 800);
+      }, 1200);
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -144,8 +153,8 @@ export function WikiSearch({
     setIsLoading(true);
 
     try {
-      // Prepare conversation context (last 6 messages for context)
-      const conversationHistory = messages.slice(-6).map(msg => ({
+      // Prepare conversation context (last 4 messages for context)
+      const conversationHistory = messages.slice(-4).map(msg => ({
         role: msg.role,
         content: msg.content
       }));
@@ -153,7 +162,7 @@ export function WikiSearch({
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer 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',
+          'Authorization': 'Bearer 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',
           'Content-Type': 'application/json',
           'HTTP-Referer': window.location.origin,
           'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado'
@@ -171,20 +180,33 @@ export function WikiSearch({
               content: userMessage
             }
           ],
-          temperature: 0.2, // Reduced for more focused responses
-          max_tokens: 300, // Reduced for concise answers
-          top_p: 0.8,
-          frequency_penalty: 0.5, // Higher to reduce repetition
-          presence_penalty: 0.3
+          temperature: 0.1, // Very low for precise responses
+          max_tokens: 200, // Reduced for concise answers
+          top_p: 0.7,
+          frequency_penalty: 0.6, // Higher to reduce repetition
+          presence_penalty: 0.4
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Error de API: ${response.status}`);
+        let errorMessage = 'Error técnico temporal. Consulta directamente con un profesional odontológico.';
+        
+        if (response.status === 401) {
+          errorMessage = 'Error de autenticación. Verificando credenciales...';
+        } else if (response.status === 429) {
+          errorMessage = 'Servicio temporalmente saturado. Intenta en unos momentos.';
+        } else if (response.status >= 500) {
+          errorMessage = 'Servidor temporalmente no disponible. Consulta con un profesional.';
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
       let aiResponse = data.choices[0]?.message?.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta de manera más específica.';
+
+      // Clean up response if it has thinking tags
+      aiResponse = aiResponse.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 
       // Detect urgency level from AI response
       const urgency = detectUrgency(aiResponse);
@@ -202,7 +224,7 @@ export function WikiSearch({
       console.error('Error calling OpenRouter API:', error);
       const errorMessage: ChatMessage = {
         role: 'assistant',
-        content: 'Error técnico temporal. Consulta directamente con un profesional odontológico. Si es emergencia, acude al servicio de urgencias.',
+        content: error instanceof Error ? error.message : 'Error técnico temporal. Consulta directamente con un profesional odontológico. Si es emergencia, acude al servicio de urgencias.',
         timestamp: new Date(),
         urgency: 'medium'
       };
