@@ -21,11 +21,6 @@ interface ChatMessage {
 
 const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente de inteligencia artificial especializado en odontología y medicina oral. Tu misión es proporcionar información médica precisa, confiable y actualizada en el campo odontológico.
 
-**IDIOMA IMPORTANTE:**
-- SIEMPRE responde en ESPAÑOL, es tu idioma predeterminado
-- Solo cambia al inglés si el usuario te pide EXPLÍCITAMENTE que respondas en inglés
-- Incluso si el usuario te escribe en inglés, responde en español a menos que te pida específicamente cambiar de idioma
-
 **Tu identidad y presentación:**
 - Siempre te presentas como "DentaxyGPT, tu asistente odontológico especializado"
 - Eres profesional, empático y preciso en tus respuestas
@@ -59,7 +54,7 @@ const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente de inteligencia art
 - SIEMPRE recomiendas consulta profesional para confirmación diagnóstica
 - Para emergencias médicas graves, recomiendas acudir al servicio de urgencias
 
-**Responde SIEMPRE en español** con terminología médica apropiada pero explicada de manera comprensible, a menos que el usuario te pida explícitamente cambiar al inglés.
+**Responde SIEMPRE en español** con terminología médica apropiada pero explicada de manera comprensible.
 
 Recuerda: Tu información es orientativa y educativa. La consulta con un profesional odontológico es indispensable para un diagnóstico y tratamiento adecuados.`;
 
@@ -140,13 +135,13 @@ export function WikiSearch({
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer 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',
+          'Authorization': 'Bearer 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',
           'Content-Type': 'application/json',
           'HTTP-Referer': window.location.origin,
           'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado'
         },
         body: JSON.stringify({
-          model: 'deepseek/deepseek-r1-distill-qwen-14b:free',
+          model: 'featherless/qwerky-72b:free',
           messages: [
             {
               role: 'system',
@@ -158,25 +153,20 @@ export function WikiSearch({
               content: userMessage
             }
           ],
-          temperature: 0.3,
-          max_tokens: 2000,
+          temperature: 0.4, // Reduced for more consistent, precise responses
+          max_tokens: 1500, // Increased for more detailed responses
           top_p: 0.9,
-          frequency_penalty: 0.2,
-          presence_penalty: 0.1
+          frequency_penalty: 0.3, // Reduce repetition
+          presence_penalty: 0.1 // Encourage diverse vocabulary
         })
       });
 
       if (!response.ok) {
-        throw new Error(`Error de API: ${response.status} - ${response.statusText}`);
+        throw new Error(`Error de API: ${response.status}`);
       }
 
       const data = await response.json();
-      
-      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new Error('Respuesta de API inválida');
-      }
-
-      let aiResponse = data.choices[0].message.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta con más detalles.';
+      let aiResponse = data.choices[0]?.message?.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta.';
 
       // Detect urgency level from AI response
       const urgency = detectUrgency(aiResponse);
@@ -194,7 +184,7 @@ export function WikiSearch({
       console.error('Error calling OpenRouter API:', error);
       const errorMessage: ChatMessage = {
         role: 'assistant',
-        content: 'Como DentaxyGPT, estoy experimentando dificultades técnicas temporales. Te recomiendo intentar nuevamente en unos momentos. Mientras tanto, si tienes una emergencia odontológica, no dudes en acudir al servicio de urgencias o contactar a tu dentista de confianza.',
+        content: 'Disculpa, estoy experimentando dificultades técnicas en este momento. Como DentaxyGPT, te recomiendo que consultes directamente con un profesional odontológico para tu consulta. Si es una emergencia, no dudes en acudir al servicio de urgencias más cercano.',
         timestamp: new Date(),
         urgency: 'medium'
       };
