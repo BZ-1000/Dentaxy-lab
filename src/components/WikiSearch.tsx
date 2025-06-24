@@ -159,12 +159,18 @@ export function WikiSearch({
         content: msg.content
       }));
 
+      // Detectar el dominio actual y configurar el referer apropiado
+      const currentDomain = window.location.hostname;
+      const refererUrl = currentDomain.includes('dentaxy.com') ? 'https://dentaxy.com' : 'https://www.dentaxy.com';
+
+      console.log('Enviando request desde:', currentDomain, 'con referer:', refererUrl);
+
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Authorization': 'Bearer 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',
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://dentaxy.com',
+          'HTTP-Referer': refererUrl,
           'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado'
         },
         body: JSON.stringify({
@@ -188,22 +194,31 @@ export function WikiSearch({
         })
       });
 
+      console.log('Response status:', response.status);
+
       if (!response.ok) {
         let errorMessage = 'Error técnico temporal. Consulta directamente con un profesional odontológico.';
         
         if (response.status === 401) {
-          errorMessage = 'Error de autenticación. Verificando credenciales...';
+          errorMessage = 'Error de autenticación API. Verificando credenciales...';
+          console.error('Error 401: API key inválida o expirada');
         } else if (response.status === 429) {
           errorMessage = 'Servicio temporalmente saturado. Intenta en unos momentos.';
+          console.error('Error 429: Rate limit excedido');
         } else if (response.status >= 500) {
           errorMessage = 'Servidor temporalmente no disponible. Consulta con un profesional.';
+          console.error('Error del servidor:', response.status);
+        } else {
+          console.error('Error desconocido:', response.status);
         }
         
         throw new Error(errorMessage);
       }
 
       const data = await response.json();
-      let aiResponse = data.choices[0]?.message?.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta de manera más específica.';
+      console.log('Respuesta de la API:', data);
+      
+      let aiResponse = data.choices?.[0]?.message?.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta de manera más específica.';
 
       // Clean up response if it has thinking tags
       aiResponse = aiResponse.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
