@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
@@ -135,13 +134,13 @@ export function WikiSearch({
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer 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',
+          'Authorization': 'Bearer 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',
           'Content-Type': 'application/json',
           'HTTP-Referer': window.location.origin,
           'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado'
         },
         body: JSON.stringify({
-          model: 'microsoft/wizardlm-2-8x22b:free',
+          model: 'google/gemma-3n-e4b-it:free',
           messages: [
             {
               role: 'system',
