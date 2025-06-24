@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -539,8 +539,9 @@ const Landing = () => {
           </div>
 
           <div className="mb-12">
-            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle">
+            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle flex items-center gap-2 mx-auto">
               PRUEBA BETA
+              <ArrowRight className="h-5 w-5 text-white" />
             </button>
           </div>
 
