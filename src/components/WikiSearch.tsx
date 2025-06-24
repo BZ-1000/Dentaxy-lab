@@ -141,7 +141,7 @@ export function WikiSearch({
           'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado'
         },
         body: JSON.stringify({
-          model: 'deepseek/deepseek-r1-distill-qwen-14b:free',
+          model: 'microsoft/wizardlm-2-8x22b:free',
           messages: [
             {
               role: 'system',
