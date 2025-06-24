@@ -538,10 +538,34 @@ const Landing = () => {
             </div>
           </div>
 
-          <div className="mb-12">
-            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle">
+          <div className="mb-12 relative">
+            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle relative">
               PRUEBA BETA
             </button>
+            
+            {/* Mouse click animation */}
+            <div className="absolute top-1/2 left-1/2 pointer-events-none">
+              <div className="absolute top-1/2 left-1/2 w-6 h-6 animate-mouseClick">
+                <svg 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round" 
+                  className="w-6 h-6 text-blue-600"
+                >
+                  <path d="M9 9v10a2 2 0 0 0 4 0V9a2 2 0 0 0-4 0Z"/>
+                  <path d="M9 3v1a2 2 0 0 0 4 0V3a2 2 0 0 0-4 0Z"/>
+                  <path d="M12 12l8-8"/>
+                  <path d="M20 4h-8"/>
+                  <path d="M20 4v8"/>
+                </svg>
+              </div>
+              
+              {/* Click pulse effect */}
+              <div className="absolute top-1/2 left-1/2 w-8 h-8 bg-blue-500 rounded-full opacity-30 animate-clickPulse"></div>
+            </div>
           </div>
 
           <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
