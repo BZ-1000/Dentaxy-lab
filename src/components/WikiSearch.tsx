@@ -135,13 +135,13 @@ export function WikiSearch({
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': 'Bearer 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',
+          'Authorization': 'Bearer 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',
           'Content-Type': 'application/json',
           'HTTP-Referer': window.location.origin,
           'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado'
         },
         body: JSON.stringify({
-          model: 'mistralai/mistral-7b-instruct:free',
+          model: 'qwerky/qwerky-72b:free',
           messages: [
             {
               role: 'system',
