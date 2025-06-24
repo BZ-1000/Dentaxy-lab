@@ -121,32 +121,78 @@ export const useHistoriaClinica = () => {
   };
 
   const handleFamiliarChange = (familiar: string, field: string, value: boolean | string) => {
-    setFormData(prev => ({
-      ...prev,
-      antecedentesHeredoFamiliares: {
-        ...prev.antecedentesHeredoFamiliares,
-        [familiar]: {
-          ...prev.antecedentesHeredoFamiliares[familiar],
-          [field]: value
-        }
+    setFormData(prev => {
+      // Crear una copia profunda del estado actual
+      const newState = { ...prev };
+      
+      // Si el familiar no existe en antecedentesHeredoFamiliares, crearlo
+      if (!newState.antecedentesHeredoFamiliares[familiar]) {
+        newState.antecedentesHeredoFamiliares[familiar] = {
+          finado: false,
+          vivoSano: false,
+          causaMuerte: '',
+          condiciones: {
+            diabetesMellitus: false,
+            hipertensionArterial: false,
+            osteoporosis: false,
+            artritisReumatoide: false,
+            parkinson: false,
+            alzheimer: false,
+            asma: false,
+            cancer: false,
+            anemia: false,
+            otras: ''
+          }
+        };
       }
-    }));
+      
+      // Actualizar el campo específico
+      newState.antecedentesHeredoFamiliares[familiar] = {
+        ...newState.antecedentesHeredoFamiliares[familiar],
+        [field]: value
+      };
+      
+      return newState;
+    });
   };
 
   const handleCondicionChange = (familiar: string, condicion: string, value: boolean | string) => {
-    setFormData(prev => ({
-      ...prev,
-      antecedentesHeredoFamiliares: {
-        ...prev.antecedentesHeredoFamiliares,
-        [familiar]: {
-          ...prev.antecedentesHeredoFamiliares[familiar],
+    setFormData(prev => {
+      // Crear una copia profunda del estado actual
+      const newState = { ...prev };
+      
+      // Si el familiar no existe en antecedentesHeredoFamiliares, crearlo
+      if (!newState.antecedentesHeredoFamiliares[familiar]) {
+        newState.antecedentesHeredoFamiliares[familiar] = {
+          finado: false,
+          vivoSano: false,
+          causaMuerte: '',
           condiciones: {
-            ...prev.antecedentesHeredoFamiliares[familiar].condiciones,
-            [condicion]: value
+            diabetesMellitus: false,
+            hipertensionArterial: false,
+            osteoporosis: false,
+            artritisReumatoide: false,
+            parkinson: false,
+            alzheimer: false,
+            asma: false,
+            cancer: false,
+            anemia: false,
+            otras: ''
           }
-        }
+        };
       }
-    }));
+      
+      // Actualizar la condición específica
+      newState.antecedentesHeredoFamiliares[familiar] = {
+        ...newState.antecedentesHeredoFamiliares[familiar],
+        condiciones: {
+          ...newState.antecedentesHeredoFamiliares[familiar].condiciones,
+          [condicion]: value
+        }
+      };
+      
+      return newState;
+    });
   };
 
   const handleAntecedenteChange = (field: string, value: any) => {

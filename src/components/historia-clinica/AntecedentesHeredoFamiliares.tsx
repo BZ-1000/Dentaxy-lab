@@ -1,7 +1,9 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Minus, Maximize2, X, Eraser, Copy, CheckCircle, Plus } from "lucide-react";
 import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
 import './AntecedentesHeredoFamiliares.css';
 
@@ -20,6 +22,21 @@ const familiares = [
   "Abuela Materna",
 ];
 
+const familiaresAdicionales = [
+  "Hermano",
+  "Hermana",
+  "Tío Paterno",
+  "Tía Paterna",
+  "Tío Materno",
+  "Tía Materna",
+  "Primo Paterno",
+  "Prima Paterna",
+  "Primo Materno",
+  "Prima Materna",
+  "Hijo",
+  "Hija"
+];
+
 const condiciones = ["Diabetes Mellitus", "Hipertensión Arterial", "Cáncer", "Otras"];
 
 interface Familiar extends OriginalFamiliar {
@@ -31,9 +48,11 @@ interface FamiliaRowProps {
   formData: FormDataState;
   handleFamiliarChange: (familiar: string, field: string, value: string | boolean) => void;
   handleCondicionChange: (familiar: string, condicion: string, value: string | boolean) => void;
+  onRemove?: () => void;
+  isAdditional?: boolean;
 }
 
-const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionChange }: FamiliaRowProps) => {
+const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionChange, onRemove, isAdditional = false }: FamiliaRowProps) => {
   const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
     const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
       "Padre": "padre",
@@ -43,7 +62,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
       "Abuelo Materno": "abueloMaterno",
       "Abuela Materna": "abuelaMaterna"
     };
-    return mapping[familiar];
+    return mapping[familiar] || familiar.toLowerCase().replace(/\s+/g, '') as keyof typeof formData.antecedentesHeredoFamiliares;
   };
 
   const familiarKey = getFamiliarKey(familiar);
@@ -86,7 +105,18 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
   return (
     <div className="flex flex-col gap-2 md:gap-4 border-b pb-4 md:pb-6">
       <div className="grid grid-cols-4 md:grid-cols-7 gap-1 md:gap-4 items-center">
-        <span className="font-semibold text-sm md:text-base text-center col-span-1 text-gray-700">{familiar}</span>
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-sm md:text-base text-center col-span-1 text-gray-700">{familiar}</span>
+          {isAdditional && onRemove && (
+            <button
+              onClick={onRemove}
+              className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100"
+              aria-label="Eliminar familiar"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          )}
+        </div>
         {!familiarData.vivoSano && (
           <button
             className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium col-span-1 ${
@@ -155,16 +185,20 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   const [progress, setProgress] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [missingFamiliares, setMissingFamiliares] = useState<string[]>([]);
+  const [familiaresAdicionalsList, setFamiliaresAdicionalsList] = useState<string[]>([]);
+  const [selectedFamiliar, setSelectedFamiliar] = useState<string>("");
   const redaccionRef = useRef(null);
 
+  const todosLosFamiliares = [...familiares, ...familiaresAdicionalsList];
+
   useEffect(() => {
-    const missing = familiares.filter(familiar => {
+    const missing = todosLosFamiliares.filter(familiar => {
       const familiarKey = getFamiliarKey(familiar);
       const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
-      return !(familiarData.vivoSano || familiarData.finado || Object.values(familiarData.condiciones).some(value => value));
+      return !(familiarData?.vivoSano || familiarData?.finado || Object.values(familiarData?.condiciones || {}).some(value => value));
     });
     setMissingFamiliares(missing);
-  }, [formData]);
+  }, [formData, familiaresAdicionalsList]);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -181,18 +215,31 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     setIsMaximized(false);
   };
 
+  const agregarFamiliar = () => {
+    if (selectedFamiliar && !familiaresAdicionalsList.includes(selectedFamiliar)) {
+      setFamiliaresAdicionalsList([...familiaresAdicionalsList, selectedFamiliar]);
+      setSelectedFamiliar("");
+    }
+  };
+
+  const eliminarFamiliar = (familiar: string) => {
+    setFamiliaresAdicionalsList(familiaresAdicionalsList.filter(f => f !== familiar));
+  };
+
   const generarRedaccionIA = () => {
     if (missingFamiliares.length > 0) {
       setShowModal(true);
       return;
     }
 
-    const textoGenerado = familiares.map(familiar => {
+    const textoGenerado = todosLosFamiliares.map(familiar => {
       const familiarKey = getFamiliarKey(familiar);
       const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
 
+      if (!familiarData) return '';
+
       // Obtener las condiciones en un formato legible
-      const condicionesText = Object.entries(familiarData.condiciones)
+      const condicionesText = Object.entries(familiarData.condiciones || {})
         .filter(([key, value]) => value)
         .map(([key, value]) => {
           switch (key) {
@@ -203,18 +250,18 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             case "cancer":
               return "Cáncer";
             case "otras":
-              return typeof value === 'string' ? value : ''; // Asegúrate de que 'otras' sea un string
+              return typeof value === 'string' ? value : '';
             default:
               return "";
           }
         });
 
       // Construir la redacción para cada familiar
-      const esFemenino = familiar.includes("Madre") || familiar.includes("Abuela");
+      const esFemenino = familiar.includes("Madre") || familiar.includes("Abuela") || familiar.includes("Tía") || familiar.includes("Prima") || familiar.includes("Hermana") || familiar.includes("Hija");
       const articuloFemenino = esFemenino ? "La " : "El ";
       const verboSerFemenino = esFemenino ? "está viva" : "está vivo";
       const verboEstarFemenino = esFemenino ? "finada" : "finado";
-      const ySanoFemenino = esFemenino ? "y sana" : "y sano";
+      const ySanoFemenino = esFemenino ? "y aparentemente sana" : "y aparentemente sano";
 
       let condicionesConectadas = "";
       if (condicionesText.length === 1) {
@@ -236,21 +283,24 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         return `${articuloFemenino}${familiar} ${verboSerFemenino} ${ySanoFemenino}.`;
       } else if (familiarData.finado) {
         return `${articuloFemenino}${familiar} ${verboEstarFemenino} por ${familiarData.causaMuerte}.`;
-      } else {
+      } else if (condicionesConectadas) {
         return `${articuloFemenino}${familiar} ${verboSerFemenino} con diagnóstico de ${condicionesConectadas}.`;
       }
-    }).join(" ");
+      return '';
+    }).filter(Boolean).join(" ");
 
     // Determinar las enfermedades más repetidas en la familia
     const enfermedadesContador: { [key: string]: number } = {};
-    familiares.forEach(familiar => {
+    todosLosFamiliares.forEach(familiar => {
       const familiarKey = getFamiliarKey(familiar);
       const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
-      Object.entries(familiarData.condiciones).forEach(([key, value]) => {
-        if (value) {
-          enfermedadesContador[key] = (enfermedadesContador[key] || 0) + 1;
-        }
-      });
+      if (familiarData?.condiciones) {
+        Object.entries(familiarData.condiciones).forEach(([key, value]) => {
+          if (value && key !== 'otras') {
+            enfermedadesContador[key] = (enfermedadesContador[key] || 0) + 1;
+          }
+        });
+      }
     });
 
     const enfermedadesRepetidas = Object.entries(enfermedadesContador)
@@ -269,29 +319,35 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       })
       .filter(Boolean);
 
-    let enfermedadesConectadas = "";
-    if (enfermedadesRepetidas.length === 1) {
-      enfermedadesConectadas = enfermedadesRepetidas[0];
-    } else if (enfermedadesRepetidas.length === 2) {
-      const [primera, segunda] = enfermedadesRepetidas;
-      if ((primera === "Diabetes mellitus" && segunda === "Hipertensión arterial") ||
-          (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
-        enfermedadesConectadas = `${primera} e ${segunda}`;
-      } else {
-        enfermedadesConectadas = `${primera} y ${segunda}`;
+    let redaccionFinal = textoGenerado.trim();
+
+    // Solo agregar la nota si hay enfermedades repetidas
+    if (enfermedadesRepetidas.length > 0) {
+      let enfermedadesConectadas = "";
+      if (enfermedadesRepetidas.length === 1) {
+        enfermedadesConectadas = enfermedadesRepetidas[0];
+      } else if (enfermedadesRepetidas.length === 2) {
+        const [primera, segunda] = enfermedadesRepetidas;
+        if ((primera === "Diabetes mellitus" && segunda === "Hipertensión arterial") ||
+            (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
+          enfermedadesConectadas = `${primera} e ${segunda}`;
+        } else {
+          enfermedadesConectadas = `${primera} y ${segunda}`;
+        }
+      } else if (enfermedadesRepetidas.length > 2) {
+        const ultimaEnfermedad = enfermedadesRepetidas.pop();
+        enfermedadesConectadas = `${enfermedadesRepetidas.join(", ")} y ${ultimaEnfermedad}`;
       }
-    } else if (enfermedadesRepetidas.length > 2) {
-      const ultimaEnfermedad = enfermedadesRepetidas.pop();
-      enfermedadesConectadas = `${enfermedadesRepetidas.join(", ")} y ${ultimaEnfermedad}`;
+
+      redaccionFinal += `\n\nNota: En la familia predominan los antecedentes de: ${enfermedadesConectadas}.`;
     }
 
-    const redaccionFinal = `${textoGenerado.trim()}\n\n Nota: En la familia predominan los antecedentes de: ${enfermedadesConectadas}.`;
     setRedaccionIA(redaccionFinal);
-    setDisplayedText(""); // Reset the displayed text
+    setDisplayedText("");
     setShowRedaccion(true);
 
     setTimeout(() => {
-      redaccionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      redaccionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setTimeout(() => {
         window.scrollBy(0, -200);
       }, 300);
@@ -299,7 +355,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   };
 
   const limpiarFormulario = () => {
-    familiares.forEach(familiar => {
+    todosLosFamiliares.forEach(familiar => {
       const familiarKey = getFamiliarKey(familiar);
       handleFamiliarChange(familiarKey, 'finado', false);
       handleFamiliarChange(familiarKey, 'vivoSano', false);
@@ -309,6 +365,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         handleCondicionChange(familiarKey, condKey, false);
       });
     });
+    setFamiliaresAdicionalsList([]);
     setRedaccionIA("");
     setShowRedaccion(false);
   };
@@ -331,7 +388,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       } else {
         clearInterval(interval);
       }
-    }, 15); // Ajustar la velocidad de la animación aquí (15ms es 3 veces más rápido que 50ms)
+    }, 15);
 
     return () => clearInterval(interval);
   }, [redaccionIA]);
@@ -345,7 +402,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       "Abuelo Materno": "abueloMaterno",
       "Abuela Materna": "abuelaMaterna"
     };
-    return mapping[familiar];
+    return mapping[familiar] || familiar.toLowerCase().replace(/\s+/g, '') as keyof typeof formData.antecedentesHeredoFamiliares;
   };
 
   const getCondicionKey = (condicion: string) => {
@@ -450,6 +507,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
               </div>
             ) : (
               <div className="p-3 md:p-6 space-y-3 md:space-y-6">
+                {/* Familiares principales */}
                 {familiares.map((familiar) => (
                   <FamiliaRow
                     key={familiar}
@@ -459,6 +517,45 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
                     handleCondicionChange={handleCondicionChange}
                   />
                 ))}
+
+                {/* Familiares adicionales */}
+                {familiaresAdicionalsList.map((familiar) => (
+                  <FamiliaRow
+                    key={familiar}
+                    familiar={familiar}
+                    formData={formData}
+                    handleFamiliarChange={handleFamiliarChange}
+                    handleCondicionChange={handleCondicionChange}
+                    onRemove={() => eliminarFamiliar(familiar)}
+                    isAdditional={true}
+                  />
+                ))}
+
+                {/* Selector para agregar familiares */}
+                <div className="flex items-center gap-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300">
+                  <Select value={selectedFamiliar} onValueChange={setSelectedFamiliar}>
+                    <SelectTrigger className="flex-1">
+                      <SelectValue placeholder="Seleccionar familiar adicional..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {familiaresAdicionales
+                        .filter(f => !familiaresAdicionalsList.includes(f))
+                        .map((familiar) => (
+                          <SelectItem key={familiar} value={familiar}>
+                            {familiar}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    onClick={agregarFamiliar}
+                    disabled={!selectedFamiliar}
+                    className="bg-green-500 hover:bg-green-600 text-white"
+                    size="sm"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             )}
   
