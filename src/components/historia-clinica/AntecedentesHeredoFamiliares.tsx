@@ -53,8 +53,8 @@ interface FamiliaRowProps {
 }
 
 const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionChange, onRemove, isAdditional = false }: FamiliaRowProps) => {
-  const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
-    const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
+  const getFamiliarKey = (familiar: string): string => {
+    const mapping: { [key: string]: string } = {
       "Padre": "padre",
       "Madre": "madre",
       "Abuelo Paterno": "abueloPaterno",
@@ -62,11 +62,31 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
       "Abuelo Materno": "abueloMaterno",
       "Abuela Materna": "abuelaMaterna"
     };
-    return mapping[familiar] || familiar.toLowerCase().replace(/\s+/g, '') as keyof typeof formData.antecedentesHeredoFamiliares;
+    return mapping[familiar] || familiar.toLowerCase().replace(/\s+/g, '');
   };
 
   const familiarKey = getFamiliarKey(familiar);
-  const familiarData = formData.antecedentesHeredoFamiliares[familiarKey] as Familiar;
+  
+  // Inicializar familiarData si no existe
+  const defaultFamiliarData: Familiar = {
+    finado: false,
+    vivoSano: false,
+    causaMuerte: '',
+    condiciones: {
+      diabetesMellitus: false,
+      hipertensionArterial: false,
+      osteoporosis: false,
+      artritisReumatoide: false,
+      parkinson: false,
+      alzheimer: false,
+      asma: false,
+      cancer: false,
+      anemia: false,
+      otras: ''
+    }
+  };
+
+  const familiarData = (formData.antecedentesHeredoFamiliares[familiarKey] as Familiar) || defaultFamiliarData;
 
   const getCondicionKey = (condicion: string) => {
     const mapping: { [key: string]: string } = {
@@ -217,6 +237,18 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
 
   const agregarFamiliar = () => {
     if (selectedFamiliar && !familiaresAdicionalsList.includes(selectedFamiliar)) {
+      // Inicializar los datos del familiar en el formData
+      const familiarKey = getFamiliarKey(selectedFamiliar);
+      handleFamiliarChange(familiarKey, 'finado', false);
+      handleFamiliarChange(familiarKey, 'vivoSano', false);
+      handleFamiliarChange(familiarKey, 'causaMuerte', '');
+      
+      // Inicializar todas las condiciones
+      condiciones.forEach(cond => {
+        const condKey = getCondicionKey(cond);
+        handleCondicionChange(familiarKey, condKey, false);
+      });
+      
       setFamiliaresAdicionalsList([...familiaresAdicionalsList, selectedFamiliar]);
       setSelectedFamiliar("");
     }
@@ -393,8 +425,8 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     return () => clearInterval(interval);
   }, [redaccionIA]);
 
-  const getFamiliarKey = (familiar: string): keyof typeof formData.antecedentesHeredoFamiliares => {
-    const mapping: { [key: string]: keyof typeof formData.antecedentesHeredoFamiliares } = {
+  const getFamiliarKey = (familiar: string): string => {
+    const mapping: { [key: string]: string } = {
       "Padre": "padre",
       "Madre": "madre",
       "Abuelo Paterno": "abueloPaterno",
@@ -402,7 +434,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       "Abuelo Materno": "abueloMaterno",
       "Abuela Materna": "abuelaMaterna"
     };
-    return mapping[familiar] || familiar.toLowerCase().replace(/\s+/g, '') as keyof typeof formData.antecedentesHeredoFamiliares;
+    return mapping[familiar] || familiar.toLowerCase().replace(/\s+/g, '');
   };
 
   const getCondicionKey = (condicion: string) => {
