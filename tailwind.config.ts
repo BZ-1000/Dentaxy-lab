@@ -106,30 +106,6 @@ export default {
           '0%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.2)' },
           '100%': { transform: 'scale(1)' }
-        },
-        mouseClick: {
-          '0%': { 
-            transform: 'translate(-50%, -50%) scale(1)',
-            opacity: '1'
-          },
-          '50%': { 
-            transform: 'translate(-50%, -50%) scale(0.9)',
-            opacity: '0.8'
-          },
-          '100%': { 
-            transform: 'translate(-50%, -50%) scale(1)',
-            opacity: '1'
-          }
-        },
-        clickPulse: {
-          '0%, 70%, 100%': {
-            transform: 'translate(-50%, -50%) scale(1)',
-            opacity: '1',
-          },
-          '35%': {
-            transform: 'translate(-50%, -50%) scale(1.3)',
-            opacity: '0.7',
-          }
         }
       },
       animation: {
@@ -139,9 +115,7 @@ export default {
         glow: "glow 3s ease-in-out infinite",
         rainbow: "rainbow var(--speed, 2s) infinite linear",
         wiggle: 'wiggle 2s linear infinite',
-        scaleClick: 'scaleClick 0.5s ease-in-out',
-        mouseClick: 'mouseClick 1s ease-in-out infinite',
-        clickPulse: 'clickPulse 2s ease-in-out infinite'
+        scaleClick: 'scaleClick 0.5s ease-in-out'
       },
     },
   },
