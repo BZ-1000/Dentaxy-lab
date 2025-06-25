@@ -20,7 +20,6 @@ import LineaMedia from './historia-clinica/LineaMedia';
 import Frenillos from './historia-clinica/Frenillos';
 import Diagnostico from './historia-clinica/Diagnostico';
 import Pronostico from './historia-clinica/Pronostico';
-import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTheme } from '@/hooks/use-theme';
@@ -29,7 +28,6 @@ import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
 import { useState, useEffect, useRef } from 'react';
 import { toast } from "@/hooks/use-toast";
-import { getInitialFormState } from '@/utils/initialFormState';
 import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
 import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
 import { generatePDF } from '@/utils/pdfGenerator';
@@ -56,7 +54,6 @@ function ResponsePopup({
   onClose
 }: ResponsePopupProps) {
   return <>
-      <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-sm z-[9998]" />
       <motion.div initial={{
       opacity: 0,
       y: 20,
@@ -69,8 +66,8 @@ function ResponsePopup({
       opacity: 0,
       y: 20,
       scale: 0.95
-    }} className="fixed top-16 right-4 z-[9999] max-w-md">
-        <div className="backdrop-blur-md border border-gray-600 rounded-2xl p-4 shadow-2xl py-[16px] px-[16px] bg-gray-800">
+    }} className="fixed top-20 right-4 z-[9999] max-w-md">
+        <div className="backdrop-blur-md border border-gray-600 rounded-2xl p-4 shadow-2xl bg-gray-800/90">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <img src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" alt="DentaxyGPT" className="h-6 w-6" />
@@ -130,7 +127,6 @@ const HistoriaClinica = () => {
   } = useAnalysisMode();
   const {
     formData,
-    resumen,
     isGenerating,
     handleInputChange,
     handlePadecimientoChange,
@@ -167,6 +163,8 @@ const HistoriaClinica = () => {
   const handleSearch = async (searchText: string) => {
     setIsSearching(true);
     try {
+      console.log('Iniciando búsqueda:', searchText);
+      
       const { data, error } = await supabase.functions.invoke('chat', {
         body: {
           message: searchText,
@@ -178,6 +176,8 @@ const HistoriaClinica = () => {
         console.error('Supabase function error:', error);
         throw new Error('Error en la comunicación con el servidor');
       }
+
+      console.log('Respuesta recibida:', data);
 
       const newMessage: ChatMessage = {
         role: 'assistant',
@@ -238,259 +238,6 @@ const HistoriaClinica = () => {
     }
   }, [formData, pacienteActual, guardarFormulario]);
 
-  const handleLimpiarFormulario = () => {
-    setPacienteActual('');
-    setNombrePaciente('');
-    cargarFormulario(null);
-  };
-
-  const handleResetFormulario = () => {
-    setPacienteActual('');
-    resetFormulario();
-  };
-
-  const handleGuardarFormulario = () => {
-    if (!nombrePaciente.trim()) {
-      toast({
-        title: "Error",
-        description: "Por favor ingrese el nombre del paciente",
-        variant: "destructive"
-      });
-      return;
-    }
-    guardarFormulario(formData, nombrePaciente);
-    setPacienteActual(nombrePaciente);
-    toast({
-      title: "Formulario guardado",
-      description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
-    });
-  };
-
-  const validateForm = () => {
-    const padecimientoFields = validatePadecimientoActual(formData);
-    const heredoFamiliaresFields = validateAntecedentesHeredoFamiliares(formData);
-    const noPatologicosFields = validateAntecedentesPersonalesNoPatologicos(formData);
-    const patologicosFields = validateAntecedentesPersonalesPatologicos(formData);
-    const allMissingFields = [...padecimientoFields, ...heredoFamiliaresFields, ...noPatologicosFields, ...patologicosFields];
-    return allMissingFields;
-  };
-
-  const generateSectionRedaction = async (sectionElement: Element) => {
-    try {
-      if (!sectionElement) return false;
-      const formTabs = sectionElement.querySelectorAll('button');
-      let formTab = null;
-      for (const tab of formTabs) {
-        if (tab.textContent && tab.textContent.includes('Formulario')) {
-          formTab = tab;
-          break;
-        }
-      }
-      if (formTab) {
-        (formTab as HTMLElement).click();
-        await new Promise(resolve => setTimeout(resolve, 300));
-      }
-      const allButtons = Array.from(sectionElement.querySelectorAll('button'));
-      const generateButton = allButtons.find(button => button.textContent && (button.textContent.includes('Generar Redacción IA') || button.textContent.includes('Generar Redacción') || button.textContent.includes('Generar Informe')));
-      if (!generateButton) {
-        console.warn('No generate button found in section');
-        return false;
-      }
-      console.log('Clicking generate button', generateButton.textContent);
-      (generateButton as HTMLElement).click();
-      await new Promise(resolve => setTimeout(resolve, 4000));
-      const redactionTabs = sectionElement.querySelectorAll('button');
-      let redactionTab = null;
-      for (const tab of redactionTabs) {
-        if (tab.textContent && (tab.textContent.includes('Redacción IA') || tab.textContent.includes('Informe IA'))) {
-          redactionTab = tab;
-          break;
-        }
-      }
-      if (redactionTab) {
-        (redactionTab as HTMLElement).click();
-        await new Promise(resolve => setTimeout(resolve, 300));
-      }
-      return true;
-    } catch (error) {
-      console.error('Error generating redaction:', error);
-      return false;
-    }
-  };
-
-  const getSectionRedaction = (sectionElement: Element): string | null => {
-    try {
-      if (!sectionElement) return null;
-      const possibleContentSelectors = ['div[data-redaction-content]', '.min-h-\\[150px\\], .min-h-\\[200px\\]', 'div.bg-gray-50, div.bg-gray-900', 'div[style*="white-space: pre-wrap"]', 'div.whitespace-pre-wrap'];
-      let contentElement = null;
-      for (const selector of possibleContentSelectors) {
-        const elements = sectionElement.querySelectorAll(selector);
-        for (const el of elements) {
-          if (el.textContent && el.textContent.trim().length > 10) {
-            contentElement = el;
-            break;
-          }
-        }
-        if (contentElement) break;
-      }
-      if (!contentElement) {
-        const allDivs = sectionElement.querySelectorAll('div');
-        for (const div of allDivs) {
-          if (div.textContent && div.textContent.trim().length > 30 && (div.className.includes('bg-gray') || div.hasAttribute('data-redaction-content') || div.style.whiteSpace === 'pre-wrap')) {
-            contentElement = div;
-            break;
-          }
-        }
-      }
-      if (!contentElement) {
-        console.warn('Could not find redaction content');
-        return null;
-      }
-      const text = contentElement.textContent || '';
-      return text.trim();
-    } catch (error) {
-      console.error('Error extracting redaction:', error);
-      return null;
-    }
-  };
-
-  const collectAllRedactions = async () => {
-    pdfSectionsRef.current = {};
-    const sectionSelectors = [{
-      name: 'padecimientoActual',
-      selector: '[data-section-name="padecimientoActual"]'
-    }, {
-      name: 'antecedentesHeredoFamiliares',
-      selector: '[data-section-name="antecedentesHeredoFamiliares"]'
-    }, {
-      name: 'antecedentesPersonalesNoPatologicos',
-      selector: '[data-section-name="antecedentesPersonalesNoPatologicos"]'
-    }, {
-      name: 'antecedentesPersonalesPatologicos',
-      selector: '[data-section-name="antecedentesPersonalesPatologicos"]'
-    }, {
-      name: 'antecedentesAlergicos',
-      selector: '[data-section-name="antecedentesAlergicos"]'
-    }, {
-      name: 'antecedentesQuirurgicos',
-      selector: '[data-section-name="antecedentesQuirurgicos"]'
-    }, {
-      name: 'antecedentesHemorragicos',
-      selector: '[data-section-name="antecedentesHemorragicos"]'
-    }, {
-      name: 'antecedentesGinecoObstetricos',
-      selector: '[data-section-name="antecedentesGinecoObstetricos"]'
-    }, {
-      name: 'interrogatorioSistemas',
-      selector: '[data-section-name="interrogatorioSistemas"]'
-    }, {
-      name: 'exploracionFisica',
-      selector: '[data-section-name="exploracionFisica"]'
-    }, {
-      name: 'examenCabeza',
-      selector: '[data-section-name="examenCabeza"]'
-    }, {
-      name: 'articulacionCraneomandibular',
-      selector: '[data-section-name="articulacionCraneomandibular"]'
-    }, {
-      name: 'examenCuello',
-      selector: '[data-section-name="examenCuello"]'
-    }, {
-      name: 'examenIntrabucal',
-      selector: '[data-section-name="examenIntrabucal"]'
-    }, {
-      name: 'glandulasSalivales',
-      selector: '[data-section-name="glandulasSalivales"]'
-    }, {
-      name: 'oclusion',
-      selector: '[data-section-name="oclusion"]'
-    }, {
-      name: 'relacionDientes',
-      selector: '[data-section-name="relacionDientes"]'
-    }, {
-      name: 'lineaMedia',
-      selector: '[data-section-name="lineaMedia"]'
-    }, {
-      name: 'frenillos',
-      selector: '[data-section-name="frenillos"]'
-    }, {
-      name: 'diagnostico',
-      selector: '[data-section-name="diagnostico"]'
-    }, {
-      name: 'pronostico',
-      selector: '[data-section-name="pronostico"]'
-    }];
-    const totalSteps = sectionSelectors.length * 2;
-    let completedSteps = 0;
-    for (const sectionConfig of sectionSelectors) {
-      console.log(`Processing section: ${sectionConfig.name}`);
-      const sectionElements = document.querySelectorAll(sectionConfig.selector);
-      if (sectionElements.length === 0) {
-        console.warn(`Section not found: ${sectionConfig.name}`);
-        completedSteps += 2;
-        setPdfGenerationProgress(completedSteps / totalSteps * 100);
-        continue;
-      }
-      const sectionElement = sectionElements[0];
-      await generateSectionRedaction(sectionElement);
-      completedSteps++;
-      setPdfGenerationProgress(completedSteps / totalSteps * 100);
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      const content = getSectionRedaction(sectionElement);
-      if (content) {
-        pdfSectionsRef.current[sectionConfig.name] = content;
-        console.log(`Added ${sectionConfig.name} redaction to PDF`);
-      }
-      completedSteps++;
-      setPdfGenerationProgress(completedSteps / totalSteps * 100);
-    }
-    console.log("All redactions collected:", Object.keys(pdfSectionsRef.current));
-    return pdfSectionsRef.current;
-  };
-
-  const generatePDFDocument = async () => {
-    try {
-      setIsGeneratingPDF(true);
-      setPdfGenerationProgress(0);
-      const allRedactions = await collectAllRedactions();
-      if (Object.keys(allRedactions).length === 0) {
-        toast({
-          title: "Advertencia",
-          description: "No se encontraron redacciones para incluir en el PDF. Por favor, genere al menos una redacción.",
-          variant: "destructive"
-        });
-        setIsGeneratingPDF(false);
-        return;
-      }
-      const patientName = nombrePaciente || pacienteActual || 'Paciente';
-      generatePDF(formData, patientName, allRedactions);
-      toast({
-        title: "PDF Generado",
-        description: "La Historia Clínica ha sido generada exitosamente."
-      });
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo generar el PDF. Por favor, intente nuevamente.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsGeneratingPDF(false);
-      setPdfGenerationProgress(100);
-    }
-  };
-
-  const handleGeneratePDF = () => {
-    const missing = validateForm();
-    if (missing.length > 0) {
-      setMissingFields(missing);
-      setAlertOpen(true);
-    } else {
-      generatePDFDocument();
-    }
-  };
-
   const closeResponse = () => {
     setActiveResponse(null);
   };
@@ -503,7 +250,14 @@ const HistoriaClinica = () => {
     }} onGuardarFormulario={nombre => {
       guardarFormulario(formData, nombre);
       setPacienteActual(nombre);
-    }} onCerrarFormulario={handleLimpiarFormulario} onResetFormulario={handleResetFormulario} pacienteActual={pacienteActual} />
+    }} onCerrarFormulario={() => {
+      setPacienteActual('');
+      setNombrePaciente('');
+      cargarFormulario(null);
+    }} onResetFormulario={() => {
+      setPacienteActual('');
+      resetFormulario();
+    }} pacienteActual={pacienteActual} />
       
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
         <div className="max-w-5xl mx-auto space-y-8">
@@ -521,7 +275,22 @@ const HistoriaClinica = () => {
                   </div>
                   <Input value={nombrePaciente} onChange={e => setNombrePaciente(e.target.value)} placeholder="Nombre del paciente" className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" />
                 </div>
-                <Button onClick={handleGuardarFormulario} disabled={!nombrePaciente.trim()} className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200">
+                <Button onClick={() => {
+                  if (!nombrePaciente.trim()) {
+                    toast({
+                      title: "Error",
+                      description: "Por favor ingrese el nombre del paciente",
+                      variant: "destructive"
+                    });
+                    return;
+                  }
+                  guardarFormulario(formData, nombrePaciente);
+                  setPacienteActual(nombrePaciente);
+                  toast({
+                    title: "Formulario guardado",
+                    description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
+                  });
+                }} disabled={!nombrePaciente.trim()} className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200">
                   <Save className="h-4 w-4" />
                   <span className="text-sm font-medium">Guardar</span>
                 </Button>
@@ -532,7 +301,10 @@ const HistoriaClinica = () => {
                 <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
                   Formulario actual: {pacienteActual}
                 </div>
-                <button onClick={handleResetFormulario} className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Resetear formulario">
+                <button onClick={() => {
+                  setPacienteActual('');
+                  resetFormulario();
+                }} className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Resetear formulario">
                   <X className="w-3 h-3" />
                 </button>
               </div>}
@@ -596,7 +368,10 @@ const HistoriaClinica = () => {
             </div>
             
             <div data-section-redaction="true" data-section-name="articulacionCraneomandibular">
-              <ArticulacionCraneomandibular formData={formData} handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} />
+              <ArticulacionCraneomandibular 
+                formData={formData} 
+                handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} 
+              />
             </div>
             
             <div data-section-redaction="true" data-section-name="examenCuello">
@@ -636,7 +411,20 @@ const HistoriaClinica = () => {
             </div>
 
             <div className="flex justify-center pt-6">
-              <Button onClick={handleGeneratePDF} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-base font-normal">
+              <Button onClick={() => {
+                const missing = validatePadecimientoActual(formData).concat(
+                  validateAntecedentesHeredoFamiliares(formData),
+                  validateAntecedentesPersonalesNoPatologicos(formData),
+                  validateAntecedentesPersonalesPatologicos(formData)
+                );
+                
+                if (missing.length > 0) {
+                  setMissingFields(missing);
+                  setAlertOpen(true);
+                } else {
+                  // generatePDFDocument();
+                }
+              }} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-base font-normal">
                 {isGeneratingPDF ? <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Generando PDF...
@@ -678,14 +466,14 @@ const HistoriaClinica = () => {
       left: Math.min(selectedPosition.x, window.innerWidth - 60),
       top: Math.max(selectedPosition.y - 60, 60)
     }}>
-          <button onClick={() => handleSearch(selectedText)} disabled={isSearching} className="w-10 h-10 bg-black hover:bg-gray-800 text-white rounded-full flex items-center justify-center shadow-xl transition-colors disabled:opacity-50">
-            {isSearching ? <Loader2 className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5" />}
+          <button onClick={() => handleSearch(selectedText)} disabled={isSearching} className="w-8 h-8 bg-black hover:bg-gray-800 text-white rounded-full flex items-center justify-center shadow-xl transition-colors disabled:opacity-50">
+            {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
           </button>
         </motion.div>}
       
       <ConfirmationAlert isOpen={alertOpen} onClose={() => setAlertOpen(false)} onConfirm={() => {
       setAlertOpen(false);
-      generatePDFDocument();
+      // generatePDFDocument();
     }} title="Formulario incompleto" description="Hay campos sin completar en el formulario." missingFields={missingFields} />
       
       {isGeneratingPDF && <LoadingOverlay message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." progress={pdfGenerationProgress} />}
