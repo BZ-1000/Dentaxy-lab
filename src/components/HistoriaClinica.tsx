@@ -35,7 +35,7 @@ import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, valid
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
-import { DefinitionPopup } from '@/components/ui/DefinitionPopup';
+
 const HistoriaClinica = () => {
   const {
     theme
@@ -376,16 +376,10 @@ const HistoriaClinica = () => {
   };
   return <div className={`${theme} min-h-screen w-full flex relative`}>
       {/* Analysis Mode Overlay - only show when popup is visible */}
-      {isAnalysisMode && selectedText && selectedPosition && <div className="fixed inset-0 bg-emerald-500/10 backdrop-blur-sm z-40 pointer-events-none" />}
+      {isAnalysisMode && <div className="fixed inset-0 bg-emerald-500/10 backdrop-blur-sm z-40 pointer-events-none" />}
 
       {/* Analysis Mode Indicator - show when mode is active */}
-      {isAnalysisMode}
-
-      {/* Definition Popup */}
-      {selectedText && selectedPosition && <DefinitionPopup text={selectedText} position={selectedPosition} onClose={() => {
-      setSelectedText('');
-      setSelectedPosition(null);
-    }} />}
+      {isAnalysisMode && (null)}
 
       <FormulariosSidebar onCargarFormulario={(data, nombre) => {
       cargarFormulario(data);
@@ -551,4 +545,5 @@ const HistoriaClinica = () => {
       <Toaster />
     </div>;
 };
+
 export default HistoriaClinica;

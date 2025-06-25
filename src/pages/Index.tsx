@@ -2,24 +2,11 @@
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
-import { TextDefinitionPopup } from "@/components/ui/TextDefinitionPopup";
-import { AnalysisModeProvider, useAnalysisMode } from "@/contexts/AnalysisModeContext";
-import { useTextSelection } from "@/hooks/useTextSelection";
+import { AnalysisModeProvider } from "@/contexts/AnalysisModeContext";
 import { useEffect, useState } from "react";
 
 function IndexContent() {
   const [offset, setOffset] = useState(0);
-  const {
-    selectedText,
-    selectedPosition,
-    definition,
-    isLoadingDefinition,
-    showDefinitionPopup,
-    setShowDefinitionPopup
-  } = useAnalysisMode();
-  
-  // Activar el hook de selección de texto
-  useTextSelection();
   
   useEffect(() => {
     const handleScroll = () => {
@@ -33,19 +20,6 @@ function IndexContent() {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
-
-  useEffect(() => {
-    const handleEscapeKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && showDefinitionPopup) {
-        setShowDefinitionPopup(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleEscapeKey);
-    return () => {
-      document.removeEventListener('keydown', handleEscapeKey);
-    };
-  }, [showDefinitionPopup, setShowDefinitionPopup]);
   
   return (
     <div className="min-h-screen">
@@ -88,16 +62,6 @@ function IndexContent() {
 
       <AppleStyleDock />
       <div className="h-24" />
-
-      {/* Popup de definición */}
-      <TextDefinitionPopup
-        isOpen={showDefinitionPopup}
-        position={selectedPosition}
-        selectedText={selectedText}
-        definition={definition}
-        isLoading={isLoadingDefinition}
-        onClose={() => setShowDefinitionPopup(false)}
-      />
     </div>
   );
 }
