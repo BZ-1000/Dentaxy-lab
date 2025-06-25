@@ -6,6 +6,7 @@ import {
   ChevronLeft, ChevronRight, Menu
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FormDataState } from '@/types/historiaClinica';
 
 interface FormSection {
   id: string;
@@ -16,6 +17,11 @@ interface FormSection {
 interface FormulariosSidebarProps {
   activeForm: string;
   onFormSelect: (formId: string) => void;
+  onCargarFormulario?: (data: FormDataState | null, nombre: string) => void;
+  onGuardarFormulario?: (nombre: string) => void;
+  onCerrarFormulario?: () => void;
+  onResetFormulario?: () => void;
+  pacienteActual?: string;
 }
 
 const formSections: FormSection[] = [
@@ -36,7 +42,15 @@ const contactSections: FormSection[] = [
   { id: 'direccion', title: 'Dirección', icon: <MapPin /> },
 ];
 
-const FormulariosSidebar = ({ activeForm, onFormSelect }: FormulariosSidebarProps) => {
+const FormulariosSidebar = ({ 
+  activeForm, 
+  onFormSelect,
+  onCargarFormulario,
+  onGuardarFormulario,
+  onCerrarFormulario,
+  onResetFormulario,
+  pacienteActual
+}: FormulariosSidebarProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleSidebar = () => {
