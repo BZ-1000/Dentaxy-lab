@@ -10,7 +10,6 @@ import { useEffect, useState } from "react";
 function IndexContent() {
   const [offset, setOffset] = useState(0);
   const {
-    isAnalysisMode,
     selectedText,
     selectedPosition,
     definition,
@@ -50,13 +49,6 @@ function IndexContent() {
   
   return (
     <div className="min-h-screen">
-      {/* Indicador de modo análisis */}
-      {isAnalysisMode && (
-        <div className="fixed top-4 left-4 z-[9999] bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg">
-          <span className="text-sm font-medium">🔍 Modo Análisis Activo - Selecciona cualquier término</span>
-        </div>
-      )}
-
       {/* Hero Section */}
       <div className="min-h-screen relative overflow-hidden">
         <img src="/lovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png" alt="Background" className="absolute inset-0 w-full h-full object-cover" style={{

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PromptInputBox } from './ai-prompt-box';
 import { TypewriterEffect } from './TypewriterEffect';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
+import { X } from 'lucide-react';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -46,9 +47,7 @@ function ResponsePopup({ message, onClose }: ResponsePopupProps) {
             onClick={onClose}
             className="text-gray-400 hover:text-white transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="w-4 h-4" />
           </button>
         </div>
         
@@ -204,8 +203,30 @@ Mantén las respuestas breves y directas.`;
     setActiveResponse(null);
   };
 
+  const handleCloseAnalysisMode = () => {
+    setAnalysisMode(false);
+  };
+
   return (
     <>
+      {/* Indicador de modo análisis */}
+      {isAnalysisMode && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
+        >
+          <span className="text-sm font-medium">🔍 Modo Análisis Activo - Selecciona cualquier término</span>
+          <button
+            onClick={handleCloseAnalysisMode}
+            className="text-white hover:text-gray-200 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </motion.div>
+      )}
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -217,7 +238,8 @@ Mantén las respuestas breves y directas.`;
               marginBottom: '120px',
               left: '50%',
               transform: 'translateX(-50%)',
-              width: 'min(60vw, 400px)',
+              width: 'min(45vw, 350px)',
+              maxWidth: '350px'
             }}
           >
             <div className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 shadow-2xl p-3">
