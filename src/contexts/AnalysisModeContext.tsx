@@ -8,9 +8,6 @@ interface AnalysisModeContextType {
   setSelectedText: (text: string) => void;
   selectedPosition: { x: number; y: number } | null;
   setSelectedPosition: (position: { x: number; y: number } | null) => void;
-  selectedWords: string[];
-  setSelectedWords: (words: string[]) => void;
-  toggleWord: (word: string) => void;
 }
 
 const AnalysisModeContext = createContext<AnalysisModeContextType | undefined>(undefined);
@@ -19,17 +16,6 @@ export function AnalysisModeProvider({ children }: { children: ReactNode }) {
   const [isAnalysisMode, setAnalysisMode] = useState(false);
   const [selectedText, setSelectedText] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<{ x: number; y: number } | null>(null);
-  const [selectedWords, setSelectedWords] = useState<string[]>([]);
-
-  const toggleWord = (word: string) => {
-    setSelectedWords(prev => {
-      if (prev.includes(word)) {
-        return prev.filter(w => w !== word);
-      } else {
-        return [...prev, word];
-      }
-    });
-  };
 
   return (
     <AnalysisModeContext.Provider value={{
@@ -38,10 +24,7 @@ export function AnalysisModeProvider({ children }: { children: ReactNode }) {
       selectedText,
       setSelectedText,
       selectedPosition,
-      setSelectedPosition,
-      selectedWords,
-      setSelectedWords,
-      toggleWord
+      setSelectedPosition
     }}>
       {children}
     </AnalysisModeContext.Provider>

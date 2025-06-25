@@ -112,7 +112,6 @@ const HistoriaClinica = () => {
   const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [activeForm, setActiveForm] = useState('datos-personales');
   const pdfSectionsRef = useRef<{ [key: string]: string; }>({});
   const {
     isAnalysisMode,
@@ -242,8 +241,6 @@ const HistoriaClinica = () => {
   return (
     <div className={`${theme} min-h-screen w-full flex relative`}>
       <FormulariosSidebar 
-        activeForm={activeForm}
-        onFormSelect={setActiveForm}
         onCargarFormulario={(data, nombre) => {
           cargarFormulario(data);
           setPacienteActual(nombre);

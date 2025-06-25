@@ -77,7 +77,7 @@ const AppleStyleDock: React.FC<AppleStyleDockProps> = ({ isOpen, onClose }) => {
       {isMedicationSearchOpen && <MedicationSearch />}
 
       <motion.div
-        className="fixed top-0 right-0 h-full w-72 bg-white border-l border-gray-200 shadow-xl z-50"
+        className="fixed top-0 right-0 h-full w-72 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 shadow-xl z-50"
         variants={dockVariants}
         initial="closed"
         animate={isOpen ? "open" : "closed"}
@@ -91,7 +91,7 @@ const AppleStyleDock: React.FC<AppleStyleDockProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className="flex flex-col h-full p-6">
-          <h2 className="text-lg font-semibold mb-4 text-gray-900">Menu</h2>
+          <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Menu</h2>
 
           <div className="flex flex-col space-y-4">
             <DockItem icon={<Home />} label="Dashboard" onClick={() => { alert('Dashboard clicked'); }} />
@@ -102,7 +102,7 @@ const AppleStyleDock: React.FC<AppleStyleDockProps> = ({ isOpen, onClose }) => {
           </div>
 
           <div className="mt-auto">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
               © 2024 Lovable. All rights reserved.
             </p>
           </div>

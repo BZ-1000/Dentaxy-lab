@@ -43,7 +43,7 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ className, ...props }, ref) => (
   <textarea
     className={cn(
-      "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none scrollbar-thin scrollbar-thumb-[#444444] scrollbar-track-transparent hover:scrollbar-thumb-[#555555]",
+      "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base text-gray-100 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none scrollbar-thin scrollbar-thumb-[#444444] scrollbar-track-transparent hover:scrollbar-thumb-[#555555]",
       className
     )}
     ref={ref}
@@ -209,13 +209,13 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     >
       <div className="flex items-center gap-2 mb-3">
         <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-        <span className="font-mono text-sm text-gray-800">{formatTime(time)}</span>
+        <span className="font-mono text-sm text-white/80">{formatTime(time)}</span>
       </div>
       <div className="w-full h-10 flex items-center justify-center gap-0.5 px-4">
         {[...Array(visualizerBars)].map((_, i) => (
           <div
             key={i}
-            className="w-0.5 rounded-full bg-gray-600 animate-pulse"
+            className="w-0.5 rounded-full bg-white/50 animate-pulse"
             style={{
               height: `${Math.max(15, Math.random() * 100)}%`,
               animationDelay: `${i * 0.05}s`,
@@ -339,7 +339,7 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           <div
             ref={ref}
             className={cn(
-              "rounded-2xl border border-[#555555] bg-white p-2 shadow-lg transition-all duration-300",
+              "rounded-2xl border border-[#555555] bg-transparent p-2 shadow-lg transition-all duration-300",
               isLoading && "border-red-500/70",
               className
             )}
@@ -443,18 +443,6 @@ const CustomDivider: React.FC = () => (
   </div>
 );
 
-// Utility function for rendering markdown-style bold text
-const renderMarkdownText = (text: string) => {
-  const parts = text.split(/(\*\*[^*]+\*\*)/g);
-  return parts.map((part, index) => {
-    if (part.startsWith('**') && part.endsWith('**')) {
-      const boldText = part.slice(2, -2);
-      return <strong key={index}>{boldText}</strong>;
-    }
-    return part;
-  });
-};
-
 // Main PromptInputBox Component
 interface PromptInputBoxProps {
   onSend?: (message: string, files?: File[]) => void;
@@ -473,7 +461,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
   const promptBoxRef = React.useRef<HTMLDivElement>(null);
   
   // Obtener contexto de análisis
-  const { isAnalysisMode, setAnalysisMode, selectedWords, setSelectedWords } = useAnalysisMode();
+  const { isAnalysisMode, setAnalysisMode } = useAnalysisMode();
 
   const isImageFile = (file: File) => file.type.startsWith("image/");
 
@@ -539,22 +527,11 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
   }, [handlePaste]);
 
   const handleSubmit = () => {
-    let messageToSend = input.trim();
-    
-    // Si hay palabras seleccionadas del modo análisis, usarlas como prioridad
-    if (selectedWords.length > 0) {
-      messageToSend = selectedWords.join(' ');
-      // Limpiar las palabras seleccionadas después del envío
-      setSelectedWords([]);
-    }
-    
-    if (messageToSend || files.length > 0) {
+    if (input.trim() || files.length > 0) {
       let messagePrefix = "";
-      if (isAnalysisMode && selectedWords.length > 0) {
-        messagePrefix = "[Análisis de términos seleccionados]: ";
-      }
+      if (isAnalysisMode) messagePrefix = "[Análisis: ";
       
-      const formattedInput = messagePrefix ? `${messagePrefix}${messageToSend}` : messageToSend;
+      const formattedInput = messagePrefix ? `${messagePrefix}${input}]` : input;
       onSend(formattedInput, files);
       setInput("");
       setFiles([]);
@@ -575,19 +552,13 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
     setAnalysisMode(newAnalysisMode);
     
     if (newAnalysisMode) {
-      console.log('✅ Modo análisis ACTIVADO - Las palabras del formulario ahora son seleccionables');
+      console.log('Modo análisis activado - puedes seleccionar texto en la aplicación');
     } else {
-      console.log('❌ Modo análisis DESACTIVADO');
-      // Limpiar selecciones al desactivar
-      setSelectedWords([]);
+      console.log('Modo análisis desactivado');
     }
   };
 
-  const handleClearSelection = () => {
-    setSelectedWords([]);
-  };
-
-  const hasContent = input.trim() !== "" || files.length > 0 || selectedWords.length > 0;
+  const hasContent = input.trim() !== "" || files.length > 0;
 
   return (
     <>
@@ -597,9 +568,8 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
         isLoading={isLoading}
         onSubmit={handleSubmit}
         className={cn(
-          "w-full bg-white border-[#555555] shadow-lg transition-all duration-300 ease-in-out",
+          "w-full bg-transparent border-[#555555] shadow-lg transition-all duration-300 ease-in-out",
           isRecording && "border-red-500/70",
-          isAnalysisMode && "border-purple-500/50 ring-2 ring-purple-100",
           className
         )}
         disabled={isLoading || isRecording}
@@ -608,7 +578,6 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        {/* Files preview */}
         {files.length > 0 && !isRecording && (
           <div className="flex flex-wrap gap-2 p-0 pb-1 transition-all duration-300">
             {files.map((file, index) => (
@@ -639,29 +608,6 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
           </div>
         )}
 
-        {/* Mostrar palabras seleccionadas */}
-        {selectedWords.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-3 p-2 bg-yellow-50 rounded-lg border border-yellow-200">
-            <div className="flex items-center gap-2 w-full mb-1">
-              <span className="text-xs font-medium text-yellow-800">Términos seleccionados para análisis:</span>
-              <button
-                onClick={handleClearSelection}
-                className="text-xs text-yellow-600 hover:text-yellow-800 underline"
-              >
-                Limpiar selección
-              </button>
-            </div>
-            {selectedWords.map((word, index) => (
-              <span 
-                key={index} 
-                className="bg-yellow-300 text-gray-900 px-2 py-1 rounded text-sm font-medium border border-yellow-400 shadow-sm"
-              >
-                {word}
-              </span>
-            ))}
-          </div>
-        )}
-
         <div
           className={cn(
             "transition-all duration-300",
@@ -669,14 +615,8 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
           )}
         >
           <PromptInputTextarea
-            placeholder={
-              selectedWords.length > 0 
-                ? `Términos "${selectedWords.join(', ')}" listos para análisis...` 
-                : isAnalysisMode 
-                ? "Modo análisis activo - Selecciona palabras del formulario tocándolas"
-                : placeholder
-            }
-            className="text-sm text-gray-900"
+            placeholder={placeholder}
+            className="text-sm text-gray-200"
           />
         </div>
 
@@ -691,72 +631,67 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
         <PromptInputActions className="flex items-center justify-between gap-2 p-0 pt-1.5">
           <div
             className={cn(
-              "flex items-center gap-2 transition-opacity duration-300",
+              "flex items-center gap-1 transition-opacity duration-300",
               isRecording ? "opacity-0 invisible h-0" : "opacity-100 visible"
             )}
           >
-            <button
-              type="button"
-              onClick={handleAnalysisToggle}
-              className={cn(
-                "rounded-full transition-all flex items-center gap-2 px-3 py-1.5 border text-sm font-medium",
-                isAnalysisMode
-                  ? "bg-purple-100 border-purple-300 text-purple-700 shadow-sm"
-                  : "bg-transparent border-gray-300 text-gray-600 hover:text-gray-800 hover:border-gray-400"
-              )}
-            >
-              <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
-                <motion.div
-                  animate={{ 
-                    rotate: isAnalysisMode ? 360 : 0, 
-                    scale: isAnalysisMode ? 1.1 : 1 
-                  }}
-                  whileHover={{ 
-                    rotate: isAnalysisMode ? 360 : 15, 
-                    scale: 1.1 
-                  }}
-                  transition={{ type: "spring", stiffness: 260, damping: 25 }}
-                >
-                  <BrainCog className={cn(
-                    "w-4 h-4", 
-                    isAnalysisMode ? "text-purple-600" : "text-inherit"
-                  )} />
-                </motion.div>
-              </div>
-              <span className={cn(
-                "transition-colors",
-                isAnalysisMode ? "text-purple-700" : "text-inherit"
-              )}>
-                {isAnalysisMode ? "Análisis ON" : "Análisis OFF"}
-              </span>
-              {selectedWords.length > 0 && (
-                <span className="bg-purple-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                  {selectedWords.length}
-                </span>
-              )}
-            </button>
+            <div className="flex items-center">
+              <button
+                type="button"
+                onClick={handleAnalysisToggle}
+                className={cn(
+                  "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-6",
+                  isAnalysisMode
+                    ? "bg-[#8B5CF6]/15 border-[#8B5CF6] text-[#8B5CF6]"
+                    : "bg-transparent border-transparent text-[#9CA3AF] hover:text-[#D1D5DB]"
+                )}
+              >
+                <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
+                  <motion.div
+                    animate={{ rotate: isAnalysisMode ? 360 : 0, scale: isAnalysisMode ? 1.1 : 1 }}
+                    whileHover={{ rotate: isAnalysisMode ? 360 : 15, scale: 1.1 }}
+                    transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                  >
+                    <BrainCog className={cn("w-3.5 h-3.5", isAnalysisMode ? "text-[#8B5CF6]" : "text-inherit")} />
+                  </motion.div>
+                </div>
+                <AnimatePresence>
+                  {isAnalysisMode && (
+                    <motion.span
+                      initial={{ width: 0, opacity: 0 }}
+                      animate={{ width: "auto", opacity: 1 }}
+                      exit={{ width: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="text-xs overflow-hidden whitespace-nowrap text-[#8B5CF6] flex-shrink-0"
+                    >
+                      Análisis
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
+            </div>
           </div>
 
           <PromptInputAction
             tooltip={
               isLoading
-                ? "Detener generación"
+                ? "Stop generation"
                 : isRecording
-                ? "Detener grabación"
+                ? "Stop recording"
                 : hasContent
-                ? "Enviar mensaje"
-                : "Mensaje de voz"
+                ? "Send message"
+                : "Voice message"
             }
           >
             <Button
               variant="default"
               size="icon"
               className={cn(
-                "h-8 w-8 rounded-full transition-all duration-200",
+                "h-6 w-6 rounded-full transition-all duration-200",
                 isRecording
                   ? "bg-transparent hover:bg-gray-600/30 text-red-500 hover:text-red-400"
                   : hasContent
-                  ? "bg-black hover:bg-black/80 text-white shadow-md"
+                  ? "bg-white hover:bg-white/80 text-black"
                   : "bg-transparent hover:bg-gray-600/30 text-[#9CA3AF] hover:text-[#D1D5DB]"
               )}
               onClick={() => {
@@ -767,11 +702,11 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
               disabled={isLoading && !hasContent}
             >
               {isLoading ? (
-                <Square className="h-3 w-3 fill-white animate-pulse" />
+                <Square className="h-3 w-3 fill-black animate-pulse" />
               ) : isRecording ? (
                 <StopCircle className="h-4 w-4 text-red-500" />
               ) : hasContent ? (
-                <ArrowUp className="h-3.5 w-3.5 text-white" />
+                <ArrowUp className="h-3 w-3 text-black" />
               ) : (
                 <Mic className="h-4 w-4 text-black transition-colors" />
               )}
