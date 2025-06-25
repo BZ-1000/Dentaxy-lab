@@ -189,9 +189,14 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-40 w-full max-w-lg mx-4"
+            className="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-40"
+            style={{ 
+              marginBottom: '80px', // Posición justo encima del dock
+              width: 'calc(100vw - 2rem)',
+              maxWidth: '600px' // Ligeramente más largo que el dock
+            }}
           >
-            <div className="bg-gray-700/80 backdrop-blur-sm rounded-2xl border border-gray-500/50 p-2 shadow-2xl">
+            <div className="bg-gray-700/60 backdrop-blur-sm rounded-2xl border border-gray-500/30 p-2 shadow-xl">
               <PromptInputBox
                 onSend={handleSend}
                 isLoading={isLoading}
