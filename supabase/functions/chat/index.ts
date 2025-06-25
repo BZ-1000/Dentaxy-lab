@@ -33,47 +33,9 @@ serve(async (req) => {
       });
     }
 
-    // Si no encuentra en la base local, usar Hugging Face como respaldo
-    const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer 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',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        inputs: `${systemPrompt}\n\nUsuario: ${message}\nAsistente:`,
-        parameters: {
-          max_length: 200,
-          temperature: 0.7,
-          do_sample: true,
-          pad_token_id: 50256
-        }
-      })
-    });
-
-    console.log('Hugging Face response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Hugging Face error:', errorText);
-      
-      const fallbackResponse = getFallbackResponse(message);
-      return new Response(JSON.stringify({ response: fallbackResponse }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const data = await response.json();
-    console.log('Hugging Face response:', data);
-
-    let aiResponse = '';
-    if (Array.isArray(data) && data[0]?.generated_text) {
-      aiResponse = data[0].generated_text.split('Asistente:').pop()?.trim() || getFallbackResponse(message);
-    } else {
-      aiResponse = getFallbackResponse(message);
-    }
-
-    return new Response(JSON.stringify({ response: aiResponse }), {
+    // Si no encuentra en la base local, usar fallback response
+    const fallbackResponse = getFallbackResponse(message);
+    return new Response(JSON.stringify({ response: fallbackResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
@@ -93,43 +55,42 @@ async function searchLocalTerms(supabaseClient: any, searchTerm: string): Promis
   try {
     console.log('Searching local database for:', searchTerm);
     
-    // Buscar términos que coincidan exactamente o contengan el término de búsqueda
+    // Limpiar el término de búsqueda
+    const cleanSearchTerm = searchTerm.toLowerCase().trim();
+    
+    // 1. Buscar coincidencias exactas primero
     const { data: exactMatches, error: exactError } = await supabaseClient
       .from('dental_terms')
       .select('*')
-      .ilike('termino', `%${searchTerm.toLowerCase()}%`)
+      .or(`termino.ilike.%${cleanSearchTerm}%,sinonimos.cs.{${cleanSearchTerm}}`)
       .limit(3);
 
     if (exactError) {
       console.error('Error searching exact matches:', exactError);
     }
 
-    // Buscar también en sinónimos
-    const { data: synonymMatches, error: synonymError } = await supabaseClient
-      .from('dental_terms')
-      .select('*')
-      .contains('sinonimos', [searchTerm.toLowerCase()])
-      .limit(2);
+    // 2. Si no hay coincidencias exactas, buscar en definiciones
+    let textMatches = [];
+    if (!exactMatches || exactMatches.length === 0) {
+      const { data: defMatches, error: defError } = await supabaseClient
+        .from('dental_terms')
+        .select('*')
+        .textSearch('definicion', cleanSearchTerm, { type: 'websearch', config: 'spanish' })
+        .limit(2);
 
-    if (synonymError) {
-      console.error('Error searching synonyms:', synonymError);
+      if (defError) {
+        console.error('Error in definition search:', defError);
+      } else {
+        textMatches = defMatches || [];
+      }
     }
 
-    // Buscar por texto completo en definiciones
-    const { data: textMatches, error: textError } = await supabaseClient
-      .from('dental_terms')
-      .select('*')
-      .textSearch('definicion', searchTerm, { type: 'websearch', config: 'spanish' })
-      .limit(2);
-
-    if (textError) {
-      console.error('Error in text search:', textError);
-    }
-
-    // Combinar resultados y eliminar duplicados
-    const allMatches = [...(exactMatches || []), ...(synonymMatches || []), ...(textMatches || [])]
+    // 3. Combinar resultados
+    const allMatches = [...(exactMatches || []), ...textMatches]
       .filter((term, index, self) => self.findIndex(t => t.id === term.id) === index)
-      .slice(0, 3); // Máximo 3 resultados
+      .slice(0, 3);
+
+    console.log('Found dental terms:', allMatches);
 
     if (allMatches.length > 0) {
       let response = `Encontré información sobre "${searchTerm}" en mi base de datos odontológica:\n\n`;
@@ -156,6 +117,7 @@ async function searchLocalTerms(supabaseClient: any, searchTerm: string): Promis
       return response;
     }
 
+    console.log('No matches found in database for:', searchTerm);
     return null;
   } catch (error) {
     console.error('Error searching local terms:', error);
@@ -164,26 +126,27 @@ async function searchLocalTerms(supabaseClient: any, searchTerm: string): Promis
 }
 
 function getFallbackResponse(message: string): string {
-  const term = message.toLowerCase();
+  const term = message.toLowerCase().trim();
   
-  const dentalTerms: { [key: string]: string } = {
-    'caries': 'La caries dental es la destrucción de los tejidos del diente causada por bacterias. Se produce cuando las bacterias en la boca convierten los azúcares en ácidos que desmineralizan el esmalte dental.',
-    'gingivitis': 'La gingivitis es la inflamación de las encías causada por la acumulación de placa bacteriana. Se caracteriza por enrojecimiento, hinchazón y sangrado de las encías.',
-    'periodontitis': 'La periodontitis es una enfermedad inflamatoria que afecta los tejidos de soporte del diente, incluyendo el ligamento periodontal y el hueso alveolar.',
-    'placa': 'La placa dental es una película pegajosa compuesta por bacterias, saliva y restos de alimentos que se acumula en los dientes y puede causar caries y enfermedad periodontal.',
-    'erosion': 'La erosión dental es la pérdida de estructura dental causada por ácidos, ya sea de origen extrínseco (dieta) o intrínseco (reflujo gástrico).',
-    'erosionadas': 'Se refiere a piezas dentales que han perdido estructura por acción de ácidos. Pueden presentar superficies lisas, pérdida de brillo y sensibilidad.',
-    'abrasion': 'La abrasión dental es el desgaste anormal de la estructura dental causado por fuerzas mecánicas externas como el cepillado agresivo.',
-    'bruxismo': 'El bruxismo es el hábito involuntario de apretar o rechinar los dientes, especialmente durante el sueño, que puede causar desgaste dental.',
-    'maloclusion': 'La maloclusión se refiere a la incorrecta alineación de los dientes superiores e inferiores al cerrar la boca.',
+  // Respuestas específicas para términos comunes que debe reconocer
+  const commonTerms: { [key: string]: string } = {
+    'padecimiento actual': 'El padecimiento actual se refiere al motivo principal de consulta del paciente, incluyendo la descripción detallada de los síntomas, su inicio, evolución y características. Es la razón por la cual el paciente busca atención odontológica.',
+    'motivo de consulta': 'Es la razón principal por la cual el paciente busca atención odontológica, describiendo el síntoma o problema que lo llevó a la consulta. Es el punto de partida para el diagnóstico.',
+    'dolor dental': 'Sensación molesta en las estructuras dentales causada por caries, inflamación pulpar, traumatismos o enfermedad periodontal. Puede ser agudo, sordo, pulsátil o irradiado.',
+    'caries': 'Proceso infeccioso que destruye los tejidos duros del diente causado por bacterias acidogénicas. Se manifiesta como cavidades o manchas oscuras en el diente.',
+    'gingivitis': 'Inflamación de las encías causada por acumulación de placa bacteriana. Se caracteriza por enrojecimiento, hinchazón y sangrado gingival.',
+    'periodontitis': 'Enfermedad inflamatoria destructiva que afecta los tejidos de soporte del diente, incluyendo ligamento periodontal y hueso alveolar.',
+    'bruxismo': 'Hábito involuntario de apretar o rechinar los dientes, especialmente durante el sueño, que puede causar desgaste dental y disfunción de ATM.',
+    'maloclusión': 'Alteración en la posición y relación dental que afecta la oclusión normal. Puede clasificarse según Angle en Clase I, II o III.',
     'hola': 'Hola, soy DentaxyGPT, tu asistente especializado en odontología. Pregúntame sobre cualquier término dental y te ayudaré con una explicación clara y precisa.'
   };
 
-  for (const [key, definition] of Object.entries(dentalTerms)) {
-    if (term.includes(key)) {
+  // Buscar coincidencias en términos comunes
+  for (const [key, definition] of Object.entries(commonTerms)) {
+    if (term.includes(key) || key.includes(term)) {
       return definition;
     }
   }
 
-  return `Soy DentaxyGPT, especializado en términos dentales. El término "${message}" que mencionas puede estar relacionado con odontología. Si puedes proporcionar más contexto o ser más específico, podré darte una explicación más precisa.`;
+  return `Soy DentaxyGPT, especializado en términos dentales. Busco información sobre "${message}" en mi base de datos. Si no encuentro el término exacto, es posible que necesites ser más específico o que el término no esté aún en mi base de datos. ¿Podrías proporcionar más contexto o reformular tu consulta?`;
 }

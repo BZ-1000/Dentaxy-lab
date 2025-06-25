@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Home, FileText, Search, Settings, User, Menu, X } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import WikiSearch from './WikiSearch';
+import { WikiSearch } from './WikiSearch';
 import MedicationSearch from './MedicationSearch';
 
 interface DockItemProps {
@@ -36,8 +37,22 @@ const AppleStyleDock: React.FC<AppleStyleDockProps> = ({ isOpen, onClose }) => {
   const [isMedicationSearchOpen, setIsMedicationSearchOpen] = useState(false);
 
   const dockVariants = {
-    open: { x: 0, opacity: 1, transition: { duration: 0.3, ease: "easeInOut" } },
-    closed: { x: "100%", opacity: 0, transition: { duration: 0.3, ease: "easeInOut" } },
+    open: { 
+      x: 0, 
+      opacity: 1, 
+      transition: { 
+        duration: 0.3, 
+        ease: [0.4, 0, 0.2, 1] as [number, number, number, number]
+      } 
+    },
+    closed: { 
+      x: "100%", 
+      opacity: 0, 
+      transition: { 
+        duration: 0.3, 
+        ease: [0.4, 0, 0.2, 1] as [number, number, number, number]
+      } 
+    },
   };
 
   const handleWikiSearchOpen = () => {
@@ -48,17 +63,17 @@ const AppleStyleDock: React.FC<AppleStyleDockProps> = ({ isOpen, onClose }) => {
     setIsWikiSearchOpen(false);
   };
 
-    const handleMedicationSearchOpen = () => {
-        setIsMedicationSearchOpen(true);
-    };
+  const handleMedicationSearchOpen = () => {
+    setIsMedicationSearchOpen(true);
+  };
 
-    const handleMedicationSearchClose = () => {
-        setIsMedicationSearchOpen(false);
-    };
+  const handleMedicationSearchClose = () => {
+    setIsMedicationSearchOpen(false);
+  };
 
   return (
     <>
-      {isWikiSearchOpen && <WikiSearch onClose={handleWikiSearchClose} />}
+      <WikiSearch open={isWikiSearchOpen} onOpenChange={setIsWikiSearchOpen} />
       {isMedicationSearchOpen && <MedicationSearch onClose={handleMedicationSearchClose} />}
 
       <motion.div

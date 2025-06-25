@@ -14,7 +14,7 @@ const GlowMenu: React.FC<GlowMenuProps> = ({ children, className = '' }) => {
       opacity: 1,
       transition: { 
         duration: 0.3, 
-        ease: [0.4, 0, 0.2, 1]
+        ease: [0.4, 0, 0.2, 1] as [number, number, number, number]
       }
     }
   };
@@ -27,7 +27,7 @@ const GlowMenu: React.FC<GlowMenuProps> = ({ children, className = '' }) => {
       transition: { 
         opacity: { 
           duration: 0.2, 
-          ease: [0.4, 0, 0.2, 1]
+          ease: [0.4, 0, 0.2, 1] as [number, number, number, number]
         },
         scale: { 
           duration: 0.3, 

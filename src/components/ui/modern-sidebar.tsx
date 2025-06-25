@@ -1,247 +1,186 @@
-import { cn } from "@/lib/utils";
-import React, { useState, createContext, useContext, ReactNode } from "react";
-import { AnimatePresence, motion, MotionValue, useTransform } from "framer-motion";
-import { Menu, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Home, User, Settings, Calendar, FileText, LayoutDashboard } from 'lucide-react';
 
-interface Links {
-  label: string;
-  href?: string;
-  icon: React.JSX.Element | React.ReactNode;
-  onClick?: () => void;
+interface ModernSidebarProps {
+  isOpen: boolean;
+  onToggle: () => void;
+  onSectionChange: (sectionId: string) => void;
+  activeSection: string;
+  children: React.ReactNode;
 }
 
-interface SidebarContextProps {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  animate: boolean;
+interface Section {
+  id: string;
+  title: string;
+  subtitle: string;
+  icon: React.ReactNode;
 }
 
-const SidebarContext = createContext<SidebarContextProps | undefined>(undefined);
-
-export const useSidebar = () => {
-  const context = useContext(SidebarContext);
-  if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider");
+const sections: Section[] = [
+  {
+    id: 'anamnesis',
+    title: 'Anamnesis',
+    subtitle: 'Entrevista al paciente',
+    icon: <User size={20} />
+  },
+  {
+    id: 'exploracion',
+    title: 'Exploración',
+    subtitle: 'Examen físico detallado',
+    icon: <Calendar size={20} />
+  },
+  {
+    id: 'diagnostico',
+    title: 'Diagnóstico',
+    subtitle: 'Identificación del problema',
+    icon: <FileText size={20} />
+  },
+  {
+    id: 'plan',
+    title: 'Plan de Tratamiento',
+    subtitle: 'Estrategia a seguir',
+    icon: <LayoutDashboard size={20} />
+  },
+  {
+    id: 'configuracion',
+    title: 'Configuración',
+    subtitle: 'Ajustes y preferencias',
+    icon: <Settings size={20} />
   }
-  return context;
-};
+];
 
-export const SidebarProvider = ({
-  children,
-  open: openProp,
-  setOpen: setOpenProp,
-  animate = true
-}: {
-  children: React.ReactNode;
-  open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean
-}) => {
-  const [openState, setOpenState] = useState(false);
-  const open = openProp !== undefined ? openProp : openState;
-  const setOpen = setOpenProp !== undefined ? setOpenProp : setOpenState;
+const ModernSidebar = ({ isOpen, onToggle, onSectionChange, activeSection, children }: ModernSidebarProps) => {
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
-  return (
-    <SidebarContext.Provider value={{
-      open,
-      setOpen,
-      animate
-    }}>
-      {children}
-    </SidebarContext.Provider>
-  );
-};
-
-export const Sidebar = ({
-  children,
-  open,
-  setOpen,
-  animate
-}: {
-  children: React.ReactNode;
-  open?: boolean;
-  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
-}) => {
-  return (
-    <SidebarProvider open={open} setOpen={setOpen} animate={animate}>
-      {children}
-    </SidebarProvider>
-  );
-};
-
-export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
-  return (
-    <>
-      <DesktopSidebar {...props} />
-      <MobileSidebar {...props} />
-    </>
-  );
-};
-
-export const DesktopSidebar = ({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen, animate } = useSidebar();
-  const sidebarWidth = animate ? (open ? "300px" : "60px") : "300px";
-
-  return (
-    <motion.div
-      className={cn(
-        "h-full px-4 py-4 hidden md:flex md:flex-col bg-neutral-100 dark:bg-neutral-800 flex-shrink-0",
-        className
-      )}
-      style={{ width: sidebarWidth }}
-      animate={{ width: sidebarWidth }}
-      onMouseEnter={() => setOpen(true)}
-      onMouseLeave={() => setOpen(false)}
-      {...props}
-    >
-      {children}
-    </motion.div>
-  );
-};
-
-export const MobileSidebar = ({
-  className,
-  children,
-  ...props
-}: React.ComponentProps<typeof motion.div>) => {
-  const { open, setOpen } = useSidebar();
-
-  return (
-    <>
-      <div className="h-14 md:hidden flex items-center px-4 bg-neutral-100 dark:bg-neutral-800">
-        <button
-          onClick={() => setOpen(true)}
-          className="p-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-lg"
-        >
-          <Menu className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
-        </button>
-      </div>
-      
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
-            className={cn(
-              "fixed inset-0 z-50 bg-white dark:bg-neutral-900 md:hidden",
-              className
-            )}
-            {...props}
-          >
-            <div className="flex flex-col h-full p-4">
-              <button
-                onClick={() => setOpen(false)}
-                className="self-end p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg mb-4"
-              >
-                <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
-              </button>
-              {children}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  );
-};
-
-export const SidebarLink = ({
-  link,
-  className,
-  ...props
-}: {
-  link: Links;
-  className?: string;
-}) => {
-  const { open, animate } = useSidebar();
-  const navigate = useNavigate();
-
-  const handleLinkClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default browser navigation
-    
-    if (link.onClick) {
-      link.onClick();
-      return;
-    }
-    
-    if (link.href) {
-      if (link.href.startsWith('http') || link.href.startsWith('#')) {
-        window.location.href = link.href; // For external links only
-      } else {
-        navigate(link.href, { replace: false }); // Use replace: false to maintain history
-      }
-    }
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
   return (
-    <Link
-      to={link.href || '#'}
-      className={cn("flex items-center justify-start gap-2 group/sidebar py-2 cursor-pointer", className)}
-      onClick={handleLinkClick}
-      {...props}
-    >
-      {link.icon}
-      {animate ? (
-        open ? (
-          <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
-            {link.label}
-          </span>
-        ) : null
-      ) : (
-        <span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0 text-justify">
-          {link.label}
-        </span>
-      )}
-    </Link>
+    <>
+      {/* Backdrop */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+            onClick={onToggle}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar */}
+      <motion.div
+        initial={false}
+        animate={{
+          x: isOpen ? 0 : -320,
+          transition: { type: "spring", damping: 30, stiffness: 300 }
+        }}
+        className="fixed left-0 top-0 h-full w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-r border-gray-200/50 dark:border-gray-700/50 z-50 shadow-2xl"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-200/50 dark:border-gray-700/50">
+          <motion.h2 
+            className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            Historia Clínica
+          </motion.h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggle}
+            className="hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="p-4 space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
+          {sections.map((section, index) => (
+            <motion.div
+              key={section.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <button
+                onClick={() => onSectionChange(section.id)}
+                className={`w-full text-left p-3 rounded-xl transition-all duration-200 group hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                  activeSection === section.id
+                    ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 shadow-sm'
+                    : ''
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`text-lg ${
+                    activeSection === section.id 
+                      ? 'text-blue-600 dark:text-blue-400' 
+                      : 'text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-300'
+                  }`}>
+                    {section.icon}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className={`font-medium text-sm truncate ${
+                      activeSection === section.id 
+                        ? 'text-blue-700 dark:text-blue-300' 
+                        : 'text-gray-700 dark:text-gray-300'
+                    }`}>
+                      {section.title}
+                    </div>
+                    <div className={`text-xs truncate mt-1 ${
+                      activeSection === section.id 
+                        ? 'text-blue-600 dark:text-blue-400' 
+                        : 'text-gray-500 dark:text-gray-400'
+                    }`}>
+                      {section.subtitle}
+                    </div>
+                  </div>
+                  {activeSection === section.id && (
+                    <motion.div
+                      layoutId="activeIndicator"
+                      className="w-2 h-2 bg-blue-500 rounded-full"
+                    />
+                  )}
+                </div>
+              </button>
+            </motion.div>
+          ))}
+        </nav>
+
+        {/* Footer */}
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm">
+          <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            © 2024 Dentaxy. Todos los derechos reservados.
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Main content area with overlay */}
+      <motion.div
+        animate={{
+          marginLeft: isOpen ? 320 : 0,
+          transition: { type: "spring", damping: 30, stiffness: 300 }
+        }}
+        className="min-h-screen transition-all duration-300 lg:block hidden"
+      >
+        {children}
+      </motion.div>
+
+      {/* Mobile content */}
+      <div className="lg:hidden">
+        {children}
+      </div>
+    </>
   );
 };
 
-export const Logo = ({
-  children
-}: {
-  children: ReactNode;
-}) => {
-  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
-      {children}
-      <div className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</div>
-    </div>;
-};
-
-export const LogoIcon = ({
-  children
-}: {
-  children: ReactNode;
-}) => {
-  return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
-      {children}
-    </div>;
-};
-
-interface DockIconProps {
-  children: ReactNode;
-  className?: string;
-  width: MotionValue<number>;
-}
-
-function DockIcon({ children, className, width }: DockIconProps) {
-  // Convert width to a number for the transformed width
-  const transformedWidth = useTransform(width, (val) => val / 2);
-  
-  return (
-    <motion.div
-      style={{ width: transformedWidth }}
-      className={cn('flex items-center justify-center', className)}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-export { DockIcon };
+export default ModernSidebar;
