@@ -12,17 +12,16 @@ export const SelectableText: React.FC<SelectableTextProps> = ({ text, className 
   const [selectedWords, setSelectedWords] = useState<Set<string>>(new Set());
   const [touchedWord, setTouchedWord] = useState<string | null>(null);
 
-  // Función para dividir el texto en palabras
+  // Función para dividir el texto en palabras preservando espacios y puntuación
   const tokenizeText = (text: string) => {
-    // Dividir por espacios y mantener signos de puntuación
-    return text.split(/(\s+|[.,;:!?()[\]{}"])/).filter(token => token.trim().length > 0);
+    return text.split(/(\s+|[.,;:!?()[\]{}"])/).filter(token => token.length > 0);
   };
 
   const handleWordInteraction = useCallback((word: string, action: 'select' | 'touch' | 'release') => {
     if (!isAnalysisMode) return;
 
     const cleanWord = word.trim().toLowerCase();
-    if (cleanWord.length < 2) return; // Ignorar palabras muy cortas
+    if (cleanWord.length < 2 || /^\s+$/.test(word) || /^[.,;:!?()[\]{}"]$/.test(word)) return;
 
     switch (action) {
       case 'touch':
@@ -54,17 +53,23 @@ export const SelectableText: React.FC<SelectableTextProps> = ({ text, className 
     if (!isAnalysisMode) return '';
     
     const cleanWord = word.trim().toLowerCase();
-    let classes = 'cursor-pointer transition-all duration-200 rounded px-1 py-0.5 mx-0.5 inline-block select-none ';
+    
+    // Si es solo espacios o puntuación, no aplicar estilos
+    if (/^\s+$/.test(word) || /^[.,;:!?()[\]{}"]$/.test(word)) {
+      return '';
+    }
+    
+    let classes = 'cursor-pointer transition-all duration-200 rounded-md px-1.5 py-1 mx-0.5 inline-block select-none border ';
     
     if (selectedWords.has(cleanWord)) {
       // Palabra seleccionada - fondo amarillo permanente
-      classes += 'bg-yellow-300 hover:bg-yellow-400 ';
+      classes += 'bg-yellow-300 border-yellow-400 hover:bg-yellow-400 text-gray-800 ';
     } else if (touchedWord === cleanWord) {
       // Palabra siendo tocada - se oscurece
-      classes += 'bg-gray-400 ';
+      classes += 'bg-gray-400 border-gray-500 text-white ';
     } else {
       // Estado normal en modo análisis - fondo gris claro como botón
-      classes += 'bg-gray-100 hover:bg-gray-200 ';
+      classes += 'bg-gray-100 border-gray-200 hover:bg-gray-200 text-gray-700 ';
     }
     
     return classes;
@@ -95,7 +100,10 @@ export const SelectableText: React.FC<SelectableTextProps> = ({ text, className 
               handleWordInteraction(token, 'select');
             }}
             onMouseLeave={() => handleWordInteraction(token, 'release')}
-            onTouchStart={() => handleWordInteraction(token, 'touch')}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              handleWordInteraction(token, 'touch');
+            }}
             onTouchEnd={(e) => {
               e.preventDefault();
               handleWordInteraction(token, 'release');
@@ -105,7 +113,8 @@ export const SelectableText: React.FC<SelectableTextProps> = ({ text, className 
               userSelect: 'none',
               WebkitUserSelect: 'none',
               MozUserSelect: 'none',
-              msUserSelect: 'none'
+              msUserSelect: 'none',
+              WebkitTouchCallout: 'none'
             }}
           >
             {token}

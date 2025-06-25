@@ -12,8 +12,8 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ children, className 
     const parts: React.ReactNode[] = [];
     let currentIndex = 0;
     
-    // Regex para encontrar texto en negritas (**texto** o <strong>texto</strong>)
-    const boldRegex = /(\*\*(.*?)\*\*|<strong>(.*?)<\/strong>)/g;
+    // Regex para encontrar texto en negritas (**texto**, <strong>texto</strong>, o *texto*)
+    const boldRegex = /(\*\*(.*?)\*\*|<strong>(.*?)<\/strong>|\*(.*?)\*)/g;
     let match;
     
     while ((match = boldRegex.exec(text)) !== null) {
@@ -23,7 +23,7 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ children, className 
       }
       
       // Agregar texto en negrita
-      const boldText = match[2] || match[3]; // Captura de **texto** o <strong>texto</strong>
+      const boldText = match[2] || match[3] || match[4]; // Captura de **texto**, <strong>texto</strong> o *texto*
       parts.push(
         <strong key={match.index} className="font-bold">
           {boldText}

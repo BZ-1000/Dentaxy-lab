@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from "@/hooks/use-theme";
 import { OtraCondicionInput } from '@/components/ui/OtraCondicionInput';
 import { SelectableText } from '@/components/ui/SelectableText';
+import { MarkdownText } from '@/components/ui/MarkdownText';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
 
 interface OtraCondicion {
@@ -21,13 +23,15 @@ interface OtraCondicion {
 
 interface AntecedentesPersonalesPatologicosProps {
   formData: {
-    alergias: string;
-    medicamentosActuales: string;
-    cirugiasPrevias: string;
-    hospitalizacionesPrevias: string;
-    transfusionesSanguineas: boolean;
-    enfermedadesCronicas: string;
-    otrasCondiciones: OtraCondicion[];
+    antecedentesPersonalesPatologicos: {
+      alergias: string;
+      medicamentosActuales: string;
+      cirugiasPrevias: string;
+      hospitalizacionesPrevias: string;
+      transfusionesSanguineas: boolean;
+      enfermedadesCronicas: string;
+      otrasCondiciones: OtraCondicion[];
+    };
   };
   onFormDataChange: (newData: any) => void;
 }
@@ -41,6 +45,8 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
   const [animatingFields, setAnimatingFields] = useState<Set<string>>(new Set());
   const [isAutoSaving, setIsAutoSaving] = useState(false);
 
+  const antecedentesData = formData.antecedentesPersonalesPatologicos;
+
   const triggerFieldAnimation = (fieldName: string) => {
     setAnimatingFields(prev => new Set(prev).add(fieldName));
     setTimeout(() => {
@@ -52,11 +58,14 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     }, 300);
   };
 
-  const handleInputChange = (field: string, value: string | boolean) => {
+  const handleInputChange = (field: string, value: string | boolean | OtraCondicion[]) => {
     triggerFieldAnimation(field);
     onFormDataChange({
       ...formData,
-      [field]: value
+      antecedentesPersonalesPatologicos: {
+        ...antecedentesData,
+        [field]: value
+      }
     });
   };
 
@@ -67,18 +76,18 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
       descripcion: ''
     };
     
-    handleInputChange('otrasCondiciones', [...formData.otrasCondiciones, nuevaCondicion]);
+    handleInputChange('otrasCondiciones', [...antecedentesData.otrasCondiciones, nuevaCondicion]);
     toast.success("Nueva condición agregada");
   };
 
   const handleOtraCondicionRemove = (id: string) => {
-    const condicionesActualizadas = formData.otrasCondiciones.filter(c => c.id !== id);
+    const condicionesActualizadas = antecedentesData.otrasCondiciones.filter(c => c.id !== id);
     handleInputChange('otrasCondiciones', condicionesActualizadas);
     toast.success("Condición eliminada");
   };
 
   const handleOtraCondicionChange = (id: string, field: 'condicion' | 'descripcion', value: string) => {
-    const condicionesActualizadas = formData.otrasCondiciones.map(c => 
+    const condicionesActualizadas = antecedentesData.otrasCondiciones.map(c => 
       c.id === id ? { ...c, [field]: value } : c
     );
     handleInputChange('otrasCondiciones', condicionesActualizadas);
@@ -103,7 +112,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
     if (isAnalysisMode) {
       return <SelectableText text={text} />;
     }
-    return <span>{text}</span>;
+    return <MarkdownText>{text}</MarkdownText>;
   };
 
   return (
@@ -123,7 +132,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
               </Label>
               <Textarea
                 placeholder="Describa las alergias conocidas del paciente..."
-                value={formData.alergias}
+                value={antecedentesData.alergias}
                 onChange={(e) => handleInputChange('alergias', e.target.value)}
                 className={`min-h-[100px] ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-gray-50 border-gray-300'} transition-colors duration-200`}
               />
@@ -138,7 +147,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
               </Label>
               <Textarea
                 placeholder="Lista de medicamentos que toma actualmente..."
-                value={formData.medicamentosActuales}
+                value={antecedentesData.medicamentosActuales}
                 onChange={(e) => handleInputChange('medicamentosActuales', e.target.value)}
                 className={`min-h-[100px] ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-gray-50 border-gray-300'} transition-colors duration-200`}
               />
@@ -153,7 +162,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
               </Label>
               <Textarea
                 placeholder="Historial de cirugías..."
-                value={formData.cirugiasPrevias}
+                value={antecedentesData.cirugiasPrevias}
                 onChange={(e) => handleInputChange('cirugiasPrevias', e.target.value)}
                 className={`min-h-[100px] ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-gray-50 border-gray-300'} transition-colors duration-200`}
               />
@@ -168,7 +177,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
               </Label>
               <Textarea
                 placeholder="Historial de hospitalizaciones..."
-                value={formData.hospitalizacionesPrevias}
+                value={antecedentesData.hospitalizacionesPrevias}
                 onChange={(e) => handleInputChange('hospitalizacionesPrevias', e.target.value)}
                 className={`min-h-[100px] ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-gray-50 border-gray-300'} transition-colors duration-200`}
               />
@@ -180,7 +189,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="transfusiones"
-                checked={formData.transfusionesSanguineas}
+                checked={antecedentesData.transfusionesSanguineas}
                 onCheckedChange={(checked) => handleInputChange('transfusionesSanguineas', checked as boolean)}
                 className={`${theme === 'dark' ? 'border-gray-600' : 'border-gray-300'}`}
               />
@@ -198,7 +207,7 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
               </Label>
               <Textarea
                 placeholder="Diabetes, hipertensión, enfermedades cardíacas, etc..."
-                value={formData.enfermedadesCronicas}
+                value={antecedentesData.enfermedadesCronicas}
                 onChange={(e) => handleInputChange('enfermedadesCronicas', e.target.value)}
                 className={`min-h-[100px] ${theme === 'dark' ? 'bg-gray-700 border-gray-600 text-gray-100' : 'bg-gray-50 border-gray-300'} transition-colors duration-200`}
               />
@@ -219,12 +228,12 @@ const AntecedentesPersonalesPatologicos: React.FC<AntecedentesPersonalesPatologi
                 className={`${theme === 'dark' ? 'border-gray-600 text-gray-200 hover:bg-gray-700' : 'border-gray-300 hover:bg-gray-50'} transition-colors duration-200`}
               >
                 <Plus className="h-4 w-4 mr-1" />
-                {renderTextContent("Agregar")}
+                Agregar
               </Button>
             </div>
 
             <AnimatePresence>
-              {formData.otrasCondiciones.map((condicion, index) => (
+              {antecedentesData.otrasCondiciones.map((condicion, index) => (
                 <motion.div
                   key={condicion.id}
                   initial={{ opacity: 0, height: 0 }}
