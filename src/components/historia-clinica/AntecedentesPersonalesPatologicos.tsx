@@ -21,17 +21,19 @@ interface OtraCondicion {
   descripcion: string;
 }
 
+interface AntecedentesPersonalesPatologicosData {
+  alergias: string;
+  medicamentosActuales: string;
+  cirugiasPrevias: string;
+  hospitalizacionesPrevias: string;
+  transfusionesSanguineas: boolean;
+  enfermedadesCronicas: string;
+  otrasCondiciones: OtraCondicion[];
+}
+
 interface AntecedentesPersonalesPatologicosProps {
   formData: {
-    antecedentesPersonalesPatologicos: {
-      alergias: string;
-      medicamentosActuales: string;
-      cirugiasPrevias: string;
-      hospitalizacionesPrevias: string;
-      transfusionesSanguineas: boolean;
-      enfermedadesCronicas: string;
-      otrasCondiciones: OtraCondicion[];
-    };
+    antecedentesPersonalesPatologicos: AntecedentesPersonalesPatologicosData;
   };
   onFormDataChange: (newData: any) => void;
 }

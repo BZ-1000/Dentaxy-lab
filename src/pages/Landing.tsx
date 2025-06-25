@@ -264,77 +264,13 @@ const Landing = () => {
   };
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
-      nutricionales: {
-        anorexia: false,
-        bulimia: false,
-        sobrepeso: false,
-        obesidad: false,
-        ninguna: true,
-        otra: false,
-        otraDescripcion: ''
-      },
-      cardiacos: {
-        enfermedadCoronaria: false,
-        arritmias: false,
-        defectosCardiacosCongenitos: false,
-        ninguna: true,
-        otra: false,
-        otraDescripcion: ''
-      },
-      hepaticos: {
-        hepatitisA: false,
-        hepatitisB: false,
-        hepatitisC: false,
-        higadoGraso: false,
-        cirrosis: false,
-        ninguna: true,
-        otra: false,
-        otraDescripcion: ''
-      },
-      enfermedadesTransmisionSexual: {
-        vih: false,
-        sifilis: false,
-        gonorrea: false,
-        herpesGenital: false,
-        vph: false,
-        ninguna: true,
-        otra: false,
-        otraDescripcion: ''
-      },
-      enfermedadesEruptivas: {
-        sarampion: false,
-        rubeola: false,
-        escarlatina: false,
-        varicela: false,
-        paperas: false,
-        ninguna: true,
-        otra: false,
-        otraDescripcion: ''
-      },
-      pulmonares: {
-        neumonia: false,
-        bronquitis: false,
-        asma: false,
-        epoc: false,
-        ninguna: true,
-        otra: false,
-        otraDescripcion: ''
-      },
-      infecciosasParasitarias: {
-        fiebreTifoidea: false,
-        tuberculosis: false,
-        amibiasis: false,
-        giardiasis: false,
-        ascariasis: false,
-        ninguna: true,
-        otra: false,
-        otraDescripcion: ''
-      },
-      otrosPadecimientos: {
-        ninguna: true,
-        otra: false,
-        otraDescripcion: ''
-      }
+      alergias: '',
+      medicamentosActuales: '',
+      cirugiasPrevias: '',
+      hospitalizacionesPrevias: '',
+      transfusionesSanguineas: false,
+      enfermedadesCronicas: '',
+      otrasCondiciones: []
     }
   });
   
@@ -489,7 +425,7 @@ const Landing = () => {
       {/* Mobile Menu */}
       {isMobile && <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 p-4">
           <div className="flex justify-around">
-            {menuItems.map(item => <Link key={item.label} to={item.href} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`} onClick={() => setActiveItem(item.label)}>
+            {menuItems.map(item => <Link key={item.label} to={item.href} className={`flex flex-col items-center text-xs ${activeItem === item.label ? 'text-blue-600' : 'text-gray-500'}`} onClick={()={() => setActiveItem(item.label)}>
                 {item.label}
               </Link>)}
           </div>
