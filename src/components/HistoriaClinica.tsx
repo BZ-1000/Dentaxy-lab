@@ -66,7 +66,7 @@ function ResponsePopup({
       y: 20,
       scale: 0.95
     }} className="fixed top-16 right-4 z-[9999] max-w-md">
-        <div className="backdrop-blur-md border border-gray-600 rounded-2xl p-4 shadow-2xl py-[16px] px-[16px] bg-slate-800">
+        <div className="backdrop-blur-md border border-gray-600 rounded-2xl p-4 shadow-2xl py-[16px] px-[16px] bg-gray-800">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <img src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" alt="DentaxyGPT" className="h-6 w-6" />
