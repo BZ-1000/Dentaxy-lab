@@ -142,3 +142,4 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
     </>
   );
 }
+ 
