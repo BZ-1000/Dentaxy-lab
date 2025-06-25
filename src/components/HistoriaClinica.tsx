@@ -36,10 +36,9 @@ import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
 import { DefinitionPopup } from '@/components/ui/DefinitionPopup';
+
 const HistoriaClinica = () => {
-  const {
-    theme
-  } = useTheme();
+  const { theme } = useTheme();
   const [pacienteActual, setPacienteActual] = useState<string>('');
   const [nombrePaciente, setNombrePaciente] = useState<string>('');
   const [alertOpen, setAlertOpen] = useState(false);
@@ -47,17 +46,10 @@ const HistoriaClinica = () => {
   const [esMujer, setEsMujer] = useState<boolean>(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
-  const pdfSectionsRef = useRef<{
-    [key: string]: string;
-  }>({});
-  const {
-    isAnalysisMode,
-    setAnalysisMode,
-    selectedText,
-    setSelectedText,
-    selectedPosition,
-    setSelectedPosition
-  } = useAnalysisMode();
+  const pdfSectionsRef = useRef<{ [key: string]: string; }>({});
+  
+  const { isAnalysisMode, setAnalysisMode, selectedText, setSelectedText, selectedPosition, setSelectedPosition } = useAnalysisMode();
+
   const {
     formData,
     resumen,
@@ -93,12 +85,15 @@ const HistoriaClinica = () => {
     cargarFormulario,
     resetFormulario
   } = useHistoriaClinica();
+
   useEffect(() => {
     const handleTextSelection = (event: MouseEvent) => {
       if (!isAnalysisMode) return;
+
       const target = event.target as HTMLElement;
       const selection = window.getSelection();
       const selectedTextContent = selection?.toString().trim();
+
       if (selectedTextContent && selectedTextContent.length > 2) {
         setSelectedText(selectedTextContent);
         setSelectedPosition({
@@ -107,6 +102,7 @@ const HistoriaClinica = () => {
         });
       }
     };
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isAnalysisMode) {
         setAnalysisMode(false);
@@ -114,31 +110,37 @@ const HistoriaClinica = () => {
         setSelectedPosition(null);
       }
     };
+
     if (isAnalysisMode) {
       document.addEventListener('mouseup', handleTextSelection);
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.cursor = 'crosshair';
     }
+
     return () => {
       document.removeEventListener('mouseup', handleTextSelection);
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.cursor = 'default';
     };
   }, [isAnalysisMode, setAnalysisMode, setSelectedText, setSelectedPosition]);
+
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
     }
   }, [formData, pacienteActual, guardarFormulario]);
+
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
     cargarFormulario(null);
   };
+
   const handleResetFormulario = () => {
     setPacienteActual('');
     resetFormulario();
   };
+
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       toast({
@@ -155,6 +157,7 @@ const HistoriaClinica = () => {
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
+
   const validateForm = () => {
     const padecimientoFields = validatePadecimientoActual(formData);
     const heredoFamiliaresFields = validateAntecedentesHeredoFamiliares(formData);
@@ -163,9 +166,11 @@ const HistoriaClinica = () => {
     const allMissingFields = [...padecimientoFields, ...heredoFamiliaresFields, ...noPatologicosFields, ...patologicosFields];
     return allMissingFields;
   };
+
   const generateSectionRedaction = async (sectionElement: Element) => {
     try {
       if (!sectionElement) return false;
+
       const formTabs = sectionElement.querySelectorAll('button');
       let formTab = null;
       for (const tab of formTabs) {
@@ -178,6 +183,7 @@ const HistoriaClinica = () => {
         (formTab as HTMLElement).click();
         await new Promise(resolve => setTimeout(resolve, 300));
       }
+
       const allButtons = Array.from(sectionElement.querySelectorAll('button'));
       const generateButton = allButtons.find(button => button.textContent && (button.textContent.includes('Generar Redacción IA') || button.textContent.includes('Generar Redacción') || button.textContent.includes('Generar Informe')));
       if (!generateButton) {
@@ -186,7 +192,9 @@ const HistoriaClinica = () => {
       }
       console.log('Clicking generate button', generateButton.textContent);
       (generateButton as HTMLElement).click();
+
       await new Promise(resolve => setTimeout(resolve, 4000));
+
       const redactionTabs = sectionElement.querySelectorAll('button');
       let redactionTab = null;
       for (const tab of redactionTabs) {
@@ -205,9 +213,11 @@ const HistoriaClinica = () => {
       return false;
     }
   };
+
   const getSectionRedaction = (sectionElement: Element): string | null => {
     try {
       if (!sectionElement) return null;
+
       const possibleContentSelectors = ['div[data-redaction-content]', '.min-h-\\[150px\\], .min-h-\\[200px\\]', 'div.bg-gray-50, div.bg-gray-900', 'div[style*="white-space: pre-wrap"]', 'div.whitespace-pre-wrap'];
       let contentElement = null;
       for (const selector of possibleContentSelectors) {
@@ -220,6 +230,7 @@ const HistoriaClinica = () => {
         }
         if (contentElement) break;
       }
+
       if (!contentElement) {
         const allDivs = sectionElement.querySelectorAll('div');
         for (const div of allDivs) {
@@ -233,6 +244,7 @@ const HistoriaClinica = () => {
         console.warn('Could not find redaction content');
         return null;
       }
+
       const text = contentElement.textContent || '';
       return text.trim();
     } catch (error) {
@@ -240,8 +252,10 @@ const HistoriaClinica = () => {
       return null;
     }
   };
+
   const collectAllRedactions = async () => {
     pdfSectionsRef.current = {};
+
     const sectionSelectors = [{
       name: 'padecimientoActual',
       selector: '[data-section-name="padecimientoActual"]'
@@ -306,10 +320,12 @@ const HistoriaClinica = () => {
       name: 'pronostico',
       selector: '[data-section-name="pronostico"]'
     }];
+
     const totalSteps = sectionSelectors.length * 2;
     let completedSteps = 0;
     for (const sectionConfig of sectionSelectors) {
       console.log(`Processing section: ${sectionConfig.name}`);
+
       const sectionElements = document.querySelectorAll(sectionConfig.selector);
       if (sectionElements.length === 0) {
         console.warn(`Section not found: ${sectionConfig.name}`);
@@ -318,26 +334,34 @@ const HistoriaClinica = () => {
         continue;
       }
       const sectionElement = sectionElements[0];
+
       await generateSectionRedaction(sectionElement);
+
       completedSteps++;
       setPdfGenerationProgress(completedSteps / totalSteps * 100);
+
       await new Promise(resolve => setTimeout(resolve, 2000));
+
       const content = getSectionRedaction(sectionElement);
       if (content) {
         pdfSectionsRef.current[sectionConfig.name] = content;
         console.log(`Added ${sectionConfig.name} redaction to PDF`);
       }
+
       completedSteps++;
       setPdfGenerationProgress(completedSteps / totalSteps * 100);
     }
     console.log("All redactions collected:", Object.keys(pdfSectionsRef.current));
     return pdfSectionsRef.current;
   };
+
   const generatePDFDocument = async () => {
     try {
       setIsGeneratingPDF(true);
       setPdfGenerationProgress(0);
+
       const allRedactions = await collectAllRedactions();
+
       if (Object.keys(allRedactions).length === 0) {
         toast({
           title: "Advertencia",
@@ -347,12 +371,14 @@ const HistoriaClinica = () => {
         setIsGeneratingPDF(false);
         return;
       }
+
       const patientName = nombrePaciente || pacienteActual || 'Paciente';
       generatePDF(formData, patientName, allRedactions);
       toast({
         title: "PDF Generado",
         description: "La Historia Clínica ha sido generada exitosamente."
       });
+
     } catch (error) {
       console.error("Error generating PDF:", error);
       toast({
@@ -365,6 +391,7 @@ const HistoriaClinica = () => {
       setPdfGenerationProgress(100);
     }
   };
+
   const handleGeneratePDF = () => {
     const missing = validateForm();
     if (missing.length > 0) {
@@ -374,27 +401,57 @@ const HistoriaClinica = () => {
       generatePDFDocument();
     }
   };
-  return <div className={`${theme} min-h-screen w-full flex relative`}>
+
+  return (
+    <div className={`${theme} min-h-screen w-full flex relative`}>
       {/* Analysis Mode Overlay - only show when popup is visible */}
-      {isAnalysisMode && selectedText && selectedPosition && <div className="fixed inset-0 bg-emerald-500/10 backdrop-blur-sm z-40 pointer-events-none" />}
+      {isAnalysisMode && selectedText && selectedPosition && (
+        <div className="fixed inset-0 bg-emerald-500/10 backdrop-blur-sm z-40 pointer-events-none" />
+      )}
 
       {/* Analysis Mode Indicator - show when mode is active */}
-      {isAnalysisMode}
+      {isAnalysisMode && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg z-50 flex items-center gap-2">
+          <span className="text-sm font-medium">Modo Análisis Activo - Selecciona cualquier término</span>
+          <button
+            onClick={() => {
+              setAnalysisMode(false);
+              setSelectedText('');
+              setSelectedPosition(null);
+            }}
+            className="text-white hover:text-gray-200 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
 
       {/* Definition Popup */}
-      {selectedText && selectedPosition && <DefinitionPopup text={selectedText} position={selectedPosition} onClose={() => {
-      setSelectedText('');
-      setSelectedPosition(null);
-    }} />}
+      {selectedText && selectedPosition && (
+        <DefinitionPopup
+          text={selectedText}
+          position={selectedPosition}
+          onClose={() => {
+            setSelectedText('');
+            setSelectedPosition(null);
+          }}
+        />
+      )}
 
-      <FormulariosSidebar onCargarFormulario={(data, nombre) => {
-      cargarFormulario(data);
-      setPacienteActual(nombre);
-      setNombrePaciente(nombre);
-    }} onGuardarFormulario={nombre => {
-      guardarFormulario(formData, nombre);
-      setPacienteActual(nombre);
-    }} onCerrarFormulario={handleLimpiarFormulario} onResetFormulario={handleResetFormulario} pacienteActual={pacienteActual} />
+      <FormulariosSidebar 
+        onCargarFormulario={(data, nombre) => {
+          cargarFormulario(data);
+          setPacienteActual(nombre);
+          setNombrePaciente(nombre);
+        }} 
+        onGuardarFormulario={nombre => {
+          guardarFormulario(formData, nombre);
+          setPacienteActual(nombre);
+        }} 
+        onCerrarFormulario={handleLimpiarFormulario} 
+        onResetFormulario={handleResetFormulario} 
+        pacienteActual={pacienteActual} 
+      />
       
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
         <div className="max-w-5xl mx-auto space-y-8">
@@ -410,31 +467,60 @@ const HistoriaClinica = () => {
                   <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                     <User className="h-4 w-4 text-gray-400" />
                   </div>
-                  <Input value={nombrePaciente} onChange={e => setNombrePaciente(e.target.value)} placeholder="Nombre del paciente" className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" />
+                  <Input 
+                    value={nombrePaciente} 
+                    onChange={e => setNombrePaciente(e.target.value)} 
+                    placeholder="Nombre del paciente" 
+                    className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                  />
                 </div>
-                <Button onClick={handleGuardarFormulario} disabled={!nombrePaciente.trim()} className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200">
+                <Button 
+                  onClick={handleGuardarFormulario} 
+                  disabled={!nombrePaciente.trim()} 
+                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200"
+                >
                   <Save className="h-4 w-4" />
                   <span className="text-sm font-medium">Guardar</span>
                 </Button>
               </div>
             </div>
 
-            {pacienteActual && <div className="flex items-center justify-center gap-2 mb-6">
+            {pacienteActual && (
+              <div className="flex items-center justify-center gap-2 mb-6">
                 <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
                   Formulario actual: {pacienteActual}
                 </div>
-                <button onClick={handleResetFormulario} className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Resetear formulario">
+                <button 
+                  onClick={handleResetFormulario} 
+                  className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" 
+                  aria-label="Resetear formulario"
+                >
                   <X className="w-3 h-3" />
                 </button>
-              </div>}
+              </div>
+            )}
             
             <div className="flex items-center justify-center mb-6 gap-4">
               <span className="text-sm text-gray-600 dark:text-gray-400">Género del paciente:</span>
               <div className="flex gap-2">
-                <button className={`px-4 py-2 rounded-md text-sm transition-colors ${!esMujer ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setEsMujer(false)}>
+                <button
+                  className={`px-4 py-2 rounded-md text-sm transition-colors ${
+                    !esMujer
+                      ? 'bg-[#2ecc71] text-white'
+                      : 'bg-gray-100 dark:bg-gray-700'
+                  }`}
+                  onClick={() => setEsMujer(false)}
+                >
                   Hombre
                 </button>
-                <button className={`px-4 py-2 rounded-md text-sm transition-colors ${esMujer ? 'bg-[#9370DB] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setEsMujer(true)}>
+                <button
+                  className={`px-4 py-2 rounded-md text-sm transition-colors ${
+                    esMujer
+                      ? 'bg-[#9370DB] text-white'
+                      : 'bg-gray-100 dark:bg-gray-700'
+                  }`}
+                  onClick={() => setEsMujer(true)}
+                >
                   Mujer
                 </button>
               </div>
@@ -470,9 +556,14 @@ const HistoriaClinica = () => {
               <AntecedentesHemorragicos formData={formData} handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange} />
             </div>
 
-            {esMujer && <div data-section-redaction="true" data-section-name="antecedentesGinecoObstetricos">
-                <AntecedentesGinecoObstetricos formData={formData} handleAntecedenteGinecoObstetricoChange={handleAntecedenteGinecoObstetricoChange} />
-              </div>}
+            {esMujer && (
+              <div data-section-redaction="true" data-section-name="antecedentesGinecoObstetricos">
+                <AntecedentesGinecoObstetricos 
+                  formData={formData} 
+                  handleAntecedenteGinecoObstetricoChange={handleAntecedenteGinecoObstetricoChange} 
+                />
+              </div>
+            )}
 
             <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
               <InterrogatorioSistemas formData={formData} handleInterrogatorioChange={handleInterrogatorioChange} />
@@ -487,7 +578,10 @@ const HistoriaClinica = () => {
             </div>
             
             <div data-section-redaction="true" data-section-name="articulacionCraneomandibular">
-              <ArticulacionCraneomandibular formData={formData} handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} />
+              <ArticulacionCraneomandibular 
+                formData={formData} 
+                handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} 
+              />
             </div>
             
             <div data-section-redaction="true" data-section-name="examenCuello">
@@ -527,28 +621,50 @@ const HistoriaClinica = () => {
             </div>
 
             <div className="flex justify-center pt-6">
-              <Button onClick={handleGeneratePDF} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-base font-normal">
-                {isGeneratingPDF ? <>
+              <Button 
+                onClick={handleGeneratePDF} 
+                disabled={isGeneratingPDF} 
+                className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-base font-normal"
+              >
+                {isGeneratingPDF ? (
+                  <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     Generando PDF...
-                  </> : <>
+                  </>
+                ) : (
+                  <>
                     <FileText className="mr-2 h-5 w-5" />
                     Generar Historia Clínica en PDF
-                  </>}
+                  </>
+                )}
               </Button>
             </div>
           </div>
         </div>
       </div>
       
-      <ConfirmationAlert isOpen={alertOpen} onClose={() => setAlertOpen(false)} onConfirm={() => {
-      setAlertOpen(false);
-      generatePDFDocument();
-    }} title="Formulario incompleto" description="Hay campos sin completar en el formulario." missingFields={missingFields} />
+      <ConfirmationAlert 
+        isOpen={alertOpen} 
+        onClose={() => setAlertOpen(false)} 
+        onConfirm={() => {
+          setAlertOpen(false);
+          generatePDFDocument();
+        }} 
+        title="Formulario incompleto" 
+        description="Hay campos sin completar en el formulario." 
+        missingFields={missingFields} 
+      />
       
-      {isGeneratingPDF && <LoadingOverlay message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." progress={pdfGenerationProgress} />}
+      {isGeneratingPDF && (
+        <LoadingOverlay 
+          message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." 
+          progress={pdfGenerationProgress} 
+        />
+      )}
       
       <Toaster />
-    </div>;
+    </div>
+  );
 };
+
 export default HistoriaClinica;
