@@ -58,6 +58,5 @@ export const MarkdownText: React.FC<MarkdownTextProps> = ({ children, className 
     </span>
   );
 };
-</MarkdownText>
 
 export default MarkdownText;
