@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PromptInputBox } from './ai-prompt-box';
 import { TypewriterEffect } from './TypewriterEffect';
+import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -100,6 +101,7 @@ Responde de forma precisa y sin rodeos.`;
 export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInputProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
+  const { isAnalysisMode, setAnalysisMode } = useAnalysisMode();
 
   const handleSend = async (message: string) => {
     if (!message.trim()) return;
@@ -113,6 +115,27 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
       
       if (currentDomain.includes('dentaxy.com')) {
         refererUrl = currentDomain.includes('www.') ? 'https://www.dentaxy.com' : 'https://dentaxy.com';
+      }
+
+      // Detectar si es una consulta de análisis
+      const isAnalysisQuery = message.includes('[Análisis:');
+      let systemPrompt = DENTAXY_SYSTEM_PROMPT;
+      
+      if (isAnalysisQuery) {
+        systemPrompt = `Eres DentaxyGPT, especializado en definiciones médicas odontológicas precisas.
+
+IMPORTANTE:
+- Responde SIEMPRE en español
+- Proporciona definiciones claras y concisas
+- Máximo 80 palabras por respuesta
+- Incluye ejemplos relevantes cuando sea apropiado
+
+Para términos médicos/odontológicos:
+1. Definición precisa
+2. Contexto clínico relevante
+3. Ejemplo de uso (si aplica)
+
+Mantén las respuestas breves y directas.`;
       }
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -129,7 +152,7 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
           messages: [
             {
               role: 'system',
-              content: DENTAXY_SYSTEM_PROMPT
+              content: systemPrompt
             },
             {
               role: 'user',
@@ -137,7 +160,7 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
             }
           ],
           temperature: 0.1,
-          max_tokens: 200,
+          max_tokens: isAnalysisQuery ? 120 : 200,
           top_p: 0.7,
           frequency_penalty: 0.6,
           presence_penalty: 0.4
@@ -192,9 +215,9 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
             className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-[9998] pointer-events-none"
             style={{ 
               marginBottom: '120px',
-              width: 'min(90vw, 650px)',
-              marginLeft: '-25vw',
-              marginRight: '-25vw'
+              width: 'min(70vw, 450px)',
+              marginLeft: '-50vw',
+              marginRight: '-50vw'
             }}
           >
             <div 

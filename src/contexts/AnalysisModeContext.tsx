@@ -8,6 +8,12 @@ interface AnalysisModeContextType {
   setSelectedText: (text: string) => void;
   selectedPosition: { x: number; y: number } | null;
   setSelectedPosition: (position: { x: number; y: number } | null) => void;
+  definition: string;
+  setDefinition: (definition: string) => void;
+  isLoadingDefinition: boolean;
+  setIsLoadingDefinition: (loading: boolean) => void;
+  showDefinitionPopup: boolean;
+  setShowDefinitionPopup: (show: boolean) => void;
 }
 
 const AnalysisModeContext = createContext<AnalysisModeContextType | undefined>(undefined);
@@ -16,6 +22,9 @@ export function AnalysisModeProvider({ children }: { children: ReactNode }) {
   const [isAnalysisMode, setAnalysisMode] = useState(false);
   const [selectedText, setSelectedText] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<{ x: number; y: number } | null>(null);
+  const [definition, setDefinition] = useState('');
+  const [isLoadingDefinition, setIsLoadingDefinition] = useState(false);
+  const [showDefinitionPopup, setShowDefinitionPopup] = useState(false);
 
   return (
     <AnalysisModeContext.Provider value={{
@@ -24,7 +33,13 @@ export function AnalysisModeProvider({ children }: { children: ReactNode }) {
       selectedText,
       setSelectedText,
       selectedPosition,
-      setSelectedPosition
+      setSelectedPosition,
+      definition,
+      setDefinition,
+      isLoadingDefinition,
+      setIsLoadingDefinition,
+      showDefinitionPopup,
+      setShowDefinitionPopup
     }}>
       {children}
     </AnalysisModeContext.Provider>
