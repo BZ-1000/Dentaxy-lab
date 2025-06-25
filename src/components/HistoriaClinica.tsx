@@ -93,6 +93,7 @@ const HistoriaClinica = () => {
     cargarFormulario,
     resetFormulario
   } = useHistoriaClinica();
+
   useEffect(() => {
     const handleTextSelection = (event: MouseEvent) => {
       if (!isAnalysisMode) return;
@@ -125,11 +126,13 @@ const HistoriaClinica = () => {
       document.body.style.cursor = 'default';
     };
   }, [isAnalysisMode, setAnalysisMode, setSelectedText, setSelectedPosition]);
+
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
     }
   }, [formData, pacienteActual, guardarFormulario]);
+
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
