@@ -36,6 +36,7 @@ import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
 import { DefinitionPopup } from '@/components/ui/DefinitionPopup';
+
 const HistoriaClinica = () => {
   const {
     theme
