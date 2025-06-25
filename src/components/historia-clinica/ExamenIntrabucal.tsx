@@ -66,8 +66,118 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
         </div>
 
         {!isMinimized && (
-          <div className="p-6 flex items-center justify-center">
-            <h1 className="text-4xl font-bold text-gray-400 dark:text-gray-500">Próximamente</h1>
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Mucosas</h3>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Mucosa yugal</label>
+                  <select 
+                    value={formData.examenIntrabucal?.mucosaYugal || ''}
+                    onChange={(e) => handleExamenIntrabucalChange('mucosaYugal', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Seleccionar...</option>
+                    <option value="normal">Normal</option>
+                    <option value="eritematosa">Eritematosa</option>
+                    <option value="ulcerada">Ulcerada</option>
+                    <option value="hiperqueratosica">Hiperqueratósica</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Paladar duro</label>
+                  <select 
+                    value={formData.examenIntrabucal?.paladarDuro || ''}
+                    onChange={(e) => handleExamenIntrabucalChange('paladarDuro', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Seleccionar...</option>
+                    <option value="normal">Normal</option>
+                    <option value="inflamado">Inflamado</option>
+                    <option value="ulcerado">Ulcerado</option>
+                    <option value="torus">Torus palatino</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Paladar blando</label>
+                  <select 
+                    value={formData.examenIntrabucal?.paladarBlando || ''}
+                    onChange={(e) => handleExamenIntrabucalChange('paladarBlando', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Seleccionar...</option>
+                    <option value="normal">Normal</option>
+                    <option value="inflamado">Inflamado</option>
+                    <option value="edematoso">Edematoso</option>
+                    <option value="petequias">Con petequias</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Órganos</h3>
+                
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Lengua</label>
+                  <select 
+                    value={formData.examenIntrabucal?.lengua || ''}
+                    onChange={(e) => handleExamenIntrabucalChange('lengua', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Seleccionar...</option>
+                    <option value="normal">Normal</option>
+                    <option value="saburral">Saburral</option>
+                    <option value="geografica">Geográfica</option>
+                    <option value="fisurada">Fisurada</option>
+                    <option value="vellosa">Vellosa</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Piso de boca</label>
+                  <select 
+                    value={formData.examenIntrabucal?.pisoBoca || ''}
+                    onChange={(e) => handleExamenIntrabucalChange('pisoBoca', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Seleccionar...</option>
+                    <option value="normal">Normal</option>
+                    <option value="inflamado">Inflamado</option>
+                    <option value="indurado">Indurado</option>
+                    <option value="ulcerado">Ulcerado</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Encías</label>
+                  <select 
+                    value={formData.examenIntrabucal?.encias || ''}
+                    onChange={(e) => handleExamenIntrabucalChange('encias', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Seleccionar...</option>
+                    <option value="sanas">Sanas</option>
+                    <option value="gingivitis">Gingivitis</option>
+                    <option value="periodontitis">Periodontitis</option>
+                    <option value="hiperplasia">Hiperplasia</option>
+                    <option value="recesion">Recesión gingival</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Observaciones adicionales</label>
+              <textarea 
+                value={formData.examenIntrabucal?.observaciones || ''}
+                onChange={(e) => handleExamenIntrabucalChange('observaciones', e.target.value)}
+                placeholder="Describe cualquier hallazgo adicional del examen intrabucal..."
+                className="w-full mt-2 p-3 border border-gray-300 rounded-md h-20 resize-none"
+              />
+            </div>
           </div>
         )}
       </Card>

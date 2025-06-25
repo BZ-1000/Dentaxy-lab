@@ -102,9 +102,7 @@ Cuando recibas un término médico dental:
 Si el término no está relacionado con odontología, indica que te especializas en términos dentales y sugiere reformular la consulta.`;
 
 const HistoriaClinica = () => {
-  const {
-    theme
-  } = useTheme();
+  const { theme } = useTheme();
   const [pacienteActual, setPacienteActual] = useState<string>('');
   const [nombrePaciente, setNombrePaciente] = useState<string>('');
   const [alertOpen, setAlertOpen] = useState(false);
@@ -114,9 +112,7 @@ const HistoriaClinica = () => {
   const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const pdfSectionsRef = useRef<{
-    [key: string]: string;
-  }>({});
+  const pdfSectionsRef = useRef<{ [key: string]: string; }>({});
   const {
     isAnalysisMode,
     setAnalysisMode,
@@ -242,22 +238,29 @@ const HistoriaClinica = () => {
     setActiveResponse(null);
   };
 
-  return <div className={`${theme} min-h-screen w-full flex relative`}>
-      <FormulariosSidebar onCargarFormulario={(data, nombre) => {
-      cargarFormulario(data);
-      setPacienteActual(nombre);
-      setNombrePaciente(nombre);
-    }} onGuardarFormulario={nombre => {
-      guardarFormulario(formData, nombre);
-      setPacienteActual(nombre);
-    }} onCerrarFormulario={() => {
-      setPacienteActual('');
-      setNombrePaciente('');
-      cargarFormulario(null);
-    }} onResetFormulario={() => {
-      setPacienteActual('');
-      resetFormulario();
-    }} pacienteActual={pacienteActual} />
+  return (
+    <div className={`${theme} min-h-screen w-full flex relative`}>
+      <FormulariosSidebar 
+        onCargarFormulario={(data, nombre) => {
+          cargarFormulario(data);
+          setPacienteActual(nombre);
+          setNombrePaciente(nombre);
+        }} 
+        onGuardarFormulario={nombre => {
+          guardarFormulario(formData, nombre);
+          setPacienteActual(nombre);
+        }} 
+        onCerrarFormulario={() => {
+          setPacienteActual('');
+          setNombrePaciente('');
+          cargarFormulario(null);
+        }} 
+        onResetFormulario={() => {
+          setPacienteActual('');
+          resetFormulario();
+        }} 
+        pacienteActual={pacienteActual} 
+      />
       
       <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
         <div className="max-w-5xl mx-auto space-y-8">
@@ -379,7 +382,10 @@ const HistoriaClinica = () => {
             </div>
             
             <div data-section-redaction="true" data-section-name="examenIntrabucal">
-              <ExamenIntrabucal formData={formData} handleExamenIntrabucalChange={handleExamenIntrabucalChange} />
+              <ExamenIntrabucal 
+                formData={formData} 
+                handleExamenIntrabucalChange={handleExamenIntrabucalChange} 
+              />
             </div>
             
             <div data-section-redaction="true" data-section-name="glandulasSalivales">
@@ -483,7 +489,8 @@ const HistoriaClinica = () => {
       </AnimatePresence>
       
       <Toaster />
-    </div>;
+    </div>
+  );
 };
 
 export default HistoriaClinica;

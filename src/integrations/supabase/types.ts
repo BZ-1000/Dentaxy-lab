@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      dental_terms: {
+        Row: {
+          categoria: string
+          contexto_uso: string | null
+          created_at: string
+          definicion: string
+          id: string
+          seccion_formulario: string
+          sinonimos: string[] | null
+          subcategoria: string | null
+          termino: string
+          updated_at: string
+        }
+        Insert: {
+          categoria: string
+          contexto_uso?: string | null
+          created_at?: string
+          definicion: string
+          id?: string
+          seccion_formulario: string
+          sinonimos?: string[] | null
+          subcategoria?: string | null
+          termino: string
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string
+          contexto_uso?: string | null
+          created_at?: string
+          definicion?: string
+          id?: string
+          seccion_formulario?: string
+          sinonimos?: string[] | null
+          subcategoria?: string | null
+          termino?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       secrets: {
         Row: {
           created_at: string

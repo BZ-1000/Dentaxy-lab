@@ -1,6 +1,7 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -18,7 +19,21 @@ serve(async (req) => {
 
     console.log('Received request:', { message, systemPrompt });
 
-    // Usar Hugging Face Inference API como alternativa gratuita
+    // Inicializar cliente de Supabase
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    // Buscar en la base de datos local primero
+    const localResponse = await searchLocalTerms(supabaseClient, message);
+    if (localResponse) {
+      return new Response(JSON.stringify({ response: localResponse }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Si no encuentra en la base local, usar Hugging Face como respaldo
     const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
       method: 'POST',
       headers: {
@@ -42,7 +57,6 @@ serve(async (req) => {
       const errorText = await response.text();
       console.error('Hugging Face error:', errorText);
       
-      // Fallback con respuesta estática para términos dentales comunes
       const fallbackResponse = getFallbackResponse(message);
       return new Response(JSON.stringify({ response: fallbackResponse }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -74,6 +88,80 @@ serve(async (req) => {
     });
   }
 });
+
+async function searchLocalTerms(supabaseClient: any, searchTerm: string): Promise<string | null> {
+  try {
+    console.log('Searching local database for:', searchTerm);
+    
+    // Buscar términos que coincidan exactamente o contengan el término de búsqueda
+    const { data: exactMatches, error: exactError } = await supabaseClient
+      .from('dental_terms')
+      .select('*')
+      .ilike('termino', `%${searchTerm.toLowerCase()}%`)
+      .limit(3);
+
+    if (exactError) {
+      console.error('Error searching exact matches:', exactError);
+    }
+
+    // Buscar también en sinónimos
+    const { data: synonymMatches, error: synonymError } = await supabaseClient
+      .from('dental_terms')
+      .select('*')
+      .contains('sinonimos', [searchTerm.toLowerCase()])
+      .limit(2);
+
+    if (synonymError) {
+      console.error('Error searching synonyms:', synonymError);
+    }
+
+    // Buscar por texto completo en definiciones
+    const { data: textMatches, error: textError } = await supabaseClient
+      .from('dental_terms')
+      .select('*')
+      .textSearch('definicion', searchTerm, { type: 'websearch', config: 'spanish' })
+      .limit(2);
+
+    if (textError) {
+      console.error('Error in text search:', textError);
+    }
+
+    // Combinar resultados y eliminar duplicados
+    const allMatches = [...(exactMatches || []), ...(synonymMatches || []), ...(textMatches || [])]
+      .filter((term, index, self) => self.findIndex(t => t.id === term.id) === index)
+      .slice(0, 3); // Máximo 3 resultados
+
+    if (allMatches.length > 0) {
+      let response = `Encontré información sobre "${searchTerm}" en mi base de datos odontológica:\n\n`;
+      
+      allMatches.forEach((term, index) => {
+        response += `**${term.termino}**\n`;
+        response += `${term.definicion}\n`;
+        
+        if (term.sinonimos && term.sinonimos.length > 0) {
+          response += `*Sinónimos: ${term.sinonimos.join(', ')}*\n`;
+        }
+        
+        if (term.contexto_uso) {
+          response += `*Contexto: ${term.contexto_uso}*\n`;
+        }
+        
+        response += `*Sección: ${term.seccion_formulario}*\n`;
+        
+        if (index < allMatches.length - 1) {
+          response += '\n---\n\n';
+        }
+      });
+
+      return response;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error searching local terms:', error);
+    return null;
+  }
+}
 
 function getFallbackResponse(message: string): string {
   const term = message.toLowerCase();
