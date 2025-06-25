@@ -29,7 +29,7 @@ function ResponsePopup({ message, onClose }: ResponsePopupProps) {
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
-      className="fixed top-4 right-4 z-50 max-w-md"
+      className="fixed top-4 right-4 z-[9999] max-w-md"
     >
       <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
@@ -186,22 +186,24 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-2 left-1/2 transform -translate-x-1/2 z-40"
-            style={{ 
-              marginBottom: '80px', // Posición justo encima del dock
-              width: 'calc(100vw - 2rem)',
-              maxWidth: '600px' // Ligeramente más largo que el dock
-            }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed inset-0 z-[9998] pointer-events-none flex items-center justify-center"
           >
-            <div className="bg-gray-700/60 backdrop-blur-sm rounded-2xl border border-gray-500/30 p-2 shadow-xl">
+            <div 
+              className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 p-3 shadow-2xl"
+              style={{ 
+                width: 'min(90vw, 650px)',
+                maxHeight: '400px',
+                marginBottom: '20vh'
+              }}
+            >
               <PromptInputBox
                 onSend={handleSend}
                 isLoading={isLoading}
                 placeholder="Escribe un término médico..."
-                className="bg-transparent border-transparent text-sm min-h-[44px]"
+                className="bg-transparent border-transparent text-sm min-h-[48px]"
               />
             </div>
           </motion.div>
