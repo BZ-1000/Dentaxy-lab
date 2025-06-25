@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import { PromptInputBox } from './ai-prompt-box';
 import { TypewriterEffect } from './TypewriterEffect';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
@@ -49,8 +50,8 @@ function ResponsePopup({
           </button>
         </div>
         
-        <div className="text-white text-sm">
-          {message.isTyping ? <TypewriterEffect text={message.content} speed={25} /> : <p>{message.content}</p>}
+        <div className="text-white text-sm prose prose-invert">
+          {message.isTyping ? <TypewriterEffect text={message.content} speed={25} /> : <ReactMarkdown>{message.content}</ReactMarkdown>}
         </div>
         
         <div className="text-gray-300 text-xs mt-2">
@@ -59,6 +60,7 @@ function ResponsePopup({
       </div>
     </motion.div>;
 }
+
 const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente especializado en odontología que ayuda a explicar términos médicos dentales de manera clara y concisa. Tu objetivo es proporcionar definiciones precisas y útiles para estudiantes y profesionales de la odontología.
 
 Cuando recibas un término médico dental:
