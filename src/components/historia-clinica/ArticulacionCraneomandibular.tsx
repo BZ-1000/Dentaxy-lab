@@ -6,7 +6,7 @@ import { FormDataState } from '@/types/historiaClinica';
 
 interface ArticulacionCraneomandibularProps {
   formData: FormDataState;
-  handleArticulacionCraneomandibularChange: (part: string, value: string | boolean) => void;
+  handleArticulacionCraneomandibularChange: (field: string, value: string | boolean) => void;
 }
 
 const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> = ({
@@ -67,110 +67,73 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
 
         {!isMinimized && (
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Función Articular</h3>
-                
+            <div className="space-y-6">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="sinHallazgos"
+                  checked={Boolean(formData.articulacionCraneomandibular?.sinHallazgos)}
+                  onChange={(e) => handleArticulacionCraneomandibularChange('sinHallazgos', e.target.checked)}
+                  className="mr-2"
+                />
+                <label htmlFor="sinHallazgos" className="text-sm font-medium">Sin hallazgos</label>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Apertura bucal (mm)</label>
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Apertura bucal</label>
                   <input
-                    type="number"
-                    value={formData.articulacionCraneomandibular?.aperturaBucal || ''}
+                    type="text"
+                    value={String(formData.articulacionCraneomandibular?.aperturaBucal || '')}
                     onChange={(e) => handleArticulacionCraneomandibularChange('aperturaBucal', e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="Normal: 40-45 mm"
+                    placeholder="Describir apertura bucal..."
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Patrón de apertura</label>
-                  <select 
-                    value={formData.articulacionCraneomandibular?.patronApertura || ''}
-                    onChange={(e) => handleArticulacionCraneomandibularChange('patronApertura', e.target.value)}
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Movimiento lateral</label>
+                  <input
+                    type="text"
+                    value={String(formData.articulacionCraneomandibular?.movimientoLateral || '')}
+                    onChange={(e) => handleArticulacionCraneomandibularChange('movimientoLateral', e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md"
-                  >
-                    <option value="">Seleccionar...</option>
-                    <option value="recto">Recto</option>
-                    <option value="desviacion-derecha">Desviación a la derecha</option>
-                    <option value="desviacion-izquierda">Desviación a la izquierda</option>
-                    <option value="zigzag">En zigzag</option>
-                  </select>
+                    placeholder="Describir movimiento lateral..."
+                  />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Dolor durante movimientos</label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.articulacionCraneomandibular?.dolorMovimientos || false}
-                        onChange={(e) => handleArticulacionCraneomandibularChange('dolorMovimientos', e.target.checked)}
-                        className="mr-2"
-                      />
-                      Presente durante masticación o habla
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Ruidos Articulares</h3>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Chasquidos</label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.articulacionCraneomandibular?.chasquidos || false}
-                        onChange={(e) => handleArticulacionCraneomandibularChange('chasquidos', e.target.checked)}
-                        className="mr-2"
-                      />
-                      Chasquidos durante apertura/cierre
-                    </label>
-                  </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="chasquidos"
+                    checked={Boolean(formData.articulacionCraneomandibular?.chasquidos)}
+                    onChange={(e) => handleArticulacionCraneomandibularChange('chasquidos', e.target.checked)}
+                    className="mr-2"
+                  />
+                  <label htmlFor="chasquidos" className="text-sm font-medium">Chasquidos</label>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Crepitación</label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.articulacionCraneomandibular?.crepitacion || false}
-                        onChange={(e) => handleArticulacionCraneomandibularChange('crepitacion', e.target.checked)}
-                        className="mr-2"
-                      />
-                      Crepitación (ruido como arena)
-                    </label>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Limitación de movimiento</label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.articulacionCraneomandibular?.limitacionMovimiento || false}
-                        onChange={(e) => handleArticulacionCraneomandibularChange('limitacionMovimiento', e.target.checked)}
-                        className="mr-2"
-                      />
-                      Trismus o limitación de apertura
-                    </label>
-                  </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="dolor"
+                    checked={Boolean(formData.articulacionCraneomandibular?.dolor)}
+                    onChange={(e) => handleArticulacionCraneomandibularChange('dolor', e.target.checked)}
+                    className="mr-2"
+                  />
+                  <label htmlFor="dolor" className="text-sm font-medium">Dolor</label>
                 </div>
               </div>
-            </div>
 
-            <div className="mt-6">
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Observaciones adicionales</label>
-              <textarea 
-                value={formData.articulacionCraneomandibular?.observaciones || ''}
-                onChange={(e) => handleArticulacionCraneomandibularChange('observaciones', e.target.value)}
-                placeholder="Describe cualquier hallazgo adicional de la ATM..."
-                className="w-full mt-2 p-3 border border-gray-300 rounded-md h-20 resize-none"
-              />
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Observaciones</label>
+                <textarea
+                  value={String(formData.articulacionCraneomandibular?.observaciones || '')}
+                  onChange={(e) => handleArticulacionCraneomandibularChange('observaciones', e.target.value)}
+                  placeholder="Observaciones adicionales sobre la ATM..."
+                  className="w-full p-3 border border-gray-300 rounded-md h-20 resize-none"
+                />
+              </div>
             </div>
           </div>
         )}

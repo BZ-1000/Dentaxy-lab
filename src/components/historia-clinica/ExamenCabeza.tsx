@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
-import { FormDataState } from '@/types/historiaClinica';
+import { FormDataState, CaracteristicaFacial } from '@/types/historiaClinica';
 
 interface ExamenCabezaProps {
   formData: FormDataState;
-  handleExamenCabezaChange: (part: string, value: any) => void;
+  handleExamenCabezaChange: (field: string, value: any) => void;
 }
 
 const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
@@ -29,6 +29,14 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
+  };
+
+  const handleCheckboxChange = (field: string, checked: boolean) => {
+    handleExamenCabezaChange(field, checked);
+  };
+
+  const handleSelectChange = (field: string, value: string) => {
+    handleExamenCabezaChange(field, value);
   };
 
   return (
@@ -67,16 +75,24 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
 
         {!isMinimized && (
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Forma del cráneo */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Forma del Cráneo</h3>
-                
+            <div className="space-y-6">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="sinHallazgos"
+                  checked={Boolean(formData.examenCabeza?.sinHallazgos)}
+                  onChange={(e) => handleCheckboxChange('sinHallazgos', e.target.checked)}
+                  className="mr-2"
+                />
+                <label htmlFor="sinHallazgos" className="text-sm font-medium">Sin hallazgos</label>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Tipo craneal</label>
-                  <select 
-                    value={formData.examenCabeza?.tipoCraneal || ''}
-                    onChange={(e) => handleExamenCabezaChange('tipoCraneal', e.target.value)}
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Tipo de cráneo</label>
+                  <select
+                    value={String(formData.examenCabeza?.tipoCraneo || '')}
+                    onChange={(e) => handleSelectChange('tipoCraneo', e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md"
                   >
                     <option value="">Seleccionar...</option>
@@ -87,10 +103,10 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Perfil facial</label>
-                  <select 
-                    value={formData.examenCabeza?.perfilFacial || ''}
-                    onChange={(e) => handleExamenCabezaChange('perfilFacial', e.target.value)}
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Tipo de perfil</label>
+                  <select
+                    value={String(formData.examenCabeza?.tipoPerfil || '')}
+                    onChange={(e) => handleSelectChange('tipoPerfil', e.target.value)}
                     className="w-full p-2 border border-gray-300 rounded-md"
                   >
                     <option value="">Seleccionar...</option>
@@ -99,149 +115,86 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                     <option value="concavo">Cóncavo</option>
                   </select>
                 </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Tez</label>
+                  <select
+                    value={String(formData.examenCabeza?.tez || '')}
+                    onChange={(e) => handleSelectChange('tez', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Seleccionar...</option>
+                    <option value="clara">Clara</option>
+                    <option value="morena">Morena</option>
+                    <option value="oscura">Oscura</option>
+                    <option value="palida">Pálida</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Estado de la piel</label>
+                  <input
+                    type="text"
+                    value={String(formData.examenCabeza?.estadoPiel || '')}
+                    onChange={(e) => handleSelectChange('estadoPiel', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="Describir estado de la piel..."
+                  />
+                </div>
               </div>
 
-              {/* Características faciales */}
+              {/* Lunares */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Características Faciales</h3>
-                
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Asimetría facial</label>
-                  <select 
-                    value={formData.examenCabeza?.asimetriaFacial || ''}
-                    onChange={(e) => handleExamenCabezaChange('asimetriaFacial', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  >
-                    <option value="">Seleccionar...</option>
-                    <option value="ausente">Ausente</option>
-                    <option value="leve">Leve</option>
-                    <option value="moderada">Moderada</option>
-                    <option value="severa">Severa</option>
-                  </select>
+                <h3 className="text-lg font-semibold">Lunares</h3>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="lunares"
+                    checked={Boolean(
+                      formData.examenCabeza?.lunares && 
+                      typeof formData.examenCabeza.lunares === 'object' && 
+                      'presente' in formData.examenCabeza.lunares &&
+                      formData.examenCabeza.lunares.presente
+                    )}
+                    onChange={(e) => {
+                      const currentLunares = formData.examenCabeza?.lunares as CaracteristicaFacial || {};
+                      handleExamenCabezaChange('lunares', {
+                        ...currentLunares,
+                        presente: e.target.checked
+                      });
+                    }}
+                    className="mr-2"
+                  />
+                  <label htmlFor="lunares" className="text-sm font-medium">Presenta lunares</label>
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Edema</label>
-                  <select 
-                    value={formData.examenCabeza?.edema || ''}
-                    onChange={(e) => handleExamenCabezaChange('edema', e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md"
-                  >
-                    <option value="">Seleccionar...</option>
-                    <option value="ausente">Ausente</option>
-                    <option value="palpebral">Palpebral</option>
-                    <option value="facial">Facial generalizado</option>
-                    <option value="localizado">Localizado</option>
-                  </select>
-                </div>
+                {formData.examenCabeza?.lunares && 
+                 typeof formData.examenCabeza.lunares === 'object' && 
+                 'presente' in formData.examenCabeza.lunares &&
+                 formData.examenCabeza.lunares.presente && (
+                  <textarea
+                    value={formData.examenCabeza.lunares.detalles || ''}
+                    onChange={(e) => {
+                      const currentLunares = formData.examenCabeza?.lunares as CaracteristicaFacial || {};
+                      handleExamenCabezaChange('lunares', {
+                        ...currentLunares,
+                        detalles: e.target.value
+                      });
+                    }}
+                    placeholder="Describir características de los lunares..."
+                    className="w-full p-2 border border-gray-300 rounded-md h-20 resize-none"
+                  />
+                )}
               </div>
-            </div>
 
-            {/* Lesiones en piel */}
-            <div className="mt-6 space-y-4">
-              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Lesiones en Piel</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Lunares</label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.examenCabeza?.lunares?.presente || false}
-                        onChange={(e) => handleExamenCabezaChange('lunares', {
-                          ...formData.examenCabeza?.lunares,
-                          presente: e.target.checked
-                        })}
-                        className="mr-2"
-                      />
-                      Presente
-                    </label>
-                    {formData.examenCabeza?.lunares?.presente && (
-                      <textarea
-                        placeholder="Descripción de lunares..."
-                        value={formData.examenCabeza?.lunares?.detalles || ''}
-                        onChange={(e) => handleExamenCabezaChange('lunares', {
-                          ...formData.examenCabeza?.lunares,
-                          detalles: e.target.value
-                        })}
-                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                        rows={2}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Cicatrices</label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.examenCabeza?.cicatrices?.presente || false}
-                        onChange={(e) => handleExamenCabezaChange('cicatrices', {
-                          ...formData.examenCabeza?.cicatrices,
-                          presente: e.target.checked
-                        })}
-                        className="mr-2"
-                      />
-                      Presente
-                    </label>
-                    {formData.examenCabeza?.cicatrices?.presente && (
-                      <textarea
-                        placeholder="Descripción de cicatrices..."
-                        value={formData.examenCabeza?.cicatrices?.detalles || ''}
-                        onChange={(e) => handleExamenCabezaChange('cicatrices', {
-                          ...formData.examenCabeza?.cicatrices,
-                          detalles: e.target.value
-                        })}
-                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                        rows={2}
-                      />
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Otras lesiones</label>
-                  <div className="space-y-2">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        checked={formData.examenCabeza?.otrasLesiones?.presente || false}
-                        onChange={(e) => handleExamenCabezaChange('otrasLesiones', {
-                          ...formData.examenCabeza?.otrasLesiones,
-                          presente: e.target.checked
-                        })}
-                        className="mr-2"
-                      />
-                      Presente
-                    </label>
-                    {formData.examenCabeza?.otrasLesiones?.presente && (
-                      <textarea
-                        placeholder="Descripción de otras lesiones..."
-                        value={formData.examenCabeza?.otrasLesiones?.detalles || ''}
-                        onChange={(e) => handleExamenCabezaChange('otrasLesiones', {
-                          ...formData.examenCabeza?.otrasLesiones,
-                          detalles: e.target.value
-                        })}
-                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                        rows={2}
-                      />
-                    )}
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Otros hallazgos</label>
+                <textarea
+                  value={String(formData.examenCabeza?.otrosHallazgos || '')}
+                  onChange={(e) => handleSelectChange('otrosHallazgos', e.target.value)}
+                  placeholder="Describir otros hallazgos relevantes..."
+                  className="w-full p-3 border border-gray-300 rounded-md h-20 resize-none"
+                />
               </div>
-            </div>
-
-            <div className="mt-6">
-              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Observaciones adicionales</label>
-              <textarea 
-                value={formData.examenCabeza?.observaciones || ''}
-                onChange={(e) => handleExamenCabezaChange('observaciones', e.target.value)}
-                placeholder="Describe cualquier hallazgo adicional del examen de cabeza..."
-                className="w-full mt-2 p-3 border border-gray-300 rounded-md h-20 resize-none"
-              />
             </div>
           </div>
         )}

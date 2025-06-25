@@ -1,85 +1,53 @@
 
-"use client";
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
 
-import React, { forwardRef } from "react";
-import { cn } from "@/lib/utils";
-import { motion, Transition } from "framer-motion";
+interface OtraCondicionInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  onRemove: () => void;
+  placeholder?: string;
+}
 
-type BorderTrailProps = {
-  className?: string;
-  size?: number;
-  transition?: Transition;
-  delay?: number;
-  onAnimationComplete?: () => void;
-  style?: React.CSSProperties;
-};
-
-export function BorderTrail({
-  className,
-  size = 60,
-  transition,
-  delay,
-  onAnimationComplete,
-  style,
-}: BorderTrailProps) {
-  const BASE_TRANSITION = {
-    repeat: Infinity,
-    duration: 5,
-    ease: 'linear',
-  };
-
+const OtraCondicionInput: React.FC<OtraCondicionInputProps> = ({
+  value,
+  onChange,
+  onRemove,
+  placeholder = "Especificar otra condición..."
+}) => {
   return (
-    <div className="pointer-events-none absolute inset-0 rounded-[inherit] border border-transparent [mask-clip:padding-box,border-box] [mask-composite:intersect] [mask-image:linear-gradient(transparent,transparent),linear-gradient(#000,#000)]">
-      <motion.div
-        className={cn("absolute aspect-square bg-zinc-500", className)}
-        style={{
-          width: size,
-          offsetPath: `rect(0 auto auto 0 round ${size}px)`,
-          ...style,
-        }}
-        animate={{
-          offsetDistance: ["0%", "100%"],
-        }}
-        transition={{
-          ...(transition ?? BASE_TRANSITION),
-          delay: delay,
-        }}
-        onAnimationComplete={onAnimationComplete}
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{
+        delay: 0.1,
+        repeat: 0,
+        duration: 0.3,
+        ease: "easeInOut"
+      }}
+      className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg"
+    >
+      <Input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="flex-1 border-blue-300 dark:border-blue-600 focus:border-blue-500 dark:focus:border-blue-400"
       />
-    </div>
+      <Button
+        onClick={onRemove}
+        variant="ghost"
+        size="sm"
+        className="text-red-500 hover:text-red-700 hover:bg-red-100 dark:hover:bg-red-900/20 p-1 h-8 w-8"
+      >
+        <X className="h-4 w-4" />
+      </Button>
+    </motion.div>
   );
-}
-
-interface OtraCondicionInputProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
-  className?: string;
-  style?: React.CSSProperties;
-  autoFocus?: boolean;
-}
-
-const OtraCondicionInput = forwardRef<HTMLTextAreaElement, OtraCondicionInputProps>(
-  ({ className, style, autoFocus, ...props }, ref) => {
-    return (
-      <div className="relative h-10 w-full overflow-hidden rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent text-zinc-900 dark:text-zinc-200">
-        <textarea
-          ref={ref}
-          {...props}
-          autoFocus={autoFocus}
-          rows={1}
-          className={cn(
-            "h-full w-full resize-none rounded-md bg-transparent px-2 py-1 text-sm outline-none dark:placeholder:text-zinc-500 placeholder:text-zinc-400",
-            className
-          )}
-          style={{ ...style, overflow: "hidden" }}
-        />
-        <BorderTrail
-          className="bg-gradient-to-l from-blue-200 via-blue-500 to-blue-200 dark:from-blue-400 dark:via-blue-500 dark:to-blue-700"
-          size={130}
-        />
-      </div>
-    );
-  }
-);
-
-OtraCondicionInput.displayName = "OtraCondicionInput";
+};
 
 export default OtraCondicionInput;
