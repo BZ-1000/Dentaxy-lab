@@ -39,27 +39,43 @@ const SelectableText: React.FC<SelectableTextProps> = ({ text, className }) => {
           <span
             key={index}
             className={cn(
-              "relative cursor-pointer transition-all duration-200 rounded-sm px-1 py-0.5 mx-0.5",
-              "touch-manipulation select-none",
-              // Estilo base para palabras seleccionables
-              isAnalysisMode && "bg-gray-100 hover:bg-gray-200 border border-transparent",
+              "relative cursor-pointer transition-all duration-200 rounded-md px-1.5 py-1 mx-0.5",
+              "touch-manipulation select-none inline-block",
+              // Estilo base para palabras seleccionables en modo análisis
+              isAnalysisMode && "bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 font-medium shadow-sm",
               // Estilo para palabras seleccionadas
-              isSelected && "bg-yellow-200 border-yellow-300 text-gray-900 font-medium",
-              // Efectos táctiles
-              "active:scale-95 active:bg-gray-300",
-              isSelected && "active:bg-yellow-300"
+              isSelected && "bg-yellow-300 border-yellow-400 text-gray-900 font-bold shadow-md",
+              // Efectos de interacción
+              "hover:scale-105 active:scale-95 transform",
+              isSelected && "hover:bg-yellow-400 active:bg-yellow-500"
             )}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               toggleWord(cleanWord);
             }}
+            onMouseDown={(e) => {
+              // Feedback visual en PC
+              e.currentTarget.style.transform = 'scale(0.95)';
+            }}
+            onMouseUp={(e) => {
+              e.currentTarget.style.transform = 'scale(1.05)';
+              setTimeout(() => {
+                e.currentTarget.style.transform = 'scale(1)';
+              }, 100);
+            }}
             onTouchStart={(e) => {
-              e.currentTarget.style.transform = 'scale(0.98)';
+              // Feedback visual en móvil
+              e.currentTarget.style.transform = 'scale(0.95)';
+              e.currentTarget.style.backgroundColor = isSelected ? '#fbbf24' : '#dbeafe';
             }}
             onTouchEnd={(e) => {
               e.currentTarget.style.transform = 'scale(1)';
+              setTimeout(() => {
+                e.currentTarget.style.backgroundColor = '';
+              }, 150);
             }}
+            title={`Tocar para ${isSelected ? 'deseleccionar' : 'seleccionar'}: ${cleanWord}`}
           >
             {segment}
           </span>

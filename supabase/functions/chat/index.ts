@@ -63,7 +63,7 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
 
     console.log('Clean search term:', cleanSearchTerm);
 
-    // 1. Búsqueda exacta primero (más específica)
+    // 1. Búsqueda exacta primero
     const { data: exactMatches, error: exactError } = await supabaseClient
       .from('dental_terms')
       .select('*')
@@ -83,7 +83,7 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
       return response;
     }
 
-    // 2. Búsqueda por coincidencia parcial en término
+    // 2. Búsqueda por coincidencia parcial
     const { data: partialMatches, error: partialError } = await supabaseClient
       .from('dental_terms')
       .select('*')
@@ -103,7 +103,7 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
       return response;
     }
 
-    // 3. Búsqueda en sinónimos solo si no encuentra coincidencia directa
+    // 3. Búsqueda en sinónimos
     const searchVariations = [
       cleanSearchTerm,
       cleanSearchTerm.replace(/s$/, ''), // Singular
@@ -131,31 +131,7 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
       }
     }
 
-    // 4. Búsqueda por palabras clave individuales (última opción)
-    const keywords = cleanSearchTerm.split(' ').filter(word => word.length > 3);
-    
-    for (const keyword of keywords) {
-      const { data: keywordMatches, error: keywordError } = await supabaseClient
-        .from('dental_terms')
-        .select('*')
-        .or(`termino.ilike.%${keyword}%,definicion.ilike.%${keyword}%`)
-        .limit(1);
-
-      if (keywordError) {
-        console.error('Error in keyword search:', keywordError);
-      } else if (keywordMatches && keywordMatches.length > 0) {
-        const term = keywordMatches[0];
-        let response = `**${term.termino}**: ${term.definicion}`;
-        
-        if (term.contexto_uso) {
-          response += `\n\n**Contexto**: ${term.contexto_uso}`;
-        }
-        
-        return response;
-      }
-    }
-
-    console.log('No specific matches found for:', searchTerm);
+    console.log('No matches found for:', searchTerm);
     return null;
   } catch (error) {
     console.error('Error in specific search:', error);
@@ -187,5 +163,5 @@ function getFallbackResponse(message: string): string {
     }
   }
 
-  return `No encontré información específica sobre "${message}" en mi base de datos odontológica. Intenta con términos más específicos como **caries**, **gingivitis**, **dolor dental**, **bruxismo**, etc.`;
+  return `No encontré información específica sobre "**${message}**" en mi base de datos odontológica. Intenta con términos más específicos como **caries**, **gingivitis**, **dolor dental**, **bruxismo**, etc.`;
 }
