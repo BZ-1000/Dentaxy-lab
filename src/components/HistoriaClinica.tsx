@@ -37,16 +37,20 @@ import LoadingOverlay from './historia-clinica/LoadingOverlay';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypewriterEffect } from './ui/TypewriterEffect';
+import { supabase } from '@/integrations/supabase/client';
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
   isTyping?: boolean;
 }
+
 interface ResponsePopupProps {
   message: ChatMessage;
   onClose: () => void;
 }
+
 function ResponsePopup({
   message,
   onClose
@@ -88,6 +92,7 @@ function ResponsePopup({
       </motion.div>
     </>;
 }
+
 const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente especializado en odontología que ayuda a explicar términos médicos dentales de manera clara y concisa. Tu objetivo es proporcionar definiciones precisas y útiles para estudiantes y profesionales de la odontología.
 
 Cuando recibas un término médico dental:
@@ -98,6 +103,7 @@ Cuando recibas un término médico dental:
 5. Limita tu respuesta a máximo 150 palabras
 
 Si el término no está relacionado con odontología, indica que te especializas en términos dentales y sugiere reformular la consulta.`;
+
 const HistoriaClinica = () => {
   const {
     theme
@@ -157,23 +163,22 @@ const HistoriaClinica = () => {
     cargarFormulario,
     resetFormulario
   } = useHistoriaClinica();
+
   const handleSearch = async (searchText: string) => {
     setIsSearching(true);
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: {
           message: searchText,
           systemPrompt: DENTAXY_SYSTEM_PROMPT
-        })
+        }
       });
-      if (!response.ok) {
-        throw new Error('Error en la respuesta');
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error('Error en la comunicación con el servidor');
       }
-      const data = await response.json();
+
       const newMessage: ChatMessage = {
         role: 'assistant',
         content: data.response || 'Lo siento, no pude procesar tu consulta.',
@@ -196,6 +201,7 @@ const HistoriaClinica = () => {
       setSelectedPosition(null);
     }
   };
+
   useEffect(() => {
     const handleTextSelection = (event: MouseEvent) => {
       if (!isAnalysisMode) return;
@@ -225,20 +231,24 @@ const HistoriaClinica = () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isAnalysisMode, setAnalysisMode, setSelectedText, setSelectedPosition]);
+
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
     }
   }, [formData, pacienteActual, guardarFormulario]);
+
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
     cargarFormulario(null);
   };
+
   const handleResetFormulario = () => {
     setPacienteActual('');
     resetFormulario();
   };
+
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       toast({
@@ -255,6 +265,7 @@ const HistoriaClinica = () => {
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
+
   const validateForm = () => {
     const padecimientoFields = validatePadecimientoActual(formData);
     const heredoFamiliaresFields = validateAntecedentesHeredoFamiliares(formData);
@@ -263,6 +274,7 @@ const HistoriaClinica = () => {
     const allMissingFields = [...padecimientoFields, ...heredoFamiliaresFields, ...noPatologicosFields, ...patologicosFields];
     return allMissingFields;
   };
+
   const generateSectionRedaction = async (sectionElement: Element) => {
     try {
       if (!sectionElement) return false;
@@ -305,6 +317,7 @@ const HistoriaClinica = () => {
       return false;
     }
   };
+
   const getSectionRedaction = (sectionElement: Element): string | null => {
     try {
       if (!sectionElement) return null;
@@ -340,6 +353,7 @@ const HistoriaClinica = () => {
       return null;
     }
   };
+
   const collectAllRedactions = async () => {
     pdfSectionsRef.current = {};
     const sectionSelectors = [{
@@ -433,6 +447,7 @@ const HistoriaClinica = () => {
     console.log("All redactions collected:", Object.keys(pdfSectionsRef.current));
     return pdfSectionsRef.current;
   };
+
   const generatePDFDocument = async () => {
     try {
       setIsGeneratingPDF(true);
@@ -465,6 +480,7 @@ const HistoriaClinica = () => {
       setPdfGenerationProgress(100);
     }
   };
+
   const handleGeneratePDF = () => {
     const missing = validateForm();
     if (missing.length > 0) {
@@ -474,9 +490,11 @@ const HistoriaClinica = () => {
       generatePDFDocument();
     }
   };
+
   const closeResponse = () => {
     setActiveResponse(null);
   };
+
   return <div className={`${theme} min-h-screen w-full flex relative`}>
       <FormulariosSidebar onCargarFormulario={(data, nombre) => {
       cargarFormulario(data);
@@ -679,4 +697,5 @@ const HistoriaClinica = () => {
       <Toaster />
     </div>;
 };
+
 export default HistoriaClinica;

@@ -4,6 +4,8 @@ import { PromptInputBox } from './ai-prompt-box';
 import { TypewriterEffect } from './TypewriterEffect';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
 import { X } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -67,11 +69,7 @@ Cuando recibas un término médico dental:
 5. Limita tu respuesta a máximo 150 palabras
 
 Si el término no está relacionado con odontología, indica que te especializas en términos dentales y sugiere reformular la consulta.`;
-export function FloatingChatInput({
-  isOpen,
-  onClose,
-  onSend
-}: FloatingChatInputProps) {
+export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInputProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
   const {
@@ -80,21 +78,20 @@ export function FloatingChatInput({
   const handleSend = async (message: string) => {
     setIsLoading(true);
     onSend(message);
+
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: {
           message: message,
           systemPrompt: DENTAXY_SYSTEM_PROMPT
-        })
+        }
       });
-      if (!response.ok) {
-        throw new Error('Error en la respuesta');
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error('Error en la comunicación con el servidor');
       }
-      const data = await response.json();
+
       const newMessage: ChatMessage = {
         role: 'assistant',
         content: data.response || 'Lo siento, no pude procesar tu consulta.',
