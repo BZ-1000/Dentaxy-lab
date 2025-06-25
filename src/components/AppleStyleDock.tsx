@@ -7,8 +7,8 @@ import {
   Crown,
   Save,
   Trash,
-  Cross, // Importa el icono de la cruz
-  Search, // Add Search icon
+  Cross,
+  Search,
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -25,8 +25,8 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { MedicationSearch } from './MedicationSearch'; // Import our new component
-import { WikiSearch } from './WikiSearch';
+import { MedicationSearch } from './MedicationSearch';
+import { FloatingChatInput } from './ui/FloatingChatInput';
 
 const data = [
   {
@@ -39,7 +39,7 @@ const data = [
   {
     title: 'Medicamentos',
     icon: (
-      <Cross className='h-full w-full text-white' /> // Cambia PillBottle por Cross
+      <Cross className='h-full w-full text-white' />
     ),
     href: '#',
   },
@@ -64,14 +64,14 @@ export function AppleStyleDock() {
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [showMedicationSearch, setShowMedicationSearch] = useState(false); // New state for medication modal
+  const [showMedicationSearch, setShowMedicationSearch] = useState(false);
+  const [showFloatingChat, setShowFloatingChat] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [session, setSession] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [showWikiSearch, setShowWikiSearch] = useState(false); // Add new state
 
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -109,7 +109,7 @@ export function AppleStyleDock() {
         setShowMedicationSearch(true);
         break;
       case 'DentaxyGPT':
-        setShowWikiSearch(true);
+        setShowFloatingChat(true);
         break;
       case 'Comentarios':
         setShowFeedback(true);
@@ -124,6 +124,10 @@ export function AppleStyleDock() {
         setShowProfile(true);
         break;
     }
+  };
+
+  const handleChatSend = (message: string) => {
+    console.log('Chat message:', message);
   };
 
   const handleSendFeedback = async () => {
@@ -166,10 +170,8 @@ export function AppleStyleDock() {
 
   const handleResetForm = () => {
     if (window.confirm('¿Estás seguro que deseas limpiar todo el formulario? Esta acción no se puede deshacer.')) {
-      // Limpiar localStorage
       localStorage.removeItem('currentFormData');
       localStorage.removeItem('formBackup');
-      // Recargar la página
       window.location.reload();
     }
   };
@@ -183,7 +185,7 @@ export function AppleStyleDock() {
               key={idx}
               onClick={() => handleItemClick(item.title)}
               className={`aspect-square rounded-full cursor-pointer ${
-                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'DentaxyGPT' ? 'bg-sky-400' : (item.title === 'Inicio' ? 'bg-amber-400' : 'bg-gray-200 dark:bg-neutral-800'))
+                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'DentaxyGPT' ? 'bg-black' : (item.title === 'Inicio' ? 'bg-amber-400' : 'bg-gray-200 dark:bg-neutral-800'))
               }`}
             >
               <DockLabel>{item.title}</DockLabel>
@@ -199,7 +201,6 @@ export function AppleStyleDock() {
               <SunMoon className='h-full w-full text-white' />
             </DockIcon>
           </DockItem>
-          {/* Botón de reset con icono de basura */}
           <DockItem
             onClick={handleResetForm}
             className='aspect-square rounded-full bg-red-500 hover:bg-red-600 cursor-pointer'
@@ -209,7 +210,6 @@ export function AppleStyleDock() {
               <Trash className='h-full w-full text-white' />
             </DockIcon>
           </DockItem>
-          {/* Botón ScrollToName */}
           {isVisible && (
             <DockItem
               onClick={scrollToName}
@@ -224,16 +224,15 @@ export function AppleStyleDock() {
         </Dock>
       </div>
 
-      {/* Include our new Medication Search modal */}
       <MedicationSearch
         open={showMedicationSearch}
         onOpenChange={setShowMedicationSearch}
       />
 
-      {/* Include the WikiSearch component */}
-      <WikiSearch
-        open={showWikiSearch}
-        onOpenChange={setShowWikiSearch}
+      <FloatingChatInput
+        isOpen={showFloatingChat}
+        onClose={() => setShowFloatingChat(false)}
+        onSend={handleChatSend}
       />
 
       <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
@@ -353,7 +352,6 @@ export function AppleStyleDock() {
                 </ul>
                 <Button
                   onClick={() => {
-                    // Aquí implementaría el cambio de plan
                     setShowPricingPopup(false);
                     toast.success('Plan Beta seleccionado');
                   }}
