@@ -58,7 +58,7 @@ function ResponsePopup({ message, onClose }: ResponsePopupProps) {
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 20, scale: 0.95 }}
-        className="fixed top-4 right-4 z-[9999] max-w-md"
+        className="fixed top-16 right-4 z-[9999] max-w-md"
       >
         <div className="bg-gray-500/90 backdrop-blur-md border border-gray-600 rounded-2xl p-4 shadow-2xl">
           <div className="flex items-center justify-between mb-3">
@@ -209,6 +209,8 @@ const HistoriaClinica = () => {
       setActiveResponse(errorMessage);
     } finally {
       setIsSearching(false);
+      setSelectedText('');
+      setSelectedPosition(null);
     }
   };
 
@@ -239,13 +241,11 @@ const HistoriaClinica = () => {
     if (isAnalysisMode) {
       document.addEventListener('mouseup', handleTextSelection);
       document.addEventListener('keydown', handleKeyDown);
-      document.body.style.cursor = 'crosshair';
     }
 
     return () => {
       document.removeEventListener('mouseup', handleTextSelection);
       document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.cursor = 'default';
     };
   }, [isAnalysisMode, setAnalysisMode, setSelectedText, setSelectedPosition]);
 
@@ -663,31 +663,46 @@ const HistoriaClinica = () => {
         </div>
       </div>
 
-      {/* Text Selection Popup */}
+      {/* Indicador de modo análisis */}
+      {isAnalysisMode && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
+        >
+          <span className="text-sm font-medium">🔍 Modo Análisis Activo - Selecciona cualquier término</span>
+          <button
+            onClick={() => setAnalysisMode(false)}
+            className="text-white hover:text-gray-200 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </motion.div>
+      )}
+
+      {/* Text Selection Search Icon */}
       {selectedText && selectedPosition && isAnalysisMode && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="fixed z-[10000] pointer-events-auto"
           style={{
-            left: Math.min(selectedPosition.x, window.innerWidth - 200),
-            top: Math.max(selectedPosition.y - 60, 10),
+            left: Math.min(selectedPosition.x, window.innerWidth - 60),
+            top: Math.max(selectedPosition.y - 60, 60),
           }}
         >
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-2">
-            <button
-              onClick={() => handleSearch(selectedText)}
-              disabled={isSearching}
-              className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm transition-colors disabled:opacity-50"
-            >
-              {isSearching ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Search className="h-4 w-4" />
-              )}
-              {isSearching ? 'Buscando...' : 'Buscar definición'}
-            </button>
-          </div>
+          <button
+            onClick={() => handleSearch(selectedText)}
+            disabled={isSearching}
+            className="w-10 h-10 bg-black hover:bg-gray-800 text-white rounded-full flex items-center justify-center shadow-xl transition-colors disabled:opacity-50"
+          >
+            {isSearching ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Search className="h-5 w-5" />
+            )}
+          </button>
         </motion.div>
       )}
       

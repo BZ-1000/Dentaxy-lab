@@ -83,7 +83,7 @@ Si el término no está relacionado con odontología, indica que te especializas
 export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInputProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
-  const { isAnalysisMode, setAnalysisMode } = useAnalysisMode();
+  const { isAnalysisMode } = useAnalysisMode();
 
   const handleSend = async (message: string) => {
     setIsLoading(true);
@@ -133,30 +133,8 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
     setActiveResponse(null);
   };
 
-  const handleCloseAnalysisMode = () => {
-    setAnalysisMode(false);
-  };
-
   return (
     <>
-      {/* Indicador de modo análisis */}
-      {isAnalysisMode && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
-        >
-          <span className="text-sm font-medium">🔍 Modo Análisis Activo - Selecciona cualquier término</span>
-          <button
-            onClick={handleCloseAnalysisMode}
-            className="text-white hover:text-gray-200 transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </motion.div>
-      )}
-
       <AnimatePresence>
         {isOpen && !isAnalysisMode && (
           <div
