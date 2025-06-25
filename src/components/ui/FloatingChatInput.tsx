@@ -70,6 +70,33 @@ function ResponsePopup({ message, onClose }: ResponsePopupProps) {
   );
 }
 
+const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente de inteligencia artificial especializado en odontología. 
+
+IMPORTANTE: 
+- Responde SIEMPRE en español
+- Sé DIRECTO y CONCISO
+- Responde únicamente lo que se pregunta, sin información adicional
+- Máximo 150 palabras por respuesta
+- Ve al grano inmediatamente
+
+Tu especialidad:
+- Diagnósticos diferenciales rápidos
+- Tratamientos específicos
+- Urgencias odontológicas
+- Farmacología dental básica
+
+Estructura de respuesta:
+1. Respuesta directa a la pregunta
+2. Nivel de urgencia: 🟢 Rutina | 🟡 Preferente | 🔴 Urgencia | 🚨 Emergencia
+3. Acción recomendada (máximo 1 línea)
+
+Limitaciones:
+- NO diagnostiques definitivamente
+- NO prescribas medicamentos
+- Siempre recomienda consulta profesional para confirmación
+
+Responde de forma precisa y sin rodeos.`;
+
 export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInputProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
@@ -81,20 +108,70 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
     onSend(message);
 
     try {
-      // Simular respuesta de IA
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const currentDomain = window.location.hostname;
+      let refererUrl = 'https://www.dentaxy.com';
       
-      const aiResponse: ChatMessage = {
+      if (currentDomain.includes('dentaxy.com')) {
+        refererUrl = currentDomain.includes('www.') ? 'https://www.dentaxy.com' : 'https://dentaxy.com';
+      }
+
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer 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',
+          'Content-Type': 'application/json',
+          'HTTP-Referer': refererUrl,
+          'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado',
+          'Origin': refererUrl
+        },
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.2-3b-instruct:free',
+          messages: [
+            {
+              role: 'system',
+              content: DENTAXY_SYSTEM_PROMPT
+            },
+            {
+              role: 'user',
+              content: message
+            }
+          ],
+          temperature: 0.1,
+          max_tokens: 200,
+          top_p: 0.7,
+          frequency_penalty: 0.6,
+          presence_penalty: 0.4
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Error en la consulta. Intenta nuevamente.');
+      }
+
+      const data = await response.json();
+      let aiResponse = data.choices?.[0]?.message?.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta de manera más específica.';
+
+      aiResponse = aiResponse.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
+
+      const typingMessage: ChatMessage = {
         role: 'assistant',
-        content: `Definición de "${message}": Este es un término médico-dental que se refiere a...`,
+        content: aiResponse,
         timestamp: new Date(),
         isTyping: true
       };
-
-      setActiveResponse(aiResponse);
+      setActiveResponse(typingMessage);
       onClose(); // Cerrar el input después de enviar
+
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error calling OpenRouter API:', error);
+      const errorMessage: ChatMessage = {
+        role: 'assistant',
+        content: 'Error técnico temporal. Consulta directamente con un profesional odontológico.',
+        timestamp: new Date(),
+        isTyping: true
+      };
+      setActiveResponse(errorMessage);
+      onClose();
     } finally {
       setIsLoading(false);
     }
@@ -112,14 +189,14 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-40 w-full max-w-md mx-4"
+            className="fixed bottom-24 left-1/2 transform -translate-x-1/2 z-40 w-full max-w-lg mx-4"
           >
-            <div className="bg-gray-800/90 backdrop-blur-sm rounded-2xl border border-gray-600/50 p-3 shadow-2xl">
+            <div className="bg-gray-700/80 backdrop-blur-sm rounded-2xl border border-gray-500/50 p-2 shadow-2xl">
               <PromptInputBox
                 onSend={handleSend}
                 isLoading={isLoading}
                 placeholder="Escribe un término médico..."
-                className="bg-gray-800/90 border-gray-600/50 text-sm"
+                className="bg-transparent border-transparent text-sm min-h-[44px]"
               />
             </div>
           </motion.div>
