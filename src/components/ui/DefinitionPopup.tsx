@@ -5,18 +5,11 @@ import { Button } from './button';
 
 interface DefinitionPopupProps {
   text: string;
-  position: {
-    x: number;
-    y: number;
-  };
+  position: { x: number; y: number };
   onClose: () => void;
 }
 
-export function DefinitionPopup({
-  text,
-  position,
-  onClose
-}: DefinitionPopupProps) {
+export function DefinitionPopup({ text, position, onClose }: DefinitionPopupProps) {
   const [definition, setDefinition] = useState('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -30,17 +23,20 @@ export function DefinitionPopup({
             'Authorization': 'Bearer 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',
             'Content-Type': 'application/json',
             'HTTP-Referer': 'https://www.dentaxy.com',
-            'X-Title': 'DentaxyGPT - Análisis de Términos Odontológicos'
+            'X-Title': 'DentaxyGPT - Análisis de Términos Odontológicos',
           },
           body: JSON.stringify({
             model: 'meta-llama/llama-3.2-3b-instruct:free',
-            messages: [{
-              role: 'system',
-              content: 'Eres un experto en odontología. Proporciona definiciones concisas y claras de términos médicos/odontológicos en español. Incluye: 1) Definición breve, 2) Ejemplo de uso clínico, 3) Sinónimos si los hay. Máximo 100 palabras.'
-            }, {
-              role: 'user',
-              content: `Define el término odontológico: "${text}"`
-            }],
+            messages: [
+              {
+                role: 'system',
+                content: 'Eres un experto en odontología. Proporciona definiciones concisas y claras de términos médicos/odontológicos en español. Incluye: 1) Definición breve, 2) Ejemplo de uso clínico, 3) Sinónimos si los hay. Máximo 100 palabras.'
+              },
+              {
+                role: 'user',
+                content: `Define el término odontológico: "${text}"`
+              }
+            ],
             temperature: 0.1,
             max_tokens: 150
           })
@@ -66,52 +62,36 @@ export function DefinitionPopup({
 
   return (
     <div
-      className="fixed z-[10000] pointer-events-auto"
+      className="fixed z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg shadow-lg p-4 max-w-sm animate-scale-in"
       style={{
         left: Math.min(position.x, window.innerWidth - 320),
-        top: Math.max(position.y - 10, 10),
+        top: Math.max(10, position.y - 100),
       }}
     >
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-4 max-w-xs">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <img 
-              src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" 
-              alt="DentaxyGPT" 
-              className="h-5 w-5" 
-            />
-            <span className="font-semibold text-sm text-gray-900 dark:text-gray-100">
-              {text}
-            </span>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        </div>
-        
-        <div className="text-sm text-gray-700 dark:text-gray-300">
-          {isLoading ? (
-            <div className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Obteniendo definición...</span>
-            </div>
-          ) : (
-            <p className="leading-relaxed">{definition}</p>
-          )}
-        </div>
+      <div className="flex items-start justify-between mb-2">
+        <h4 className="font-semibold text-sm text-emerald-600 dark:text-emerald-400">
+          {text}
+        </h4>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onClose}
+          className="h-6 w-6 p-0 hover:bg-slate-100 dark:hover:bg-slate-700"
+        >
+          <X className="h-3 w-3" />
+        </Button>
       </div>
       
-      {/* Flecha indicadora */}
-      <div 
-        className="absolute w-3 h-3 bg-white dark:bg-gray-800 border-l border-b border-gray-200 dark:border-gray-700 transform rotate-45"
-        style={{
-          left: '20px',
-          top: '-6px',
-        }}
-      />
+      {isLoading ? (
+        <div className="flex items-center gap-2 text-sm text-slate-500">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          <span>Consultando definición...</span>
+        </div>
+      ) : (
+        <div className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+          {definition}
+        </div>
+      )}
     </div>
   );
 }

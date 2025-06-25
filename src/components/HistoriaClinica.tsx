@@ -35,7 +35,7 @@ import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, valid
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
-
+import { DefinitionPopup } from '@/components/ui/DefinitionPopup';
 const HistoriaClinica = () => {
   const {
     theme
@@ -52,6 +52,11 @@ const HistoriaClinica = () => {
   }>({});
   const {
     isAnalysisMode,
+    setAnalysisMode,
+    selectedText,
+    setSelectedText,
+    selectedPosition,
+    setSelectedPosition
   } = useAnalysisMode();
   const {
     formData,
@@ -88,24 +93,52 @@ const HistoriaClinica = () => {
     cargarFormulario,
     resetFormulario
   } = useHistoriaClinica();
-
+  useEffect(() => {
+    const handleTextSelection = (event: MouseEvent) => {
+      if (!isAnalysisMode) return;
+      const target = event.target as HTMLElement;
+      const selection = window.getSelection();
+      const selectedTextContent = selection?.toString().trim();
+      if (selectedTextContent && selectedTextContent.length > 2) {
+        setSelectedText(selectedTextContent);
+        setSelectedPosition({
+          x: event.clientX,
+          y: event.clientY
+        });
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isAnalysisMode) {
+        setAnalysisMode(false);
+        setSelectedText('');
+        setSelectedPosition(null);
+      }
+    };
+    if (isAnalysisMode) {
+      document.addEventListener('mouseup', handleTextSelection);
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.cursor = 'crosshair';
+    }
+    return () => {
+      document.removeEventListener('mouseup', handleTextSelection);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.cursor = 'default';
+    };
+  }, [isAnalysisMode, setAnalysisMode, setSelectedText, setSelectedPosition]);
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
     }
   }, [formData, pacienteActual, guardarFormulario]);
-
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
     cargarFormulario(null);
   };
-
   const handleResetFormulario = () => {
     setPacienteActual('');
     resetFormulario();
   };
-
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       toast({
@@ -122,7 +155,6 @@ const HistoriaClinica = () => {
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
-
   const validateForm = () => {
     const padecimientoFields = validatePadecimientoActual(formData);
     const heredoFamiliaresFields = validateAntecedentesHeredoFamiliares(formData);
@@ -131,7 +163,6 @@ const HistoriaClinica = () => {
     const allMissingFields = [...padecimientoFields, ...heredoFamiliaresFields, ...noPatologicosFields, ...patologicosFields];
     return allMissingFields;
   };
-
   const generateSectionRedaction = async (sectionElement: Element) => {
     try {
       if (!sectionElement) return false;
@@ -174,7 +205,6 @@ const HistoriaClinica = () => {
       return false;
     }
   };
-
   const getSectionRedaction = (sectionElement: Element): string | null => {
     try {
       if (!sectionElement) return null;
@@ -210,7 +240,6 @@ const HistoriaClinica = () => {
       return null;
     }
   };
-
   const collectAllRedactions = async () => {
     pdfSectionsRef.current = {};
     const sectionSelectors = [{
@@ -304,7 +333,6 @@ const HistoriaClinica = () => {
     console.log("All redactions collected:", Object.keys(pdfSectionsRef.current));
     return pdfSectionsRef.current;
   };
-
   const generatePDFDocument = async () => {
     try {
       setIsGeneratingPDF(true);
@@ -337,7 +365,6 @@ const HistoriaClinica = () => {
       setPdfGenerationProgress(100);
     }
   };
-
   const handleGeneratePDF = () => {
     const missing = validateForm();
     if (missing.length > 0) {
@@ -347,10 +374,18 @@ const HistoriaClinica = () => {
       generatePDFDocument();
     }
   };
-
   return <div className={`${theme} min-h-screen w-full flex relative`}>
-      {/* Analysis Mode Overlay con filtro gris */}
-      {isAnalysisMode && <div className="fixed inset-0 bg-gray-500/30 backdrop-blur-sm z-40 pointer-events-none" />}
+      {/* Analysis Mode Overlay - only show when popup is visible */}
+      {isAnalysisMode && selectedText && selectedPosition && <div className="fixed inset-0 bg-emerald-500/10 backdrop-blur-sm z-40 pointer-events-none" />}
+
+      {/* Analysis Mode Indicator - show when mode is active */}
+      {isAnalysisMode}
+
+      {/* Definition Popup */}
+      {selectedText && selectedPosition && <DefinitionPopup text={selectedText} position={selectedPosition} onClose={() => {
+      setSelectedText('');
+      setSelectedPosition(null);
+    }} />}
 
       <FormulariosSidebar onCargarFormulario={(data, nombre) => {
       cargarFormulario(data);
@@ -516,5 +551,4 @@ const HistoriaClinica = () => {
       <Toaster />
     </div>;
 };
-
 export default HistoriaClinica;
