@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -405,12 +406,15 @@ const HistoriaClinica = () => {
 
   return (
     <div className={`${theme} min-h-screen w-full flex relative`}>
-      {/* Analysis Mode Overlay */}
+      {/* Analysis Mode Overlay - only show when popup is visible */}
+      {isAnalysisMode && selectedText && selectedPosition && (
+        <div className="fixed inset-0 bg-emerald-500/10 backdrop-blur-sm z-40 pointer-events-none" />
+      )}
+
+      {/* Analysis Mode Indicator - show when mode is active */}
       {isAnalysisMode && (
-        <div className="fixed inset-0 bg-emerald-500/10 backdrop-blur-sm z-40 pointer-events-none">
-          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg">
-            <span className="text-sm font-medium">Modo Análisis Activo - Selecciona cualquier término</span>
-          </div>
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg z-50">
+          <span className="text-sm font-medium">Modo Análisis Activo - Selecciona cualquier término</span>
         </div>
       )}
 
