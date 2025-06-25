@@ -35,7 +35,6 @@ import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, valid
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
-import { DefinitionPopup } from '@/components/ui/DefinitionPopup';
 
 const HistoriaClinica = () => {
   const {
@@ -53,9 +52,6 @@ const HistoriaClinica = () => {
   }>({});
   const {
     isAnalysisMode,
-    setAnalysisMode,
-    selectedText,
-    setSelectedPosition,
   } = useAnalysisMode();
   const {
     formData,
@@ -98,15 +94,18 @@ const HistoriaClinica = () => {
       guardarFormulario(formData, pacienteActual);
     }
   }, [formData, pacienteActual, guardarFormulario]);
+
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
     cargarFormulario(null);
   };
+
   const handleResetFormulario = () => {
     setPacienteActual('');
     resetFormulario();
   };
+
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       toast({
@@ -123,6 +122,7 @@ const HistoriaClinica = () => {
       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
     });
   };
+
   const validateForm = () => {
     const padecimientoFields = validatePadecimientoActual(formData);
     const heredoFamiliaresFields = validateAntecedentesHeredoFamiliares(formData);
@@ -131,6 +131,7 @@ const HistoriaClinica = () => {
     const allMissingFields = [...padecimientoFields, ...heredoFamiliaresFields, ...noPatologicosFields, ...patologicosFields];
     return allMissingFields;
   };
+
   const generateSectionRedaction = async (sectionElement: Element) => {
     try {
       if (!sectionElement) return false;
@@ -173,6 +174,7 @@ const HistoriaClinica = () => {
       return false;
     }
   };
+
   const getSectionRedaction = (sectionElement: Element): string | null => {
     try {
       if (!sectionElement) return null;
@@ -208,6 +210,7 @@ const HistoriaClinica = () => {
       return null;
     }
   };
+
   const collectAllRedactions = async () => {
     pdfSectionsRef.current = {};
     const sectionSelectors = [{
@@ -301,6 +304,7 @@ const HistoriaClinica = () => {
     console.log("All redactions collected:", Object.keys(pdfSectionsRef.current));
     return pdfSectionsRef.current;
   };
+
   const generatePDFDocument = async () => {
     try {
       setIsGeneratingPDF(true);
@@ -333,6 +337,7 @@ const HistoriaClinica = () => {
       setPdfGenerationProgress(100);
     }
   };
+
   const handleGeneratePDF = () => {
     const missing = validateForm();
     if (missing.length > 0) {
@@ -342,17 +347,10 @@ const HistoriaClinica = () => {
       generatePDFDocument();
     }
   };
+
   return <div className={`${theme} min-h-screen w-full flex relative`}>
-      {/* Analysis Mode Overlay - cambiar el color del filtro */}
-      {isAnalysisMode && selectedText && selectedPosition && <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-sm z-40 pointer-events-none" />}
-
-      {/* Eliminar el indicador duplicado del modo análisis */}
-
-      {/* Definition Popup usando el componente corregido */}
-      {selectedText && selectedPosition && <DefinitionPopup text={selectedText} position={selectedPosition} onClose={() => {
-      setSelectedText('');
-      setSelectedPosition(null);
-    }} />}
+      {/* Analysis Mode Overlay con filtro gris */}
+      {isAnalysisMode && <div className="fixed inset-0 bg-gray-500/30 backdrop-blur-sm z-40 pointer-events-none" />}
 
       <FormulariosSidebar onCargarFormulario={(data, nombre) => {
       cargarFormulario(data);

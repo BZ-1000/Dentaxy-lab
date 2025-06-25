@@ -199,7 +199,7 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
             className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-[9998] pointer-events-auto"
             style={{ marginBottom: '100px' }}
           >
-            <div className="bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 shadow-2xl p-3 w-[350px]">
+            <div className="bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 shadow-2xl p-3 w-[450px]">
               <PromptInputBox
                 onSend={handleSend}
                 isLoading={isLoading}

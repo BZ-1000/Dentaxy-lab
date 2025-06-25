@@ -20,14 +20,21 @@ Mantén las respuestas breves y directas.`;
 export function useTextSelection() {
   const {
     isAnalysisMode,
+    selectedText,
     setSelectedText,
+    selectedPosition,
     setSelectedPosition,
+    definition,
     setDefinition,
+    isLoadingDefinition,
     setIsLoadingDefinition,
+    showDefinitionPopup,
     setShowDefinitionPopup
   } = useAnalysisMode();
 
   const getDefinition = useCallback(async (text: string) => {
+    if (!text || text.length < 2) return;
+    
     setIsLoadingDefinition(true);
     
     try {
@@ -87,7 +94,11 @@ export function useTextSelection() {
     if (!isAnalysisMode) return;
 
     const target = event.target as HTMLElement;
-    if (!target.textContent) return;
+    
+    // Evitar activar en botones, inputs, etc.
+    if (target.tagName === 'BUTTON' || target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      return;
+    }
 
     // Obtener la palabra más cercana al clic
     const range = document.caretRangeFromPoint(event.clientX, event.clientY);
@@ -104,12 +115,12 @@ export function useTextSelection() {
     let end = offset;
 
     // Buscar hacia atrás para encontrar el inicio de la palabra
-    while (start > 0 && /\w/.test(text[start - 1])) {
+    while (start > 0 && /[\w\u00C0-\u024F\u1E00-\u1EFF]/.test(text[start - 1])) {
       start--;
     }
 
     // Buscar hacia adelante para encontrar el final de la palabra
-    while (end < text.length && /\w/.test(text[end])) {
+    while (end < text.length && /[\w\u00C0-\u024F\u1E00-\u1EFF]/.test(text[end])) {
       end++;
     }
 
@@ -122,6 +133,9 @@ export function useTextSelection() {
     wordRange.setEnd(textNode, end);
 
     const rect = wordRange.getBoundingClientRect();
+    
+    console.log('Palabra seleccionada:', word);
+    console.log('Posición:', { x: rect.left + rect.width / 2, y: rect.top - 10 });
     
     setSelectedText(word);
     setSelectedPosition({
@@ -139,10 +153,12 @@ export function useTextSelection() {
       document.addEventListener('click', handleWordClick);
       document.body.style.cursor = 'pointer';
       document.body.style.userSelect = 'none';
+      console.log('Modo análisis activado - haz clic en cualquier palabra');
     } else {
       document.removeEventListener('click', handleWordClick);
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
+      console.log('Modo análisis desactivado');
     }
 
     return () => {
