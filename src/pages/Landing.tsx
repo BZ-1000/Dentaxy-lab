@@ -264,13 +264,77 @@ const Landing = () => {
   };
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
-      alergias: '',
-      medicamentosActuales: '',
-      cirugiasPrevias: '',
-      hospitalizacionesPrevias: '',
-      transfusionesSanguineas: false,
-      enfermedadesCronicas: '',
-      otrasCondiciones: []
+      nutricionales: {
+        anorexia: false,
+        bulimia: false,
+        sobrepeso: false,
+        obesidad: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      cardiacos: {
+        enfermedadCoronaria: false,
+        arritmias: false,
+        defectosCardiacosCongenitos: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      hepaticos: {
+        hepatitisA: false,
+        hepatitisB: false,
+        hepatitisC: false,
+        higadoGraso: false,
+        cirrosis: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      enfermedadesTransmisionSexual: {
+        vih: false,
+        sifilis: false,
+        gonorrea: false,
+        herpesGenital: false,
+        vph: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      enfermedadesEruptivas: {
+        sarampion: false,
+        rubeola: false,
+        escarlatina: false,
+        varicela: false,
+        paperas: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      pulmonares: {
+        neumonia: false,
+        bronquitis: false,
+        asma: false,
+        epoc: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      infecciosasParasitarias: {
+        fiebreTifoidea: false,
+        tuberculosis: false,
+        amibiasis: false,
+        giardiasis: false,
+        ascariasis: false,
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      },
+      otrosPadecimientos: {
+        ninguna: true,
+        otra: false,
+        otraDescripcion: ''
+      }
     }
   });
   
