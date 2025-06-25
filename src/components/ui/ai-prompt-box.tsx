@@ -1,3 +1,4 @@
+
 import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
@@ -29,9 +30,11 @@ const styles = `
 `;
 
 // Inject styles into document
-const styleSheet = document.createElement("style");
-styleSheet.innerText = styles;
-document.head.appendChild(styleSheet);
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement("style");
+  styleSheet.innerText = styles;
+  document.head.appendChild(styleSheet);
+}
 
 // Textarea Component
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -140,7 +143,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       default: "h-10 px-4 py-2",
       sm: "h-8 px-3 text-sm",
       lg: "h-12 px-6",
-      icon: "h-8 w-8 rounded-full aspect-[1/1]",
+      icon: "h-7 w-7 rounded-full aspect-[1/1]",
     };
     return (
       <button
@@ -327,7 +330,7 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           <div
             ref={ref}
             className={cn(
-              "rounded-3xl border border-[#444444] bg-black p-2 shadow-[0_8px_30px_rgba(0,0,0,0.24)] transition-all duration-300",
+              "rounded-2xl border border-[#555555] bg-transparent p-2 shadow-lg transition-all duration-300",
               isLoading && "border-red-500/70",
               className
             )}
@@ -381,7 +384,7 @@ const PromptInputTextarea: React.FC<PromptInputTextareaProps & React.ComponentPr
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={handleKeyDown}
-      className={cn("text-base", className)}
+      className={cn("text-sm", className)}
       disabled={disabled}
       placeholder={placeholder}
       {...props}
@@ -424,12 +427,9 @@ const PromptInputAction: React.FC<PromptInputActionProps> = ({
 
 // Custom Divider Component
 const CustomDivider: React.FC = () => (
-  <div className="relative h-6 w-[1.5px] mx-1">
+  <div className="relative h-4 w-[1px] mx-1">
     <div
       className="absolute inset-0 bg-gradient-to-t from-transparent via-[#9b87f5]/70 to-transparent rounded-full"
-      style={{
-        clipPath: "polygon(0% 0%, 100% 0%, 100% 40%, 140% 50%, 100% 60%, 100% 100%, 0% 100%, 0% 60%, -40% 50%, 0% 40%)",
-      }}
     />
   </div>
 );
@@ -561,7 +561,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
         isLoading={isLoading}
         onSubmit={handleSubmit}
         className={cn(
-          "w-full bg-black border-[#444444] shadow-[0_8px_30px_rgba(0,0,0,0.24)] transition-all duration-300 ease-in-out",
+          "w-full bg-transparent border-[#555555] shadow-lg transition-all duration-300 ease-in-out",
           isRecording && "border-red-500/70",
           className
         )}
@@ -577,7 +577,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
               <div key={index} className="relative group">
                 {file.type.startsWith("image/") && filePreviews[file.name] && (
                   <div
-                    className="w-16 h-16 rounded-xl overflow-hidden cursor-pointer transition-all duration-300"
+                    className="w-12 h-12 rounded-lg overflow-hidden cursor-pointer transition-all duration-300"
                     onClick={() => openImageModal(filePreviews[file.name])}
                   >
                     <img
@@ -590,9 +590,9 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
                         e.stopPropagation();
                         handleRemoveFile(index);
                       }}
-                      className="absolute top-1 right-1 rounded-full bg-black/70 p-0.5 opacity-100 transition-opacity"
+                      className="absolute top-0.5 right-0.5 rounded-full bg-black/70 p-0.5 opacity-100 transition-opacity"
                     >
-                      <X className="h-3 w-3 text-white" />
+                      <X className="h-2.5 w-2.5 text-white" />
                     </button>
                   </div>
                 )}
@@ -609,7 +609,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
         >
           <PromptInputTextarea
             placeholder={placeholder}
-            className="text-base"
+            className="text-sm text-gray-200"
           />
         </div>
 
@@ -621,7 +621,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
           />
         )}
 
-        <PromptInputActions className="flex items-center justify-between gap-2 p-0 pt-2">
+        <PromptInputActions className="flex items-center justify-between gap-2 p-0 pt-1.5">
           <div
             className={cn(
               "flex items-center gap-1 transition-opacity duration-300",
@@ -633,19 +633,19 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
                 type="button"
                 onClick={() => handleToggleChange("think")}
                 className={cn(
-                  "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-8",
+                  "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-6",
                   showThink
                     ? "bg-[#8B5CF6]/15 border-[#8B5CF6] text-[#8B5CF6]"
                     : "bg-transparent border-transparent text-[#9CA3AF] hover:text-[#D1D5DB]"
                 )}
               >
-                <div className="w-5 h-5 flex items-center justify-center flex-shrink-0">
+                <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                   <motion.div
                     animate={{ rotate: showThink ? 360 : 0, scale: showThink ? 1.1 : 1 }}
                     whileHover={{ rotate: showThink ? 360 : 15, scale: 1.1, transition: { type: "spring", stiffness: 300, damping: 10 } }}
                     transition={{ type: "spring", stiffness: 260, damping: 25 }}
                   >
-                    <BrainCog className={cn("w-4 h-4", showThink ? "text-[#8B5CF6]" : "text-inherit")} />
+                    <BrainCog className={cn("w-3.5 h-3.5", showThink ? "text-[#8B5CF6]" : "text-inherit")} />
                   </motion.div>
                 </div>
                 <AnimatePresence>
@@ -680,7 +680,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
               variant="default"
               size="icon"
               className={cn(
-                "h-8 w-8 rounded-full transition-all duration-200",
+                "h-6 w-6 rounded-full transition-all duration-200",
                 isRecording
                   ? "bg-transparent hover:bg-gray-600/30 text-red-500 hover:text-red-400"
                   : hasContent
@@ -695,13 +695,13 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
               disabled={isLoading && !hasContent}
             >
               {isLoading ? (
-                <Square className="h-4 w-4 fill-black animate-pulse" />
+                <Square className="h-3 w-3 fill-black animate-pulse" />
               ) : isRecording ? (
-                <StopCircle className="h-5 w-5 text-red-500" />
+                <StopCircle className="h-4 w-4 text-red-500" />
               ) : hasContent ? (
-                <ArrowUp className="h-4 w-4 text-black" />
+                <ArrowUp className="h-3 w-3 text-black" />
               ) : (
-                <Mic className="h-5 w-5 text-black transition-colors" />
+                <Mic className="h-4 w-4 text-black transition-colors" />
               )}
             </Button>
           </PromptInputAction>

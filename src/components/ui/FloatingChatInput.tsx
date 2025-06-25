@@ -31,7 +31,7 @@ function ResponsePopup({ message, onClose }: ResponsePopupProps) {
       exit={{ opacity: 0, y: 20, scale: 0.95 }}
       className="fixed top-4 right-4 z-50 max-w-md"
     >
-      <div className="bg-black border border-gray-700 rounded-2xl p-4 shadow-2xl">
+      <div className="bg-gray-900 border border-gray-700 rounded-2xl p-4 shadow-2xl">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <img 
@@ -112,14 +112,14 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-40 w-full max-w-2xl mx-4"
+            className="fixed bottom-20 left-1/2 transform -translate-x-1/2 z-40 w-full max-w-md mx-4"
           >
-            <div className="bg-black rounded-3xl border border-gray-700 p-4 shadow-2xl">
+            <div className="bg-gray-800/90 backdrop-blur-sm rounded-2xl border border-gray-600/50 p-3 shadow-2xl">
               <PromptInputBox
                 onSend={handleSend}
                 isLoading={isLoading}
                 placeholder="Escribe un término médico..."
-                className="bg-black border-gray-700"
+                className="bg-gray-800/90 border-gray-600/50 text-sm"
               />
             </div>
           </motion.div>
