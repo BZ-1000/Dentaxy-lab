@@ -3,6 +3,7 @@ import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ArrowUp, Paperclip, Square, X, StopCircle, Mic, Globe, BrainCog, FolderCode } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
 
 // Utility function for className merging
 const cn = (...classes: (string | undefined | null | false)[]) => classes.filter(Boolean).join(" ");
@@ -456,9 +457,11 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
   const [filePreviews, setFilePreviews] = React.useState<{ [key: string]: string }>({});
   const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
   const [isRecording, setIsRecording] = React.useState(false);
-  const [showAnalysis, setShowAnalysis] = React.useState(false);
   const uploadInputRef = React.useRef<HTMLInputElement>(null);
   const promptBoxRef = React.useRef<HTMLDivElement>(null);
+  
+  // Obtener contexto de análisis
+  const { isAnalysisMode, setAnalysisMode } = useAnalysisMode();
 
   const isImageFile = (file: File) => file.type.startsWith("image/");
 
@@ -526,14 +529,13 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
   const handleSubmit = () => {
     if (input.trim() || files.length > 0) {
       let messagePrefix = "";
-      if (showAnalysis) messagePrefix = "[Análisis: ";
+      if (isAnalysisMode) messagePrefix = "[Análisis: ";
       
       const formattedInput = messagePrefix ? `${messagePrefix}${input}]` : input;
       onSend(formattedInput, files);
       setInput("");
       setFiles([]);
       setFilePreviews({});
-      setShowAnalysis(false);
     }
   };
 
@@ -543,6 +545,17 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
     console.log(`Stopped recording after ${duration} seconds`);
     setIsRecording(false);
     onSend(`[Voice message - ${duration} seconds]`, []);
+  };
+
+  const handleAnalysisToggle = () => {
+    const newAnalysisMode = !isAnalysisMode;
+    setAnalysisMode(newAnalysisMode);
+    
+    if (newAnalysisMode) {
+      console.log('Modo análisis activado - puedes seleccionar texto en la aplicación');
+    } else {
+      console.log('Modo análisis desactivado');
+    }
   };
 
   const hasContent = input.trim() !== "" || files.length > 0;
@@ -625,25 +638,25 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
             <div className="flex items-center">
               <button
                 type="button"
-                onClick={() => setShowAnalysis(!showAnalysis)}
+                onClick={handleAnalysisToggle}
                 className={cn(
                   "rounded-full transition-all flex items-center gap-1 px-2 py-1 border h-6",
-                  showAnalysis
+                  isAnalysisMode
                     ? "bg-[#8B5CF6]/15 border-[#8B5CF6] text-[#8B5CF6]"
                     : "bg-transparent border-transparent text-[#9CA3AF] hover:text-[#D1D5DB]"
                 )}
               >
                 <div className="w-4 h-4 flex items-center justify-center flex-shrink-0">
                   <motion.div
-                    animate={{ rotate: showAnalysis ? 360 : 0, scale: showAnalysis ? 1.1 : 1 }}
-                    whileHover={{ rotate: showAnalysis ? 360 : 15, scale: 1.1 }}
+                    animate={{ rotate: isAnalysisMode ? 360 : 0, scale: isAnalysisMode ? 1.1 : 1 }}
+                    whileHover={{ rotate: isAnalysisMode ? 360 : 15, scale: 1.1 }}
                     transition={{ type: "spring", stiffness: 260, damping: 25 }}
                   >
-                    <BrainCog className={cn("w-3.5 h-3.5", showAnalysis ? "text-[#8B5CF6]" : "text-inherit")} />
+                    <BrainCog className={cn("w-3.5 h-3.5", isAnalysisMode ? "text-[#8B5CF6]" : "text-inherit")} />
                   </motion.div>
                 </div>
                 <AnimatePresence>
-                  {showAnalysis && (
+                  {isAnalysisMode && (
                     <motion.span
                       initial={{ width: 0, opacity: 0 }}
                       animate={{ width: "auto", opacity: 1 }}

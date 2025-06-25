@@ -212,30 +212,21 @@ Mantén las respuestas breves y directas.`;
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-[9998] pointer-events-none"
-            style={{ 
+            className="fixed bottom-0 z-[9998] pointer-events-none"
+            style={{
               marginBottom: '120px',
-              width: 'min(70vw, 450px)',
-              marginLeft: '-50vw',
-              marginRight: '-50vw'
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 'min(60vw, 400px)',
             }}
           >
-            <div 
-              className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 shadow-2xl"
-              style={{ 
-                maxHeight: '300px',
-                padding: '0 0',
-                margin: '0 auto'
-              }}
-            >
-              <div className="p-3">
-                <PromptInputBox
-                  onSend={handleSend}
-                  isLoading={isLoading}
-                  placeholder="Escribe un término médico..."
-                  className="bg-transparent border-transparent text-sm min-h-[48px]"
-                />
-              </div>
+            <div className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 shadow-2xl p-3">
+              <PromptInputBox
+                onSend={handleSend}
+                isLoading={isLoading}
+                placeholder="Escribe un término médico..."
+                className="bg-transparent border-transparent text-sm min-h-[48px]"
+              />
             </div>
           </motion.div>
         )}
