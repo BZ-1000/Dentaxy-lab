@@ -111,12 +111,10 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-[9998] pointer-events-none"
-            style={{ marginBottom: '120px' }}
+          // CAMBIO 1: Contenedor padre que se encarga del posicionamiento y centrado.
+          <div
+            className="fixed bottom-0 left-0 right-0 z-[9998] flex justify-center pointer-events-none"
+            style={{ marginBottom: '100px' }}
           >
             <div
               className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 shadow-2xl p-3"
