@@ -166,11 +166,14 @@ export function WikiSearch({
     setIsLoading(true);
 
     try {
-      // Prepare conversation context (last 4 messages for context)
-      const conversationHistory = messages.slice(-4).map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
+      // Prepare conversation context (last 4 messages for context, excluding the greeting message)
+      const conversationHistory = messages
+        .filter(msg => !(msg.role === 'assistant' && msg.content.includes('¡Hola! Soy DentaxyGPT')))
+        .slice(-4)
+        .map(msg => ({
+          role: msg.role,
+          content: msg.content
+        }));
 
       // Detectar el dominio actual y configurar el referer apropiado
       const currentDomain = window.location.hostname;
