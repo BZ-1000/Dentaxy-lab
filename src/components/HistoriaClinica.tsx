@@ -54,9 +54,7 @@ const HistoriaClinica = () => {
     isAnalysisMode,
     setAnalysisMode,
     selectedText,
-    setSelectedText,
-    selectedPosition,
-    setSelectedPosition
+    setSelectedPosition,
   } = useAnalysisMode();
   const {
     formData,
@@ -93,38 +91,7 @@ const HistoriaClinica = () => {
     cargarFormulario,
     resetFormulario
   } = useHistoriaClinica();
-  useEffect(() => {
-    const handleTextSelection = (event: MouseEvent) => {
-      if (!isAnalysisMode) return;
-      const target = event.target as HTMLElement;
-      const selection = window.getSelection();
-      const selectedTextContent = selection?.toString().trim();
-      if (selectedTextContent && selectedTextContent.length > 2) {
-        setSelectedText(selectedTextContent);
-        setSelectedPosition({
-          x: event.clientX,
-          y: event.clientY
-        });
-      }
-    };
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isAnalysisMode) {
-        setAnalysisMode(false);
-        setSelectedText('');
-        setSelectedPosition(null);
-      }
-    };
-    if (isAnalysisMode) {
-      document.addEventListener('mouseup', handleTextSelection);
-      document.addEventListener('keydown', handleKeyDown);
-      document.body.style.cursor = 'crosshair';
-    }
-    return () => {
-      document.removeEventListener('mouseup', handleTextSelection);
-      document.removeEventListener('keydown', handleKeyDown);
-      document.body.style.cursor = 'default';
-    };
-  }, [isAnalysisMode, setAnalysisMode, setSelectedText, setSelectedPosition]);
+
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
@@ -375,13 +342,12 @@ const HistoriaClinica = () => {
     }
   };
   return <div className={`${theme} min-h-screen w-full flex relative`}>
-      {/* Analysis Mode Overlay - only show when popup is visible */}
-      {isAnalysisMode && selectedText && selectedPosition && <div className="fixed inset-0 bg-emerald-500/10 backdrop-blur-sm z-40 pointer-events-none" />}
+      {/* Analysis Mode Overlay - cambiar el color del filtro */}
+      {isAnalysisMode && selectedText && selectedPosition && <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-sm z-40 pointer-events-none" />}
 
-      {/* Analysis Mode Indicator - show when mode is active */}
-      {isAnalysisMode}
+      {/* Eliminar el indicador duplicado del modo análisis */}
 
-      {/* Definition Popup */}
+      {/* Definition Popup usando el componente corregido */}
       {selectedText && selectedPosition && <DefinitionPopup text={selectedText} position={selectedPosition} onClose={() => {
       setSelectedText('');
       setSelectedPosition(null);
@@ -551,4 +517,5 @@ const HistoriaClinica = () => {
       <Toaster />
     </div>;
 };
+
 export default HistoriaClinica;

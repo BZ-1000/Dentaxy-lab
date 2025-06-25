@@ -99,7 +99,7 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
           exit={{ opacity: 0, y: -20 }}
           className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
         >
-          <span className="text-sm font-medium">🔍 Modo Análisis Activo - Selecciona cualquier término</span>
+          <span className="text-sm font-medium">🔍 Modo Análisis Activo - Haz clic en cualquier palabra</span>
           <button
             onClick={handleCloseAnalysisMode}
             className="text-white hover:text-gray-200 transition-colors"
@@ -111,31 +111,25 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
 
       <AnimatePresence>
         {isOpen && (
-          // CAMBIO 1: Contenedor padre que se encarga del posicionamiento y centrado.
-          <div
-            className="fixed bottom-0 left-0 right-0 z-[9998] flex justify-center pointer-events-none"
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-[9998] pointer-events-none"
             style={{ marginBottom: '120px' }}
           >
-            {/* CAMBIO 2: El motion.div ahora es mucho más simple. */}
-            <motion.div
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              style={{
-                width: 'min(45vw, 350px)',
-                maxWidth: '350px'
-              }}
+            <div
+              className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 shadow-2xl p-3"
+              style={{ width: '350px' }}
             >
-              <div className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 shadow-2xl p-3">
-                <PromptInputBox
-                  onSend={handleSend}
-                  isLoading={isLoading}
-                  placeholder="Escribe un término médico..."
-                  className="bg-transparent border-transparent text-sm min-h-[48px]"
-                />
-              </div>
-            </motion.div>
-          </div>
+              <PromptInputBox
+                onSend={handleSend}
+                isLoading={isLoading}
+                placeholder="Escribe un término médico..."
+                className="bg-transparent border-transparent text-sm min-h-[48px]"
+              />
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

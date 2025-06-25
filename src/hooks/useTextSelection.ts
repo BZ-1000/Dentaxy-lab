@@ -83,20 +83,47 @@ export function useTextSelection() {
     }
   }, [setDefinition, setIsLoadingDefinition]);
 
-  const handleTextSelection = useCallback((event: MouseEvent) => {
+  const handleWordClick = useCallback((event: MouseEvent) => {
     if (!isAnalysisMode) return;
 
-    const selection = window.getSelection();
-    if (!selection || selection.isCollapsed) return;
+    const target = event.target as HTMLElement;
+    if (!target.textContent) return;
 
-    const selectedText = selection.toString().trim();
-    if (selectedText.length < 2) return;
+    // Obtener la palabra más cercana al clic
+    const range = document.caretRangeFromPoint(event.clientX, event.clientY);
+    if (!range) return;
 
-    // Obtener la posición del texto seleccionado
-    const range = selection.getRangeAt(0);
-    const rect = range.getBoundingClientRect();
+    const textNode = range.startContainer;
+    if (textNode.nodeType !== Node.TEXT_NODE) return;
+
+    const text = textNode.textContent || '';
+    const offset = range.startOffset;
+
+    // Encontrar el inicio y fin de la palabra
+    let start = offset;
+    let end = offset;
+
+    // Buscar hacia atrás para encontrar el inicio de la palabra
+    while (start > 0 && /\w/.test(text[start - 1])) {
+      start--;
+    }
+
+    // Buscar hacia adelante para encontrar el final de la palabra
+    while (end < text.length && /\w/.test(text[end])) {
+      end++;
+    }
+
+    const word = text.slice(start, end).trim();
+    if (word.length < 2) return;
+
+    // Crear un rango para la palabra completa
+    const wordRange = document.createRange();
+    wordRange.setStart(textNode, start);
+    wordRange.setEnd(textNode, end);
+
+    const rect = wordRange.getBoundingClientRect();
     
-    setSelectedText(selectedText);
+    setSelectedText(word);
     setSelectedPosition({
       x: rect.left + rect.width / 2,
       y: rect.top - 10
@@ -104,27 +131,24 @@ export function useTextSelection() {
     setShowDefinitionPopup(true);
     
     // Obtener la definición
-    getDefinition(selectedText);
-    
-    // Limpiar la selección
-    selection.removeAllRanges();
+    getDefinition(word);
   }, [isAnalysisMode, setSelectedText, setSelectedPosition, setShowDefinitionPopup, getDefinition]);
 
   useEffect(() => {
     if (isAnalysisMode) {
-      document.addEventListener('mouseup', handleTextSelection);
-      document.body.style.cursor = 'text';
-      document.body.style.userSelect = 'text';
+      document.addEventListener('click', handleWordClick);
+      document.body.style.cursor = 'pointer';
+      document.body.style.userSelect = 'none';
     } else {
-      document.removeEventListener('mouseup', handleTextSelection);
+      document.removeEventListener('click', handleWordClick);
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
     }
 
     return () => {
-      document.removeEventListener('mouseup', handleTextSelection);
+      document.removeEventListener('click', handleWordClick);
       document.body.style.cursor = '';
       document.body.style.userSelect = '';
     };
-  }, [isAnalysisMode, handleTextSelection]);
+  }, [isAnalysisMode, handleWordClick]);
 }
