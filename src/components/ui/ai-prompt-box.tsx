@@ -1,4 +1,3 @@
-
 import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
@@ -44,7 +43,7 @@ interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(({ className, ...props }, ref) => (
   <textarea
     className={cn(
-      "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base text-gray-900 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none scrollbar-thin scrollbar-thumb-[#444444] scrollbar-track-transparent hover:scrollbar-thumb-[#555555]",
+      "flex w-full rounded-md border-none bg-transparent px-3 py-2.5 text-base text-gray-100 placeholder:text-gray-400 focus-visible:outline-none focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50 min-h-[44px] resize-none scrollbar-thin scrollbar-thumb-[#444444] scrollbar-track-transparent hover:scrollbar-thumb-[#555555]",
       className
     )}
     ref={ref}
@@ -210,13 +209,13 @@ const VoiceRecorder: React.FC<VoiceRecorderProps> = ({
     >
       <div className="flex items-center gap-2 mb-3">
         <div className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
-        <span className="font-mono text-sm text-gray-800">{formatTime(time)}</span>
+        <span className="font-mono text-sm text-white/80">{formatTime(time)}</span>
       </div>
       <div className="w-full h-10 flex items-center justify-center gap-0.5 px-4">
         {[...Array(visualizerBars)].map((_, i) => (
           <div
             key={i}
-            className="w-0.5 rounded-full bg-gray-600 animate-pulse"
+            className="w-0.5 rounded-full bg-white/50 animate-pulse"
             style={{
               height: `${Math.max(15, Math.random() * 100)}%`,
               animationDelay: `${i * 0.05}s`,
@@ -340,7 +339,7 @@ const PromptInput = React.forwardRef<HTMLDivElement, PromptInputProps>(
           <div
             ref={ref}
             className={cn(
-              "rounded-2xl border border-[#555555] bg-white p-2 shadow-lg transition-all duration-300",
+              "rounded-2xl border border-[#555555] bg-transparent p-2 shadow-lg transition-all duration-300",
               isLoading && "border-red-500/70",
               className
             )}
@@ -462,7 +461,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
   const promptBoxRef = React.useRef<HTMLDivElement>(null);
   
   // Obtener contexto de análisis
-  const { isAnalysisMode, setAnalysisMode, selectedWords } = useAnalysisMode();
+  const { isAnalysisMode, setAnalysisMode } = useAnalysisMode();
 
   const isImageFile = (file: File) => file.type.startsWith("image/");
 
@@ -528,18 +527,11 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
   }, [handlePaste]);
 
   const handleSubmit = () => {
-    let messageToSend = input.trim();
-    
-    // Si hay palabras seleccionadas del modo análisis, usarlas
-    if (selectedWords.length > 0) {
-      messageToSend = selectedWords.join(' ');
-    }
-    
-    if (messageToSend || files.length > 0) {
+    if (input.trim() || files.length > 0) {
       let messagePrefix = "";
       if (isAnalysisMode) messagePrefix = "[Análisis: ";
       
-      const formattedInput = messagePrefix ? `${messagePrefix}${messageToSend}]` : messageToSend;
+      const formattedInput = messagePrefix ? `${messagePrefix}${input}]` : input;
       onSend(formattedInput, files);
       setInput("");
       setFiles([]);
@@ -566,7 +558,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
     }
   };
 
-  const hasContent = input.trim() !== "" || files.length > 0 || selectedWords.length > 0;
+  const hasContent = input.trim() !== "" || files.length > 0;
 
   return (
     <>
@@ -576,7 +568,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
         isLoading={isLoading}
         onSubmit={handleSubmit}
         className={cn(
-          "w-full bg-white border-[#555555] shadow-lg transition-all duration-300 ease-in-out",
+          "w-full bg-transparent border-[#555555] shadow-lg transition-all duration-300 ease-in-out",
           isRecording && "border-red-500/70",
           className
         )}
@@ -616,18 +608,6 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
           </div>
         )}
 
-        {/* Mostrar palabras seleccionadas */}
-        {selectedWords.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2">
-            <span className="text-xs text-gray-600">Palabras seleccionadas:</span>
-            {selectedWords.map((word, index) => (
-              <span key={index} className="bg-yellow-200 text-gray-900 px-2 py-1 rounded text-xs">
-                {word}
-              </span>
-            ))}
-          </div>
-        )}
-
         <div
           className={cn(
             "transition-all duration-300",
@@ -635,8 +615,8 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
           )}
         >
           <PromptInputTextarea
-            placeholder={selectedWords.length > 0 ? "Palabras seleccionadas listas para enviar..." : placeholder}
-            className="text-sm text-gray-900"
+            placeholder={placeholder}
+            className="text-sm text-gray-200"
           />
         </div>
 
@@ -711,7 +691,7 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
                 isRecording
                   ? "bg-transparent hover:bg-gray-600/30 text-red-500 hover:text-red-400"
                   : hasContent
-                  ? "bg-black hover:bg-black/80 text-white"
+                  ? "bg-white hover:bg-white/80 text-black"
                   : "bg-transparent hover:bg-gray-600/30 text-[#9CA3AF] hover:text-[#D1D5DB]"
               )}
               onClick={() => {
@@ -722,11 +702,11 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
               disabled={isLoading && !hasContent}
             >
               {isLoading ? (
-                <Square className="h-3 w-3 fill-white animate-pulse" />
+                <Square className="h-3 w-3 fill-black animate-pulse" />
               ) : isRecording ? (
                 <StopCircle className="h-4 w-4 text-red-500" />
               ) : hasContent ? (
-                <ArrowUp className="h-3 w-3 text-white" />
+                <ArrowUp className="h-3 w-3 text-black" />
               ) : (
                 <Mic className="h-4 w-4 text-black transition-colors" />
               )}
