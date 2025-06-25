@@ -193,8 +193,8 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
             style={{ 
               marginBottom: '120px',
               width: 'min(90vw, 650px)',
-              marginLeft: '-10vw',
-              marginRight: '-10vw'
+              marginLeft: '-25vw',
+              marginRight: '-25vw'
             }}
           >
             <div 
