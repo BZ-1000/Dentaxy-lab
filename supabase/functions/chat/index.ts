@@ -25,8 +25,8 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
 
-    // Buscar en la base de datos local primero
-    const localResponse = await searchLocalTerms(supabaseClient, message);
+    // Buscar en la base de datos local primero con búsqueda inteligente
+    const localResponse = await searchLocalTermsIntelligent(supabaseClient, message);
     if (localResponse) {
       return new Response(JSON.stringify({ response: localResponse }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -51,51 +51,129 @@ serve(async (req) => {
   }
 });
 
-async function searchLocalTerms(supabaseClient: any, searchTerm: string): Promise<string | null> {
+async function searchLocalTermsIntelligent(supabaseClient: any, searchTerm: string): Promise<string | null> {
   try {
-    console.log('Searching local database for:', searchTerm);
+    console.log('Searching intelligent database for:', searchTerm);
     
-    // Limpiar el término de búsqueda
-    const cleanSearchTerm = searchTerm.toLowerCase().trim();
-    
-    // 1. Buscar coincidencias exactas primero
-    const { data: exactMatches, error: exactError } = await supabaseClient
-      .from('dental_terms')
-      .select('*')
-      .or(`termino.ilike.%${cleanSearchTerm}%,sinonimos.cs.{${cleanSearchTerm}}`)
-      .limit(3);
+    // Limpiar y normalizar el término de búsqueda
+    const cleanSearchTerm = searchTerm.toLowerCase()
+      .trim()
+      .replace(/[¿?¡!.,;]/g, '') // Remover signos de puntuación
+      .replace(/\s+/g, ' '); // Normalizar espacios
 
-    if (exactError) {
-      console.error('Error searching exact matches:', exactError);
-    }
+    // Crear variaciones del término para búsqueda más flexible
+    const searchVariations = [
+      cleanSearchTerm,
+      cleanSearchTerm.replace(/s$/, ''), // Singular
+      cleanSearchTerm + 's', // Plural
+      ...cleanSearchTerm.split(' ') // Palabras individuales
+    ].filter(term => term.length > 2); // Solo términos de más de 2 caracteres
 
-    // 2. Si no hay coincidencias exactas, buscar en definiciones
-    let textMatches = [];
-    if (!exactMatches || exactMatches.length === 0) {
-      const { data: defMatches, error: defError } = await supabaseClient
+    console.log('Search variations:', searchVariations);
+
+    let allMatches: any[] = [];
+
+    // 1. Búsqueda exacta en término principal
+    for (const variation of searchVariations) {
+      const { data: exactMatches, error: exactError } = await supabaseClient
         .from('dental_terms')
         .select('*')
-        .textSearch('definicion', cleanSearchTerm, { type: 'websearch', config: 'spanish' })
+        .ilike('termino', `%${variation}%`)
         .limit(2);
 
-      if (defError) {
-        console.error('Error in definition search:', defError);
-      } else {
-        textMatches = defMatches || [];
+      if (exactError) {
+        console.error('Error in exact search:', exactError);
+      } else if (exactMatches && exactMatches.length > 0) {
+        allMatches.push(...exactMatches);
       }
     }
 
-    // 3. Combinar resultados
-    const allMatches = [...(exactMatches || []), ...textMatches]
+    // 2. Búsqueda en sinónimos usando ANY
+    for (const variation of searchVariations) {
+      const { data: synonymMatches, error: synonymError } = await supabaseClient
+        .from('dental_terms')
+        .select('*')
+        .filter('sinonimos', 'cs', `{${variation}}`)
+        .limit(2);
+
+      if (synonymError) {
+        console.error('Error in synonym search:', synonymError);
+      } else if (synonymMatches && synonymMatches.length > 0) {
+        allMatches.push(...synonymMatches);
+      }
+    }
+
+    // 3. Búsqueda por coincidencia parcial en sinónimos
+    for (const variation of searchVariations) {
+      const { data: partialSynonymMatches, error: partialSynonymError } = await supabaseClient
+        .from('dental_terms')
+        .select('*')
+        .textSearch('sinonimos', variation, { type: 'websearch', config: 'spanish' })
+        .limit(1);
+
+      if (partialSynonymError) {
+        console.error('Error in partial synonym search:', partialSynonymError);
+      } else if (partialSynonymMatches && partialSynonymMatches.length > 0) {
+        allMatches.push(...partialSynonymMatches);
+      }
+    }
+
+    // 4. Búsqueda en definición (solo si no hay resultados anteriores)
+    if (allMatches.length === 0) {
+      for (const variation of searchVariations) {
+        const { data: defMatches, error: defError } = await supabaseClient
+          .from('dental_terms')
+          .select('*')
+          .ilike('definicion', `%${variation}%`)
+          .limit(1);
+
+        if (defError) {
+          console.error('Error in definition search:', defError);
+        } else if (defMatches && defMatches.length > 0) {
+          allMatches.push(...defMatches);
+        }
+      }
+    }
+
+    // 5. Búsqueda por sección del formulario si se menciona
+    const sectionKeywords = {
+      'padecimiento': 'padecimiento_actual',
+      'dolor': 'dolor',
+      'antecedentes': 'antecedentes_familiares',
+      'información': 'informacion_principal',
+      'datos': 'informacion_principal',
+      'hábitos': 'habitos',
+      'estética': 'estetica',
+      'función': 'funcion'
+    };
+
+    for (const [keyword, section] of Object.entries(sectionKeywords)) {
+      if (cleanSearchTerm.includes(keyword)) {
+        const { data: sectionMatches, error: sectionError } = await supabaseClient
+          .from('dental_terms')
+          .select('*')
+          .eq('seccion_formulario', section)
+          .limit(3);
+
+        if (sectionError) {
+          console.error('Error in section search:', sectionError);
+        } else if (sectionMatches && sectionMatches.length > 0) {
+          allMatches.push(...sectionMatches);
+        }
+      }
+    }
+
+    // Eliminar duplicados y limitar resultados
+    const uniqueMatches = allMatches
       .filter((term, index, self) => self.findIndex(t => t.id === term.id) === index)
       .slice(0, 3);
 
-    console.log('Found dental terms:', allMatches);
+    console.log('Found intelligent matches:', uniqueMatches);
 
-    if (allMatches.length > 0) {
+    if (uniqueMatches.length > 0) {
       let response = `Encontré información sobre "${searchTerm}" en mi base de datos odontológica:\n\n`;
       
-      allMatches.forEach((term, index) => {
+      uniqueMatches.forEach((term, index) => {
         response += `**${term.termino}**\n`;
         response += `${term.definicion}\n`;
         
@@ -107,9 +185,9 @@ async function searchLocalTerms(supabaseClient: any, searchTerm: string): Promis
           response += `*Contexto: ${term.contexto_uso}*\n`;
         }
         
-        response += `*Sección: ${term.seccion_formulario}*\n`;
+        response += `*Categoría: ${term.categoria}*\n`;
         
-        if (index < allMatches.length - 1) {
+        if (index < uniqueMatches.length - 1) {
           response += '\n---\n\n';
         }
       });
@@ -117,10 +195,10 @@ async function searchLocalTerms(supabaseClient: any, searchTerm: string): Promis
       return response;
     }
 
-    console.log('No matches found in database for:', searchTerm);
+    console.log('No intelligent matches found for:', searchTerm);
     return null;
   } catch (error) {
-    console.error('Error searching local terms:', error);
+    console.error('Error in intelligent search:', error);
     return null;
   }
 }
@@ -128,7 +206,7 @@ async function searchLocalTerms(supabaseClient: any, searchTerm: string): Promis
 function getFallbackResponse(message: string): string {
   const term = message.toLowerCase().trim();
   
-  // Respuestas específicas para términos comunes que debe reconocer
+  // Respuestas específicas para términos comunes
   const commonTerms: { [key: string]: string } = {
     'padecimiento actual': 'El padecimiento actual se refiere al motivo principal de consulta del paciente, incluyendo la descripción detallada de los síntomas, su inicio, evolución y características. Es la razón por la cual el paciente busca atención odontológica.',
     'motivo de consulta': 'Es la razón principal por la cual el paciente busca atención odontológica, describiendo el síntoma o problema que lo llevó a la consulta. Es el punto de partida para el diagnóstico.',
@@ -141,12 +219,13 @@ function getFallbackResponse(message: string): string {
     'hola': 'Hola, soy DentaxyGPT, tu asistente especializado en odontología. Pregúntame sobre cualquier término dental y te ayudaré con una explicación clara y precisa.'
   };
 
-  // Buscar coincidencias en términos comunes
+  // Buscar coincidencias flexibles en términos comunes
   for (const [key, definition] of Object.entries(commonTerms)) {
-    if (term.includes(key) || key.includes(term)) {
+    if (term.includes(key) || key.includes(term) || 
+        term.replace(/s$/, '') === key || key.replace(/s$/, '') === term) {
       return definition;
     }
   }
 
-  return `Soy DentaxyGPT, especializado en términos dentales. Busco información sobre "${message}" en mi base de datos. Si no encuentro el término exacto, es posible que necesites ser más específico o que el término no esté aún en mi base de datos. ¿Podrías proporcionar más contexto o reformular tu consulta?`;
+  return `Busco información sobre "${message}" en mi base de datos odontológica especializada. Aunque no encontré una coincidencia exacta, puedes intentar con términos más específicos o sinónimos. Mi base de datos contiene información sobre dolor dental, estética, función masticatoria, antecedentes médicos y más. ¿Podrías ser más específico sobre qué aspecto te interesa?`;
 }
