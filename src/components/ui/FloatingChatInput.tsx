@@ -189,14 +189,16 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed inset-0 z-[9998] pointer-events-none flex items-center justify-center"
+            className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-[9998] pointer-events-none"
+            style={{ 
+              marginBottom: '120px', // Posición justo encima del dock
+              width: 'min(90vw, 650px)'
+            }}
           >
             <div 
               className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 p-3 shadow-2xl"
               style={{ 
-                width: 'min(90vw, 650px)',
-                maxHeight: '400px',
-                marginBottom: '20vh'
+                maxHeight: '300px'
               }}
             >
               <PromptInputBox
