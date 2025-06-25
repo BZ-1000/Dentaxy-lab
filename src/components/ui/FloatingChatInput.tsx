@@ -191,22 +191,28 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             className="fixed bottom-0 left-1/2 transform -translate-x-1/2 z-[9998] pointer-events-none"
             style={{ 
-              marginBottom: '120px', // Posición justo encima del dock
-              width: 'min(90vw, 650px)'
+              marginBottom: '120px',
+              width: 'min(90vw, 650px)',
+              marginLeft: '-10vw',
+              marginRight: '-10vw'
             }}
           >
             <div 
-              className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 p-3 shadow-2xl"
+              className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 shadow-2xl"
               style={{ 
-                maxHeight: '300px'
+                maxHeight: '300px',
+                padding: '0 0',
+                margin: '0 auto'
               }}
             >
-              <PromptInputBox
-                onSend={handleSend}
-                isLoading={isLoading}
-                placeholder="Escribe un término médico..."
-                className="bg-transparent border-transparent text-sm min-h-[48px]"
-              />
+              <div className="p-3">
+                <PromptInputBox
+                  onSend={handleSend}
+                  isLoading={isLoading}
+                  placeholder="Escribe un término médico..."
+                  className="bg-transparent border-transparent text-sm min-h-[48px]"
+                />
+              </div>
             </div>
           </motion.div>
         )}
