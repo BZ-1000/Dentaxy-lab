@@ -4,8 +4,79 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Origin': 'https://dentaxy.com', // Restrict to specific domain
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Credentials': 'true'
+}
+
+// Rate limiting - simple in-memory store (for production, use Redis or similar)
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_WINDOW = 60000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 10; // 10 requests per minute
+
+function checkRateLimit(clientIP: string): boolean {
+  const now = Date.now();
+  const key = clientIP;
+  const current = rateLimitStore.get(key);
+  
+  if (!current || now > current.resetTime) {
+    rateLimitStore.set(key, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+    return true;
+  }
+  
+  if (current.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return false;
+  }
+  
+  current.count++;
+  return true;
+}
+
+function validateInput(message: string, systemPrompt: string): { isValid: boolean; error?: string } {
+  // Validate message
+  if (!message || typeof message !== 'string') {
+    return { isValid: false, error: 'Message is required and must be a string' };
+  }
+  
+  if (message.trim().length < 2) {
+    return { isValid: false, error: 'Message too short' };
+  }
+  
+  if (message.length > 500) {
+    return { isValid: false, error: 'Message too long' };
+  }
+  
+  // Check for suspicious patterns
+  const suspiciousPatterns = [
+    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+    /javascript:/gi,
+    /data:text\/html/gi,
+    /vbscript:/gi,
+    /onload=/gi,
+    /onerror=/gi,
+    /onclick=/gi
+  ];
+  
+  for (const pattern of suspiciousPatterns) {
+    if (pattern.test(message)) {
+      return { isValid: false, error: 'Message contains prohibited content' };
+    }
+  }
+  
+  // Validate system prompt if provided
+  if (systemPrompt && typeof systemPrompt !== 'string') {
+    return { isValid: false, error: 'System prompt must be a string' };
+  }
+  
+  return { isValid: true };
+}
+
+function sanitizeString(input: string): string {
+  return input
+    .trim()
+    .replace(/[<>\"'&]/g, '') // Remove potentially dangerous characters
+    .substring(0, 500); // Ensure length limit
 }
 
 serve(async (req) => {
@@ -15,26 +86,61 @@ serve(async (req) => {
   }
 
   try {
-    const { message, systemPrompt } = await req.json();
+    // Get client IP for rate limiting
+    const clientIP = req.headers.get('cf-connecting-ip') || 
+                     req.headers.get('x-forwarded-for') || 
+                     'unknown';
+    
+    // Check rate limit
+    if (!checkRateLimit(clientIP)) {
+      console.log(`Rate limit exceeded for IP: ${clientIP}`);
+      return new Response(JSON.stringify({ 
+        response: 'Demasiadas consultas. Por favor, espera un momento antes de intentar de nuevo.' 
+      }), {
+        status: 429,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    console.log('Received request:', { message, systemPrompt });
+    const requestData = await req.json();
+    const { message, systemPrompt } = requestData;
 
-    // Inicializar cliente de Supabase
+    // Validate input
+    const validation = validateInput(message, systemPrompt);
+    if (!validation.isValid) {
+      console.error('Input validation failed:', validation.error);
+      return new Response(JSON.stringify({ 
+        response: 'Solicitud inválida. Por favor, verifica tu consulta.' 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Sanitize inputs
+    const sanitizedMessage = sanitizeString(message);
+    
+    console.log('Received valid request:', { 
+      message: sanitizedMessage.substring(0, 50) + '...', 
+      clientIP: clientIP.substring(0, 10) + '...' 
+    });
+
+    // Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? ''
     );
 
-    // Buscar en la base de datos local primero con búsqueda específica
-    const localResponse = await searchLocalTermsSpecific(supabaseClient, message);
+    // Search local database first
+    const localResponse = await searchLocalTermsSpecific(supabaseClient, sanitizedMessage);
     if (localResponse) {
       return new Response(JSON.stringify({ response: localResponse }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Si no encuentra en la base local, usar fallback response
-    const fallbackResponse = getFallbackResponse(message);
+    // Fallback response
+    const fallbackResponse = getFallbackResponse(sanitizedMessage);
     return new Response(JSON.stringify({ response: fallbackResponse }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -45,7 +151,7 @@ serve(async (req) => {
     return new Response(JSON.stringify({ 
       response: fallbackResponse
     }), {
-      status: 200,
+      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
@@ -53,17 +159,17 @@ serve(async (req) => {
 
 async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string): Promise<string | null> {
   try {
-    console.log('Searching specific database for:', searchTerm);
+    console.log('Searching specific database for:', searchTerm.substring(0, 50));
     
-    // Limpiar y normalizar el término de búsqueda
+    // Clean and normalize search term
     const cleanSearchTerm = searchTerm.toLowerCase()
       .trim()
-      .replace(/[¿?¡!.,;]/g, '') // Remover signos de puntuación
-      .replace(/\s+/g, ' '); // Normalizar espacios
+      .replace(/[¿?¡!.,;]/g, '')
+      .replace(/\s+/g, ' ');
 
-    console.log('Clean search term:', cleanSearchTerm);
+    console.log('Clean search term:', cleanSearchTerm.substring(0, 50));
 
-    // 1. Búsqueda exacta primero (más específica)
+    // 1. Exact search first
     const { data: exactMatches, error: exactError } = await supabaseClient
       .from('dental_terms')
       .select('*')
@@ -80,13 +186,10 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
         response += `\n\n*Contexto*: ${term.contexto_uso}`;
       }
       
-      // Convertir ** a <strong> para negritas
-      response = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      
       return response;
     }
 
-    // 2. Búsqueda por coincidencia parcial en término
+    // 2. Partial search
     const { data: partialMatches, error: partialError } = await supabaseClient
       .from('dental_terms')
       .select('*')
@@ -103,17 +206,14 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
         response += `\n\n*Contexto*: ${term.contexto_uso}`;
       }
       
-      // Convertir ** a <strong> para negritas
-      response = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      
       return response;
     }
 
-    // 3. Búsqueda en sinónimos solo si no encuentra coincidencia directa
+    // 3. Search variations
     const searchVariations = [
       cleanSearchTerm,
-      cleanSearchTerm.replace(/s$/, ''), // Singular
-      cleanSearchTerm + 's', // Plural
+      cleanSearchTerm.replace(/s$/, ''),
+      cleanSearchTerm + 's',
     ].filter(term => term.length > 2);
 
     for (const variation of searchVariations) {
@@ -133,14 +233,11 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
           response += `\n\n*Contexto*: ${term.contexto_uso}`;
         }
         
-        // Convertir ** a <strong> para negritas
-        response = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        
         return response;
       }
     }
 
-    // 4. Búsqueda por palabras clave individuales (última opción)
+    // 4. Keyword search
     const keywords = cleanSearchTerm.split(' ').filter(word => word.length > 3);
     
     for (const keyword of keywords) {
@@ -160,14 +257,11 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
           response += `\n\n*Contexto*: ${term.contexto_uso}`;
         }
         
-        // Convertir ** a <strong> para negritas
-        response = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        
         return response;
       }
     }
 
-    console.log('No specific matches found for:', searchTerm);
+    console.log('No specific matches found for:', searchTerm.substring(0, 50));
     return null;
   } catch (error) {
     console.error('Error in specific search:', error);
@@ -178,7 +272,6 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
 function getFallbackResponse(message: string): string {
   const term = message.toLowerCase().trim();
   
-  // Respuestas específicas para términos comunes
   const commonTerms: { [key: string]: string } = {
     'padecimiento actual': '**Padecimiento Actual**: Descripción detallada del problema principal que motiva la consulta odontológica. Es el punto de partida para establecer un diagnóstico diferencial.',
     'motivo de consulta': '**Motivo de Consulta**: Razón principal por la cual el paciente busca atención odontológica, describiendo el síntoma o problema que lo llevó a la consulta.',
@@ -191,17 +284,12 @@ function getFallbackResponse(message: string): string {
     'hola': 'Hola, soy **DentaxyGPT**, tu asistente especializado en odontología. Pregúntame sobre cualquier término dental específico.'
   };
 
-  // Buscar coincidencias flexibles en términos comunes
   for (const [key, definition] of Object.entries(commonTerms)) {
     if (term.includes(key) || key.includes(term) || 
         term.replace(/s$/, '') === key || key.replace(/s$/, '') === term) {
-      // Convertir ** a <strong> para negritas
-      return definition.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      return definition;
     }
   }
 
-  let response = `No encontré información específica sobre "${message}" en mi base de datos odontológica. Intenta con términos más específicos como **caries**, **gingivitis**, **dolor dental**, **bruxismo**, etc.`;
-  
-  // Convertir ** a <strong> para negritas
-  return response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  return `No encontré información específica sobre "${message.substring(0, 50)}" en mi base de datos odontológica. Intenta con términos más específicos como **caries**, **gingivitis**, **dolor dental**, **bruxismo**, etc.`;
 }
