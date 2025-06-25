@@ -1,10 +1,9 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
-import { Send, Bot, User, X, AlertTriangle, CheckCircle, Clock, Search, ArrowRight } from "lucide-react";
+import { Send, Bot, User, X, AlertTriangle, CheckCircle, Clock, Search, ArrowUp } from "lucide-react";
 import { TypewriterEffect } from "./ui/TypewriterEffect";
 import { useAnalysisMode } from "@/contexts/AnalysisModeContext";
 
@@ -81,14 +80,12 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { isAnalysisMode, setAnalysisMode } = useAnalysisMode();
 
-  // Auto-scroll to bottom when new messages are added
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
 
-  // Focus input when dialog opens and send greeting message
   useEffect(() => {
     if (open && inputRef.current) {
       inputRef.current.focus();
@@ -106,7 +103,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   }, [open, hasGreeted, messages.length]);
 
-  // Cycling loading messages
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isLoading) {
@@ -156,7 +152,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     const userMessage = message.trim();
     setMessage("");
 
-    // Hide mobile keyboard
     if (inputRef.current) {
       inputRef.current.blur();
     }
@@ -237,7 +232,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
       aiResponse = aiResponse.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
       const urgency = detectUrgency(aiResponse);
 
-      // Add typing message first
       const typingMessage: ChatMessage = {
         role: 'assistant',
         content: aiResponse,
@@ -283,7 +277,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const toggleAnalysisMode = () => {
     setAnalysisMode(!isAnalysisMode);
     if (!isAnalysisMode) {
-      // Minimize dialog when entering analysis mode
       onOpenChange(false);
     }
   };
@@ -312,8 +305,8 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
               onClick={toggleAnalysisMode}
               className={`text-xs transition-all duration-200 ${
                 isAnalysisMode 
-                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
-                  : 'hover:bg-slate-100 dark:hover:bg-slate-700'
+                  ? 'bg-black hover:bg-gray-800 text-white' 
+                  : 'bg-black hover:bg-gray-800 text-white'
               }`}
             >
               <Search className="h-4 w-4 mr-1" />
@@ -332,7 +325,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           </div>
         </DialogHeader>
         
-        {/* Chat Messages */}
         <ScrollArea className="flex-1 p-6 rounded-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm border shadow-inner" ref={scrollRef}>
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
@@ -355,25 +347,19 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                   key={index} 
                   className={`flex items-start gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                 >
-                  <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center shadow-md ${
-                    msg.role === 'user' 
-                      ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white' 
-                      : 'bg-white dark:bg-slate-700'
-                  }`}>
-                    {msg.role === 'user' ? (
-                      <User className="h-5 w-5" />
-                    ) : (
+                  {msg.role === 'user' ? null : (
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white dark:bg-slate-700 flex items-center justify-center shadow-md">
                       <img 
                         src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" 
                         alt="DentaxyGPT" 
                         className="h-8 w-8" 
                       />
-                    )}
-                  </div>
+                    </div>
+                  )}
                   <div className={`max-w-[75%] ${msg.role === 'user' ? 'ml-auto' : 'mr-auto'}`}>
                     <div className={`p-4 rounded-2xl shadow-sm ${
                       msg.role === 'user' 
-                        ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white' 
+                        ? 'bg-black text-white' 
                         : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600'
                     }`}>
                       <div className="prose prose-sm dark:prose-invert max-w-none">
@@ -425,7 +411,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           )}
         </ScrollArea>
 
-        {/* Modern Input Area */}
         <div className="p-4">
           <div className="relative flex items-center bg-white dark:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-600 shadow-sm hover:shadow-md transition-shadow duration-200">
             <Input
@@ -440,14 +425,13 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
             <Button 
               onClick={sendMessage} 
               disabled={isLoading || !message.trim()} 
-              className="absolute right-2 h-10 w-10 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm p-0 transition-all duration-200 hover:scale-105"
+              className="absolute right-2 h-10 w-10 rounded-full bg-white hover:bg-gray-50 text-black shadow-sm p-0 transition-all duration-200 hover:scale-105 border"
             >
-              <ArrowRight className="h-4 w-4" />
+              <ArrowUp className="h-4 w-4" />
             </Button>
           </div>
         </div>
         
-        {/* Enhanced Disclaimer */}
         <div className="px-4 pb-2">
           <div className="flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
             <AlertTriangle className="h-4 w-4 text-amber-500" />
