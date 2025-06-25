@@ -24,7 +24,7 @@ import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTheme } from '@/hooks/use-theme';
-import { Loader2, X, Save, User, FileText } from "lucide-react";
+import { Loader2, X, Save, User, FileText, Search } from "lucide-react";
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
 import { useState, useEffect, useRef } from 'react';
@@ -36,6 +36,7 @@ import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
 import { DefinitionPopup } from '@/components/ui/DefinitionPopup';
+import { AnalysisChatPopup } from '@/components/ui/AnalysisChatPopup';
 
 const HistoriaClinica = () => {
   const { theme } = useTheme();
@@ -49,6 +50,10 @@ const HistoriaClinica = () => {
   const pdfSectionsRef = useRef<{ [key: string]: string; }>({});
   
   const { isAnalysisMode, setAnalysisMode, selectedText, setSelectedText, selectedPosition, setSelectedPosition } = useAnalysisMode();
+  
+  // Estado para el chat popup
+  const [showChatPopup, setShowChatPopup] = useState(false);
+  const [chatInitialText, setChatInitialText] = useState('');
 
   const {
     formData,
@@ -95,19 +100,16 @@ const HistoriaClinica = () => {
       const selectedTextContent = selection?.toString().trim();
 
       if (selectedTextContent && selectedTextContent.length > 2) {
-        setSelectedText(selectedTextContent);
-        setSelectedPosition({
-          x: event.clientX,
-          y: event.clientY
-        });
+        setChatInitialText(selectedTextContent);
+        setShowChatPopup(true);
+        setAnalysisMode(false);
+        window.getSelection()?.removeAllRanges();
       }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isAnalysisMode) {
         setAnalysisMode(false);
-        setSelectedText('');
-        setSelectedPosition(null);
       }
     };
 
@@ -122,7 +124,7 @@ const HistoriaClinica = () => {
       document.removeEventListener('keydown', handleKeyDown);
       document.body.style.cursor = 'default';
     };
-  }, [isAnalysisMode, setAnalysisMode, setSelectedText, setSelectedPosition]);
+  }, [isAnalysisMode, setAnalysisMode]);
 
   useEffect(() => {
     if (pacienteActual) {
@@ -402,10 +404,14 @@ const HistoriaClinica = () => {
     }
   };
 
+  const toggleAnalysisMode = () => {
+    setAnalysisMode(!isAnalysisMode);
+  };
+
   return (
     <div className={`${theme} min-h-screen w-full flex relative`}>
-      {/* Analysis Mode Overlay - only show when popup is visible */}
-      {isAnalysisMode && selectedText && selectedPosition && (
+      {/* Analysis Mode Overlay - only when mode is active */}
+      {isAnalysisMode && (
         <div className="fixed inset-0 bg-emerald-500/10 backdrop-blur-sm z-40 pointer-events-none" />
       )}
 
@@ -414,11 +420,7 @@ const HistoriaClinica = () => {
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg z-50 flex items-center gap-2">
           <span className="text-sm font-medium">Modo Análisis Activo - Selecciona cualquier término</span>
           <button
-            onClick={() => {
-              setAnalysisMode(false);
-              setSelectedText('');
-              setSelectedPosition(null);
-            }}
+            onClick={() => setAnalysisMode(false)}
             className="text-white hover:text-gray-200 transition-colors"
           >
             <X className="h-4 w-4" />
@@ -426,17 +428,12 @@ const HistoriaClinica = () => {
         </div>
       )}
 
-      {/* Definition Popup */}
-      {selectedText && selectedPosition && (
-        <DefinitionPopup
-          text={selectedText}
-          position={selectedPosition}
-          onClose={() => {
-            setSelectedText('');
-            setSelectedPosition(null);
-          }}
-        />
-      )}
+      {/* Analysis Chat Popup */}
+      <AnalysisChatPopup
+        open={showChatPopup}
+        onOpenChange={setShowChatPopup}
+        initialText={chatInitialText}
+      />
 
       <FormulariosSidebar 
         onCargarFormulario={(data, nombre) => {
@@ -453,7 +450,7 @@ const HistoriaClinica = () => {
         pacienteActual={pacienteActual} 
       />
       
-      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200 ${isAnalysisMode ? 'filter blur-sm' : ''}`}>
         <div className="max-w-5xl mx-auto space-y-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-2">Formulario IA</h1>
@@ -481,6 +478,19 @@ const HistoriaClinica = () => {
                 >
                   <Save className="h-4 w-4" />
                   <span className="text-sm font-medium">Guardar</span>
+                </Button>
+                
+                {/* Icono de Análisis Minimalista */}
+                <Button
+                  onClick={toggleAnalysisMode}
+                  className={`rounded-full p-2 transition-all duration-200 ${
+                    isAnalysisMode 
+                      ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                      : 'bg-black hover:bg-gray-800 text-white'
+                  }`}
+                  title="Modo Análisis de Términos"
+                >
+                  <Search className="h-4 w-4" />
                 </Button>
               </div>
             </div>
