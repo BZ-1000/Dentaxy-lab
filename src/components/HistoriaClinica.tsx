@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -87,7 +86,6 @@ const HistoriaClinica = () => {
     resetFormulario
   } = useHistoriaClinica();
 
-  // Add text selection handler for analysis mode
   useEffect(() => {
     const handleTextSelection = (event: MouseEvent) => {
       if (!isAnalysisMode) return;
@@ -413,8 +411,18 @@ const HistoriaClinica = () => {
 
       {/* Analysis Mode Indicator - show when mode is active */}
       {isAnalysisMode && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg z-50">
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg z-50 flex items-center gap-2">
           <span className="text-sm font-medium">Modo Análisis Activo - Selecciona cualquier término</span>
+          <button
+            onClick={() => {
+              setAnalysisMode(false);
+              setSelectedText('');
+              setSelectedPosition(null);
+            }}
+            className="text-white hover:text-gray-200 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
 
