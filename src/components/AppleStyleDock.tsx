@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { MedicationSearch } from './MedicationSearch'; // Import our new component
+import { WikiSearch } from './WikiSearch';
 
 const data = [
   {
@@ -43,6 +44,13 @@ const data = [
     href: '#',
   },
   {
+    title: 'DentaxyGPT',
+    icon: (
+      <Search className='h-full w-full text-white' />
+    ),
+    href: '#',
+  },
+  {
     title: 'Comentarios',
     icon: (
       <Mail className='h-full w-full text-red-500 dark:text-red-400' />
@@ -56,13 +64,14 @@ export function AppleStyleDock() {
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [showMedicationSearch, setShowMedicationSearch] = useState(false);
+  const [showMedicationSearch, setShowMedicationSearch] = useState(false); // New state for medication modal
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [session, setSession] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
   const [username, setUsername] = useState('');
   const [showPricingPopup, setShowPricingPopup] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [showWikiSearch, setShowWikiSearch] = useState(false); // Add new state
 
   useEffect(() => {
     const nameInput = document.querySelector('#patient-name-input');
@@ -98,6 +107,9 @@ export function AppleStyleDock() {
         break;
       case 'Medicamentos':
         setShowMedicationSearch(true);
+        break;
+      case 'DentaxyGPT':
+        setShowWikiSearch(true);
         break;
       case 'Comentarios':
         setShowFeedback(true);
@@ -171,7 +183,7 @@ export function AppleStyleDock() {
               key={idx}
               onClick={() => handleItemClick(item.title)}
               className={`aspect-square rounded-full cursor-pointer ${
-                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'Inicio' ? 'bg-amber-400' : 'bg-gray-200 dark:bg-neutral-800')
+                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'DentaxyGPT' ? 'bg-sky-400' : (item.title === 'Inicio' ? 'bg-amber-400' : 'bg-gray-200 dark:bg-neutral-800'))
               }`}
             >
               <DockLabel>{item.title}</DockLabel>
@@ -216,6 +228,12 @@ export function AppleStyleDock() {
       <MedicationSearch
         open={showMedicationSearch}
         onOpenChange={setShowMedicationSearch}
+      />
+
+      {/* Include the WikiSearch component */}
+      <WikiSearch
+        open={showWikiSearch}
+        onOpenChange={setShowWikiSearch}
       />
 
       <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
