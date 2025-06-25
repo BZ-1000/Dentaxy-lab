@@ -114,7 +114,7 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
           // CAMBIO 1: Contenedor padre que se encarga del posicionamiento y centrado.
           <div
             className="fixed bottom-0 left-0 right-0 z-[9998] flex justify-center pointer-events-none"
-            style={{ marginBottom: '100px' }}
+            style={{ marginBottom: '120px' }}
           >
             {/* CAMBIO 2: El motion.div ahora es mucho más simple. */}
             <motion.div
