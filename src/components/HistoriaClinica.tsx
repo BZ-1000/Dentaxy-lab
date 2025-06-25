@@ -37,56 +37,48 @@ import LoadingOverlay from './historia-clinica/LoadingOverlay';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TypewriterEffect } from './ui/TypewriterEffect';
-
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
   isTyping?: boolean;
 }
-
 interface ResponsePopupProps {
   message: ChatMessage;
   onClose: () => void;
 }
-
-function ResponsePopup({ message, onClose }: ResponsePopupProps) {
-  return (
-    <>
+function ResponsePopup({
+  message,
+  onClose
+}: ResponsePopupProps) {
+  return <>
       <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-sm z-[9998]" />
-      <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.95 }}
-        className="fixed top-16 right-4 z-[9999] max-w-md"
-      >
-        <div className="bg-gray-500/90 backdrop-blur-md border border-gray-600 rounded-2xl p-4 shadow-2xl">
+      <motion.div initial={{
+      opacity: 0,
+      y: 20,
+      scale: 0.95
+    }} animate={{
+      opacity: 1,
+      y: 0,
+      scale: 1
+    }} exit={{
+      opacity: 0,
+      y: 20,
+      scale: 0.95
+    }} className="fixed top-16 right-4 z-[9999] max-w-md">
+        <div className="backdrop-blur-md border border-gray-600 rounded-2xl p-4 shadow-2xl py-[16px] px-[16px] bg-slate-800">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <img 
-                src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" 
-                alt="DentaxyGPT" 
-                className="h-6 w-6" 
-              />
+              <img src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" alt="DentaxyGPT" className="h-6 w-6" />
               <span className="text-white text-sm font-medium">DentaxyGPT</span>
             </div>
-            <button
-              onClick={onClose}
-              className="text-gray-300 hover:text-white transition-colors"
-            >
+            <button onClick={onClose} className="text-gray-300 hover:text-white transition-colors">
               <X className="w-4 h-4" />
             </button>
           </div>
           
           <div className="text-white text-sm">
-            {message.isTyping ? (
-              <TypewriterEffect 
-                text={message.content}
-                speed={25}
-              />
-            ) : (
-              <p>{message.content}</p>
-            )}
+            {message.isTyping ? <TypewriterEffect text={message.content} speed={25} /> : <p>{message.content}</p>}
           </div>
           
           <div className="text-gray-300 text-xs mt-2">
@@ -94,10 +86,8 @@ function ResponsePopup({ message, onClose }: ResponsePopupProps) {
           </div>
         </div>
       </motion.div>
-    </>
-  );
+    </>;
 }
-
 const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente especializado en odontología que ayuda a explicar términos médicos dentales de manera clara y concisa. Tu objetivo es proporcionar definiciones precisas y útiles para estudiantes y profesionales de la odontología.
 
 Cuando recibas un término médico dental:
@@ -108,7 +98,6 @@ Cuando recibas un término médico dental:
 5. Limita tu respuesta a máximo 150 palabras
 
 Si el término no está relacionado con odontología, indica que te especializas en términos dentales y sugiere reformular la consulta.`;
-
 const HistoriaClinica = () => {
   const {
     theme
@@ -168,35 +157,29 @@ const HistoriaClinica = () => {
     cargarFormulario,
     resetFormulario
   } = useHistoriaClinica();
-
   const handleSearch = async (searchText: string) => {
     setIsSearching(true);
-
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           message: searchText,
           systemPrompt: DENTAXY_SYSTEM_PROMPT
-        }),
+        })
       });
-
       if (!response.ok) {
         throw new Error('Error en la respuesta');
       }
-
       const data = await response.json();
-      
       const newMessage: ChatMessage = {
         role: 'assistant',
         content: data.response || 'Lo siento, no pude procesar tu consulta.',
         timestamp: new Date(),
         isTyping: true
       };
-
       setActiveResponse(newMessage);
     } catch (error) {
       console.error('Error:', error);
@@ -213,14 +196,11 @@ const HistoriaClinica = () => {
       setSelectedPosition(null);
     }
   };
-
   useEffect(() => {
     const handleTextSelection = (event: MouseEvent) => {
       if (!isAnalysisMode) return;
-      
       const selection = window.getSelection();
       const selectedTextContent = selection?.toString().trim();
-      
       if (selectedTextContent && selectedTextContent.length > 2) {
         setSelectedText(selectedTextContent);
         setSelectedPosition({
@@ -229,7 +209,6 @@ const HistoriaClinica = () => {
         });
       }
     };
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isAnalysisMode) {
         setAnalysisMode(false);
@@ -237,24 +216,20 @@ const HistoriaClinica = () => {
         setSelectedPosition(null);
       }
     };
-
     if (isAnalysisMode) {
       document.addEventListener('mouseup', handleTextSelection);
       document.addEventListener('keydown', handleKeyDown);
     }
-
     return () => {
       document.removeEventListener('mouseup', handleTextSelection);
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isAnalysisMode, setAnalysisMode, setSelectedText, setSelectedPosition]);
-
   useEffect(() => {
     if (pacienteActual) {
       guardarFormulario(formData, pacienteActual);
     }
   }, [formData, pacienteActual, guardarFormulario]);
-
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
@@ -288,7 +263,6 @@ const HistoriaClinica = () => {
     const allMissingFields = [...padecimientoFields, ...heredoFamiliaresFields, ...noPatologicosFields, ...patologicosFields];
     return allMissingFields;
   };
-
   const generateSectionRedaction = async (sectionElement: Element) => {
     try {
       if (!sectionElement) return false;
@@ -500,11 +474,9 @@ const HistoriaClinica = () => {
       generatePDFDocument();
     }
   };
-
   const closeResponse = () => {
     setActiveResponse(null);
   };
-
   return <div className={`${theme} min-h-screen w-full flex relative`}>
       <FormulariosSidebar onCargarFormulario={(data, nombre) => {
       cargarFormulario(data);
@@ -606,10 +578,7 @@ const HistoriaClinica = () => {
             </div>
             
             <div data-section-redaction="true" data-section-name="articulacionCraneomandibular">
-              <ArticulacionCraneomandibular 
-                formData={formData} 
-                handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} 
-              />
+              <ArticulacionCraneomandibular formData={formData} handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} />
             </div>
             
             <div data-section-redaction="true" data-section-name="examenCuello">
@@ -664,47 +633,37 @@ const HistoriaClinica = () => {
       </div>
 
       {/* Indicador de modo análisis */}
-      {isAnalysisMode && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
-        >
+      {isAnalysisMode && <motion.div initial={{
+      opacity: 0,
+      y: -20
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} exit={{
+      opacity: 0,
+      y: -20
+    }} className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
           <span className="text-sm font-medium">🔍 Modo Análisis Activo - Selecciona cualquier término</span>
-          <button
-            onClick={() => setAnalysisMode(false)}
-            className="text-white hover:text-gray-200 transition-colors"
-          >
+          <button onClick={() => setAnalysisMode(false)} className="text-white hover:text-gray-200 transition-colors">
             <X className="w-4 h-4" />
           </button>
-        </motion.div>
-      )}
+        </motion.div>}
 
       {/* Text Selection Search Icon */}
-      {selectedText && selectedPosition && isAnalysisMode && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="fixed z-[10000] pointer-events-auto"
-          style={{
-            left: Math.min(selectedPosition.x, window.innerWidth - 60),
-            top: Math.max(selectedPosition.y - 60, 60),
-          }}
-        >
-          <button
-            onClick={() => handleSearch(selectedText)}
-            disabled={isSearching}
-            className="w-10 h-10 bg-black hover:bg-gray-800 text-white rounded-full flex items-center justify-center shadow-xl transition-colors disabled:opacity-50"
-          >
-            {isSearching ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Search className="h-5 w-5" />
-            )}
+      {selectedText && selectedPosition && isAnalysisMode && <motion.div initial={{
+      opacity: 0,
+      scale: 0.95
+    }} animate={{
+      opacity: 1,
+      scale: 1
+    }} className="fixed z-[10000] pointer-events-auto" style={{
+      left: Math.min(selectedPosition.x, window.innerWidth - 60),
+      top: Math.max(selectedPosition.y - 60, 60)
+    }}>
+          <button onClick={() => handleSearch(selectedText)} disabled={isSearching} className="w-10 h-10 bg-black hover:bg-gray-800 text-white rounded-full flex items-center justify-center shadow-xl transition-colors disabled:opacity-50">
+            {isSearching ? <Loader2 className="h-5 w-5 animate-spin" /> : <Search className="h-5 w-5" />}
           </button>
-        </motion.div>
-      )}
+        </motion.div>}
       
       <ConfirmationAlert isOpen={alertOpen} onClose={() => setAlertOpen(false)} onConfirm={() => {
       setAlertOpen(false);
@@ -714,16 +673,10 @@ const HistoriaClinica = () => {
       {isGeneratingPDF && <LoadingOverlay message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." progress={pdfGenerationProgress} />}
 
       <AnimatePresence>
-        {activeResponse && (
-          <ResponsePopup 
-            message={activeResponse} 
-            onClose={closeResponse}
-          />
-        )}
+        {activeResponse && <ResponsePopup message={activeResponse} onClose={closeResponse} />}
       </AnimatePresence>
       
       <Toaster />
     </div>;
 };
-
 export default HistoriaClinica;
