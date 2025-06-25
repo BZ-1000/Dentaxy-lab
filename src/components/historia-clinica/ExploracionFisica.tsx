@@ -1,15 +1,12 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Minus, Maximize2, X, ThermometerSun, HeartPulse } from "lucide-react";
+import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
-import { calculateIMC, getIMCCategory, getBPCategory, vitalSignRanges } from '@/utils/medicalRanges';
 
 interface ExploracionFisicaProps {
   formData: FormDataState;
-  handleExploracionFisicaChange: (field: string, value: any) => void;
+  handleExploracionFisicaChange: (field: string, value: string | number) => void;
 }
 
 const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
@@ -18,16 +15,6 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
-  const [ageRange, setAgeRange] = useState<keyof typeof vitalSignRanges>('adult');
-  const [imc, setIMC] = useState(0);
-
-  useEffect(() => {
-    const weight = parseFloat(formData.exploracionFisica?.signosVitales?.peso || '0');
-    const height = parseFloat(formData.exploracionFisica?.signosVitales?.talla || '0');
-    const calculatedIMC = calculateIMC(weight, height);
-    setIMC(calculatedIMC);
-    handleExploracionFisicaChange('signosVitales.imc', calculatedIMC.toString());
-  }, [formData.exploracionFisica?.signosVitales?.peso, formData.exploracionFisica?.signosVitales?.talla]);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -42,21 +29,6 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
-  };
-
-  const handleHeightInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/\D/g, '');
-    if (value.length <= 3) {
-      const formattedValue = value.length === 3
-        ? (parseInt(value) / 100).toFixed(2)
-        : value;
-      handleExploracionFisicaChange('signosVitales.talla', formattedValue);
-    }
-  };
-
-  const getBloodPressureValues = (bpString: string) => {
-    const [systolic, diastolic] = bpString.split('/').map(Number);
-    return { systolic, diastolic };
   };
 
   return (
@@ -94,146 +66,118 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
         </div>
 
         {!isMinimized && (
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* IMC Section */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="peso">Peso</Label>
-                    <div className="relative">
-                      <Input
-                        id="peso"
-                        type="number"
-                        step="0.1"
-                        value={formData.exploracionFisica?.signosVitales?.peso || ''}
-                        onChange={(e) => handleExploracionFisicaChange('signosVitales.peso', e.target.value)}
-                        className="pr-12"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">kg</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="talla">Talla</Label>
-                    <div className="relative">
-                      <Input
-                        id="talla"
-                        type="text"
-                        value={formData.exploracionFisica?.signosVitales?.talla || ''}
-                        onChange={handleHeightInput}
-                        className="pr-8"
-                        placeholder="Ej: 170"
-                      />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">m</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg w-full px-4 py-3">
-                  <div className="text-sm">IMC: <span className="font-semibold">{imc}</span></div>
-                  <div className={`text-sm ${getIMCCategory(imc).color}`}>
-                    Categoría: {getIMCCategory(imc).label}
-                  </div>
-                </div>
-              </div>
-
-              {/* Vital Signs Section */}
-              <div className="space-y-4">
-                <Label>Rango de edad</Label>
-                <Select value={ageRange} onValueChange={(value: keyof typeof vitalSignRanges) => setAgeRange(value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar rango de edad" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.entries(vitalSignRanges).map(([key, value]) => (
-                      <SelectItem key={key} value={key}>{value.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Blood Pressure */}
+          <div className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="ta">Presión arterial</Label>
-                <div className="relative">
-                  <Input
-                    id="ta"
-                    type="text"
-                    value={formData.exploracionFisica?.signosVitales?.ta || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.ta', e.target.value)}
-                    placeholder="120/80"
-                    className="pr-16"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">mmHg</span>
-                </div>
-                {formData.exploracionFisica?.signosVitales?.ta && (
-                  <div className={`text-sm ${getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).color}`}>
-                    {getBPCategory(...Object.values(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta))).label}
-                  </div>
-                )}
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Peso (kg)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={formData.exploracionFisica?.peso || ''}
+                  onChange={(e) => handleExploracionFisicaChange('peso', parseFloat(e.target.value) || 0)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
               </div>
 
-              {/* Pulse */}
               <div className="space-y-2">
-                <Label htmlFor="pulso">Pulso</Label>
-                <div className="relative">
-                  <Input
-                    id="pulso"
-                    type="number"
-                    value={formData.exploracionFisica?.signosVitales?.pulso || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.pulso', e.target.value)}
-                    className="pr-16"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">ppm</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].pulse.min}-{vitalSignRanges[ageRange].pulse.max} ppm
-                </div>
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Talla (m)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.exploracionFisica?.talla || ''}
+                  onChange={(e) => handleExploracionFisicaChange('talla', parseFloat(e.target.value) || 0)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
               </div>
 
-              {/* Heart Rate */}
               <div className="space-y-2">
-                <Label htmlFor="fc" className="flex items-center gap-2">
-                  <HeartPulse className="w-4 h-4" />
-                  Frecuencia cardíaca
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="fc"
-                    type="number"
-                    value={formData.exploracionFisica?.signosVitales?.fc || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.fc', e.target.value)}
-                    className="pr-16"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">lpm</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].heartRate.min}-{vitalSignRanges[ageRange].heartRate.max} lpm
-                </div>
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">IMC</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={
+                    formData.exploracionFisica?.peso && formData.exploracionFisica?.talla 
+                      ? (formData.exploracionFisica.peso / Math.pow(formData.exploracionFisica.talla, 2)).toFixed(1)
+                      : ''
+                  }
+                  readOnly
+                  className="w-full p-2 border border-gray-300 rounded-md bg-gray-100"
+                />
               </div>
 
-              {/* Temperature */}
               <div className="space-y-2">
-                <Label htmlFor="temperatura" className="flex items-center gap-2">
-                  <ThermometerSun className="w-4 h-4" />
-                  Temperatura
-                </Label>
-                <div className="relative">
-                  <Input
-                    id="temperatura"
-                    type="number"
-                    step="0.1"
-                    value={formData.exploracionFisica?.signosVitales?.temperatura || ''}
-                    onChange={(e) => handleExploracionFisicaChange('signosVitales.temperatura', e.target.value)}
-                    className="pr-12"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">°C</span>
-                </div>
-                <div className="text-sm text-gray-500">
-                  Rango normal: {vitalSignRanges[ageRange].temperature.min}-{vitalSignRanges[ageRange].temperature.max}°C
-                </div>
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Presión arterial (mmHg)</label>
+                <input
+                  type="text"
+                  placeholder="120/80"
+                  value={formData.exploracionFisica?.presionArterial || ''}
+                  onChange={(e) => handleExploracionFisicaChange('presionArterial', e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
               </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Pulso (ppm)</label>
+                <input
+                  type="number"
+                  value={formData.exploracionFisica?.pulso || ''}
+                  onChange={(e) => handleExploracionFisicaChange('pulso', parseInt(e.target.value) || 0)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Frecuencia cardíaca (lpm)</label>
+                <input
+                  type="number"
+                  value={formData.exploracionFisica?.frecuenciaCardiaca || ''}
+                  onChange={(e) => handleExploracionFisicaChange('frecuenciaCardiaca', parseInt(e.target.value) || 0)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Temperatura (°C)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  value={formData.exploracionFisica?.temperatura || ''}
+                  onChange={(e) => handleExploracionFisicaChange('temperatura', parseFloat(e.target.value) || 0)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Frecuencia respiratoria (rpm)</label>
+                <input
+                  type="number"
+                  value={formData.exploracionFisica?.frecuenciaRespiratoria || ''}
+                  onChange={(e) => handleExploracionFisicaChange('frecuenciaRespiratoria', parseInt(e.target.value) || 0)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Saturación de O₂ (%)</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.exploracionFisica?.saturacionOxigeno || ''}
+                  onChange={(e) => handleExploracionFisicaChange('saturacionOxigeno', parseInt(e.target.value) || 0)}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Observaciones adicionales</label>
+              <textarea 
+                value={formData.exploracionFisica?.observaciones || ''}
+                onChange={(e) => handleExploracionFisicaChange('observaciones', e.target.value)}
+                placeholder="Describe cualquier hallazgo adicional de la exploración física..."
+                className="w-full mt-2 p-3 border border-gray-300 rounded-md h-20 resize-none"
+              />
             </div>
           </div>
         )}
