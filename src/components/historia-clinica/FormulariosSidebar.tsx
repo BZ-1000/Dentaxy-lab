@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Save, FileText, BookOpen, Trash, Pencil, Share2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
+import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@/components/ui/modern-sidebar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
@@ -31,6 +32,7 @@ const FormulariosSidebar = ({
     data: FormDataState;
   }[]>([]);
   const { theme } = useTheme();
+  const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [accionFormulario, setAccionFormulario] = useState<'eliminar' | 'renombrar' | 'compartir' | null>(null);
@@ -66,6 +68,7 @@ const FormulariosSidebar = ({
       return;
     }
     onGuardarFormulario(nombrePaciente);
+    // Cargar los formularios inmediatamente después de guardar
     loadSavedForms();
     setNombrePaciente('');
     toast({
@@ -141,143 +144,87 @@ const FormulariosSidebar = ({
     });
   };
 
-  return (
-    <div className="h-screen bg-white dark:bg-neutral-900 border-r border-gray-200 dark:border-gray-700 w-64">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-2 mb-4">
-          <BookOpen size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
-          <span className="font-semibold text-gray-800 dark:text-white">Formularios</span>
-        </div>
-        
-        <div className="space-y-2">
-          <Input
-            placeholder="Nombre del paciente"
-            value={nombrePaciente}
-            onChange={(e) => setNombrePaciente(e.target.value)}
-            className="text-sm"
-          />
-          <Button 
-            onClick={handleGuardarFormulario} 
-            disabled={!nombrePaciente.trim()}
-            className="w-full text-sm"
-            size="sm"
-          >
-            <Save className="w-4 h-4 mr-1" />
-            Guardar
-          </Button>
-        </div>
-      </div>
+  
+  return <div className="">
+      <div className="sticky top-0 h-screen hidden md:block">
+        <Sidebar open={open} setOpen={setOpen} animate={true}>
+          <SidebarBody className="bg-white dark:bg-neutral-900">
+            <div className="sticky top-0 bg-slate-50 z-10">
+              <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-white">
+                {open ? <Logo>
+                    <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
+                  </Logo> : <LogoIcon>
+                    <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
+                  </LogoIcon>}
 
-      <ScrollArea className="flex-1 p-2">
-        <div className="space-y-1">
-          {formularios.map((form, index) => (
-            <div key={index} className="group flex justify-between items-center p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">
-              <button
-                onClick={() => onCargarFormulario(form.data, form.nombre)}
-                className="flex items-center gap-2 flex-1 text-left"
-              >
-                <FileText className="h-4 w-4 text-gray-500" />
-                <span className="text-sm text-gray-700 dark:text-gray-300 truncate">
-                  {form.nombre}
-                </span>
-              </button>
-              
-              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => handleFormularioAction('renombrar', form.nombre)}
-                  className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600"
-                  title="Renombrar paciente"
-                >
-                  <Pencil className="h-3 w-3 text-gray-500" />
-                </button>
-                <button
-                  onClick={() => handleFormularioAction('compartir', form.nombre)}
-                  className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600"
-                  title="Compartir formulario"
-                >
-                  <Share2 className="h-3 w-3 text-gray-500" />
-                </button>
-                <button
-                  onClick={() => handleFormularioAction('eliminar', form.nombre)}
-                  className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600"
-                  title="Eliminar paciente"
-                >
-                  <Trash className="h-3 w-3 text-red-500" />
-                </button>
+                <div className="mt-8 flex flex-col gap-4">
+                  {open && <div className="space-y-2">
+                      
+                    </div>}
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-      </ScrollArea>
 
-      {pacienteActual && (
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-            Paciente actual: <span className="font-medium">{pacienteActual}</span>
-          </div>
-          <Button 
-            onClick={handleQuitarNombre}
-            variant="outline"
-            size="sm"
-            className="w-full"
-          >
-            <X className="w-4 h-4 mr-1" />
-            Nuevo Formulario
-          </Button>
-        </div>
-      )}
+            <div className="flex-1 overflow-y-auto">
+              <ScrollArea className="flex-1">
+                <div className="space-y-1 pr-2">
+                  {formularios.map((form, index) => <div key={index} className="group flex justify-between items-center mb-2">
+                      <SidebarLink link={{
+                    label: form.nombre,
+                    icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
+                    onClick: () => onCargarFormulario(form.data, form.nombre)
+                  }} className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1" />
+                      {open && <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => handleFormularioAction('renombrar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700" title="Renombrar paciente">
+                            <Pencil className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+                          </button>
+                          <button onClick={() => handleFormularioAction('compartir', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700" title="Compartir formulario">
+                            <Share2 className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+                          </button>
+                          <button onClick={() => handleFormularioAction('eliminar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700" title="Eliminar paciente">
+                            <Trash className="h-3.5 w-3.5 text-red-500" />
+                          </button>
+                        </div>}
+                    </div>)}
+                </div>
+              </ScrollArea>
+            </div>
+          </SidebarBody>
+        </Sidebar>
+      </div>
 
+      {/* Dialog for renaming or sharing */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {accionFormulario === 'renombrar' ? 'Renombrar formulario' : 
-               accionFormulario === 'compartir' ? 'Compartir formulario' : 'Acción de formulario'}
+              {accionFormulario === 'renombrar' ? 'Renombrar formulario' : accionFormulario === 'compartir' ? 'Compartir formulario' : 'Acción de formulario'}
             </DialogTitle>
             <DialogDescription>
-              {accionFormulario === 'renombrar' ? 'Ingrese el nuevo nombre para el formulario.' : 
-               accionFormulario === 'compartir' ? 'Ingrese el correo electrónico para compartir el formulario.' : ''}
+              {accionFormulario === 'renombrar' ? 'Ingrese el nuevo nombre para el formulario.' : accionFormulario === 'compartir' ? 'Ingrese el correo electrónico para compartir el formulario.' : ''}
             </DialogDescription>
           </DialogHeader>
           
-          {accionFormulario === 'renombrar' && (
-            <div className="grid gap-4 py-4">
-              <Input 
-                placeholder="Nuevo nombre" 
-                value={nuevoNombre} 
-                onChange={(e) => setNuevoNombre(e.target.value)} 
-                className="col-span-3" 
-              />
-            </div>
-          )}
+          {accionFormulario === 'renombrar' && <div className="grid gap-4 py-4">
+              <Input placeholder="Nuevo nombre" value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} className="col-span-3" />
+            </div>}
           
-          {accionFormulario === 'compartir' && (
-            <div className="grid gap-4 py-4">
-              <Input 
-                placeholder="Correo electrónico" 
-                value={emailCompartir} 
-                onChange={(e) => setEmailCompartir(e.target.value)} 
-                className="col-span-3" 
-              />
-            </div>
-          )}
+          {accionFormulario === 'compartir' && <div className="grid gap-4 py-4">
+              <Input placeholder="Correo electrónico" value={emailCompartir} onChange={e => setEmailCompartir(e.target.value)} className="col-span-3" />
+            </div>}
           
           <DialogFooter>
             <Button onClick={() => setDialogOpen(false)} variant="outline">
               Cancelar
             </Button>
-            <Button onClick={
-              accionFormulario === 'renombrar' ? handleRenombrarFormulario : 
-              accionFormulario === 'compartir' ? handleCompartirFormulario : 
-              () => {}
-            }>
-              {accionFormulario === 'renombrar' ? 'Renombrar' : 
-               accionFormulario === 'compartir' ? 'Compartir' : 'Confirmar'}
+            <Button onClick={accionFormulario === 'renombrar' ? handleRenombrarFormulario : accionFormulario === 'compartir' ? handleCompartirFormulario : () => {}}>
+              {accionFormulario === 'renombrar' ? 'Renombrar' : accionFormulario === 'compartir' ? 'Compartir' : 'Confirmar'}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
+      {/* Alert Dialog for confirming deletion */}
       <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -293,10 +240,12 @@ const FormulariosSidebar = ({
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogFooter>
+        </AlertDialogContent>
       </AlertDialog>
-    </div>
-  );
+      
+      {pacienteActual}
+    </div>;
 };
 
 export default FormulariosSidebar;
+
