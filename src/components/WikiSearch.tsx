@@ -1,11 +1,9 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
 import { Send, Bot, User, X, AlertTriangle, CheckCircle, Clock, Search, ArrowUp } from "lucide-react";
-import ReactMarkdown from 'react-markdown';
 import { TypewriterEffect } from "./ui/TypewriterEffect";
 import { useAnalysisMode } from "@/contexts/AnalysisModeContext";
 
@@ -372,8 +370,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                               speed={25}
                               onComplete={() => handleTypingComplete(index)}
                             />
-                          ) : msg.role === 'assistant' ? (
-                            <ReactMarkdown>{msg.content}</ReactMarkdown>
                           ) : (
                             msg.content
                           )}
