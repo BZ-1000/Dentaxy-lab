@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
@@ -75,6 +76,7 @@ export function WikiSearch({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [hasGreeted, setHasGreeted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -85,12 +87,24 @@ export function WikiSearch({
     }
   }, [messages]);
 
-  // Focus input when dialog opens
+  // Focus input when dialog opens and send greeting message
   useEffect(() => {
     if (open && inputRef.current) {
       inputRef.current.focus();
+      
+      // Send greeting message if it's the first time opening
+      if (!hasGreeted && messages.length === 0) {
+        const greetingMessage: ChatMessage = {
+          role: 'assistant',
+          content: '¡Hola! Soy DentaxyGPT, tu asistente personal especializado en odontología. Estoy aquí para ayudarte con consultas sobre diagnósticos, tratamientos, urgencias dentales y farmacología básica.\n\n🟢 Nivel: Rutina\n\nPregúntame lo que necesites de forma específica y directa.',
+          timestamp: new Date(),
+          urgency: 'low'
+        };
+        setMessages([greetingMessage]);
+        setHasGreeted(true);
+      }
     }
-  }, [open]);
+  }, [open, hasGreeted, messages.length]);
 
   // Cycling loading messages
   useEffect(() => {
@@ -265,6 +279,7 @@ export function WikiSearch({
 
   const clearChat = () => {
     setMessages([]);
+    setHasGreeted(false);
   };
 
   return (
@@ -306,17 +321,11 @@ export function WikiSearch({
                 className="h-16 w-16 mb-6" 
               />
               <h3 className="text-xl font-semibold mb-3 text-slate-800 dark:text-slate-100">
-                ¡Hola! Soy DentaxyGPT
+                Iniciando DentaxyGPT...
               </h3>
               <p className="text-slate-600 dark:text-slate-300 max-w-lg leading-relaxed">
-                Tu asistente odontológico rápido y preciso. Pregúntame directamente sobre síntomas dentales, 
-                urgencias o tratamientos. Respondo de forma concisa y al grano.
+                Preparando tu asistente odontológico personal...
               </p>
-              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-l-4 border-blue-400">
-                <p className="text-sm text-blue-700 dark:text-blue-300">
-                  <strong>Optimizado para respuestas rápidas:</strong> Pregunta específicamente lo que necesitas saber.
-                </p>
-              </div>
             </div>
           ) : (
             <div className="space-y-6">
