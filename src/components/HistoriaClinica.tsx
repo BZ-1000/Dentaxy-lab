@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -35,17 +34,22 @@ import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
 import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, validateAntecedentesPersonalesNoPatologicos, validateAntecedentesPersonalesPatologicos } from '@/utils/formValidation';
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
-
+import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
+import { DefinitionPopup } from '@/components/ui/DefinitionPopup';
 
 const HistoriaClinica = () => {
-  const {
-    theme
-  } = useTheme();
+  const { theme } = useTheme();
   const [pacienteActual, setPacienteActual] = useState<string>('');
   const [nombrePaciente, setNombrePaciente] = useState<string>('');
   const [alertOpen, setAlertOpen] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [esMujer, setEsMujer] = useState<boolean>(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
+  const pdfSectionsRef = useRef<{ [key: string]: string; }>({});
+  
+  const { isAnalysisMode, setAnalysisMode, selectedText, setSelectedText, selectedPosition, setSelectedPosition } = useAnalysisMode();
+
   const {
     formData,
     resumen,
@@ -81,11 +85,45 @@ const HistoriaClinica = () => {
     cargarFormulario,
     resetFormulario
   } = useHistoriaClinica();
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
-  const pdfSectionsRef = useRef<{
-    [key: string]: string;
-  }>({});
+
+  // Add text selection handler for analysis mode
+  useEffect(() => {
+    const handleTextSelection = (event: MouseEvent) => {
+      if (!isAnalysisMode) return;
+
+      const target = event.target as HTMLElement;
+      const selection = window.getSelection();
+      const selectedTextContent = selection?.toString().trim();
+
+      if (selectedTextContent && selectedTextContent.length > 2) {
+        setSelectedText(selectedTextContent);
+        setSelectedPosition({
+          x: event.clientX,
+          y: event.clientY
+        });
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isAnalysisMode) {
+        setAnalysisMode(false);
+        setSelectedText('');
+        setSelectedPosition(null);
+      }
+    };
+
+    if (isAnalysisMode) {
+      document.addEventListener('mouseup', handleTextSelection);
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.cursor = 'crosshair';
+    }
+
+    return () => {
+      document.removeEventListener('mouseup', handleTextSelection);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.cursor = 'default';
+    };
+  }, [isAnalysisMode, setAnalysisMode, setSelectedText, setSelectedPosition]);
 
   useEffect(() => {
     if (pacienteActual) {
@@ -96,7 +134,7 @@ const HistoriaClinica = () => {
   const handleLimpiarFormulario = () => {
     setPacienteActual('');
     setNombrePaciente('');
-    cargarFormulario(null); // Cargar formulario vacío
+    cargarFormulario(null);
   };
 
   const handleResetFormulario = () => {
@@ -130,12 +168,10 @@ const HistoriaClinica = () => {
     return allMissingFields;
   };
 
-  // Improved function to click the "Generate IA" button for a section
   const generateSectionRedaction = async (sectionElement: Element) => {
     try {
       if (!sectionElement) return false;
 
-      // First make sure we're on the form tab
       const formTabs = sectionElement.querySelectorAll('button');
       let formTab = null;
       for (const tab of formTabs) {
@@ -149,7 +185,6 @@ const HistoriaClinica = () => {
         await new Promise(resolve => setTimeout(resolve, 300));
       }
 
-      // Find and click the "Generar Redacción IA" button
       const allButtons = Array.from(sectionElement.querySelectorAll('button'));
       const generateButton = allButtons.find(button => button.textContent && (button.textContent.includes('Generar Redacción IA') || button.textContent.includes('Generar Redacción') || button.textContent.includes('Generar Informe')));
       if (!generateButton) {
@@ -159,10 +194,8 @@ const HistoriaClinica = () => {
       console.log('Clicking generate button', generateButton.textContent);
       (generateButton as HTMLElement).click();
 
-      // Wait for redaction to generate (4 seconds should be enough)
       await new Promise(resolve => setTimeout(resolve, 4000));
 
-      // Switch to the redaction tab
       const redactionTabs = sectionElement.querySelectorAll('button');
       let redactionTab = null;
       for (const tab of redactionTabs) {
@@ -182,12 +215,10 @@ const HistoriaClinica = () => {
     }
   };
 
-  // Function to extract redaction content from a section
   const getSectionRedaction = (sectionElement: Element): string | null => {
     try {
       if (!sectionElement) return null;
 
-      // Try to find redaction content div (with various selectors to be robust)
       const possibleContentSelectors = ['div[data-redaction-content]', '.min-h-\\[150px\\], .min-h-\\[200px\\]', 'div.bg-gray-50, div.bg-gray-900', 'div[style*="white-space: pre-wrap"]', 'div.whitespace-pre-wrap'];
       let contentElement = null;
       for (const selector of possibleContentSelectors) {
@@ -201,7 +232,6 @@ const HistoriaClinica = () => {
         if (contentElement) break;
       }
 
-      // If still not found, try a more generic approach
       if (!contentElement) {
         const allDivs = sectionElement.querySelectorAll('div');
         for (const div of allDivs) {
@@ -216,7 +246,6 @@ const HistoriaClinica = () => {
         return null;
       }
 
-      // Get and clean up the content
       const text = contentElement.textContent || '';
       return text.trim();
     } catch (error) {
@@ -225,11 +254,9 @@ const HistoriaClinica = () => {
     }
   };
 
-  // Function to collect redactions from all sections
   const collectAllRedactions = async () => {
     pdfSectionsRef.current = {};
 
-    // Define all sections we want to process
     const sectionSelectors = [{
       name: 'padecimientoActual',
       selector: '[data-section-name="padecimientoActual"]'
@@ -295,40 +322,33 @@ const HistoriaClinica = () => {
       selector: '[data-section-name="pronostico"]'
     }];
 
-    // Total steps for progress calculation
-    const totalSteps = sectionSelectors.length * 2; // *2 because we have generate and extract for each section
+    const totalSteps = sectionSelectors.length * 2;
     let completedSteps = 0;
     for (const sectionConfig of sectionSelectors) {
       console.log(`Processing section: ${sectionConfig.name}`);
 
-      // Find section element
       const sectionElements = document.querySelectorAll(sectionConfig.selector);
       if (sectionElements.length === 0) {
         console.warn(`Section not found: ${sectionConfig.name}`);
-        completedSteps += 2; // Skip both steps for this section
+        completedSteps += 2;
         setPdfGenerationProgress(completedSteps / totalSteps * 100);
         continue;
       }
       const sectionElement = sectionElements[0];
 
-      // Generate redaction for this section
       await generateSectionRedaction(sectionElement);
 
-      // Update progress
       completedSteps++;
       setPdfGenerationProgress(completedSteps / totalSteps * 100);
 
-      // Wait a moment to ensure the redaction has fully rendered
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Extract redaction content
       const content = getSectionRedaction(sectionElement);
       if (content) {
         pdfSectionsRef.current[sectionConfig.name] = content;
         console.log(`Added ${sectionConfig.name} redaction to PDF`);
       }
 
-      // Update progress again
       completedSteps++;
       setPdfGenerationProgress(completedSteps / totalSteps * 100);
     }
@@ -336,16 +356,13 @@ const HistoriaClinica = () => {
     return pdfSectionsRef.current;
   };
 
-  // Function to generate the PDF
   const generatePDFDocument = async () => {
     try {
       setIsGeneratingPDF(true);
       setPdfGenerationProgress(0);
 
-      // Collect all redactions
       const allRedactions = await collectAllRedactions();
 
-      // Check if we have any redactions
       if (Object.keys(allRedactions).length === 0) {
         toast({
           title: "Advertencia",
@@ -356,7 +373,6 @@ const HistoriaClinica = () => {
         return;
       }
 
-      // Generate the PDF
       const patientName = nombrePaciente || pacienteActual || 'Paciente';
       generatePDF(formData, patientName, allRedactions);
       toast({
@@ -364,7 +380,6 @@ const HistoriaClinica = () => {
         description: "La Historia Clínica ha sido generada exitosamente."
       });
 
-      // Important: We're NOT resetting the form as requested by the user
     } catch (error) {
       console.error("Error generating PDF:", error);
       toast({
@@ -389,7 +404,28 @@ const HistoriaClinica = () => {
   };
 
   return (
-    <div className={`${theme} min-h-screen w-full flex`}>
+    <div className={`${theme} min-h-screen w-full flex relative`}>
+      {/* Analysis Mode Overlay */}
+      {isAnalysisMode && (
+        <div className="fixed inset-0 bg-emerald-500/10 backdrop-blur-sm z-40 pointer-events-none">
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-emerald-500 text-white px-4 py-2 rounded-full shadow-lg">
+            <span className="text-sm font-medium">Modo Análisis Activo - Selecciona cualquier término</span>
+          </div>
+        </div>
+      )}
+
+      {/* Definition Popup */}
+      {selectedText && selectedPosition && (
+        <DefinitionPopup
+          text={selectedText}
+          position={selectedPosition}
+          onClose={() => {
+            setSelectedText('');
+            setSelectedPosition(null);
+          }}
+        />
+      )}
+
       <FormulariosSidebar 
         onCargarFormulario={(data, nombre) => {
           cargarFormulario(data);
@@ -413,7 +449,6 @@ const HistoriaClinica = () => {
               (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)
             </p>
             
-            {/* Componente de nombre de paciente */}
             <div id="patient-name-input" className="max-w-lg mx-auto mb-2 sticky top-4 z-30 backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
               <div className="flex items-center gap-3">
                 <div className="relative flex-1">
@@ -438,8 +473,6 @@ const HistoriaClinica = () => {
               </div>
             </div>
 
-            
-            {/* Componente para mostrar el paciente actual */}
             {pacienteActual && (
               <div className="flex items-center justify-center gap-2 mb-6">
                 <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
@@ -455,7 +488,6 @@ const HistoriaClinica = () => {
               </div>
             )}
             
-            {/* Selector de género para mostrar/ocultar sección gineco-obstétrica */}
             <div className="flex items-center justify-center mb-6 gap-4">
               <span className="text-sm text-gray-600 dark:text-gray-400">Género del paciente:</span>
               <div className="flex gap-2">
@@ -472,21 +504,18 @@ const HistoriaClinica = () => {
                 <button
                   className={`px-4 py-2 rounded-md text-sm transition-colors ${
                     esMujer
-                      ? 'bg-[#9370DB] text-white' // Cambiado a un tono rosa-púrpura usando código hexadecimal
-                     : 'bg-gray-100 dark:bg-gray-700'
-                 }`}
-                 onClick={() => setEsMujer(true)}
+                      ? 'bg-[#9370DB] text-white'
+                      : 'bg-gray-100 dark:bg-gray-700'
+                  }`}
+                  onClick={() => setEsMujer(true)}
                 >
                   Mujer
                 </button>
-
-
               </div>
             </div>
           </div>
 
           <div className="space-y-6">
-            {/* Add data attributes to all sections for redaction collection */}
             <div data-section-redaction="true" data-section-name="padecimientoActual">
               <PadecimientoActual formData={formData} handlePadecimientoChange={handlePadecimientoChange} handleDolorChange={handleDolorChange} handleSinSintomasChange={handleSinSintomasChange} />
             </div>
@@ -515,7 +544,6 @@ const HistoriaClinica = () => {
               <AntecedentesHemorragicos formData={formData} handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange} />
             </div>
 
-            {/* Mostrar antecedentes gineco-obstétricos solo si es mujer */}
             {esMujer && (
               <div data-section-redaction="true" data-section-name="antecedentesGinecoObstetricos">
                 <AntecedentesGinecoObstetricos 

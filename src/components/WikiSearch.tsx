@@ -4,7 +4,9 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
 import { Button } from "./ui/button";
 import { ScrollArea } from "./ui/scroll-area";
-import { Send, Bot, User, X, AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import { Send, Bot, User, X, AlertTriangle, CheckCircle, Clock, Search, ArrowRight } from "lucide-react";
+import { TypewriterEffect } from "./ui/TypewriterEffect";
+import { useAnalysisMode } from "@/contexts/AnalysisModeContext";
 
 interface WikiSearchProps {
   open: boolean;
@@ -16,6 +18,7 @@ interface ChatMessage {
   content: string;
   timestamp: Date;
   urgency?: 'low' | 'medium' | 'high' | 'emergency';
+  isTyping?: boolean;
 }
 
 const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente de inteligencia artificial especializado en odontología. 
@@ -68,10 +71,7 @@ const loadingMessages = [
   "Finalizando análisis especializado..."
 ];
 
-export function WikiSearch({
-  open,
-  onOpenChange
-}: WikiSearchProps) {
+export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -79,6 +79,7 @@ export function WikiSearch({
   const [hasGreeted, setHasGreeted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { isAnalysisMode, setAnalysisMode } = useAnalysisMode();
 
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
@@ -92,7 +93,6 @@ export function WikiSearch({
     if (open && inputRef.current) {
       inputRef.current.focus();
       
-      // Send greeting message if it's the first time opening
       if (!hasGreeted && messages.length === 0) {
         const greetingMessage: ChatMessage = {
           role: 'assistant',
@@ -156,7 +156,11 @@ export function WikiSearch({
     const userMessage = message.trim();
     setMessage("");
 
-    // Add user message to chat
+    // Hide mobile keyboard
+    if (inputRef.current) {
+      inputRef.current.blur();
+    }
+
     const newUserMessage: ChatMessage = {
       role: 'user',
       content: userMessage,
@@ -166,7 +170,6 @@ export function WikiSearch({
     setIsLoading(true);
 
     try {
-      // Prepare conversation context (last 4 messages for context, excluding the greeting message)
       const conversationHistory = messages
         .filter(msg => !(msg.role === 'assistant' && msg.content.includes('¡Hola! Soy DentaxyGPT')))
         .slice(-4)
@@ -175,15 +178,12 @@ export function WikiSearch({
           content: msg.content
         }));
 
-      // Detectar el dominio actual y configurar el referer apropiado
       const currentDomain = window.location.hostname;
       let refererUrl = 'https://www.dentaxy.com';
       
       if (currentDomain.includes('dentaxy.com')) {
         refererUrl = currentDomain.includes('www.') ? 'https://www.dentaxy.com' : 'https://dentaxy.com';
       }
-
-      console.log('Enviando request desde:', currentDomain, 'con referer:', refererUrl);
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
@@ -215,49 +215,37 @@ export function WikiSearch({
         })
       });
 
-      console.log('Response status:', response.status);
-
       if (!response.ok) {
         let errorMessage = 'Error técnico temporal. Consulta directamente con un profesional odontológico.';
         
         if (response.status === 401) {
           errorMessage = 'Error de autenticación API. Verificando credenciales...';
-          console.error('Error 401: API key inválida o expirada');
         } else if (response.status === 429) {
           errorMessage = 'Servicio temporalmente saturado. Intenta en unos momentos.';
-          console.error('Error 429: Rate limit excedido');
         } else if (response.status >= 500) {
           errorMessage = 'Servidor temporalmente no disponible. Consulta con un profesional.';
-          console.error('Error del servidor:', response.status);
         } else if (response.status === 0 || !response.status) {
           errorMessage = 'Error de conexión. Verifica tu conexión a internet y el dominio.';
-          console.error('Error de conexión CORS o red');
-        } else {
-          console.error('Error desconocido:', response.status);
         }
         
         throw new Error(errorMessage);
       }
 
       const data = await response.json();
-      console.log('Respuesta de la API:', data);
-      
       let aiResponse = data.choices?.[0]?.message?.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta de manera más específica.';
 
-      // Clean up response if it has thinking tags
       aiResponse = aiResponse.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-
-      // Detect urgency level from AI response
       const urgency = detectUrgency(aiResponse);
 
-      // Add AI response to chat
-      const aiMessage: ChatMessage = {
+      // Add typing message first
+      const typingMessage: ChatMessage = {
         role: 'assistant',
         content: aiResponse,
         timestamp: new Date(),
-        urgency
+        urgency,
+        isTyping: true
       };
-      setMessages(prev => [...prev, aiMessage]);
+      setMessages(prev => [...prev, typingMessage]);
 
     } catch (error) {
       console.error('Error calling OpenRouter API:', error);
@@ -265,7 +253,8 @@ export function WikiSearch({
         role: 'assistant',
         content: error instanceof Error ? error.message : 'Error técnico temporal. Consulta directamente con un profesional odontológico. Si es emergencia, acude al servicio de urgencias.',
         timestamp: new Date(),
-        urgency: 'medium'
+        urgency: 'medium',
+        isTyping: true
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -285,6 +274,20 @@ export function WikiSearch({
     setHasGreeted(false);
   };
 
+  const handleTypingComplete = (messageIndex: number) => {
+    setMessages(prev => prev.map((msg, index) => 
+      index === messageIndex ? { ...msg, isTyping: false } : msg
+    ));
+  };
+
+  const toggleAnalysisMode = () => {
+    setAnalysisMode(!isAnalysisMode);
+    if (!isAnalysisMode) {
+      // Minimize dialog when entering analysis mode
+      onOpenChange(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl h-[85vh] flex flex-col bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
@@ -302,16 +305,31 @@ export function WikiSearch({
               </span>
             </div>
           </DialogTitle>
-          {messages.length > 0 && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={clearChat} 
-              className="text-xs hover:bg-slate-100 dark:hover:bg-slate-700"
+          <div className="flex items-center gap-2">
+            <Button
+              variant={isAnalysisMode ? "default" : "outline"}
+              size="sm"
+              onClick={toggleAnalysisMode}
+              className={`text-xs transition-all duration-200 ${
+                isAnalysisMode 
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                  : 'hover:bg-slate-100 dark:hover:bg-slate-700'
+              }`}
             >
-              Limpiar chat
+              <Search className="h-4 w-4 mr-1" />
+              {isAnalysisMode ? 'Modo Análisis ON' : 'Análisis de Términos'}
             </Button>
-          )}
+            {messages.length > 0 && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={clearChat} 
+                className="text-xs hover:bg-slate-100 dark:hover:bg-slate-700"
+              >
+                Limpiar chat
+              </Button>
+            )}
+          </div>
         </DialogHeader>
         
         {/* Chat Messages */}
@@ -360,7 +378,15 @@ export function WikiSearch({
                     }`}>
                       <div className="prose prose-sm dark:prose-invert max-w-none">
                         <div className="whitespace-pre-wrap leading-relaxed">
-                          {msg.content}
+                          {msg.role === 'assistant' && msg.isTyping ? (
+                            <TypewriterEffect 
+                              text={msg.content}
+                              speed={25}
+                              onComplete={() => handleTypingComplete(index)}
+                            />
+                          ) : (
+                            msg.content
+                          )}
                         </div>
                       </div>
                     </div>
@@ -399,9 +425,9 @@ export function WikiSearch({
           )}
         </ScrollArea>
 
-        {/* Input Area */}
-        <div className="p-4 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-lg border border-slate-200 dark:border-slate-600 shadow-lg">
-          <div className="flex gap-3">
+        {/* Modern Input Area */}
+        <div className="p-4">
+          <div className="relative flex items-center bg-white dark:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-600 shadow-sm hover:shadow-md transition-shadow duration-200">
             <Input
               ref={inputRef}
               placeholder="Pregunta específica sobre odontología..."
@@ -409,14 +435,14 @@ export function WikiSearch({
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={isLoading}
-              className="flex-1 bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+              className="flex-1 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 rounded-full px-6 py-3"
             />
             <Button 
               onClick={sendMessage} 
               disabled={isLoading || !message.trim()} 
-              className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-md"
+              className="absolute right-2 h-10 w-10 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm p-0 transition-all duration-200 hover:scale-105"
             >
-              <Send className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
