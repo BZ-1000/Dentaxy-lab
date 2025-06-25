@@ -77,11 +77,8 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
       let response = `**${term.termino}**: ${term.definicion}`;
       
       if (term.contexto_uso) {
-        response += `\n\n*Contexto*: ${term.contexto_uso}`;
+        response += `\n\n**Contexto**: ${term.contexto_uso}`;
       }
-      
-      // Convertir ** a <strong> para negritas
-      response = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
       
       return response;
     }
@@ -100,11 +97,8 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
       let response = `**${term.termino}**: ${term.definicion}`;
       
       if (term.contexto_uso) {
-        response += `\n\n*Contexto*: ${term.contexto_uso}`;
+        response += `\n\n**Contexto**: ${term.contexto_uso}`;
       }
-      
-      // Convertir ** a <strong> para negritas
-      response = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
       
       return response;
     }
@@ -130,11 +124,8 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
         let response = `**${term.termino}**: ${term.definicion}`;
         
         if (term.contexto_uso) {
-          response += `\n\n*Contexto*: ${term.contexto_uso}`;
+          response += `\n\n**Contexto**: ${term.contexto_uso}`;
         }
-        
-        // Convertir ** a <strong> para negritas
-        response = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         
         return response;
       }
@@ -157,11 +148,8 @@ async function searchLocalTermsSpecific(supabaseClient: any, searchTerm: string)
         let response = `**${term.termino}**: ${term.definicion}`;
         
         if (term.contexto_uso) {
-          response += `\n\n*Contexto*: ${term.contexto_uso}`;
+          response += `\n\n**Contexto**: ${term.contexto_uso}`;
         }
-        
-        // Convertir ** a <strong> para negritas
-        response = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         
         return response;
       }
@@ -195,13 +183,9 @@ function getFallbackResponse(message: string): string {
   for (const [key, definition] of Object.entries(commonTerms)) {
     if (term.includes(key) || key.includes(term) || 
         term.replace(/s$/, '') === key || key.replace(/s$/, '') === term) {
-      // Convertir ** a <strong> para negritas
-      return definition.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      return definition;
     }
   }
 
-  let response = `No encontré información específica sobre "${message}" en mi base de datos odontológica. Intenta con términos más específicos como **caries**, **gingivitis**, **dolor dental**, **bruxismo**, etc.`;
-  
-  // Convertir ** a <strong> para negritas
-  return response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  return `No encontré información específica sobre "${message}" en mi base de datos odontológica. Intenta con términos más específicos como **caries**, **gingivitis**, **dolor dental**, **bruxismo**, etc.`;
 }
