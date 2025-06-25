@@ -24,7 +24,7 @@ import ResumenHistoriaClinica from './historia-clinica/ResumenHistoriaClinica';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTheme } from '@/hooks/use-theme';
-import { Loader2, X, Save, User, FileText } from "lucide-react";
+import { Loader2, X, Save, User, FileText, Search } from "lucide-react";
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
 import { useState, useEffect, useRef } from 'react';
@@ -35,6 +35,79 @@ import { validatePadecimientoActual, validateAntecedentesHeredoFamiliares, valid
 import { generatePDF } from '@/utils/pdfGenerator';
 import LoadingOverlay from './historia-clinica/LoadingOverlay';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
+import { motion, AnimatePresence } from 'framer-motion';
+import { TypewriterEffect } from './ui/TypewriterEffect';
+
+interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+  isTyping?: boolean;
+}
+
+interface ResponsePopupProps {
+  message: ChatMessage;
+  onClose: () => void;
+}
+
+function ResponsePopup({ message, onClose }: ResponsePopupProps) {
+  return (
+    <>
+      <div className="fixed inset-0 bg-gray-500/20 backdrop-blur-sm z-[9998]" />
+      <motion.div
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.95 }}
+        className="fixed top-4 right-4 z-[9999] max-w-md"
+      >
+        <div className="bg-gray-500/90 backdrop-blur-md border border-gray-600 rounded-2xl p-4 shadow-2xl">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <img 
+                src="/lovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png" 
+                alt="DentaxyGPT" 
+                className="h-6 w-6" 
+              />
+              <span className="text-white text-sm font-medium">DentaxyGPT</span>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-gray-300 hover:text-white transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          
+          <div className="text-white text-sm">
+            {message.isTyping ? (
+              <TypewriterEffect 
+                text={message.content}
+                speed={25}
+              />
+            ) : (
+              <p>{message.content}</p>
+            )}
+          </div>
+          
+          <div className="text-gray-300 text-xs mt-2">
+            {message.timestamp.toLocaleTimeString()}
+          </div>
+        </div>
+      </motion.div>
+    </>
+  );
+}
+
+const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente especializado en odontología que ayuda a explicar términos médicos dentales de manera clara y concisa. Tu objetivo es proporcionar definiciones precisas y útiles para estudiantes y profesionales de la odontología.
+
+Cuando recibas un término médico dental:
+1. Proporciona una definición clara y concisa
+2. Explica su relevancia en el contexto odontológico
+3. Si es apropiado, menciona sinónimos o términos relacionados
+4. Mantén un tono profesional pero accesible
+5. Limita tu respuesta a máximo 150 palabras
+
+Si el término no está relacionado con odontología, indica que te especializas en términos dentales y sugiere reformular la consulta.`;
 
 const HistoriaClinica = () => {
   const {
@@ -47,6 +120,8 @@ const HistoriaClinica = () => {
   const [esMujer, setEsMujer] = useState<boolean>(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
+  const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
   const pdfSectionsRef = useRef<{
     [key: string]: string;
   }>({});
@@ -94,12 +169,56 @@ const HistoriaClinica = () => {
     resetFormulario
   } = useHistoriaClinica();
 
+  const handleSearch = async (searchText: string) => {
+    setIsSearching(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: searchText,
+          systemPrompt: DENTAXY_SYSTEM_PROMPT
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Error en la respuesta');
+      }
+
+      const data = await response.json();
+      
+      const newMessage: ChatMessage = {
+        role: 'assistant',
+        content: data.response || 'Lo siento, no pude procesar tu consulta.',
+        timestamp: new Date(),
+        isTyping: true
+      };
+
+      setActiveResponse(newMessage);
+    } catch (error) {
+      console.error('Error:', error);
+      const errorMessage: ChatMessage = {
+        role: 'assistant',
+        content: 'Lo siento, ocurrió un error al procesar tu consulta. Por favor, intenta nuevamente.',
+        timestamp: new Date(),
+        isTyping: false
+      };
+      setActiveResponse(errorMessage);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   useEffect(() => {
     const handleTextSelection = (event: MouseEvent) => {
       if (!isAnalysisMode) return;
-      const target = event.target as HTMLElement;
+      
       const selection = window.getSelection();
       const selectedTextContent = selection?.toString().trim();
+      
       if (selectedTextContent && selectedTextContent.length > 2) {
         setSelectedText(selectedTextContent);
         setSelectedPosition({
@@ -108,6 +227,7 @@ const HistoriaClinica = () => {
         });
       }
     };
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isAnalysisMode) {
         setAnalysisMode(false);
@@ -115,11 +235,13 @@ const HistoriaClinica = () => {
         setSelectedPosition(null);
       }
     };
+
     if (isAnalysisMode) {
       document.addEventListener('mouseup', handleTextSelection);
       document.addEventListener('keydown', handleKeyDown);
       document.body.style.cursor = 'crosshair';
     }
+
     return () => {
       document.removeEventListener('mouseup', handleTextSelection);
       document.removeEventListener('keydown', handleKeyDown);
@@ -166,6 +288,7 @@ const HistoriaClinica = () => {
     const allMissingFields = [...padecimientoFields, ...heredoFamiliaresFields, ...noPatologicosFields, ...patologicosFields];
     return allMissingFields;
   };
+
   const generateSectionRedaction = async (sectionElement: Element) => {
     try {
       if (!sectionElement) return false;
@@ -377,13 +500,12 @@ const HistoriaClinica = () => {
       generatePDFDocument();
     }
   };
+
+  const closeResponse = () => {
+    setActiveResponse(null);
+  };
+
   return <div className={`${theme} min-h-screen w-full flex relative`}>
-      {/* Analysis Mode Overlay - only show when popup is visible */}
-      {isAnalysisMode && <div className="fixed inset-0 bg-emerald-500/10 backdrop-blur-sm z-40 pointer-events-none" />}
-
-      {/* Analysis Mode Indicator - show when mode is active */}
-      {isAnalysisMode && (null)}
-
       <FormulariosSidebar onCargarFormulario={(data, nombre) => {
       cargarFormulario(data);
       setPacienteActual(nombre);
@@ -484,7 +606,10 @@ const HistoriaClinica = () => {
             </div>
             
             <div data-section-redaction="true" data-section-name="articulacionCraneomandibular">
-              <ArticulacionCraneomandibular formData={formData} handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} />
+              <ArticulacionCraneomandibular 
+                formData={formData} 
+                handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} 
+              />
             </div>
             
             <div data-section-redaction="true" data-section-name="examenCuello">
@@ -537,6 +662,34 @@ const HistoriaClinica = () => {
           </div>
         </div>
       </div>
+
+      {/* Text Selection Popup */}
+      {selectedText && selectedPosition && isAnalysisMode && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="fixed z-[10000] pointer-events-auto"
+          style={{
+            left: Math.min(selectedPosition.x, window.innerWidth - 200),
+            top: Math.max(selectedPosition.y - 60, 10),
+          }}
+        >
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 p-2">
+            <button
+              onClick={() => handleSearch(selectedText)}
+              disabled={isSearching}
+              className="flex items-center gap-2 px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm transition-colors disabled:opacity-50"
+            >
+              {isSearching ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Search className="h-4 w-4" />
+              )}
+              {isSearching ? 'Buscando...' : 'Buscar definición'}
+            </button>
+          </div>
+        </motion.div>
+      )}
       
       <ConfirmationAlert isOpen={alertOpen} onClose={() => setAlertOpen(false)} onConfirm={() => {
       setAlertOpen(false);
@@ -544,6 +697,15 @@ const HistoriaClinica = () => {
     }} title="Formulario incompleto" description="Hay campos sin completar en el formulario." missingFields={missingFields} />
       
       {isGeneratingPDF && <LoadingOverlay message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." progress={pdfGenerationProgress} />}
+
+      <AnimatePresence>
+        {activeResponse && (
+          <ResponsePopup 
+            message={activeResponse} 
+            onClose={closeResponse}
+          />
+        )}
+      </AnimatePresence>
       
       <Toaster />
     </div>;
