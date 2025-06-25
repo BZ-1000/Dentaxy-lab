@@ -1,4 +1,5 @@
 
+
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
@@ -192,6 +193,9 @@ async function searchLocalTermsIntelligent(supabaseClient: any, searchTerm: stri
         }
       });
 
+      // Convertir ** a <strong> para negritas
+      response = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
       return response;
     }
 
@@ -208,24 +212,28 @@ function getFallbackResponse(message: string): string {
   
   // Respuestas específicas para términos comunes
   const commonTerms: { [key: string]: string } = {
-    'padecimiento actual': 'El padecimiento actual se refiere al motivo principal de consulta del paciente, incluyendo la descripción detallada de los síntomas, su inicio, evolución y características. Es la razón por la cual el paciente busca atención odontológica.',
+    'padecimiento actual': 'El **padecimiento actual** se refiere al motivo principal de consulta del paciente, incluyendo la descripción detallada de los síntomas, su inicio, evolución y características. Es la razón por la cual el paciente busca atención odontológica.',
     'motivo de consulta': 'Es la razón principal por la cual el paciente busca atención odontológica, describiendo el síntoma o problema que lo llevó a la consulta. Es el punto de partida para el diagnóstico.',
-    'dolor dental': 'Sensación molesta en las estructuras dentales causada por caries, inflamación pulpar, traumatismos o enfermedad periodontal. Puede ser agudo, sordo, pulsátil o irradiado.',
-    'caries': 'Proceso infeccioso que destruye los tejidos duros del diente causado por bacterias acidogénicas. Se manifiesta como cavidades o manchas oscuras en el diente.',
-    'gingivitis': 'Inflamación de las encías causada por acumulación de placa bacteriana. Se caracteriza por enrojecimiento, hinchazón y sangrado gingival.',
-    'periodontitis': 'Enfermedad inflamatoria destructiva que afecta los tejidos de soporte del diente, incluyendo ligamento periodontal y hueso alveolar.',
-    'bruxismo': 'Hábito involuntario de apretar o rechinar los dientes, especialmente durante el sueño, que puede causar desgaste dental y disfunción de ATM.',
-    'maloclusión': 'Alteración en la posición y relación dental que afecta la oclusión normal. Puede clasificarse según Angle en Clase I, II o III.',
-    'hola': 'Hola, soy DentaxyGPT, tu asistente especializado en odontología. Pregúntame sobre cualquier término dental y te ayudaré con una explicación clara y precisa.'
+    'dolor dental': '**Dolor dental** es una sensación molesta en las estructuras dentales causada por caries, inflamación pulpar, traumatismos o enfermedad periodontal. Puede ser agudo, sordo, pulsátil o irradiado.',
+    'caries': '**Caries** es un proceso infeccioso que destruye los tejidos duros del diente causado por bacterias acidogénicas. Se manifiesta como cavidades o manchas oscuras en el diente.',
+    'gingivitis': '**Gingivitis** es la inflamación de las encías causada por acumulación de placa bacteriana. Se caracteriza por enrojecimiento, hinchazón y sangrado gingival.',
+    'periodontitis': '**Periodontitis** es una enfermedad inflamatoria destructiva que afecta los tejidos de soporte del diente, incluyendo ligamento periodontal y hueso alveolar.',
+    'bruxismo': '**Bruxismo** es el hábito involuntario de apretar o rechinar los dientes, especialmente durante el sueño, que puede causar desgaste dental y disfunción de ATM.',
+    'maloclusión': '**Maloclusión** es una alteración en la posición y relación dental que afecta la oclusión normal. Puede clasificarse según Angle en Clase I, II o III.',
+    'hola': 'Hola, soy **DentaxyGPT**, tu asistente especializado en odontología. Pregúntame sobre cualquier término dental y te ayudaré con una explicación clara y precisa.'
   };
 
   // Buscar coincidencias flexibles en términos comunes
   for (const [key, definition] of Object.entries(commonTerms)) {
     if (term.includes(key) || key.includes(term) || 
         term.replace(/s$/, '') === key || key.replace(/s$/, '') === term) {
-      return definition;
+      // Convertir ** a <strong> para negritas
+      return definition.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     }
   }
 
-  return `Busco información sobre "${message}" en mi base de datos odontológica especializada. Aunque no encontré una coincidencia exacta, puedes intentar con términos más específicos o sinónimos. Mi base de datos contiene información sobre dolor dental, estética, función masticatoria, antecedentes médicos y más. ¿Podrías ser más específico sobre qué aspecto te interesa?`;
+  let response = `Busco información sobre "${message}" en mi base de datos odontológica especializada. Aunque no encontré una coincidencia exacta, puedes intentar con términos más específicos o sinónimos. Mi base de datos contiene información sobre **dolor dental**, **estética**, **función masticatoria**, **antecedentes médicos** y más. ¿Podrías ser más específico sobre qué aspecto te interesa?`;
+  
+  // Convertir ** a <strong> para negritas
+  return response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 }
