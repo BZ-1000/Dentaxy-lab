@@ -8,6 +8,10 @@ interface AnalysisModeContextType {
   setSelectedText: (text: string) => void;
   selectedPosition: { x: number; y: number } | null;
   setSelectedPosition: (position: { x: number; y: number } | null) => void;
+  selectedWords: string[];
+  setSelectedWords: (words: string[]) => void;
+  toggleWord: (word: string) => void;
+  clearSelection: () => void;
 }
 
 const AnalysisModeContext = createContext<AnalysisModeContextType | undefined>(undefined);
@@ -16,6 +20,26 @@ export function AnalysisModeProvider({ children }: { children: ReactNode }) {
   const [isAnalysisMode, setAnalysisMode] = useState(false);
   const [selectedText, setSelectedText] = useState('');
   const [selectedPosition, setSelectedPosition] = useState<{ x: number; y: number } | null>(null);
+  const [selectedWords, setSelectedWords] = useState<string[]>([]);
+
+  const toggleWord = (word: string) => {
+    setSelectedWords(prev => {
+      const exists = prev.includes(word);
+      const updated = exists 
+        ? prev.filter(w => w !== word)
+        : [...prev, word];
+      
+      // Actualizar el texto seleccionado
+      setSelectedText(updated.join(' '));
+      return updated;
+    });
+  };
+
+  const clearSelection = () => {
+    setSelectedWords([]);
+    setSelectedText('');
+    setSelectedPosition(null);
+  };
 
   return (
     <AnalysisModeContext.Provider value={{
@@ -24,7 +48,11 @@ export function AnalysisModeProvider({ children }: { children: ReactNode }) {
       selectedText,
       setSelectedText,
       selectedPosition,
-      setSelectedPosition
+      setSelectedPosition,
+      selectedWords,
+      setSelectedWords,
+      toggleWord,
+      clearSelection
     }}>
       {children}
     </AnalysisModeContext.Provider>
