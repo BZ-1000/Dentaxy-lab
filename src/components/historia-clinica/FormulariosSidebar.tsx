@@ -6,7 +6,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Save, FileText, BookOpen, Trash, Pencil, Share2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
-import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@/components/ui/modern-sidebar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
@@ -147,19 +146,35 @@ const FormulariosSidebar = ({
   
   return <div className="">
       <div className="sticky top-0 h-screen hidden md:block">
-        <Sidebar open={open} setOpen={setOpen} animate={true}>
-          <SidebarBody className="bg-white dark:bg-neutral-900">
+        <div className={`fixed left-0 top-0 h-full bg-white dark:bg-neutral-900 border-r transition-all duration-300 z-40 ${open ? 'w-80' : 'w-16'}`}
+             onMouseEnter={() => setOpen(true)}
+             onMouseLeave={() => setOpen(false)}>
+          <div className="bg-white dark:bg-neutral-900 h-full">
             <div className="sticky top-0 bg-slate-50 z-10">
               <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-white">
-                {open ? <Logo>
-                    <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
-                  </Logo> : <LogoIcon>
-                    <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
-                  </LogoIcon>}
+                <div className="p-4 flex items-center gap-2">
+                  <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
+                  {open && <span className="text-lg font-semibold">Formularios</span>}
+                </div>
 
                 <div className="mt-8 flex flex-col gap-4">
-                  {open && <div className="space-y-2">
-                      
+                  {open && <div className="space-y-2 px-4">
+                      <Input
+                        placeholder="Nombre del paciente"
+                        value={nombrePaciente}
+                        onChange={(e) => setNombrePaciente(e.target.value)}
+                        className="w-full"
+                      />
+                      <div className="flex gap-2">
+                        <Button onClick={handleGuardarFormulario} size="sm" className="flex-1">
+                          <Save className="h-4 w-4 mr-1" />
+                          Guardar
+                        </Button>
+                        <Button onClick={handleQuitarNombre} variant="outline" size="sm" className="flex-1">
+                          <X className="h-4 w-4 mr-1" />
+                          Reset
+                        </Button>
+                      </div>
                     </div>}
                 </div>
               </div>
@@ -167,13 +182,15 @@ const FormulariosSidebar = ({
 
             <div className="flex-1 overflow-y-auto">
               <ScrollArea className="flex-1">
-                <div className="space-y-1 pr-2">
+                <div className="space-y-1 pr-2 px-4">
                   {formularios.map((form, index) => <div key={index} className="group flex justify-between items-center mb-2">
-                      <SidebarLink link={{
-                    label: form.nombre,
-                    icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
-                    onClick: () => onCargarFormulario(form.data, form.nombre)
-                  }} className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1" />
+                      <button
+                        onClick={() => onCargarFormulario(form.data, form.nombre)}
+                        className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1 flex items-center gap-2 py-2 text-left"
+                      >
+                        <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+                        {open && <span className="truncate">{form.nombre}</span>}
+                      </button>
                       {open && <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={() => handleFormularioAction('renombrar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700" title="Renombrar paciente">
                             <Pencil className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
@@ -189,8 +206,8 @@ const FormulariosSidebar = ({
                 </div>
               </ScrollArea>
             </div>
-          </SidebarBody>
-        </Sidebar>
+          </div>
+        </div>
       </div>
 
       {/* Dialog for renaming or sharing */}
@@ -248,4 +265,3 @@ const FormulariosSidebar = ({
 };
 
 export default FormulariosSidebar;
-
