@@ -1,42 +1,85 @@
 
-import React, { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+"use client";
 
-interface OtraCondicionInputProps {
-  onAdd: (condicion: string) => void;
-  placeholder?: string;
-}
+import React, { forwardRef } from "react";
+import { cn } from "@/lib/utils";
+import { motion, Transition } from "framer-motion";
 
-const OtraCondicionInput: React.FC<OtraCondicionInputProps> = ({
-  onAdd,
-  placeholder = "Agregar otra condición..."
-}) => {
-  const [value, setValue] = useState('');
+type BorderTrailProps = {
+  className?: string;
+  size?: number;
+  transition?: Transition;
+  delay?: number;
+  onAnimationComplete?: () => void;
+  style?: React.CSSProperties;
+};
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (value.trim()) {
-      onAdd(value.trim());
-      setValue('');
-    }
+export function BorderTrail({
+  className,
+  size = 60,
+  transition,
+  delay,
+  onAnimationComplete,
+  style,
+}: BorderTrailProps) {
+  const BASE_TRANSITION = {
+    repeat: Infinity,
+    duration: 5,
+    ease: 'linear',
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-2">
-      <Input
-        type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
-        placeholder={placeholder}
-        className="flex-1"
+    <div className="pointer-events-none absolute inset-0 rounded-[inherit] border border-transparent [mask-clip:padding-box,border-box] [mask-composite:intersect] [mask-image:linear-gradient(transparent,transparent),linear-gradient(#000,#000)]">
+      <motion.div
+        className={cn("absolute aspect-square bg-zinc-500", className)}
+        style={{
+          width: size,
+          offsetPath: `rect(0 auto auto 0 round ${size}px)`,
+          ...style,
+        }}
+        animate={{
+          offsetDistance: ["0%", "100%"],
+        }}
+        transition={{
+          ...(transition ?? BASE_TRANSITION),
+          delay: delay,
+        }}
+        onAnimationComplete={onAnimationComplete}
       />
-      <Button type="submit" variant="outline" size="icon" disabled={!value.trim()}>
-        <Plus className="h-4 w-4" />
-      </Button>
-    </form>
+    </div>
   );
-};
+}
+
+interface OtraCondicionInputProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  className?: string;
+  style?: React.CSSProperties;
+  autoFocus?: boolean;
+}
+
+const OtraCondicionInput = forwardRef<HTMLTextAreaElement, OtraCondicionInputProps>(
+  ({ className, style, autoFocus, ...props }, ref) => {
+    return (
+      <div className="relative h-10 w-full overflow-hidden rounded-md border border-zinc-300 dark:border-zinc-700 bg-transparent text-zinc-900 dark:text-zinc-200">
+        <textarea
+          ref={ref}
+          {...props}
+          autoFocus={autoFocus}
+          rows={1}
+          className={cn(
+            "h-full w-full resize-none rounded-md bg-transparent px-2 py-1 text-sm outline-none dark:placeholder:text-zinc-500 placeholder:text-zinc-400",
+            className
+          )}
+          style={{ ...style, overflow: "hidden" }}
+        />
+        <BorderTrail
+          className="bg-gradient-to-l from-blue-200 via-blue-500 to-blue-200 dark:from-blue-400 dark:via-blue-500 dark:to-blue-700"
+          size={130}
+        />
+      </div>
+    );
+  }
+);
+
+OtraCondicionInput.displayName = "OtraCondicionInput";
 
 export default OtraCondicionInput;
