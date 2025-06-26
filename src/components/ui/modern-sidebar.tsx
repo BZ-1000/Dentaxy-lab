@@ -1,3 +1,4 @@
+
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -100,7 +101,7 @@ export const DesktopSidebar = ({
       onMouseLeave={() => setOpen(false)}
       {...props}
     >
-      {children}
+      <div>{children}</div>
     </motion.div>
   );
 };
