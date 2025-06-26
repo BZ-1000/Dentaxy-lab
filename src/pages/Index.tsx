@@ -2,6 +2,7 @@
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
+import TechBanner from "@/components/ui/tech-banner";
 import { AnalysisModeProvider } from "@/contexts/AnalysisModeContext";
 import { useEffect, useState } from "react";
 
@@ -12,6 +13,9 @@ function IndexContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white">
+      {/* Tech Banner */}
+      <TechBanner />
+      
       {/* Hero Section - No animations */}
       <div className="min-h-screen relative">
         {/* Subtle background pattern */}
