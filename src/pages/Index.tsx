@@ -1,3 +1,4 @@
+
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
@@ -11,12 +12,14 @@ function IndexContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white">
-      {/* Tech Banner - Floating over main content */}
-      <TechBanner />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white overflow-x-hidden">
+      {/* Tech Banner - Only visible on tablet and desktop */}
+      <div className="hidden md:block">
+        <TechBanner />
+      </div>
       
-      {/* Hero Section */}
-      <div className="min-h-screen relative">        
+      {/* Hero Section - Hidden on mobile, visible on tablet and desktop */}
+      <div className="hidden md:block min-h-screen relative">        
         {/* Subtle background pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"></div>
@@ -29,7 +32,7 @@ function IndexContent() {
           ></div>
         </div>
         
-        <div className="relative z-10 container mx-auto px-4 py-16 bg-slate-50 md:px-4">
+        <div className="relative z-10 container mx-auto px-4 py-16 bg-slate-50 max-w-5xl">
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
             {/* Logo and Brand */}
             <div className="flex items-center gap-3 mb-12 mt-8">
@@ -63,9 +66,9 @@ function IndexContent() {
         </div>
       </div>
 
-      {/* Form Section */}
+      {/* Form Section - Full width container with proper max-width */}
       <div className="min-h-screen bg-white py-0">
-        <div className="container mx-auto px-4 bg-slate-50">
+        <div className="w-full max-w-5xl mx-auto px-4 bg-slate-50">
           <HistoriaClinica />
         </div>
       </div>
