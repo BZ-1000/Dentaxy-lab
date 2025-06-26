@@ -239,11 +239,11 @@ export function AIVoiceInput({
   };
 
   return (
-    <div className={cn("w-full py-4", className)}>
-      <div className="relative max-w-xl w-full mx-auto flex items-center flex-col gap-2">
+    <div className={cn("w-full py-2 sm:py-4", className)}>
+      <div className="relative max-w-xl w-full mx-auto flex items-center flex-col gap-1 sm:gap-2">
         <button
           className={cn(
-            "group relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
+            "group relative w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200",
             isRecording
               ? "bg-red-500 hover:bg-red-600"
               : "bg-blue-500 hover:bg-blue-600"
@@ -251,14 +251,14 @@ export function AIVoiceInput({
           type="button"
           onClick={handleClick}
         >
-          <Mic className="w-6 h-6 text-white" />
+          <Mic className="w-4 h-4 sm:w-6 sm:h-6 text-white" />
           {isRecording && (
-            <span className="absolute -top-2 -right-2 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+            <span className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full animate-pulse" />
           )}
         </button>
 
         {isRecording && (
-          <span className="text-sm text-gray-500 dark:text-gray-400">
+          <span className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
             {formatTime(time)}
           </span>
         )}

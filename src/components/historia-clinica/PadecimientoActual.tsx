@@ -224,37 +224,34 @@ El paciente refiere la presencia de dolor ${ubicacion || ''} en ${ubicacion === 
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button onClick={() => setShowRedaccion(false)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
+            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
+              <button onClick={() => setShowRedaccion(false)} className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
                 Formulario
               </button>
-              <button onClick={() => setShowRedaccion(true)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
+              <button onClick={() => setShowRedaccion(true)} className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
                 Redacción IA
               </button>
             </div>
           </div>
 
-
-          <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
-              <Minus className="w-4 h-4" />
- </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" aria-label={isMaximized ? "Restaurar" : "Maximizar"}>
-              <Maximize2 className="w-4 h-4" />
+          <div className="flex items-center gap-1 sm:gap-2">
+            <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
+              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" aria-label="Cerrar">
-              <X className="w-4 h-4" />
+            <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" aria-label={isMaximized ? "Restaurar" : "Maximizar"}>
+              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
+            </button>
+            <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" aria-label="Cerrar">
+              <X className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
-
 
         <div className="flex justify-start px-6 py-2">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">I.</span> PADECIMIENTO ACTUAL
           </h2>
         </div>
-
 
         {showRedaccion ? <div ref={redaccionRef} className="p-6">
             <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
@@ -316,7 +313,6 @@ El paciente refiere la presencia de dolor ${ubicacion || ''} en ${ubicacion === 
             </div>
           </div>}
 
-
         {!isMinimized && !showRedaccion && <div className="p-6 space-y-8">
             <SintomasToggle checked={formData.padecimientoActual.sinSintomas} onChange={checked => {
           handleSinSintomasChange(checked);
@@ -336,7 +332,6 @@ setShowCausasProvocado(false);
                 </div>
               </div>}
           </div>}
-
 
         {!showRedaccion && <div className="p-6 flex justify-center gap-4">
             <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2">
