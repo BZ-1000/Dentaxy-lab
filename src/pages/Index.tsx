@@ -53,7 +53,7 @@ function IndexContent() {
 
       {/* Form Section - Simplified */}
       <div className="min-h-screen bg-white py-0">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 bg-slate-50">
           <HistoriaClinica />
         </div>
       </div>
