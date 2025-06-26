@@ -1,4 +1,5 @@
 
+
 import React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
@@ -562,14 +563,14 @@ export const PromptInputBox = React.forwardRef((props: PromptInputBoxProps, ref:
   const hasContent = input.trim() !== "" || files.length > 0;
 
   return (
-    <div className="w-full px-1 sm:px-4 md:px-0">
+    <div className="w-full px-0 sm:px-4 md:px-0">
       <PromptInput
         value={input}
         onValueChange={setInput}
         isLoading={isLoading}
         onSubmit={handleSubmit}
         className={cn(
-          "w-full bg-transparent border-[#555555] shadow-lg transition-all duration-300 ease-in-out max-w-full sm:max-w-4xl mx-auto",
+          "w-full bg-transparent border-[#555555] shadow-lg transition-all duration-300 ease-in-out max-w-none sm:max-w-4xl mx-0 sm:mx-auto",
           "min-h-[64px] sm:min-h-[48px]",
           isRecording && "border-red-500/70",
           className
