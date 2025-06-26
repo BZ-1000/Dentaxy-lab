@@ -74,7 +74,7 @@ const AppleStyleDock: React.FC<AppleStyleDockProps> = ({ isOpen, onClose }) => {
   return (
     <>
       <WikiSearch open={isWikiSearchOpen} onOpenChange={setIsWikiSearchOpen} />
-      {isMedicationSearchOpen && <MedicationSearch onClose={handleMedicationSearchClose} />}
+      {isMedicationSearchOpen && <MedicationSearch />}
 
       <motion.div
         className="fixed top-0 right-0 h-full w-72 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 shadow-xl z-50"
