@@ -70,7 +70,7 @@
   }
 }
 
-/* Simplified fade-in animations */
+/* Simple fade-in animation - only one */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -83,15 +83,7 @@
 }
 
 .animate-fade-in {
-  animation: fade-in 0.6s ease-out forwards;
-}
-
-.animate-fade-in-delayed {
-  animation: fade-in 0.6s ease-out 0.2s forwards;
-}
-
-.animate-fade-in-delayed-more {
-  animation: fade-in 0.6s ease-out 0.4s forwards;
+  animation: fade-in 0.8s ease-out forwards;
 }
 
 /* Analysis mode cursor */
