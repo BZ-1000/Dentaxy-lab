@@ -46,7 +46,7 @@ const TechIcons = () => {
   ];
 
   return (
-    <div className="fixed top-44 left-0 right-0 z-[9999] pointer-events-none overflow-hidden">
+    <div className="absolute top-0 left-0 right-0 z-[9999] pointer-events-none overflow-hidden py-4">
       <div className="flex animate-marquee">
         {[...icons, ...icons, ...icons].map((icon, index) => (
           <div
