@@ -16,7 +16,7 @@ function IndexContent() {
       {/* Tech Banner - Floating over main content */}
       <TechBanner />
       
-      {/* Hero Section - Compact for mobile */}
+      {/* Hero Section - Full screen centered on mobile */}
       <div className="relative">        
         {/* Subtle background pattern */}
         <div className="absolute inset-0 opacity-5">
@@ -30,11 +30,16 @@ function IndexContent() {
           ></div>
         </div>
         
-        <div className="relative z-10 container mx-auto px-3 sm:px-4 py-8 sm:py-16 bg-slate-50">
-          <div className="flex flex-col items-center justify-center min-h-[40vh] sm:min-h-[calc(100vh-8rem)] text-center max-w-4xl mx-auto">
-            {/* Logo and Brand - Smaller on mobile */}
-            <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-12 mt-4 sm:mt-8">
-              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center p-1">
+        {/* Mobile: Full screen centered layout, Desktop: Normal layout */}
+        <div className="relative z-10 container mx-auto px-2 sm:px-4 py-4 sm:py-16 bg-slate-50">
+          <div className={`
+            flex flex-col items-center justify-center text-center max-w-4xl mx-auto
+            min-h-[100vh] sm:min-h-[calc(100vh-8rem)]
+            sm:min-h-[40vh]
+          `}>
+            {/* Logo and Brand - Much smaller on mobile */}
+            <div className="flex items-center gap-1 sm:gap-3 mb-4 sm:mb-12 mt-2 sm:mt-8">
+              <div className="w-6 h-6 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center p-1">
                 <img 
                   src="/lovable-uploads/fde8b90b-dc35-4ac3-baf8-f54862d6becb.png" 
                   alt="Dental tooth icon"
@@ -42,21 +47,21 @@ function IndexContent() {
                 />
               </div>
               <div className="text-slate-700 font-mplus">
-                <div className="text-sm sm:text-lg font-semibold leading-tight">DENTAL BASICS</div>
-                <div className="text-sm sm:text-lg font-semibold leading-tight">ACADEMY</div>
+                <div className="text-xs sm:text-lg font-semibold leading-tight">DENTAL BASICS</div>
+                <div className="text-xs sm:text-lg font-semibold leading-tight">ACADEMY</div>
               </div>
             </div>
 
-            {/* Main Title - Responsive sizing */}
-            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-7xl font-bold text-slate-800 mb-3 sm:mb-6 leading-tight px-2">
+            {/* Main Title - Much smaller on mobile */}
+            <h1 className="text-lg sm:text-4xl md:text-5xl lg:text-7xl font-bold text-slate-800 mb-2 sm:mb-6 leading-tight px-1">
               Generador de<br />
               Historias Clínicas<br />
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">IA</span>
             </h1>
             
-            {/* Typewriter effect - Smaller on mobile */}
-            <div className="px-4">
-              <div className="text-base sm:text-xl md:text-2xl text-slate-600 mb-6 sm:mb-12">
+            {/* Typewriter effect - Much smaller on mobile */}
+            <div className="px-2">
+              <div className="text-sm sm:text-xl md:text-2xl text-slate-600 mb-4 sm:mb-12">
                 Bienvenido a nuestra Historia clínica inteligente
               </div>
             </div>
@@ -66,13 +71,13 @@ function IndexContent() {
 
       {/* Form Section - Full width with proper mobile padding */}
       <div className="bg-white py-0">
-        <div className="w-full max-w-full px-2 sm:px-4 bg-slate-50">
+        <div className="w-full max-w-full px-1 sm:px-4 bg-slate-50">
           <HistoriaClinica />
         </div>
       </div>
 
       <AppleStyleDock />
-      <div className="h-24" />
+      <div className="h-16 sm:h-24" />
     </div>
   );
 }

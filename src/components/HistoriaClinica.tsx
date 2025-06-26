@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import PadecimientoActual from './historia-clinica/PadecimientoActual';
 import AntecedentesHeredoFamiliares from './historia-clinica/AntecedentesHeredoFamiliares';
@@ -10,7 +11,6 @@ import AntecedentesGinecoObstetricos from './historia-clinica/AntecedentesGineco
 import InterrogatorioSistemas from './historia-clinica/InterrogatorioSistemas';
 import ExploracionFisica from './historia-clinica/ExploracionFisica';
 import ExamenCabeza from './historia-clinica/ExamenCabeza';
-import ArticulacionCraneomandibular from './historia-clinica/ArticulacionCraneomandibular';
 import ExamenCuello from './historia-clinica/ExamenCuello';
 import ExamenIntrabucal from './historia-clinica/ExamenIntrabucal';
 import GlandulasSalivales from './historia-clinica/GlandulasSalivales';
@@ -139,7 +139,6 @@ const HistoriaClinica = () => {
     handleInterrogatorioChange,
     handleExploracionFisicaChange,
     handleExamenCabezaChange,
-    handleArticulacionCraneomandibularChange,
     handleExamenCuelloChange,
     handleExamenIntrabucalChange,
     handleGlandulasSalivalesChange,
@@ -262,70 +261,88 @@ const HistoriaClinica = () => {
         pacienteActual={pacienteActual} 
       />
       
-      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 px-2 sm:px-4 lg:px-8 transition-colors duration-200`}>
-        <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-3 sm:py-12 px-1 sm:px-4 lg:px-8 transition-colors duration-200`}>
+        <div className="max-w-5xl mx-auto space-y-3 sm:space-y-8">
           <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Formulario IA</h1>
-            <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6 px-2">
+            {/* Mobile optimized title */}
+            <h1 className="text-lg sm:text-3xl md:text-4xl font-bold mb-1 sm:mb-2">Formulario IA</h1>
+            <p className="text-[10px] sm:text-sm text-gray-500 mb-2 sm:mb-6 px-1">
               (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)
             </p>
             
-            <div id="patient-name-input" className="max-w-lg mx-auto mb-2 sticky top-4 z-30 backdrop-blur-sm shadow-sm border border-gray-200 p-2 sm:p-4 py-[5px] px-[10px] sm:px-[20px] rounded-2xl bg-slate-50">
-              <div className="flex items-center gap-2 sm:gap-3">
+            {/* Mobile optimized patient input */}
+            <div id="patient-name-input" className="max-w-lg mx-auto mb-1 sm:mb-2 sticky top-2 sm:top-4 z-30 backdrop-blur-sm shadow-sm border border-gray-200 p-1 sm:p-4 py-1 sm:py-[5px] px-2 sm:px-[20px] rounded-xl sm:rounded-2xl bg-slate-50">
+              <div className="flex items-center gap-1 sm:gap-3">
                 <div className="relative flex-1">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-3 pointer-events-none">
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-1 sm:pl-3 pointer-events-none">
                     <User className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
                   </div>
-                  <Input value={nombrePaciente} onChange={e => setNombrePaciente(e.target.value)} placeholder="Nombre del paciente" className="pl-8 sm:pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base" />
+                  <Input 
+                    value={nombrePaciente} 
+                    onChange={e => setNombrePaciente(e.target.value)} 
+                    placeholder="Nombre del paciente" 
+                    className="pl-5 sm:pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-xs sm:text-base h-6 sm:h-auto" 
+                  />
                 </div>
-                <Button onClick={() => {
-                  if (!nombrePaciente.trim()) {
+                <Button 
+                  onClick={() => {
+                    if (!nombrePaciente.trim()) {
+                      toast({
+                        title: "Error",
+                        description: "Por favor ingrese el nombre del paciente",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    guardarFormulario(formData, nombrePaciente);
+                    setPacienteActual(nombrePaciente);
                     toast({
-                      title: "Error",
-                      description: "Por favor ingrese el nombre del paciente",
-                      variant: "destructive"
+                      title: "Formulario guardado",
+                      description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
                     });
-                    return;
-                  }
-                  guardarFormulario(formData, nombrePaciente);
-                  setPacienteActual(nombrePaciente);
-                  toast({
-                    title: "Formulario guardado",
-                    description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
-                  });
-                }} disabled={!nombrePaciente.trim()} className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-3 sm:px-4 py-2 flex items-center gap-1 sm:gap-2 transition-all duration-200">
-                  <Save className="h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="text-xs sm:text-sm font-medium">Guardar</span>
+                  }} 
+                  disabled={!nombrePaciente.trim()} 
+                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg sm:rounded-full px-2 sm:px-4 py-1 sm:py-2 flex items-center gap-1 transition-all duration-200 h-6 sm:h-auto"
+                >
+                  <Save className="h-2 w-2 sm:h-4 sm:w-4" />
+                  <span className="text-[10px] sm:text-sm font-medium">Guardar</span>
                 </Button>
               </div>
             </div>
 
-            {pacienteActual && <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
-                <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
+            {pacienteActual && <div className="flex items-center justify-center gap-1 sm:gap-2 mb-2 sm:mb-6">
+                <div className="text-[10px] sm:text-xs text-blue-500 dark:text-blue-400 font-medium">
                   Formulario actual: {pacienteActual}
                 </div>
                 <button onClick={() => {
                   setPacienteActual('');
                   resetFormulario();
-                }} className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Resetear formulario">
-                  <X className="w-3 h-3" />
+                }} className="text-red-500 hover:text-red-700 transition-colors p-0.5 sm:p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Resetear formulario">
+                  <X className="w-2 h-2 sm:w-3 sm:h-3" />
                 </button>
               </div>}
             
-            <div className="flex items-center justify-center mb-4 sm:mb-6 gap-2 sm:gap-4">
-              <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Género del paciente:</span>
-              <div className="flex gap-2">
-                <button className={`px-3 sm:px-4 py-1 sm:py-2 rounded-md text-xs sm:text-sm transition-colors ${!esMujer ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setEsMujer(false)}>
+            {/* Mobile optimized gender selection */}
+            <div className="flex items-center justify-center mb-2 sm:mb-6 gap-1 sm:gap-4">
+              <span className="text-[10px] sm:text-sm text-gray-600 dark:text-gray-400">Género del paciente:</span>
+              <div className="flex gap-1 sm:gap-2">
+                <button 
+                  className={`px-2 sm:px-4 py-0.5 sm:py-2 rounded-md text-[10px] sm:text-sm transition-colors ${!esMujer ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} 
+                  onClick={() => setEsMujer(false)}
+                >
                   Hombre
                 </button>
-                <button className={`px-3 sm:px-4 py-1 sm:py-2 rounded-md text-xs sm:text-sm transition-colors ${esMujer ? 'bg-[#9370DB] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setEsMujer(true)}>
+                <button 
+                  className={`px-2 sm:px-4 py-0.5 sm:py-2 rounded-md text-[10px] sm:text-sm transition-colors ${esMujer ? 'bg-[#9370DB] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} 
+                  onClick={() => setEsMujer(true)}
+                >
                   Mujer
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="space-y-4 sm:space-y-6">
+          <div className="space-y-2 sm:space-y-6">
             <div data-section-redaction="true" data-section-name="padecimientoActual">
               <PadecimientoActual formData={formData} handlePadecimientoChange={handlePadecimientoChange} handleDolorChange={handleDolorChange} handleSinSintomasChange={handleSinSintomasChange} />
             </div>
@@ -370,13 +387,6 @@ const HistoriaClinica = () => {
               <ExamenCabeza formData={formData} handleExamenCabezaChange={handleExamenCabezaChange} />
             </div>
             
-            <div data-section-redaction="true" data-section-name="articulacionCraneomandibular">
-              <ArticulacionCraneomandibular 
-                formData={formData} 
-                handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange} 
-              />
-            </div>
-            
             <div data-section-redaction="true" data-section-name="examenCuello">
               <ExamenCuello formData={formData} handleExamenCuelloChange={handleExamenCuelloChange} />
             </div>
@@ -416,7 +426,8 @@ const HistoriaClinica = () => {
               <Pronostico formData={formData} handlePronosticoChange={handlePronosticoChange} />
             </div>
 
-            <div className="flex justify-center pt-4 sm:pt-6">
+            {/* Mobile optimized PDF button */}
+            <div className="flex justify-center pt-2 sm:pt-6">
               <Button onClick={() => {
                 const missing = validatePadecimientoActual(formData).concat(
                   validateAntecedentesHeredoFamiliares(formData),
@@ -430,12 +441,12 @@ const HistoriaClinica = () => {
                 } else {
                   // generatePDFDocument();
                 }
-              }} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] px-4 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-sm sm:text-base font-normal">
+              }} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] px-3 sm:px-6 py-2 sm:py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-base font-normal">
                 {isGeneratingPDF ? <>
-                    <Loader2 className="mr-2 h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                    <Loader2 className="mr-1 sm:mr-2 h-3 w-3 sm:h-5 sm:w-5 animate-spin" />
                     Generando PDF...
                   </> : <>
-                    <FileText className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
+                    <FileText className="mr-1 sm:mr-2 h-3 w-3 sm:h-5 sm:w-5" />
                     Generar Historia Clínica en PDF
                   </>}
               </Button>
