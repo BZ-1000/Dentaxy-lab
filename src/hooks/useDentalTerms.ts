@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface DentalTerm {
@@ -24,8 +24,6 @@ export const useDentalTerms = () => {
 
     setIsSearching(true);
     try {
-      console.log('Searching for:', searchTerm);
-      
       // Buscar términos que coincidan exactamente o contengan el término de búsqueda
       const { data: exactMatches, error: exactError } = await supabase
         .from('dental_terms')
@@ -64,7 +62,6 @@ export const useDentalTerms = () => {
         .filter((term, index, self) => self.findIndex(t => t.id === term.id) === index)
         .slice(0, 5); // Máximo 5 resultados
 
-      console.log('Found terms:', allMatches);
       setSearchResults(allMatches);
       return allMatches;
     } catch (error) {

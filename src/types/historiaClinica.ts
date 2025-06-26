@@ -1,4 +1,3 @@
-
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -32,7 +31,7 @@ export interface PadecimientoActual {
     };
     atenuacion: string;
     causaProvocado?: string;
-    ubicacion?: string;
+    ubicacion?: string; // Added ubicacion field
   };
 }
 
@@ -213,16 +212,7 @@ export interface AntecedentesGinecoObstetricos {
 }
 
 export interface ExploracionFisica {
-  peso?: number;
-  talla?: number;
-  presionArterial?: string;
-  pulso?: number;
-  frecuenciaCardiaca?: number;
-  temperatura?: number;
-  frecuenciaRespiratoria?: number;
-  saturacionOxigeno?: number;
-  observaciones?: string;
-  signosVitales?: {
+  signosVitales: {
     ta: string;
     fc: string;
     fr: string;
@@ -230,9 +220,9 @@ export interface ExploracionFisica {
     peso: string;
     talla: string;
     imc: string;
-    pulso?: string;
+    pulso?: string; // Added pulso field
   };
-  exploracion?: {
+  exploracion: {
     cabeza: string;
     cuello: string;
     torax: string;
@@ -245,20 +235,21 @@ export interface ExploracionFisica {
 export interface CaracteristicaFacial {
   presente?: boolean;
   detalles?: string;
-  tamanio?: string;
-  color?: string;
-  bordes?: string;
+  // Add subfield options
+  tamanio?: string;  // pequeño, mediano, grande
+  color?: string;    // marrón claro, marrón oscuro, negro
+  bordes?: string;   // regulares, irregulares
   localizacion?: string;
-  elevacion?: string;
-  tipo?: string;
-  antiguedad?: string;
-  coloracion?: string;
-  zonaAfectada?: string;
-  grado?: string;
-  posibleCausa?: string;
-  tipoEdema?: string;
-  dolor?: string;
-  consistencia?: string;
+  elevacion?: string; // plano, elevado
+  tipo?: string;      // quirúrgica, traumática, acneica, queloide
+  antiguedad?: string; // nueva, antigua
+  coloracion?: string; // hipopigmentada, hiperpigmentada, normal
+  zonaAfectada?: string; // mandíbula, mejillas, ojos, nariz, frente
+  grado?: string;      // leve, moderado, severo
+  posibleCausa?: string; // congénita, traumática, muscular, otra
+  tipoEdema?: string;   // localizado, difuso
+  dolor?: string;      // presente, ausente
+  consistencia?: string; // blando, etc.
 }
 
 export interface ExamenCabeza {
@@ -283,6 +274,7 @@ export interface ArticulacionCraneomandibular {
   crepitacion?: boolean;
   dolor?: boolean;
   observaciones?: string;
+  [key: string]: boolean | string | undefined | {[key: string]: string | boolean | undefined};
   dolorMasticarHablar?: boolean;
   tipoDolor?: string;
   duracionDolor?: string;
@@ -303,7 +295,6 @@ export interface ArticulacionCraneomandibular {
     otrasObservaciones?: string;
     [key: string]: string | boolean | undefined;
   };
-  [key: string]: boolean | string | undefined | {[key: string]: string | boolean | undefined};
 }
 
 export interface ExamenCuello {
@@ -405,7 +396,7 @@ export interface Alimentacion {
   tiposAlimentos: string;
   saltaComidas: string;
   consumoNutritivo: string;
-}
+  }
 
 export interface FormDataState {
   padecimientoActual: PadecimientoActual;

@@ -1,265 +1,661 @@
-
-import React, { useState, useEffect } from 'react';
-import { Search, AlertTriangle, Info, CheckCircle, Clock, Pill } from 'lucide-react';
-import { Card } from "@/components/ui/card";
+import { useState, useEffect } from 'react';
+import { X, Search, Star, StarOff, Filter, PillBottle, Stethoscope, Syringe, Bandage } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
-interface Medication {
-  id: string;
-  name: string;
-  dosage: string;
-  frequency: string;
-  category: string;
-  contraindications?: string[];
-  interactions?: string[];
-  sideEffects?: string[];
-  description: string;
-}
-
-interface MedicationSearchProps {
-  onMedicationSelect?: (medication: Medication) => void;
-  placeholder?: string;
-  className?: string;
-}
-
-const medicationsDatabase: Medication[] = [
-  {
-    id: '1',
-    name: 'Ibuprofeno',
-    dosage: '400-600 mg',
-    frequency: 'Cada 8 horas',
-    category: 'Antiinflamatorio',
-    contraindications: ['Úlcera péptica activa', 'Insuficiencia renal severa', 'Alergia a AINEs'],
-    interactions: ['Anticoagulantes', 'ACE inhibidores', 'Diuréticos'],
-    sideEffects: ['Molestias gastrointestinales', 'Dolor de cabeza', 'Mareos'],
-    description: 'Antiinflamatorio no esteroideo utilizado para el control del dolor e inflamación postoperatoria.'
-  },
-  {
-    id: '2',
-    name: 'Amoxicilina',
-    dosage: '500 mg',
-    frequency: 'Cada 8 horas por 7 días',
-    category: 'Antibiótico',
-    contraindications: ['Alergia a penicilinas', 'Mononucleosis infecciosa'],
-    interactions: ['Anticoagulantes orales', 'Anticonceptivos orales'],
-    sideEffects: ['Diarrea', 'Náuseas', 'Erupciones cutáneas'],
-    description: 'Antibiótico de amplio espectro para infecciones odontogénicas.'
-  },
-  {
-    id: '3',
-    name: 'Lidocaína 2%',
-    dosage: '1.8 ml por cartucho',
-    frequency: 'Según necesidad quirúrgica',
-    category: 'Anestésico local',
-    contraindications: ['Alergia a anestésicos tipo amida', 'Bloqueo cardíaco'],
-    interactions: ['Antiarrítmicos', 'Beta-bloqueadores'],
-    sideEffects: ['Entumecimiento temporal', 'Hematoma en sitio de inyección'],
-    description: 'Anestésico local para procedimientos odontológicos.'
-  },
-  {
-    id: '4',
-    name: 'Paracetamol',
-    dosage: '500-1000 mg',
-    frequency: 'Cada 6-8 horas',
-    category: 'Analgésico',
-    contraindications: ['Insuficiencia hepática severa', 'Alergia al paracetamol'],
-    interactions: ['Warfarina', 'Alcohol'],
-    sideEffects: ['Raros en dosis terapéuticas', 'Hepatotoxicidad en sobredosis'],
-    description: 'Analgésico y antipirético para dolor leve a moderado.'
-  }
-];
-
-const MedicationSearch: React.FC<MedicationSearchProps> = ({
-  onMedicationSelect,
-  placeholder = "Buscar medicamento...",
-  className = ""
-}) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filteredMedications, setFilteredMedications] = useState<Medication[]>([]);
-  const [selectedMedication, setSelectedMedication] = useState<Medication | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-
-  useEffect(() => {
-    if (searchTerm.trim()) {
-      setIsSearching(true);
-      const timer = setTimeout(() => {
-        const filtered = medicationsDatabase.filter(med =>
-          med.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          med.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          med.description.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredMedications(filtered);
-        setIsSearching(false);
-      }, 300);
-
-      return () => clearTimeout(timer);
-    } else {
-      setFilteredMedications([]);
-      setIsSearching(false);
-    }
-  }, [searchTerm]);
-
-  const handleMedicationSelect = (medication: Medication) => {
-    setSelectedMedication(medication);
-    onMedicationSelect?.(medication);
-    setSearchTerm(medication.name);
-    setFilteredMedications([]);
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category.toLowerCase()) {
-      case 'antibiótico':
-        return 'bg-red-100 text-red-800';
-      case 'antiinflamatorio':
-        return 'bg-blue-100 text-blue-800';
-      case 'analgésico':
-        return 'bg-green-100 text-green-800';
-      case 'anestésico local':
-        return 'bg-purple-100 text-purple-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  return (
-    <div className={`w-full max-w-2xl mx-auto ${className}`}>
-      <div className="relative">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={placeholder}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-          {isSearching && (
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-            </div>
-          )}
-        </div>
-
-        {/* Results dropdown */}
-        {filteredMedications.length > 0 && (
-          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto">
-            {filteredMedications.map((medication) => (
-              <div
-                key={medication.id}
-                onClick={() => handleMedicationSelect(medication)}
-                className="p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Pill className="w-4 h-4 text-blue-500" />
-                      <h3 className="font-medium text-gray-900">{medication.name}</h3>
-                      <Badge className={getCategoryColor(medication.category)}>
-                        {medication.category}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-2">{medication.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-gray-500">
-                      <span>📊 {medication.dosage}</span>
-                      <span>⏰ {medication.frequency}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Selected medication details */}
-      {selectedMedication && (
-        <Card className="mt-4 p-4">
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Pill className="w-5 h-5 text-blue-500" />
-              <h2 className="text-lg font-semibold text-gray-900">{selectedMedication.name}</h2>
-              <Badge className={getCategoryColor(selectedMedication.category)}>
-                {selectedMedication.category}
-              </Badge>
-            </div>
-
-            <p className="text-gray-700">{selectedMedication.description}</p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Info className="w-4 h-4 text-blue-500" />
-                  <span className="font-medium text-gray-700">Dosis</span>
-                </div>
-                <p className="text-sm text-gray-600 ml-6">{selectedMedication.dosage}</p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-green-500" />
-                  <span className="font-medium text-gray-700">Frecuencia</span>
-                </div>
-                <p className="text-sm text-gray-600 ml-6">{selectedMedication.frequency}</p>
-              </div>
-            </div>
-
-            {selectedMedication.contraindications && selectedMedication.contraindications.length > 0 && (
-              <Alert>
-                <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Contraindicaciones:</strong>
-                  <ul className="mt-1 ml-4 list-disc">
-                    {selectedMedication.contraindications.map((contraindication, index) => (
-                      <li key={index} className="text-sm">{contraindication}</li>
-                    ))}
-                  </ul>
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {selectedMedication.interactions && selectedMedication.interactions.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-medium text-gray-700 flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-yellow-500" />
-                  Interacciones
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {selectedMedication.interactions.map((interaction, index) => (
-                    <Badge key={index} variant="outline" className="text-xs">
-                      {interaction}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {selectedMedication.sideEffects && selectedMedication.sideEffects.length > 0 && (
-              <div className="space-y-2">
-                <h4 className="font-medium text-gray-700 flex items-center gap-2">
-                  <Info className="w-4 h-4 text-blue-500" />
-                  Efectos secundarios
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {selectedMedication.sideEffects.map((effect, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs">
-                      {effect}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        </Card>
-      )}
-
-      {searchTerm && filteredMedications.length === 0 && !isSearching && (
-        <div className="mt-4 p-4 text-center text-gray-500 bg-gray-50 rounded-lg">
-          No se encontraron medicamentos que coincidan con "{searchTerm}"
-        </div>
-      )}
-    </div>
-  );
+// Type definitions
+type Medication = {
+  id: string;
+  brand_name: string;
+  generic_name: string;
+  route: string;
+  dosage_form: string;
+  active_ingredients?: { name: string; strength: string }[];
+  indications_and_usage?: string;
+  warnings?: string;
+  drug_class?: string;
 };
 
-export default MedicationSearch;
+type FilterType = 'all' | 'antibiotics' | 'analgesics' | 'anesthetics' | 'antiinflammatories';
+type RouteType = 'all' | 'oral' | 'topical' | 'injection';
+type UsageType = 'all' | 'post-surgical' | 'infections' | 'acute-pain';
+
+export function MedicationSearch({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [results, setResults] = useState<Medication[]>([]);
+  const [favorites, setFavorites] = useState<Medication[]>([]);
+  const [recentSearches, setRecentSearches] = useState<Medication[]>([]);
+  const [activeFilter, setActiveFilter] = useState<FilterType>('all');
+  const [activeRoute, setActiveRoute] = useState<RouteType>('all');
+  const [activeUsage, setActiveUsage] = useState<UsageType>('all');
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+
+  // Load saved data from localStorage
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('medication-favorites');
+    const savedRecent = localStorage.getItem('medication-recent');
+
+    if (savedFavorites) {
+      try {
+        setFavorites(JSON.parse(savedFavorites));
+      } catch (e) {
+        console.error('Error parsing saved favorites:', e);
+      }
+    }
+
+    if (savedRecent) {
+      try {
+        setRecentSearches(JSON.parse(savedRecent));
+      } catch (e) {
+        console.error('Error parsing saved recent searches:', e);
+      }
+    }
+
+    // Set up online/offline detection
+    const handleOnlineStatus = () => setIsOffline(!navigator.onLine);
+    window.addEventListener('online', handleOnlineStatus);
+    window.addEventListener('offline', handleOnlineStatus);
+
+    return () => {
+      window.removeEventListener('online', handleOnlineStatus);
+      window.removeEventListener('offline', handleOnlineStatus);
+    };
+  }, []);
+
+  // Save to localStorage when favorites or recent searches change
+  useEffect(() => {
+    localStorage.setItem('medication-favorites', JSON.stringify(favorites));
+  }, [favorites]);
+
+  useEffect(() => {
+    localStorage.setItem('medication-recent', JSON.stringify(recentSearches));
+  }, [recentSearches]);
+
+  const searchMedications = async (term: string) => {
+    if (!term || term.length < 3) return;
+    if (isOffline) {
+      // Use translate="yes" on the parent element or directly in the toast call if possible
+      toast.error(<span translate="yes">Sin conexión. Mostrando resultados guardados.</span>);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch(`https://api.fda.gov/drug/label.json?search=(openfda.brand_name:"${term}"+openfda.generic_name:"${term}")+AND+_exists_:openfda.brand_name&limit=10`);
+      const data = await response.json();
+
+      if (data.results) {
+        // First, format the results without translating
+        const formattedResults: Medication[] = data.results.map((item: any) => ({
+          id: item.id || item.openfda?.application_number?.[0] || Math.random().toString(36),
+          brand_name: item.openfda?.brand_name?.[0] || 'N/A',
+          generic_name: item.openfda?.generic_name?.[0] || 'N/A',
+          route: item.openfda?.route?.[0] || 'N/A',
+          dosage_form: item.openfda?.dosage_form?.[0] || 'N/A',
+          active_ingredients: item.active_ingredient?.map((ing: string) => {
+            const parts = ing.split(' ');
+            return { name: parts.slice(0, -1).join(' '), strength: parts[parts.length - 1] };
+          }),
+          indications_and_usage: item.indications_and_usage?.[0],
+          warnings: item.warnings?.[0],
+          drug_class: item.openfda?.pharm_class_epc?.[0] || 'N/A'
+        }));
+
+        // Apply filters
+        let filteredResults = formattedResults;
+
+        if (activeFilter !== 'all') {
+          filteredResults = filteredResults.filter(med => {
+            const className = (med.drug_class || '').toLowerCase();
+            switch (activeFilter) {
+              case 'antibiotics': return className.includes('antibiotic');
+              case 'analgesics': return className.includes('analgesic');
+              case 'anesthetics': return className.includes('anesthetic');
+              case 'antiinflammatories': return className.includes('antiinflammatory');
+              default: return true;
+            }
+          });
+        }
+
+        if (activeRoute !== 'all') {
+          filteredResults = filteredResults.filter(med =>
+            (med.route || '').toLowerCase().includes(activeRoute)
+          );
+        }
+
+        if (activeUsage !== 'all') {
+          filteredResults = filteredResults.filter(med => {
+            const indications = (med.indications_and_usage || '').toLowerCase();
+            switch (activeUsage) {
+              case 'post-surgical': return indications.includes('surgery') || indications.includes('surgical');
+              case 'infections': return indications.includes('infection');
+              case 'acute-pain': return indications.includes('pain') && indications.includes('acute');
+              default: return true;
+            }
+          });
+        }
+
+        setResults(filteredResults);
+
+        // Add to recent searches
+        if (filteredResults.length > 0) {
+          const firstResult = filteredResults[0];
+          setRecentSearches(prev => {
+            const exists = prev.some(item => item.id === firstResult.id);
+            if (!exists) {
+              return [firstResult, ...prev].slice(0, 5);
+            }
+            return prev;
+          });
+        }
+      } else {
+        setResults([]);
+        // Use translate="yes" on the parent element or directly in the toast call if possible
+        toast.info(<span translate="yes">No se encontraron resultados. Intente con otro término.</span>);
+      }
+    } catch (error) {
+      console.error('Error searching medications:', error);
+      // Use translate="yes" on the parent element or directly in the toast call if possible
+      toast.error(<span translate="yes">Error al buscar medicamentos. Por favor intente de nuevo.</span>);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const toggleFavorite = (medication: Medication) => {
+    setFavorites(prev => {
+      const existingIndex = prev.findIndex(item => item.id === medication.id);
+      if (existingIndex >= 0) {
+        return prev.filter(item => item.id !== medication.id);
+      } else {
+        return [...prev, medication];
+      }
+    });
+  };
+
+  const isFavorite = (id: string) => favorites.some(item => item.id === id);
+
+  // Calculate dosage by weight (simplified example)
+  // NOTE: The output strings should ideally be translatable if needed.
+  // For simplicity, keeping them in Spanish for now.
+  const calculateDosage = (genericName: string, weight: number) => {
+    const lowerGenericName = genericName.toLowerCase();
+
+    if (lowerGenericName.includes('amoxicillin')) {
+      return `${(weight * 12.5).toFixed(1)} mg cada 8 horas`;
+    } else if (lowerGenericName.includes('ibuprofen')) {
+      return `${(weight * 5).toFixed(1)} mg cada 6-8 horas`;
+    } else if (lowerGenericName.includes('acetaminophen') || lowerGenericName.includes('paracetamol')) {
+      return `${(weight * 10).toFixed(1)} mg cada 6 horas`;
+    } else {
+      return 'Dosificación no disponible'; // This string should also be translatable
+    }
+  };
+
+  return (
+    // Setting translate="yes" on the top-level Dialog might influence children,
+    // but we will add it explicitly to text elements for clarity.
+    <Dialog open={open} onOpenChange={onOpenChange} >
+      <DialogContent className="max-w-4xl w-[95%] h-[85vh] p-0 overflow-hidden flex flex-col bg-white dark:bg-neutral-900 rounded-xl">
+        <DialogHeader className="p-6 pb-2">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-xl flex items-center gap-2 relative" translate="yes">
+              <PillBottle className="h-6 w-6 text-emerald-500" />
+              Búsqueda de Medicamentos
+              <span className="text-xs text-blue-500 absolute top-full left-0 mt-1 whitespace-nowrap opacity-75" translate="yes">
+                Recomendación: Utiliza Google Translate para traducciones
+              </span>
+            </DialogTitle>
+          </div>
+        </DialogHeader>
+
+        <Tabs defaultValue="search" className="flex-1 overflow-hidden flex flex-col">
+          <div className="px-6 pb-2">
+            <TabsList className="w-full grid grid-cols-2">
+              <TabsTrigger value="search" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-900" translate="yes">
+                Búsqueda
+              </TabsTrigger>
+              <TabsTrigger value="favorites" className="data-[state=active]:bg-emerald-100 data-[state=active]:text-emerald-900" translate="yes">
+                Favoritos y Recientes
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="search" className="flex-1 overflow-hidden flex flex-col p-6 pt-0">
+            <div className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                  <Input
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      if (e.target.value.length >= 3) {
+                        searchMedications(e.target.value);
+                      }
+                    }}
+                    placeholder="Buscar medicamentos..." // Placeholder text should be translatable by default, but explicitly marking input is good practice
+                    className="pl-10"
+                    translate="yes" // Explicitly mark the placeholder as translatable
+                  />
+                </div>
+                <Button
+                  onClick={() => searchMedications(searchTerm)}
+                  disabled={searchTerm.length < 3 || isLoading}
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                  translate="yes" // Make button text translatable
+                >
+                  {isLoading ? "Buscando..." : "Buscar"}
+                </Button>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <div className="flex items-center gap-1 mr-2">
+                  <Filter className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm text-gray-500" translate="yes">Filtros:</span>
+                </div>
+
+                {/* Medication Type Filters */}
+                <Badge
+                  variant={activeFilter === 'all' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveFilter('all')}
+                  translate="yes"
+                >
+                  Todos
+                </Badge>
+                <Badge
+                  variant={activeFilter === 'antibiotics' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveFilter('antibiotics')}
+                  translate="yes"
+                >
+                  Antibióticos
+                </Badge>
+                <Badge
+                  variant={activeFilter === 'analgesics' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveFilter('analgesics')}
+                  translate="yes"
+                >
+                  Analgésicos
+                </Badge>
+                <Badge
+                  variant={activeFilter === 'anesthetics' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveFilter('anesthetics')}
+                  translate="yes"
+                >
+                  Anestésicos
+                </Badge>
+                <Badge
+                  variant={activeFilter === 'antiinflammatories' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveFilter('antiinflammatories')}
+                  translate="yes"
+                >
+                  Antiinflamatorios
+                </Badge>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <div className="flex items-center gap-1 mr-2">
+                  <Syringe className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm text-gray-500" translate="yes">Administración:</span>
+                </div>
+
+                {/* Route Filters */}
+                <Badge
+                  variant={activeRoute === 'all' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveRoute('all')}
+                  translate="yes"
+                >
+                  Todas
+                </Badge>
+                <Badge
+                  variant={activeRoute === 'oral' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveRoute('oral')}
+                  translate="yes"
+                >
+                  Oral
+                </Badge>
+                <Badge
+                  variant={activeRoute === 'topical' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveRoute('topical')}
+                  translate="yes"
+                >
+                  Tópica
+                </Badge>
+                <Badge
+                  variant={activeRoute === 'injection' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveRoute('injection')}
+                  translate="yes"
+                >
+                  Inyectable
+                </Badge>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <div className="flex items-center gap-1 mr-2">
+                  <Stethoscope className="h-4 w-4 text-gray-500" />
+                  <span className="text-sm text-gray-500" translate="yes">Uso Dental:</span>
+                </div>
+
+                {/* Usage Filters */}
+                <Badge
+                  variant={activeUsage === 'all' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveUsage('all')}
+                  translate="yes"
+                >
+                  Todos
+                </Badge>
+                <Badge
+                  variant={activeUsage === 'post-surgical' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveUsage('post-surgical')}
+                  translate="yes"
+                >
+                  Post-quirúrgico
+                </Badge>
+                <Badge
+                  variant={activeUsage === 'infections' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveUsage('infections')}
+                  translate="yes"
+                >
+                  Infecciones
+                </Badge>
+                <Badge
+                  variant={activeUsage === 'acute-pain' ? "default" : "outline"}
+                  className="cursor-pointer"
+                  onClick={() => setActiveUsage('acute-pain')}
+                  translate="yes"
+                >
+                  Dolor Agudo
+                </Badge>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto mt-4 space-y-4 pr-2">
+              {searchTerm.length < 3 ? (
+                <div className="text-center py-8 text-gray-500" translate="yes">
+                  <p translate="yes">Escriba al menos 3 caracteres para buscar</p>
+                  <div className="mt-4 space-y-2">
+                    <p className="text-sm font-medium" translate="yes">Sugerencias:</p>
+                    {/* While drug names ideally aren't translated, allowing translate might be desired here */}
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSearchTerm('acetaminophen');
+                        searchMedications('acetaminophen');
+                      }}
+                      className="mr-2"
+                      translate="yes"
+                    >
+                      Acetaminophen
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSearchTerm('ibuprofen');
+                        searchMedications('ibuprofen');
+                      }}
+                      className="mr-2"
+                      translate="yes"
+                    >
+                      Ibuprofen
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setSearchTerm('amoxicillin');
+                        searchMedications('amoxicillin');
+                      }}
+                      translate="yes"
+                    >
+                      Amoxicillin
+                    </Button>
+                  </div>
+                </div>
+              ) : results.length > 0 ? (
+                <div>
+                  <Accordion
+                    type="single"
+                    collapsible
+                    className="w-full"
+                    onValueChange={(value) => {
+                      setExpandedItem(value);
+                    }}
+                  >
+                    {results.map((med) => (
+                      <AccordionItem key={med.id} value={med.id}>
+                        {/* Adding translate here might be redundant if parent has it, but explicit is safer */}
+                        <AccordionTrigger className="hover:bg-gray-50 p-2 rounded-md" translate="yes">
+                          <div className="flex items-center justify-between w-full pr-4">
+                            <div className="flex flex-col items-start">
+                              <div className="flex items-center gap-2">
+                                {/* Data-driven text, translation depends on the API data and translator capabilities */}
+                                <span className="font-semibold" translate="yes">{med.brand_name}</span>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleFavorite(med);
+                                  }}
+                                  className="p-1 rounded-full hover:bg-gray-100"
+                                  // Tooltip/aria-label could be added here and marked translate="yes"
+                                >
+                                  {isFavorite(med.id) ? (
+                                    <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                                  ) : (
+                                    <StarOff className="h-4 w-4 text-gray-400" />
+                                  )}
+                                </button>
+                              </div>
+                              <span className="text-sm text-gray-500" translate="yes">{med.generic_name}</span>
+                            </div>
+                            <div className="flex items-center">
+                              {/* Data-driven text */}
+                              <Badge variant="outline" className="ml-2" translate="yes">
+                                {med.dosage_form}
+                              </Badge>
+                              <Badge variant="outline" className="ml-2" translate="yes">
+                                {med.route}
+                              </Badge>
+                            </div>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-4 p-2" translate="yes"> {/* Add translate to content parent */}
+                            <div>
+                              <h4 className="font-semibold text-sm" translate="yes">Ingredientes Activos:</h4>
+                              <ul className="list-disc pl-5 text-sm" translate="yes"> {/* Translate list items */}
+                                {med.active_ingredients ? (
+                                  med.active_ingredients.map((ing, i) => (
+                                    // Data-driven text, allow translation
+                                    <li key={i}>{ing.name} ({ing.strength})</li>
+                                  ))
+                                ) : (
+                                  <li translate="yes">Información no disponible</li>
+                                )}
+                              </ul>
+                            </div>
+
+                            <div>
+                              <h4 className="font-semibold text-sm" translate="yes">Indicaciones y Uso:</h4>
+                              <p className="text-sm whitespace-pre-wrap" translate="yes">
+                                {/* Data-driven text, allow translation */}
+                                {med.indications_and_usage || 'Información no disponible'}
+                              </p>
+                            </div>
+
+                            <div>
+                              <h4 className="font-semibold text-sm" translate="yes">Advertencias:</h4>
+                              <p className="text-sm whitespace-pre-wrap" translate="yes">
+                                {/* Data-driven text, allow translation */}
+                                {med.warnings || 'Información no disponible'}
+                              </p>
+                            </div>
+
+                            <div className="bg-blue-50 p-4 rounded-md" translate="yes"> {/* Translate dosage section */}
+                              <h4 className="font-semibold text-sm flex items-center gap-2" translate="yes">
+                                <Bandage className="h-4 w-4" />
+                                Dosificación Referencial:
+                              </h4>
+
+                              <div className="mt-2">
+                                <p className="text-xs mb-2" translate="yes">
+                                  Ingrese el peso del paciente para obtener una dosificación orientativa:
+                                </p>
+
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    type="number"
+                                    placeholder="Peso (kg)" // Translate placeholder
+                                    className="w-24 text-sm"
+                                    id={`weight-${med.id}`}
+                                    min="1"
+                                    max="150"
+                                    translate="yes" // Explicitly mark placeholder
+                                  />
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={() => {
+                                      const weightInput = document.getElementById(`weight-${med.id}`) as HTMLInputElement;
+                                      const weight = parseFloat(weightInput.value);
+                                      if (weight && weight > 0) {
+                                        const dosage = calculateDosage(med.generic_name, weight);
+                                        const dosageElement = document.getElementById(`dosage-${med.id}`);
+                                        if (dosageElement) {
+                                          dosageElement.textContent = dosage;
+                                          // Mark the dosage text content container as translatable if needed,
+                                          // though calculateDosage returns Spanish strings currently.
+                                          dosageElement.setAttribute('translate', 'yes');
+                                        }
+                                      }
+                                 M   }}
+                                    translate="yes" // Translate button text
+                                  >
+                                    Calcular
+                                  </Button>
+                                </div>
+
+                                <div className="mt-2">
+                                  <p className="text-sm" translate="yes">Dosis sugerida: <span id={`dosage-${med.id}`} translate="yes">-</span></p>
+                                  <p className="text-xs text-gray-500 mt-1" translate="yes">
+                                    Nota: Esta es una referencia general. La dosificación debe ser determinada por un profesional médico.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500" translate="yes"> {/* Translate fallback messages */}
+                  {isLoading ? (
+                    <div className="flex flex-col items-center gap-4">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+                      <p translate="yes">Buscando medicamentos...</p>
+                    </div>
+                  ) : (
+                    <p translate="yes">No se encontraron resultados</p>
+                  )}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="favorites" className="flex-1 overflow-y-auto p-6 pt-0">
+            <div className="space-y-6" translate="yes"> {/* Translate favorites/recent section */}
+              {recentSearches.length > 0 && (
+                <div>
+                  <h3 className="font-medium mb-2 text-gray-500 text-sm" translate="yes">Búsquedas recientes</h3>
+                  <div className="space-y-2">
+                    {recentSearches.map(med => (
+                      <div key={`recent-${med.id}`} className="p-2 border rounded-md flex items-center justify-between" translate="yes">
+                        <div>
+                          {/* Data-driven text */}
+                          <p className="font-medium" translate="yes">{med.brand_name}</p>
+                          <p className="text-sm text-gray-500" translate="yes">{med.generic_name}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" translate="yes">{med.dosage_form}</Badge>
+                          <button
+                            onClick={() => toggleFavorite(med)}
+                            className="p-1 rounded-full hover:bg-gray-100"
+                          >
+                            {isFavorite(med.id) ? (
+                              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                            ) : (
+                              <StarOff className="h-4 w-4 text-gray-400" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h3 className="font-medium mb-2 text-gray-500 text-sm" translate="yes">Medicamentos favoritos</h3>
+                {favorites.length > 0 ? (
+                  <div className="space-y-2">
+                    {favorites.map(med => (
+                      <div key={`fav-${med.id}`} className="p-2 border rounded-md flex items-center justify-between" translate="yes">
+                        <div>
+                          {/* Data-driven text */}
+                          <p className="font-medium" translate="yes">{med.brand_name}</p>
+                          <p className="text-sm text-gray-500" translate="yes">{med.generic_name}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" translate="yes">{med.dosage_form}</Badge>
+                          <button
+                            onClick={() => toggleFavorite(med)}
+                            className="p-1 rounded-full hover:bg-gray-100"
+                          >
+                            <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center text-gray-500 py-4" translate="yes">
+                    Aún no has añadido medicamentos a favoritos
+                  </p>
+                )}
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
+  );
+}
