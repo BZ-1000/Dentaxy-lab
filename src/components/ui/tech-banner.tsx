@@ -46,17 +46,17 @@ const TechIcons = () => {
   ];
 
   return (
-    <div className="fixed top-20 left-0 right-0 z-50 pointer-events-none bg-slate-50/80 backdrop-blur-sm">
-      <Marquee speed={15} className="py-4">
+    <div className="fixed top-32 left-0 right-0 z-50 pointer-events-none">
+      <Marquee speed={15} className="py-2">
         {icons.map((icon, index) => (
           <div
             key={index}
-            className="flex items-center justify-center mx-8 opacity-60 hover:opacity-90 transition-opacity duration-300"
+            className="flex items-center justify-center mx-6 opacity-70 hover:opacity-100 transition-opacity duration-300"
           >
             <img 
               src={icon.src} 
               alt={icon.alt}
-              className="h-16 w-16 object-contain filter hover:scale-110 transition-transform duration-300"
+              className="h-12 w-12 object-contain filter hover:scale-110 transition-transform duration-300"
               title={icon.name}
             />
           </div>
