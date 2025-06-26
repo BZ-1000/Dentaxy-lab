@@ -117,9 +117,8 @@ const HistoriaClinica = () => {
     isAnalysisMode,
     setAnalysisMode,
     selectedText,
-    setSelectedText,
-    selectedPosition,
-    setSelectedPosition
+    setSelectedPosition,
+    selectedPosition
   } = useAnalysisMode();
   const {
     formData,
@@ -262,70 +261,104 @@ const HistoriaClinica = () => {
         pacienteActual={pacienteActual} 
       />
       
-      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200`}>
-        <div className="max-w-5xl mx-auto space-y-8">
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 md:py-12 px-2 md:px-4 lg:px-8 transition-colors duration-200`}>
+        <div className="max-w-5xl mx-auto space-y-4 md:space-y-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold mb-2">Formulario IA</h1>
-            <p className="text-sm text-gray-500 mb-6">
+            <h1 className="text-2xl md:text-4xl font-bold mb-2">Formulario IA</h1>
+            <p className="text-xs md:text-sm text-gray-500 mb-4 md:mb-6 px-2">
               (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)
             </p>
             
-            <div id="patient-name-input" className="max-w-lg mx-auto mb-2 sticky top-4 z-30 backdrop-blur-sm shadow-sm border border-gray-200 p-4 py-[5px] px-[20px] rounded-2xl bg-slate-50">
-              <div className="flex items-center gap-3">
+            <div id="patient-name-input" className="max-w-lg mx-auto mb-2 sticky top-2 md:top-4 z-30 backdrop-blur-sm shadow-sm border border-gray-200 p-2 md:p-4 py-2 md:py-[5px] px-3 md:px-[20px] rounded-2xl bg-slate-50">
+              <div className="flex items-center gap-2 md:gap-3">
                 <div className="relative flex-1">
-                  <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <User className="h-4 w-4 text-gray-400" />
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-2 md:pl-3 pointer-events-none">
+                    <User className="h-3 w-3 md:h-4 md:w-4 text-gray-400" />
                   </div>
-                  <Input value={nombrePaciente} onChange={e => setNombrePaciente(e.target.value)} placeholder="Nombre del paciente" className="pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0" />
+                  <Input 
+                    value={nombrePaciente} 
+                    onChange={e => setNombrePaciente(e.target.value)} 
+                    placeholder="Nombre del paciente" 
+                    className="pl-8 md:pl-10 border-0 bg-transparent focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-sm md:text-base" 
+                  />
                 </div>
-                <Button onClick={() => {
-                  if (!nombrePaciente.trim()) {
+                <Button 
+                  onClick={() => {
+                    if (!nombrePaciente.trim()) {
+                      toast({
+                        title: "Error",
+                        description: "Por favor ingrese el nombre del paciente",
+                        variant: "destructive"
+                      });
+                      return;
+                    }
+                    guardarFormulario(formData, nombrePaciente);
+                    setPacienteActual(nombrePaciente);
                     toast({
-                      title: "Error",
-                      description: "Por favor ingrese el nombre del paciente",
-                      variant: "destructive"
+                      title: "Formulario guardado",
+                      description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
                     });
-                    return;
-                  }
-                  guardarFormulario(formData, nombrePaciente);
-                  setPacienteActual(nombrePaciente);
-                  toast({
-                    title: "Formulario guardado",
-                    description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
-                  });
-                }} disabled={!nombrePaciente.trim()} className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center gap-2 transition-all duration-200">
-                  <Save className="h-4 w-4" />
-                  <span className="text-sm font-medium">Guardar</span>
+                  }} 
+                  disabled={!nombrePaciente.trim()} 
+                  className="bg-blue-500 hover:bg-blue-600 text-white rounded-full px-2 md:px-4 py-1 md:py-2 flex items-center gap-1 md:gap-2 transition-all duration-200 text-xs md:text-sm"
+                >
+                  <Save className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="font-medium">Guardar</span>
                 </Button>
               </div>
             </div>
 
-            {pacienteActual && <div className="flex items-center justify-center gap-2 mb-6">
+            {pacienteActual && (
+              <div className="flex items-center justify-center gap-2 mb-4 md:mb-6">
                 <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
                   Formulario actual: {pacienteActual}
                 </div>
-                <button onClick={() => {
-                  setPacienteActual('');
-                  resetFormulario();
-                }} className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Resetear formulario">
+                <button 
+                  onClick={() => {
+                    setPacienteActual('');
+                    resetFormulario();
+                  }} 
+                  className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" 
+                  aria-label="Resetear formulario"
+                >
                   <X className="w-3 h-3" />
                 </button>
-              </div>}
+              </div>
+            )}
             
-            <div className="flex items-center justify-center mb-6 gap-4">
-              <span className="text-sm text-gray-600 dark:text-gray-400">Género del paciente:</span>
-              <div className="flex gap-2">
-                <button className={`px-4 py-2 rounded-md text-sm transition-colors ${!esMujer ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setEsMujer(false)}>
+            <div className="flex items-center justify-center mb-4 md:mb-6 gap-2 md:gap-4">
+              <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Género del paciente:</span>
+              <div className="flex gap-1 md:gap-2">
+                <button 
+                  className={`px-2 md:px-4 py-1 md:py-2 rounded-md text-xs md:text-sm transition-colors ${!esMujer ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} 
+                  onClick={() => setEsMujer(false)}
+                >
                   Hombre
                 </button>
-                <button className={`px-4 py-2 rounded-md text-sm transition-colors ${esMujer ? 'bg-[#9370DB] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => setEsMujer(true)}>
+                <button 
+                  className={`px-2 md:px-4 py-1 md:py-2 rounded-md text-xs md:text-sm transition-colors ${esMujer ? 'bg-[#9370DB] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} 
+                  onClick={() => setEsMujer(true)}
+                >
                   Mujer
                 </button>
               </div>
             </div>
+
+            {/* AI Analysis Mode Toggle */}
+            <div className="flex items-center justify-center mb-4 md:mb-6">
+              <Button
+                onClick={() => setAnalysisMode(!isAnalysisMode)}
+                variant={isAnalysisMode ? "default" : "outline"}
+                size="sm"
+                className={`text-xs md:text-sm ${isAnalysisMode ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+              >
+                <Search className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                {isAnalysisMode ? 'Desactivar' : 'Activar'} Análisis IA
+              </Button>
+            </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4 md:space-y-6">
             <div data-section-redaction="true" data-section-name="padecimientoActual">
               <PadecimientoActual formData={formData} handlePadecimientoChange={handlePadecimientoChange} handleDolorChange={handleDolorChange} handleSinSintomasChange={handleSinSintomasChange} />
             </div>
@@ -354,9 +387,11 @@ const HistoriaClinica = () => {
               <AntecedentesHemorragicos formData={formData} handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange} />
             </div>
 
-            {esMujer && <div data-section-redaction="true" data-section-name="antecedentesGinecoObstetricos">
+            {esMujer && (
+              <div data-section-redaction="true" data-section-name="antecedentesGinecoObstetricos">
                 <AntecedentesGinecoObstetricos formData={formData} handleAntecedenteGinecoObstetricoChange={handleAntecedenteGinecoObstetricoChange} />
-              </div>}
+              </div>
+            )}
 
             <div data-section-redaction="true" data-section-name="interrogatorioSistemas">
               <InterrogatorioSistemas formData={formData} handleInterrogatorioChange={handleInterrogatorioChange} />
@@ -416,73 +451,97 @@ const HistoriaClinica = () => {
               <Pronostico formData={formData} handlePronosticoChange={handlePronosticoChange} />
             </div>
 
-            <div className="flex justify-center pt-6">
-              <Button onClick={() => {
-                const missing = validatePadecimientoActual(formData).concat(
-                  validateAntecedentesHeredoFamiliares(formData),
-                  validateAntecedentesPersonalesNoPatologicos(formData),
-                  validateAntecedentesPersonalesPatologicos(formData)
-                );
-                
-                if (missing.length > 0) {
-                  setMissingFields(missing);
-                  setAlertOpen(true);
-                } else {
-                  // generatePDFDocument();
-                }
-              }} disabled={isGeneratingPDF} className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] px-6 py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-base font-normal">
-                {isGeneratingPDF ? <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+            <div className="flex justify-center pt-4 md:pt-6">
+              <Button 
+                onClick={() => {
+                  const missing = validatePadecimientoActual(formData).concat(
+                    validateAntecedentesHeredoFamiliares(formData),
+                    validateAntecedentesPersonalesNoPatologicos(formData),
+                    validateAntecedentesPersonalesPatologicos(formData)
+                  );
+                  
+                  if (missing.length > 0) {
+                    setMissingFields(missing);
+                    setAlertOpen(true);
+                  } else {
+                    // generatePDFDocument();
+                  }
+                }} 
+                disabled={isGeneratingPDF} 
+                className="text-slate-50 bg-[#ff0000] hover:bg-[#cc0000] px-4 md:px-6 py-2 md:py-3 rounded-lg shadow-lg transition-all duration-300 transform hover:scale-105 text-sm md:text-base font-normal"
+              >
+                {isGeneratingPDF ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 md:h-5 md:w-5 animate-spin" />
                     Generando PDF...
-                  </> : <>
-                    <FileText className="mr-2 h-5 w-5" />
+                  </>
+                ) : (
+                  <>
+                    <FileText className="mr-2 h-4 w-4 md:h-5 md:w-5" />
                     Generar Historia Clínica en PDF
-                  </>}
+                  </>
+                )}
               </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Indicador de modo análisis */}
-      {isAnalysisMode && <motion.div initial={{
-      opacity: 0,
-      y: -20
-    }} animate={{
-      opacity: 1,
-      y: 0
-    }} exit={{
-      opacity: 0,
-      y: -20
-    }} className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2">
-          <span className="text-sm font-medium">🔍 Modo Análisis Activo - Selecciona cualquier término</span>
-          <button onClick={() => setAnalysisMode(false)} className="text-white hover:text-gray-200 transition-colors">
-            <X className="w-4 h-4" />
+      {isAnalysisMode && (
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          exit={{ opacity: 0, y: -20 }} 
+          className="fixed top-2 md:top-4 left-1/2 transform -translate-x-1/2 z-[9999] bg-blue-600 text-white px-2 md:px-4 py-1 md:py-2 rounded-lg shadow-lg flex items-center gap-1 md:gap-2 text-xs md:text-sm"
+        >
+          <span className="font-medium">🔍 Modo Análisis Activo - Selecciona cualquier término</span>
+          <button 
+            onClick={() => setAnalysisMode(false)} 
+            className="text-white hover:text-gray-200 transition-colors"
+          >
+            <X className="w-3 h-3 md:w-4 md:h-4" />
           </button>
-        </motion.div>}
+        </motion.div>
+      )}
 
-      {/* Text Selection Search Icon */}
-      {selectedText && selectedPosition && isAnalysisMode && <motion.div initial={{
-      opacity: 0,
-      scale: 0.95
-    }} animate={{
-      opacity: 1,
-      scale: 1
-    }} className="fixed z-[10000] pointer-events-auto" style={{
-      left: Math.min(selectedPosition.x, window.innerWidth - 60),
-      top: Math.max(selectedPosition.y - 60, 60)
-    }}>
-          <button onClick={() => handleSearch(selectedText)} disabled={isSearching} className="w-8 h-8 bg-black hover:bg-gray-800 text-white rounded-full flex items-center justify-center shadow-xl transition-colors disabled:opacity-50">
-            {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+      {selectedText && selectedPosition && isAnalysisMode && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }} 
+          animate={{ opacity: 1, scale: 1 }} 
+          className="fixed z-[10000] pointer-events-auto" 
+          style={{
+            left: Math.min(selectedPosition.x, window.innerWidth - 60),
+            top: Math.max(selectedPosition.y - 60, 60)
+          }}
+        >
+          <button 
+            onClick={() => handleSearch(selectedText)} 
+            disabled={isSearching} 
+            className="w-6 h-6 md:w-8 md:h-8 bg-black hover:bg-gray-800 text-white rounded-full flex items-center justify-center shadow-xl transition-colors disabled:opacity-50"
+          >
+            {isSearching ? <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" /> : <Search className="h-3 w-3 md:h-4 md:w-4" />}
           </button>
-        </motion.div>}
+        </motion.div>
+      )}
       
-      <ConfirmationAlert isOpen={alertOpen} onClose={() => setAlertOpen(false)} onConfirm={() => {
-      setAlertOpen(false);
-      // generatePDFDocument();
-    }} title="Formulario incompleto" description="Hay campos sin completar en el formulario." missingFields={missingFields} />
+      <ConfirmationAlert 
+        isOpen={alertOpen} 
+        onClose={() => setAlertOpen(false)} 
+        onConfirm={() => {
+          setAlertOpen(false);
+          // generatePDFDocument();
+        }} 
+        title="Formulario incompleto" 
+        description="Hay campos sin completar en el formulario." 
+        missingFields={missingFields} 
+      />
       
-      {isGeneratingPDF && <LoadingOverlay message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." progress={pdfGenerationProgress} />}
+      {isGeneratingPDF && (
+        <LoadingOverlay 
+          message="Generando PDF... Por favor espere mientras procesamos todas las secciones del formulario." 
+          progress={pdfGenerationProgress} 
+        />
+      )}
 
       <AnimatePresence>
         {activeResponse && <ResponsePopup message={activeResponse} onClose={closeResponse} />}

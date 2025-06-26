@@ -66,9 +66,9 @@ function IndexContent() {
         </div>
       </div>
 
-      {/* Form Section - Full width container with proper max-width */}
+      {/* Form Section - Adjusted for mobile */}
       <div className="min-h-screen bg-white py-0">
-        <div className="w-full max-w-5xl mx-auto px-4 bg-slate-50">
+        <div className="w-full max-w-5xl mx-auto px-2 md:px-4 bg-slate-50">
           <HistoriaClinica />
         </div>
       </div>
