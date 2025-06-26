@@ -46,17 +46,17 @@ const TechIcons = () => {
   ];
 
   return (
-    <div className="absolute top-0 left-0 right-0 z-[9999] pointer-events-none overflow-hidden py-4">
+    <div className="absolute top-0 left-0 right-0 z-[9999] pointer-events-none overflow-hidden py-2">
       <div className="flex animate-marquee">
         {[...icons, ...icons, ...icons].map((icon, index) => (
           <div
             key={index}
-            className="flex-shrink-0 mx-8 flex items-center justify-center"
+            className="flex-shrink-0 mx-6 flex items-center justify-center"
           >
             <img 
               src={icon.src} 
               alt={icon.alt}
-              className="h-12 w-12 object-contain opacity-90 drop-shadow-lg"
+              className="h-8 w-8 object-contain opacity-90 drop-shadow-lg"
               title={icon.name}
             />
           </div>
