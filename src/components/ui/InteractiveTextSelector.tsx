@@ -235,29 +235,35 @@ export const InteractiveTextSelector: React.FC<InteractiveTextSelectorProps> = (
         {children}
       </div>
 
-      {/* Estilos CSS adicionales */}
-      <style jsx>{`
-        .analysis-mode-active * {
-          cursor: pointer !important;
-        }
-        
-        .analysis-mode-active p,
-        .analysis-mode-active span,
-        .analysis-mode-active div,
-        .analysis-mode-active h1,
-        .analysis-mode-active h2,
-        .analysis-mode-active h3,
-        .analysis-mode-active h4,
-        .analysis-mode-active h5,
-        .analysis-mode-active h6 {
-          transition: background-color 0.2s ease;
-        }
-        
-        .analysis-mode-active *:hover {
-          background-color: rgba(139, 92, 246, 0.1) !important;
-          border-radius: 4px;
-        }
-      `}</style>
+      {/* Estilos CSS adicionales usando dangerouslySetInnerHTML */}
+      <div
+        dangerouslySetInnerHTML={{
+          __html: `
+            <style>
+              .analysis-mode-active * {
+                cursor: pointer !important;
+              }
+              
+              .analysis-mode-active p,
+              .analysis-mode-active span,
+              .analysis-mode-active div,
+              .analysis-mode-active h1,
+              .analysis-mode-active h2,
+              .analysis-mode-active h3,
+              .analysis-mode-active h4,
+              .analysis-mode-active h5,
+              .analysis-mode-active h6 {
+                transition: background-color 0.2s ease;
+              }
+              
+              .analysis-mode-active *:hover {
+                background-color: rgba(139, 92, 246, 0.1) !important;
+                border-radius: 4px;
+              }
+            </style>
+          `
+        }}
+      />
     </div>
   );
 };
