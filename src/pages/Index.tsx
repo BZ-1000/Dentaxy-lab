@@ -1,4 +1,5 @@
-import { AppleStyleDock } from "@/components/AppleStyleDock";
+
+import { AppleStyleDuck } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import TechBanner from "@/components/ui/tech-banner";
@@ -29,7 +30,7 @@ function IndexContent() {
           ></div>
         </div>
         
-        <div className="relative z-10 container mx-auto px-4 py-16 bg-slate-50 md:px-4">
+        <div className="relative z-10 container mx-auto px-4 py-16 bg-slate-50">
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
             {/* Logo and Brand */}
             <div className="flex items-center gap-3 mb-12 mt-8">
