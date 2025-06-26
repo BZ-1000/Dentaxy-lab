@@ -106,9 +106,6 @@ export default {
           '0%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.2)' },
           '100%': { transform: 'scale(1)' }
-        },
-        marquee: {
-          to: { transform: 'translateX(-50%)' }
         }
       },
       animation: {
@@ -118,8 +115,7 @@ export default {
         glow: "glow 3s ease-in-out infinite",
         rainbow: "rainbow var(--speed, 2s) infinite linear",
         wiggle: 'wiggle 2s linear infinite',
-        scaleClick: 'scaleClick 0.5s ease-in-out',
-        marquee: 'marquee var(--duration, 30s) linear infinite'
+        scaleClick: 'scaleClick 0.5s ease-in-out'
       },
     },
   },
