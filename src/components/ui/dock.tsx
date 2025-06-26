@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -22,10 +21,10 @@ import {
 } from 'react';
 import { cn } from '@/lib/utils';
 
-const DOCK_HEIGHT = 80;
-const DEFAULT_MAGNIFICATION = 50;
-const DEFAULT_DISTANCE = 100;
-const DEFAULT_PANEL_HEIGHT = 40;
+const DOCK_HEIGHT = 128;
+const DEFAULT_MAGNIFICATION = 80;
+const DEFAULT_DISTANCE = 150;
+const DEFAULT_PANEL_HEIGHT = 64;
 
 type DockProps = {
   children: React.ReactNode;
@@ -38,7 +37,7 @@ type DockProps = {
 type DockItemProps = {
   className?: string;
   children: React.ReactNode;
-  onClick?: () => void;
+  onClick?: () => void;  // Added this line to fix the error
 };
 type DockLabelProps = {
   className?: string;
@@ -98,7 +97,7 @@ function Dock({
         height: height,
         scrollbarWidth: 'none',
       }}
-      className='mx-1 sm:mx-2 flex max-w-full items-end overflow-x-auto'
+      className='mx-2 flex max-w-full items-end overflow-x-auto'
     >
       <motion.div
         onMouseMove={({ pageX }) => {
@@ -110,7 +109,7 @@ function Dock({
           mouseX.set(Infinity);
         }}
         className={cn(
-          'mx-auto flex w-fit gap-1 sm:gap-4 rounded-xl sm:rounded-2xl bg-gray-50 px-2 sm:px-4 dark:bg-neutral-900',
+          'mx-auto flex w-fit gap-4 rounded-2xl bg-gray-50 px-4 dark:bg-neutral-900',
           className
         )}
         style={{ height: panelHeight }}
@@ -138,7 +137,7 @@ function DockItem({ children, className, onClick }: DockItemProps) {
   const widthTransform = useTransform(
     mouseDistance,
     [-distance, 0, distance],
-    [25, magnification, 25]
+    [40, magnification, 40]
   );
 
   const width = useSpring(widthTransform, spring);
@@ -151,9 +150,9 @@ function DockItem({ children, className, onClick }: DockItemProps) {
       onHoverEnd={() => isHovered.set(0)}
       onFocus={() => isHovered.set(1)}
       onBlur={() => isHovered.set(0)}
-      onClick={onClick}
+      onClick={onClick}  // Added this line to handle the onClick prop
       className={cn(
-        'relative inline-flex items-center justify-center cursor-pointer',
+        'relative inline-flex items-center justify-center',
         className
       )}
       tabIndex={0}
@@ -189,7 +188,7 @@ function DockLabel({ children, className, ...rest }: DockLabelProps) {
           exit={{ opacity: 0, y: 0 }}
           transition={{ duration: 0.2 }}
           className={cn(
-            'absolute -top-4 sm:-top-6 left-1/2 w-fit whitespace-pre rounded-md border border-gray-200 bg-gray-100 px-1 sm:px-2 py-0.5 text-[10px] sm:text-xs text-neutral-700 dark:border-neutral-900 dark:bg-neutral-800 dark:text-white',
+            'absolute -top-6 left-1/2 w-fit whitespace-pre rounded-md border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs text-neutral-700 dark:border-neutral-900 dark:bg-neutral-800 dark:text-white',
             className
           )}
           role='tooltip'
