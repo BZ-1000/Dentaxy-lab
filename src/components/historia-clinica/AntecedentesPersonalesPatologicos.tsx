@@ -459,7 +459,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                 ref={inputRefs.current[categoria] as React.RefObject<HTMLTextAreaElement>}
                 placeholder="Especificar otra condición..."
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
-                onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
+                onChange={(valor) => handleOtraDescripcionChange(categoria, valor)}
                 className="w-full h-[30px]"
                 onBlur={() => {}}
               />
