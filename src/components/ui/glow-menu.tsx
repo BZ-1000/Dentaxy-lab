@@ -25,8 +25,16 @@ const GlowMenu: React.FC<GlowMenuProps> = ({ children, className = '' }) => {
       opacity: 1, 
       scale: 1,
       transition: { 
-        duration: 0.3,
-        ease: [0.4, 0, 0.2, 1] as [number, number, number, number]
+        opacity: { 
+          duration: 0.2, 
+          ease: [0.4, 0, 0.2, 1] as [number, number, number, number]
+        },
+        scale: { 
+          duration: 0.3, 
+          type: "spring",
+          stiffness: 300, 
+          damping: 20 
+        }
       }
     }
   };
@@ -45,6 +53,12 @@ const GlowMenu: React.FC<GlowMenuProps> = ({ children, className = '' }) => {
         variants={itemVariants}
         initial="initial"
         whileHover="hover"
+        transition={{
+          type: "spring",
+          stiffness: 300,
+          damping: 20,
+          duration: 0.3
+        }}
       >
         {children}
       </motion.div>
