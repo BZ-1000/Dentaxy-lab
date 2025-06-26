@@ -2,7 +2,7 @@
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
-import { DentalBackgroundCloud } from "@/components/ui/dental-background-cloud";
+import { DentalMarqueeBanner } from "@/components/ui/dental-marquee-banner";
 import { AnalysisModeProvider } from "@/contexts/AnalysisModeContext";
 import { useEffect, useState } from "react";
 
@@ -13,8 +13,11 @@ function IndexContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white">
+      {/* Marquee Banner */}
+      <DentalMarqueeBanner />
+      
       {/* Hero Section */}
-      <div className="min-h-screen relative">
+      <div className="min-h-screen relative pt-16">
         {/* Subtle background pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"></div>
@@ -61,11 +64,8 @@ function IndexContent() {
         </div>
       </div>
 
-      {/* Form Section with Background Cloud */}
+      {/* Form Section */}
       <div className="min-h-screen bg-white py-0 relative">
-        {/* Dental Background Cloud */}
-        <DentalBackgroundCloud />
-        
         <div className="container mx-auto px-4 bg-slate-50 relative z-10">
           <HistoriaClinica />
         </div>
