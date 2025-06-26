@@ -2,7 +2,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { useTheme } from "next-themes"
+import { useTheme } from "@/hooks/use-theme"
 import {
   Cloud,
   fetchSimpleIcons,
@@ -34,7 +34,6 @@ export const cloudProps: Omit<ICloud, "children"> = {
     outlineColour: "#0000",
     maxSpeed: 0.04,
     minSpeed: 0.02,
-    // dragControl: false,
   },
 }
 
