@@ -70,11 +70,11 @@
   }
 }
 
-/* Optimized fade-in animation */
+/* Simplified fade-in animations */
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -83,24 +83,15 @@
 }
 
 .animate-fade-in {
-  animation: fade-in 0.8s ease-out forwards;
-  opacity: 0;
+  animation: fade-in 0.6s ease-out forwards;
 }
 
-/* Custom typewriter animations */
-@keyframes subtle-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: translateY(0px);
-  }
-  50% {
-    opacity: 0.8;
-    transform: translateY(-1px);
-  }
+.animate-fade-in-delayed {
+  animation: fade-in 0.6s ease-out 0.2s forwards;
 }
 
-.animate-pulse-subtle {
-  animation: subtle-pulse 2s ease-in-out infinite;
+.animate-fade-in-delayed-more {
+  animation: fade-in 0.6s ease-out 0.4s forwards;
 }
 
 /* Analysis mode cursor */
