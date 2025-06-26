@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -21,10 +22,10 @@ import {
 } from 'react';
 import { cn } from '@/lib/utils';
 
-const DOCK_HEIGHT = 128;
-const DEFAULT_MAGNIFICATION = 80;
-const DEFAULT_DISTANCE = 150;
-const DEFAULT_PANEL_HEIGHT = 64;
+const DOCK_HEIGHT = 96;
+const DEFAULT_MAGNIFICATION = 60;
+const DEFAULT_DISTANCE = 120;
+const DEFAULT_PANEL_HEIGHT = 48;
 
 type DockProps = {
   children: React.ReactNode;
@@ -37,7 +38,7 @@ type DockProps = {
 type DockItemProps = {
   className?: string;
   children: React.ReactNode;
-  onClick?: () => void;  // Added this line to fix the error
+  onClick?: () => void;
 };
 type DockLabelProps = {
   className?: string;
@@ -97,7 +98,7 @@ function Dock({
         height: height,
         scrollbarWidth: 'none',
       }}
-      className='mx-2 flex max-w-full items-end overflow-x-auto'
+      className='mx-1 sm:mx-2 flex max-w-full items-end overflow-x-auto'
     >
       <motion.div
         onMouseMove={({ pageX }) => {
@@ -109,7 +110,7 @@ function Dock({
           mouseX.set(Infinity);
         }}
         className={cn(
-          'mx-auto flex w-fit gap-4 rounded-2xl bg-gray-50 px-4 dark:bg-neutral-900',
+          'mx-auto flex w-fit gap-2 sm:gap-4 rounded-2xl bg-gray-50 px-2 sm:px-4 dark:bg-neutral-900',
           className
         )}
         style={{ height: panelHeight }}
@@ -137,7 +138,7 @@ function DockItem({ children, className, onClick }: DockItemProps) {
   const widthTransform = useTransform(
     mouseDistance,
     [-distance, 0, distance],
-    [40, magnification, 40]
+    [32, magnification, 32]
   );
 
   const width = useSpring(widthTransform, spring);
@@ -150,7 +151,7 @@ function DockItem({ children, className, onClick }: DockItemProps) {
       onHoverEnd={() => isHovered.set(0)}
       onFocus={() => isHovered.set(1)}
       onBlur={() => isHovered.set(0)}
-      onClick={onClick}  // Added this line to handle the onClick prop
+      onClick={onClick}
       className={cn(
         'relative inline-flex items-center justify-center',
         className

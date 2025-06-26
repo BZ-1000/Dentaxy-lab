@@ -178,8 +178,13 @@ export function AppleStyleDock() {
 
   return (
     <>
-      <div className='fixed bottom-2 left-1/2 max-w-full -translate-x-1/2 z-50'>
-        <Dock className={cn('items-end pb-3 flex', isVisible ? 'w-auto' : 'w-fit')}>
+      <div className='fixed bottom-1 sm:bottom-2 left-1/2 max-w-[95vw] sm:max-w-full -translate-x-1/2 z-50 px-2 sm:px-0'>
+        <Dock 
+          className={cn('items-end pb-2 sm:pb-3 flex', isVisible ? 'w-auto' : 'w-fit')}
+          distance={100}
+          magnification={50}
+          panelHeight={48}
+        >
           {data.map((item, idx) => (
             <DockItem
               key={idx}
@@ -320,10 +325,10 @@ export function AppleStyleDock() {
       </Dialog>
 
       {showPricingPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-          <div className="bg-black/90 p-8 rounded-lg border border-white/20 shadow-xl w-full max-w-4xl">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-2xl font-bold text-white">Planes Disponibles</h2>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-2 sm:p-4">
+          <div className="bg-black/90 p-4 sm:p-8 rounded-lg border border-white/20 shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4 sm:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-white">Planes Disponibles</h2>
               <Button
                 variant="ghost"
                 onClick={() => setShowPricingPopup(false)}
@@ -332,12 +337,12 @@ export function AppleStyleDock() {
                 ✕
               </Button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="relative p-6 rounded-xl border border-white/20 backdrop-blur-sm">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8">
+              <div className="relative p-4 sm:p-6 rounded-xl border border-white/20 backdrop-blur-sm">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-2 sm:px-4 py-1 rounded-full text-xs sm:text-sm">
                   Disponible
                 </div>
-                <h3 className="text-xl font-bold text-white mb-4 mt-4">Plan Beta</h3>
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-4 mt-4">Plan Beta</h3>
                 <p className="text-white/60 mb-6">Acceso completo durante la fase beta</p>
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center text-white/80">
@@ -361,13 +366,13 @@ export function AppleStyleDock() {
                 </Button>
               </div>
 
-              <div className="p-6 rounded-xl border border-white/20 backdrop-blur-sm opacity-50">
-                <h3 className="text-xl font-bold text-white mb-4">Plan Básico</h3>
+              <div className="p-4 sm:p-6 rounded-xl border border-white/20 backdrop-blur-sm opacity-50">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Plan Básico</h3>
                 <p className="text-white/60 mb-6">Próximamente</p>
               </div>
 
-              <div className="p-6 rounded-xl border border-white/20 backdrop-blur-sm opacity-50">
-                <h3 className="text-xl font-bold text-white mb-4">Plan Premium</h3>
+              <div className="p-4 sm:p-6 rounded-xl border border-white/20 backdrop-blur-sm opacity-50">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-4">Plan Premium</h3>
                 <p className="text-white/60 mb-6">Próximamente</p>
               </div>
             </div>

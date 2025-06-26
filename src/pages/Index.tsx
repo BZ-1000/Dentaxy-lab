@@ -12,7 +12,7 @@ function IndexContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white overflow-x-hidden">
       {/* Tech Banner - Floating over main content */}
       <TechBanner />
       
@@ -30,11 +30,11 @@ function IndexContent() {
           ></div>
         </div>
         
-        <div className="relative z-10 container mx-auto px-4 py-16 bg-slate-50">
-          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
+        <div className="relative z-10 container mx-auto px-2 sm:px-4 py-8 sm:py-16 bg-slate-50 max-w-full">
+          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-8rem)] text-center">
             {/* Logo and Brand */}
-            <div className="flex items-center gap-3 mb-12 mt-8">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center p-1">
+            <div className="flex items-center gap-2 sm:gap-3 mb-8 sm:mb-12 mt-4 sm:mt-8">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center p-1">
                 <img 
                   src="/lovable-uploads/fde8b90b-dc35-4ac3-baf8-f54862d6becb.png" 
                   alt="Dental tooth icon"
@@ -42,13 +42,13 @@ function IndexContent() {
                 />
               </div>
               <div className="text-slate-700 font-mplus">
-                <div className="text-lg font-semibold leading-tight">DENTAL BASICS</div>
-                <div className="text-lg font-semibold leading-tight">ACADEMY</div>
+                <div className="text-sm sm:text-lg font-semibold leading-tight">DENTAL BASICS</div>
+                <div className="text-sm sm:text-lg font-semibold leading-tight">ACADEMY</div>
               </div>
             </div>
 
             {/* Main Title */}
-            <h1 className="text-5xl md:text-7xl font-bold text-slate-800 mb-6">
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-slate-800 mb-4 sm:mb-6 px-2">
               Generador de<br />
               Historias Clínicas<br />
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">IA</span>
@@ -56,7 +56,7 @@ function IndexContent() {
             
             {/* Typewriter effect */}
             <div>
-              <div className="text-xl md:text-2xl text-slate-600 mb-12">
+              <div className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-8 sm:mb-12 px-2">
                 Bienvenido a nuestra Historia clínica inteligente
               </div>
             </div>
@@ -66,13 +66,13 @@ function IndexContent() {
 
       {/* Form Section */}
       <div className="min-h-screen bg-white py-0">
-        <div className="container mx-auto px-4 bg-slate-50">
+        <div className="container mx-auto px-2 sm:px-4 bg-slate-50 max-w-full">
           <HistoriaClinica />
         </div>
       </div>
 
       <AppleStyleDock />
-      <div className="h-24" />
+      <div className="h-16 sm:h-24" />
     </div>
   );
 }
