@@ -13,11 +13,11 @@ function IndexContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white">
-      {/* Hero Section - With overlaid tech banner */}
-      <div className="min-h-screen relative">
-        {/* Tech Banner - Overlaid at the top */}
-        <TechBanner />
-        
+      {/* Tech Banner - Floating over main content */}
+      <TechBanner />
+      
+      {/* Hero Section */}
+      <div className="min-h-screen relative">        
         {/* Subtle background pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"></div>
