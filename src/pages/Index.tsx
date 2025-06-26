@@ -30,11 +30,11 @@ function IndexContent() {
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
             {/* Logo and Brand - Simplified */}
             <div className="flex items-center gap-3 mb-12 animate-fade-in">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center p-2">
+              <div className="w-12 h-12 bg-black rounded-xl flex items-center justify-center p-1">
                 <img 
                   src="/lovable-uploads/cbccabfc-6598-4a76-afab-7970f12a9fb2.png" 
                   alt="Dental tooth icon"
-                  className="w-full h-full object-contain filter invert"
+                  className="w-full h-full object-contain"
                 />
               </div>
               <div className="text-slate-700 font-mplus">
