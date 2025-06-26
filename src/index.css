@@ -1,3 +1,4 @@
+
 @import url("https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@100;300;400;500;700;800;900&display=swap");
 @tailwind base;
 @tailwind components;
@@ -69,6 +70,23 @@
   }
 }
 
+/* Optimized fade-in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out forwards;
+  opacity: 0;
+}
+
 /* Custom typewriter animations */
 @keyframes subtle-pulse {
   0%, 100% {
@@ -126,4 +144,15 @@
 /* Font family classes */
 .font-mplus {
   font-family: "M PLUS 1p", sans-serif;
+}
+
+/* Performance optimizations */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
