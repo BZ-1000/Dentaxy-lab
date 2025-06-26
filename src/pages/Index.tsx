@@ -13,11 +13,11 @@ function IndexContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white">
-      {/* Tech Banner */}
-      <TechBanner />
-      
-      {/* Hero Section - No animations */}
+      {/* Hero Section - With overlaid tech banner */}
       <div className="min-h-screen relative">
+        {/* Tech Banner - Overlaid at the top */}
+        <TechBanner />
+        
         {/* Subtle background pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"></div>
@@ -32,8 +32,8 @@ function IndexContent() {
         
         <div className="relative z-10 container mx-auto px-4 py-16 bg-slate-50">
           <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
-            {/* Logo and Brand - No animation */}
-            <div className="flex items-center gap-3 mb-12">
+            {/* Logo and Brand */}
+            <div className="flex items-center gap-3 mb-12 mt-8">
               <div className="w-12 h-12 rounded-xl flex items-center justify-center p-1">
                 <img 
                   src="/lovable-uploads/fde8b90b-dc35-4ac3-baf8-f54862d6becb.png" 
@@ -47,14 +47,14 @@ function IndexContent() {
               </div>
             </div>
 
-            {/* Main Title - No animation */}
+            {/* Main Title */}
             <h1 className="text-5xl md:text-7xl font-bold text-slate-800 mb-6">
               Generador de<br />
               Historias Clínicas<br />
               <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">IA</span>
             </h1>
             
-            {/* Typewriter effect - No animation */}
+            {/* Typewriter effect */}
             <div>
               <div className="text-xl md:text-2xl text-slate-600 mb-12">
                 Bienvenido a nuestra Historia clínica inteligente
@@ -64,7 +64,7 @@ function IndexContent() {
         </div>
       </div>
 
-      {/* Form Section - No animations */}
+      {/* Form Section */}
       <div className="min-h-screen bg-white py-0">
         <div className="container mx-auto px-4 bg-slate-50">
           <HistoriaClinica />
