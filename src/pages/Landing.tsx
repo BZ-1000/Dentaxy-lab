@@ -34,39 +34,8 @@ const menuItems = [{
   href: "/contact"
 }];
 
-const LoadingScreen = ({
-  visible,
-  onComplete
-}) => {
-  const [displayText, setDisplayText] = useState('');
-  const [typingComplete, setTypingComplete] = useState(false);
-  const fullText = "Dental Basics Academy";
-  
-  const handleTypingComplete = () => {
-    setTypingComplete(true);
-    onComplete(); // Immediately call onComplete when typing finishes
-  };
-
-  return (
-    <div className={`fixed inset-0 flex flex-col items-center justify-center bg-white ${visible ? 'visible' : 'hidden'}`}>
-      <div className="flex items-center space-x-4">
-        <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-16 w-16" />
-        <h1 className="text-xl sm:text-3xl font-bold text-black text-center">
-          <Typewriter 
-            text={fullText} 
-            speed={70}
-            onComplete={handleTypingComplete}
-          />
-        </h1>
-      </div>
-    </div>
-  );
-};
-
 const Landing = () => {
   const navigate = useNavigate();
-  const [mounted, setMounted] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [activeItem, setActiveItem] = useState<string>("");
   const [authDialog, setAuthDialog] = useState<{
     isOpen: boolean;
@@ -93,8 +62,6 @@ const Landing = () => {
     if (storedUsername) {
       setUsername(storedUsername);
     }
-
-    setMounted(true);
 
     const getSession = async () => {
       const {
@@ -124,11 +91,6 @@ const Landing = () => {
       subscription.unsubscribe();
     };
   }, []);
-  
-  // Handle loading screen completion
-  const handleLoadingComplete = () => {
-    setLoading(false);
-  };
   
   const checkUsername = async (userId: string) => {
     try {
@@ -175,6 +137,7 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
+
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -363,7 +326,6 @@ const Landing = () => {
       if (!session) {
         throw new Error('No session found');
       }
-      setLoading(true);
 
       // Check if the username already exists (belonging to a different user)
       const {
@@ -377,14 +339,12 @@ const Landing = () => {
         toast.error('Este nombre de usuario ya está en uso. Por favor, intente con otro nombre.', {
           duration: 5000
         });
-        setLoading(false);
         return;
       }
       if (checkError && checkError.code !== 'PGRST116') {
         // PGRST116 is "no rows returned" which is good
         console.error('Error checking username:', checkError);
         toast.error('Error al verificar la disponibilidad del nombre de usuario');
-        setLoading(false);
         return;
       }
 
@@ -408,7 +368,6 @@ const Landing = () => {
         if (insertError) {
           console.error('Insert error:', insertError);
           toast.error('Error al guardar nombre de usuario');
-          setLoading(false);
           return;
         }
       }
@@ -420,19 +379,13 @@ const Landing = () => {
       toast.success('Nombre de usuario guardado exitosamente');
       console.log('Username saved successfully, closing popup');
 
-      // Close the popup with a small delay to ensure state updates properly
-      setTimeout(() => {
-        setShowPopup(false);
-        setLoading(false);
-      }, 500);
+      // Close the popup immediately
+      setShowPopup(false);
     } catch (error: any) {
       console.error('Error saving username:', error);
       toast.error('Error al guardar nombre de usuario: ' + (error.message || 'Error desconocido'));
-      setLoading(false);
     }
   };
-  
-  if (loading && mounted) return <LoadingScreen visible={loading} onComplete={handleLoadingComplete} />;
   
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
@@ -539,7 +492,7 @@ const Landing = () => {
           </div>
 
           <div className="mb-12">
-            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 animate-wiggle flex items-center gap-2 mx-auto">
+            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 flex items-center gap-2 mx-auto">
               PRUEBA BETA
               <ArrowRight className="h-5 w-5 text-white" />
             </button>
@@ -711,8 +664,8 @@ const Landing = () => {
             <Button variant="ghost" onClick={() => setShowPopup(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSaveUsername} disabled={loading || !username.trim() || !acceptTerms || !acceptPrivacy} className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
-              {loading ? "Guardando..." : "Guardar"}
+            <Button onClick={handleSaveUsername} disabled={!username.trim() || !acceptTerms || !acceptPrivacy} className={`${!acceptTerms || !acceptPrivacy || !username.trim() ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              Guardar
             </Button>
           </div>
         </div>
