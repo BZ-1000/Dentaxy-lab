@@ -112,6 +112,7 @@ const HistoriaClinica = () => {
   const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const pdfSectionsRef = useRef<{ [key: string]: string; }>({});
   const {
     isAnalysisMode,
@@ -155,6 +156,10 @@ const HistoriaClinica = () => {
     cargarFormulario,
     resetFormulario
   } = useHistoriaClinica();
+
+  const handleSidebarStateChange = (isOpen: boolean) => {
+    setSidebarOpen(isOpen);
+  };
 
   const handleSearch = async (searchText: string) => {
     setIsSearching(true);
@@ -259,10 +264,11 @@ const HistoriaClinica = () => {
           setPacienteActual('');
           resetFormulario();
         }} 
-        pacienteActual={pacienteActual} 
+        pacienteActual={pacienteActual}
+        onSidebarStateChange={handleSidebarStateChange}
       />
       
-      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 px-2 sm:px-4 lg:px-8 transition-colors duration-200 max-w-full overflow-x-hidden md:ml-[300px]`}>
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 px-2 sm:px-4 lg:px-8 transition-all duration-200 max-w-full overflow-x-hidden ${sidebarOpen ? 'md:ml-[300px]' : 'md:ml-[60px]'}`}>
         <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
           <div className="text-center">
             <h1 className="text-2xl sm:text-4xl font-bold mb-2">Formulario IA</h1>

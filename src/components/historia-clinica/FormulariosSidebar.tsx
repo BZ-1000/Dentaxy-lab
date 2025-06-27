@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ interface FormulariosSidebarProps {
   onCerrarFormulario: () => void;
   onResetFormulario: () => void;
   pacienteActual: string;
+  onSidebarStateChange: (isOpen: boolean) => void;
 }
 
 const FormulariosSidebar = ({
@@ -23,7 +25,8 @@ const FormulariosSidebar = ({
   onGuardarFormulario,
   onCerrarFormulario,
   onResetFormulario,
-  pacienteActual
+  pacienteActual,
+  onSidebarStateChange
 }: FormulariosSidebarProps) => {
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [formularios, setFormularios] = useState<{
@@ -40,6 +43,11 @@ const FormulariosSidebar = ({
   const [formularioSeleccionado, setFormularioSeleccionado] = useState<string | null>(null);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
+
+  // Notify parent component when sidebar state changes
+  useEffect(() => {
+    onSidebarStateChange(open);
+  }, [open, onSidebarStateChange]);
 
   const loadSavedForms = () => {
     const savedForms: {
