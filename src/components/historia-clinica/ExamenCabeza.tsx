@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Mic, Edit, FileText } from "lucide-react";
@@ -348,14 +347,25 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
       setSelectedPerfilTipo(formData.examenCabeza?.tipoPerfil || '');
   }, [formData.examenCabeza?.tipoPerfil]);
 
-  // Helper para actualizar características faciales
+  // Helper para actualizar características faciales - CORREGIDO
   const handleCaracteristicaFacialChange = (id: string, field: string, value: string | boolean) => {
-    const currentData = formData.examenCabeza?.[id] as CaracteristicaFacial || {};
-
-    handleExamenCabezaChange(`${id}`, {
-      ...currentData,
+    const currentData = formData.examenCabeza?.[id];
+    let parsedData: CaracteristicaFacial = {};
+    if (typeof currentData === 'string') {
+      try {
+        parsedData = JSON.parse(currentData) as CaracteristicaFacial;
+      } catch {
+        parsedData = {};
+      }
+    } else if (typeof currentData === 'object' && currentData !== null) {
+      parsedData = currentData as CaracteristicaFacial;
+    }
+    const updatedCaracteristica = {
+      ...parsedData,
       [field]: value
-    });
+    };
+    // Convertir el objeto a string JSON para que sea compatible con el tipo esperado
+    handleExamenCabezaChange(id, JSON.stringify(updatedCaracteristica));
   };
 
   return (
@@ -534,215 +544,361 @@ const ExamenCabeza: React.FC<ExamenCabezaProps> = ({
                                         <div key={caracteristica.id} className="space-y-2 border p-4 rounded-md shadow-sm">
                                             <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">{caracteristica.label}</Label>
                                             <Select
-                                                value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.presente ? 'si' : 'no'}
-                                                onValueChange={(value) => {
-                                                    const isPresent = value === 'si';
-                                                    handleCaracteristicaFacialChange(caracteristica.id, 'presente', isPresent);
-                                                }}
+                                              value={(() => {
+                                                const data = formData.examenCabeza?.[caracteristica.id];
+                                                if (typeof data === 'string') {
+                                                  try {
+                                                    const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                    return parsed.presente ? 'si' : 'no';
+                                                  } catch {
+                                                    return 'no';
+                                                  }
+                                                }
+                                                return (data as CaracteristicaFacial)?.presente ? 'si' : 'no';
+                                              })()}
+                                              onValueChange={(value) => {
+                                                const isPresent = value === 'si';
+                                                handleCaracteristicaFacialChange(caracteristica.id, 'presente', isPresent);
+                                              }}
                                             >
-                                                <SelectTrigger className="w-full bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm">
-                                                    <SelectValue placeholder="Seleccione" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="si">Sí</SelectItem>
-                                                    <SelectItem value="no">No</SelectItem>
-                                                </SelectContent>
+                                              <SelectTrigger className="w-full bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm">
+                                                <SelectValue placeholder="Seleccione" />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="si">Sí</SelectItem>
+                                                <SelectItem value="no">No</SelectItem>
+                                              </SelectContent>
                                             </Select>
 
-                                            {((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.presente === true && (
-                                                <div className="mt-2 space-y-3 border-t pt-2">
-                                                    {caracteristica.id === 'lunares' && (
-                                                        <>
-                                                            <div>
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Tamaño</Label>
-                                                                <Select
-                                                                    value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.tamanio || ''}
-                                                                    onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tamanio', value)}
-                                                                >
-                                                                    <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                        <SelectValue placeholder="Seleccione tamaño" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {lunaresOptions.tamanio.map(option => (
-                                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                            <div>
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Color</Label>
-                                                                <Select
-                                                                    value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.color || ''}
-                                                                    onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'color', value)}
-                                                                >
-                                                                    <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                        <SelectValue placeholder="Seleccione color" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {lunaresOptions.color.map(option => (
-                                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                            <div>
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Bordes</Label>
-                                                                <Select
-                                                                    value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.bordes || ''}
-                                                                    onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'bordes', value)}
-                                                                >
-                                                                    <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                        <SelectValue placeholder="Seleccione tipo de bordes" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {lunaresOptions.bordes.map(option => (
-                                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                            <div>
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Elevación</Label>
-                                                                <Select
-                                                                    value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.elevacion || ''}
-                                                                    onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'elevacion', value)}
-                                                                >
-                                                                    <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                        <SelectValue placeholder="Seleccione elevación" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {lunaresOptions.elevacion.map(option => (
-                                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                        </>
-                                                    )}
-
-                                                    {caracteristica.id === 'cicatrices' && (
-                                                        <>
-                                                            <div>
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Tipo</Label>
-                                                                <Select
-                                                                    value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.tipo || ''}
-                                                                    onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tipo', value)}
-                                                                >
-                                                                    <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                        <SelectValue placeholder="Seleccione tipo" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {cicatricesOptions.tipo.map(option => (
-                                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                            <div>
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Antigüedad</Label>
-                                                                <Select
-                                                                    value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.antiguedad || ''}
-                                                                    onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'antiguedad', value)}
-                                                                >
-                                                                    <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                        <SelectValue placeholder="Seleccione antigüedad" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {cicatricesOptions.antiguedad.map(option => (
-                                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                        </>
-                                                    )}
-
-                                                    {caracteristica.id === 'asimetriasFaciales' && (
-                                                        <>
-                                                            <div>
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Zona afectada</Label>
-                                                                <Select
-                                                                    value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.zonaAfectada || ''}
-                                                                    onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'zonaAfectada', value)}
-                                                                >
-                                                                    <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                        <SelectValue placeholder="Seleccione zona" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {asimetriasOptions.zonaAfectada.map(option => (
-                                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                            <div>
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Grado</Label>
-                                                                <Select
-                                                                    value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.grado || ''}
-                                                                    onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'grado', value)}
-                                                                >
-                                                                    <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                        <SelectValue placeholder="Seleccione grado" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {asimetriasOptions.grado.map(option => (
-                                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                        </>
-                                                    )}
-
-                                                    {caracteristica.id === 'edema' && (
-                                                        <>
-                                                            <div>
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Localización</Label>
-                                                                <Select
-                                                                    value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.localizacion || ''}
-                                                                    onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'localizacion', value)}
-                                                                >
-                                                                    <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                        <SelectValue placeholder="Seleccione localización" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {edemaOptions.localizacion.map(option => (
-                                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                            <div>
-                                                                <Label className="text-xs text-gray-600 dark:text-gray-400">Tipo</Label>
-                                                                <Select
-                                                                    value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.tipoEdema || ''}
-                                                                    onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tipoEdema', value)}
-                                                                >
-                                                                    <SelectTrigger className="w-full h-8 text-sm mt-1">
-                                                                        <SelectValue placeholder="Seleccione tipo" />
-                                                                    </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        {edemaOptions.tipoEdema.map(option => (
-                                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-                                                        </>
-                                                    )}
-
+                                            {(() => {
+                                              const data = formData.examenCabeza?.[caracteristica.id];
+                                              let isPresent = false;
+                                              if (typeof data === 'string') {
+                                                try {
+                                                  const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                  isPresent = parsed.presente === true;
+                                                } catch {
+                                                  isPresent = false;
+                                                }
+                                              } else {
+                                                isPresent = (data as CaracteristicaFacial)?.presente === true;
+                                              }
+                                              return isPresent;
+                                            })() && (
+                                              <div className="mt-2 space-y-3 border-t pt-2">
+                                                {caracteristica.id === 'lunares' && (
+                                                  <>
                                                     <div>
-                                                        <Label className="text-xs text-gray-600 dark:text-gray-400">
-                                                            {caracteristica.id !== 'edema' && caracteristica.id !== 'asimetriasFaciales' ? 'Localización' : 'Detalles adicionales'}
-                                                        </Label>
-                                                        <Textarea
-                                                            placeholder="Describa la localización o detalles adicionales"
-                                                            value={((formData.examenCabeza || {})[caracteristica.id] as CaracteristicaFacial)?.detalles || ''}
-                                                            onChange={(e) => handleCaracteristicaFacialChange(caracteristica.id, 'detalles', e.target.value)}
-                                                            className="min-h-[50px] text-sm mt-1"
-                                                        />
+                                                      <Label className="text-xs text-gray-600 dark:text-gray-400">Tamaño</Label>
+                                                      <Select
+                                                        value={(() => {
+                                                          const data = formData.examenCabeza?.[caracteristica.id];
+                                                          if (typeof data === 'string') {
+                                                            try {
+                                                              const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                              return parsed.tamanio || '';
+                                                            } catch {
+                                                              return '';
+                                                            }
+                                                          }
+                                                          return (data as CaracteristicaFacial)?.tamanio || '';
+                                                        })()}
+                                                        onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tamanio', value)}
+                                                      >
+                                                        <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                          <SelectValue placeholder="Seleccione tamaño" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                          {lunaresOptions.tamanio.map(option => (
+                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                          ))}
+                                                        </SelectContent>
+                                                      </Select>
                                                     </div>
+                                                    <div>
+                                                      <Label className="text-xs text-gray-600 dark:text-gray-400">Color</Label>
+                                                      <Select
+                                                        value={(() => {
+                                                          const data = formData.examenCabeza?.[caracteristica.id];
+                                                          if (typeof data === 'string') {
+                                                            try {
+                                                              const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                              return parsed.color || '';
+                                                            } catch {
+                                                              return '';
+                                                            }
+                                                          }
+                                                          return (data as CaracteristicaFacial)?.color || '';
+                                                        })()}
+                                                        onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'color', value)}
+                                                      >
+                                                        <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                          <SelectValue placeholder="Seleccione color" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                          {lunaresOptions.color.map(option => (
+                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                          ))}
+                                                        </SelectContent>
+                                                      </Select>
+                                                    </div>
+                                                    <div>
+                                                      <Label className="text-xs text-gray-600 dark:text-gray-400">Bordes</Label>
+                                                      <Select
+                                                        value={(() => {
+                                                          const data = formData.examenCabeza?.[caracteristica.id];
+                                                          if (typeof data === 'string') {
+                                                            try {
+                                                              const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                              return parsed.bordes || '';
+                                                            } catch {
+                                                              return '';
+                                                            }
+                                                          }
+                                                          return (data as CaracteristicaFacial)?.bordes || '';
+                                                        })()}
+                                                        onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'bordes', value)}
+                                                      >
+                                                        <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                          <SelectValue placeholder="Seleccione tipo de bordes" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                          {lunaresOptions.bordes.map(option => (
+                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                          ))}
+                                                        </SelectContent>
+                                                      </Select>
+                                                    </div>
+                                                    <div>
+                                                      <Label className="text-xs text-gray-600 dark:text-gray-400">Elevación</Label>
+                                                      <Select
+                                                        value={(() => {
+                                                          const data = formData.examenCabeza?.[caracteristica.id];
+                                                          if (typeof data === 'string') {
+                                                            try {
+                                                              const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                              return parsed.elevacion || '';
+                                                            } catch {
+                                                              return '';
+                                                            }
+                                                          }
+                                                          return (data as CaracteristicaFacial)?.elevacion || '';
+                                                        })()}
+                                                        onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'elevacion', value)}
+                                                      >
+                                                        <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                          <SelectValue placeholder="Seleccione elevación" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                          {lunaresOptions.elevacion.map(option => (
+                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                          ))}
+                                                        </SelectContent>
+                                                      </Select>
+                                                    </div>
+                                                  </>
+                                                )}
+
+                                                {caracteristica.id === 'cicatrices' && (
+                                                  <>
+                                                    <div>
+                                                      <Label className="text-xs text-gray-600 dark:text-gray-400">Tipo</Label>
+                                                      <Select
+                                                        value={(() => {
+                                                          const data = formData.examenCabeza?.[caracteristica.id];
+                                                          if (typeof data === 'string') {
+                                                            try {
+                                                              const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                              return parsed.tipo || '';
+                                                            } catch {
+                                                              return '';
+                                                            }
+                                                          }
+                                                          return (data as CaracteristicaFacial)?.tipo || '';
+                                                        })()}
+                                                        onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tipo', value)}
+                                                      >
+                                                        <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                          <SelectValue placeholder="Seleccione tipo" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                          {cicatricesOptions.tipo.map(option => (
+                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                          ))}
+                                                        </SelectContent>
+                                                      </Select>
+                                                    </div>
+                                                    <div>
+                                                      <Label className="text-xs text-gray-600 dark:text-gray-400">Antigüedad</Label>
+                                                      <Select
+                                                        value={(() => {
+                                                          const data = formData.examenCabeza?.[caracteristica.id];
+                                                          if (typeof data === 'string') {
+                                                            try {
+                                                              const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                              return parsed.antiguedad || '';
+                                                            } catch {
+                                                              return '';
+                                                            }
+                                                          }
+                                                          return (data as CaracteristicaFacial)?.antiguedad || '';
+                                                        })()}
+                                                        onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'antiguedad', value)}
+                                                      >
+                                                        <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                          <SelectValue placeholder="Seleccione antigüedad" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                          {cicatricesOptions.antiguedad.map(option => (
+                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                          ))}
+                                                        </SelectContent>
+                                                      </Select>
+                                                    </div>
+                                                  </>
+                                                )}
+
+                                                {caracteristica.id === 'asimetriasFaciales' && (
+                                                  <>
+                                                    <div>
+                                                      <Label className="text-xs text-gray-600 dark:text-gray-400">Zona afectada</Label>
+                                                      <Select
+                                                        value={(() => {
+                                                          const data = formData.examenCabeza?.[caracteristica.id];
+                                                          if (typeof data === 'string') {
+                                                            try {
+                                                              const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                              return parsed.zonaAfectada || '';
+                                                            } catch {
+                                                              return '';
+                                                            }
+                                                          }
+                                                          return (data as CaracteristicaFacial)?.zonaAfectada || '';
+                                                        })()}
+                                                        onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'zonaAfectada', value)}
+                                                      >
+                                                        <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                          <SelectValue placeholder="Seleccione zona" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                          {asimetriasOptions.zonaAfectada.map(option => (
+                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                          ))}
+                                                        </SelectContent>
+                                                      </Select>
+                                                    </div>
+                                                    <div>
+                                                      <Label className="text-xs text-gray-600 dark:text-gray-400">Grado</Label>
+                                                      <Select
+                                                        value={(() => {
+                                                          const data = formData.examenCabeza?.[caracteristica.id];
+                                                          if (typeof data === 'string') {
+                                                            try {
+                                                              const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                              return parsed.grado || '';
+                                                            } catch {
+                                                              return '';
+                                                            }
+                                                          }
+                                                          return (data as CaracteristicaFacial)?.grado || '';
+                                                        })()}
+                                                        onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'grado', value)}
+                                                      >
+                                                        <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                          <SelectValue placeholder="Seleccione grado" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                          {asimetriasOptions.grado.map(option => (
+                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                          ))}
+                                                        </SelectContent>
+                                                      </Select>
+                                                    </div>
+                                                  </>
+                                                )}
+
+                                                {caracteristica.id === 'edema' && (
+                                                  <>
+                                                    <div>
+                                                      <Label className="text-xs text-gray-600 dark:text-gray-400">Localización</Label>
+                                                      <Select
+                                                        value={(() => {
+                                                          const data = formData.examenCabeza?.[caracteristica.id];
+                                                          if (typeof data === 'string') {
+                                                            try {
+                                                              const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                              return parsed.localizacion || '';
+                                                            } catch {
+                                                              return '';
+                                                            }
+                                                          }
+                                                          return (data as CaracteristicaFacial)?.localizacion || '';
+                                                        })()}
+                                                        onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'localizacion', value)}
+                                                      >
+                                                        <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                          <SelectValue placeholder="Seleccione localización" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                          {edemaOptions.localizacion.map(option => (
+                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                          ))}
+                                                        </SelectContent>
+                                                      </Select>
+                                                    </div>
+                                                    <div>
+                                                      <Label className="text-xs text-gray-600 dark:text-gray-400">Tipo</Label>
+                                                      <Select
+                                                        value={(() => {
+                                                          const data = formData.examenCabeza?.[caracteristica.id];
+                                                          if (typeof data === 'string') {
+                                                            try {
+                                                              const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                              return parsed.tipoEdema || '';
+                                                            } catch {
+                                                              return '';
+                                                            }
+                                                          }
+                                                          return (data as CaracteristicaFacial)?.tipoEdema || '';
+                                                        })()}
+                                                        onValueChange={(value) => handleCaracteristicaFacialChange(caracteristica.id, 'tipoEdema', value)}
+                                                      >
+                                                        <SelectTrigger className="w-full h-8 text-sm mt-1">
+                                                          <SelectValue placeholder="Seleccione tipo" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                          {edemaOptions.tipoEdema.map(option => (
+                                                            <SelectItem key={option} value={option}>{option}</SelectItem>
+                                                          ))}
+                                                        </SelectContent>
+                                                      </Select>
+                                                    </div>
+                                                  </>
+                                                )}
+
+                                                <div>
+                                                  <Label className="text-xs text-gray-600 dark:text-gray-400">
+                                                    {caracteristica.id !== 'edema' && caracteristica.id !== 'asimetriasFaciales' ? 'Localización' : 'Detalles adicionales'}
+                                                  </Label>
+                                                  <Textarea
+                                                    placeholder="Describa la localización o detalles adicionales"
+                                                    value={(() => {
+                                                      const data = formData.examenCabeza?.[caracteristica.id];
+                                                      if (typeof data === 'string') {
+                                                        try {
+                                                          const parsed = JSON.parse(data) as CaracteristicaFacial;
+                                                          return parsed.detalles || '';
+                                                        } catch {
+                                                          return '';
+                                                        }
+                                                      }
+                                                      return (data as CaracteristicaFacial)?.detalles || '';
+                                                    })()}
+                                                    onChange={(e) => handleCaracteristicaFacialChange(caracteristica.id, 'detalles', e.target.value)}
+                                                    className="min-h-[50px] text-sm mt-1"
+                                                  />
                                                 </div>
+                                              </div>
                                             )}
                                         </div>
                                     ))}
