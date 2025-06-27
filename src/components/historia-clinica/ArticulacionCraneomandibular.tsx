@@ -75,7 +75,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                 <div>
                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Apertura bucal</Label>
                   <Select
-                    value={formData.articulacionCraneomandibular?.aperturaBucal || ''}
+                    value={String(formData.articulacionCraneomandibular?.aperturaBucal || '')}
                     onValueChange={(value) => handleArticulacionCraneomandibularChange('aperturaBucal', value)}
                   >
                     <SelectTrigger className="w-full">
@@ -92,7 +92,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                 <div>
                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Movimientos laterales</Label>
                   <Select
-                    value={formData.articulacionCraneomandibular?.movimientosLaterales || ''}
+                    value={String(formData.articulacionCraneomandibular?.movimientosLaterales || '')}
                     onValueChange={(value) => handleArticulacionCraneomandibularChange('movimientosLaterales', value)}
                   >
                     <SelectTrigger className="w-full">
@@ -111,7 +111,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                 <div>
                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Ruidos articulares</Label>
                   <Select
-                    value={formData.articulacionCraneomandibular?.ruidosArticulares || ''}
+                    value={String(formData.articulacionCraneomandibular?.ruidosArticulares || '')}
                     onValueChange={(value) => handleArticulacionCraneomandibularChange('ruidosArticulares', value)}
                   >
                     <SelectTrigger className="w-full">
@@ -128,7 +128,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                 <div>
                   <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Dolor</Label>
                   <Select
-                    value={formData.articulacionCraneomandibular?.dolor || ''}
+                    value={String(formData.articulacionCraneomandibular?.dolor || '')}
                     onValueChange={(value) => handleArticulacionCraneomandibularChange('dolor', value)}
                   >
                     <SelectTrigger className="w-full">

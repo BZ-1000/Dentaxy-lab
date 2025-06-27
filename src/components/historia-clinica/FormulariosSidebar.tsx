@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileText, BookOpen, Trash, Pencil, Share2 } from "lucide-react";
+import { Save, FileText, BookOpen, Trash, Pencil, Share2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { useTheme } from '@/hooks/use-theme';
-import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon } from '@/components/ui/modern-sidebar';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@/components/ui/modern-sidebar';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
 
@@ -30,8 +30,10 @@ const FormulariosSidebar = ({
     nombre: string;
     data: FormDataState;
   }[]>([]);
-  const { theme } = useTheme();
-  const [open, setOpen] = useState(true); // Mantener abierto por defecto en desktop
+  const {
+    theme
+  } = useTheme();
+  const [open, setOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [accionFormulario, setAccionFormulario] = useState<'eliminar' | 'renombrar' | 'compartir' | null>(null);
@@ -39,8 +41,6 @@ const FormulariosSidebar = ({
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
 
-  // --- Toda tu lógica de funciones (loadSavedForms, handleGuardar, etc.) permanece sin cambios ---
-  // ... (se omite por brevedad, pero debe estar aquí en tu archivo)
   const loadSavedForms = () => {
     const savedForms: {
       nombre: string;
@@ -51,7 +51,10 @@ const FormulariosSidebar = ({
       if (key && key.startsWith('formulario_')) {
         const nombre = key.replace('formulario_', '');
         const data = JSON.parse(localStorage.getItem(key) || '{}');
-        savedForms.push({ nombre, data });
+        savedForms.push({
+          nombre,
+          data
+        });
       }
     }
     setFormularios(savedForms);
@@ -62,7 +65,9 @@ const FormulariosSidebar = ({
   }, []);
 
   const handleGuardarFormulario = () => {
-    if (!nombrePaciente.trim()) return;
+    if (!nombrePaciente.trim()) {
+      return;
+    }
     onGuardarFormulario(nombrePaciente);
     loadSavedForms();
     setNombrePaciente('');
@@ -104,7 +109,7 @@ const FormulariosSidebar = ({
       });
     }
   };
-  
+
   const handleCompartirFormulario = () => {
     if (!formularioSeleccionado || !emailCompartir.trim()) return;
     toast({
@@ -120,137 +125,166 @@ const FormulariosSidebar = ({
       setAlertDialogOpen(true);
     } else {
       setAccionFormulario(action);
-      setNuevoNombre(action === 'renombrar' ? nombre : '');
+      if (action === 'renombrar') {
+        setNuevoNombre(nombre);
+      } else {
+        setNuevoNombre('');
+      }
       setEmailCompartir('');
       setDialogOpen(true);
     }
   };
 
+  const handleQuitarNombre = () => {
+    setNombrePaciente('');
+    onResetFormulario();
+    toast({
+      title: "Formulario reseteado",
+      description: "El formulario ha sido reseteado al estado inicial."
+    });
+  };
+
   return (
-    // CAMBIO 1: El contenedor principal ahora usa max-h-screen.
-    // Se "pegará" al borde superior (top-0) cuando hagas scroll,
-    // y su altura máxima será la de la pantalla, evitando desbordamientos.
-    <div className="sticky top-0 max-h-screen hidden md:block">
-      <Sidebar open={open} setOpen={setOpen} animate={true}>
-        {/* CAMBIO 2: SidebarBody es ahora un contenedor flex vertical (flex-col)
-            que ocupa toda la altura disponible (h-full). */}
-        <SidebarBody className="bg-slate-50 flex flex-col h-full">
-          {/* SECCIÓN SUPERIOR (CABECERA): No es sticky, es parte del flujo flex. */}
-          <div className="p-4 border-b border-slate-200">
-            {open ? (
-              <Logo>
-                <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
-              </Logo>
-            ) : (
-              <LogoIcon>
-                <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
-              </LogoIcon>
-            )}
-          </div>
+    <div className="">
+      <div className="fixed top-0 left-0 h-screen hidden md:block z-40">
+        <Sidebar open={open} setOpen={setOpen} animate={true}>
+          <SidebarBody className="bg-slate-50 h-full">
+            {/* Header section - sticky */}
+            <div className="sticky top-0 bg-slate-50 z-10 pb-4">
+              <div className="flex flex-col overflow-x-hidden bg-slate-50">
+                {open ? (
+                  <Logo>
+                    <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
+                  </Logo>
+                ) : (
+                  <LogoIcon>
+                    <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
+                  </LogoIcon>
+                )}
 
-          {/* CAMBIO 3: SECCIÓN DE CONTENIDO (LISTA).
-              - flex-1: Hace que esta sección ocupe todo el espacio vertical restante.
-              - overflow-y-auto: Muestra una barra de scroll solo si la lista es muy larga. */}
-          <div className="flex-1 overflow-y-auto">
-            <ScrollArea className="h-full p-4">
-              <div className="space-y-2">
-                {formularios.map((form) => (
-                  <div key={form.nombre} className="group flex justify-between items-center w-full">
-                    <SidebarLink
-                      link={{
-                        label: form.nombre,
-                        icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
-                        onClick: () => onCargarFormulario(form.data, form.nombre)
-                      }}
-                      className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 py-1 flex-1 min-w-0"
-                    />
-                    {open && (
-                      <div className="flex items-center gap-1 pl-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleFormularioAction('renombrar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700" title="Renombrar paciente">
-                          <Pencil className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
-                        </button>
-                        <button onClick={() => handleFormularioAction('compartir', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700" title="Compartir formulario">
-                          <Share2 className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
-                        </button>
-                        <button onClick={() => handleFormularioAction('eliminar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700" title="Eliminar paciente">
-                          <Trash className="h-3.5 w-3.5 text-red-500" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                <div className="mt-8 flex flex-col gap-4">
+                  {open && (
+                    <div className="space-y-2">
+                      
+                    </div>
+                  )}
+                </div>
               </div>
-            </ScrollArea>
-          </div>
-        </SidebarBody>
-      </Sidebar>
+            </div>
 
-      {/* Los diálogos y alertas permanecen sin cambios */}
+            {/* Formularios list section - sticky */}
+            <div className="sticky top-24 bg-slate-50 z-10 max-h-[calc(100vh-6rem)] overflow-y-auto">
+              <ScrollArea className="flex-1">
+                <div className="space-y-1 pr-2">
+                  {formularios.map((form, index) => (
+                    <div key={index} className="group flex justify-between items-center mb-2">
+                      <SidebarLink
+                        link={{
+                          label: form.nombre,
+                          icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
+                          onClick: () => onCargarFormulario(form.data, form.nombre)
+                        }}
+                        className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1"
+                      />
+                      {open && (
+                        <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button
+                            onClick={() => handleFormularioAction('renombrar', form.nombre)}
+                            className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                            title="Renombrar paciente"
+                          >
+                            <Pencil className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+                          </button>
+                          <button
+                            onClick={() => handleFormularioAction('compartir', form.nombre)}
+                            className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                            title="Compartir formulario"
+                          >
+                            <Share2 className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+                          </button>
+                          <button
+                            onClick={() => handleFormularioAction('eliminar', form.nombre)}
+                            className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700"
+                            title="Eliminar paciente"
+                          >
+                            <Trash className="h-3.5 w-3.5 text-red-500" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            </div>
+          </SidebarBody>
+        </Sidebar>
+      </div>
+
+      {/* Dialog for renaming or sharing */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        {/* ... Contenido del Dialog ... */}
         <DialogContent>
-            <DialogHeader>
-                <DialogTitle>
-                    {accionFormulario === 'renombrar' ? 'Renombrar formulario' : 'Compartir formulario'}
-                </DialogTitle>
-                <DialogDescription>
-                    {accionFormulario === 'renombrar'
-                    ? 'Ingrese el nuevo nombre para el formulario.'
-                    : 'Ingrese el correo electrónico para compartir el formulario.'}
-                </DialogDescription>
-            </DialogHeader>
-            {accionFormulario === 'renombrar' && (
-                <div className="grid gap-4 py-4">
-                    <Input
-                    placeholder="Nuevo nombre"
-                    value={nuevoNombre}
-                    onChange={(e) => setNuevoNombre(e.target.value)}
-                    className="col-span-3"
-                    />
-                </div>
-            )}
-            {accionFormulario === 'compartir' && (
-                <div className="grid gap-4 py-4">
-                    <Input
-                    placeholder="Correo electrónico"
-                    value={emailCompartir}
-                    onChange={(e) => setEmailCompartir(e.target.value)}
-                    className="col-span-3"
-                    />
-                </div>
-            )}
-            <DialogFooter>
-                <Button onClick={() => setDialogOpen(false)} variant="outline">
-                    Cancelar
-                </Button>
-                <Button
-                    onClick={accionFormulario === 'renombrar' ? handleRenombrarFormulario : handleCompartirFormulario}
-                >
-                    {accionFormulario === 'renombrar' ? 'Renombrar' : 'Compartir'}
-                </Button>
-            </DialogFooter>
+          <DialogHeader>
+            <DialogTitle>
+              {accionFormulario === 'renombrar' ? 'Renombrar formulario' : accionFormulario === 'compartir' ? 'Compartir formulario' : 'Acción de formulario'}
+            </DialogTitle>
+            <DialogDescription>
+              {accionFormulario === 'renombrar' ? 'Ingrese el nuevo nombre para el formulario.' : accionFormulario === 'compartir' ? 'Ingrese el correo electrónico para compartir el formulario.' : ''}
+            </DialogDescription>
+          </DialogHeader>
+          
+          {accionFormulario === 'renombrar' && (
+            <div className="grid gap-4 py-4">
+              <Input
+                placeholder="Nuevo nombre"
+                value={nuevoNombre}
+                onChange={e => setNuevoNombre(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+          )}
+          
+          {accionFormulario === 'compartir' && (
+            <div className="grid gap-4 py-4">
+              <Input
+                placeholder="Correo electrónico"
+                value={emailCompartir}
+                onChange={e => setEmailCompartir(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setDialogOpen(false)} variant="outline">
+              Cancelar
+            </Button>
+            <Button onClick={accionFormulario === 'renombrar' ? handleRenombrarFormulario : accionFormulario === 'compartir' ? handleCompartirFormulario : () => {}}>
+              {accionFormulario === 'renombrar' ? 'Renombrar' : accionFormulario === 'compartir' ? 'Compartir' : 'Confirmar'}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Alert Dialog for confirming deletion */}
       <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
-        {/* ... Contenido del AlertDialog ... */}
         <AlertDialogContent>
-            <AlertDialogHeader>
-                <AlertDialogTitle>¿Está seguro de eliminar este formulario?</AlertDialogTitle>
-                <AlertDialogDescription>
-                Esta acción no se puede deshacer. Eliminará permanentemente el formulario de {formularioSeleccionado} y todos sus datos asociados.
-                </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-                <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                <AlertDialogAction
-                onClick={handleEliminarFormulario}
-                className="bg-red-500 hover:bg-red-600"
-                >
-                Eliminar
-                </AlertDialogAction>
-            </AlertDialogFooter>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Está seguro de eliminar este formulario?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Eliminará permanentemente el formulario
+              de {formularioSeleccionado} y todos sus datos asociados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleEliminarFormulario} className="bg-red-500 hover:bg-red-600">
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      {pacienteActual}
     </div>
   );
 };
