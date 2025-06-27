@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ const FormulariosSidebar = ({
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
 
+  // Notify parent component when sidebar state changes
   useEffect(() => {
     onSidebarStateChange(open);
   }, [open, onSidebarStateChange]);
@@ -199,6 +201,7 @@ const FormulariosSidebar = ({
         </Sidebar>
       </div>
 
+      {/* Dialog for renaming or sharing */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -229,6 +232,7 @@ const FormulariosSidebar = ({
         </DialogContent>
       </Dialog>
 
+      {/* Alert Dialog for confirming deletion */}
       <AlertDialog open={alertDialogOpen} onOpenChange={setAlertDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
