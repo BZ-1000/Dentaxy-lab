@@ -105,26 +105,22 @@ serve(async (req) => {
       self.findIndex(t => t.id === term.id) === index
     );
 
-    // Generate clean response with only definition and context
+    // Generate clean response with only definition and context, plus emojis
     let response = '';
     
     if (uniqueTerms.length > 0) {
       uniqueTerms.forEach((term, index) => {
         if (index > 0) response += '\n\n';
         
-        response += `${term.termino.toUpperCase()}\n\n`;
-        response += `Definición: ${term.definicion}\n`;
+        response += `🦷 ${term.termino.toUpperCase()}\n\n`;
+        response += `📖 Definición: ${term.definicion}\n`;
         
         if (term.contexto_uso) {
-          response += `\nContexto: ${term.contexto_uso}`;
-        }
-        
-        if (term.sinonimos && term.sinonimos.length > 0) {
-          response += `\n\nSinónimos: ${term.sinonimos.join(', ')}`;
+          response += `\n💡 Contexto: ${term.contexto_uso}`;
         }
       });
     } else {
-      response = `No se encontraron términos específicos en la base de datos dental.\n\nIntenta usar términos más específicos como:\n• caries dental\n• gingivitis\n• periodontitis\n• pulpitis`;
+      response = `❌ No se encontraron términos específicos en la base de datos dental.\n\n🔍 Intenta usar términos más específicos como:\n🦷 caries dental\n🩸 gingivitis\n🦴 periodontitis\n⚡ pulpitis`;
     }
 
     return new Response(
@@ -145,7 +141,7 @@ serve(async (req) => {
     console.error('Error in chat function:', error)
     return new Response(
       JSON.stringify({ 
-        response: 'Error interno del servidor. No fue posible procesar tu consulta.',
+        response: '🚨 Error interno del servidor. No fue posible procesar tu consulta.',
         termsFound: 0,
         searchTerms: []
       }),

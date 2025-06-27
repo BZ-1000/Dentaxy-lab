@@ -47,6 +47,14 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
     return typeof value === 'boolean' ? value : false;
   };
 
+  const getCheckboxValue = (category: string): boolean => {
+    const data = formData.examenCabeza[category as keyof typeof formData.examenCabeza];
+    if (typeof data === 'object' && data !== null && 'presente' in data) {
+      return (data as CaracteristicaFacial).presente || false;
+    }
+    return false;
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -227,7 +235,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <div className="flex items-center space-x-2">
             <Checkbox
               id="cicatrices-presente"
-              checked={(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.presente || false}
+              checked={getCheckboxValue('cicatrices')}
               onCheckedChange={(checked) => 
                 handleDetailedChange('cicatrices', 'presente', checked as boolean)
               }
@@ -237,13 +245,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             </Label>
           </div>
           
-          {(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.presente && (
+          {getCheckboxValue('cicatrices') && (
             <div className="ml-6 space-y-3">
               <div>
                 <Label>Detalles</Label>
                 <Textarea
                   placeholder="Describe ubicación, causa, características..."
-                  value={(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.detalles || ''}
+                  value={getSelectValue('cicatrices', 'detalles')}
                   onChange={(e) => handleDetailedChange('cicatrices', 'detalles', e.target.value)}
                   className="mt-1"
                 />
@@ -312,7 +320,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <div className="flex items-center space-x-2">
             <Checkbox
               id="asimetrias-presente"
-              checked={(formData.examenCabeza.asimetriasFaciales as CaracteristicaFacial)?.presente || false}
+              checked={getCheckboxValue('asimetriasFaciales')}
               onCheckedChange={(checked) => 
                 handleDetailedChange('asimetriasFaciales', 'presente', checked as boolean)
               }
@@ -322,13 +330,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             </Label>
           </div>
           
-          {(formData.examenCabeza.asimetriasFaciales as CaracteristicaFacial)?.presente && (
+          {getCheckboxValue('asimetriasFaciales') && (
             <div className="ml-6 space-y-3">
               <div>
                 <Label>Descripción</Label>
                 <Textarea
                   placeholder="Describe la asimetría observada..."
-                  value={(formData.examenCabeza.asimetriasFaciales as CaracteristicaFacial)?.descripcion || ''}
+                  value={getSelectValue('asimetriasFaciales', 'descripcion')}
                   onChange={(e) => handleDetailedChange('asimetriasFaciales', 'descripcion', e.target.value)}
                   className="mt-1"
                 />
@@ -380,7 +388,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <div className="flex items-center space-x-2">
             <Checkbox
               id="edema-presente"
-              checked={(formData.examenCabeza.edema as CaracteristicaFacial)?.presente || false}
+              checked={getCheckboxValue('edema')}
               onCheckedChange={(checked) => 
                 handleDetailedChange('edema', 'presente', checked as boolean)
               }
@@ -390,13 +398,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             </Label>
           </div>
           
-          {(formData.examenCabeza.edema as CaracteristicaFacial)?.presente && (
+          {getCheckboxValue('edema') && (
             <div className="ml-6 space-y-3">
               <div>
                 <Label>Descripción</Label>
                 <Textarea
                   placeholder="Describe el edema..."
-                  value={(formData.examenCabeza.edema as CaracteristicaFacial)?.descripcion || ''}
+                  value={getSelectValue('edema', 'descripcion')}
                   onChange={(e) => handleDetailedChange('edema', 'descripcion', e.target.value)}
                   className="mt-1"
                 />
