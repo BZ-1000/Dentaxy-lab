@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PromptInputBox } from './ai-prompt-box';
@@ -12,15 +13,18 @@ interface ChatMessage {
   timestamp: Date;
   isTyping?: boolean;
 }
+
 interface FloatingChatInputProps {
   isOpen: boolean;
   onClose: () => void;
   onSend: (message: string) => void;
 }
+
 interface ResponsePopupProps {
   message: ChatMessage;
   onClose: () => void;
 }
+
 function ResponsePopup({
   message,
   onClose
@@ -50,7 +54,7 @@ function ResponsePopup({
         </div>
         
         <div className="text-white text-sm">
-          {message.isTyping ? <TypewriterEffect text={message.content} speed={25} /> : <p>{message.content}</p>}
+          {message.isTyping ? <TypewriterEffect text={message.content} speed={15} /> : <p className="whitespace-pre-line">{message.content}</p>}
         </div>
         
         <div className="text-gray-300 text-xs mt-2">
@@ -59,22 +63,14 @@ function ResponsePopup({
       </div>
     </motion.div>;
 }
-const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente especializado en odontología que ayuda a explicar términos médicos dentales de manera clara y concisa. Tu objetivo es proporcionar definiciones precisas y útiles para estudiantes y profesionales de la odontología.
 
-Cuando recibas un término médico dental:
-1. Proporciona una definición clara y concisa
-2. Explica su relevancia en el contexto odontológico
-3. Si es apropiado, menciona sinónimos o términos relacionados
-4. Mantén un tono profesional pero accesible
-5. Limita tu respuesta a máximo 150 palabras
-
-Si el término no está relacionado con odontología, indica que te especializas en términos dentales y sugiere reformular la consulta.`;
 export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInputProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
   const {
     isAnalysisMode
   } = useAnalysisMode();
+
   const handleSend = async (message: string) => {
     setIsLoading(true);
     onSend(message);
@@ -82,8 +78,7 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
     try {
       const { data, error } = await supabase.functions.invoke('chat', {
         body: {
-          message: message,
-          systemPrompt: DENTAXY_SYSTEM_PROMPT
+          message: message
         }
       });
 
@@ -103,18 +98,20 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
       console.error('Error:', error);
       const errorMessage: ChatMessage = {
         role: 'assistant',
-        content: 'Lo siento, ocurrió un error al procesar tu consulta. Por favor, intenta nuevamente.',
+        content: '❌ **Error de conexión**\n\nNo fue posible procesar tu consulta. Verifica tu conexión a internet e intenta nuevamente.',
         timestamp: new Date(),
-        isTyping: false
+        isTyping: true
       };
       setActiveResponse(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
+
   const closeResponse = () => {
     setActiveResponse(null);
   };
+
   return <>
       <AnimatePresence>
         {isOpen && !isAnalysisMode && <div className="fixed bottom-0 left-0 right-0 z-[9998] flex justify-center pointer-events-none" style={{

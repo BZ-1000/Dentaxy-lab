@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState, useRef } from "react";
@@ -6,6 +7,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { Send, Bot, User, X, AlertTriangle, CheckCircle, Clock, Search, ArrowUp } from "lucide-react";
 import { TypewriterEffect } from "./ui/TypewriterEffect";
 import { useAnalysisMode } from "@/contexts/AnalysisModeContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface WikiSearchProps {
   open: boolean;
@@ -20,54 +22,17 @@ interface ChatMessage {
   isTyping?: boolean;
 }
 
-const DENTAXY_SYSTEM_PROMPT = `Eres DentaxyGPT, un asistente de inteligencia artificial especializado en odontología. 
-
-IMPORTANTE: 
-- Responde SIEMPRE en español
-- Sé DIRECTO y CONCISO
-- Responde únicamente lo que se pregunta, sin información adicional
-- Máximo 150 palabras por respuesta
-- Ve al grano inmediatamente
-
-Tu especialidad:
-- Diagnósticos diferenciales rápidos
-- Tratamientos específicos
-- Urgencias odontológicas
-- Farmacología dental básica
-
-Estructura de respuesta:
-1. Respuesta directa a la pregunta
-2. Nivel de urgencia: 🟢 Rutina | 🟡 Preferente | 🔴 Urgencia | 🚨 Emergencia
-3. Acción recomendada (máximo 1 línea)
-
-Limitaciones:
-- NO diagnostiques definitivamente
-- NO prescribas medicamentos
-- Siempre recomienda consulta profesional para confirmación
-
-Responde de forma precisa y sin rodeos.`;
-
 const loadingMessages = [
-  "Analizando síntomas dentales...",
-  "Consultando base de datos odontológica...",
-  "Evaluando diagnóstico diferencial...",
-  "Verificando protocolos de tratamiento...",
-  "Revisando guías clínicas...",
-  "Procesando información médica...",
-  "Calculando nivel de urgencia...",
-  "Preparando recomendaciones...",
-  "Validando información clínica...",
-  "Generando respuesta especializada...",
-  "Accediendo a literatura médica...",
-  "Cruzando datos de síntomas...",
-  "Evaluando factores de riesgo...",
-  "Analizando historial clínico...",
-  "Consultando protocolos actualizados...",
-  "Verificando contraindicaciones...",
-  "Procesando datos clínicos...",
-  "Elaborando diagnóstico diferencial...",
-  "Revisando algoritmos de tratamiento...",
-  "Finalizando análisis especializado..."
+  "Buscando en la base de datos dental...",
+  "Analizando términos odontológicos...",
+  "Consultando definiciones especializadas...",
+  "Procesando información clínica...",
+  "Revisando sinónimos y contextos...",
+  "Preparando respuesta especializada...",
+  "Organizando resultados por relevancia...",
+  "Validando información odontológica...",
+  "Estructurando respuesta final...",
+  "Finalizando búsqueda especializada..."
 ];
 
 export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
@@ -93,7 +58,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
       if (!hasGreeted && messages.length === 0) {
         const greetingMessage: ChatMessage = {
           role: 'assistant',
-          content: '¡Hola! Soy DentaxyGPT, tu asistente personal especializado en odontología. Estoy aquí para ayudarte con consultas sobre diagnósticos, tratamientos, urgencias dentales y farmacología básica.\n\n🟢 Nivel: Rutina\n\nPregúntame lo que necesites de forma específica y directa.',
+          content: '¡Hola! Soy DentaxyGPT, tu asistente especializado en terminología odontológica.\n\nPuedo ayudarte a:\n🔍 Buscar definiciones de términos dentales\n📚 Encontrar sinónimos y contextos\n🦷 Explicar conceptos odontológicos\n📋 Identificar en qué sección del formulario se aplican\n\n¿Qué término te gustaría consultar?',
           timestamp: new Date(),
           urgency: 'low'
         };
@@ -111,7 +76,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
       interval = setInterval(() => {
         index = (index + 1) % loadingMessages.length;
         setLoadingMessage(loadingMessages[index]);
-      }, 1200);
+      }, 800);
     }
     return () => {
       if (interval) clearInterval(interval);
@@ -133,19 +98,6 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     }
   };
 
-  const detectUrgency = (content: string): 'low' | 'medium' | 'high' | 'emergency' => {
-    const emergencyKeywords = ['emergencia', '🚨', 'inmediata', 'grave', 'severo'];
-    const highKeywords = ['urgencia', '🔴', '24 horas', 'urgente'];
-    const mediumKeywords = ['preferente', '🟡', '1-3 días'];
-    
-    const lowerContent = content.toLowerCase();
-    
-    if (emergencyKeywords.some(keyword => lowerContent.includes(keyword))) return 'emergency';
-    if (highKeywords.some(keyword => lowerContent.includes(keyword))) return 'high';
-    if (mediumKeywords.some(keyword => lowerContent.includes(keyword))) return 'medium';
-    return 'low';
-  };
-
   const sendMessage = async () => {
     if (!message.trim() || isLoading) return;
     
@@ -165,72 +117,19 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
     setIsLoading(true);
 
     try {
-      const conversationHistory = messages
-        .filter(msg => !(msg.role === 'assistant' && msg.content.includes('¡Hola! Soy DentaxyGPT')))
-        .slice(-4)
-        .map(msg => ({
-          role: msg.role,
-          content: msg.content
-        }));
-
-      const currentDomain = window.location.hostname;
-      let refererUrl = 'https://www.dentaxy.com';
-      
-      if (currentDomain.includes('dentaxy.com')) {
-        refererUrl = currentDomain.includes('www.') ? 'https://www.dentaxy.com' : 'https://dentaxy.com';
-      }
-
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer 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',
-          'Content-Type': 'application/json',
-          'HTTP-Referer': refererUrl,
-          'X-Title': 'DentaxyGPT - Asistente Odontológico Especializado',
-          'Origin': refererUrl
-        },
-        body: JSON.stringify({
-          model: 'meta-llama/llama-3.2-3b-instruct:free',
-          messages: [
-            {
-              role: 'system',
-              content: DENTAXY_SYSTEM_PROMPT
-            },
-            ...conversationHistory,
-            {
-              role: 'user',
-              content: userMessage
-            }
-          ],
-          temperature: 0.1,
-          max_tokens: 200,
-          top_p: 0.7,
-          frequency_penalty: 0.6,
-          presence_penalty: 0.4
-        })
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: {
+          message: userMessage
+        }
       });
 
-      if (!response.ok) {
-        let errorMessage = 'Error técnico temporal. Consulta directamente con un profesional odontológico.';
-        
-        if (response.status === 401) {
-          errorMessage = 'Error de autenticación API. Verificando credenciales...';
-        } else if (response.status === 429) {
-          errorMessage = 'Servicio temporalmente saturado. Intenta en unos momentos.';
-        } else if (response.status >= 500) {
-          errorMessage = 'Servidor temporalmente no disponible. Consulta con un profesional.';
-        } else if (response.status === 0 || !response.status) {
-          errorMessage = 'Error de conexión. Verifica tu conexión a internet y el dominio.';
-        }
-        
-        throw new Error(errorMessage);
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw new Error('Error en la comunicación con el servidor');
       }
 
-      const data = await response.json();
-      let aiResponse = data.choices?.[0]?.message?.content || 'Lo siento, no pude procesar tu consulta. Por favor, reformula tu pregunta de manera más específica.';
-
-      aiResponse = aiResponse.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
-      const urgency = detectUrgency(aiResponse);
+      const aiResponse = data.response || 'Lo siento, no pude procesar tu consulta.';
+      const urgency = 'low'; // Base de datos local siempre es rutina
 
       const typingMessage: ChatMessage = {
         role: 'assistant',
@@ -242,10 +141,10 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
       setMessages(prev => [...prev, typingMessage]);
 
     } catch (error) {
-      console.error('Error calling OpenRouter API:', error);
+      console.error('Error calling chat function:', error);
       const errorMessage: ChatMessage = {
         role: 'assistant',
-        content: error instanceof Error ? error.message : 'Error técnico temporal. Consulta directamente con un profesional odontológico. Si es emergencia, acude al servicio de urgencias.',
+        content: '❌ **Error de conexión**\n\nNo fue posible procesar tu consulta. Por favor, verifica tu conexión a internet e intenta nuevamente.',
         timestamp: new Date(),
         urgency: 'medium',
         isTyping: true
@@ -294,7 +193,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
             <div className="flex flex-col">
               <span>DentaxyGPT</span>
               <span className="text-sm font-normal text-slate-500 dark:text-slate-400">
-                Asistente Odontológico Rápido y Preciso
+                Base de Datos Dental Local
               </span>
             </div>
           </DialogTitle>
@@ -337,7 +236,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                 Iniciando DentaxyGPT...
               </h3>
               <p className="text-slate-600 dark:text-slate-300 max-w-lg leading-relaxed">
-                Preparando tu asistente odontológico personal...
+                Preparando tu consultor de terminología dental...
               </p>
             </div>
           ) : (
@@ -363,11 +262,11 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
                         : 'bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600'
                     }`}>
                       <div className="prose prose-sm dark:prose-invert max-w-none">
-                        <div className="whitespace-pre-wrap leading-relaxed">
+                        <div className="whitespace-pre-line leading-relaxed">
                           {msg.role === 'assistant' && msg.isTyping ? (
                             <TypewriterEffect 
                               text={msg.content}
-                              speed={25}
+                              speed={15}
                               onComplete={() => handleTypingComplete(index)}
                             />
                           ) : (
@@ -415,7 +314,7 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
           <div className="relative flex items-center bg-white dark:bg-slate-700 rounded-full border border-slate-200 dark:border-slate-600 shadow-sm hover:shadow-md transition-shadow duration-200">
             <Input
               ref={inputRef}
-              placeholder="Pregunta específica sobre odontología..."
+              placeholder="Pregunta sobre terminología dental..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -433,10 +332,10 @@ export function WikiSearch({ open, onOpenChange }: WikiSearchProps) {
         </div>
         
         <div className="px-4 pb-2">
-          <div className="flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-800">
-            <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <div className="flex items-center justify-center gap-2 text-xs text-slate-500 dark:text-slate-400 bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+            <CheckCircle className="h-4 w-4 text-blue-500" />
             <span>
-              <strong>Importante:</strong> Información orientativa. Consulta siempre con un profesional para diagnósticos definitivos.
+              <strong>Base de datos local:</strong> Información verificada y especializada en odontología.
             </span>
           </div>
         </div>

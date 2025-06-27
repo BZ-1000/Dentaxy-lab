@@ -24,7 +24,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message, systemPrompt } = await req.json()
+    const { message } = await req.json()
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -105,91 +105,50 @@ serve(async (req) => {
       self.findIndex(t => t.id === term.id) === index
     );
 
-    // Build enhanced context
-    let enhancedContext = '';
-    if (uniqueTerms.length > 0) {
-      enhancedContext = `TÉRMINOS RELEVANTES DE LA BASE DE DATOS DENTAL:\n\n`;
-      uniqueTerms.forEach(term => {
-        enhancedContext += `📚 **${term.termino}**: ${term.definicion}\n`;
-        enhancedContext += `   Categoría: ${term.categoria}${term.subcategoria ? ` - ${term.subcategoria}` : ''}\n`;
-        enhancedContext += `   Sección del formulario: ${term.seccion_formulario}\n`;
-        if (term.sinonimos && term.sinonimos.length > 0) {
-          enhancedContext += `   Sinónimos: ${term.sinonimos.join(', ')}\n`;
-        }
-        if (term.contexto_uso) {
-          enhancedContext += `   Contexto de uso: ${term.contexto_uso}\n`;
-        }
-        enhancedContext += `\n`;
-      });
-      enhancedContext += `---\n\n`;
-    }
-
-    // Get Gemini API key
-    const geminiApiKey = Deno.env.get('GEMINI_API_KEY')
-    if (!geminiApiKey) {
-      throw new Error('GEMINI_API_KEY not found')
-    }
-
-    // Enhanced system prompt with database integration
-    const enhancedSystemPrompt = `${systemPrompt}
-
-INSTRUCCIONES ESPECÍFICAS PARA USO DE BASE DE DATOS:
-- Los términos encontrados arriba son de tu base de conocimientos especializada
-- SIEMPRE prioriza la información de tu base de datos sobre conocimiento general
-- Si encuentras términos exactos, úsalos como autoridad principal
-- Estructura tu respuesta usando el formato especificado
-- Menciona la sección del formulario donde se aplica cada término
-- Incluye sinónimos cuando sea relevante
-
-FORMATO DE RESPUESTA REQUERIDO:
-📚 **[Término principal]**: [Definición técnica basada en tu base de datos]
-🔍 **Contexto clínico**: [Cuándo y cómo se usa en la práctica]
-📋 **Sección del formulario**: [Dónde se aplica en la historia clínica]
-🔗 **Términos relacionados**: [Sinónimos o conceptos relacionados]
-
-Si no encuentras el término en tu base de datos, proporciona conocimiento general pero indica que no está en tu base especializada.`;
-
-    // Prepare the enhanced message
-    const enhancedMessage = `${enhancedContext}CONSULTA DEL USUARIO: ${message}`;
-
-    console.log('Enhanced message:', enhancedMessage);
-    console.log('Found terms:', uniqueTerms.length);
-
-    // Call Gemini API
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: `${enhancedSystemPrompt}\n\nUsuario: ${enhancedMessage}`
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
-        }
-      })
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Gemini API error:', errorText)
-      throw new Error(`Gemini API error: ${response.status}`)
-    }
-
-    const data = await response.json()
-    console.log('Gemini response:', data)
+    // Generate response based on found terms
+    let response = '';
     
-    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Lo siento, no pude generar una respuesta.'
+    if (uniqueTerms.length > 0) {
+      response = `📚 **Términos encontrados en la base de datos:**\n\n`;
+      
+      uniqueTerms.forEach((term, index) => {
+        response += `**${index + 1}. ${term.termino}**\n`;
+        response += `📖 **Definición:** ${term.definicion}\n`;
+        response += `🏷️ **Categoría:** ${term.categoria}${term.subcategoria ? ` - ${term.subcategoria}` : ''}\n`;
+        response += `📋 **Sección:** ${term.seccion_formulario}\n`;
+        
+        if (term.sinonimos && term.sinonimos.length > 0) {
+          response += `🔗 **Sinónimos:** ${term.sinonimos.join(', ')}\n`;
+        }
+        
+        if (term.contexto_uso) {
+          response += `💡 **Contexto de uso:** ${term.contexto_uso}\n`;
+        }
+        
+        response += `\n`;
+      });
+      
+      response += `---\n\n`;
+      response += `💬 **Consulta procesada:** "${message}"\n`;
+      response += `🔍 **Términos analizados:** ${searchTerms.join(', ')}\n`;
+      response += `📊 **Resultados encontrados:** ${uniqueTerms.length}`;
+    } else {
+      response = `🔍 **Búsqueda realizada:** "${message}"\n\n`;
+      response += `❌ **No se encontraron términos específicos** en la base de datos dental.\n\n`;
+      response += `💡 **Sugerencias:**\n`;
+      response += `• Intenta usar términos más específicos\n`;
+      response += `• Revisa la ortografía del término\n`;
+      response += `• Usa sinónimos comunes en odontología\n\n`;
+      response += `🦷 **Ejemplos de búsquedas válidas:**\n`;
+      response += `• "caries dental"\n`;
+      response += `• "gingivitis"\n`;
+      response += `• "periodontitis"\n`;
+      response += `• "pulpitis"`;
+    }
 
     return new Response(
       JSON.stringify({ 
-        response: generatedText,
+        response: response,
         termsFound: uniqueTerms.length,
         searchTerms: searchTerms
       }),
@@ -205,8 +164,9 @@ Si no encuentras el término en tu base de datos, proporciona conocimiento gener
     console.error('Error in chat function:', error)
     return new Response(
       JSON.stringify({ 
-        error: 'Error interno del servidor',
-        details: error.message 
+        response: '❌ **Error interno del servidor**\n\nNo fue posible procesar tu consulta. Por favor, intenta nuevamente en unos momentos.',
+        termsFound: 0,
+        searchTerms: []
       }),
       { 
         status: 500,

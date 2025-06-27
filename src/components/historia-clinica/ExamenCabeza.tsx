@@ -35,6 +35,12 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
     handleExamenCabezaChange(category, updatedData);
   };
 
+  const getSelectValue = (category: string, field: string): string => {
+    const data = formData.examenCabeza[category as keyof typeof formData.examenCabeza] as CaracteristicaFacial;
+    const value = data?.[field as keyof CaracteristicaFacial];
+    return typeof value === 'string' ? value : '';
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -174,7 +180,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Tamaño</Label>
                   <Select 
-                    value={(formData.examenCabeza.lunares as CaracteristicaFacial)?.tamanio || ''} 
+                    value={getSelectValue('lunares', 'tamanio')} 
                     onValueChange={(value) => handleDetailedChange('lunares', 'tamanio', value)}
                   >
                     <SelectTrigger>
@@ -191,7 +197,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Color</Label>
                   <Select 
-                    value={(formData.examenCabeza.lunares as CaracteristicaFacial)?.color || ''} 
+                    value={getSelectValue('lunares', 'color')} 
                     onValueChange={(value) => handleDetailedChange('lunares', 'color', value)}
                   >
                     <SelectTrigger>
@@ -241,7 +247,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Tamaño</Label>
                   <Select 
-                    value={(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.tamanio || ''} 
+                    value={getSelectValue('cicatrices', 'tamanio')} 
                     onValueChange={(value) => handleDetailedChange('cicatrices', 'tamanio', value)}
                   >
                     <SelectTrigger>
@@ -258,7 +264,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Bordes</Label>
                   <Select 
-                    value={(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.bordes || ''} 
+                    value={getSelectValue('cicatrices', 'bordes')} 
                     onValueChange={(value) => handleDetailedChange('cicatrices', 'bordes', value)}
                   >
                     <SelectTrigger>
@@ -275,7 +281,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Localización</Label>
                   <Select 
-                    value={(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.localizacion || ''} 
+                    value={getSelectValue('cicatrices', 'localizacion')} 
                     onValueChange={(value) => handleDetailedChange('cicatrices', 'localizacion', value)}
                   >
                     <SelectTrigger>
@@ -326,7 +332,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Tipo</Label>
                   <Select 
-                    value={(formData.examenCabeza.asimetriasFaciales as CaracteristicaFacial)?.tipo || ''} 
+                    value={getSelectValue('asimetriasFaciales', 'tipo')} 
                     onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'tipo', value)}
                   >
                     <SelectTrigger>
@@ -343,7 +349,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Zona Afectada</Label>
                   <Select 
-                    value={(formData.examenCabeza.asimetriasFaciales as CaracteristicaFacial)?.zonaAfectada || ''} 
+                    value={getSelectValue('asimetriasFaciales', 'zonaAfectada')} 
                     onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'zonaAfectada', value)}
                   >
                     <SelectTrigger>
@@ -394,7 +400,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Grado</Label>
                   <Select 
-                    value={(formData.examenCabeza.edema as CaracteristicaFacial)?.grado || ''} 
+                    value={getSelectValue('edema', 'grado')} 
                     onValueChange={(value) => handleDetailedChange('edema', 'grado', value)}
                   >
                     <SelectTrigger>
@@ -411,7 +417,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Localización</Label>
                   <Select 
-                    value={(formData.examenCabeza.edema as CaracteristicaFacial)?.localizacion || ''} 
+                    value={getSelectValue('edema', 'localizacion')} 
                     onValueChange={(value) => handleDetailedChange('edema', 'localizacion', value)}
                   >
                     <SelectTrigger>
@@ -429,7 +435,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Consistencia</Label>
                   <Select 
-                    value={(formData.examenCabeza.edema as CaracteristicaFacial)?.consistencia || ''} 
+                    value={getSelectValue('edema', 'consistencia')} 
                     onValueChange={(value) => handleDetailedChange('edema', 'consistencia', value)}
                   >
                     <SelectTrigger>
