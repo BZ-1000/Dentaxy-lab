@@ -29,7 +29,7 @@ const ArticulacionCraneomandibular = ({
           <div>
             <Label>Apertura bucal</Label>
             <Select 
-              value={formData.articulacionCraneomandibular.aperturaBucal} 
+              value={typeof formData.articulacionCraneomandibular.aperturaBucal === 'string' ? formData.articulacionCraneomandibular.aperturaBucal : ""} 
               onValueChange={value => handleArticulacionCraneomandibularChange('aperturaBucal', value)}
             >
               <SelectTrigger>
@@ -46,7 +46,7 @@ const ArticulacionCraneomandibular = ({
           <div>
             <Label>Desviación mandibular</Label>
             <Select 
-              value={formData.articulacionCraneomandibular.desviacionMandibular} 
+              value={typeof formData.articulacionCraneomandibular.desviacionMandibular === 'string' ? formData.articulacionCraneomandibular.desviacionMandibular : ""} 
               onValueChange={value => handleArticulacionCraneomandibularChange('desviacionMandibular', value)}
             >
               <SelectTrigger>
@@ -63,7 +63,7 @@ const ArticulacionCraneomandibular = ({
           <div>
             <Label>Ruidos articulares</Label>
             <Select 
-              value={formData.articulacionCraneomandibular.ruidosArticulares} 
+              value={typeof formData.articulacionCraneomandibular.ruidosArticulares === 'string' ? formData.articulacionCraneomandibular.ruidosArticulares : ""} 
               onValueChange={value => handleArticulacionCraneomandibularChange('ruidosArticulares', value)}
             >
               <SelectTrigger>
@@ -81,7 +81,7 @@ const ArticulacionCraneomandibular = ({
           <div>
             <Label>Dolor a la palpación</Label>
             <Select 
-              value={formData.articulacionCraneomandibular.dolorPalpacion} 
+              value={typeof formData.articulacionCraneomandibular.dolorPalpacion === 'string' ? formData.articulacionCraneomandibular.dolorPalpacion : ""} 
               onValueChange={value => handleArticulacionCraneomandibularChange('dolorPalpacion', value)}
             >
               <SelectTrigger>
@@ -101,7 +101,7 @@ const ArticulacionCraneomandibular = ({
           <Label>Observaciones adicionales</Label>
           <div className="flex items-start gap-4">
             <Textarea
-              value={formData.articulacionCraneomandibular.observaciones}
+              value={typeof formData.articulacionCraneomandibular.observaciones === 'string' ? formData.articulacionCraneomandibular.observaciones : ""}
               onChange={e => handleArticulacionCraneomandibularChange('observaciones', e.target.value)}
               placeholder="Describir cualquier anomalía o hallazgo relevante en la articulación craneomandibular"
               className="min-h-[100px] max-h-[200px] w-full resize-y text-justify"

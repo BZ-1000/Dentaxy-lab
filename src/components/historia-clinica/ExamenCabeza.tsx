@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,12 +14,27 @@ interface ExamenCabezaProps {
 
 const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps) => {
   const handleCaracteristicaFacialChange = (caracteristica: string, field: string, value: string | boolean) => {
-    const currentData = formData.examenCabeza.caracteristicasFaciales[caracteristica] || {};
+    const currentCaracteristicas = formData.examenCabeza.caracteristicasFaciales || {};
+    const currentData = (typeof currentCaracteristicas === 'object' && currentCaracteristicas[caracteristica]) || {};
     const updatedData = { ...currentData, [field]: value };
-    handleExamenCabezaChange('caracteristicasFaciales', JSON.stringify({
-      ...formData.examenCabeza.caracteristicasFaciales,
+    
+    const updatedCaracteristicas = {
+      ...(typeof currentCaracteristicas === 'object' ? currentCaracteristicas : {}),
       [caracteristica]: updatedData
-    }));
+    };
+    
+    handleExamenCabezaChange('caracteristicasFaciales', updatedCaracteristicas);
+  };
+
+  const getCaracteristicaValue = (caracteristica: string, field: string): string => {
+    const caracteristicas = formData.examenCabeza.caracteristicasFaciales;
+    if (typeof caracteristicas === 'object' && caracteristicas && caracteristicas[caracteristica]) {
+      const caracteristicaData = caracteristicas[caracteristica];
+      if (typeof caracteristicaData === 'object' && caracteristicaData && caracteristicaData[field]) {
+        return typeof caracteristicaData[field] === 'string' ? caracteristicaData[field] : "";
+      }
+    }
+    return "";
   };
 
   return (
@@ -37,7 +53,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             <div>
               <Label>Forma de la cara</Label>
               <Select
-                value={formData.examenCabeza.caracteristicasFaciales.formaCara?.tipo || ""}
+                value={getCaracteristicaValue('formaCara', 'tipo')}
                 onValueChange={value => handleCaracteristicaFacialChange('formaCara', 'tipo', value)}
               >
                 <SelectTrigger>
@@ -55,7 +71,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             <div>
               <Label>Simetría facial</Label>
               <Select
-                value={formData.examenCabeza.caracteristicasFaciales.simetriaFacial?.tipo || ""}
+                value={getCaracteristicaValue('simetriaFacial', 'tipo')}
                 onValueChange={value => handleCaracteristicaFacialChange('simetriaFacial', 'tipo', value)}
               >
                 <SelectTrigger>
@@ -71,7 +87,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             <div>
               <Label>Perfil facial</Label>
               <Select
-                value={formData.examenCabeza.caracteristicasFaciales.perfilFacial?.tipo || ""}
+                value={getCaracteristicaValue('perfilFacial', 'tipo')}
                 onValueChange={value => handleCaracteristicaFacialChange('perfilFacial', 'tipo', value)}
               >
                 <SelectTrigger>
@@ -88,7 +104,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             <div>
               <Label>Color de la piel</Label>
               <Select
-                value={formData.examenCabeza.caracteristicasFaciales.colorPiel?.tipo || ""}
+                value={getCaracteristicaValue('colorPiel', 'tipo')}
                 onValueChange={value => handleCaracteristicaFacialChange('colorPiel', 'tipo', value)}
               >
                 <SelectTrigger>
@@ -107,7 +123,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <Label>Observaciones adicionales</Label>
           <div className="flex items-start gap-4">
             <Textarea
-              value={formData.examenCabeza.observaciones}
+              value={typeof formData.examenCabeza.observaciones === 'string' ? formData.examenCabeza.observaciones : ""}
               onChange={e => handleExamenCabezaChange('observaciones', e.target.value)}
               placeholder="Describir cualquier anomalía o hallazgo relevante en el examen de cabeza"
               className="min-h-[100px] max-h-[200px] w-full resize-y text-justify"
