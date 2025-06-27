@@ -146,9 +146,9 @@ const FormulariosSidebar = ({
 
   return (
     <div className="">
-      <div className="h-screen hidden md:block z-40">
+      <div className="fixed top-0 left-0 h-screen hidden md:block z-40">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
-          <SidebarBody className="bg-slate-50">
+          <SidebarBody className="bg-slate-50 h-full">
             {/* Header section - sticky */}
             <div className="sticky top-0 bg-slate-50 z-10 pb-4">
               <div className="flex flex-col overflow-x-hidden bg-slate-50">
