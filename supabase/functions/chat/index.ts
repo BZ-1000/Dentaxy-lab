@@ -70,7 +70,7 @@ serve(async (req) => {
         // Combine and deduplicate results
         const allMatches = [...(exactMatches || []), ...(synonymMatches || []), ...(textMatches || [])]
           .filter((term, index, self) => self.findIndex(t => t.id === term.id) === index)
-          .slice(0, 5);
+          .slice(0, 3); // Limitar a 3 resultados máximo
 
         return allMatches;
       } catch (error) {
@@ -105,45 +105,26 @@ serve(async (req) => {
       self.findIndex(t => t.id === term.id) === index
     );
 
-    // Generate response based on found terms
+    // Generate clean response with only definition and context
     let response = '';
     
     if (uniqueTerms.length > 0) {
-      response = `📚 **Términos encontrados en la base de datos:**\n\n`;
-      
       uniqueTerms.forEach((term, index) => {
-        response += `**${index + 1}. ${term.termino}**\n`;
-        response += `📖 **Definición:** ${term.definicion}\n`;
-        response += `🏷️ **Categoría:** ${term.categoria}${term.subcategoria ? ` - ${term.subcategoria}` : ''}\n`;
-        response += `📋 **Sección:** ${term.seccion_formulario}\n`;
+        if (index > 0) response += '\n\n';
         
-        if (term.sinonimos && term.sinonimos.length > 0) {
-          response += `🔗 **Sinónimos:** ${term.sinonimos.join(', ')}\n`;
-        }
+        response += `${term.termino.toUpperCase()}\n\n`;
+        response += `Definición: ${term.definicion}\n`;
         
         if (term.contexto_uso) {
-          response += `💡 **Contexto de uso:** ${term.contexto_uso}\n`;
+          response += `\nContexto: ${term.contexto_uso}`;
         }
         
-        response += `\n`;
+        if (term.sinonimos && term.sinonimos.length > 0) {
+          response += `\n\nSinónimos: ${term.sinonimos.join(', ')}`;
+        }
       });
-      
-      response += `---\n\n`;
-      response += `💬 **Consulta procesada:** "${message}"\n`;
-      response += `🔍 **Términos analizados:** ${searchTerms.join(', ')}\n`;
-      response += `📊 **Resultados encontrados:** ${uniqueTerms.length}`;
     } else {
-      response = `🔍 **Búsqueda realizada:** "${message}"\n\n`;
-      response += `❌ **No se encontraron términos específicos** en la base de datos dental.\n\n`;
-      response += `💡 **Sugerencias:**\n`;
-      response += `• Intenta usar términos más específicos\n`;
-      response += `• Revisa la ortografía del término\n`;
-      response += `• Usa sinónimos comunes en odontología\n\n`;
-      response += `🦷 **Ejemplos de búsquedas válidas:**\n`;
-      response += `• "caries dental"\n`;
-      response += `• "gingivitis"\n`;
-      response += `• "periodontitis"\n`;
-      response += `• "pulpitis"`;
+      response = `No se encontraron términos específicos en la base de datos dental.\n\nIntenta usar términos más específicos como:\n• caries dental\n• gingivitis\n• periodontitis\n• pulpitis`;
     }
 
     return new Response(
@@ -164,7 +145,7 @@ serve(async (req) => {
     console.error('Error in chat function:', error)
     return new Response(
       JSON.stringify({ 
-        response: '❌ **Error interno del servidor**\n\nNo fue posible procesar tu consulta. Por favor, intenta nuevamente en unos momentos.',
+        response: 'Error interno del servidor. No fue posible procesar tu consulta.',
         termsFound: 0,
         searchTerms: []
       }),

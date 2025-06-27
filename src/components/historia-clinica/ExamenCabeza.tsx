@@ -41,6 +41,12 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
     return typeof value === 'string' ? value : '';
   };
 
+  const getBooleanValue = (category: string, field: string): boolean => {
+    const data = formData.examenCabeza[category as keyof typeof formData.examenCabeza] as CaracteristicaFacial;
+    const value = data?.[field as keyof CaracteristicaFacial];
+    return typeof value === 'boolean' ? value : false;
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -154,7 +160,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <div className="flex items-center space-x-2">
             <Checkbox
               id="lunares-presente"
-              checked={(formData.examenCabeza.lunares as CaracteristicaFacial)?.presente || false}
+              checked={getBooleanValue('lunares', 'presente')}
               onCheckedChange={(checked) => 
                 handleDetailedChange('lunares', 'presente', checked as boolean)
               }
@@ -164,13 +170,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             </Label>
           </div>
           
-          {(formData.examenCabeza.lunares as CaracteristicaFacial)?.presente && (
+          {getBooleanValue('lunares', 'presente') && (
             <div className="ml-6 space-y-3">
               <div>
                 <Label>Detalles</Label>
                 <Textarea
                   placeholder="Describe características, ubicación, etc."
-                  value={(formData.examenCabeza.lunares as CaracteristicaFacial)?.detalles || ''}
+                  value={getSelectValue('lunares', 'detalles')}
                   onChange={(e) => handleDetailedChange('lunares', 'detalles', e.target.value)}
                   className="mt-1"
                 />
