@@ -1,189 +1,220 @@
 
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+interface DentalTerm {
+  id: string;
+  termino: string;
+  definicion: string;
+  categoria: string;
+  subcategoria?: string;
+  sinonimos?: string[];
+  contexto_uso?: string;
+  seccion_formulario: string;
+}
+
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { message, systemPrompt } = await req.json();
+    const { message, systemPrompt } = await req.json()
 
-    console.log('Received request:', { message, systemPrompt });
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Inicializar cliente de Supabase
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
+    // Enhanced local search function
+    const searchLocalTerms = async (searchText: string): Promise<DentalTerm[]> => {
+      try {
+        // Search exact matches
+        const { data: exactMatches, error: exactError } = await supabase
+          .from('dental_terms')
+          .select('*')
+          .ilike('termino', `%${searchText.toLowerCase()}%`)
+          .limit(3);
 
-    // Buscar en la base de datos local primero
-    const localResponse = await searchLocalTerms(supabaseClient, message);
-    if (localResponse) {
-      return new Response(JSON.stringify({ response: localResponse }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+        if (exactError) {
+          console.error('Error searching exact matches:', exactError);
+        }
+
+        // Search synonyms
+        const { data: synonymMatches, error: synonymError } = await supabase
+          .from('dental_terms')
+          .select('*')
+          .contains('sinonimos', [searchText.toLowerCase()])
+          .limit(2);
+
+        if (synonymError) {
+          console.error('Error searching synonyms:', synonymError);
+        }
+
+        // Search in definitions using full-text search
+        const { data: textMatches, error: textError } = await supabase
+          .from('dental_terms')
+          .select('*')
+          .textSearch('definicion', searchText, { type: 'websearch', config: 'spanish' })
+          .limit(2);
+
+        if (textError) {
+          console.error('Error in text search:', textError);
+        }
+
+        // Combine and deduplicate results
+        const allMatches = [...(exactMatches || []), ...(synonymMatches || []), ...(textMatches || [])]
+          .filter((term, index, self) => self.findIndex(t => t.id === term.id) === index)
+          .slice(0, 5);
+
+        return allMatches;
+      } catch (error) {
+        console.error('Error searching local terms:', error);
+        return [];
+      }
+    };
+
+    // Extract search terms from the message
+    const extractTermsFromMessage = (msg: string): string[] => {
+      // Remove common words and extract potential dental terms
+      const commonWords = ['el', 'la', 'los', 'las', 'de', 'del', 'en', 'con', 'por', 'para', 'que', 'es', 'un', 'una', 'y', 'o'];
+      const words = msg.toLowerCase()
+        .replace(/[^\w\s]/g, ' ')
+        .split(/\s+/)
+        .filter(word => word.length > 2 && !commonWords.includes(word));
+      
+      return [...new Set(words)]; // Remove duplicates
+    };
+
+    // Search for relevant terms in our database
+    const searchTerms = extractTermsFromMessage(message);
+    let allFoundTerms: DentalTerm[] = [];
+
+    for (const term of searchTerms) {
+      const foundTerms = await searchLocalTerms(term);
+      allFoundTerms = [...allFoundTerms, ...foundTerms];
     }
 
-    // Si no encuentra en la base local, usar Hugging Face como respaldo
-    const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium', {
+    // Remove duplicates
+    const uniqueTerms = allFoundTerms.filter((term, index, self) => 
+      self.findIndex(t => t.id === term.id) === index
+    );
+
+    // Build enhanced context
+    let enhancedContext = '';
+    if (uniqueTerms.length > 0) {
+      enhancedContext = `TÉRMINOS RELEVANTES DE LA BASE DE DATOS DENTAL:\n\n`;
+      uniqueTerms.forEach(term => {
+        enhancedContext += `📚 **${term.termino}**: ${term.definicion}\n`;
+        enhancedContext += `   Categoría: ${term.categoria}${term.subcategoria ? ` - ${term.subcategoria}` : ''}\n`;
+        enhancedContext += `   Sección del formulario: ${term.seccion_formulario}\n`;
+        if (term.sinonimos && term.sinonimos.length > 0) {
+          enhancedContext += `   Sinónimos: ${term.sinonimos.join(', ')}\n`;
+        }
+        if (term.contexto_uso) {
+          enhancedContext += `   Contexto de uso: ${term.contexto_uso}\n`;
+        }
+        enhancedContext += `\n`;
+      });
+      enhancedContext += `---\n\n`;
+    }
+
+    // Get Gemini API key
+    const geminiApiKey = Deno.env.get('GEMINI_API_KEY')
+    if (!geminiApiKey) {
+      throw new Error('GEMINI_API_KEY not found')
+    }
+
+    // Enhanced system prompt with database integration
+    const enhancedSystemPrompt = `${systemPrompt}
+
+INSTRUCCIONES ESPECÍFICAS PARA USO DE BASE DE DATOS:
+- Los términos encontrados arriba son de tu base de conocimientos especializada
+- SIEMPRE prioriza la información de tu base de datos sobre conocimiento general
+- Si encuentras términos exactos, úsalos como autoridad principal
+- Estructura tu respuesta usando el formato especificado
+- Menciona la sección del formulario donde se aplica cada término
+- Incluye sinónimos cuando sea relevante
+
+FORMATO DE RESPUESTA REQUERIDO:
+📚 **[Término principal]**: [Definición técnica basada en tu base de datos]
+🔍 **Contexto clínico**: [Cuándo y cómo se usa en la práctica]
+📋 **Sección del formulario**: [Dónde se aplica en la historia clínica]
+🔗 **Términos relacionados**: [Sinónimos o conceptos relacionados]
+
+Si no encuentras el término en tu base de datos, proporciona conocimiento general pero indica que no está en tu base especializada.`;
+
+    // Prepare the enhanced message
+    const enhancedMessage = `${enhancedContext}CONSULTA DEL USUARIO: ${message}`;
+
+    console.log('Enhanced message:', enhancedMessage);
+    console.log('Found terms:', uniqueTerms.length);
+
+    // Call Gemini API
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': 'Bearer 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',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        inputs: `${systemPrompt}\n\nUsuario: ${message}\nAsistente:`,
-        parameters: {
-          max_length: 200,
+        contents: [{
+          parts: [{
+            text: `${enhancedSystemPrompt}\n\nUsuario: ${enhancedMessage}`
+          }]
+        }],
+        generationConfig: {
           temperature: 0.7,
-          do_sample: true,
-          pad_token_id: 50256
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024,
         }
       })
-    });
-
-    console.log('Hugging Face response status:', response.status);
+    })
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Hugging Face error:', errorText);
-      
-      const fallbackResponse = getFallbackResponse(message);
-      return new Response(JSON.stringify({ response: fallbackResponse }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      const errorText = await response.text()
+      console.error('Gemini API error:', errorText)
+      throw new Error(`Gemini API error: ${response.status}`)
     }
 
-    const data = await response.json();
-    console.log('Hugging Face response:', data);
-
-    let aiResponse = '';
-    if (Array.isArray(data) && data[0]?.generated_text) {
-      aiResponse = data[0].generated_text.split('Asistente:').pop()?.trim() || getFallbackResponse(message);
-    } else {
-      aiResponse = getFallbackResponse(message);
-    }
-
-    return new Response(JSON.stringify({ response: aiResponse }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-
-  } catch (error) {
-    console.error('Error in chat function:', error);
-    const fallbackResponse = getFallbackResponse('error');
-    return new Response(JSON.stringify({ 
-      response: fallbackResponse
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
-});
-
-async function searchLocalTerms(supabaseClient: any, searchTerm: string): Promise<string | null> {
-  try {
-    console.log('Searching local database for:', searchTerm);
+    const data = await response.json()
+    console.log('Gemini response:', data)
     
-    // Buscar términos que coincidan exactamente o contengan el término de búsqueda
-    const { data: exactMatches, error: exactError } = await supabaseClient
-      .from('dental_terms')
-      .select('*')
-      .ilike('termino', `%${searchTerm.toLowerCase()}%`)
-      .limit(3);
+    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Lo siento, no pude generar una respuesta.'
 
-    if (exactError) {
-      console.error('Error searching exact matches:', exactError);
-    }
+    return new Response(
+      JSON.stringify({ 
+        response: generatedText,
+        termsFound: uniqueTerms.length,
+        searchTerms: searchTerms
+      }),
+      { 
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      }
+    )
 
-    // Buscar también en sinónimos
-    const { data: synonymMatches, error: synonymError } = await supabaseClient
-      .from('dental_terms')
-      .select('*')
-      .contains('sinonimos', [searchTerm.toLowerCase()])
-      .limit(2);
-
-    if (synonymError) {
-      console.error('Error searching synonyms:', synonymError);
-    }
-
-    // Buscar por texto completo en definiciones
-    const { data: textMatches, error: textError } = await supabaseClient
-      .from('dental_terms')
-      .select('*')
-      .textSearch('definicion', searchTerm, { type: 'websearch', config: 'spanish' })
-      .limit(2);
-
-    if (textError) {
-      console.error('Error in text search:', textError);
-    }
-
-    // Combinar resultados y eliminar duplicados
-    const allMatches = [...(exactMatches || []), ...(synonymMatches || []), ...(textMatches || [])]
-      .filter((term, index, self) => self.findIndex(t => t.id === term.id) === index)
-      .slice(0, 3); // Máximo 3 resultados
-
-    if (allMatches.length > 0) {
-      let response = `Encontré información sobre "${searchTerm}" en mi base de datos odontológica:\n\n`;
-      
-      allMatches.forEach((term, index) => {
-        response += `**${term.termino}**\n`;
-        response += `${term.definicion}\n`;
-        
-        if (term.sinonimos && term.sinonimos.length > 0) {
-          response += `*Sinónimos: ${term.sinonimos.join(', ')}*\n`;
-        }
-        
-        if (term.contexto_uso) {
-          response += `*Contexto: ${term.contexto_uso}*\n`;
-        }
-        
-        response += `*Sección: ${term.seccion_formulario}*\n`;
-        
-        if (index < allMatches.length - 1) {
-          response += '\n---\n\n';
-        }
-      });
-
-      return response;
-    }
-
-    return null;
   } catch (error) {
-    console.error('Error searching local terms:', error);
-    return null;
+    console.error('Error in chat function:', error)
+    return new Response(
+      JSON.stringify({ 
+        error: 'Error interno del servidor',
+        details: error.message 
+      }),
+      { 
+        status: 500,
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        } 
+      }
+    )
   }
-}
-
-function getFallbackResponse(message: string): string {
-  const term = message.toLowerCase();
-  
-  const dentalTerms: { [key: string]: string } = {
-    'caries': 'La caries dental es la destrucción de los tejidos del diente causada por bacterias. Se produce cuando las bacterias en la boca convierten los azúcares en ácidos que desmineralizan el esmalte dental.',
-    'gingivitis': 'La gingivitis es la inflamación de las encías causada por la acumulación de placa bacteriana. Se caracteriza por enrojecimiento, hinchazón y sangrado de las encías.',
-    'periodontitis': 'La periodontitis es una enfermedad inflamatoria que afecta los tejidos de soporte del diente, incluyendo el ligamento periodontal y el hueso alveolar.',
-    'placa': 'La placa dental es una película pegajosa compuesta por bacterias, saliva y restos de alimentos que se acumula en los dientes y puede causar caries y enfermedad periodontal.',
-    'erosion': 'La erosión dental es la pérdida de estructura dental causada por ácidos, ya sea de origen extrínseco (dieta) o intrínseco (reflujo gástrico).',
-    'erosionadas': 'Se refiere a piezas dentales que han perdido estructura por acción de ácidos. Pueden presentar superficies lisas, pérdida de brillo y sensibilidad.',
-    'abrasion': 'La abrasión dental es el desgaste anormal de la estructura dental causado por fuerzas mecánicas externas como el cepillado agresivo.',
-    'bruxismo': 'El bruxismo es el hábito involuntario de apretar o rechinar los dientes, especialmente durante el sueño, que puede causar desgaste dental.',
-    'maloclusion': 'La maloclusión se refiere a la incorrecta alineación de los dientes superiores e inferiores al cerrar la boca.',
-    'hola': 'Hola, soy DentaxyGPT, tu asistente especializado en odontología. Pregúntame sobre cualquier término dental y te ayudaré con una explicación clara y precisa.'
-  };
-
-  for (const [key, definition] of Object.entries(dentalTerms)) {
-    if (term.includes(key)) {
-      return definition;
-    }
-  }
-
-  return `Soy DentaxyGPT, especializado en términos dentales. El término "${message}" que mencionas puede estar relacionado con odontología. Si puedes proporcionar más contexto o ser más específico, podré darte una explicación más precisa.`;
-}
+})
