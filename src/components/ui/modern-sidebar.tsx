@@ -101,7 +101,7 @@ export const DesktopSidebar = ({
       onMouseLeave={() => setOpen(false)}
       {...props}
     >
-      <div>{children as React.ReactNode}</div>
+      <div>{children}</div>
     </motion.div>
   );
 };
@@ -144,7 +144,7 @@ export const MobileSidebar = ({
               >
                 <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
               </button>
-              <div>{children as React.ReactNode}</div>
+              {children}
             </div>
           </motion.div>
         )}
@@ -165,7 +165,7 @@ export const SidebarLink = ({
   const navigate = useNavigate();
 
   const handleLinkClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default browser navigation
     
     if (link.onClick) {
       link.onClick();
@@ -174,9 +174,9 @@ export const SidebarLink = ({
     
     if (link.href) {
       if (link.href.startsWith('http') || link.href.startsWith('#')) {
-        window.location.href = link.href;
+        window.location.href = link.href; // For external links only
       } else {
-        navigate(link.href, { replace: false });
+        navigate(link.href, { replace: false }); // Use replace: false to maintain history
       }
     }
   };
@@ -210,7 +210,7 @@ export const Logo = ({
   children: ReactNode;
 }) => {
   return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
-      <div>{React.Children.toArray(children)}</div>
+      {children}
       <div className="whitespace-pre text-base font-medium text-gray-700">Nube personal de formularios</div>
     </div>;
 };
@@ -221,7 +221,7 @@ export const LogoIcon = ({
   children: ReactNode;
 }) => {
   return <div className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20">
-      <div>{React.Children.toArray(children)}</div>
+      {children}
     </div>;
 };
 

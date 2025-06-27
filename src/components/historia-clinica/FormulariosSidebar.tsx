@@ -64,6 +64,7 @@ const FormulariosSidebar = ({
       return;
     }
     onGuardarFormulario(nombrePaciente);
+    // Cargar los formularios inmediatamente después de guardar
     loadSavedForms();
     setNombrePaciente('');
     toast({
@@ -134,12 +135,11 @@ const FormulariosSidebar = ({
     });
   };
   return <div className="">
-      <div className="fixed top-0 left-0 h-screen hidden md:block z-40">
+      <div className="sticky top-0 h-screen hidden md:block">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
-          <SidebarBody className="h-full bg-transparent">
-            {/* Header section - sticky */}
-            <div className="sticky top-0 bg-slate-50 z-10 pb-4">
-              <div className="flex flex-col overflow-x-hidden bg-slate-50">
+          <SidebarBody className="bg-slate-50">
+            <div className="sticky top-0 bg-slate-50 z-10">
+              <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-slate-50">
                 {open ? <Logo>
                     <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
                   </Logo> : <LogoIcon>
@@ -154,8 +154,7 @@ const FormulariosSidebar = ({
               </div>
             </div>
 
-            {/* Formularios list section - sticky */}
-            <div className="sticky top-24 bg-slate-50 z-10 max-h-[calc(100vh-6rem)] overflow-y-auto">
+            <div className="flex-1 overflow-y-auto">
               <ScrollArea className="flex-1">
                 <div className="space-y-1 pr-2">
                   {formularios.map((form, index) => <div key={index} className="group flex justify-between items-center mb-2">
