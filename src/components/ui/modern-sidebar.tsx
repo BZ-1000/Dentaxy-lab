@@ -101,7 +101,7 @@ export const DesktopSidebar = ({
       onMouseLeave={() => setOpen(false)}
       {...props}
     >
-      <div>{children}</div>
+      {children}
     </motion.div>
   );
 };
@@ -165,7 +165,7 @@ export const SidebarLink = ({
   const navigate = useNavigate();
 
   const handleLinkClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default browser navigation
+    e.preventDefault();
     
     if (link.onClick) {
       link.onClick();
@@ -174,9 +174,9 @@ export const SidebarLink = ({
     
     if (link.href) {
       if (link.href.startsWith('http') || link.href.startsWith('#')) {
-        window.location.href = link.href; // For external links only
+        window.location.href = link.href;
       } else {
-        navigate(link.href, { replace: false }); // Use replace: false to maintain history
+        navigate(link.href, { replace: false });
       }
     }
   };
