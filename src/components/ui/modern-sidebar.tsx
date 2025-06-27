@@ -101,7 +101,7 @@ export const DesktopSidebar = ({
       onMouseLeave={() => setOpen(false)}
       {...props}
     >
-      <div>{children}</div>
+      <div>{children as ReactNode}</div>
     </motion.div>
   );
 };
@@ -144,7 +144,7 @@ export const MobileSidebar = ({
               >
                 <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
               </button>
-              {children}
+              {children as ReactNode}
             </div>
           </motion.div>
         )}
