@@ -1,15 +1,30 @@
 
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
+import FormulariosSidebar from "@/components/historia-clinica/FormulariosSidebar";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import TechBanner from "@/components/ui/tech-banner";
 import { AnalysisModeProvider } from "@/contexts/AnalysisModeContext";
+import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import { useEffect, useState } from "react";
 
 function IndexContent() {
+  const [pacienteActual, setPacienteActual] = useState<string>('');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const {
+    formData,
+    guardarFormulario,
+    cargarFormulario,
+    resetFormulario
+  } = useHistoriaClinica();
+
   useEffect(() => {
     document.title = "DENTAXY.ai";
   }, []);
+
+  const handleSidebarStateChange = (isOpen: boolean) => {
+    setSidebarOpen(isOpen);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white overflow-x-hidden">
@@ -64,10 +79,50 @@ function IndexContent() {
         </div>
       </div>
 
-      {/* Form Section */}
-      <div className="min-h-screen bg-white py-0">
+      {/* Form Section with Sidebar */}
+      <div className="min-h-screen bg-white py-0 relative">
+        <FormulariosSidebar 
+          onCargarFormulario={(data, nombre) => {
+            cargarFormulario(data);
+            setPacienteActual(nombre);
+          }} 
+          onGuardarFormulario={nombre => {
+            guardarFormulario(formData, nombre);
+            setPacienteActual(nombre);
+          }} 
+          onCerrarFormulario={() => {
+            setPacienteActual('');
+            cargarFormulario(null);
+          }} 
+          onResetFormulario={() => {
+            setPacienteActual('');
+            resetFormulario();
+          }} 
+          pacienteActual={pacienteActual}
+          onSidebarStateChange={handleSidebarStateChange}
+        />
+        
         <div className="container mx-auto px-2 sm:px-4 bg-slate-50 max-w-full">
-          <HistoriaClinica />
+          <HistoriaClinica 
+            onGuardarFormulario={nombre => {
+              guardarFormulario(formData, nombre);
+              setPacienteActual(nombre);
+            }}
+            onCargarFormulario={(data, nombre) => {
+              cargarFormulario(data);
+              setPacienteActual(nombre);
+            }}
+            onCerrarFormulario={() => {
+              setPacienteActual('');
+              cargarFormulario(null);
+            }}
+            onResetFormulario={() => {
+              setPacienteActual('');
+              resetFormulario();
+            }}
+            pacienteActual={pacienteActual}
+            onSidebarStateChange={handleSidebarStateChange}
+          />
         </div>
       </div>
 

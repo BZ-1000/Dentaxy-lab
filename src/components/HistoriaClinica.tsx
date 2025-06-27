@@ -25,7 +25,6 @@ import { Input } from "@/components/ui/input";
 import { useTheme } from '@/hooks/use-theme';
 import { Loader2, X, Save, User, FileText, Search } from "lucide-react";
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
-import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
 import { useState, useEffect, useRef } from 'react';
 import { toast } from "@/hooks/use-toast";
 import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
@@ -101,9 +100,25 @@ Cuando recibas un término médico dental:
 
 Si el término no está relacionado con odontología, indica que te especializas en términos dentales y sugiere reformular la consulta.`;
 
-const HistoriaClinica = () => {
+interface HistoriaClinicaProps {
+  onGuardarFormulario?: (nombre: string) => void;
+  onCargarFormulario?: (data: any, nombre: string) => void;
+  onCerrarFormulario?: () => void;
+  onResetFormulario?: () => void;
+  pacienteActual?: string;
+  onSidebarStateChange?: (isOpen: boolean) => void;
+}
+
+const HistoriaClinica = ({
+  onGuardarFormulario,
+  onCargarFormulario,
+  onCerrarFormulario,
+  onResetFormulario,
+  pacienteActual = '',
+  onSidebarStateChange = () => {}
+}: HistoriaClinicaProps) => {
   const { theme } = useTheme();
-  const [pacienteActual, setPacienteActual] = useState<string>('');
+  const [pacienteActualState, setPacienteActualState] = useState<string>(pacienteActual);
   const [nombrePaciente, setNombrePaciente] = useState<string>('');
   const [alertOpen, setAlertOpen] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
@@ -156,10 +171,6 @@ const HistoriaClinica = () => {
     cargarFormulario,
     resetFormulario
   } = useHistoriaClinica();
-
-  const handleSidebarStateChange = (isOpen: boolean) => {
-    setSidebarOpen(isOpen);
-  };
 
   const handleSearch = async (searchText: string) => {
     setIsSearching(true);
@@ -234,10 +245,10 @@ const HistoriaClinica = () => {
   }, [isAnalysisMode, setAnalysisMode, setSelectedText, setSelectedPosition]);
 
   useEffect(() => {
-    if (pacienteActual) {
-      guardarFormulario(formData, pacienteActual);
+    if (pacienteActualState) {
+      guardarFormulario(formData, pacienteActualState);
     }
-  }, [formData, pacienteActual, guardarFormulario]);
+  }, [formData, pacienteActualState, guardarFormulario]);
 
   const closeResponse = () => {
     setActiveResponse(null);
@@ -245,30 +256,8 @@ const HistoriaClinica = () => {
 
   return (
     <div className={`${theme} min-h-screen w-full flex relative overflow-x-hidden`}>
-      <FormulariosSidebar 
-        onCargarFormulario={(data, nombre) => {
-          cargarFormulario(data);
-          setPacienteActual(nombre);
-          setNombrePaciente(nombre);
-        }} 
-        onGuardarFormulario={nombre => {
-          guardarFormulario(formData, nombre);
-          setPacienteActual(nombre);
-        }} 
-        onCerrarFormulario={() => {
-          setPacienteActual('');
-          setNombrePaciente('');
-          cargarFormulario(null);
-        }} 
-        onResetFormulario={() => {
-          setPacienteActual('');
-          resetFormulario();
-        }} 
-        pacienteActual={pacienteActual}
-        onSidebarStateChange={handleSidebarStateChange}
-      />
       
-      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 px-2 sm:px-4 lg:px-8 transition-all duration-200 max-w-full overflow-x-hidden ${sidebarOpen ? 'md:ml-[300px]' : 'md:ml-[60px]'}`}>
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 px-2 sm:px-4 lg:px-8 transition-all duration-200 max-w-full overflow-x-hidden ${sidebarOpen ? 'md:ml-[300px]' : 'md:ml-0'}`}>
         <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
           <div className="text-center">
             <h1 className="text-2xl sm:text-4xl font-bold mb-2">Formulario IA</h1>
@@ -300,7 +289,8 @@ const HistoriaClinica = () => {
                       return;
                     }
                     guardarFormulario(formData, nombrePaciente);
-                    setPacienteActual(nombrePaciente);
+                    setPacienteActualState(nombrePaciente);
+                    if (onGuardarFormulario) onGuardarFormulario(nombrePaciente);
                     toast({
                       title: "Formulario guardado",
                       description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
@@ -315,13 +305,14 @@ const HistoriaClinica = () => {
               </div>
             </div>
 
-            {pacienteActual && <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
+            {pacienteActualState && <div className="flex items-center justify-center gap-2 mb-4 sm:mb-6">
                 <div className="text-xs text-blue-500 dark:text-blue-400 font-medium">
-                  Formulario actual: {pacienteActual}
+                  Formulario actual: {pacienteActualState}
                 </div>
                 <button onClick={() => {
-                  setPacienteActual('');
+                  setPacienteActualState('');
                   resetFormulario();
+                  if (onResetFormulario) onResetFormulario();
                 }} className="text-red-500 hover:text-red-700 transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" aria-label="Resetear formulario">
                   <X className="w-3 h-3" />
                 </button>
