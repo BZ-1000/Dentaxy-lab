@@ -6,6 +6,20 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormDataState } from '@/types/historiaClinica';
 
+interface CaracteristicaFacial {
+  presente?: boolean;
+  detalles?: string;
+  tamanio?: string;
+  color?: string;
+  bordes?: string;
+  localizacion?: string;
+  grado?: string;
+  consistencia?: string;
+  tipo?: string;
+  zonaAfectada?: string;
+  descripcion?: string;
+}
+
 interface ExamenCabezaProps {
   formData: FormDataState;
   handleExamenCabezaChange: (part: string, value: string | boolean | object) => void;
@@ -13,7 +27,7 @@ interface ExamenCabezaProps {
 
 const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps) => {
   const handleDetailedChange = (category: string, field: string, value: string | boolean) => {
-    const currentData = formData.examenCabeza[category as keyof typeof formData.examenCabeza] || {};
+    const currentData = (formData.examenCabeza[category as keyof typeof formData.examenCabeza] as CaracteristicaFacial) || {};
     const updatedData = {
       ...currentData,
       [field]: value
@@ -134,7 +148,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <div className="flex items-center space-x-2">
             <Checkbox
               id="lunares-presente"
-              checked={formData.examenCabeza.lunares?.presente || false}
+              checked={(formData.examenCabeza.lunares as CaracteristicaFacial)?.presente || false}
               onCheckedChange={(checked) => 
                 handleDetailedChange('lunares', 'presente', checked as boolean)
               }
@@ -144,13 +158,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             </Label>
           </div>
           
-          {formData.examenCabeza.lunares?.presente && (
+          {(formData.examenCabeza.lunares as CaracteristicaFacial)?.presente && (
             <div className="ml-6 space-y-3">
               <div>
                 <Label>Detalles</Label>
                 <Textarea
                   placeholder="Describe características, ubicación, etc."
-                  value={formData.examenCabeza.lunares?.detalles || ''}
+                  value={(formData.examenCabeza.lunares as CaracteristicaFacial)?.detalles || ''}
                   onChange={(e) => handleDetailedChange('lunares', 'detalles', e.target.value)}
                   className="mt-1"
                 />
@@ -160,7 +174,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Tamaño</Label>
                   <Select 
-                    value={formData.examenCabeza.lunares?.tamanio || ''} 
+                    value={(formData.examenCabeza.lunares as CaracteristicaFacial)?.tamanio || ''} 
                     onValueChange={(value) => handleDetailedChange('lunares', 'tamanio', value)}
                   >
                     <SelectTrigger>
@@ -177,7 +191,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Color</Label>
                   <Select 
-                    value={formData.examenCabeza.lunares?.color || ''} 
+                    value={(formData.examenCabeza.lunares as CaracteristicaFacial)?.color || ''} 
                     onValueChange={(value) => handleDetailedChange('lunares', 'color', value)}
                   >
                     <SelectTrigger>
@@ -201,7 +215,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <div className="flex items-center space-x-2">
             <Checkbox
               id="cicatrices-presente"
-              checked={formData.examenCabeza.cicatrices?.presente || false}
+              checked={(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.presente || false}
               onCheckedChange={(checked) => 
                 handleDetailedChange('cicatrices', 'presente', checked as boolean)
               }
@@ -211,13 +225,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             </Label>
           </div>
           
-          {formData.examenCabeza.cicatrices?.presente && (
+          {(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.presente && (
             <div className="ml-6 space-y-3">
               <div>
                 <Label>Detalles</Label>
                 <Textarea
                   placeholder="Describe ubicación, causa, características..."
-                  value={formData.examenCabeza.cicatrices?.detalles || ''}
+                  value={(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.detalles || ''}
                   onChange={(e) => handleDetailedChange('cicatrices', 'detalles', e.target.value)}
                   className="mt-1"
                 />
@@ -227,7 +241,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Tamaño</Label>
                   <Select 
-                    value={formData.examenCabeza.cicatrices?.tamanio || ''} 
+                    value={(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.tamanio || ''} 
                     onValueChange={(value) => handleDetailedChange('cicatrices', 'tamanio', value)}
                   >
                     <SelectTrigger>
@@ -244,7 +258,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Bordes</Label>
                   <Select 
-                    value={formData.examenCabeza.cicatrices?.bordes || ''} 
+                    value={(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.bordes || ''} 
                     onValueChange={(value) => handleDetailedChange('cicatrices', 'bordes', value)}
                   >
                     <SelectTrigger>
@@ -261,7 +275,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Localización</Label>
                   <Select 
-                    value={formData.examenCabeza.cicatrices?.localizacion || ''} 
+                    value={(formData.examenCabeza.cicatrices as CaracteristicaFacial)?.localizacion || ''} 
                     onValueChange={(value) => handleDetailedChange('cicatrices', 'localizacion', value)}
                   >
                     <SelectTrigger>
@@ -286,7 +300,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <div className="flex items-center space-x-2">
             <Checkbox
               id="asimetrias-presente"
-              checked={formData.examenCabeza.asimetriasFaciales?.presente || false}
+              checked={(formData.examenCabeza.asimetriasFaciales as CaracteristicaFacial)?.presente || false}
               onCheckedChange={(checked) => 
                 handleDetailedChange('asimetriasFaciales', 'presente', checked as boolean)
               }
@@ -296,13 +310,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             </Label>
           </div>
           
-          {formData.examenCabeza.asimetriasFaciales?.presente && (
+          {(formData.examenCabeza.asimetriasFaciales as CaracteristicaFacial)?.presente && (
             <div className="ml-6 space-y-3">
               <div>
                 <Label>Descripción</Label>
                 <Textarea
                   placeholder="Describe la asimetría observada..."
-                  value={formData.examenCabeza.asimetriasFaciales?.descripcion || ''}
+                  value={(formData.examenCabeza.asimetriasFaciales as CaracteristicaFacial)?.descripcion || ''}
                   onChange={(e) => handleDetailedChange('asimetriasFaciales', 'descripcion', e.target.value)}
                   className="mt-1"
                 />
@@ -312,7 +326,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Tipo</Label>
                   <Select 
-                    value={formData.examenCabeza.asimetriasFaciales?.tipo || ''} 
+                    value={(formData.examenCabeza.asimetriasFaciales as CaracteristicaFacial)?.tipo || ''} 
                     onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'tipo', value)}
                   >
                     <SelectTrigger>
@@ -329,7 +343,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Zona Afectada</Label>
                   <Select 
-                    value={formData.examenCabeza.asimetriasFaciales?.zonaAfectada || ''} 
+                    value={(formData.examenCabeza.asimetriasFaciales as CaracteristicaFacial)?.zonaAfectada || ''} 
                     onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'zonaAfectada', value)}
                   >
                     <SelectTrigger>
@@ -354,7 +368,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <div className="flex items-center space-x-2">
             <Checkbox
               id="edema-presente"
-              checked={formData.examenCabeza.edema?.presente || false}
+              checked={(formData.examenCabeza.edema as CaracteristicaFacial)?.presente || false}
               onCheckedChange={(checked) => 
                 handleDetailedChange('edema', 'presente', checked as boolean)
               }
@@ -364,13 +378,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             </Label>
           </div>
           
-          {formData.examenCabeza.edema?.presente && (
+          {(formData.examenCabeza.edema as CaracteristicaFacial)?.presente && (
             <div className="ml-6 space-y-3">
               <div>
                 <Label>Descripción</Label>
                 <Textarea
                   placeholder="Describe el edema..."
-                  value={formData.examenCabeza.edema?.descripcion || ''}
+                  value={(formData.examenCabeza.edema as CaracteristicaFacial)?.descripcion || ''}
                   onChange={(e) => handleDetailedChange('edema', 'descripcion', e.target.value)}
                   className="mt-1"
                 />
@@ -380,7 +394,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Grado</Label>
                   <Select 
-                    value={formData.examenCabeza.edema?.grado || ''} 
+                    value={(formData.examenCabeza.edema as CaracteristicaFacial)?.grado || ''} 
                     onValueChange={(value) => handleDetailedChange('edema', 'grado', value)}
                   >
                     <SelectTrigger>
@@ -397,7 +411,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Localización</Label>
                   <Select 
-                    value={formData.examenCabeza.edema?.localizacion || ''} 
+                    value={(formData.examenCabeza.edema as CaracteristicaFacial)?.localizacion || ''} 
                     onValueChange={(value) => handleDetailedChange('edema', 'localizacion', value)}
                   >
                     <SelectTrigger>
@@ -415,7 +429,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                 <div>
                   <Label>Consistencia</Label>
                   <Select 
-                    value={formData.examenCabeza.edema?.consistencia || ''} 
+                    value={(formData.examenCabeza.edema as CaracteristicaFacial)?.consistencia || ''} 
                     onValueChange={(value) => handleDetailedChange('edema', 'consistencia', value)}
                   >
                     <SelectTrigger>

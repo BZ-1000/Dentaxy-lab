@@ -4,6 +4,13 @@ import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Edit, FileText } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { FormDataState } from '@/types/historiaClinica';
+
+// Interface para props del componente
+interface ArticulacionCraneomandibularProps {
+  formData: FormDataState;
+  handleArticulacionCraneomandibularChange: (part: string, value: string | boolean | object) => void;
+}
 
 // 1. Interface para el estado interno del componente
 interface ArticulacionCraneomandibularState {
@@ -225,9 +232,10 @@ const lipNarrativePhrases: {
 };
 
 // --- Componente Principal ---
-const ArticulacionCraneomandibular: React.FC = () => {
-  const [formData, setFormData] = useState<ArticulacionCraneomandibularState>(initialState);
-
+const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> = ({ 
+  formData, 
+  handleArticulacionCraneomandibularChange 
+}) => {
   // Estados UI
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -290,30 +298,14 @@ const ArticulacionCraneomandibular: React.FC = () => {
   };
 
   // --- Handlers de Actualización de Estado ---
-  const handleArticulacionCraneomandibularChange = useCallback((fieldPath: string, value: any) => {
-    setFormData(prevData => {
-      const parts = fieldPath.split('.');
-      const newState = structuredClone(prevData); // Copia profunda
-      let currentLevel: any = newState;
-      for (let i = 0; i < parts.length - 1; i++) {
-        const part = parts[i];
-        // Asegurar que el nivel exista
-        if (currentLevel[part] === undefined || typeof currentLevel[part] !== 'object' || currentLevel[part] === null) {
-          currentLevel[part] = {};
-        }
-        currentLevel = currentLevel[part];
-      }
-      currentLevel[parts[parts.length - 1]] = value;
-      return newState;
-    });
-  }, []); // useCallback sin dependencias externas
-
   const handleOptionChange = useCallback((fieldPath: string, value: string) => {
     handleArticulacionCraneomandibularChange(fieldPath, value);
   }, [handleArticulacionCraneomandibularChange]);
+  
   const handleTextChange = useCallback((fieldPath: string, e: React.ChangeEvent<HTMLTextAreaElement>) => {
     handleArticulacionCraneomandibularChange(fieldPath, e.target.value);
   }, [handleArticulacionCraneomandibularChange]);
+  
   const handleBooleanChange = useCallback((fieldPath: string, value: boolean) => {
     handleArticulacionCraneomandibularChange(fieldPath, value);
   }, [handleArticulacionCraneomandibularChange]);
@@ -324,9 +316,8 @@ const ArticulacionCraneomandibular: React.FC = () => {
     clearLipsInterval(); // Limpia cualquier animación anterior
     // Resetear target inmediatamente causa que useEffect limpie el display
     setTargetLipsNarrative('');
-    // No es necesario setDisplayedLipsNarrative aquí, useEffect lo manejará
 
-    const data = formData.labios || {};
+    const data = formData.articulacionCraneomandibular?.labios || {};
     let sentences: string[] = [];
 
     // Construir frases basadas en la selección
@@ -388,18 +379,7 @@ const ArticulacionCraneomandibular: React.FC = () => {
     setTargetLipsNarrative(fullText); // Establece el texto final, disparando el useEffect
     setLipsViewMode('narrative');
     // setIsGeneratingLipsNarrative(false) se establece en el useEffect al terminar
-  }, [formData.labios, clearLipsInterval]);
-
-  // --- Reset Form ---
-  const resetForm = useCallback(() => {
-    setFormData(initialState);
-    setLipsViewMode('form');
-    clearLipsInterval();
-    setTargetLipsNarrative(''); // Limpiar target
-    // setDisplayedLipsNarrative(''); // No es necesario, useEffect lo hará
-    setIsGeneratingLipsNarrative(false); // Asegurar que no esté cargando
-    setActiveTab('formulario');
-  }, [clearLipsInterval]);
+  }, [formData.articulacionCraneomandibular?.labios, clearLipsInterval]);
 
   // --- Render Helper para Botones ---
   const renderOptionButtons = useCallback((title: string, options: Option[], currentValue: string | undefined | null, fieldPath: string) => (
@@ -476,14 +456,14 @@ const ArticulacionCraneomandibular: React.FC = () => {
                       <div className="flex gap-3">
                         <button
                           type="button"
-                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.dolorMasticarHablar === true ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
+                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorMasticarHablar === true ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
                           onClick={() => handleBooleanChange('dolorMasticarHablar', true)}
                         >
                           Sí
                         </button>
                         <button
                           type="button"
-                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.dolorMasticarHablar === false ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
+                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorMasticarHablar === false ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
                           onClick={() => handleBooleanChange('dolorMasticarHablar', false)}
                         >
                           No
@@ -491,12 +471,12 @@ const ArticulacionCraneomandibular: React.FC = () => {
                       </div>
                     </div>
                     {/* Campos Condicionales Dolor */}
-                    {formData.dolorMasticarHablar === true && (
+                    {formData.articulacionCraneomandibular?.dolorMasticarHablar === true && (
                       <div className="pl-4 border-l-2 border-emerald-300 dark:border-emerald-600 space-y-3 ml-1">
                         <div>
                           <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">Tipo de dolor:</label>
                           <Textarea
-                            value={formData.tipoDolor || ''}
+                            value={formData.articulacionCraneomandibular?.tipoDolor || ''}
                             onChange={e => handleTextChange('tipoDolor', e)}
                             placeholder="Ej. punzante, sordo, opresivo..."
                             className="min-h-[50px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-emerald-500 focus:border-emerald-500 rounded-md shadow-sm"
@@ -505,7 +485,7 @@ const ArticulacionCraneomandibular: React.FC = () => {
                         <div>
                           <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">Duración:</label>
                           <Textarea
-                            value={formData.duracionDolor || ''}
+                            value={formData.articulacionCraneomandibular?.duracionDolor || ''}
                             onChange={e => handleTextChange('duracionDolor', e)}
                             placeholder="Ej. constante, intermitente..."
                             className="min-h-[50px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-emerald-500 focus:border-emerald-500 rounded-md shadow-sm"
@@ -519,14 +499,14 @@ const ArticulacionCraneomandibular: React.FC = () => {
                       <div className="flex gap-3">
                         <button
                           type="button"
-                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.dolorEspecifico === true ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
+                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorEspecifico === true ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
                           onClick={() => handleBooleanChange('dolorEspecifico', true)}
                         >
                           Sí
                         </button>
                         <button
                           type="button"
-                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.dolorEspecifico === false ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
+                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorEspecifico === false ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
                           onClick={() => handleBooleanChange('dolorEspecifico', false)}
                         >
                           No
@@ -534,11 +514,11 @@ const ArticulacionCraneomandibular: React.FC = () => {
                       </div>
                     </div>
                     {/* Motivo Dolor */}
-                    {formData.dolorEspecifico === true && (
+                    {formData.articulacionCraneomandibular?.dolorEspecifico === true && (
                       <div className="pl-4 border-l-2 border-emerald-300 dark:border-emerald-600 ml-1">
                         <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">Motivo</label>
                         <Textarea
-                          value={formData.motivoDolor || ''}
+                          value={formData.articulacionCraneomandibular?.motivoDolor || ''}
                           onChange={e => handleTextChange('motivoDolor', e)}
                           placeholder="Ej. preauricular, masetero..."
                           className="min-h-[50px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-emerald-500 focus:border-emerald-500 rounded-md shadow-sm"
@@ -546,15 +526,15 @@ const ArticulacionCraneomandibular: React.FC = () => {
                       </div>
                     )}
                     {/* Ruido Articular */}
-                    {renderOptionButtons("Ruido articular", ruidoArticularOptions, formData.ruidoArticular, 'ruidoArticular')}
+                    {renderOptionButtons("Ruido articular", ruidoArticularOptions, formData.articulacionCraneomandibular?.ruidoArticular, 'ruidoArticular')}
                     {/* Patrón Abertura */}
-                    {renderOptionButtons("Patrón de apertura mandibular", patronAberturaOptions, formData.patronAbertura, 'patronAbertura')}
+                    {renderOptionButtons("Patrón de apertura mandibular", patronAberturaOptions, formData.articulacionCraneomandibular?.patronAbertura, 'patronAbertura')}
                     {/* Otro Patrón */}
-                    {formData.patronAbertura === 'otro' && (
+                    {formData.articulacionCraneomandibular?.patronAbertura === 'otro' && (
                       <div className="pl-4 border-l-2 border-blue-300 dark:border-blue-600 ml-1">
                         <label className="block text-sm font-medium mb-1 text-gray-600 dark:text-gray-400">Especifique otro patrón:</label>
                         <Textarea
-                          value={formData.otroPatronAbertura || ''}
+                          value={formData.articulacionCraneomandibular?.otroPatronAbertura || ''}
                           onChange={e => handleTextChange('otroPatronAbertura', e)}
                           placeholder="Describa el patrón observado"
                           className="min-h-[50px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm"
@@ -565,7 +545,7 @@ const ArticulacionCraneomandibular: React.FC = () => {
                     <div>
                       <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Otras observaciones (ATM):</label>
                       <Textarea
-                        value={formData.otrasObservaciones || ''}
+                        value={formData.articulacionCraneomandibular?.otrasObservaciones || ''}
                         onChange={e => handleTextChange('otrasObservaciones', e)}
                         placeholder="Cualquier otro hallazgo relevante sobre la ATM..."
                         className="min-h-[70px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm"
@@ -614,17 +594,17 @@ const ArticulacionCraneomandibular: React.FC = () => {
                   {lipsViewMode === 'form' ? (
                     <div className="space-y-5">
                       {/* Pasar 'labios.hidratacion' como path para superficie */}
-                      {renderOptionButtons("Simetría", simetriaOptions, formData.labios?.simetria, 'labios.simetria')}
-                      {renderOptionButtons("Volumen", volumenOptions, formData.labios?.volumen, 'labios.volumen')}
-                      {renderOptionButtons("Coloración", coloracionOptions, formData.labios?.coloracion, 'labios.coloracion')}
-                      {renderOptionButtons("Superficie", superficieOptions, formData.labios?.hidratacion, 'labios.hidratacion')}
-                      {renderOptionButtons("Integridad Mucosa", integridadOptions, formData.labios?.integridad, 'labios.integridad')}
-                      {renderOptionButtons("Comisuras", comisurasOptions, formData.labios?.comisuras, 'labios.comisuras')}
-                      {renderOptionButtons("Función (Movimiento)", movimientoOptions, formData.labios?.movimiento, 'labios.movimiento')}
+                      {renderOptionButtons("Simetría", simetriaOptions, formData.articulacionCraneomandibular?.labios?.simetria, 'labios.simetria')}
+                      {renderOptionButtons("Volumen", volumenOptions, formData.articulacionCraneomandibular?.labios?.volumen, 'labios.volumen')}
+                      {renderOptionButtons("Coloración", coloracionOptions, formData.articulacionCraneomandibular?.labios?.coloracion, 'labios.coloracion')}
+                      {renderOptionButtons("Superficie", superficieOptions, formData.articulacionCraneomandibular?.labios?.hidratacion, 'labios.hidratacion')}
+                      {renderOptionButtons("Integridad Mucosa", integridadOptions, formData.articulacionCraneomandibular?.labios?.integridad, 'labios.integridad')}
+                      {renderOptionButtons("Comisuras", comisurasOptions, formData.articulacionCraneomandibular?.labios?.comisuras, 'labios.comisuras')}
+                      {renderOptionButtons("Función (Movimiento)", movimientoOptions, formData.articulacionCraneomandibular?.labios?.movimiento, 'labios.movimiento')}
                       <div>
                         <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Otras observaciones (Labios):</label>
                         <Textarea
-                          value={formData.labios?.otrasObservaciones || ''}
+                          value={formData.articulacionCraneomandibular?.labios?.otrasObservaciones || ''}
                           onChange={e => handleTextChange('labios.otrasObservaciones', e)}
                           placeholder="Cualquier otro hallazgo relevante sobre los labios..."
                           className="min-h-[70px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm"
