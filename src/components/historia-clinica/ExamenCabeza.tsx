@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -55,6 +54,11 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
     return false;
   };
 
+  const getFormValue = (field: string): string => {
+    const value = formData.examenCabeza[field as keyof typeof formData.examenCabeza];
+    return typeof value === 'string' ? value : '';
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -81,7 +85,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                     className="w-24 h-24 object-contain rounded-lg border-2 hover:border-blue-300 transition-colors cursor-pointer"
                     onClick={() => handleExamenCabezaChange('tipoCraneo', tipo.value)}
                   />
-                  {formData.examenCabeza.tipoCraneo === tipo.value && (
+                  {getFormValue('tipoCraneo') === tipo.value && (
                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                       <span className="text-white text-xs">✓</span>
                     </div>
@@ -110,7 +114,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                     className="w-24 h-24 object-contain rounded-lg border-2 hover:border-blue-300 transition-colors cursor-pointer"
                     onClick={() => handleExamenCabezaChange('tipoPerfil', perfil.value)}
                   />
-                  {formData.examenCabeza.tipoPerfil === perfil.value && (
+                  {getFormValue('tipoPerfil') === perfil.value && (
                     <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
                       <span className="text-white text-xs">✓</span>
                     </div>
@@ -126,7 +130,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
         <div className="space-y-3">
           <Label className="text-base font-medium">Tez</Label>
           <Select 
-            value={formData.examenCabeza.tez || ''} 
+            value={getFormValue('tez')} 
             onValueChange={(value) => handleExamenCabezaChange('tez', value)}
           >
             <SelectTrigger>
@@ -148,7 +152,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
               <div key={estado} className="flex items-center space-x-2">
                 <Checkbox
                   id={`piel-${estado}`}
-                  checked={formData.examenCabeza.estadoPiel === estado}
+                  checked={getFormValue('estadoPiel') === estado}
                   onCheckedChange={(checked) => {
                     if (checked) {
                       handleExamenCabezaChange('estadoPiel', estado);
@@ -472,7 +476,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <Label className="text-base font-medium">Observaciones Generales</Label>
           <Textarea
             placeholder="Anota cualquier observación adicional sobre el examen de cabeza..."
-            value={formData.examenCabeza.observaciones || ''}
+            value={getFormValue('observaciones')}
             onChange={(e) => handleExamenCabezaChange('observaciones', e.target.value)}
             rows={3}
           />
