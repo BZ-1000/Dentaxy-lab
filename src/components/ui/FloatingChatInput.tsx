@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PromptInputBox } from './ai-prompt-box';
@@ -6,25 +5,21 @@ import { TypewriterEffect } from './TypewriterEffect';
 import { useAnalysisMode } from '@/contexts/AnalysisModeContext';
 import { X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-
 interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
   isTyping?: boolean;
 }
-
 interface FloatingChatInputProps {
   isOpen: boolean;
   onClose: () => void;
   onSend: (message: string) => void;
 }
-
 interface ResponsePopupProps {
   message: ChatMessage;
   onClose: () => void;
 }
-
 function ResponsePopup({
   message,
   onClose
@@ -63,30 +58,32 @@ function ResponsePopup({
       </div>
     </motion.div>;
 }
-
-export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInputProps) {
+export function FloatingChatInput({
+  isOpen,
+  onClose,
+  onSend
+}: FloatingChatInputProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
   const {
     isAnalysisMode
   } = useAnalysisMode();
-
   const handleSend = async (message: string) => {
     setIsLoading(true);
     onSend(message);
-
     try {
-      const { data, error } = await supabase.functions.invoke('chat', {
+      const {
+        data,
+        error
+      } = await supabase.functions.invoke('chat', {
         body: {
           message: message
         }
       });
-
       if (error) {
         console.error('Supabase function error:', error);
         throw new Error('Error en la comunicación con el servidor');
       }
-
       const newMessage: ChatMessage = {
         role: 'assistant',
         content: data.response || 'Lo siento, no pude procesar tu consulta.',
@@ -107,11 +104,9 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
       setIsLoading(false);
     }
   };
-
   const closeResponse = () => {
     setActiveResponse(null);
   };
-
   return <>
       <AnimatePresence>
         {isOpen && !isAnalysisMode && <div className="fixed bottom-0 left-0 right-0 z-[9998] flex justify-center pointer-events-none" style={{
@@ -139,7 +134,7 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
                 </button>
                 
                 {/* Etiqueta versión experimental */}
-                <div className="absolute -top-2 left-4 bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full font-medium shadow-sm">
+                <div className="absolute -top-2 left-4 bg-emerald-500 text-white text-xs py-0.5 rounded-full font-medium shadow-sm px-[8px] mx-[90px]">
                   versión experimental
                 </div>
                 
