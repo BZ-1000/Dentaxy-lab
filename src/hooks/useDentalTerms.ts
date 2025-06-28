@@ -25,43 +25,79 @@ export const useDentalTerms = () => {
 
     setIsSearching(true);
     try {
-      // Buscar términos que coincidan exactamente o contengan el término de búsqueda
+      // Enhanced search with better prioritization
+      const cleanTerm = searchTerm.toLowerCase().trim();
+      
+      // First: Exact term matches (highest priority)
       const { data: exactMatches, error: exactError } = await supabase
         .from('dental_terms')
         .select('*')
-        .ilike('termino', `%${searchTerm.toLowerCase()}%`)
-        .limit(5);
+        .ilike('termino', cleanTerm)
+        .limit(3);
 
       if (exactError) {
         console.error('Error searching exact matches:', exactError);
       }
 
-      // Buscar también en sinónimos
+      // Second: Terms that start with the search term
+      const { data: startsWithMatches, error: startsError } = await supabase
+        .from('dental_terms')
+        .select('*')
+        .ilike('termino', `${cleanTerm}%`)
+        .not('termino', 'ilike', cleanTerm) // Exclude exact matches already found
+        .limit(4);
+
+      if (startsError) {
+        console.error('Error searching starts with matches:', startsError);
+      }
+
+      // Third: Terms containing the search term
+      const { data: containsMatches, error: containsError } = await supabase
+        .from('dental_terms')
+        .select('*')
+        .ilike('termino', `%${cleanTerm}%`)
+        .not('termino', 'ilike', cleanTerm)
+        .not('termino', 'ilike', `${cleanTerm}%`)
+        .limit(3);
+
+      if (containsError) {
+        console.error('Error searching contains matches:', containsError);
+      }
+
+      // Fourth: Synonym matches
       const { data: synonymMatches, error: synonymError } = await supabase
         .from('dental_terms')
         .select('*')
-        .contains('sinonimos', [searchTerm.toLowerCase()])
+        .contains('sinonimos', [cleanTerm])
         .limit(3);
 
       if (synonymError) {
         console.error('Error searching synonyms:', synonymError);
       }
 
-      // Buscar por texto completo en definiciones
+      // Fifth: Definition matches (lower priority)
       const { data: definitionMatches, error: defError } = await supabase
         .from('dental_terms')
         .select('*')
-        .ilike('definicion', `%${searchTerm.toLowerCase()}%`)
-        .limit(3);
+        .ilike('definicion', `%${cleanTerm}%`)
+        .limit(2);
 
       if (defError) {
         console.error('Error in definition search:', defError);
       }
 
-      // Combinar resultados y eliminar duplicados
-      const allMatches = [...(exactMatches || []), ...(synonymMatches || []), ...(definitionMatches || [])]
-        .filter((term, index, self) => self.findIndex(t => t.id === term.id) === index)
-        .slice(0, 8); // Máximo 8 resultados
+      // Combine results with prioritization and remove duplicates
+      const allMatches = [
+        ...(exactMatches || []),
+        ...(startsWithMatches || []),
+        ...(containsMatches || []),
+        ...(synonymMatches || []),
+        ...(definitionMatches || [])
+      ]
+        .filter((term, index, self) => 
+          self.findIndex(t => t.id === term.id) === index
+        )
+        .slice(0, 10); // Increased limit to 10 results
 
       setSearchResults(allMatches);
       return allMatches;
@@ -75,7 +111,7 @@ export const useDentalTerms = () => {
 
   const getTermsBySection = async (section: string): Promise<DentalTerm[]> => {
     try {
-      // Verificar si ya tenemos los términos en cache
+      // Check cache first
       if (sectionTerms[section]) {
         return sectionTerms[section];
       }
@@ -84,7 +120,7 @@ export const useDentalTerms = () => {
         .from('dental_terms')
         .select('*')
         .eq('seccion_formulario', section)
-        .order('termino');
+        .order('categoria, subcategoria, termino');
 
       if (error) {
         console.error('Error fetching terms by section:', error);
@@ -93,7 +129,7 @@ export const useDentalTerms = () => {
 
       const terms = data || [];
       
-      // Actualizar cache
+      // Update cache
       setSectionTerms(prev => ({
         ...prev,
         [section]: terms
@@ -112,7 +148,7 @@ export const useDentalTerms = () => {
         .from('dental_terms')
         .select('*')
         .eq('categoria', category)
-        .order('termino');
+        .order('subcategoria, termino');
 
       if (error) {
         console.error('Error fetching terms by category:', error);
@@ -146,21 +182,50 @@ export const useDentalTerms = () => {
     }
   };
 
-  const getRandomTerms = async (limit: number = 5): Promise<DentalTerm[]> => {
+  const getRandomTerms = async (limit: number = 8): Promise<DentalTerm[]> => {
     try {
+      // Get more varied random terms from different categories
       const { data, error } = await supabase
         .from('dental_terms')
         .select('*')
-        .limit(limit * 3); // Obtener más términos para seleccionar aleatoriamente
+        .limit(limit * 4); // Get more terms for better randomization
 
       if (error) {
         console.error('Error fetching random terms:', error);
         return [];
       }
 
-      // Seleccionar términos aleatorios
-      const shuffled = (data || []).sort(() => 0.5 - Math.random());
-      return shuffled.slice(0, limit);
+      // Improved randomization with category diversity
+      const categorizedTerms = (data || []).reduce((acc, term) => {
+        if (!acc[term.categoria]) {
+          acc[term.categoria] = [];
+        }
+        acc[term.categoria].push(term);
+        return acc;
+      }, {} as Record<string, DentalTerm[]>);
+
+      // Select random terms from different categories
+      const randomTerms: DentalTerm[] = [];
+      const categories = Object.keys(categorizedTerms);
+      
+      for (let i = 0; i < limit && categories.length > 0; i++) {
+        const randomCategoryIndex = Math.floor(Math.random() * categories.length);
+        const category = categories[randomCategoryIndex];
+        const categoryTerms = categorizedTerms[category];
+        
+        if (categoryTerms.length > 0) {
+          const randomTermIndex = Math.floor(Math.random() * categoryTerms.length);
+          randomTerms.push(categoryTerms[randomTermIndex]);
+          categoryTerms.splice(randomTermIndex, 1);
+          
+          // Remove category if empty
+          if (categoryTerms.length === 0) {
+            categories.splice(randomCategoryIndex, 1);
+          }
+        }
+      }
+
+      return randomTerms;
     } catch (error) {
       console.error('Error in getRandomTerms:', error);
       return [];
@@ -171,7 +236,7 @@ export const useDentalTerms = () => {
     try {
       const { data, error } = await supabase
         .from('dental_terms')
-        .select('seccion_formulario')
+        .select('seccion_formulario, categoria')
         .not('seccion_formulario', 'is', null);
 
       if (error) {
@@ -179,16 +244,69 @@ export const useDentalTerms = () => {
         return {};
       }
 
-      // Contar términos por sección
+      // Enhanced stats with category breakdown
       const stats = (data || []).reduce((acc, term) => {
-        acc[term.seccion_formulario] = (acc[term.seccion_formulario] || 0) + 1;
+        const section = term.seccion_formulario;
+        if (!acc[section]) {
+          acc[section] = {
+            total: 0,
+            categories: {}
+          };
+        }
+        acc[section].total++;
+        
+        const category = term.categoria;
+        if (!acc[section].categories[category]) {
+          acc[section].categories[category] = 0;
+        }
+        acc[section].categories[category]++;
+        
         return acc;
-      }, {} as Record<string, number>);
+      }, {} as Record<string, any>);
 
       return stats;
     } catch (error) {
       console.error('Error in getSectionStats:', error);
       return {};
+    }
+  };
+
+  // New method to get terms by multiple criteria
+  const getAdvancedTerms = async (criteria: {
+    section?: string;
+    category?: string;
+    subcategory?: string;
+    searchTerm?: string;
+  }): Promise<DentalTerm[]> => {
+    try {
+      let query = supabase.from('dental_terms').select('*');
+
+      if (criteria.section) {
+        query = query.eq('seccion_formulario', criteria.section);
+      }
+      if (criteria.category) {
+        query = query.eq('categoria', criteria.category);
+      }
+      if (criteria.subcategory) {
+        query = query.eq('subcategoria', criteria.subcategory);
+      }
+      if (criteria.searchTerm) {
+        query = query.ilike('termino', `%${criteria.searchTerm}%`);
+      }
+
+      const { data, error } = await query
+        .order('categoria, subcategoria, termino')
+        .limit(20);
+
+      if (error) {
+        console.error('Error in advanced search:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getAdvancedTerms:', error);
+      return [];
     }
   };
 
@@ -205,6 +323,7 @@ export const useDentalTerms = () => {
     getTermsBySubcategory,
     getRandomTerms,
     getSectionStats,
+    getAdvancedTerms,
     clearCache
   };
 };
