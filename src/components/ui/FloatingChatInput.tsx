@@ -137,6 +137,12 @@ export function FloatingChatInput({ isOpen, onClose, onSend }: FloatingChatInput
                 <button onClick={onClose} className="absolute top-2 right-2 text-gray-400 hover:text-white transition-colors z-10">
                   <X className="w-4 h-4" />
                 </button>
+                
+                {/* Etiqueta versión experimental */}
+                <div className="absolute -top-2 left-4 bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full font-medium shadow-sm">
+                  versión experimental
+                </div>
+                
                 <PromptInputBox onSend={handleSend} isLoading={isLoading} placeholder="Escribe un término médico..." className="bg-transparent border-transparent text-sm min-h-[48px] pr-8" />
               </div>
             </motion.div>
