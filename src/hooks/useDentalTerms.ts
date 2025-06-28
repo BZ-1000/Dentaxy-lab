@@ -16,6 +16,7 @@ interface DentalTerm {
 export const useDentalTerms = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<DentalTerm[]>([]);
+  const [sectionTerms, setSectionTerms] = useState<Record<string, DentalTerm[]>>({});
 
   const searchTerms = async (searchTerm: string): Promise<DentalTerm[]> => {
     if (!searchTerm.trim()) {
@@ -29,7 +30,7 @@ export const useDentalTerms = () => {
         .from('dental_terms')
         .select('*')
         .ilike('termino', `%${searchTerm.toLowerCase()}%`)
-        .limit(3);
+        .limit(5);
 
       if (exactError) {
         console.error('Error searching exact matches:', exactError);
@@ -40,27 +41,27 @@ export const useDentalTerms = () => {
         .from('dental_terms')
         .select('*')
         .contains('sinonimos', [searchTerm.toLowerCase()])
-        .limit(2);
+        .limit(3);
 
       if (synonymError) {
         console.error('Error searching synonyms:', synonymError);
       }
 
       // Buscar por texto completo en definiciones
-      const { data: textMatches, error: textError } = await supabase
+      const { data: definitionMatches, error: defError } = await supabase
         .from('dental_terms')
         .select('*')
-        .textSearch('definicion', searchTerm, { type: 'websearch', config: 'spanish' })
-        .limit(2);
+        .ilike('definicion', `%${searchTerm.toLowerCase()}%`)
+        .limit(3);
 
-      if (textError) {
-        console.error('Error in text search:', textError);
+      if (defError) {
+        console.error('Error in definition search:', defError);
       }
 
       // Combinar resultados y eliminar duplicados
-      const allMatches = [...(exactMatches || []), ...(synonymMatches || []), ...(textMatches || [])]
+      const allMatches = [...(exactMatches || []), ...(synonymMatches || []), ...(definitionMatches || [])]
         .filter((term, index, self) => self.findIndex(t => t.id === term.id) === index)
-        .slice(0, 5); // Máximo 5 resultados
+        .slice(0, 8); // Máximo 8 resultados
 
       setSearchResults(allMatches);
       return allMatches;
@@ -74,6 +75,11 @@ export const useDentalTerms = () => {
 
   const getTermsBySection = async (section: string): Promise<DentalTerm[]> => {
     try {
+      // Verificar si ya tenemos los términos en cache
+      if (sectionTerms[section]) {
+        return sectionTerms[section];
+      }
+
       const { data, error } = await supabase
         .from('dental_terms')
         .select('*')
@@ -85,7 +91,15 @@ export const useDentalTerms = () => {
         return [];
       }
 
-      return data || [];
+      const terms = data || [];
+      
+      // Actualizar cache
+      setSectionTerms(prev => ({
+        ...prev,
+        [section]: terms
+      }));
+
+      return terms;
     } catch (error) {
       console.error('Error in getTermsBySection:', error);
       return [];
@@ -112,11 +126,85 @@ export const useDentalTerms = () => {
     }
   };
 
+  const getTermsBySubcategory = async (subcategory: string): Promise<DentalTerm[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('dental_terms')
+        .select('*')
+        .eq('subcategoria', subcategory)
+        .order('termino');
+
+      if (error) {
+        console.error('Error fetching terms by subcategory:', error);
+        return [];
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error('Error in getTermsBySubcategory:', error);
+      return [];
+    }
+  };
+
+  const getRandomTerms = async (limit: number = 5): Promise<DentalTerm[]> => {
+    try {
+      const { data, error } = await supabase
+        .from('dental_terms')
+        .select('*')
+        .limit(limit * 3); // Obtener más términos para seleccionar aleatoriamente
+
+      if (error) {
+        console.error('Error fetching random terms:', error);
+        return [];
+      }
+
+      // Seleccionar términos aleatorios
+      const shuffled = (data || []).sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, limit);
+    } catch (error) {
+      console.error('Error in getRandomTerms:', error);
+      return [];
+    }
+  };
+
+  const getSectionStats = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('dental_terms')
+        .select('seccion_formulario')
+        .not('seccion_formulario', 'is', null);
+
+      if (error) {
+        console.error('Error fetching section stats:', error);
+        return {};
+      }
+
+      // Contar términos por sección
+      const stats = (data || []).reduce((acc, term) => {
+        acc[term.seccion_formulario] = (acc[term.seccion_formulario] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      return stats;
+    } catch (error) {
+      console.error('Error in getSectionStats:', error);
+      return {};
+    }
+  };
+
+  const clearCache = () => {
+    setSectionTerms({});
+  };
+
   return {
     isSearching,
     searchResults,
     searchTerms,
     getTermsBySection,
-    getTermsByCategory
+    getTermsByCategory,
+    getTermsBySubcategory,
+    getRandomTerms,
+    getSectionStats,
+    clearCache
   };
 };
