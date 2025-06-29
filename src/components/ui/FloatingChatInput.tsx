@@ -134,9 +134,7 @@ export function FloatingChatInput({
                 </button>
                 
                 {/* Etiqueta versión experimental */}
-                <div className="absolute -top-2 left-4 text-xs text-emerald-400 rounded-full font-medium shadow-sm px-[8px] py-0 my-[10px] bg-transparent mx-0">
-                  versión experimental
-                </div>
+                <div className="absolute -top-2 left-4 text-xs text-emerald-400 rounded-full font-medium shadow-sm px-[8px] py-0 my-[10px] bg-transparent mx-0">versión experimental</div>
                 
                 <PromptInputBox onSend={handleSend} isLoading={isLoading} placeholder="Escribe un término médico..." className="bg-transparent border-transparent text-sm min-h-[48px] pr-8" />
               </div>
