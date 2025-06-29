@@ -134,7 +134,7 @@ export function FloatingChatInput({
                 </button>
                 
                 {/* Etiqueta versión experimental */}
-                <div className="absolute -top-2 left-4 bg-emerald-500 text-white text-xs py-0.5 rounded-full font-medium shadow-sm px-[8px] mx-[90px]">
+                <div className="absolute -top-2 left-4 text-xs text-lime-400 rounded-full font-medium shadow-sm px-[8px] mx-[90px] py-0 my-[10px] bg-transparent">
                   versión experimental
                 </div>
                 
