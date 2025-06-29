@@ -128,7 +128,7 @@ export function FloatingChatInput({
           width: 'min(45vw, 350px)',
           maxWidth: '350px'
         }}>
-              <div className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 shadow-2xl p-3 relative">
+              <div className="pointer-events-auto bg-gray-800/80 backdrop-blur-md rounded-2xl border border-gray-600/50 shadow-2xl p-3 relative px-0 py-0 mx-[-60px] my-[-40px]">
                 <button onClick={onClose} className="absolute top-2 right-2 text-gray-400 hover:text-white transition-colors z-10">
                   <X className="w-4 h-4" />
                 </button>
