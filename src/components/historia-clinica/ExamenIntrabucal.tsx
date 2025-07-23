@@ -72,7 +72,7 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
               <img 
                 src="/lovable-uploads/85981ffd-d2f5-4c51-94ab-9a32dcfd49ec.png"
                 alt="Cavidad oral"
-                className="w-full h-auto"
+                className="w-full h-auto sm:w-80 sm:h-80 md:w-96 md:h-96"
               />
               
               {/* Botones clickeables sobre la imagen */}
@@ -85,7 +85,7 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
               
               <button
                 onClick={() => setActiveArea('paladar')}
-                className={`absolute top-[35%] left-[25%] transform -translate-x-1/2 ${completedAreas.includes('paladar') ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white px-1 py-0.5 rounded text-xs transition-colors`}
+                className={`absolute top-[35%] left-[35%] transform -translate-x-1/2 ${completedAreas.includes('paladar') ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white px-1 py-0.5 rounded text-xs transition-colors`}
               >
                 Paladar
               </button>
