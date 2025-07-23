@@ -16,6 +16,7 @@ import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPers
 // Define missing types
 type InterrogatorioSistemas = Record<string, any>;
 type InformacionPrincipal = Record<string, any>;
+
 const menuItems = [{
   label: "Nosotros",
   href: "/about"
@@ -32,6 +33,7 @@ const menuItems = [{
   label: "Contacto",
   href: "/contact"
 }];
+
 const Landing = () => {
   const navigate = useNavigate();
   const [activeItem, setActiveItem] = useState<string>("");
@@ -53,12 +55,14 @@ const Landing = () => {
   // Add new state for terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+  
   useEffect(() => {
     // Load username from localStorage first
     const storedUsername = localStorage.getItem('dentaxy_username');
     if (storedUsername) {
       setUsername(storedUsername);
     }
+
     const getSession = async () => {
       const {
         data: {
@@ -87,6 +91,7 @@ const Landing = () => {
       subscription.unsubscribe();
     };
   }, []);
+  
   const checkUsername = async (userId: string) => {
     try {
       // Check if we already have the username in localStorage
@@ -96,6 +101,7 @@ const Landing = () => {
         setShowPopup(false);
         return;
       }
+
       const {
         data,
         error
@@ -115,6 +121,7 @@ const Landing = () => {
       console.error('Error checking username:', error);
     }
   };
+  
   const checkUserPlan = async (userId: string) => {
     try {
       const {
@@ -130,6 +137,7 @@ const Landing = () => {
       console.error('Error checking user plan:', error);
     }
   };
+
   const handleSelectBetaPlan = async () => {
     if (!session) {
       toast.error('Debes iniciar sesión para seleccionar un plan');
@@ -190,10 +198,12 @@ const Landing = () => {
     setHasBetaPlan(false);
     toast.success('Sesión cerrada exitosamente');
   };
+
   const handleChangeUsername = () => {
     setShowPopup(true);
     setShowDropdown(false);
   };
+  
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -207,6 +217,7 @@ const Landing = () => {
     // Clear all form data from localStorage
     localStorage.removeItem('currentFormData');
     localStorage.removeItem('formBackup');
+    
     if (hasBetaPlan) {
       // Force a complete app reload to reset all states
       window.location.href = '/app';
@@ -289,6 +300,7 @@ const Landing = () => {
       }
     }
   });
+  
   const handleAntecedentePatologicoChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -374,6 +386,7 @@ const Landing = () => {
       toast.error('Error al guardar nombre de usuario: ' + (error.message || 'Error desconocido'));
     }
   };
+  
   return <div className="min-h-screen w-full bg-white apple-minimalist">
       {/* Header with logo and navigation */}
       <div className="sticky top-0 bg-white z-50 flex items-center justify-between px-6 py-4 border-b border-gray-100 shadow-sm">
@@ -384,9 +397,11 @@ const Landing = () => {
 
         {/* Main horizontal navigation */}
         <div className="hidden md:flex items-center space-x-6">
-          {menuItems.map(item => <Link key={item.label} to={item.href} className={`text-gray-700 hover:text-blue-600 transition-colors text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`} onClick={() => setActiveItem(item.label)}>
+          {menuItems.map(item => (
+            <Link key={item.label} to={item.href} className={`text-gray-700 hover:text-blue-600 transition-colors text-sm ${activeItem === item.label ? 'font-medium' : 'font-normal'}`} onClick={() => setActiveItem(item.label)}>
               {item.label}
-            </Link>)}
+            </Link>
+          ))}
         </div>
 
         {/* Auth buttons */}
@@ -459,7 +474,14 @@ const Landing = () => {
         <div className="text-center w-full">
           <h1 className="mb-5 font-black text-black text-5xl text-center sm:text-8xl">
             DENTAXY
-            <Typewriter text={[".ai", ".com"]} speed={100} deleteSpeed={80} delay={12000} loop={true} className="text-blue-500" />
+            <Typewriter 
+              text={[".ai", ".com"]} 
+              speed={100} 
+              deleteSpeed={80} 
+              delay={12000}
+              loop={true}
+              className="text-blue-500"
+            />
           </h1>
 
           <div className="mb-5">
@@ -476,75 +498,146 @@ const Landing = () => {
             </button>
           </div>
 
-          <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
+          {/* Desktop version */}
+          <div className={`${isMobile ? 'hidden' : 'block'} apple-card p-8 mb-12 max-w-4xl mx-auto`}>
             <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
                 🔽 Demostracion de redacción automatica...
             </h2>
             <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <AntecedentesPersonalesPatologicos formData={{
-              antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
-              padecimientoActual: {} as any,
-              antecedentesHeredoFamiliares: {} as any,
-              antecedentesPersonalesNoPatologicos: {} as any,
-              antecedentesAlergicos: {} as any,
-              antecedentesHemorragicos: {} as any,
-              antecedentesQuirurgicos: {} as any,
-              interrogatorioSistemas: {} as any,
-              exploracionFisica: {} as any,
-              examenCabeza: {} as any,
-              articulacionCraneomandibular: {} as any,
-              examenCuello: {} as any,
-              examenIntrabucal: {} as any,
-              glandulasSalivales: {} as any,
-              oclusion: {} as any,
-              relacionDientes: {} as any,
-              lineaMedia: {} as any,
-              frenillos: {} as any,
-              diagnostico: {} as any,
-              pronostico: {} as any,
-              serviciosDomiciliarios: '',
-              pisosVivienda: '',
-              materialVivienda: '',
-              materialPiso: '',
-              ventilacion: '',
-              frecuenciaLimpieza: '',
-              hacinamiento: '',
-              frecuenciaBano: '',
-              higieneBucal: {
-                frecuenciaCepillado: '',
-                usoHiloDental: '',
-                tipoCerdas: '',
-                cantidadPasta: '',
-                marcaPasta: ''
-              },
-              alimentacion: {
-                tipoDieta: '',
-                frecuenciaComidas: '',
-                tiposAlimentos: '',
-                saltaComidas: '',
-                consumoNutritivo: ''
-              },
-              grupoSanguineo: '',
-              factorRh: '',
-              inmunizaciones: '',
-              peso: '',
-              imc: '',
-              talla: '',
-              presionArterial: '',
-              pulso: '',
-              frecuenciaCardiaca: '',
-              frecuenciaRespiratoria: '',
-              temperatura: '',
-              diagnosticos: '',
-              pronosticos: ''
-            }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
+              <AntecedentesPersonalesPatologicos 
+        formData={{
+          antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+          padecimientoActual: {} as any,
+          antecedentesHeredoFamiliares: {} as any,
+          antecedentesPersonalesNoPatologicos: {} as any,
+          antecedentesAlergicos: {} as any,
+          antecedentesHemorragicos: {} as any,
+          antecedentesQuirurgicos: {} as any,
+          interrogatorioSistemas: {} as any,
+          exploracionFisica: {} as any,
+          examenCabeza: {} as any,
+          articulacionCraneomandibular: {} as any,
+          examenCuello: {} as any,
+          examenIntrabucal: {} as any,
+          glandulasSalivales: {} as any,
+          oclusion: {} as any,
+          relacionDientes: {} as any,
+          lineaMedia: {} as any,
+          frenillos: {} as any,
+          diagnostico: {} as any,
+          pronostico: {} as any,
+          serviciosDomiciliarios: '',
+          pisosVivienda: '',
+          materialVivienda: '',
+          materialPiso: '',
+          ventilacion: '',
+          frecuenciaLimpieza: '',
+          hacinamiento: '',
+          frecuenciaBano: '',
+          higieneBucal: {
+            frecuenciaCepillado: '',
+            usoHiloDental: '',
+            tipoCerdas: '',
+            cantidadPasta: '',
+            marcaPasta: ''
+          },
+          alimentacion: {
+            tipoDieta: '',
+            frecuenciaComidas: '',
+            tiposAlimentos: '',
+            saltaComidas: '',
+            consumoNutritivo: ''
+          },
+          grupoSanguineo: '',
+          factorRh: '',
+          inmunizaciones: '',
+          peso: '',
+          imc: '',
+          talla: '',
+          presionArterial: '',
+          pulso: '',
+          frecuenciaCardiaca: '',
+          frecuenciaRespiratoria: '',
+          temperatura: '',
+          diagnosticos: '',
+          pronosticos: ''
+        }} 
+        handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
+      />
             </div>
+          </div>
+
+          {/* Mobile version */}
+          <div className={`${isMobile ? 'block' : 'hidden'} mx-4 mb-12`}>
+            <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
+                🔽 Demostracion de redacción automatica...
+            </h2>
+            <AntecedentesPersonalesPatologicos 
+        formData={{
+          antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+          padecimientoActual: {} as any,
+          antecedentesHeredoFamiliares: {} as any,
+          antecedentesPersonalesNoPatologicos: {} as any,
+          antecedentesAlergicos: {} as any,
+          antecedentesHemorragicos: {} as any,
+          antecedentesQuirurgicos: {} as any,
+          interrogatorioSistemas: {} as any,
+          exploracionFisica: {} as any,
+          examenCabeza: {} as any,
+          articulacionCraneomandibular: {} as any,
+          examenCuello: {} as any,
+          examenIntrabucal: {} as any,
+          glandulasSalivales: {} as any,
+          oclusion: {} as any,
+          relacionDientes: {} as any,
+          lineaMedia: {} as any,
+          frenillos: {} as any,
+          diagnostico: {} as any,
+          pronostico: {} as any,
+          serviciosDomiciliarios: '',
+          pisosVivienda: '',
+          materialVivienda: '',
+          materialPiso: '',
+          ventilacion: '',
+          frecuenciaLimpieza: '',
+          hacinamiento: '',
+          frecuenciaBano: '',
+          higieneBucal: {
+            frecuenciaCepillado: '',
+            usoHiloDental: '',
+            tipoCerdas: '',
+            cantidadPasta: '',
+            marcaPasta: ''
+          },
+          alimentacion: {
+            tipoDieta: '',
+            frecuenciaComidas: '',
+            tiposAlimentos: '',
+            saltaComidas: '',
+            consumoNutritivo: ''
+          },
+          grupoSanguineo: '',
+          factorRh: '',
+          inmunizaciones: '',
+          peso: '',
+          imc: '',
+          talla: '',
+          presionArterial: '',
+          pulso: '',
+          frecuenciaCardiaca: '',
+          frecuenciaRespiratoria: '',
+          temperatura: '',
+          diagnosticos: '',
+          pronosticos: ''
+        }} 
+        handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
+      />
           </div>
         </div>
       </div>
 
       {/* Apple Style Footer */}
-      <footer className="bg-white py-12 border-t border-gray-200 text-center text-sm">
+      <footer className="bg-white py-12 border-t border-gray-200">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {/* Column 1 - Company Info */}
@@ -709,4 +802,5 @@ const Landing = () => {
     })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
     </div>;
 };
+
 export default Landing;
