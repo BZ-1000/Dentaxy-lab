@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
+import ExamenIntrabucalForm from './ExamenIntrabucalForm';
 interface ExamenIntrabucalProps {
   formData: FormDataState;
   handleExamenIntrabucalChange: (part: string, value: string | boolean) => void;
@@ -12,6 +13,7 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [activeArea, setActiveArea] = useState<string | null>(null);
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
@@ -58,9 +60,73 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
         </div>
 
         {!isMinimized && <div className="p-6">
-            
+            <div className="relative max-w-md mx-auto">
+              <img 
+                src="/lovable-uploads/85981ffd-d2f5-4c51-94ab-9a32dcfd49ec.png"
+                alt="Cavidad oral"
+                className="w-full h-auto"
+              />
+              
+              {/* Botones clickeables sobre la imagen */}
+              <button
+                onClick={() => setActiveArea('encias')}
+                className="absolute top-[15%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+              >
+                Encías
+              </button>
+              
+              <button
+                onClick={() => setActiveArea('paladar')}
+                className="absolute top-[25%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+              >
+                Paladar
+              </button>
+              
+              <button
+                onClick={() => setActiveArea('orofaringe')}
+                className="absolute top-[30%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+              >
+                Orofaringe
+              </button>
+              
+              <button
+                onClick={() => setActiveArea('mejillas')}
+                className="absolute top-[40%] right-[15%] bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+              >
+                Mejillas
+              </button>
+              
+              <button
+                onClick={() => setActiveArea('retromolar')}
+                className="absolute top-[50%] left-[10%] bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+              >
+                Retro molar
+              </button>
+              
+              <button
+                onClick={() => setActiveArea('lengua')}
+                className="absolute bottom-[35%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+              >
+                Lengua
+              </button>
+              
+              <button
+                onClick={() => setActiveArea('pisoBoca')}
+                className="absolute bottom-[25%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+              >
+                Piso de boca
+              </button>
+            </div>
 
-            
+            {/* Formularios popup */}
+            {activeArea && (
+              <ExamenIntrabucalForm 
+                area={activeArea}
+                onClose={() => setActiveArea(null)}
+                formData={formData}
+                handleExamenIntrabucalChange={handleExamenIntrabucalChange}
+              />
+            )}
           </div>}
       </Card>
     </div>;
