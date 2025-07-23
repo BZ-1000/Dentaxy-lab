@@ -70,49 +70,49 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
               {/* Botones clickeables sobre la imagen */}
               <button
                 onClick={() => setActiveArea('encias')}
-                className="absolute top-[15%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                className="absolute top-[15%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
               >
                 Encías
               </button>
               
               <button
                 onClick={() => setActiveArea('paladar')}
-                className="absolute top-[25%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                className="absolute top-[35%] left-[40%] transform -translate-x-1/2 bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
               >
                 Paladar
               </button>
               
               <button
                 onClick={() => setActiveArea('orofaringe')}
-                className="absolute top-[30%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                className="absolute top-[40%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
               >
                 Orofaringe
               </button>
               
               <button
                 onClick={() => setActiveArea('mejillas')}
-                className="absolute top-[40%] right-[15%] bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                className="absolute top-[40%] right-[15%] bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
               >
                 Mejillas
               </button>
               
               <button
                 onClick={() => setActiveArea('retromolar')}
-                className="absolute top-[50%] left-[10%] bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                className="absolute top-[50%] left-[10%] bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
               >
-                Retro molar
+                Retromolar
               </button>
               
               <button
                 onClick={() => setActiveArea('lengua')}
-                className="absolute bottom-[35%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                className="absolute bottom-[35%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
               >
                 Lengua
               </button>
               
               <button
                 onClick={() => setActiveArea('pisoBoca')}
-                className="absolute bottom-[25%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors"
+                className="absolute bottom-[25%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
               >
                 Piso de boca
               </button>

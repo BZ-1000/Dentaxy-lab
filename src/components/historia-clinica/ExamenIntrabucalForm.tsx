@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { FormDataState } from '@/types/historiaClinica';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface ExamenIntrabucalFormProps {
   area: string;
@@ -20,6 +21,11 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
   formData,
   handleExamenIntrabucalChange
 }) => {
+  const [currentSubSection, setCurrentSubSection] = useState(0);
+  const [selectedColor, setSelectedColor] = useState('');
+  const [showLesionTextarea, setShowLesionTextarea] = useState(false);
+  const [showManchasTextarea, setShowManchasTextarea] = useState(false);
+
   const getAreaTitle = () => {
     switch (area) {
       case 'encias': return '🦷 1. ENCÍAS';
@@ -33,206 +39,249 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
     }
   };
 
-  const renderEnciasForm = () => (
-    <div className="space-y-4">
-      <div>
-        <h4 className="font-medium mb-2">Tipos:</h4>
-        <div className="space-y-2">
-          {['Encía libre', 'Encía adherida', 'Encía interproximal (papilar)'].map((tipo) => (
-            <div key={tipo} className="flex items-center space-x-2">
-              <Checkbox id={`encias-${tipo}`} />
-              <Label htmlFor={`encias-${tipo}`}>{tipo}</Label>
-            </div>
-          ))}
-        </div>
-      </div>
+  const colorOptions = [
+    { color: '#FFC0CB', label: 'Rosa pálido: mucosa sana, normal' },
+    { color: '#FF6666', label: 'Eritematoso / rojo: inflamación, infección, trauma' },
+    { color: '#FFF0F5', label: 'Pálido: anemia, deficiencia de hierro' },
+    { color: '#A9A9A9', label: 'Blanquecino: leucoplasia, cándida, línea alba' },
+    { color: '#8B0000', label: 'Rojizo oscuro / purpúreo: trauma, petequias, lesiones vasculares' },
+    { color: '#FFCC00', label: 'Amarillento: saburra lingual, secreción purulenta' },
+    { color: '#000000', label: 'Negruzco: pigmentación por tabaco, lengua negra vellosa' },
+    { color: '#964B00', label: 'Café / marrón: melanosis, tabaquismo, pigmentación' },
+    { color: '#00008B', label: 'Cianótico (azulado): hipoxia, venas varicosas' }
+  ];
 
-      <div>
-        <h4 className="font-medium mb-2">Color:</h4>
-        <RadioGroup>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="rosa-palido" id="rosa-palido" />
-            <Label htmlFor="rosa-palido">🔴 Rosa pálido - Normal</Label>
+  const ColorSelector = () => (
+    <div>
+      <h4 className="font-medium mb-2">Color:</h4>
+      <p className="text-sm text-gray-600 mb-3">Descripción clínica común</p>
+      <div className="space-y-2">
+        {colorOptions.map((option, index) => (
+          <div key={index} className="flex items-center space-x-2">
+            <div 
+              style={{ 
+                width: '25px', 
+                height: '25px', 
+                borderRadius: '50%', 
+                backgroundColor: option.color, 
+                border: '1px solid #000' 
+              }}
+            />
+            <input 
+              type="radio" 
+              id={`color-${index}`} 
+              name="color" 
+              value={option.label}
+              onChange={(e) => setSelectedColor(e.target.value)}
+            />
+            <Label htmlFor={`color-${index}`} className="text-sm">{option.label}</Label>
           </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="rojo-intenso" id="rojo-intenso" />
-            <Label htmlFor="rojo-intenso">🔴 Rojo intenso - Inflamación</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="palido" id="palido" />
-            <Label htmlFor="palido">⚪ Pálido - Anemia</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="azulado" id="azulado" />
-            <Label htmlFor="azulado">🔵 Azulado - Cianosis</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="pigmentado" id="pigmentado" />
-            <Label htmlFor="pigmentado">⚫ Pigmentado - Melanosis, racial o tabaco</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div>
-        <h4 className="font-medium mb-2">Textura:</h4>
-        <div className="space-y-2">
-          {['Lisa', 'Punteada', 'Ulcerada', 'Fibrótica', 'Edematosa'].map((textura) => (
-            <div key={textura} className="flex items-center space-x-2">
-              <Checkbox id={`textura-${textura}`} />
-              <Label htmlFor={`textura-${textura}`}>{textura}</Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <h4 className="font-medium mb-2">Contorno / forma:</h4>
-        <div className="space-y-2">
-          {['Regular', 'Irregular', 'Aumentado de volumen', 'Recesión gingival', 'Presencia de pseudobolsas'].map((contorno) => (
-            <div key={contorno} className="flex items-center space-x-2">
-              <Checkbox id={`contorno-${contorno}`} />
-              <Label htmlFor={`contorno-${contorno}`}>{contorno}</Label>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <h4 className="font-medium mb-2">Consistencia:</h4>
-        <RadioGroup>
-          {['Firme', 'Blanda', 'Hiperplásica'].map((consistencia) => (
-            <div key={consistencia} className="flex items-center space-x-2">
-              <RadioGroupItem value={consistencia} id={`consistencia-${consistencia}`} />
-              <Label htmlFor={`consistencia-${consistencia}`}>{consistencia}</Label>
-            </div>
-          ))}
-        </RadioGroup>
-      </div>
-
-      <div>
-        <h4 className="font-medium mb-2">Sangrado al sondaje o palpación:</h4>
-        <RadioGroup>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="si" id="sangrado-si" />
-            <Label htmlFor="sangrado-si">Sí</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="no" id="sangrado-no" />
-            <Label htmlFor="sangrado-no">No</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div>
-        <h4 className="font-medium mb-2">Dolor o sensibilidad:</h4>
-        <RadioGroup>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="si" id="dolor-si" />
-            <Label htmlFor="dolor-si">Sí</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="no" id="dolor-no" />
-            <Label htmlFor="dolor-no">No</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div>
-        <Label htmlFor="encias-otros">Otros hallazgos:</Label>
-        <Textarea id="encias-otros" placeholder="Describe otros hallazgos..." />
+        ))}
       </div>
     </div>
   );
 
-  const renderPaladarForm = () => (
-    <div className="space-y-4">
-      <div>
-        <h4 className="font-medium mb-2">Divisiones:</h4>
-        <div className="space-y-2">
-          {['Paladar duro', 'Paladar blando'].map((division) => (
-            <div key={division} className="flex items-center space-x-2">
-              <Checkbox id={`paladar-${division}`} />
-              <Label htmlFor={`paladar-${division}`}>{division}</Label>
+  const renderEnciasForm = () => {
+    const sections = ['Encía libre', 'Encía adherida', 'Encía interproximal'];
+    const currentSection = sections[currentSubSection];
+
+    return (
+      <div className="space-y-4">
+        <div>
+          <p className="text-sm text-gray-600 mb-3">Subtipos de encía:</p>
+          <div className="space-y-2 text-sm">
+            <p><strong>Encía libre:</strong> rodea el cuello del diente sin estar adherida al hueso alveolar.</p>
+            <p><strong>Encía adherida:</strong> firmemente unida al hueso subyacente, resistente.</p>
+            <p><strong>Encía interproximal:</strong> encía papilar entre dos dientes, susceptible a inflamación o pérdida por enfermedad periodontal.</p>
+          </div>
+        </div>
+
+        <div className="border-t pt-4">
+          <h3 className="text-lg font-semibold mb-4">{currentSection}</h3>
+          
+          <ColorSelector />
+
+          <div className="mt-4">
+            <h4 className="font-medium mb-2">Textura:</h4>
+            <div className="space-y-2">
+              {['Lisa', 'Punteada', 'Ulcerada', 'Fibrótica', 'Edematosa', 'Otro'].map((textura) => (
+                <div key={textura} className="flex items-center space-x-2">
+                  <Checkbox id={`textura-${textura}`} />
+                  <Label htmlFor={`textura-${textura}`}>{textura}</Label>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          <div className="mt-4">
+            <h4 className="font-medium mb-2">Contorno / forma:</h4>
+            <div className="space-y-2">
+              {['Regular', 'Irregular', 'Aumentado de volumen', 'Recesión gingival', 'Presencia de pseudobolsas', 'Otro'].map((contorno) => (
+                <div key={contorno} className="flex items-center space-x-2">
+                  <Checkbox id={`contorno-${contorno}`} />
+                  <Label htmlFor={`contorno-${contorno}`}>{contorno}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <h4 className="font-medium mb-2">Consistencia:</h4>
+            <div className="space-y-2">
+              {['Firme', 'Blanda', 'Hiperplásica', 'Otro'].map((consistencia) => (
+                <div key={consistencia} className="flex items-center space-x-2">
+                  <Checkbox id={`consistencia-${consistencia}`} />
+                  <Label htmlFor={`consistencia-${consistencia}`}>{consistencia}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <h4 className="font-medium mb-2">Sangrado al sondaje o palpación:</h4>
+            <div className="space-y-2">
+              {['Sí', 'No', 'Otro'].map((sangrado) => (
+                <div key={sangrado} className="flex items-center space-x-2">
+                  <Checkbox id={`sangrado-${sangrado}`} />
+                  <Label htmlFor={`sangrado-${sangrado}`}>{sangrado}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <h4 className="font-medium mb-2">Dolor o sensibilidad:</h4>
+            <div className="space-y-2">
+              {['Sí', 'No', 'Otro'].map((dolor) => (
+                <div key={dolor} className="flex items-center space-x-2">
+                  <Checkbox id={`dolor-${dolor}`} />
+                  <Label htmlFor={`dolor-${dolor}`}>{dolor}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <Label htmlFor="encias-otros">Otros hallazgos:</Label>
+            <Textarea id="encias-otros" placeholder="Describe otros hallazgos..." />
+          </div>
+
+          <div className="flex justify-between mt-4">
+            <Button 
+              onClick={() => setCurrentSubSection(Math.max(0, currentSubSection - 1))}
+              disabled={currentSubSection === 0}
+              variant="outline"
+            >
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Anterior
+            </Button>
+            <Button 
+              onClick={() => setCurrentSubSection(Math.min(sections.length - 1, currentSubSection + 1))}
+              disabled={currentSubSection === sections.length - 1}
+              variant="outline"
+            >
+              Siguiente
+              <ChevronRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
         </div>
       </div>
+    );
+  };
 
-      <div>
-        <h4 className="font-medium mb-2">Color:</h4>
-        <RadioGroup>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="rosado" id="paladar-rosado" />
-            <Label htmlFor="paladar-rosado">🔴 Rosado - Normal</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="eritematoso" id="paladar-eritematoso" />
-            <Label htmlFor="paladar-eritematoso">🔴 Eritematoso - Irritación</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="palido" id="paladar-palido" />
-            <Label htmlFor="paladar-palido">⚪ Pálido - Isquemia</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="pigmentado" id="paladar-pigmentado" />
-            <Label htmlFor="paladar-pigmentado">⚫ Pigmentado - Fumadores / racial</Label>
-          </div>
-        </RadioGroup>
-      </div>
+  const renderPaladarForm = () => {
+    const sections = ['Paladar duro', 'Paladar blando'];
+    const currentSection = sections[currentSubSection];
 
-      <div>
-        <h4 className="font-medium mb-2">Superficie:</h4>
-        <div className="space-y-2">
-          {['Lisa', 'Rugosa (normal)', 'Ulcerada', 'Nodular', 'Placa blanca o roja'].map((superficie) => (
-            <div key={superficie} className="flex items-center space-x-2">
-              <Checkbox id={`superficie-${superficie}`} />
-              <Label htmlFor={`superficie-${superficie}`}>{superficie}</Label>
+    return (
+      <div className="space-y-4">
+        <div>
+          <p className="text-sm text-gray-600 mb-3">Divisiones:</p>
+          <div className="space-y-2">
+            {['Paladar duro', 'Paladar blando'].map((division) => (
+              <div key={division} className="flex items-center space-x-2">
+                <Checkbox id={`paladar-${division}`} />
+                <Label htmlFor={`paladar-${division}`}>{division}</Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="border-t pt-4">
+          <h3 className="text-lg font-semibold mb-4">{currentSection}</h3>
+          
+          <ColorSelector />
+
+          <div className="mt-4">
+            <h4 className="font-medium mb-2">Superficie:</h4>
+            <div className="space-y-2">
+              {['Lisa', 'Rugosa (normal)', 'Ulcerada', 'Nodular', 'Placa blanca o roja', 'Otro'].map((superficie) => (
+                <div key={superficie} className="flex items-center space-x-2">
+                  <Checkbox id={`superficie-${superficie}`} />
+                  <Label htmlFor={`superficie-${superficie}`}>{superficie}</Label>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          <div className="mt-4">
+            <h4 className="font-medium mb-2">Elevación del paladar al decir "ah":</h4>
+            <div className="space-y-2">
+              {['Simétrica', 'Asimétrica', 'Otro'].map((elevacion) => (
+                <div key={elevacion} className="flex items-center space-x-2">
+                  <Checkbox id={`elevacion-${elevacion}`} />
+                  <Label htmlFor={`elevacion-${elevacion}`}>{elevacion}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <h4 className="font-medium mb-2">Presencia de masas, exostosis o torus palatino:</h4>
+            <div className="space-y-2">
+              {['Sí', 'No', 'Otro'].map((masas) => (
+                <div key={masas} className="flex items-center space-x-2">
+                  <Checkbox id={`masas-${masas}`} />
+                  <Label htmlFor={`masas-${masas}`}>{masas}</Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <Label htmlFor="paladar-otros">Otros hallazgos:</Label>
+            <Textarea id="paladar-otros" placeholder="Describe otros hallazgos..." />
+          </div>
+
+          <div className="flex justify-between mt-4">
+            <Button 
+              onClick={() => setCurrentSubSection(Math.max(0, currentSubSection - 1))}
+              disabled={currentSubSection === 0}
+              variant="outline"
+            >
+              <ChevronLeft className="w-4 h-4 mr-2" />
+              Anterior
+            </Button>
+            <Button 
+              onClick={() => setCurrentSubSection(Math.min(sections.length - 1, currentSubSection + 1))}
+              disabled={currentSubSection === sections.length - 1}
+              variant="outline"
+            >
+              Siguiente
+              <ChevronRight className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
         </div>
       </div>
-
-      <div>
-        <h4 className="font-medium mb-2">Elevación del paladar blando al decir "ah":</h4>
-        <RadioGroup>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="simetrica" id="elevacion-simetrica" />
-            <Label htmlFor="elevacion-simetrica">Simétrica</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="asimetrica" id="elevacion-asimetrica" />
-            <Label htmlFor="elevacion-asimetrica">Asimétrica</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div>
-        <h4 className="font-medium mb-2">Presencia de masas, exostosis o torus palatino:</h4>
-        <RadioGroup>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="si" id="masas-si" />
-            <Label htmlFor="masas-si">Sí</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="no" id="masas-no" />
-            <Label htmlFor="masas-no">No</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div>
-        <Label htmlFor="paladar-otros">Otros hallazgos:</Label>
-        <Textarea id="paladar-otros" placeholder="Describe otros hallazgos..." />
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderOrofaringeForm = () => (
     <div className="space-y-4">
       <div>
         <h4 className="font-medium mb-2">Estructuras a evaluar:</h4>
         <div className="space-y-2">
-          {['Amígdalas', 'Úvula', 'Pared posterior faríngea', 'Pilar anterior y posterior'].map((estructura) => (
+          {['Amígdalas', 'Úvula', 'Pared posterior faríngea', 'Pilar anterior y posterior', 'Otro'].map((estructura) => (
             <div key={estructura} className="flex items-center space-x-2">
               <Checkbox id={`estructura-${estructura}`} />
               <Label htmlFor={`estructura-${estructura}`}>{estructura}</Label>
@@ -246,52 +295,50 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
         <div className="space-y-3">
           <div>
             <Label className="text-sm font-medium">Presencia:</Label>
-            <RadioGroup>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="si" id="amigdalas-presencia-si" />
-                <Label htmlFor="amigdalas-presencia-si">Sí</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="no" id="amigdalas-presencia-no" />
-                <Label htmlFor="amigdalas-presencia-no">No</Label>
-              </div>
-            </RadioGroup>
+            <div className="space-y-2">
+              {['Sí', 'No', 'Otro'].map((presencia) => (
+                <div key={presencia} className="flex items-center space-x-2">
+                  <Checkbox id={`amigdalas-presencia-${presencia}`} />
+                  <Label htmlFor={`amigdalas-presencia-${presencia}`}>{presencia}</Label>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div>
             <Label className="text-sm font-medium">Tamaño:</Label>
-            <RadioGroup>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="0" id="tamano-0" />
-                <Label htmlFor="tamano-0">0: Ausentes</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="I" id="tamano-I" />
-                <Label htmlFor="tamano-I">I: Dentro de pilares</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="II" id="tamano-II" />
-                <Label htmlFor="tamano-II">II: Hasta pilares</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="III" id="tamano-III" />
-                <Label htmlFor="tamano-III">III: Más allá de pilares</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="IV" id="tamano-IV" />
-                <Label htmlFor="tamano-IV">IV: Se tocan (kissing tonsils)</Label>
-              </div>
-            </RadioGroup>
+            <div className="space-y-2">
+              {['0: Ausentes', 'I: Dentro de pilares', 'II: Hasta pilares', 'III: Más allá de pilares', 'IV: Se tocan (kissing tonsils)', 'Otro'].map((tamano) => (
+                <div key={tamano} className="flex items-center space-x-2">
+                  <Checkbox id={`tamano-${tamano}`} />
+                  <Label htmlFor={`tamano-${tamano}`}>{tamano}</Label>
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Checkbox id="secrecion-purulenta" />
-            <Label htmlFor="secrecion-purulenta">Secreción purulenta</Label>
+          <div>
+            <Label className="text-sm font-medium">Secreción purulenta:</Label>
+            <div className="space-y-2">
+              {['Sí', 'No', 'Otro'].map((secrecion) => (
+                <div key={secrecion} className="flex items-center space-x-2">
+                  <Checkbox id={`secrecion-${secrecion}`} />
+                  <Label htmlFor={`secrecion-${secrecion}`}>{secrecion}</Label>
+                </div>
+              ))}
+            </div>
           </div>
-          
-          <div className="flex items-center space-x-2">
-            <Checkbox id="criptas-visibles" />
-            <Label htmlFor="criptas-visibles">Criptas visibles</Label>
+
+          <div>
+            <Label className="text-sm font-medium">Criptas visibles:</Label>
+            <div className="space-y-2">
+              {['Sí', 'No', 'Otro'].map((criptas) => (
+                <div key={criptas} className="flex items-center space-x-2">
+                  <Checkbox id={`criptas-${criptas}`} />
+                  <Label htmlFor={`criptas-${criptas}`}>{criptas}</Label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -301,28 +348,26 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
         <div className="space-y-3">
           <div>
             <Label className="text-sm font-medium">Forma:</Label>
-            <RadioGroup>
-              {['Normal', 'Edematosa', 'Desviada'].map((forma) => (
+            <div className="space-y-2">
+              {['Normal', 'Edematosa', 'Desviada', 'Otro'].map((forma) => (
                 <div key={forma} className="flex items-center space-x-2">
-                  <RadioGroupItem value={forma} id={`forma-${forma}`} />
+                  <Checkbox id={`forma-${forma}`} />
                   <Label htmlFor={`forma-${forma}`}>{forma}</Label>
                 </div>
               ))}
-            </RadioGroup>
+            </div>
           </div>
 
           <div>
             <Label className="text-sm font-medium">Movimiento:</Label>
-            <RadioGroup>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="simetrico" id="movimiento-simetrico" />
-                <Label htmlFor="movimiento-simetrico">Simétrico</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="asimetrico" id="movimiento-asimetrico" />
-                <Label htmlFor="movimiento-asimetrico">Asimétrico</Label>
-              </div>
-            </RadioGroup>
+            <div className="space-y-2">
+              {['Simétrico', 'Asimétrico', 'Otro'].map((movimiento) => (
+                <div key={movimiento} className="flex items-center space-x-2">
+                  <Checkbox id={`movimiento-${movimiento}`} />
+                  <Label htmlFor={`movimiento-${movimiento}`}>{movimiento}</Label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -330,7 +375,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div>
         <h4 className="font-medium mb-2">Pared posterior:</h4>
         <div className="space-y-2">
-          {['Eritematoso', 'Granular', 'Presencia de exudado o pus'].map((pared) => (
+          {['Eritematoso', 'Granular', 'Presencia de exudado o pus', 'Otro'].map((pared) => (
             <div key={pared} className="flex items-center space-x-2">
               <Checkbox id={`pared-${pared}`} />
               <Label htmlFor={`pared-${pared}`}>{pared}</Label>
@@ -342,7 +387,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div>
         <h4 className="font-medium mb-2">Pilares:</h4>
         <div className="space-y-2">
-          {['Inflamación', 'Dolor a la palpación'].map((pilar) => (
+          {['Inflamación', 'Dolor a la palpación', 'Otro'].map((pilar) => (
             <div key={pilar} className="flex items-center space-x-2">
               <Checkbox id={`pilar-${pilar}`} />
               <Label htmlFor={`pilar-${pilar}`}>{pilar}</Label>
@@ -360,56 +405,68 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
 
   const renderMejillasForm = () => (
     <div className="space-y-4">
-      <div>
-        <h4 className="font-medium mb-2">Coloración:</h4>
+      <ColorSelector />
+
+      <div className="mt-4">
+        <h4 className="font-medium mb-2">Manchas blancas o rojas:</h4>
         <div className="space-y-2">
-          {['Rosado', 'Erosiones', 'Petequias', 'Manchas blancas o rojas'].map((color) => (
-            <div key={color} className="flex items-center space-x-2">
-              <Checkbox id={`mejillas-color-${color}`} />
-              <Label htmlFor={`mejillas-color-${color}`}>{color}</Label>
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="manchas-presentes" 
+              onCheckedChange={(checked) => setShowManchasTextarea(!!checked)}
+            />
+            <Label htmlFor="manchas-presentes">Presente</Label>
+          </div>
+          {showManchasTextarea && (
+            <Textarea placeholder="Describe las manchas..." />
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h4 className="font-medium mb-2">Textura interna:</h4>
+        <div className="space-y-2">
+          {['Lisa', 'Rugosa', 'Otro'].map((textura) => (
+            <div key={textura} className="flex items-center space-x-2">
+              <Checkbox id={`mejillas-textura-${textura}`} />
+              <Label htmlFor={`mejillas-textura-${textura}`}>{textura}</Label>
+            </div>
+          ))}
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="lesiones"
+              onCheckedChange={(checked) => setShowLesionTextarea(!!checked)}
+            />
+            <Label htmlFor="lesiones">Lesiones: úlceras, leucoplasia, liquen plano</Label>
+          </div>
+          {showLesionTextarea && (
+            <Textarea placeholder="Describe la lesión..." />
+          )}
+        </div>
+      </div>
+
+      <div>
+        <h4 className="font-medium mb-2">Línea alba o mordedura habitual:</h4>
+        <div className="space-y-2">
+          {['Presente', 'Ausente', 'Otro'].map((linea) => (
+            <div key={linea} className="flex items-center space-x-2">
+              <Checkbox id={`linea-alba-${linea}`} />
+              <Label htmlFor={`linea-alba-${linea}`}>{linea}</Label>
             </div>
           ))}
         </div>
       </div>
 
       <div>
-        <h4 className="font-medium mb-2">Textura interna:</h4>
-        <RadioGroup>
-          {['Lisa', 'Rugosa', 'Lesiones: úlceras, leucoplasia, liquen plano'].map((textura) => (
-            <div key={textura} className="flex items-center space-x-2">
-              <RadioGroupItem value={textura} id={`mejillas-textura-${textura}`} />
-              <Label htmlFor={`mejillas-textura-${textura}`}>{textura}</Label>
+        <h4 className="font-medium mb-2">Conducto de Stenon (parótida):</h4>
+        <div className="space-y-2">
+          {['Visible y permeable', 'Con secreción anormal', 'Otro'].map((stenon) => (
+            <div key={stenon} className="flex items-center space-x-2">
+              <Checkbox id={`stenon-${stenon}`} />
+              <Label htmlFor={`stenon-${stenon}`}>{stenon}</Label>
             </div>
           ))}
-        </RadioGroup>
-      </div>
-
-      <div>
-        <h4 className="font-medium mb-2">Línea alba o mordedura habitual:</h4>
-        <RadioGroup>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="presente" id="linea-alba-presente" />
-            <Label htmlFor="linea-alba-presente">Presente</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="ausente" id="linea-alba-ausente" />
-            <Label htmlFor="linea-alba-ausente">Ausente</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
-      <div>
-        <h4 className="font-medium mb-2">Conducto de Stenon (parótida):</h4>
-        <RadioGroup>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="visible" id="stenon-visible" />
-            <Label htmlFor="stenon-visible">Visible y permeable</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="anormal" id="stenon-anormal" />
-            <Label htmlFor="stenon-anormal">Con secreción anormal</Label>
-          </div>
-        </RadioGroup>
+        </div>
       </div>
 
       <div>
@@ -424,7 +481,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div>
         <h4 className="font-medium mb-2">Presencia de lesiones:</h4>
         <div className="space-y-2">
-          {['Ulcerativas', 'Nodulares', 'Fibromas o hiperplasias'].map((lesion) => (
+          {['Ulcerativas', 'Nodulares', 'Fibromas o hiperplasias', 'Otro'].map((lesion) => (
             <div key={lesion} className="flex items-center space-x-2">
               <Checkbox id={`retromolar-lesion-${lesion}`} />
               <Label htmlFor={`retromolar-lesion-${lesion}`}>{lesion}</Label>
@@ -433,30 +490,18 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
         </div>
       </div>
 
-      <div>
-        <h4 className="font-medium mb-2">Coloración:</h4>
-        <RadioGroup>
-          {['Normal', 'Eritematosa', 'Blanca', 'Mixta'].map((color) => (
-            <div key={color} className="flex items-center space-x-2">
-              <RadioGroupItem value={color} id={`retromolar-color-${color}`} />
-              <Label htmlFor={`retromolar-color-${color}`}>{color}</Label>
+      <ColorSelector />
+
+      <div className="mt-4">
+        <h4 className="font-medium mb-2">Dolor o sensibilidad:</h4>
+        <div className="space-y-2">
+          {['Sí', 'No', 'Otro'].map((dolor) => (
+            <div key={dolor} className="flex items-center space-x-2">
+              <Checkbox id={`retromolar-dolor-${dolor}`} />
+              <Label htmlFor={`retromolar-dolor-${dolor}`}>{dolor}</Label>
             </div>
           ))}
-        </RadioGroup>
-      </div>
-
-      <div>
-        <h4 className="font-medium mb-2">Dolor o sensibilidad:</h4>
-        <RadioGroup>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="si" id="retromolar-dolor-si" />
-            <Label htmlFor="retromolar-dolor-si">Sí</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="no" id="retromolar-dolor-no" />
-            <Label htmlFor="retromolar-dolor-no">No</Label>
-          </div>
-        </RadioGroup>
+        </div>
       </div>
 
       <div>
@@ -469,50 +514,48 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
   const renderLenguaForm = () => (
     <div className="space-y-4">
       <div>
-        <h4 className="font-medium mb-2">Divisiones:</h4>
+        <p className="text-sm text-gray-600 mb-3">Divisiones:</p>
+        <div className="space-y-2 text-sm">
+          <p><strong>Dorso</strong></p>
+          <p><strong>Bordes laterales</strong></p>
+          <p><strong>Ventrículo (cara inferior)</strong></p>
+          <p><strong>Punta</strong></p>
+        </div>
+      </div>
+
+      <ColorSelector />
+
+      <div className="mt-4">
+        <h4 className="font-medium mb-2">Tamaño:</h4>
         <div className="space-y-2">
-          {['Dorso', 'Bordes laterales', 'Ventrículo (cara inferior)', 'Punta'].map((division) => (
-            <div key={division} className="flex items-center space-x-2">
-              <Checkbox id={`lengua-division-${division}`} />
-              <Label htmlFor={`lengua-division-${division}`}>{division}</Label>
+          {['Normal', 'Macroglosia', 'Atrófica', 'Otro'].map((tamano) => (
+            <div key={tamano} className="flex items-center space-x-2">
+              <Checkbox id={`lengua-tamano-${tamano}`} />
+              <Label htmlFor={`lengua-tamano-${tamano}`}>{tamano}</Label>
             </div>
           ))}
         </div>
       </div>
 
       <div>
-        <h4 className="font-medium mb-2">Tamaño:</h4>
-        <RadioGroup>
-          {['Normal', 'Macroglosia', 'Atrófica'].map((tamano) => (
-            <div key={tamano} className="flex items-center space-x-2">
-              <RadioGroupItem value={tamano} id={`lengua-tamano-${tamano}`} />
-              <Label htmlFor={`lengua-tamano-${tamano}`}>{tamano}</Label>
+        <h4 className="font-medium mb-2">Movilidad:</h4>
+        <div className="space-y-2">
+          {['Conservada', 'Limitada', 'Otro'].map((movilidad) => (
+            <div key={movilidad} className="flex items-center space-x-2">
+              <Checkbox id={`lengua-movilidad-${movilidad}`} />
+              <Label htmlFor={`lengua-movilidad-${movilidad}`}>{movilidad}</Label>
             </div>
           ))}
-        </RadioGroup>
-      </div>
-
-      <div>
-        <h4 className="font-medium mb-2">Movilidad:</h4>
-        <RadioGroup>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="conservada" id="movilidad-conservada" />
-            <Label htmlFor="movilidad-conservada">Conservada</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="limitada" id="movilidad-limitada" />
-            <Label htmlFor="movilidad-limitada">Limitada</Label>
-          </div>
-        </RadioGroup>
+        </div>
       </div>
 
       <div>
         <h4 className="font-medium mb-2">Superficie dorsal:</h4>
         <div className="space-y-2">
-          {['Filiformes normales', 'Lengua saburral', 'Lengua geográfica', 'Lengua fisurada', 'Leucoplasia / candidiasis'].map((superficie) => (
+          {['Filiformes normales', 'Lengua saburral', 'Lengua geográfica', 'Lengua fisurada', 'Leucoplasia / candidiasis', 'Otro'].map((superficie) => (
             <div key={superficie} className="flex items-center space-x-2">
-              <Checkbox id={`superficie-dorsal-${superficie}`} />
-              <Label htmlFor={`superficie-dorsal-${superficie}`}>{superficie}</Label>
+              <Checkbox id={`lengua-superficie-${superficie}`} />
+              <Label htmlFor={`lengua-superficie-${superficie}`}>{superficie}</Label>
             </div>
           ))}
         </div>
@@ -521,10 +564,10 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div>
         <h4 className="font-medium mb-2">Bordes laterales:</h4>
         <div className="space-y-2">
-          {['Ulceraciones', 'Mordisqueo', 'Indentaciones dentales', 'Lesiones blancas / rojas'].map((borde) => (
+          {['Ulceraciones', 'Mordisqueo', 'Indentaciones dentales', 'Lesiones blancas / rojas', 'Otro'].map((borde) => (
             <div key={borde} className="flex items-center space-x-2">
-              <Checkbox id={`borde-lateral-${borde}`} />
-              <Label htmlFor={`borde-lateral-${borde}`}>{borde}</Label>
+              <Checkbox id={`lengua-borde-${borde}`} />
+              <Label htmlFor={`lengua-borde-${borde}`}>{borde}</Label>
             </div>
           ))}
         </div>
@@ -533,10 +576,10 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div>
         <h4 className="font-medium mb-2">Cara inferior y frenillo:</h4>
         <div className="space-y-2">
-          {['Varices', 'Lesiones', 'Limitación (anquiloglosia)'].map((cara) => (
+          {['Varices', 'Lesiones', 'Limitación (anquiloglosia)', 'Otro'].map((cara) => (
             <div key={cara} className="flex items-center space-x-2">
-              <Checkbox id={`cara-inferior-${cara}`} />
-              <Label htmlFor={`cara-inferior-${cara}`}>{cara}</Label>
+              <Checkbox id={`lengua-cara-${cara}`} />
+              <Label htmlFor={`lengua-cara-${cara}`}>{cara}</Label>
             </div>
           ))}
         </div>
@@ -552,41 +595,71 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
   const renderPisoBocaForm = () => (
     <div className="space-y-4">
       <div>
-        <h4 className="font-medium mb-2">Coloración:</h4>
+        <h4 className="font-medium mb-2">Estructuras:</h4>
         <div className="space-y-2">
-          {['Normal', 'Erosiones', 'Lesiones pigmentadas'].map((color) => (
-            <div key={color} className="flex items-center space-x-2">
-              <Checkbox id={`piso-color-${color}`} />
-              <Label htmlFor={`piso-color-${color}`}>{color}</Label>
+          {['Glándulas sublinguales', 'Vasos sublinguales', 'Frenillo', 'Conducto de Wharton', 'Otro'].map((estructura) => (
+            <div key={estructura} className="flex items-center space-x-2">
+              <Checkbox id={`piso-estructura-${estructura}`} />
+              <Label htmlFor={`piso-estructura-${estructura}`}>{estructura}</Label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <ColorSelector />
+
+      <div className="mt-4">
+        <h4 className="font-medium mb-2">Secreción salival:</h4>
+        <div className="space-y-2">
+          {['Normal', 'Aumentada', 'Disminuida', 'Purulenta', 'Otro'].map((secrecion) => (
+            <div key={secrecion} className="flex items-center space-x-2">
+              <Checkbox id={`piso-secrecion-${secrecion}`} />
+              <Label htmlFor={`piso-secrecion-${secrecion}`}>{secrecion}</Label>
             </div>
           ))}
         </div>
       </div>
 
       <div>
-        <h4 className="font-medium mb-2">Glándulas sublinguales / conducto de Wharton:</h4>
-        <RadioGroup>
-          {['Normal', 'Inflamado', 'Cálculo visible', 'Secreción purulenta'].map((glandula) => (
-            <div key={glandula} className="flex items-center space-x-2">
-              <RadioGroupItem value={glandula} id={`glandula-${glandula}`} />
-              <Label htmlFor={`glandula-${glandula}`}>{glandula}</Label>
+        <h4 className="font-medium mb-2">Vasos sublinguales:</h4>
+        <div className="space-y-2">
+          {['Visibles finos (normal)', 'Engrosados', 'Con varicosidades', 'Otro'].map((vaso) => (
+            <div key={vaso} className="flex items-center space-x-2">
+              <Checkbox id={`piso-vaso-${vaso}`} />
+              <Label htmlFor={`piso-vaso-${vaso}`}>{vaso}</Label>
             </div>
           ))}
-        </RadioGroup>
+        </div>
       </div>
 
       <div>
-        <h4 className="font-medium mb-2">Movilidad de la mucosa:</h4>
-        <RadioGroup>
+        <h4 className="font-medium mb-2">Presencia de masas, ranulas, elevaciones:</h4>
+        <div className="space-y-2">
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="conservada" id="mucosa-conservada" />
-            <Label htmlFor="mucosa-conservada">Conservada</Label>
+            <Checkbox id="piso-masa-no" />
+            <Label htmlFor="piso-masa-no">No</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="dolorosa" id="mucosa-dolorosa" />
-            <Label htmlFor="mucosa-dolorosa">Dolorosa</Label>
+            <Checkbox id="piso-masa-si" />
+            <Label htmlFor="piso-masa-si">Sí (describir tamaño, localización)</Label>
           </div>
-        </RadioGroup>
+          <div className="flex items-center space-x-2">
+            <Checkbox id="piso-masa-otro" />
+            <Label htmlFor="piso-masa-otro">Otro</Label>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h4 className="font-medium mb-2">Frenillo lingual:</h4>
+        <div className="space-y-2">
+          {['Normal', 'Corto', 'Ulcerado', 'Otro'].map((frenillo) => (
+            <div key={frenillo} className="flex items-center space-x-2">
+              <Checkbox id={`piso-frenillo-${frenillo}`} />
+              <Label htmlFor={`piso-frenillo-${frenillo}`}>{frenillo}</Label>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div>
@@ -596,7 +669,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
     </div>
   );
 
-  const renderFormContent = () => {
+  const renderForm = () => {
     switch (area) {
       case 'encias': return renderEnciasForm();
       case 'paladar': return renderPaladarForm();
@@ -605,28 +678,21 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       case 'retromolar': return renderRetromolarForm();
       case 'lengua': return renderLenguaForm();
       case 'pisoBoca': return renderPisoBocaForm();
-      default: return <div>Selecciona un área para examinar</div>;
+      default: return <div>Seleccione un área</div>;
     }
   };
 
   return (
-    <Dialog open={!!area} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{getAreaTitle()}</DialogTitle>
         </DialogHeader>
-        
-        <div className="py-4">
-          {renderFormContent()}
+        <div className="mt-4">
+          {renderForm()}
         </div>
-
-        <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button onClick={onClose}>
-            Guardar
-          </Button>
+        <div className="flex justify-end mt-4">
+          <Button onClick={onClose}>Cerrar</Button>
         </div>
       </DialogContent>
     </Dialog>
