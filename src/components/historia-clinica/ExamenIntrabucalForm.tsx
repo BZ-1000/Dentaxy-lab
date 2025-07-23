@@ -23,6 +23,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
   const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
   const [showLesionTextarea, setShowLesionTextarea] = useState(false);
   const [showManchasTextarea, setShowManchasTextarea] = useState(false);
+  const [otroTextareas, setOtroTextareas] = useState<{[key: string]: boolean}>({});
 
   const getAreaTitle = () => {
     switch (area) {
@@ -55,6 +56,31 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
         ? prev.filter(item => item !== option)
         : [...prev, option]
     );
+    
+    // Show textarea if "Otro" is selected
+    if (option.toLowerCase().includes('otro')) {
+      setOtroTextareas(prev => ({
+        ...prev,
+        [option]: !prev[option]
+      }));
+    }
+  };
+
+  const createOptionWithTextarea = (options: string[], prefix: string = '') => {
+    return options.map((option) => (
+      <div key={option} className="flex flex-col">
+        <Button
+          variant={selectedOptions.includes(`${prefix}${option}`) ? "default" : "outline"}
+          size="sm"
+          onClick={() => toggleOption(`${prefix}${option}`)}
+        >
+          {option}
+        </Button>
+        {option === 'Otro' && otroTextareas[`${prefix}${option}`] && (
+          <Textarea placeholder="Especifica..." className="mt-2" />
+        )}
+      </div>
+    ));
   };
 
   const ColorSelector = () => (
@@ -83,14 +109,19 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </Button>
           </div>
         ))}
-        <Button
-          variant={selectedOptions.includes("Otro color") ? "default" : "outline"}
-          size="sm"
-          onClick={() => toggleOption("Otro color")}
-          className="mt-2"
-        >
-          Otro
-        </Button>
+        <div className="flex flex-col">
+          <Button
+            variant={selectedOptions.includes("Otro color") ? "default" : "outline"}
+            size="sm"
+            onClick={() => toggleOption("Otro color")}
+            className="mt-2"
+          >
+            Otro
+          </Button>
+          {otroTextareas["Otro color"] && (
+            <Textarea placeholder="Especifica el color..." className="mt-2" />
+          )}
+        </div>
       </div>
     </div>
   );
@@ -118,80 +149,35 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           <div className="mt-4">
             <h4 className="font-medium mb-2">Textura:</h4>
             <div className="flex flex-wrap gap-2">
-              {['Lisa', 'Punteada', 'Ulcerada', 'Fibrótica', 'Edematosa', 'Otro'].map((textura) => (
-                <Button
-                  key={textura}
-                  variant={selectedOptions.includes(`textura-${textura}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`textura-${textura}`)}
-                >
-                  {textura}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Lisa', 'Punteada', 'Ulcerada', 'Fibrótica', 'Edematosa', 'Otro'], 'textura-')}
             </div>
           </div>
 
           <div className="mt-4">
             <h4 className="font-medium mb-2">Contorno / forma:</h4>
             <div className="flex flex-wrap gap-2">
-              {['Regular', 'Irregular', 'Aumentado de volumen', 'Recesión gingival', 'Presencia de pseudobolsas', 'Otro'].map((contorno) => (
-                <Button
-                  key={contorno}
-                  variant={selectedOptions.includes(`contorno-${contorno}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`contorno-${contorno}`)}
-                >
-                  {contorno}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Regular', 'Irregular', 'Aumentado de volumen', 'Recesión gingival', 'Presencia de pseudobolsas', 'Otro'], 'contorno-')}
             </div>
           </div>
 
           <div className="mt-4">
             <h4 className="font-medium mb-2">Consistencia:</h4>
             <div className="flex flex-wrap gap-2">
-              {['Firme', 'Blanda', 'Hiperplásica', 'Otro'].map((consistencia) => (
-                <Button
-                  key={consistencia}
-                  variant={selectedOptions.includes(`consistencia-${consistencia}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`consistencia-${consistencia}`)}
-                >
-                  {consistencia}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Firme', 'Blanda', 'Hiperplásica', 'Otro'], 'consistencia-')}
             </div>
           </div>
 
           <div className="mt-4">
             <h4 className="font-medium mb-2">Sangrado al sondaje o palpación:</h4>
             <div className="flex flex-wrap gap-2">
-              {['Sí', 'No', 'Otro'].map((sangrado) => (
-                <Button
-                  key={sangrado}
-                  variant={selectedOptions.includes(`sangrado-${sangrado}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`sangrado-${sangrado}`)}
-                >
-                  {sangrado}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Sí', 'No', 'Otro'], 'sangrado-')}
             </div>
           </div>
 
           <div className="mt-4">
             <h4 className="font-medium mb-2">Dolor o sensibilidad:</h4>
             <div className="flex flex-wrap gap-2">
-              {['Sí', 'No', 'Otro'].map((dolor) => (
-                <Button
-                  key={dolor}
-                  variant={selectedOptions.includes(`dolor-${dolor}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`dolor-${dolor}`)}
-                >
-                  {dolor}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Sí', 'No', 'Otro'], 'dolor-')}
             </div>
           </div>
 
@@ -210,7 +196,15 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               Anterior
             </Button>
             <Button 
-              onClick={() => setCurrentSubSection(Math.min(sections.length - 1, currentSubSection + 1))}
+              onClick={() => {
+                setCurrentSubSection(Math.min(sections.length - 1, currentSubSection + 1));
+                setTimeout(() => {
+                  const dialogContent = document.querySelector('.max-w-4xl');
+                  if (dialogContent) {
+                    dialogContent.scrollTop = 0;
+                  }
+                }, 100);
+              }}
               disabled={currentSubSection === sections.length - 1}
               variant="outline"
             >
@@ -218,6 +212,20 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
+          
+          {currentSubSection === sections.length - 1 && (
+            <div className="flex justify-center mt-4">
+              <Button 
+                onClick={() => {
+                  handleExamenIntrabucalChange(area, 'completed');
+                  onClose();
+                }}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              >
+                Guardar
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -232,16 +240,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
         <div>
           <p className="text-sm text-gray-600 mb-3">Divisiones:</p>
           <div className="flex flex-wrap gap-2">
-            {['Paladar duro', 'Paladar blando'].map((division) => (
-              <Button
-                key={division}
-                variant={selectedOptions.includes(`paladar-${division}`) ? "default" : "outline"}
-                size="sm"
-                onClick={() => toggleOption(`paladar-${division}`)}
-              >
-                {division}
-              </Button>
-            ))}
+            {createOptionWithTextarea(['Paladar duro', 'Paladar blando'], 'paladar-')}
           </div>
         </div>
 
@@ -253,48 +252,21 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           <div className="mt-4">
             <h4 className="font-medium mb-2">Superficie:</h4>
             <div className="flex flex-wrap gap-2">
-              {['Lisa', 'Rugosa (normal)', 'Ulcerada', 'Nodular', 'Placa blanca o roja', 'Otro'].map((superficie) => (
-                <Button
-                  key={superficie}
-                  variant={selectedOptions.includes(`superficie-${superficie}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`superficie-${superficie}`)}
-                >
-                  {superficie}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Lisa', 'Rugosa (normal)', 'Ulcerada', 'Nodular', 'Placa blanca o roja', 'Otro'], 'superficie-')}
             </div>
           </div>
 
           <div className="mt-4">
             <h4 className="font-medium mb-2">Elevación del paladar al decir "ah":</h4>
             <div className="flex flex-wrap gap-2">
-              {['Simétrica', 'Asimétrica', 'Otro'].map((elevacion) => (
-                <Button
-                  key={elevacion}
-                  variant={selectedOptions.includes(`elevacion-${elevacion}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`elevacion-${elevacion}`)}
-                >
-                  {elevacion}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Simétrica', 'Asimétrica', 'Otro'], 'elevacion-')}
             </div>
           </div>
 
           <div className="mt-4">
             <h4 className="font-medium mb-2">Presencia de masas, exostosis o torus palatino:</h4>
             <div className="flex flex-wrap gap-2">
-              {['Sí', 'No', 'Otro'].map((masas) => (
-                <Button
-                  key={masas}
-                  variant={selectedOptions.includes(`masas-${masas}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`masas-${masas}`)}
-                >
-                  {masas}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Sí', 'No', 'Otro'], 'masas-')}
             </div>
           </div>
 
@@ -313,7 +285,15 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               Anterior
             </Button>
             <Button 
-              onClick={() => setCurrentSubSection(Math.min(sections.length - 1, currentSubSection + 1))}
+              onClick={() => {
+                setCurrentSubSection(Math.min(sections.length - 1, currentSubSection + 1));
+                setTimeout(() => {
+                  const dialogContent = document.querySelector('.max-w-4xl');
+                  if (dialogContent) {
+                    dialogContent.scrollTop = 0;
+                  }
+                }, 100);
+              }}
               disabled={currentSubSection === sections.length - 1}
               variant="outline"
             >
@@ -321,6 +301,20 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           </div>
+          
+          {currentSubSection === sections.length - 1 && (
+            <div className="flex justify-center mt-4">
+              <Button 
+                onClick={() => {
+                  handleExamenIntrabucalChange(area, 'completed');
+                  onClose();
+                }}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white"
+              >
+                Guardar
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -331,16 +325,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div>
         <h4 className="font-medium mb-2">Estructuras a evaluar:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Amígdalas', 'Úvula', 'Pared posterior faríngea', 'Pilar anterior y posterior', 'Otro'].map((estructura) => (
-            <Button
-              key={estructura}
-              variant={selectedOptions.includes(`estructura-${estructura}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`estructura-${estructura}`)}
-            >
-              {estructura}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Amígdalas', 'Úvula', 'Pared posterior faríngea', 'Pilar anterior y posterior', 'Otro'], 'estructura-')}
         </div>
       </div>
 
@@ -350,64 +335,28 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           <div>
             <Label className="text-sm font-medium">Presencia:</Label>
             <div className="flex flex-wrap gap-2 mt-2">
-              {['Sí', 'No', 'Otro'].map((presencia) => (
-                <Button
-                  key={presencia}
-                  variant={selectedOptions.includes(`amigdalas-presencia-${presencia}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`amigdalas-presencia-${presencia}`)}
-                >
-                  {presencia}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Sí', 'No', 'Otro'], 'amigdalas-presencia-')}
             </div>
           </div>
 
           <div>
             <Label className="text-sm font-medium">Tamaño:</Label>
             <div className="flex flex-wrap gap-2 mt-2">
-              {['0: Ausentes', 'I: Dentro de pilares', 'II: Hasta pilares', 'III: Más allá de pilares', 'IV: Se tocan (kissing tonsils)', 'Otro'].map((tamano) => (
-                <Button
-                  key={tamano}
-                  variant={selectedOptions.includes(`tamano-${tamano}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`tamano-${tamano}`)}
-                >
-                  {tamano}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['0: Ausentes', 'I: Dentro de pilares', 'II: Hasta pilares', 'III: Más allá de pilares', 'IV: Se tocan (kissing tonsils)', 'Otro'], 'tamano-')}
             </div>
           </div>
 
           <div>
             <Label className="text-sm font-medium">Secreción purulenta:</Label>
             <div className="flex flex-wrap gap-2 mt-2">
-              {['Sí', 'No', 'Otro'].map((secrecion) => (
-                <Button
-                  key={secrecion}
-                  variant={selectedOptions.includes(`secrecion-${secrecion}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`secrecion-${secrecion}`)}
-                >
-                  {secrecion}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Sí', 'No', 'Otro'], 'secrecion-')}
             </div>
           </div>
 
           <div>
             <Label className="text-sm font-medium">Criptas visibles:</Label>
             <div className="flex flex-wrap gap-2 mt-2">
-              {['Sí', 'No', 'Otro'].map((criptas) => (
-                <Button
-                  key={criptas}
-                  variant={selectedOptions.includes(`criptas-${criptas}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`criptas-${criptas}`)}
-                >
-                  {criptas}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Sí', 'No', 'Otro'], 'criptas-')}
             </div>
           </div>
         </div>
@@ -419,32 +368,14 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           <div>
             <Label className="text-sm font-medium">Forma:</Label>
             <div className="flex flex-wrap gap-2 mt-2">
-              {['Normal', 'Edematosa', 'Desviada', 'Otro'].map((forma) => (
-                <Button
-                  key={forma}
-                  variant={selectedOptions.includes(`forma-${forma}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`forma-${forma}`)}
-                >
-                  {forma}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Normal', 'Edematosa', 'Desviada', 'Otro'], 'forma-')}
             </div>
           </div>
 
           <div>
             <Label className="text-sm font-medium">Movimiento:</Label>
             <div className="flex flex-wrap gap-2 mt-2">
-              {['Simétrico', 'Asimétrico', 'Otro'].map((movimiento) => (
-                <Button
-                  key={movimiento}
-                  variant={selectedOptions.includes(`movimiento-${movimiento}`) ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => toggleOption(`movimiento-${movimiento}`)}
-                >
-                  {movimiento}
-                </Button>
-              ))}
+              {createOptionWithTextarea(['Simétrico', 'Asimétrico', 'Otro'], 'movimiento-')}
             </div>
           </div>
         </div>
@@ -453,38 +384,32 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div>
         <h4 className="font-medium mb-2">Pared posterior:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Eritematoso', 'Granular', 'Presencia de exudado o pus', 'Otro'].map((pared) => (
-            <Button
-              key={pared}
-              variant={selectedOptions.includes(`pared-${pared}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`pared-${pared}`)}
-            >
-              {pared}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Eritematoso', 'Granular', 'Presencia de exudado o pus', 'Otro'], 'pared-')}
         </div>
       </div>
 
       <div>
         <h4 className="font-medium mb-2">Pilares:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Inflamación', 'Dolor a la palpación', 'Otro'].map((pilar) => (
-            <Button
-              key={pilar}
-              variant={selectedOptions.includes(`pilar-${pilar}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`pilar-${pilar}`)}
-            >
-              {pilar}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Inflamación', 'Dolor a la palpación', 'Otro'], 'pilar-')}
         </div>
       </div>
 
       <div>
         <Label htmlFor="orofaringe-otros">Otros hallazgos:</Label>
         <Textarea id="orofaringe-otros" placeholder="Describe otros hallazgos..." />
+      </div>
+
+      <div className="flex justify-center mt-4">
+        <Button 
+          onClick={() => {
+            handleExamenIntrabucalChange(area, 'completed');
+            onClose();
+          }}
+          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+        >
+          Guardar
+        </Button>
       </div>
     </div>
   );
@@ -496,16 +421,18 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div className="mt-4">
         <h4 className="font-medium mb-2">Manchas blancas o rojas:</h4>
         <div className="flex flex-wrap gap-2">
-          <Button
-            variant={selectedOptions.includes("manchas-presentes") ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              toggleOption("manchas-presentes");
-              setShowManchasTextarea(!selectedOptions.includes("manchas-presentes"));
-            }}
-          >
-            Presente
-          </Button>
+          <div className="flex flex-col">
+            <Button
+              variant={selectedOptions.includes("manchas-presentes") ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                toggleOption("manchas-presentes");
+                setShowManchasTextarea(!selectedOptions.includes("manchas-presentes"));
+              }}
+            >
+              Presente
+            </Button>
+          </div>
           <Button
             variant={selectedOptions.includes("manchas-ausentes") ? "default" : "outline"}
             size="sm"
@@ -513,13 +440,18 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           >
             Ausente
           </Button>
-          <Button
-            variant={selectedOptions.includes("manchas-otro") ? "default" : "outline"}
-            size="sm"
-            onClick={() => toggleOption("manchas-otro")}
-          >
-            Otro
-          </Button>
+          <div className="flex flex-col">
+            <Button
+              variant={selectedOptions.includes("manchas-otro") ? "default" : "outline"}
+              size="sm"
+              onClick={() => toggleOption("manchas-otro")}
+            >
+              Otro
+            </Button>
+            {otroTextareas["manchas-otro"] && (
+              <Textarea placeholder="Especifica..." className="mt-2" />
+            )}
+          </div>
         </div>
         {showManchasTextarea && (
           <Textarea placeholder="Describe las manchas..." className="mt-2" />
@@ -529,26 +461,19 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div>
         <h4 className="font-medium mb-2">Textura interna:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Lisa', 'Rugosa', 'Otro'].map((textura) => (
+          {createOptionWithTextarea(['Lisa', 'Rugosa', 'Otro'], 'mejillas-textura-')}
+          <div className="flex flex-col">
             <Button
-              key={textura}
-              variant={selectedOptions.includes(`mejillas-textura-${textura}`) ? "default" : "outline"}
+              variant={selectedOptions.includes("lesiones") ? "default" : "outline"}
               size="sm"
-              onClick={() => toggleOption(`mejillas-textura-${textura}`)}
+              onClick={() => {
+                toggleOption("lesiones");
+                setShowLesionTextarea(!selectedOptions.includes("lesiones"));
+              }}
             >
-              {textura}
+              Lesiones: úlceras, leucoplasia, liquen plano
             </Button>
-          ))}
-          <Button
-            variant={selectedOptions.includes("lesiones") ? "default" : "outline"}
-            size="sm"
-            onClick={() => {
-              toggleOption("lesiones");
-              setShowLesionTextarea(!selectedOptions.includes("lesiones"));
-            }}
-          >
-            Lesiones: úlceras, leucoplasia, liquen plano
-          </Button>
+          </div>
         </div>
         {showLesionTextarea && (
           <Textarea placeholder="Describe la lesión..." className="mt-2" />
@@ -558,38 +483,32 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div>
         <h4 className="font-medium mb-2">Línea alba o mordedura habitual:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Presente', 'Ausente', 'Otro'].map((linea) => (
-            <Button
-              key={linea}
-              variant={selectedOptions.includes(`linea-alba-${linea}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`linea-alba-${linea}`)}
-            >
-              {linea}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Presente', 'Ausente', 'Otro'], 'linea-alba-')}
         </div>
       </div>
 
       <div>
         <h4 className="font-medium mb-2">Conducto de Stenon (parótida):</h4>
         <div className="flex flex-wrap gap-2">
-          {['Visible y permeable', 'Con secreción anormal', 'Otro'].map((stenon) => (
-            <Button
-              key={stenon}
-              variant={selectedOptions.includes(`stenon-${stenon}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`stenon-${stenon}`)}
-            >
-              {stenon}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Visible y permeable', 'Con secreción anormal', 'Otro'], 'stenon-')}
         </div>
       </div>
 
       <div>
         <Label htmlFor="mejillas-otros">Otros hallazgos:</Label>
         <Textarea id="mejillas-otros" placeholder="Describe otros hallazgos..." />
+      </div>
+
+      <div className="flex justify-center mt-4">
+        <Button 
+          onClick={() => {
+            handleExamenIntrabucalChange(area, 'completed');
+            onClose();
+          }}
+          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+        >
+          Guardar
+        </Button>
       </div>
     </div>
   );
@@ -599,16 +518,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div>
         <h4 className="font-medium mb-2">Presencia de lesiones:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Ulcerativas', 'Nodulares', 'Fibromas o hiperplasias', 'Otro'].map((lesion) => (
-            <Button
-              key={lesion}
-              variant={selectedOptions.includes(`retromolar-lesion-${lesion}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`retromolar-lesion-${lesion}`)}
-            >
-              {lesion}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Ulcerativas', 'Nodulares', 'Fibromas o hiperplasias', 'Otro'], 'retromolar-lesion-')}
         </div>
       </div>
 
@@ -617,22 +527,25 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div className="mt-4">
         <h4 className="font-medium mb-2">Dolor o sensibilidad:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Sí', 'No', 'Otro'].map((dolor) => (
-            <Button
-              key={dolor}
-              variant={selectedOptions.includes(`retromolar-dolor-${dolor}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`retromolar-dolor-${dolor}`)}
-            >
-              {dolor}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Sí', 'No', 'Otro'], 'retromolar-dolor-')}
         </div>
       </div>
 
       <div>
         <Label htmlFor="retromolar-otros">Otros hallazgos:</Label>
         <Textarea id="retromolar-otros" placeholder="Describe otros hallazgos..." />
+      </div>
+
+      <div className="flex justify-center mt-4">
+        <Button 
+          onClick={() => {
+            handleExamenIntrabucalChange(area, 'completed');
+            onClose();
+          }}
+          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+        >
+          Guardar
+        </Button>
       </div>
     </div>
   );
@@ -654,86 +567,53 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div className="mt-4">
         <h4 className="font-medium mb-2">Tamaño:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Normal', 'Macroglosia', 'Atrófica', 'Otro'].map((tamano) => (
-            <Button
-              key={tamano}
-              variant={selectedOptions.includes(`lengua-tamano-${tamano}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`lengua-tamano-${tamano}`)}
-            >
-              {tamano}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Normal', 'Macroglosia', 'Atrófica', 'Otro'], 'lengua-tamano-')}
         </div>
       </div>
 
       <div>
         <h4 className="font-medium mb-2">Movilidad:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Conservada', 'Limitada', 'Otro'].map((movilidad) => (
-            <Button
-              key={movilidad}
-              variant={selectedOptions.includes(`lengua-movilidad-${movilidad}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`lengua-movilidad-${movilidad}`)}
-            >
-              {movilidad}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Conservada', 'Limitada', 'Otro'], 'lengua-movilidad-')}
         </div>
       </div>
 
       <div>
         <h4 className="font-medium mb-2">Superficie dorsal:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Filiformes normales', 'Lengua saburral', 'Lengua geográfica', 'Lengua fisurada', 'Leucoplasia / candidiasis', 'Otro'].map((superficie) => (
-            <Button
-              key={superficie}
-              variant={selectedOptions.includes(`lengua-superficie-${superficie}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`lengua-superficie-${superficie}`)}
-            >
-              {superficie}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Filiformes normales', 'Lengua saburral', 'Lengua geográfica', 'Lengua fisurada', 'Leucoplasia / candidiasis', 'Otro'], 'lengua-superficie-')}
         </div>
       </div>
 
       <div>
         <h4 className="font-medium mb-2">Bordes laterales:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Ulceraciones', 'Mordisqueo', 'Indentaciones dentales', 'Lesiones blancas / rojas', 'Otro'].map((borde) => (
-            <Button
-              key={borde}
-              variant={selectedOptions.includes(`lengua-borde-${borde}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`lengua-borde-${borde}`)}
-            >
-              {borde}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Ulceraciones', 'Mordisqueo', 'Indentaciones dentales', 'Lesiones blancas / rojas', 'Otro'], 'lengua-borde-')}
         </div>
       </div>
 
       <div>
         <h4 className="font-medium mb-2">Cara inferior y frenillo:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Varices', 'Lesiones', 'Limitación (anquiloglosia)', 'Otro'].map((cara) => (
-            <Button
-              key={cara}
-              variant={selectedOptions.includes(`lengua-cara-${cara}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`lengua-cara-${cara}`)}
-            >
-              {cara}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Varices', 'Lesiones', 'Limitación (anquiloglosia)', 'Otro'], 'lengua-cara-')}
         </div>
       </div>
 
       <div>
         <Label htmlFor="lengua-otros">Otros hallazgos:</Label>
         <Textarea id="lengua-otros" placeholder="Describe otros hallazgos..." />
+      </div>
+
+      <div className="flex justify-center mt-4">
+        <Button 
+          onClick={() => {
+            handleExamenIntrabucalChange(area, 'completed');
+            onClose();
+          }}
+          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+        >
+          Guardar
+        </Button>
       </div>
     </div>
   );
@@ -743,16 +623,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div>
         <h4 className="font-medium mb-2">Estructuras:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Glándulas sublinguales', 'Vasos sublinguales', 'Frenillo', 'Conducto de Wharton', 'Otro'].map((estructura) => (
-            <Button
-              key={estructura}
-              variant={selectedOptions.includes(`piso-estructura-${estructura}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`piso-estructura-${estructura}`)}
-            >
-              {estructura}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Glándulas sublinguales', 'Vasos sublinguales', 'Frenillo', 'Conducto de Wharton', 'Otro'], 'piso-estructura-')}
         </div>
       </div>
 
@@ -761,32 +632,14 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div className="mt-4">
         <h4 className="font-medium mb-2">Secreción salival:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Normal', 'Aumentada', 'Disminuida', 'Purulenta', 'Otro'].map((secrecion) => (
-            <Button
-              key={secrecion}
-              variant={selectedOptions.includes(`piso-secrecion-${secrecion}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`piso-secrecion-${secrecion}`)}
-            >
-              {secrecion}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Normal', 'Aumentada', 'Disminuida', 'Purulenta', 'Otro'], 'piso-secrecion-')}
         </div>
       </div>
 
       <div>
         <h4 className="font-medium mb-2">Vasos sublinguales:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Visibles finos (normal)', 'Engrosados', 'Con varicosidades', 'Otro'].map((vaso) => (
-            <Button
-              key={vaso}
-              variant={selectedOptions.includes(`piso-vaso-${vaso}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`piso-vaso-${vaso}`)}
-            >
-              {vaso}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Visibles finos (normal)', 'Engrosados', 'Con varicosidades', 'Otro'], 'piso-vaso-')}
         </div>
       </div>
 
@@ -807,35 +660,43 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           >
             Sí (describir tamaño, localización)
           </Button>
-          <Button
-            variant={selectedOptions.includes("piso-masa-otro") ? "default" : "outline"}
-            size="sm"
-            onClick={() => toggleOption("piso-masa-otro")}
-          >
-            Otro
-          </Button>
+          <div className="flex flex-col">
+            <Button
+              variant={selectedOptions.includes("piso-masa-otro") ? "default" : "outline"}
+              size="sm"
+              onClick={() => toggleOption("piso-masa-otro")}
+            >
+              Otro
+            </Button>
+            {otroTextareas["piso-masa-otro"] && (
+              <Textarea placeholder="Especifica..." className="mt-2" />
+            )}
+          </div>
         </div>
       </div>
 
       <div>
         <h4 className="font-medium mb-2">Frenillo lingual:</h4>
         <div className="flex flex-wrap gap-2">
-          {['Normal', 'Corto', 'Ulcerado', 'Otro'].map((frenillo) => (
-            <Button
-              key={frenillo}
-              variant={selectedOptions.includes(`piso-frenillo-${frenillo}`) ? "default" : "outline"}
-              size="sm"
-              onClick={() => toggleOption(`piso-frenillo-${frenillo}`)}
-            >
-              {frenillo}
-            </Button>
-          ))}
+          {createOptionWithTextarea(['Normal', 'Corto', 'Ulcerado', 'Otro'], 'piso-frenillo-')}
         </div>
       </div>
 
       <div>
         <Label htmlFor="piso-otros">Otros hallazgos:</Label>
         <Textarea id="piso-otros" placeholder="Describe otros hallazgos..." />
+      </div>
+
+      <div className="flex justify-center mt-4">
+        <Button 
+          onClick={() => {
+            handleExamenIntrabucalChange(area, 'completed');
+            onClose();
+          }}
+          className="bg-emerald-500 hover:bg-emerald-600 text-white"
+        >
+          Guardar
+        </Button>
       </div>
     </div>
   );

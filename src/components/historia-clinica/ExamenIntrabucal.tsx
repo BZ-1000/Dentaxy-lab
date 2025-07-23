@@ -14,6 +14,7 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [activeArea, setActiveArea] = useState<string | null>(null);
+  const [completedAreas, setCompletedAreas] = useState<string[]>([]);
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
     setIsMaximized(false);
@@ -25,6 +26,13 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
+  };
+
+  const handleAreaComplete = (area: string, value: string | boolean) => {
+    if (value === 'completed') {
+      setCompletedAreas(prev => [...prev.filter(a => a !== area), area]);
+    }
+    handleExamenIntrabucalChange(area, value);
   };
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
@@ -70,49 +78,49 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
               {/* Botones clickeables sobre la imagen */}
               <button
                 onClick={() => setActiveArea('encias')}
-                className="absolute top-[15%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
+                className={`absolute top-[15%] left-[50%] transform -translate-x-1/2 ${completedAreas.includes('encias') ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white px-1 py-0.5 rounded text-xs transition-colors`}
               >
                 Encías
               </button>
               
               <button
                 onClick={() => setActiveArea('paladar')}
-                className="absolute top-[35%] left-[40%] transform -translate-x-1/2 bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
+                className={`absolute top-[35%] left-[25%] transform -translate-x-1/2 ${completedAreas.includes('paladar') ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white px-1 py-0.5 rounded text-xs transition-colors`}
               >
                 Paladar
               </button>
               
               <button
                 onClick={() => setActiveArea('orofaringe')}
-                className="absolute top-[40%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
+                className={`absolute top-[50%] left-[50%] transform -translate-x-1/2 ${completedAreas.includes('orofaringe') ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white px-1 py-0.5 rounded text-xs transition-colors`}
               >
                 Orofaringe
               </button>
               
               <button
                 onClick={() => setActiveArea('mejillas')}
-                className="absolute top-[40%] right-[15%] bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
+                className={`absolute top-[40%] right-[15%] ${completedAreas.includes('mejillas') ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white px-1 py-0.5 rounded text-xs transition-colors`}
               >
                 Mejillas
               </button>
               
               <button
                 onClick={() => setActiveArea('retromolar')}
-                className="absolute top-[50%] left-[10%] bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
+                className={`absolute top-[50%] left-[10%] ${completedAreas.includes('retromolar') ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white px-1 py-0.5 rounded text-xs transition-colors`}
               >
                 Retromolar
               </button>
               
               <button
                 onClick={() => setActiveArea('lengua')}
-                className="absolute bottom-[35%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
+                className={`absolute bottom-[35%] left-[50%] transform -translate-x-1/2 ${completedAreas.includes('lengua') ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white px-1 py-0.5 rounded text-xs transition-colors`}
               >
                 Lengua
               </button>
               
               <button
                 onClick={() => setActiveArea('pisoBoca')}
-                className="absolute bottom-[25%] left-[50%] transform -translate-x-1/2 bg-blue-500 text-white px-1 py-0.5 rounded text-xs hover:bg-blue-600 transition-colors"
+                className={`absolute bottom-[25%] left-[50%] transform -translate-x-1/2 ${completedAreas.includes('pisoBoca') ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-blue-500 hover:bg-blue-600'} text-white px-1 py-0.5 rounded text-xs transition-colors`}
               >
                 Piso de boca
               </button>
@@ -124,7 +132,7 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
                 area={activeArea}
                 onClose={() => setActiveArea(null)}
                 formData={formData}
-                handleExamenIntrabucalChange={handleExamenIntrabucalChange}
+                handleExamenIntrabucalChange={handleAreaComplete}
               />
             )}
           </div>}
