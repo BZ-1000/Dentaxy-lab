@@ -8,6 +8,7 @@ import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
+import { useIsMobile } from "@/hooks/use-mobile";
 interface PadecimientoActualProps {
   formData: {
     padecimientoActual: {
@@ -91,6 +92,7 @@ const PadecimientoActual = ({
   handleDolorChange,
   handleSinSintomasChange
 }: PadecimientoActualProps) => {
+  const isMobile = useIsMobile();
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
@@ -296,7 +298,7 @@ El paciente refiere la presencia de dolor ${ubicacion || ''} en ${ubicacion === 
                 handlePadecimientoChange("motivoConsulta", newValue);
               }
             }} placeholder={defaultMotivoConsulta} className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md" />
-                {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && <div className="absolute top-2 left-[215px] pointer-events-none">
+                {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && !isMobile && <div className="absolute top-2 left-[215px] pointer-events-none">
  <Typewriter text={motivosEjemplo} speed={50} deleteSpeed={30} delay={2000} loop={true} className="text-gray-500 italic text-base" />
                   </div>}
               </div>
