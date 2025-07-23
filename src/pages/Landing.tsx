@@ -498,7 +498,8 @@ const Landing = () => {
             </button>
           </div>
 
-          <div className="apple-card p-8 mb-12 max-w-4xl mx-auto">
+          {/* Desktop version */}
+          <div className={`${isMobile ? 'hidden' : 'block'} apple-card p-8 mb-12 max-w-4xl mx-auto`}>
             <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
                 🔽 Demostracion de redacción automatica...
             </h2>
@@ -564,6 +565,73 @@ const Landing = () => {
         handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
       />
             </div>
+          </div>
+
+          {/* Mobile version */}
+          <div className={`${isMobile ? 'block' : 'hidden'} mx-4 mb-12`}>
+            <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
+                🔽 Demostracion de redacción automatica...
+            </h2>
+            <AntecedentesPersonalesPatologicos 
+        formData={{
+          antecedentesPersonalesPatologicos: formData.antecedentesPersonalesPatologicos,
+          padecimientoActual: {} as any,
+          antecedentesHeredoFamiliares: {} as any,
+          antecedentesPersonalesNoPatologicos: {} as any,
+          antecedentesAlergicos: {} as any,
+          antecedentesHemorragicos: {} as any,
+          antecedentesQuirurgicos: {} as any,
+          interrogatorioSistemas: {} as any,
+          exploracionFisica: {} as any,
+          examenCabeza: {} as any,
+          articulacionCraneomandibular: {} as any,
+          examenCuello: {} as any,
+          examenIntrabucal: {} as any,
+          glandulasSalivales: {} as any,
+          oclusion: {} as any,
+          relacionDientes: {} as any,
+          lineaMedia: {} as any,
+          frenillos: {} as any,
+          diagnostico: {} as any,
+          pronostico: {} as any,
+          serviciosDomiciliarios: '',
+          pisosVivienda: '',
+          materialVivienda: '',
+          materialPiso: '',
+          ventilacion: '',
+          frecuenciaLimpieza: '',
+          hacinamiento: '',
+          frecuenciaBano: '',
+          higieneBucal: {
+            frecuenciaCepillado: '',
+            usoHiloDental: '',
+            tipoCerdas: '',
+            cantidadPasta: '',
+            marcaPasta: ''
+          },
+          alimentacion: {
+            tipoDieta: '',
+            frecuenciaComidas: '',
+            tiposAlimentos: '',
+            saltaComidas: '',
+            consumoNutritivo: ''
+          },
+          grupoSanguineo: '',
+          factorRh: '',
+          inmunizaciones: '',
+          peso: '',
+          imc: '',
+          talla: '',
+          presionArterial: '',
+          pulso: '',
+          frecuenciaCardiaca: '',
+          frecuenciaRespiratoria: '',
+          temperatura: '',
+          diagnosticos: '',
+          pronosticos: ''
+        }} 
+        handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} 
+      />
           </div>
         </div>
       </div>
