@@ -87,16 +87,16 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
   const createOptionWithTextarea = (options: string[], prefix: string = '') => {
     return options.map((option) => (
       <div key={option} className="flex flex-col">
-                    <Button
-                      variant={selectedOptions[prefix] === option ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => toggleOption(option, prefix)}
-                      className="flex-1 text-xs px-2 py-1"
-                    >
+        <Button
+          variant={selectedOptions[prefix] === option ? "default" : "outline"}
+          size="xs"
+          onClick={() => toggleOption(option, prefix)}
+          className="text-xs px-1.5 py-0.5 rounded-lg"
+        >
           {option}
         </Button>
         {option === 'Otro' && otroTextareas[`${prefix}${option}`] && (
-          <Textarea placeholder="Especifica..." className="mt-1 w-full text-sm h-8" />
+          <Textarea placeholder="Especifica..." className="mt-1 w-full text-sm h-6" />
         )}
       </div>
     ));
@@ -104,15 +104,15 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
 
   const ColorSelector = () => (
     <div>
-      <h4 className="font-medium mb-2">Color:</h4>
-      <p className="text-sm text-gray-600 mb-3">Descripción clínica común</p>
-      <div className="space-y-2">
+      <h4 className="font-medium mb-1 text-sm">Color:</h4>
+      <p className="text-xs text-gray-600 mb-2">Descripción clínica común</p>
+      <div className="space-y-1">
         {colorOptions.map((option, index) => (
           <div key={index} className="flex items-center space-x-2">
             <div
               style={{
-                width: '25px',
-                height: '25px',
+                width: '16px',
+                height: '16px',
                 borderRadius: '50%',
                 backgroundColor: option.color,
                 border: '1px solid #000'
@@ -120,9 +120,9 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             />
             <Button
               variant={selectedOptions['color'] === option.label ? "default" : "outline"}
-              size="sm"
+              size="xs"
               onClick={() => toggleOption(option.label, 'color')}
-              className="text-left justify-start h-auto p-2 w-full"
+              className="text-left justify-start h-auto p-1.5 w-full text-xs rounded-lg"
             >
               {option.label}
             </Button>
@@ -131,14 +131,14 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
         <div className="flex flex-col">
           <Button
             variant={selectedOptions['color'] === "Otro color" ? "default" : "outline"}
-            size="sm"
+            size="xs"
             onClick={() => toggleOption("Otro color", 'color')}
-            className="mt-2 w-full"
+            className="mt-1 w-full text-xs rounded-lg"
           >
             Otro
           </Button>
           {otroTextareas["Otro color"] && (
-            <Textarea placeholder="Especifica el color..." className="mt-2 w-full" />
+            <Textarea placeholder="Especifica el color..." className="mt-1 w-full text-xs h-6" />
           )}
         </div>
       </div>
@@ -158,39 +158,39 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
     // Render Encías generalidades section
     if (currentSubSection === 0) {
       return (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {/* Información de subtipos de encía */}
-          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 mb-4">
-            <h4 className="font-medium text-blue-800 mb-2">📚 Subtipos de Encía:</h4>
-            <div className="space-y-2 text-sm">
-              <div className="flex items-start gap-2">
+          <div className="bg-blue-50 p-2 rounded-lg border border-blue-200 mb-2">
+            <h4 className="font-medium text-blue-800 mb-1 text-sm">📚 Subtipos de Encía:</h4>
+            <div className="space-y-1 text-xs">
+              <div className="flex items-start gap-1">
                 <span className="text-blue-600 font-medium">🔹 Encía libre:</span>
                 <span className="text-blue-700">rodea el cuello del diente sin estar adherida al hueso alveolar.</span>
               </div>
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-1">
                 <span className="text-blue-600 font-medium">🔹 Encía adherida:</span>
                 <span className="text-blue-700">firmemente unida al hueso subyacente, resistente.</span>
               </div>
-              <div className="flex items-start gap-2">
+              <div className="flex items-start gap-1">
                 <span className="text-blue-600 font-medium">🔹 Encía interproximal:</span>
                 <span className="text-blue-700">encía papilar entre dos dientes, susceptible a inflamación o pérdida por enfermedad periodontal.</span>
               </div>
             </div>
           </div>
           
-          <div className="border-t pt-3">
-            <h3 className="text-lg font-semibold mb-3">{currentSection}</h3>
+          <div className="border-t pt-2">
+            <h3 className="text-base font-semibold mb-2">{currentSection}</h3>
             
             {/* 1. Color observado */}
-            <div className="mb-3">
-              <h4 className="font-medium mb-2 text-sm">1. Color observado:</h4>
+            <div className="mb-2">
+              <h4 className="font-medium mb-1 text-xs">1. Color observado:</h4>
               <div className="space-y-1">
                 {colorOptions.map((option, index) => (
-                  <div key={index} className="flex items-center space-x-2">
+                  <div key={index} className="flex items-center space-x-1">
                     <div
                       style={{
-                        width: '20px',
-                        height: '20px',
+                        width: '14px',
+                        height: '14px',
                         borderRadius: '50%',
                         backgroundColor: option.color,
                         border: '1px solid #000'
@@ -198,9 +198,9 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                     />
                     <Button
                       variant={selectedOptions['color-generalidades'] === option.label ? "default" : "outline"}
-                      size="sm"
+                      size="xs"
                       onClick={() => toggleOption(option.label, 'color-generalidades')}
-                      className="text-left justify-start h-auto p-1 w-full text-xs"
+                      className="text-left justify-start h-auto p-1 w-full text-xs rounded-lg"
                     >
                       {option.label}
                     </Button>
@@ -209,35 +209,35 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                 <div className="flex flex-col">
                   <Button
                     variant={selectedOptions['color-generalidades'] === "Otro color" ? "default" : "outline"}
-                    size="sm"
+                    size="xs"
                     onClick={() => toggleOption("Otro color", 'color-generalidades')}
-                    className="mt-1 w-full text-xs"
+                    className="mt-1 w-full text-xs rounded-lg"
                   >
                     Otro (especificar)
                   </Button>
                   {selectedOptions['color-generalidades'] === "Otro color" && (
-                    <Textarea placeholder="Especifica el color..." className="mt-1 w-full text-sm h-8" />
+                    <Textarea placeholder="Especifica el color..." className="mt-1 w-full text-xs h-6" />
                   )}
                 </div>
               </div>
             </div>
 
             {/* 2. Textura de la superficie */}
-            <div className="mb-3">
-              <h4 className="font-medium mb-2 text-sm">2. Textura de la superficie:</h4>
+            <div className="mb-2">
+              <h4 className="font-medium mb-1 text-xs">2. Textura de la superficie:</h4>
               <div className="flex flex-wrap gap-1">
                 {['Lisa', 'Punteada (piel de naranja)', 'Rugosa', 'Granular', 'Ulcerada', 'Fibrosa', 'Otro'].map((option) => (
                   <div key={option} className="flex flex-col">
                     <Button
                       variant={selectedOptions['textura-generalidades'] === option ? "default" : "outline"}
-                      size="sm"
+                      size="xs"
                       onClick={() => toggleOption(option, 'textura-generalidades')}
-                      className="text-xs px-2 py-1"
+                      className="text-xs px-1.5 py-0.5 rounded-lg"
                     >
                       {option}
                     </Button>
                     {option === 'Otro' && selectedOptions['textura-generalidades'] === option && (
-                      <Textarea placeholder="Especifica..." className="mt-1 w-full text-sm h-8" />
+                      <Textarea placeholder="Especifica..." className="mt-1 w-full text-xs h-6" />
                     )}
                   </div>
                 ))}
@@ -245,21 +245,21 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </div>
 
             {/* 3. Contorno o forma observada */}
-            <div className="mb-3">
-              <h4 className="font-medium mb-2 text-sm">3. Contorno o forma observada:</h4>
+            <div className="mb-2">
+              <h4 className="font-medium mb-1 text-xs">3. Contorno o forma observada:</h4>
               <div className="flex flex-wrap gap-1">
                 {['Festoneado (normal)', 'Aumentado de volumen', 'Recesión gingival', 'Engrosamiento marginal', 'Pseudobolsas', 'Otro'].map((option) => (
                   <div key={option} className="flex flex-col">
                     <Button
                       variant={selectedOptions['contorno-generalidades'] === option ? "default" : "outline"}
-                      size="sm"
+                      size="xs"
                       onClick={() => toggleOption(option, 'contorno-generalidades')}
-                      className="text-xs px-2 py-1"
+                      className="text-xs px-1.5 py-0.5 rounded-lg"
                     >
                       {option}
                     </Button>
                     {option === 'Otro' && selectedOptions['contorno-generalidades'] === option && (
-                      <Textarea placeholder="Especifica..." className="mt-1 w-full text-sm h-8" />
+                      <Textarea placeholder="Especifica..." className="mt-1 w-full text-xs h-6" />
                     )}
                   </div>
                 ))}
@@ -267,21 +267,21 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </div>
 
             {/* 4. Consistencia al tacto */}
-            <div className="mb-3">
-              <h4 className="font-medium mb-2 text-sm">4. Consistencia al tacto:</h4>
+            <div className="mb-2">
+              <h4 className="font-medium mb-1 text-xs">4. Consistencia al tacto:</h4>
               <div className="flex flex-wrap gap-1">
                 {['Firme (normal)', 'Blanda', 'Edematosa', 'Hiperplásica', 'Fibrótica', 'Otro'].map((option) => (
                   <div key={option} className="flex flex-col">
                     <Button
                       variant={selectedOptions['consistencia-generalidades'] === option ? "default" : "outline"}
-                      size="sm"
+                      size="xs"
                       onClick={() => toggleOption(option, 'consistencia-generalidades')}
-                      className="text-xs px-2 py-1"
+                      className="text-xs px-1.5 py-0.5 rounded-lg"
                     >
                       {option}
                     </Button>
                     {option === 'Otro' && selectedOptions['consistencia-generalidades'] === option && (
-                      <Textarea placeholder="Especifica..." className="mt-1 w-full text-sm h-8" />
+                      <Textarea placeholder="Especifica..." className="mt-1 w-full text-xs h-6" />
                     )}
                   </div>
                 ))}
@@ -289,44 +289,44 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </div>
 
             {/* 5. Presencia de sangrado */}
-            <div className="mb-3">
-              <h4 className="font-medium mb-2 text-sm">5. Presencia de sangrado:</h4>
-              <div className="space-y-2">
+            <div className="mb-2">
+              <h4 className="font-medium mb-1 text-xs">5. Presencia de sangrado:</h4>
+              <div className="space-y-1">
                 <div className="flex gap-1">
                   <Button
                     variant={selectedOptions['sangrado-generalidades'] === "Sí" ? "default" : "outline"}
-                    size="sm"
+                    size="xs"
                     onClick={() => toggleOption("Sí", 'sangrado-generalidades')}
-                    className="flex-1 text-xs"
+                    className="flex-1 text-xs rounded-lg"
                   >
                     Sí
                   </Button>
                   <Button
                     variant={selectedOptions['sangrado-generalidades'] === "No" ? "default" : "outline"}
-                    size="sm"
+                    size="xs"
                     onClick={() => toggleOption("No", 'sangrado-generalidades')}
-                    className="flex-1 text-xs"
+                    className="flex-1 text-xs rounded-lg"
                   >
                     No
                   </Button>
                 </div>
                 {selectedOptions['sangrado-generalidades'] === "Sí" && (
-                  <div className="ml-2 space-y-1">
+                  <div className="ml-1 space-y-1">
                     <p className="text-xs font-medium">Tipo de sangrado:</p>
                     <div className="flex gap-1">
                       <Button
                         variant={selectedOptions['tipo-sangrado'] === "Generalizada" ? "default" : "outline"}
-                        size="sm"
+                        size="xs"
                         onClick={() => toggleOption("Generalizada", 'tipo-sangrado')}
-                        className="flex-1 text-xs"
+                        className="flex-1 text-xs rounded-lg"
                       >
                         Generalizada
                       </Button>
                       <Button
                         variant={selectedOptions['tipo-sangrado'] === "Localizada" ? "default" : "outline"}
-                        size="sm"
+                        size="xs"
                         onClick={() => toggleOption("Localizada", 'tipo-sangrado')}
-                        className="flex-1 text-xs"
+                        className="flex-1 text-xs rounded-lg"
                       >
                         Localizada
                       </Button>
@@ -334,7 +334,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                     {selectedOptions['tipo-sangrado'] === "Localizada" && (
                       <Textarea 
                         placeholder="Especificar ubicación (ej: dientes 12-14, zona anterior superior)" 
-                        className="mt-1 w-full text-sm h-8" 
+                        className="mt-1 w-full text-xs h-6" 
                       />
                     )}
                   </div>
@@ -343,44 +343,44 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </div>
 
             {/* 6. Dolor o sensibilidad */}
-            <div className="mb-3">
-              <h4 className="font-medium mb-2 text-sm">6. Dolor o sensibilidad:</h4>
-              <div className="space-y-2">
+            <div className="mb-2">
+              <h4 className="font-medium mb-1 text-xs">6. Dolor o sensibilidad:</h4>
+              <div className="space-y-1">
                 <div className="flex gap-1">
                   <Button
                     variant={selectedOptions['dolor-generalidades'] === "Sí" ? "default" : "outline"}
-                    size="sm"
+                    size="xs"
                     onClick={() => toggleOption("Sí", 'dolor-generalidades')}
-                    className="flex-1 text-xs"
+                    className="flex-1 text-xs rounded-lg"
                   >
                     Sí
                   </Button>
                   <Button
                     variant={selectedOptions['dolor-generalidades'] === "No" ? "default" : "outline"}
-                    size="sm"
+                    size="xs"
                     onClick={() => toggleOption("No", 'dolor-generalidades')}
-                    className="flex-1 text-xs"
+                    className="flex-1 text-xs rounded-lg"
                   >
                     No
                   </Button>
                 </div>
                 {selectedOptions['dolor-generalidades'] === "Sí" && (
-                  <div className="ml-2 space-y-1">
+                  <div className="ml-1 space-y-1">
                     <p className="text-xs font-medium">Tipo de dolor:</p>
                     <div className="flex gap-1">
                       <Button
                         variant={selectedOptions['tipo-dolor'] === "Generalizada" ? "default" : "outline"}
-                        size="sm"
+                        size="xs"
                         onClick={() => toggleOption("Generalizada", 'tipo-dolor')}
-                        className="flex-1 text-xs"
+                        className="flex-1 text-xs rounded-lg"
                       >
                         Generalizada
                       </Button>
                       <Button
                         variant={selectedOptions['tipo-dolor'] === "Localizada" ? "default" : "outline"}
-                        size="sm"
+                        size="xs"
                         onClick={() => toggleOption("Localizada", 'tipo-dolor')}
-                        className="flex-1 text-xs"
+                        className="flex-1 text-xs rounded-lg"
                       >
                         Localizada
                       </Button>
@@ -388,7 +388,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                     {selectedOptions['tipo-dolor'] === "Localizada" && (
                       <Textarea 
                         placeholder="Especificar ubicación (ej: dientes 12-14, zona anterior superior)" 
-                        className="mt-1 w-full text-sm h-8" 
+                        className="mt-1 w-full text-xs h-6" 
                       />
                     )}
                   </div>
@@ -1272,7 +1272,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           </div>
           <DialogTitle className="text-center">{getAreaTitle()}</DialogTitle>
         </DialogHeader>
-        <div ref={formContentRef} className="mt-4 p-4">
+        <div ref={formContentRef} className="mt-2 p-3">
           {renderForm()}
         </div>
       </DialogContent>
