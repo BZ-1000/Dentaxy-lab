@@ -1207,7 +1207,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           <div className="flex justify-end">
             <button
               onClick={onClose}
-              className="fixed top-4 right-4 z-50 p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+              className="fixed top-4 right-4 z-[9999] p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors shadow-lg"
             >
               <X className="w-4 h-4" />
             </button>
