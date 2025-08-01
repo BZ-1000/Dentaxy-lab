@@ -91,7 +91,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           variant={selectedOptions[prefix] === option ? "default" : "outline"}
           size="xs"
           onClick={() => toggleOption(option, prefix)}
-          className="text-xs px-1.5 py-0.5 rounded-lg"
+          className="px-2 py-1 text-xs rounded-lg"
         >
           {option}
         </Button>
@@ -122,7 +122,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               variant={selectedOptions['color'] === option.label ? "default" : "outline"}
               size="xs"
               onClick={() => toggleOption(option.label, 'color')}
-              className="text-left justify-start h-auto p-1.5 w-full text-xs rounded-lg"
+              className="px-2 py-1 text-xs rounded-lg"
             >
               {option.label}
             </Button>
@@ -133,7 +133,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             variant={selectedOptions['color'] === "Otro color" ? "default" : "outline"}
             size="xs"
             onClick={() => toggleOption("Otro color", 'color')}
-            className="mt-1 w-full text-xs rounded-lg"
+            className="px-2 py-1 text-xs rounded-lg"
           >
             Otro
           </Button>
@@ -200,7 +200,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                       variant={selectedOptions['color-generalidades'] === option.label ? "default" : "outline"}
                       size="xs"
                       onClick={() => toggleOption(option.label, 'color-generalidades')}
-                      className="text-left justify-start h-auto p-1 w-full text-xs rounded-lg"
+                      className="px-2 py-1 text-xs rounded-lg"
                     >
                       {option.label}
                     </Button>
@@ -211,7 +211,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                     variant={selectedOptions['color-generalidades'] === "Otro color" ? "default" : "outline"}
                     size="xs"
                     onClick={() => toggleOption("Otro color", 'color-generalidades')}
-                    className="mt-1 w-full text-xs rounded-lg"
+                    className="px-2 py-1 text-xs rounded-lg"
                   >
                     Otro (especificar)
                   </Button>
@@ -232,7 +232,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                       variant={selectedOptions['textura-generalidades'] === option ? "default" : "outline"}
                       size="xs"
                       onClick={() => toggleOption(option, 'textura-generalidades')}
-                      className="text-xs px-1.5 py-0.5 rounded-lg"
+                      className="px-2 py-1 text-xs rounded-lg"
                     >
                       {option}
                     </Button>
@@ -254,7 +254,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                       variant={selectedOptions['contorno-generalidades'] === option ? "default" : "outline"}
                       size="xs"
                       onClick={() => toggleOption(option, 'contorno-generalidades')}
-                      className="text-xs px-1.5 py-0.5 rounded-lg"
+                      className="px-2 py-1 text-xs rounded-lg"
                     >
                       {option}
                     </Button>
@@ -276,7 +276,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                       variant={selectedOptions['consistencia-generalidades'] === option ? "default" : "outline"}
                       size="xs"
                       onClick={() => toggleOption(option, 'consistencia-generalidades')}
-                      className="text-xs px-1.5 py-0.5 rounded-lg"
+                      className="px-2 py-1 text-xs rounded-lg"
                     >
                       {option}
                     </Button>
@@ -297,7 +297,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                     variant={selectedOptions['sangrado-generalidades'] === "Sí" ? "default" : "outline"}
                     size="xs"
                     onClick={() => toggleOption("Sí", 'sangrado-generalidades')}
-                    className="flex-1 text-xs rounded-lg"
+                    className="px-2 py-1 text-xs rounded-lg"
                   >
                     Sí
                   </Button>
@@ -305,7 +305,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                     variant={selectedOptions['sangrado-generalidades'] === "No" ? "default" : "outline"}
                     size="xs"
                     onClick={() => toggleOption("No", 'sangrado-generalidades')}
-                    className="flex-1 text-xs rounded-lg"
+                    className="px-2 py-1 text-xs rounded-lg"
                   >
                     No
                   </Button>
@@ -318,7 +318,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                         variant={selectedOptions['tipo-sangrado'] === "Generalizada" ? "default" : "outline"}
                         size="xs"
                         onClick={() => toggleOption("Generalizada", 'tipo-sangrado')}
-                        className="flex-1 text-xs rounded-lg"
+                        className="px-2 py-1 text-xs rounded-lg"
                       >
                         Generalizada
                       </Button>
@@ -326,7 +326,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                         variant={selectedOptions['tipo-sangrado'] === "Localizada" ? "default" : "outline"}
                         size="xs"
                         onClick={() => toggleOption("Localizada", 'tipo-sangrado')}
-                        className="flex-1 text-xs rounded-lg"
+                        className="px-2 py-1 text-xs rounded-lg"
                       >
                         Localizada
                       </Button>
@@ -351,7 +351,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                     variant={selectedOptions['dolor-generalidades'] === "Sí" ? "default" : "outline"}
                     size="xs"
                     onClick={() => toggleOption("Sí", 'dolor-generalidades')}
-                    className="flex-1 text-xs rounded-lg"
+                    className="px-2 py-1 text-xs rounded-lg"
                   >
                     Sí
                   </Button>
@@ -359,7 +359,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                     variant={selectedOptions['dolor-generalidades'] === "No" ? "default" : "outline"}
                     size="xs"
                     onClick={() => toggleOption("No", 'dolor-generalidades')}
-                    className="flex-1 text-xs rounded-lg"
+                    className="px-2 py-1 text-xs rounded-lg"
                   >
                     No
                   </Button>
@@ -372,7 +372,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                         variant={selectedOptions['tipo-dolor'] === "Generalizada" ? "default" : "outline"}
                         size="xs"
                         onClick={() => toggleOption("Generalizada", 'tipo-dolor')}
-                        className="flex-1 text-xs rounded-lg"
+                        className="px-2 py-1 text-xs rounded-lg"
                       >
                         Generalizada
                       </Button>
@@ -380,7 +380,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
                         variant={selectedOptions['tipo-dolor'] === "Localizada" ? "default" : "outline"}
                         size="xs"
                         onClick={() => toggleOption("Localizada", 'tipo-dolor')}
-                        className="flex-1 text-xs rounded-lg"
+                        className="px-2 py-1 text-xs rounded-lg"
                       >
                         Localizada
                       </Button>
