@@ -14,7 +14,6 @@ import { Session } from '@supabase/supabase-js';
 import { Toaster } from './components/ui/sonner';
 import ErrorBoundary from './components/ErrorBoundary';
 import './App.css';
-import { useTheme } from '@/hooks/use-theme';
 
 // Páginas del menú principal
 import About from './pages/about/About';
@@ -30,11 +29,6 @@ import PrivacyPolicy from './pages/policies/PrivacyPolicy';
 function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const { theme } = useTheme();
-
-  useEffect(() => {
-    document.documentElement.className = theme;
-  }, [theme]);
 
   useEffect(() => {
     // Check if this is a manual reload (F5 or browser refresh button)
