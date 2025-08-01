@@ -1203,11 +1203,11 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
   return (
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-full">
-        <DialogHeader className="sticky top-0 bg-white dark:bg-gray-800 z-10 pb-4 border-b">
+        <DialogHeader className="pb-4 border-b">
           <div className="flex justify-end">
             <button
               onClick={onClose}
-              className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+              className="fixed top-4 right-4 z-50 p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
