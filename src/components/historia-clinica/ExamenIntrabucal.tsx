@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
-import ExamenIntrabucalFormEnhanced from './ExamenIntrabucalFormEnhanced';
+import ExamenIntrabucalForm from './ExamenIntrabucalForm';
 interface ExamenIntrabucalProps {
   formData: FormDataState;
   handleExamenIntrabucalChange: (part: string, value: string | boolean) => void;
@@ -128,12 +128,11 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
 
             {/* Formularios popup */}
             {activeArea && (
-              <ExamenIntrabucalFormEnhanced 
+              <ExamenIntrabucalForm 
                 area={activeArea}
                 onClose={() => setActiveArea(null)}
                 formData={formData}
                 handleExamenIntrabucalChange={handleAreaComplete}
-                onComplete={() => setCompletedAreas(prev => [...prev.filter(a => a !== activeArea), activeArea])}
               />
             )}
           </div>}
