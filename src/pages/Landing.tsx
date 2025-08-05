@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, ArrowRight } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, ArrowRight, Star, Clock, Calendar, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { DentaxyPricing } from '@/components/ui/dentaxy-pricing';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -741,180 +742,127 @@ const Landing = () => {
 
       {/* Pricing Popup */}
       {showPricingPopup && <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-4xl">
-            <div className="flex justify-between items-center mb-8">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+            <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-black">Planes Disponibles</h2>
               <Button variant="ghost" onClick={() => setShowPricingPopup(false)} className="text-gray-500 hover:text-gray-700">
                 ✕
               </Button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-96 overflow-y-auto">
-              {/* Plan Beta */}
-              <div className="relative p-6 rounded-xl border border-gray-200 shadow-sm">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm">
-                  Disponible
-                </div>
-                <h3 className="text-xl font-bold text-black mb-4 mt-4">
-                  Plan Beta
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Acceso completo durante la fase beta
-                </p>
-                <div className="text-2xl font-bold text-black mb-4">Gratis</div>
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Acceso completo durante beta
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Soporte prioritario
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Sin límites durante beta
-                  </li>
-                </ul>
-                <Button onClick={handleSelectBetaPlan} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
-                  {hasBetaPlan ? "Plan Actual" : "Unirse a la Beta"}
-                </Button>
-              </div>
-
-              {/* Plan Express */}
-              <div className="relative p-6 rounded-xl border border-gray-200 shadow-sm">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm">
-                  Disponible
-                </div>
-                <h3 className="text-xl font-bold text-black mb-4">
-                  Acceso Exprés
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Suscripción diaria
-                </p>
-                <div className="text-2xl font-bold text-black mb-4">$20 MXN</div>
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Acceso por 24 horas
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> 3 historias clínicas por día
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> 15 generaciones IA por día
-                  </li>
-                </ul>
-                <Button 
-                  onClick={() => {
-                    setShowPricingPopup(false);
-                    window.location.href = '/plans';
-                  }}
-                  className="w-full bg-green-500 hover:bg-green-600 text-white"
-                >
-                  Seleccionar Plan
-                </Button>
-              </div>
-
-              {/* Plan Professional */}
-              <div className="p-6 rounded-xl border border-gray-200 shadow-sm">
-                <h3 className="text-xl font-bold text-black mb-4">
-                  Acceso Profesional
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Suscripción semanal
-                </p>
-                <div className="text-2xl font-bold text-black mb-4">$59 MXN</div>
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Acceso por 7 días
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Historias clínicas ilimitadas
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Generación ilimitada
-                  </li>
-                </ul>
-                <Button 
-                  onClick={() => {
-                    setShowPricingPopup(false);
-                    window.location.href = '/plans';
-                  }}
-                  className="w-full bg-purple-500 hover:bg-purple-600 text-white"
-                >
-                  Seleccionar Plan
-                </Button>
-              </div>
-
-              {/* Plan Pro Monthly */}
-              <div className="relative p-6 rounded-xl border border-red-300 shadow-sm">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-1 rounded-full text-sm">
-                  Más Vendido
-                </div>
-                <h3 className="text-xl font-bold text-black mb-4 mt-4">
-                  Plan Pro Mensual
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Suscripción mensual
-                </p>
-                <div className="text-2xl font-bold text-black mb-4">$99 MXN</div>
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Acceso completo ilimitado
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Historias sin límites
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Soporte prioritario
-                  </li>
-                </ul>
-                <Button 
-                  onClick={() => {
-                    setShowPricingPopup(false);
-                    window.location.href = '/plans';
-                  }}
-                  className="w-full bg-red-500 hover:bg-red-600 text-white"
-                >
-                  Seleccionar Plan
-                </Button>
-              </div>
-
-              {/* Plan Student */}
-              <div className="relative p-6 rounded-xl border border-yellow-300 shadow-sm md:col-span-2 lg:col-span-1">
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-white px-4 py-1 rounded-full text-sm">
-                  Mejor Valor
-                </div>
-                <h3 className="text-xl font-bold text-black mb-4 mt-4">
-                  Plan Estudiante
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  Suscripción semestral
-                </p>
-                <div className="text-2xl font-bold text-black mb-4">
-                  $499 MXN
-                  <span className="text-sm text-gray-500 line-through ml-2">$594</span>
-                </div>
-                <ul className="space-y-2 mb-6 text-sm">
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Acceso por 6 meses
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Todas las funciones Pro
-                  </li>
-                  <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> ¡Ahorra $95!
-                  </li>
-                </ul>
-                <Button 
-                  onClick={() => {
-                    setShowPricingPopup(false);
-                    window.location.href = '/plans';
-                  }}
-                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
-                >
-                  Seleccionar Plan
-                </Button>
-              </div>
-            </div>
             
-            <div className="mt-6 text-center">
+            <DentaxyPricing
+              plans={[
+                {
+                  id: "beta",
+                  name: "Plan Beta",
+                  price: "Gratis",
+                  period: "Acceso completo durante beta",
+                  features: [
+                    "Acceso completo durante beta",
+                    "Soporte prioritario",
+                    "Historial clínico completo",
+                    "Funciones de IA básicas",
+                    "Sin límites durante beta"
+                  ],
+                  description: "Perfecto para probar todas las funciones",
+                  buttonText: hasBetaPlan ? "Plan Actual" : "Unirse a la Beta",
+                  isPopular: false,
+                  isAvailable: true,
+                  icon: Star,
+                  billingType: 'one-time'
+                },
+                {
+                  id: "express",
+                  name: "Acceso Exprés",
+                  price: "$20 MXN",
+                  period: "por día",
+                  features: [
+                    "Acceso por 24 horas",
+                    "3 historias clínicas por día",
+                    "15 usos de 'Generar Redacción'",
+                    "Renovación automática diaria",
+                    "Contadores se resetean cada día"
+                  ],
+                  description: "Ideal para uso ocasional",
+                  buttonText: "Seleccionar Plan",
+                  isPopular: false,
+                  isAvailable: true,
+                  icon: Clock,
+                  billingType: 'recurring'
+                },
+                {
+                  id: "professional",
+                  name: "Acceso Profesional",
+                  price: "$59 MXN",
+                  period: "por semana",
+                  features: [
+                    "Acceso por 7 días",
+                    "Historias clínicas ilimitadas",
+                    "Generación de redacciones ilimitada",
+                    "Renovación automática semanal",
+                    "Ideal para semanas activas"
+                  ],
+                  description: "Para profesionales activos",
+                  buttonText: "Seleccionar Plan",
+                  isPopular: false,
+                  isAvailable: true,
+                  icon: Calendar,
+                  billingType: 'recurring'
+                },
+                {
+                  id: "pro_monthly",
+                  name: "Plan Pro Mensual",
+                  price: "$99 MXN",
+                  period: "por mes",
+                  features: [
+                    "Acceso completo ilimitado",
+                    "Historias clínicas sin límites",
+                    "Generación automática de redacciones",
+                    "Soporte prioritario",
+                    "Actualizaciones incluidas"
+                  ],
+                  description: "El más popular entre profesionales",
+                  buttonText: "Seleccionar Plan",
+                  isPopular: true,
+                  isAvailable: true,
+                  icon: Crown,
+                  billingType: 'recurring'
+                },
+                {
+                  id: "student_semester",
+                  name: "Plan Estudiante",
+                  price: "$499 MXN",
+                  originalPrice: "$594 MXN",
+                  period: "por semestre",
+                  savings: "¡Ahorra $95!",
+                  features: [
+                    "Acceso completo por 6 meses",
+                    "Todas las funciones del Plan Pro",
+                    "Especial para estudiantes de odontología",
+                    "Renovación automática cada 6 meses",
+                    "El mejor valor por tu dinero"
+                  ],
+                  description: "Perfecto para estudiantes",
+                  buttonText: "Seleccionar Plan",
+                  isBestValue: true,
+                  isAvailable: true,
+                  icon: GraduationCap,
+                  billingType: 'recurring'
+                }
+              ]}
+              onSelectPlan={(planId) => {
+                if (planId === "beta") {
+                  handleSelectBetaPlan();
+                } else {
+                  setShowPricingPopup(false);
+                  window.location.href = '/plans';
+                }
+              }}
+              title="Planes de Suscripción"
+              description="Elige el plan que mejor se adapte a tus necesidades profesionales"
+            />
+            
+            <div className="mt-6 text-center border-t pt-4">
               <Button 
                 variant="outline" 
                 onClick={() => {
@@ -931,9 +879,9 @@ const Landing = () => {
 
       {/* Auth Dialog */}
       <AuthDialog isOpen={authDialog.isOpen} onClose={() => setAuthDialog({
-      ...authDialog,
-      isOpen: false
-    })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
+        ...authDialog,
+        isOpen: false
+      })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
     </div>;
 };
 
