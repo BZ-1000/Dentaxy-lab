@@ -6,14 +6,12 @@ interface EnciaSectionProps {
   selectedOptions: {[key: string]: string};
   onToggleOption: (option: string, category: string) => void;
   colorOptions: Array<{color: string, label: string}>;
-  onCloseAndComplete: () => void; // Nueva prop para manejar el cierre y el estado de completado
 }
 
 const EnciaSection: React.FC<EnciaSectionProps> = ({
   selectedOptions,
   onToggleOption,
-  colorOptions,
-  onCloseAndComplete
+  colorOptions
 }) => {
   const [currentSubSection, setCurrentSubSection] = useState(0);
   const sections = ['Encías generalidades', 'Encía libre', 'Encía adherida', 'Encía interproximal'];
@@ -32,7 +30,6 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
       // Lógica para guardar el formulario
       console.log("Formulario de encías guardado", selectedOptions);
       alert("Formulario de encías guardado exitosamente.");
-      onCloseAndComplete(); // Llama a la función del componente padre para cerrar
     }
   };
 
