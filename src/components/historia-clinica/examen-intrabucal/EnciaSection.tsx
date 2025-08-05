@@ -6,12 +6,14 @@ interface EnciaSectionProps {
   selectedOptions: {[key: string]: string};
   onToggleOption: (option: string, category: string) => void;
   colorOptions: Array<{color: string, label: string}>;
+  onCloseAndComplete: () => void; // Nueva prop para manejar el cierre y el estado de completado
 }
 
 const EnciaSection: React.FC<EnciaSectionProps> = ({
   selectedOptions,
   onToggleOption,
-  colorOptions
+  colorOptions,
+  onCloseAndComplete
 }) => {
   const [currentSubSection, setCurrentSubSection] = useState(0);
   const sections = ['Encías generalidades', 'Encía libre', 'Encía adherida', 'Encía interproximal'];
@@ -27,9 +29,16 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
     if (currentSubSection < sections.length - 1) {
       setCurrentSubSection(currentSubSection + 1);
     } else {
-      // Logic for saving the form goes here
+      // Lógica para guardar el formulario
       console.log("Formulario de encías guardado", selectedOptions);
       alert("Formulario de encías guardado exitosamente.");
+      onCloseAndComplete(); // Llama a la función del componente padre para cerrar
+    }
+  };
+
+  const handlePreviousSection = () => {
+    if (currentSubSection > 0) {
+      setCurrentSubSection(currentSubSection - 1);
     }
   };
 
@@ -38,7 +47,7 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
     onToggleOption(isSelected ? '' : option, category);
   };
   
-  const renderOptionButtons = (options: string[], category: string, subCategory?: string) => (
+  const renderOptionButtons = (options: string[], category: string) => (
     <div className="flex flex-wrap gap-1">
       {options.map((option) => (
         <div key={option} className="flex flex-col">
@@ -260,10 +269,19 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
       <div className="border-b-2 border-gray-200 mb-4 pb-4">
         {renderSubSection()}
       </div>
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center mt-4">
+        {currentSubSection > 0 && (
+          <Button
+            onClick={handlePreviousSection}
+            variant="outline"
+            className="w-full sm:w-auto"
+          >
+            Anterior
+          </Button>
+        )}
         <Button
           onClick={handleNextSection}
-          className="w-full sm:w-auto"
+          className={`w-full sm:w-auto ${currentSubSection > 0 ? 'ml-auto' : ''}`}
         >
           {currentSubSection < sections.length - 1 ? 'Siguiente' : 'Guardar'}
         </Button>
