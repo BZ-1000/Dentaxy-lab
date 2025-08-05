@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -15,44 +15,60 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
 }) => {
   const [currentSubSection, setCurrentSubSection] = useState(0);
   const sections = ['Encías generalidades', 'Encía libre', 'Encía adherida', 'Encía interproximal'];
+  const formRef = useRef<HTMLDivElement>(null);
 
-  const renderSubSection = () => {
-    switch (currentSubSection) {
-      case 0: return renderGeneralidades();
-      case 1: return renderEnciaLibre();
-      case 2: return renderEnciaAdherida();
-      case 3: return renderEnciaInterproximal();
-      default: return null;
+  useEffect(() => {
+    if (formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [currentSubSection]);
+
+  const handleNextSection = () => {
+    if (currentSubSection < sections.length - 1) {
+      setCurrentSubSection(currentSubSection + 1);
+    } else {
+      // Logic for saving the form goes here
+      console.log("Formulario de encías guardado", selectedOptions);
+      alert("Formulario de encías guardado exitosamente.");
     }
   };
 
-  const renderGeneralidades = () => (
-    <div className="space-y-2">
-      {/* Información de subtipos de encía */}
-      <div className="bg-blue-50 p-2 rounded-lg border border-blue-200 mb-2">
-        <h4 className="font-medium text-blue-800 mb-1 text-sm">📚 Subtipos de Encía:</h4>
-        <div className="space-y-1 text-xs">
-          <div className="flex items-start gap-1">
-            <span className="text-blue-600 font-medium">🔹 Encía libre:</span>
-            <span className="text-blue-700">rodea el cuello del diente sin estar adherida al hueso alveolar.</span>
-          </div>
-          <div className="flex items-start gap-1">
-            <span className="text-blue-600 font-medium">🔹 Encía adherida:</span>
-            <span className="text-blue-700">firmemente unida al hueso subyacente, resistente.</span>
-          </div>
-          <div className="flex items-start gap-1">
-            <span className="text-blue-600 font-medium">🔹 Encía interproximal:</span>
-            <span className="text-blue-700">encía papilar entre dos dientes, susceptible a inflamación o pérdida por enfermedad periodontal.</span>
-          </div>
+  const handleToggleOption = (option: string, category: string) => {
+    const isSelected = selectedOptions[category] === option;
+    onToggleOption(isSelected ? '' : option, category);
+  };
+  
+  const renderOptionButtons = (options: string[], category: string, subCategory?: string) => (
+    <div className="flex flex-wrap gap-1">
+      {options.map((option) => (
+        <div key={option} className="flex flex-col">
+          <Button
+            variant={selectedOptions[category] === option ? "default" : "outline"}
+            size="xs"
+            onClick={() => handleToggleOption(option, category)}
+            className="px-2 py-1 text-xs rounded-lg"
+          >
+            {option}
+          </Button>
+          {(option.includes('Otro') || option.includes('especificar') || option.includes('localizado')) && selectedOptions[category] === option && (
+            <Textarea
+              placeholder={option.includes('especificar') ? "Especifica..." : "Especificar ubicación..."}
+              className="mt-1 w-full text-xs h-6"
+            />
+          )}
         </div>
-      </div>
-      
+      ))}
+    </div>
+  );
+
+  const renderGeneralidades = () => (
+    <div className="space-y-4">
       {/* 1. Color observado */}
-      <div className="mb-2">
-        <h4 className="font-medium mb-1 text-sm">1. Color observado:</h4>
-        <div className="space-y-1">
+      <div>
+        <h4 className="font-semibold text-sm">1. Color observado:</h4>
+        <div className="space-y-1 mt-2">
           {colorOptions.map((option, index) => (
-            <div key={index} className="flex items-center space-x-1">
+            <div key={index} className="flex items-center space-x-2">
               <div
                 style={{
                   width: '12px',
@@ -65,23 +81,23 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
               <Button
                 variant={selectedOptions['color-generalidades'] === option.label ? "default" : "outline"}
                 size="xs"
-                onClick={() => onToggleOption(option.label, 'color-generalidades')}
+                onClick={() => handleToggleOption(option.label, 'color-generalidades')}
                 className="px-2 py-1 text-xs rounded-lg"
               >
                 {option.label}
               </Button>
             </div>
           ))}
-          <div className="flex flex-col">
+          <div className="flex flex-col mt-1">
             <Button
-              variant={selectedOptions['color-generalidades'] === "Otro color" ? "default" : "outline"}
+              variant={selectedOptions['color-generalidades'] === "Otro color (especificar)" ? "default" : "outline"}
               size="xs"
-              onClick={() => onToggleOption("Otro color", 'color-generalidades')}
+              onClick={() => handleToggleOption("Otro color (especificar)", 'color-generalidades')}
               className="px-2 py-1 text-xs rounded-lg"
             >
-              Otro (especificar)
+              Otro color (especificar)
             </Button>
-            {selectedOptions['color-generalidades'] === "Otro color" && (
+            {selectedOptions['color-generalidades'] === "Otro color (especificar)" && (
               <Textarea placeholder="Especifica el color..." className="mt-1 w-full text-xs h-6" />
             )}
           </div>
@@ -89,270 +105,169 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
       </div>
 
       {/* 2. Textura de la superficie */}
-      <div className="mb-2">
-        <h4 className="font-medium mb-1 text-sm">2. Textura de la superficie:</h4>
-        <div className="flex flex-wrap gap-1">
-          {['Lisa', 'Punteada (piel de naranja)', 'Rugosa', 'Granular', 'Ulcerada', 'Fibrosa', 'Otro'].map((option) => (
-            <div key={option} className="flex flex-col">
-              <Button
-                variant={selectedOptions['textura-generalidades'] === option ? "default" : "outline"}
-                size="xs"
-                onClick={() => onToggleOption(option, 'textura-generalidades')}
-                className="px-2 py-1 text-xs rounded-lg"
-              >
-                {option}
-              </Button>
-              {option === 'Otro' && selectedOptions['textura-generalidades'] === option && (
-                <Textarea placeholder="Especifica..." className="mt-1 w-full text-xs h-6" />
-              )}
-            </div>
-          ))}
-        </div>
+      <div>
+        <h4 className="font-semibold text-sm">2. Textura de la superficie:</h4>
+        {renderOptionButtons(['Lisa', 'Punteada (piel de naranja)', 'Rugosa', 'Granular', 'Ulcerada', 'Fibrosa', 'Otro'], 'textura-generalidades')}
       </div>
 
       {/* 3. Contorno o forma observada */}
-      <div className="mb-2">
-        <h4 className="font-medium mb-1 text-sm">3. Contorno o forma observada:</h4>
-        <div className="flex flex-wrap gap-1">
-          {['Festoneado (normal)', 'Aumentado de volumen', 'Recesión gingival', 'Engrosamiento marginal', 'Pseudobolsas', 'Otro'].map((option) => (
-            <div key={option} className="flex flex-col">
-              <Button
-                variant={selectedOptions['contorno-generalidades'] === option ? "default" : "outline"}
-                size="xs"
-                onClick={() => onToggleOption(option, 'contorno-generalidades')}
-                className="px-2 py-1 text-xs rounded-lg"
-              >
-                {option}
-              </Button>
-              {option === 'Otro' && selectedOptions['contorno-generalidades'] === option && (
-                <Textarea placeholder="Especifica..." className="mt-1 w-full text-xs h-6" />
-              )}
-            </div>
-          ))}
-        </div>
+      <div>
+        <h4 className="font-semibold text-sm">3. Contorno o forma observada:</h4>
+        {renderOptionButtons(['Festoneado (normal)', 'Aumentado de volumen', 'Recesión gingival', 'Engrosamiento marginal', 'Pseudobolsas', 'Otro'], 'contorno-generalidades')}
       </div>
 
       {/* 4. Consistencia al tacto */}
-      <div className="mb-2">
-        <h4 className="font-medium mb-1 text-sm">4. Consistencia al tacto:</h4>
-        <div className="flex flex-wrap gap-1">
-          {['Firme (normal)', 'Blanda', 'Edematosa', 'Hiperplásica', 'Fibrótica', 'Otro'].map((option) => (
-            <div key={option} className="flex flex-col">
-              <Button
-                variant={selectedOptions['consistencia-generalidades'] === option ? "default" : "outline"}
-                size="xs"
-                onClick={() => onToggleOption(option, 'consistencia-generalidades')}
-                className="px-2 py-1 text-xs rounded-lg"
-              >
-                {option}
-              </Button>
-              {option === 'Otro' && selectedOptions['consistencia-generalidades'] === option && (
-                <Textarea placeholder="Especifica..." className="mt-1 w-full text-xs h-6" />
-              )}
-            </div>
-          ))}
-        </div>
+      <div>
+        <h4 className="font-semibold text-sm">4. Consistencia al tacto:</h4>
+        {renderOptionButtons(['Firme (normal)', 'Blanda', 'Edematosa', 'Hiperplásica', 'Fibrótica', 'Otro'], 'consistencia-generalidades')}
       </div>
 
       {/* 5. Presencia de sangrado */}
-      <div className="mb-2">
-        <h4 className="font-medium mb-1 text-sm">5. Presencia de sangrado:</h4>
-        <div className="space-y-1">
-          <div className="flex gap-1">
-            <Button
-              variant={selectedOptions['sangrado-generalidades'] === "Sí" ? "default" : "outline"}
-              size="xs"
-              onClick={() => onToggleOption("Sí", 'sangrado-generalidades')}
-              className="px-2 py-1 text-xs rounded-lg"
-            >
-              Sí
-            </Button>
-            <Button
-              variant={selectedOptions['sangrado-generalidades'] === "No" ? "default" : "outline"}
-              size="xs"
-              onClick={() => onToggleOption("No", 'sangrado-generalidades')}
-              className="px-2 py-1 text-xs rounded-lg"
-            >
-              No
-            </Button>
-          </div>
-          {selectedOptions['sangrado-generalidades'] === "Sí" && (
-            <div className="ml-1 space-y-1">
-              <p className="text-xs font-medium">Tipo de sangrado:</p>
-              <div className="flex gap-1">
-                <Button
-                  variant={selectedOptions['tipo-sangrado'] === "Generalizada" ? "default" : "outline"}
-                  size="xs"
-                  onClick={() => onToggleOption("Generalizada", 'tipo-sangrado')}
-                  className="px-2 py-1 text-xs rounded-lg"
-                >
-                  Generalizada
-                </Button>
-                <Button
-                  variant={selectedOptions['tipo-sangrado'] === "Si localizado" ? "default" : "outline"}
-                  size="xs"
-                  onClick={() => onToggleOption("Si localizado", 'tipo-sangrado')}
-                  className="px-2 py-1 text-xs rounded-lg"
-                >
-                  Si localizado
-                </Button>
-              </div>
-              {selectedOptions['tipo-sangrado'] === "Si localizado" && (
-                <Textarea 
-                  placeholder="Especificar ubicación (ej: dientes 12-14, zona anterior superior)" 
-                  className="mt-1 w-full text-xs h-6" 
-                />
-              )}
-            </div>
-          )}
-        </div>
+      <div>
+        <h4 className="font-semibold text-sm">5. Presencia de sangrado:</h4>
+        {renderOptionButtons(['Sí', 'No'], 'sangrado-generalidades')}
       </div>
-
+      
       {/* 6. Dolor o sensibilidad */}
-      <div className="mb-2">
-        <h4 className="font-medium mb-1 text-sm">6. Dolor o sensibilidad:</h4>
-        <div className="space-y-1">
-          <div className="flex gap-1">
-            <Button
-              variant={selectedOptions['dolor-generalidades'] === "Sí" ? "default" : "outline"}
-              size="xs"
-              onClick={() => onToggleOption("Sí", 'dolor-generalidades')}
-              className="px-2 py-1 text-xs rounded-lg"
-            >
-              Sí
-            </Button>
-            <Button
-              variant={selectedOptions['dolor-generalidades'] === "No" ? "default" : "outline"}
-              size="xs"
-              onClick={() => onToggleOption("No", 'dolor-generalidades')}
-              className="px-2 py-1 text-xs rounded-lg"
-            >
-              No
-            </Button>
-          </div>
-          {selectedOptions['dolor-generalidades'] === "Sí" && (
-            <div className="ml-1 space-y-1">
-              <p className="text-xs font-medium">Tipo de dolor:</p>
-              <div className="flex gap-1">
-                <Button
-                  variant={selectedOptions['tipo-dolor'] === "Generalizada" ? "default" : "outline"}
-                  size="xs"
-                  onClick={() => onToggleOption("Generalizada", 'tipo-dolor')}
-                  className="px-2 py-1 text-xs rounded-lg"
-                >
-                  Generalizada
-                </Button>
-                <Button
-                  variant={selectedOptions['tipo-dolor'] === "Si localizado" ? "default" : "outline"}
-                  size="xs"
-                  onClick={() => onToggleOption("Si localizado", 'tipo-dolor')}
-                  className="px-2 py-1 text-xs rounded-lg"
-                >
-                  Si localizado
-                </Button>
-              </div>
-              {selectedOptions['tipo-dolor'] === "Si localizado" && (
-                <Textarea 
-                  placeholder="Especificar ubicación (ej: dientes 12-14, zona anterior superior)" 
-                  className="mt-1 w-full text-xs h-6" 
-                />
-              )}
-            </div>
-          )}
-        </div>
+      <div>
+        <h4 className="font-semibold text-sm">6. Dolor o sensibilidad:</h4>
+        {renderOptionButtons(['Sí', 'No'], 'dolor-generalidades')}
+      </div>
+      
+      {/* 7. Presencia de lesiones */}
+      <div>
+        <h4 className="font-semibold text-sm">7. Presencia de lesiones:</h4>
+        {renderOptionButtons(['Aftas/úlceras', 'Gingivitis ulceronecrotizante', 'Hiperplasia gingival', 'Quistes gingivales', 'Épulis/granuloma piógeno', 'Leucoplasia', 'Otras lesiones'], 'lesiones-generalidades')}
       </div>
 
-      {/* 7. Presencia de lesiones */}
-      <div className="mb-3">
-        <h4 className="font-medium mb-2 text-sm">7. Presencia de lesiones:</h4>
-        <div className="space-y-1">
-          <div className="flex gap-1">
-            <Button
-              variant={selectedOptions['lesiones-generalidades'] === "Sí" ? "default" : "outline"}
-              size="xs"
-              onClick={() => onToggleOption("Sí", 'lesiones-generalidades')}
-              className="px-2 py-1 text-xs rounded-lg"
-            >
-              Sí
-            </Button>
-            <Button
-              variant={selectedOptions['lesiones-generalidades'] === "No" ? "default" : "outline"}
-              size="xs"
-              onClick={() => onToggleOption("No", 'lesiones-generalidades')}
-              className="px-2 py-1 text-xs rounded-lg"
-            >
-              No
-            </Button>
-          </div>
-          {selectedOptions['lesiones-generalidades'] === "Sí" && (
-            <div className="ml-1 space-y-1">
-              <p className="text-xs font-medium">Tipo de lesión:</p>
-              <div className="flex flex-wrap gap-1">
-                {['Aftas/úlceras', 'Hiperplasia', 'Recesión', 'Abscesos', 'Si localizado', 'Otro'].map((option) => (
-                  <div key={option} className="flex flex-col">
-                    <Button
-                      variant={selectedOptions['tipo-lesion-generalidades'] === option ? "default" : "outline"}
-                      size="xs"
-                      onClick={() => onToggleOption(option, 'tipo-lesion-generalidades')}
-                      className="px-2 py-1 text-xs rounded-lg"
-                    >
-                      {option}
-                    </Button>
-                    {(option === 'Si localizado' || option === 'Otro') && selectedOptions['tipo-lesion-generalidades'] === option && (
-                      <Textarea 
-                        placeholder={option === 'Si localizado' ? "Especificar ubicación..." : "Especifica..."} 
-                        className="mt-1 w-full text-xs h-6" 
-                      />
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+      {/* 8. Condición visual alrededor de restauraciones */}
+      <div>
+        <h4 className="font-semibold text-sm">8. Condición visual alrededor de restauraciones:</h4>
+        {renderOptionButtons(['Normal', 'Inflamación marginal', 'Recesión gingival', 'Sangrado al sondeo', 'Hiperplasia'], 'restauraciones-generalidades')}
+      </div>
+
+      {/* 9. Otros hallazgos clínicos */}
+      <div>
+        <h4 className="font-semibold text-sm">9. Otros hallazgos clínicos:</h4>
+        <Textarea placeholder="Describe cualquier otro hallazgo relevante..." className="mt-1 w-full text-xs" />
       </div>
     </div>
   );
 
   const renderEnciaLibre = () => (
-    <div className="space-y-2">
-      <h4 className="font-medium mb-1 text-sm">Encía Libre - Características específicas:</h4>
-      {/* Implementar campos específicos para encía libre */}
+    <div className="space-y-4">
+      {/* 1. ¿Se observa sangrado espontáneo al cepillado o masticación? */}
+      <div>
+        <h4 className="font-semibold text-sm">1. ¿Se observa sangrado espontáneo al cepillado o masticación?</h4>
+        {renderOptionButtons(['Sí', 'No', 'Solo al cepillado', 'Solo al masticar'], 'sangrado-libre')}
+      </div>
+      {/* 2. ¿Hay inflamación del margen gingival? */}
+      <div>
+        <h4 className="font-semibold text-sm">2. ¿Hay inflamación del margen gingival?</h4>
+        {renderOptionButtons(['Leve', 'Moderada', 'Severa', 'Ausente'], 'inflamacion-libre')}
+      </div>
+      {/* 3. ¿Se observa edema o engrosamiento? */}
+      <div>
+        <h4 className="font-semibold text-sm">3. ¿Se observa edema o engrosamiento?</h4>
+        {renderOptionButtons(['Presente generalizado', 'Presente localizado', 'Ausente'], 'edema-libre')}
+      </div>
+      {/* 4. ¿Hay presencia de placa dental en el margen gingival? */}
+      <div>
+        <h4 className="font-semibold text-sm">4. ¿Hay presencia de placa dental en el margen gingival?</h4>
+        {renderOptionButtons(['Abundante', 'Moderada', 'Escasa', 'Ausente'], 'placa-libre')}
+      </div>
+      {/* 5. ¿Se observa retracción o recesión del margen gingival? */}
+      <div>
+        <h4 className="font-semibold text-sm">5. ¿Se observa retracción o recesión del margen gingival?</h4>
+        {renderOptionButtons(['Sí, generalizada', 'Sí, localizada', 'No'], 'recesion-libre')}
+      </div>
     </div>
   );
 
   const renderEnciaAdherida = () => (
-    <div className="space-y-2">
-      <h4 className="font-medium mb-1 text-sm">Encía Adherida - Características específicas:</h4>
-      {/* Implementar campos específicos para encía adherida */}
+    <div className="space-y-4">
+      {/* 1. ¿Cuál es el ancho de la banda de encía adherida? */}
+      <div>
+        <h4 className="font-semibold text-sm">1. ¿Cuál es el ancho de la banda de encía adherida?</h4>
+        {renderOptionButtons(['Adecuado (>2mm)', 'Reducido (1-2mm)', 'Muy reducido (<1mm)', 'Ausente'], 'ancho-adherida')}
+      </div>
+      {/* 2. ¿Se observa punteado en cáscara de naranja? */}
+      <div>
+        <h4 className="font-semibold text-sm">2. ¿Se observa punteado en cáscara de naranja?</h4>
+        {renderOptionButtons(['Presente y normal', 'Ausente', 'Alterado'], 'punteado-adherida')}
+      </div>
+      {/* 3. ¿Hay firme adherencia al hueso subyacente? */}
+      <div>
+        <h4 className="font-semibold text-sm">3. ¿Hay firme adherencia al hueso subyacente?</h4>
+        {renderOptionButtons(['Sí, firme', 'Parcialmente adherida', 'Poco adherida'], 'adherencia-adherida')}
+      </div>
+      {/* 4. ¿Se observa la línea mucogingival claramente definida? */}
+      <div>
+        <h4 className="font-semibold text-sm">4. ¿Se observa la línea mucogingival claramente definida?</h4>
+        {renderOptionButtons(['Sí, bien definida', 'Parcialmente definida', 'No definida'], 'linea-adherida')}
+      </div>
+      {/* 5. ¿Hay presencia de frenillos que comprometan la encía adherida? */}
+      <div>
+        <h4 className="font-semibold text-sm">5. ¿Hay presencia de frenillos que comprometan la encía adherida?</h4>
+        {renderOptionButtons(['Sí, compromete', 'Presente pero no compromete', 'Ausente'], 'frenillos-adherida')}
+      </div>
     </div>
   );
 
   const renderEnciaInterproximal = () => (
-    <div className="space-y-2">
-      <h4 className="font-medium mb-1 text-sm">Encía Interproximal - Características específicas:</h4>
-      {/* Implementar campos específicos para encía interproximal */}
+    <div className="space-y-4">
+      {/* 1. ¿Las papilas gingivales llenan completamente los espacios interproximales? */}
+      <div>
+        <h4 className="font-semibold text-sm">1. ¿Las papilas gingivales llenan completamente los espacios interproximales?</h4>
+        {renderOptionButtons(['Sí, completamente', 'Parcialmente', 'No, hay espacios vacíos'], 'papilas-interproximal')}
+      </div>
+      {/* 2. ¿Hay sangrado al sondeo en áreas interproximales? */}
+      <div>
+        <h4 className="font-semibold text-sm">2. ¿Hay sangrado al sondeo en áreas interproximales?</h4>
+        {renderOptionButtons(['Sí, generalizado', 'Sí, localizado', 'No'], 'sangrado-interproximal')}
+      </div>
+      {/* 3. ¿Se observa acumulación de placa en espacios interproximales? */}
+      <div>
+        <h4 className="font-semibold text-sm">3. ¿Se observa acumulación de placa en espacios interproximales?</h4>
+        {renderOptionButtons(['Abundante', 'Moderada', 'Escasa', 'Ausente'], 'placa-interproximal')}
+      </div>
+      {/* 4. ¿Hay presencia de cálculo dental interproximal? */}
+      <div>
+        <h4 className="font-semibold text-sm">4. ¿Hay presencia de cálculo dental interproximal?</h4>
+        {renderOptionButtons(['Abundante', 'Moderado', 'Escaso', 'Ausente'], 'calculo-interproximal')}
+      </div>
+      {/* 5. ¿Se observa pérdida de inserción en áreas interproximales? */}
+      <div>
+        <h4 className="font-semibold text-sm">5. ¿Se observa pérdida de inserción en áreas interproximales?</h4>
+        {renderOptionButtons(['Sí, severa', 'Sí, moderada', 'Sí, leve', 'No'], 'insercion-interproximal')}
+      </div>
     </div>
   );
 
-  return (
-    <div className="space-y-4">
-      {/* Navegación entre subsecciones */}
-      <div className="flex flex-wrap gap-1 mb-4">
-        {sections.map((section, index) => (
-          <Button
-            key={section}
-            variant={currentSubSection === index ? "default" : "outline"}
-            size="xs"
-            onClick={() => setCurrentSubSection(index)}
-            className="px-2 py-1 text-xs rounded-lg"
-          >
-            {section}
-          </Button>
-        ))}
-      </div>
+  const renderSubSection = () => {
+    switch (currentSubSection) {
+      case 0: return renderGeneralidades();
+      case 1: return renderEnciaLibre();
+      case 2: return renderEnciaAdherida();
+      case 3: return renderEnciaInterproximal();
+      default: return null;
+    }
+  };
 
-      {renderSubSection()}
+  return (
+    <div className="space-y-4" ref={formRef}>
+      <h2 className="text-xl font-bold">{sections[currentSubSection]}</h2>
+      <div className="border-b-2 border-gray-200 mb-4 pb-4">
+        {renderSubSection()}
+      </div>
+      <div className="flex justify-end">
+        <Button
+          onClick={handleNextSection}
+          className="w-full sm:w-auto"
+        >
+          {currentSubSection < sections.length - 1 ? 'Siguiente' : 'Guardar'}
+        </Button>
+      </div>
     </div>
   );
 };
