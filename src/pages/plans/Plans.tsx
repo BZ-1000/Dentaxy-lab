@@ -1,11 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Check, Crown, Clock, Calendar, Star } from 'lucide-react';
 import BottomMenu from '@/components/BottomMenu';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/contexts/AuthContext';
+import { SubscriptionStatus } from '@/components/subscription/SubscriptionStatus';
 
 const PlanCard = ({ 
   title, 
@@ -128,8 +129,8 @@ const PlanCard = ({
 );
 
 const Plans = () => {
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+  const { user } = useAuth();
+  const { loading, createCheckoutSession } = useSubscription();
 
   const handleSelectPlan = async (planType: string) => {
     if (planType === "beta") {
@@ -137,40 +138,9 @@ const Plans = () => {
       return;
     }
 
-    setLoading(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast({
-          title: "Autenticación requerida",
-          description: "Debes iniciar sesión para suscribirte a un plan.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
-        body: { plan_type: planType },
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        // Open Stripe checkout in a new tab
-        window.open(data.url, '_blank');
-      }
-    } catch (error) {
-      console.error('Error creating checkout:', error);
-      toast({
-        title: "Error",
-        description: "No se pudo procesar la suscripción. Inténtalo de nuevo.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+    const url = await createCheckoutSession(planType);
+    if (url) {
+      window.open(url, '_blank');
     }
   };
 
@@ -199,6 +169,13 @@ const Plans = () => {
           Elige el plan que mejor se adapte a tus necesidades y comienza a transformar 
           tu práctica odontológica con DENTAXY.ai
         </p>
+
+        {/* Show subscription status if user is logged in */}
+        {user && (
+          <div className="mb-8 max-w-md mx-auto">
+            <SubscriptionStatus />
+          </div>
+        )}
         
         {/* Plans Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12 max-w-6xl mx-auto">
