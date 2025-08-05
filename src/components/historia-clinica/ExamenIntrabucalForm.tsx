@@ -41,7 +41,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
   };
 
   const colorOptions = [
-    { color: '#FFC0CB', label: 'Rosa pálido: mucosa sana, normal' },
+    { color: '#FF7F7F', label: 'Rosa coral: mucosa sana, normal' },
     { color: '#FF6666', label: 'Eritematoso / rojo: inflamación, infección, trauma' },
     { color: '#FFF0F5', label: 'Pálido: anemia, deficiencia de hierro' },
     { color: '#A9A9A9', label: 'Blanquecino: leucoplasia, cándida, línea alba' },
@@ -183,7 +183,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             
             {/* 1. Color observado */}
             <div className="mb-2">
-              <h4 className="font-medium mb-1 text-xs">1. Color observado:</h4>
+              <h4 className="font-medium mb-1 text-sm">1. Color observado:</h4>
               <div className="space-y-1">
                 {colorOptions.map((option, index) => (
                   <div key={index} className="flex items-center space-x-1">
@@ -224,7 +224,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
 
             {/* 2. Textura de la superficie */}
             <div className="mb-2">
-              <h4 className="font-medium mb-1 text-xs">2. Textura de la superficie:</h4>
+              <h4 className="font-medium mb-1 text-sm">2. Textura de la superficie:</h4>
               <div className="flex flex-wrap gap-1">
                 {['Lisa', 'Punteada (piel de naranja)', 'Rugosa', 'Granular', 'Ulcerada', 'Fibrosa', 'Otro'].map((option) => (
                   <div key={option} className="flex flex-col">
@@ -246,7 +246,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
 
             {/* 3. Contorno o forma observada */}
             <div className="mb-2">
-              <h4 className="font-medium mb-1 text-xs">3. Contorno o forma observada:</h4>
+              <h4 className="font-medium mb-1 text-sm">3. Contorno o forma observada:</h4>
               <div className="flex flex-wrap gap-1">
                 {['Festoneado (normal)', 'Aumentado de volumen', 'Recesión gingival', 'Engrosamiento marginal', 'Pseudobolsas', 'Otro'].map((option) => (
                   <div key={option} className="flex flex-col">
@@ -268,7 +268,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
 
             {/* 4. Consistencia al tacto */}
             <div className="mb-2">
-              <h4 className="font-medium mb-1 text-xs">4. Consistencia al tacto:</h4>
+              <h4 className="font-medium mb-1 text-sm">4. Consistencia al tacto:</h4>
               <div className="flex flex-wrap gap-1">
                 {['Firme (normal)', 'Blanda', 'Edematosa', 'Hiperplásica', 'Fibrótica', 'Otro'].map((option) => (
                   <div key={option} className="flex flex-col">
@@ -290,7 +290,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
 
             {/* 5. Presencia de sangrado */}
             <div className="mb-2">
-              <h4 className="font-medium mb-1 text-xs">5. Presencia de sangrado:</h4>
+              <h4 className="font-medium mb-1 text-sm">5. Presencia de sangrado:</h4>
               <div className="space-y-1">
                 <div className="flex gap-1">
                   <Button
@@ -344,7 +344,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
 
             {/* 6. Dolor o sensibilidad */}
             <div className="mb-2">
-              <h4 className="font-medium mb-1 text-xs">6. Dolor o sensibilidad:</h4>
+              <h4 className="font-medium mb-1 text-sm">6. Dolor o sensibilidad:</h4>
               <div className="space-y-1">
                 <div className="flex gap-1">
                   <Button
@@ -503,7 +503,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           {currentSubSection === 1 && ( // Encía libre
             <>
               <div className="mb-4">
-                <h4 className="font-medium mb-2">1. ¿Se observa sangrado espontáneo al cepillado o masticación?</h4>
+                <h4 className="font-medium mb-2 text-sm">1. ¿Se observa sangrado espontáneo al cepillado o masticación?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Sí', 'No', 'Solo al cepillado', 'Solo al masticar'].map((option) => (
                     <Button
@@ -520,7 +520,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">2. ¿Hay inflamación del margen gingival?</h4>
+                <h4 className="font-medium mb-2 text-sm">2. ¿Hay inflamación del margen gingival?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Leve', 'Moderada', 'Severa', 'Ausente'].map((option) => (
                     <Button
@@ -537,7 +537,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">3. ¿Se observa edema o engrosamiento?</h4>
+                <h4 className="font-medium mb-2 text-sm">3. ¿Se observa edema o engrosamiento?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Presente generalizado', 'Presente localizado', 'Ausente'].map((option) => (
                     <Button
@@ -554,7 +554,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">4. ¿Hay presencia de placa dental en el margen gingival?</h4>
+                <h4 className="font-medium mb-2 text-sm">4. ¿Hay presencia de placa dental en el margen gingival?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Abundante', 'Moderada', 'Escasa', 'Ausente'].map((option) => (
                     <Button
@@ -571,7 +571,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">5. ¿Se observa retracción o recesión del margen gingival?</h4>
+                <h4 className="font-medium mb-2 text-sm">5. ¿Se observa retracción o recesión del margen gingival?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Sí, generalizada', 'Sí, localizada', 'No'].map((option) => (
                     <Button
@@ -592,7 +592,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           {currentSubSection === 2 && ( // Encía adherida
             <>
               <div className="mb-4">
-                <h4 className="font-medium mb-2">1. ¿Cuál es el ancho de la banda de encía adherida?</h4>
+                <h4 className="font-medium mb-2 text-sm">1. ¿Cuál es el ancho de la banda de encía adherida?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Adecuado (>2mm)', 'Reducido (1-2mm)', 'Muy reducido (<1mm)', 'Ausente'].map((option) => (
                     <Button
@@ -609,7 +609,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">2. ¿Se observa punteado en cáscara de naranja?</h4>
+                <h4 className="font-medium mb-2 text-sm">2. ¿Se observa punteado en cáscara de naranja?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Presente y normal', 'Ausente', 'Alterado'].map((option) => (
                     <Button
@@ -626,7 +626,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">3. ¿Hay firme adherencia al hueso subyacente?</h4>
+                <h4 className="font-medium mb-2 text-sm">3. ¿Hay firme adherencia al hueso subyacente?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Sí, firme', 'Parcialmente adherida', 'Poco adherida'].map((option) => (
                     <Button
@@ -643,7 +643,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">4. ¿Se observa la línea mucogingival claramente definida?</h4>
+                <h4 className="font-medium mb-2 text-sm">4. ¿Se observa la línea mucogingival claramente definida?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Sí, bien definida', 'Parcialmente definida', 'No definida'].map((option) => (
                     <Button
@@ -660,7 +660,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">5. ¿Hay presencia de frenillos que comprometan la encía adherida?</h4>
+                <h4 className="font-medium mb-2 text-sm">5. ¿Hay presencia de frenillos que comprometan la encía adherida?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Sí, compromete', 'Presente pero no compromete', 'Ausente'].map((option) => (
                     <Button
@@ -681,7 +681,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
           {currentSubSection === 3 && ( // Encía interproximal
             <>
               <div className="mb-4">
-                <h4 className="font-medium mb-2">1. ¿Las papilas gingivales llenan completamente los espacios interproximales?</h4>
+                <h4 className="font-medium mb-2 text-sm">1. ¿Las papilas gingivales llenan completamente los espacios interproximales?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Sí, completamente', 'Parcialmente', 'No, hay espacios vacíos'].map((option) => (
                     <Button
@@ -698,7 +698,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">2. ¿Hay sangrado al sondeo en áreas interproximales?</h4>
+                <h4 className="font-medium mb-2 text-sm">2. ¿Hay sangrado al sondeo en áreas interproximales?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Sí, generalizado', 'Sí, localizado', 'No'].map((option) => (
                     <Button
@@ -715,7 +715,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">3. ¿Se observa acumulación de placa en espacios interproximales?</h4>
+                <h4 className="font-medium mb-2 text-sm">3. ¿Se observa acumulación de placa en espacios interproximales?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Abundante', 'Moderada', 'Escasa', 'Ausente'].map((option) => (
                     <Button
@@ -732,7 +732,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">4. ¿Hay presencia de cálculo dental interproximal?</h4>
+                <h4 className="font-medium mb-2 text-sm">4. ¿Hay presencia de cálculo dental interproximal?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Abundante', 'Moderado', 'Escaso', 'Ausente'].map((option) => (
                     <Button
@@ -749,7 +749,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium mb-2">5. ¿Se observa pérdida de inserción en áreas interproximales?</h4>
+                <h4 className="font-medium mb-2 text-sm">5. ¿Se observa pérdida de inserción en áreas interproximales?</h4>
                 <div className="flex flex-wrap gap-2">
                   {['Sí, severa', 'Sí, moderada', 'Sí, leve', 'No'].map((option) => (
                     <Button
