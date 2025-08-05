@@ -68,12 +68,13 @@ export function AnimatedPlanCard({
       }}
       whileHover={{ 
         scale: isCenter ? 1.08 : 1.02,
-        y: -5
+        y: -8,
+        transition: { duration: 0.2, ease: "easeOut" }
       }}
       transition={{
-        duration: 0.5,
+        duration: 0.4,
         ease: "easeOut",
-        rotateY: { duration: 0.8, ease: "easeInOut" }
+        rotateY: { duration: 0.6, ease: "easeInOut" }
       }}
       className={cn(
         "relative bg-background border rounded-lg p-4 text-center overflow-hidden",
@@ -87,43 +88,79 @@ export function AnimatedPlanCard({
       {/* Animated background for center card */}
       {isCenter && (
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-primary/10 to-primary/5"
+          className="absolute inset-0 bg-gradient-to-r from-primary/5 to-primary/10 opacity-50"
           animate={{
             backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
           }}
           transition={{
-            duration: 3,
+            duration: 4,
             repeat: Infinity,
             ease: "linear",
           }}
         />
       )}
 
-      {/* Badges */}
+      {/* Enhanced Popular Badge with constant animation */}
       {isPopular && (
         <motion.div 
-          initial={{ scale: 0, rotate: -10 }}
-          animate={{ scale: 1, rotate: 0 }}
-          className="absolute -top-2 -right-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg"
+          initial={{ scale: 0, rotate: -10, y: -10 }}
+          animate={{ 
+            scale: 1, 
+            rotate: 0,
+            y: [-2, -6, -2],
+            x: [0, 2, 0, -2, 0]
+          }}
+          transition={{ 
+            scale: { delay: 0.3, type: "spring", stiffness: 200 },
+            rotate: { delay: 0.3, type: "spring", stiffness: 200 },
+            y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+            x: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+          }}
+          className="absolute -top-3 -right-3 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xl z-50 border-2 border-white"
         >
-          <Star className="h-3 w-3 fill-current" />
-          Más Vendido
+          <motion.div
+            animate={{ 
+              rotate: [0, 360],
+              scale: [1, 1.2, 1]
+            }}
+            transition={{ 
+              rotate: { duration: 3, repeat: Infinity, ease: "linear" },
+              scale: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
+            }}
+          >
+            <Star className="h-3.5 w-3.5 fill-current drop-shadow-sm" />
+          </motion.div>
+          <span className="drop-shadow-sm">Más Vendido</span>
         </motion.div>
       )}
       
       {isBestValue && (
         <motion.div 
-          initial={{ scale: 0, rotate: 10 }}
-          animate={{ scale: 1, rotate: 0 }}
-          className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-2 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg"
+          initial={{ scale: 0, rotate: 10, y: -10 }}
+          animate={{ 
+            scale: 1, 
+            rotate: 0,
+            y: [-1, -4, -1]
+          }}
+          transition={{ 
+            scale: { delay: 0.3, type: "spring", stiffness: 200 },
+            rotate: { delay: 0.3, type: "spring", stiffness: 200 },
+            y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
+          }}
+          className="absolute -top-3 -right-3 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xl z-40 border-2 border-white"
         >
-          <TrendingUp className="h-3 w-3" />
-          Mejor Valor
+          <motion.div
+            animate={{ scale: [1, 1.3, 1] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <TrendingUp className="h-3.5 w-3.5 drop-shadow-sm" />
+          </motion.div>
+          <span className="drop-shadow-sm">Mejor Valor</span>
         </motion.div>
       )}
 
       <div className="relative z-10 flex flex-col h-full">
-        {/* Icon */}
+        {/* Icon with enhanced animation */}
         <motion.div 
           className={cn(
             "inline-flex items-center justify-center w-10 h-10 rounded-full mb-3 mx-auto",
@@ -131,31 +168,44 @@ export function AnimatedPlanCard({
           )}
           animate={{ 
             rotateY: period === 'semester' && isCenter ? [0, 360] : 0,
-            scale: isCenter ? [1, 1.1, 1] : 1
+            scale: isCenter ? [1, 1.1, 1] : [1, 1.05, 1]
+          }}
+          whileHover={{ 
+            rotate: 360,
+            scale: 1.2,
+            transition: { duration: 0.3, ease: "easeOut" }
           }}
           transition={{ 
-            rotateY: { duration: 0.8 },
-            scale: { duration: 2, repeat: Infinity }
+            rotateY: { duration: 0.6 },
+            scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
           }}
         >
           <IconComponent className="h-5 w-5" />
         </motion.div>
 
-        {/* Plan Name with morphing animation */}
+        {/* Plan Name with smoother animation */}
         <motion.h3 
           key={currentName}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
           className="text-sm font-semibold text-foreground mb-2"
         >
           {currentName}
         </motion.h3>
 
-        {/* Price with NumberFlow */}
+        {/* Price with smoother transitions */}
         <div className="mb-3">
           <motion.div 
             className="text-xl font-bold text-foreground"
             key={currentPrice}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            whileHover={{ 
+              scale: 1.05,
+              transition: { duration: 0.2 }
+            }}
           >
             {currentPrice}
           </motion.div>
@@ -163,14 +213,16 @@ export function AnimatedPlanCard({
             key={currentPeriod}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="text-xs text-muted-foreground"
           >
             {currentPeriod}
           </motion.div>
           {period === 'semester' && isCenter && (
             <motion.div 
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 300 }}
               className="mt-1 inline-block bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-medium"
             >
               ¡Ahorra $95!
@@ -187,7 +239,11 @@ export function AnimatedPlanCard({
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 10 }}
-                transition={{ delay: idx * 0.1 }}
+                transition={{ 
+                  delay: idx * 0.08,
+                  duration: 0.3,
+                  ease: "easeOut"
+                }}
                 className="flex items-start gap-1 text-xs"
               >
                 <Check className="h-3 w-3 text-green-500 mt-0.5 flex-shrink-0" />
