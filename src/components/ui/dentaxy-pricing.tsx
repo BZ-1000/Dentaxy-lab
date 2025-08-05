@@ -93,7 +93,7 @@ export function DentaxyPricing({
         </motion.p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 max-h-72 overflow-y-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 max-h-80 overflow-y-auto">
         {plans.map((plan, index) => {
           const IconComponent = plan.icon;
           const isExpanded = expandedPlan === plan.id;
@@ -117,8 +117,8 @@ export function DentaxyPricing({
                 ease: "easeOut",
               }}
               className={cn(
-                "rounded-lg border bg-background p-2 sm:p-3 text-center relative flex flex-col overflow-hidden min-h-[280px] sm:min-h-[320px]",
-                "hover:shadow-lg transition-all duration-300 cursor-pointer w-full max-w-[180px] sm:max-w-[200px] mx-auto",
+                "rounded-lg border bg-background p-4 text-center relative flex flex-col overflow-hidden",
+                "hover:shadow-lg transition-all duration-300 cursor-pointer",
                 plan.isPopular && "border-blue-500 border-2 shadow-blue-100 bg-gradient-to-br from-blue-50/50 to-blue-100/30",
                 plan.isBestValue && "border-green-500 border-2 shadow-green-100 bg-gradient-to-br from-green-50/50 to-green-100/30",
                 !plan.isAvailable && "opacity-75"
@@ -193,7 +193,7 @@ export function DentaxyPricing({
                 {/* Icon with Animation */}
                 <motion.div 
                   className={cn(
-                    "inline-flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full mb-2 mx-auto",
+                    "inline-flex items-center justify-center w-10 h-10 rounded-full mb-3 mx-auto",
                     plan.isPopular ? "bg-blue-100 text-blue-600" :
                     plan.isBestValue ? "bg-green-100 text-green-600" :
                     "bg-gray-100 text-gray-600"
@@ -201,16 +201,16 @@ export function DentaxyPricing({
                   whileHover={{ rotate: 360 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <IconComponent className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <IconComponent className="h-5 w-5" />
                 </motion.div>
 
                 {/* Plan Name */}
-                <h3 className="text-xs sm:text-sm font-semibold text-foreground mb-1 leading-tight">
+                <h3 className="text-sm font-semibold text-foreground mb-2">
                   {plan.name}
                 </h3>
 
                 {/* Price */}
-                <div className="mb-2">
+                <div className="mb-3">
                   {plan.originalPrice && (
                     <motion.div 
                       initial={{ opacity: 0 }}
@@ -221,7 +221,7 @@ export function DentaxyPricing({
                     </motion.div>
                   )}
                   <motion.div 
-                    className="text-lg sm:text-xl font-bold text-foreground"
+                    className="text-xl font-bold text-foreground"
                     whileHover={{ scale: 1.1 }}
                   >
                     {plan.price}
@@ -234,7 +234,7 @@ export function DentaxyPricing({
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ delay: 0.5, type: "spring" }}
-                      className="mt-1 inline-block bg-green-100 text-green-800 px-1 py-0.5 rounded-full text-xs font-medium"
+                      className="mt-1 inline-block bg-green-100 text-green-800 px-2 py-0.5 rounded-full text-xs font-medium"
                     >
                       {plan.savings}
                     </motion.div>
