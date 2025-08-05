@@ -3,7 +3,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { DentaxyPricing } from '@/components/ui/dentaxy-pricing';
-import { Check, Crown, Clock, Calendar, Star, GraduationCap } from 'lucide-react';
+import { PlanPeriodProvider } from '@/contexts/PlanPeriodContext';
+import { Crown, Star, Check } from 'lucide-react';
 import BottomMenu from '@/components/BottomMenu';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
@@ -179,130 +180,14 @@ const Plans = () => {
         )}
         
         {/* Modern Pricing Component */}
-        <DentaxyPricing
-          plans={[
-            {
-              id: "beta",
-              name: "Plan Beta",
-              price: "Gratis",
-              period: "Acceso completo durante beta",
-              features: [
-                "Acceso completo durante la fase beta",
-                "Soporte prioritario",
-                "Historial clínico completo",
-                "Funciones de IA básicas",
-                "Sin límites durante beta",
-                "Todas las herramientas disponibles",
-                "Actualizaciones automáticas",
-                "Comunidad exclusiva de beta testers"
-              ],
-              description: "Perfecto para probar todas las funciones sin costo",
-              buttonText: "Unirse a la Beta",
-              isPopular: false,
-              isAvailable: true,
-              icon: Star,
-              billingType: 'one-time'
-            },
-            {
-              id: "express",
-              name: "Acceso Exprés",
-              price: "$20 MXN",
-              period: "por día",
-              features: [
-                "Acceso por 24 horas",
-                "3 historias clínicas por período",
-                "15 usos de 'Generar Redacción'",
-                "Renovación automática diaria",
-                "Contadores se resetean cada día",
-                "Acceso inmediato",
-                "Soporte básico",
-                "Ideal para consultas esporádicas"
-              ],
-              description: "Ideal para uso ocasional y consultas específicas",
-              buttonText: "Seleccionar Plan",
-              isPopular: false,
-              isAvailable: true,
-              icon: Clock,
-              billingType: 'recurring'
-            },
-            {
-              id: "professional",
-              name: "Acceso Profesional",
-              price: "$59 MXN",
-              period: "por semana",
-              features: [
-                "Acceso por 7 días",
-                "Historias clínicas ilimitadas",
-                "Generación de redacciones ilimitada",
-                "Renovación automática semanal",
-                "Ideal para semanas activas",
-                "Soporte prioritario por email",
-                "Acceso a plantillas avanzadas",
-                "Exportación en múltiples formatos"
-              ],
-              description: "Para profesionales con actividad semanal intensa",
-              buttonText: "Seleccionar Plan",
-              isPopular: false,
-              isAvailable: true,
-              icon: Calendar,
-              billingType: 'recurring'
-            },
-            {
-              id: "pro_monthly",
-              name: "Plan Pro Mensual",
-              price: "$99 MXN",
-              period: "por mes",
-              features: [
-                "Acceso completo ilimitado",
-                "Historias clínicas sin límites",
-                "Generación automática de redacciones",
-                "Soporte prioritario 24/7",
-                "Actualizaciones incluidas",
-                "Acceso a todas las nuevas funciones",
-                "Backup automático en la nube",
-                "Integración con software dental",
-                "Plantillas personalizables",
-                "Estadísticas avanzadas"
-              ],
-              description: "El más completo para profesionales activos",
-              buttonText: "Seleccionar Plan",
-              isPopular: true,
-              isAvailable: true,
-              icon: Crown,
-              billingType: 'recurring'
-            },
-            {
-              id: "student_semester",
-              name: "Plan Estudiante",
-              price: "$499 MXN",
-              originalPrice: "$594 MXN",
-              period: "por semestre",
-              savings: "¡Ahorra $95!",
-              features: [
-                "Acceso completo por 6 meses",
-                "Todas las funciones del Plan Pro",
-                "Especial para estudiantes de odontología",
-                "Renovación automática cada 6 meses",
-                "El mejor valor por tu dinero",
-                "Acceso a biblioteca educativa",
-                "Casos clínicos de estudio",
-                "Webinars exclusivos para estudiantes",
-                "Soporte académico especializado",
-                "Certificado de uso profesional"
-              ],
-              description: "Diseñado especialmente para estudiantes de odontología",
-              buttonText: "Seleccionar Plan",
-              isBestValue: true,
-              isAvailable: true,
-              icon: GraduationCap,
-              billingType: 'recurring'
-            }
-          ]}
-          onSelectPlan={handleSelectPlan}
-          title="Planes de Suscripción"
-          description="Elige el plan que mejor se adapte a tus necesidades y comienza a transformar tu práctica odontológica con DENTAXY.ai"
-          className="mb-12"
-        />
+        <PlanPeriodProvider>
+          <DentaxyPricing
+            onSelectPlan={handleSelectPlan}
+            title="Planes de Suscripción"
+            description="Elige el plan que mejor se adapte a tus necesidades y comienza a transformar tu práctica odontológica con DENTAXY.ai"
+            className="mb-12"
+          />
+        </PlanPeriodProvider>
         
         {/* Enterprise Section */}
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-8 rounded-lg mb-8 max-w-4xl mx-auto">

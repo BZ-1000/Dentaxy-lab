@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, ArrowRight, Star, Clock, Calendar, GraduationCap, Sparkles, TrendingUp, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DentaxyPricing } from '@/components/ui/dentaxy-pricing';
+import { PlanPeriodProvider } from '@/contexts/PlanPeriodContext';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -750,117 +751,21 @@ const Landing = () => {
               </Button>
             </div>
             
-            <DentaxyPricing
-              plans={[
-                {
-                  id: "beta",
-                  name: "Plan Beta",
-                  price: "Gratis",
-                  period: "Acceso completo durante beta",
-                  features: [
-                    "Acceso completo durante beta",
-                    "Soporte prioritario",
-                    "Historial clínico completo",
-                    "Funciones de IA básicas",
-                    "Sin límites durante beta"
-                  ],
-                  description: "Perfecto para probar todas las funciones",
-                  buttonText: hasBetaPlan ? "Plan Actual" : "Unirse a la Beta",
-                  isPopular: false,
-                  isAvailable: true,
-                  icon: Star,
-                  billingType: 'one-time'
-                },
-                {
-                  id: "express",
-                  name: "Acceso Exprés",
-                  price: "$20 MXN",
-                  period: "por día",
-                  features: [
-                    "Acceso por 24 horas",
-                    "3 historias clínicas por día",
-                    "15 usos de 'Generar Redacción'",
-                    "Renovación automática diaria",
-                    "Contadores se resetean cada día"
-                  ],
-                  description: "Ideal para uso ocasional",
-                  buttonText: "Seleccionar Plan",
-                  isPopular: false,
-                  isAvailable: true,
-                  icon: Clock,
-                  billingType: 'recurring'
-                },
-                {
-                  id: "professional",
-                  name: "Acceso Profesional",
-                  price: "$59 MXN",
-                  period: "por semana",
-                  features: [
-                    "Acceso por 7 días",
-                    "Historias clínicas ilimitadas",
-                    "Generación de redacciones ilimitada",
-                    "Renovación automática semanal",
-                    "Ideal para semanas activas"
-                  ],
-                  description: "Para profesionales activos",
-                  buttonText: "Seleccionar Plan",
-                  isPopular: false,
-                  isAvailable: true,
-                  icon: Calendar,
-                  billingType: 'recurring'
-                },
-                {
-                  id: "pro_monthly",
-                  name: "Plan Pro Mensual",
-                  price: "$99 MXN",
-                  period: "por mes",
-                  features: [
-                    "Acceso completo ilimitado",
-                    "Historias clínicas sin límites",
-                    "Generación automática de redacciones",
-                    "Soporte prioritario",
-                    "Actualizaciones incluidas"
-                  ],
-                  description: "El más popular entre profesionales",
-                  buttonText: "Seleccionar Plan",
-                  isPopular: true,
-                  isAvailable: true,
-                  icon: Crown,
-                  billingType: 'recurring'
-                },
-                {
-                  id: "student_semester",
-                  name: "Plan Estudiante",
-                  price: "$499 MXN",
-                  originalPrice: "$594 MXN",
-                  period: "por semestre",
-                  savings: "¡Ahorra $95!",
-                  features: [
-                    "Acceso completo por 6 meses",
-                    "Todas las funciones del Plan Pro",
-                    "Especial para estudiantes de odontología",
-                    "Renovación automática cada 6 meses",
-                    "El mejor valor por tu dinero"
-                  ],
-                  description: "Perfecto para estudiantes",
-                  buttonText: "Seleccionar Plan",
-                  isBestValue: true,
-                  isAvailable: true,
-                  icon: GraduationCap,
-                  billingType: 'recurring'
-                }
-              ]}
-              onSelectPlan={(planId) => {
-                if (planId === "beta") {
-                  handleSelectBetaPlan();
-                } else {
-                  setShowPricingPopup(false);
-                  window.location.href = '/plans';
-                }
-              }}
-              title="Planes de Suscripción"
-              description="Elige el plan que mejor se adapte a tus necesidades profesionales"
-            />
+            <PlanPeriodProvider>
+              <DentaxyPricing
+                hasBetaPlan={hasBetaPlan}
+                onSelectPlan={(planId) => {
+                  if (planId === "beta") {
+                    handleSelectBetaPlan();
+                  } else {
+                    setShowPricingPopup(false);
+                    window.location.href = '/plans';
+                  }
+                }}
+                title="Planes de Suscripción"
+                description="Elige el plan que mejor se adapte a tus necesidades profesionales"
+              />
+            </PlanPeriodProvider>
             
             <div className="mt-6 text-center border-t pt-4">
               <Button 
