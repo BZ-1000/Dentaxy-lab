@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, ArrowRight, Star, Clock, Calendar, GraduationCap } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, ArrowRight, Star, Clock, Calendar, GraduationCap, Sparkles, TrendingUp, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DentaxyPricing } from '@/components/ui/dentaxy-pricing';
 import { AuthDialog } from '@/components/auth/AuthDialog';
