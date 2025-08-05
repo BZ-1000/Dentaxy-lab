@@ -15,18 +15,18 @@ export function BetaBanner({ hasBetaPlan, onSelectBeta, className }: BetaBannerP
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn(
-        "relative bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4 mb-6",
+        "relative bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-4 mb-6",
         className
       )}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="bg-amber-100 rounded-full p-2">
-            <Star className="h-4 w-4 text-amber-600 fill-current" />
+          <div className="bg-emerald-100 rounded-full p-2">
+            <Star className="h-4 w-4 text-emerald-600 fill-current" />
           </div>
           <div>
-            <h3 className="font-semibold text-amber-900 text-sm">Plan Beta</h3>
-            <p className="text-xs text-amber-700">Acceso completo gratuito durante la fase beta</p>
+            <h3 className="font-semibold text-emerald-900 text-sm">Plan Beta</h3>
+            <p className="text-xs text-emerald-700">Acceso completo gratuito durante la fase beta</p>
           </div>
         </div>
         
@@ -38,8 +38,8 @@ export function BetaBanner({ hasBetaPlan, onSelectBeta, className }: BetaBannerP
             className={cn(
               "text-xs h-8 px-4",
               hasBetaPlan 
-                ? "bg-amber-200 text-amber-800 cursor-default" 
-                : "bg-amber-500 hover:bg-amber-600 text-white"
+                ? "bg-emerald-200 text-emerald-800 cursor-default" 
+                : "bg-emerald-500 hover:bg-emerald-600 text-white"
             )}
           >
             {hasBetaPlan ? (
