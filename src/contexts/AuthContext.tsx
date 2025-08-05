@@ -50,6 +50,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       setSubscription(prev => ({ ...prev, loading: true }));
       
+      console.log('Checking subscription for user:', session.user.email);
+      
       const { data, error } = await supabase.functions.invoke('check-subscription', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -58,14 +60,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
       if (error) {
         console.error('Error checking subscription:', error);
+        console.error('Full error details:', JSON.stringify(error, null, 2));
         toast({
-          title: "Error",
-          description: "No se pudo verificar el estado de la suscripción",
+          title: "Error de configuración",
+          description: "No se pudo verificar el estado de la suscripción. Verifica la configuración de Stripe.",
           variant: "destructive",
         });
+        setSubscription(prev => ({ ...prev, loading: false }));
         return;
       }
 
+      console.log('Subscription check result:', data);
       setSubscription({
         subscribed: data.subscribed || false,
         subscription_tier: data.subscription_tier || null,
