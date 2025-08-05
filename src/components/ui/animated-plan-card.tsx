@@ -59,23 +59,18 @@ export function AnimatedPlanCard({
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 20, scale: 0.9 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ 
         opacity: 1, 
         y: 0, 
-        scale: isCenter ? 1.05 : 1,
-        rotateY: period === 'semester' && isCenter ? [0, 180, 0] : 0
+        scale: isCenter ? 1.02 : 1
       }}
       whileHover={{ 
-        scale: isCenter ? 1.08 : 1.02,
-        y: -8,
-        transition: { duration: 0.2, ease: "easeOut" }
+        scale: isCenter ? 1.05 : 1.02,
+        y: -4,
+        transition: { duration: 0.15 }
       }}
-      transition={{
-        duration: 0.4,
-        ease: "easeOut",
-        rotateY: { duration: 0.6, ease: "easeInOut" }
-      }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className={cn(
         "relative bg-background border rounded-lg p-4 text-center overflow-hidden",
         "hover:shadow-lg transition-all duration-300 cursor-pointer",
@@ -103,105 +98,65 @@ export function AnimatedPlanCard({
       {/* Enhanced Popular Badge positioned outside */}
       {isPopular && (
         <motion.div 
-          initial={{ scale: 0, rotate: -10, y: -10 }}
-          animate={{ 
-            scale: 1, 
-            rotate: 0
-          }}
-          transition={{ 
-            scale: { delay: 0.3, type: "spring", stiffness: 200 },
-            rotate: { delay: 0.3, type: "spring", stiffness: 200 }
-          }}
-          className="absolute -top-6 -right-4 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xl z-50 border-2 border-white"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 400, damping: 20 }}
+          className="absolute -top-2 -right-2 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 text-white px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg z-50 border border-white"
         >
           <motion.div
-            animate={{ 
-              rotate: [0, 360],
-              scale: [1, 1.2, 1]
-            }}
-            transition={{ 
-              rotate: { duration: 3, repeat: Infinity, ease: "linear" },
-              scale: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
-            }}
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           >
-            <Star className="h-3.5 w-3.5 fill-current drop-shadow-sm" />
+            <Star className="h-3 w-3 fill-current" />
           </motion.div>
-          <span className="drop-shadow-sm">Más Vendido</span>
+          <span>Más Vendido</span>
         </motion.div>
       )}
       
       {isBestValue && (
         <motion.div 
-          initial={{ scale: 0, rotate: 10, y: -10 }}
-          animate={{ 
-            scale: 1, 
-            rotate: 0,
-            y: [-1, -4, -1]
-          }}
-          transition={{ 
-            scale: { delay: 0.3, type: "spring", stiffness: 200 },
-            rotate: { delay: 0.3, type: "spring", stiffness: 200 },
-            y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" }
-          }}
-          className="absolute -top-3 -right-3 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xl z-40 border-2 border-white"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.2, type: "spring", stiffness: 400, damping: 20 }}
+          className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg z-40 border border-white"
         >
-          <motion.div
-            animate={{ scale: [1, 1.3, 1] }}
-            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <TrendingUp className="h-3.5 w-3.5 drop-shadow-sm" />
-          </motion.div>
-          <span className="drop-shadow-sm">Mejor Valor</span>
+          <TrendingUp className="h-3 w-3" />
+          <span>Mejor Valor</span>
         </motion.div>
       )}
 
       <div className="relative z-10 flex flex-col h-full">
-        {/* Icon with enhanced animation */}
+        {/* Icon with simplified animation */}
         <motion.div 
           className={cn(
             "inline-flex items-center justify-center w-10 h-10 rounded-full mb-3 mx-auto",
             period === 'semester' && isCenter ? "bg-green-100 text-green-600" : "bg-primary/10 text-primary"
           )}
-          animate={{ 
-            rotateY: period === 'semester' && isCenter ? [0, 360] : 0,
-            scale: isCenter ? [1, 1.1, 1] : [1, 1.05, 1]
-          }}
-          whileHover={{ 
-            rotate: 360,
-            scale: 1.2,
-            transition: { duration: 0.3, ease: "easeOut" }
-          }}
-          transition={{ 
-            rotateY: { duration: 0.6 },
-            scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
-          }}
+          whileHover={{ scale: 1.1, transition: { duration: 0.1 } }}
         >
           <IconComponent className="h-5 w-5" />
         </motion.div>
 
-        {/* Plan Name with smoother animation */}
+        {/* Plan Name simplified */}
         <motion.h3 
           key={currentName}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.15 }}
           className="text-sm font-semibold text-foreground mb-2"
         >
           {currentName}
         </motion.h3>
 
-        {/* Price with smoother transitions */}
+        {/* Price simplified */}
         <div className="mb-3">
           <motion.div 
             className="text-xl font-bold text-foreground"
             key={currentPrice}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            whileHover={{ 
-              scale: 1.05,
-              transition: { duration: 0.2 }
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
+            whileHover={{ scale: 1.02, transition: { duration: 0.1 } }}
           >
             {currentPrice}
           </motion.div>
