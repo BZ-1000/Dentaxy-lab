@@ -748,7 +748,8 @@ const Landing = () => {
                 ✕
               </Button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-96 overflow-y-auto">
+              {/* Plan Beta */}
               <div className="relative p-6 rounded-xl border border-gray-200 shadow-sm">
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-1 rounded-full text-sm">
                   Disponible
@@ -756,41 +757,174 @@ const Landing = () => {
                 <h3 className="text-xl font-bold text-black mb-4 mt-4">
                   Plan Beta
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 mb-4">
                   Acceso completo durante la fase beta
                 </p>
-                <ul className="space-y-3 mb-8">
+                <div className="text-2xl font-bold text-black mb-4">Gratis</div>
+                <ul className="space-y-2 mb-6 text-sm">
                   <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Acceso a todas
-                    las funciones
+                    <span className="mr-2 text-green-500">✓</span> Acceso completo durante beta
                   </li>
                   <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Soporte
-                    prioritario
+                    <span className="mr-2 text-green-500">✓</span> Soporte prioritario
                   </li>
                   <li className="flex items-center text-gray-700">
-                    <span className="mr-2 text-green-500">✓</span> Beneficios
-                    exclusivos
+                    <span className="mr-2 text-green-500">✓</span> Sin límites durante beta
                   </li>
                 </ul>
                 <Button onClick={handleSelectBetaPlan} className="w-full bg-blue-500 hover:bg-blue-600 text-white">
-                  {hasBetaPlan ? "Plan Actual" : "Seleccionar Plan Beta"}
+                  {hasBetaPlan ? "Plan Actual" : "Unirse a la Beta"}
                 </Button>
               </div>
 
-              <div className="p-6 rounded-xl border border-gray-200 shadow-sm opacity-50">
+              {/* Plan Express */}
+              <div className="relative p-6 rounded-xl border border-gray-200 shadow-sm">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-4 py-1 rounded-full text-sm">
+                  Disponible
+                </div>
                 <h3 className="text-xl font-bold text-black mb-4">
-                  Plan Básico
+                  Acceso Exprés
                 </h3>
-                <p className="text-gray-600 mb-6">Próximamente</p>
+                <p className="text-gray-600 mb-4">
+                  Suscripción diaria
+                </p>
+                <div className="text-2xl font-bold text-black mb-4">$20 MXN</div>
+                <ul className="space-y-2 mb-6 text-sm">
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Acceso por 24 horas
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> 3 historias clínicas por día
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> 15 generaciones IA por día
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => {
+                    setShowPricingPopup(false);
+                    window.location.href = '/plans';
+                  }}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white"
+                >
+                  Seleccionar Plan
+                </Button>
               </div>
 
-              <div className="p-6 rounded-xl border border-gray-200 shadow-sm opacity-50">
+              {/* Plan Professional */}
+              <div className="p-6 rounded-xl border border-gray-200 shadow-sm">
                 <h3 className="text-xl font-bold text-black mb-4">
-                  Plan Premium
+                  Acceso Profesional
                 </h3>
-                <p className="text-gray-600 mb-6">Próximamente</p>
+                <p className="text-gray-600 mb-4">
+                  Suscripción semanal
+                </p>
+                <div className="text-2xl font-bold text-black mb-4">$59 MXN</div>
+                <ul className="space-y-2 mb-6 text-sm">
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Acceso por 7 días
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Historias clínicas ilimitadas
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Generación ilimitada
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => {
+                    setShowPricingPopup(false);
+                    window.location.href = '/plans';
+                  }}
+                  className="w-full bg-purple-500 hover:bg-purple-600 text-white"
+                >
+                  Seleccionar Plan
+                </Button>
               </div>
+
+              {/* Plan Pro Monthly */}
+              <div className="relative p-6 rounded-xl border border-red-300 shadow-sm">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-4 py-1 rounded-full text-sm">
+                  Más Vendido
+                </div>
+                <h3 className="text-xl font-bold text-black mb-4 mt-4">
+                  Plan Pro Mensual
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Suscripción mensual
+                </p>
+                <div className="text-2xl font-bold text-black mb-4">$99 MXN</div>
+                <ul className="space-y-2 mb-6 text-sm">
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Acceso completo ilimitado
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Historias sin límites
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Soporte prioritario
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => {
+                    setShowPricingPopup(false);
+                    window.location.href = '/plans';
+                  }}
+                  className="w-full bg-red-500 hover:bg-red-600 text-white"
+                >
+                  Seleccionar Plan
+                </Button>
+              </div>
+
+              {/* Plan Student */}
+              <div className="relative p-6 rounded-xl border border-yellow-300 shadow-sm md:col-span-2 lg:col-span-1">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-yellow-500 text-white px-4 py-1 rounded-full text-sm">
+                  Mejor Valor
+                </div>
+                <h3 className="text-xl font-bold text-black mb-4 mt-4">
+                  Plan Estudiante
+                </h3>
+                <p className="text-gray-600 mb-4">
+                  Suscripción semestral
+                </p>
+                <div className="text-2xl font-bold text-black mb-4">
+                  $499 MXN
+                  <span className="text-sm text-gray-500 line-through ml-2">$594</span>
+                </div>
+                <ul className="space-y-2 mb-6 text-sm">
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Acceso por 6 meses
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> Todas las funciones Pro
+                  </li>
+                  <li className="flex items-center text-gray-700">
+                    <span className="mr-2 text-green-500">✓</span> ¡Ahorra $95!
+                  </li>
+                </ul>
+                <Button 
+                  onClick={() => {
+                    setShowPricingPopup(false);
+                    window.location.href = '/plans';
+                  }}
+                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
+                >
+                  Seleccionar Plan
+                </Button>
+              </div>
+            </div>
+            
+            <div className="mt-6 text-center">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowPricingPopup(false);
+                  window.location.href = '/plans';
+                }}
+                className="w-full"
+              >
+                Ver todos los planes con más detalles
+              </Button>
             </div>
           </div>
         </div>}
