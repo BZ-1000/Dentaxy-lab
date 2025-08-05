@@ -101,7 +101,7 @@ export function AnimatedPlanCard({
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 400, damping: 20 }}
-          className="absolute -top-3 -right-3 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 text-white px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg z-[9999] border border-white"
+          className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg z-[9999] border border-white"
           style={{ zIndex: 9999 }}
         >
           <motion.div
