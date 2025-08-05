@@ -100,23 +100,19 @@ export function AnimatedPlanCard({
         />
       )}
 
-      {/* Enhanced Popular Badge with constant animation */}
+      {/* Enhanced Popular Badge positioned outside */}
       {isPopular && (
         <motion.div 
           initial={{ scale: 0, rotate: -10, y: -10 }}
           animate={{ 
             scale: 1, 
-            rotate: 0,
-            y: [-2, -6, -2],
-            x: [0, 2, 0, -2, 0]
+            rotate: 0
           }}
           transition={{ 
             scale: { delay: 0.3, type: "spring", stiffness: 200 },
-            rotate: { delay: 0.3, type: "spring", stiffness: 200 },
-            y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
-            x: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+            rotate: { delay: 0.3, type: "spring", stiffness: 200 }
           }}
-          className="absolute -top-3 -right-3 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xl z-50 border-2 border-white"
+          className="absolute -top-6 -right-4 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xl z-50 border-2 border-white"
         >
           <motion.div
             animate={{ 
