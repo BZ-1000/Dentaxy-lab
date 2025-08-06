@@ -1,213 +1,218 @@
-import React from 'react'
-import { motion } from 'framer-motion'
-import { Users, Zap, FileText, Clock, Code, Brain, Activity, TrendingUp } from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, AreaChart, Area } from 'recharts'
+import React, { useEffect, useState, useRef } from 'react';
+import { motion, useInView, useAnimation } from 'framer-motion';
+import { Users, Zap, FileText, Clock, Brain, Activity, TrendingUp, DollarSign, Sparkles, Target } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, AreaChart, Area, Tooltip, CartesianGrid } from 'recharts';
 
+// --- DATOS DE EJEMPLO ---
 const timeData = [
-  { time: '00:00', traditional: 45, dentaxy: 8 },
-  { time: '06:00', traditional: 50, dentaxy: 9 },
-  { time: '12:00', traditional: 48, dentaxy: 7 },
-  { time: '18:00', traditional: 52, dentaxy: 10 },
-  { time: '24:00', traditional: 46, dentaxy: 8 }
-]
+  { time: 'Mañana', 'Método Tradicional': 45, Dentaxy: 8 },
+  { time: 'Mediodía', 'Método Tradicional': 50, Dentaxy: 9 },
+  { time: 'Tarde', 'Método Tradicional': 48, Dentaxy: 7 },
+  { time: 'Noche', 'Método Tradicional': 52, Dentaxy: 10 },
+];
 
 const performanceData = [
-  { month: 'Ene', accuracy: 95, speed: 88 },
-  { month: 'Feb', accuracy: 97, speed: 92 },
-  { month: 'Mar', accuracy: 98, speed: 95 },
-  { month: 'Abr', accuracy: 99, speed: 97 }
-]
+  { month: 'Ene', Precisión: 95.2, Velocidad: 88 },
+  { month: 'Feb', Precisión: 97.1, Velocidad: 92 },
+  { month: 'Mar', Precisión: 98.5, Velocidad: 95 },
+  { month: 'Abr', Precisión: 99.1, Velocidad: 97 },
+];
 
+// --- COMPONENTE AUXILIAR PARA NÚMEROS ANIMADOS ---
+const AnimatedNumber = ({ value, isInt = true }: { value: number; isInt?: boolean }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    if (isInView) {
+      let start = 0;
+      const end = value;
+      const duration = 1500;
+      const frameDuration = 1000 / 60;
+      const totalFrames = Math.round(duration / frameDuration);
+      const increment = (end - start) / totalFrames;
+
+      let currentFrame = 0;
+      const timer = setInterval(() => {
+        currentFrame++;
+        const newValue = start + increment * currentFrame;
+        if (currentFrame >= totalFrames) {
+          setDisplayValue(end);
+          clearInterval(timer);
+        } else {
+          setDisplayValue(newValue);
+        }
+      }, frameDuration);
+      return () => clearInterval(timer);
+    }
+  }, [isInView, value]);
+
+  return <>{isInt ? Math.round(displayValue).toLocaleString('es-MX') : displayValue.toFixed(1)}</>;
+};
+
+// --- TOOLTIPS PERSONALIZADOS PARA GRÁFICAS ---
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background/80 backdrop-blur-sm p-3 border border-border rounded-lg shadow-xl">
+        <p className="font-bold text-foreground mb-2">{label}</p>
+        {payload.map((pld: any) => (
+          <div key={pld.dataKey} style={{ color: pld.color }} className="flex justify-between items-center gap-4 text-sm">
+            <span>{pld.dataKey}:</span>
+            <span className="font-bold">{pld.value}{pld.unit || ''}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
+
+// --- COMPONENTE PRINCIPAL DE ESTADÍSTICAS ---
 export const StatisticsContent: React.FC = () => {
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.1,
+        duration: 0.5,
+        ease: "easeOut"
+      },
+    }),
+  };
+
   return (
-    <div className="grid grid-cols-4 gap-4 auto-rows-[120px]">
-      {/* Usuarios Activos - Small Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-4 border border-primary/20"
-      >
-        <div className="flex items-center justify-between h-full">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">Usuarios Activos</p>
-            <p className="text-2xl font-bold text-primary">2,847</p>
-            <p className="text-xs text-green-600">+12% hoy</p>
-          </div>
-          <Users className="w-8 h-8 text-primary/60" />
-        </div>
-      </motion.div>
+    <div className="p-4 sm:p-6 bg-gray-50/50">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-auto">
 
-      {/* Velocidad Promedio - Small Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200"
-      >
-        <div className="flex items-center justify-between h-full">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">Velocidad Promedio</p>
-            <p className="text-2xl font-bold text-orange-600">8.2<span className="text-sm">min</span></p>
-            <p className="text-xs text-orange-500">vs 45min tradicional</p>
+        {/* --- TARJETAS DE KPIs SUPERIORES --- */}
+        <motion.div custom={0} variants={cardVariants} initial="hidden" animate="visible" className="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-primary/10 rounded-full"><Users className="w-6 h-6 text-primary" /></div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Usuarios Activos</p>
+              <p className="text-3xl font-bold text-primary"><AnimatedNumber value={2847} /></p>
+            </div>
           </div>
-          <Zap className="w-8 h-8 text-orange-500" />
-        </div>
-      </motion.div>
+        </motion.div>
 
-      {/* Tecnologías - Large Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="col-span-2 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-4 border border-blue-200"
-      >
-        <div className="flex items-center gap-2 mb-3">
-          <Code className="w-5 h-5 text-blue-600" />
-          <h3 className="font-semibold text-blue-800">Stack Tecnológico</h3>
-        </div>
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">React</div>
-          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">TypeScript</div>
-          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">Tailwind</div>
-          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">Supabase</div>
-          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">Framer Motion</div>
-          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">Vite</div>
-        </div>
-      </motion.div>
+        <motion.div custom={1} variants={cardVariants} initial="hidden" animate="visible" className="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-emerald-500/10 rounded-full"><Zap className="w-6 h-6 text-emerald-500" /></div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Generaciones Hoy</p>
+              <p className="text-3xl font-bold text-emerald-600"><AnimatedNumber value={1247} /></p>
+            </div>
+          </div>
+        </motion.div>
 
-      {/* Gráfica de Tiempo - Large Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="col-span-2 row-span-2 bg-white rounded-xl p-4 border border-gray-200 shadow-sm"
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <Clock className="w-5 h-5 text-gray-600" />
-          <h3 className="font-semibold text-gray-800">Comparativa de Tiempo</h3>
-        </div>
-        <div className="h-32">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={timeData}>
-              <XAxis dataKey="time" fontSize={10} />
-              <YAxis fontSize={10} />
-              <Area type="monotone" dataKey="traditional" stroke="#ef4444" fill="#fecaca" strokeWidth={2} />
-              <Area type="monotone" dataKey="dentaxy" stroke="#22c55e" fill="#bbf7d0" strokeWidth={2} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="flex gap-4 mt-2 text-xs">
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-red-400 rounded"></div>
-            <span>Método Tradicional</span>
+        <motion.div custom={2} variants={cardVariants} initial="hidden" animate="visible" className="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-purple-600/10 rounded-full"><Clock className="w-6 h-6 text-purple-600" /></div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Horas Ahorradas</p>
+              <p className="text-3xl font-bold text-purple-600"><AnimatedNumber value={37} />h</p>
+            </div>
           </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-green-400 rounded"></div>
-            <span>Dentaxy</span>
-          </div>
-        </div>
-      </motion.div>
+        </motion.div>
 
-      {/* Estados IA - Small Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4 border border-green-200"
-      >
-        <div className="flex items-center justify-between h-full">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">Estado IA</p>
-            <p className="text-lg font-bold text-green-600">Activa</p>
-            <p className="text-xs text-green-500">99.8% uptime</p>
+        <motion.div custom={3} variants={cardVariants} initial="hidden" animate="visible" className="bg-white rounded-2xl p-4 border border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300">
+          <div className="flex items-center gap-4">
+            <div className="p-3 bg-orange-500/10 rounded-full"><Brain className="w-6 h-6 text-orange-500" /></div>
+            <div>
+              <p className="text-sm font-medium text-muted-foreground">Precisión IA</p>
+              <p className="text-3xl font-bold text-orange-600"><AnimatedNumber value={99.1} isInt={false} />%</p>
+            </div>
           </div>
-          <Brain className="w-8 h-8 text-green-500" />
-        </div>
-      </motion.div>
+        </motion.div>
+        
+        {/* --- GRÁFICA PRINCIPAL DE TIEMPO --- */}
+        <motion.div custom={2} variants={cardVariants} initial="hidden" animate="visible" className="sm:col-span-2 md:col-span-2 row-span-2 bg-white rounded-2xl p-4 sm:p-6 border border-gray-200/80 shadow-lg">
+          <div className="flex items-center gap-3 mb-4">
+            <Target className="w-6 h-6 text-gray-700" />
+            <div>
+              <h3 className="font-semibold text-lg text-gray-800">Comparativa de Tiempo por Historia</h3>
+              <p className="text-xs text-muted-foreground">Tiempo promedio en minutos: Dentaxy vs. Método Tradicional</p>
+            </div>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={timeData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="colorTraditional" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#ef4444" stopOpacity={0.7}/><stop offset="95%" stopColor="#ef4444" stopOpacity={0}/></linearGradient>
+                  <linearGradient id="colorDentaxy" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#22c55e" stopOpacity={0.7}/><stop offset="95%" stopColor="#22c55e" stopOpacity={0}/></linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="black" strokeOpacity={0.05} />
+                <XAxis dataKey="time" fontSize={12} tickLine={false} axisLine={false} stroke="#6b7280" />
+                <YAxis unit="m" fontSize={12} tickLine={false} axisLine={false} stroke="#6b7280" />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)'}}/>
+                <Area type="monotone" dataKey="Método Tradicional" stroke="#ef4444" fill="url(#colorTraditional)" strokeWidth={2.5} />
+                <Area type="monotone" dataKey="Dentaxy" stroke="#22c55e" fill="url(#colorDentaxy)" strokeWidth={2.5} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+        
+        {/* --- NUEVO: COMPARATIVA DE PRECIOS --- */}
+        <motion.div custom={3} variants={cardVariants} initial="hidden" animate="visible" className="sm:col-span-2 md:col-span-2 bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-2xl p-4 sm:p-6 border border-gray-700 shadow-lg">
+          <div className="flex items-center gap-3 mb-4">
+            <DollarSign className="w-6 h-6 text-primary" />
+            <div>
+              <h3 className="font-semibold text-lg text-white">Inversión Inteligente</h3>
+              <p className="text-xs text-gray-400">Tu plan especializado vs. IAs genéricas</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+             <div className="bg-primary/10 p-3 rounded-lg border-2 border-primary shadow-inner-lg">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-white">Dentaxy AI</h4>
+                            <span className="text-xs bg-primary text-primary-foreground font-semibold px-2 py-0.5 rounded-full">Tu Plan</span>
+                        </div>
+                        <p className="text-xs text-gray-300">Especializado en Odontología</p>
+                    </div>
+                    <p className="text-2xl font-bold text-primary">$99 <span className="text-sm font-medium text-gray-400">MXN/mes</span></p>
+                </div>
+            </div>
+            <div className="bg-gray-700/50 p-3 rounded-lg border border-gray-600">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h4 className="font-semibold text-gray-300">IA Genérica</h4>
+                        <p className="text-xs text-gray-400">Para uso general, sin contexto dental</p>
+                    </div>
+                    <p className="text-xl font-semibold text-gray-400">$400+ <span className="text-sm font-medium">MXN/mes</span></p>
+                </div>
+            </div>
+          </div>
+        </motion.div>
 
-      {/* Ahorro de Tiempo - Small Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-4 border border-purple-200"
-      >
-        <div className="flex items-center justify-between h-full">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">Ahorro Hoy</p>
-            <p className="text-2xl font-bold text-purple-600">37h</p>
-            <p className="text-xs text-purple-500">tiempo ahorrado</p>
+        {/* --- GRÁFICA DE RENDIMIENTO --- */}
+        <motion.div custom={4} variants={cardVariants} initial="hidden" animate="visible" className="sm:col-span-2 md:col-span-4 bg-white rounded-2xl p-4 sm:p-6 border border-gray-200/80 shadow-lg">
+          <div className="flex items-center gap-3 mb-4">
+            <TrendingUp className="w-6 h-6 text-gray-700" />
+            <div>
+              <h3 className="font-semibold text-lg text-gray-800">Evolución del Rendimiento del Modelo</h3>
+              <p className="text-xs text-muted-foreground">Mejora continua en precisión y velocidad de respuesta</p>
+            </div>
           </div>
-          <Activity className="w-8 h-8 text-purple-500" />
-        </div>
-      </motion.div>
-
-      {/* Métricas de Rendimiento - Large Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.7 }}
-        className="col-span-2 bg-gradient-to-br from-gray-50 to-slate-100 rounded-xl p-4 border border-gray-200"
-      >
-        <div className="flex items-center gap-2 mb-3">
-          <TrendingUp className="w-5 h-5 text-gray-600" />
-          <h3 className="font-semibold text-gray-800">Rendimiento Mensual</h3>
-        </div>
-        <div className="h-16">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={performanceData}>
-              <XAxis dataKey="month" fontSize={10} />
-              <Line type="monotone" dataKey="accuracy" stroke="#3b82f6" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="speed" stroke="#8b5cf6" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-        <div className="flex gap-4 mt-2 text-xs">
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-blue-500 rounded"></div>
-            <span>Precisión</span>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={performanceData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="black" strokeOpacity={0.05} />
+                <XAxis dataKey="month" fontSize={12} tickLine={false} axisLine={false} stroke="#6b7280" />
+                <YAxis unit="%" domain={[80, 100]} fontSize={12} tickLine={false} axisLine={false} stroke="#6b7280" />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.03)'}} />
+                <Line type="monotone" dataKey="Precisión" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} unit="%"/>
+                <Line type="monotone" dataKey="Velocidad" stroke="#8b5cf6" strokeWidth={2.5} dot={{ r: 4, fill: '#8b5cf6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} unit="%"/>
+              </LineChart>
+            </ResponsiveContainer>
           </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-purple-500 rounded"></div>
-            <span>Velocidad</span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Historias Completadas - Small Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-        className="bg-gradient-to-br from-amber-50 to-yellow-100 rounded-xl p-4 border border-amber-200"
-      >
-        <div className="flex items-center justify-between h-full">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">Historias Hoy</p>
-            <p className="text-2xl font-bold text-amber-600">847</p>
-            <p className="text-xs text-amber-500">completadas</p>
-          </div>
-          <FileText className="w-8 h-8 text-amber-500" />
-        </div>
-      </motion.div>
-
-      {/* Usuarios Conectados - Small Card */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.9 }}
-        className="bg-gradient-to-br from-teal-50 to-cyan-100 rounded-xl p-4 border border-teal-200"
-      >
-        <div className="flex items-center justify-between h-full">
-          <div>
-            <p className="text-xs font-medium text-muted-foreground">En Línea</p>
-            <p className="text-2xl font-bold text-teal-600">127</p>
-            <p className="text-xs text-teal-500">usuarios</p>
-          </div>
-          <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-        </div>
-      </motion.div>
+        </motion.div>
+      </div>
     </div>
   )
 }
