@@ -101,9 +101,9 @@ export function DonationBanner() {
           scale: 1.05
         }} whileTap={{
           scale: 0.95
-        }} className="border border-gray-200 shadow-lg rounded-full px-3 py-2 flex items-center gap-2 hover:shadow-xl transition-shadow bg-zinc-950 hover:bg-zinc-800">
-                <Coffee className="h-4 w-4 text-emerald-500" />
-                <span className="text-xs font-medium text-neutral-50">Donaciones</span>
+        }} className="border border-gray-200 shadow-lg px-3 py-2 flex items-center gap-2 hover:shadow-xl transition-shadow bg-black rounded-full text-orange-500 font-thin">
+                <Coffee className="h-4 w-4 text-emerald-400" />
+                <span className="text-xs font-medium text-zinc-50">Donaciones</span>
               </motion.button>
             </motion.div> : (/* Full banner state */
       <motion.div initial={{
