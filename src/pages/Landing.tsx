@@ -17,7 +17,8 @@ import { Typewriter } from "@/components/ui/typewriter-text";
 import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza } from '@/types/historiaClinica';
 import { DonationBanner } from '@/components/ui/donation-banner';
 import { InteractiveStatsMenu } from '@/components/ui/interactive-stats-menu';
-import { Dock } from '@/components/ui/dock-two';
+import { DockWithContent } from '@/components/ui/interactive-dock-content';
+import { StatsContent, CalculatorContent, DemoContent, BenefitsContent } from '@/components/ui/dock-content-sections';
 
 // Define missing types
 type InterrogatorioSistemas = Record<string, any>;
@@ -65,20 +66,6 @@ const Landing = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
 
-  // Dock actions
-  const scrollToStats = () => {
-    statsMenuRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const scrollToCalculator = () => {
-    const calculatorElement = document.querySelector('[data-calculator]');
-    calculatorElement?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const scrollToDemo = () => {
-    const demoElement = document.querySelector('[data-demo]');
-    demoElement?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   const handleBetaAccess = () => {
     if (!session) {
@@ -102,11 +89,45 @@ const Landing = () => {
   };
 
   const dockItems = [
-    { icon: BarChart3, label: "Ver Estadísticas", onClick: scrollToStats },
-    { icon: Calculator, label: "Calculadora ROI", onClick: scrollToCalculator },
-    { icon: Brain, label: "Demo de IA", onClick: scrollToDemo },
-    { icon: Zap, label: "Prueba Beta", onClick: handleBetaAccess },
-    { icon: TrendingUp, label: "Beneficios", onClick: () => window.location.href = '/benefits' }
+    { 
+      id: 'stats',
+      icon: BarChart3, 
+      label: "Ver Estadísticas", 
+      content: <StatsContent />
+    },
+    { 
+      id: 'calculator',
+      icon: Calculator, 
+      label: "Calculadora ROI", 
+      content: <CalculatorContent />
+    },
+    { 
+      id: 'demo',
+      icon: Brain, 
+      label: "Demo de IA", 
+      content: <DemoContent />
+    },
+    { 
+      id: 'beta',
+      icon: Zap, 
+      label: "Prueba Beta", 
+      content: (
+        <div className="text-center py-8">
+          <h3 className="text-2xl font-bold text-gray-900 mb-4">Acceso Beta</h3>
+          <p className="text-gray-600 mb-6">¿Listo para experimentar el futuro de la redacción clínica?</p>
+          <Button onClick={handleBetaAccess} className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-3 text-lg">
+            <Zap className="h-5 w-5 mr-2" />
+            Acceder a Beta
+          </Button>
+        </div>
+      )
+    },
+    { 
+      id: 'benefits',
+      icon: TrendingUp, 
+      label: "Beneficios", 
+      content: <BenefitsContent />
+    }
   ];
   useEffect(() => {
     // Load username from localStorage first
@@ -512,7 +533,7 @@ const Landing = () => {
           </div>
 
           {/* Interactive Dock */}
-          <Dock items={dockItems} className="mb-8" />
+          <DockWithContent items={dockItems} className="mb-12" />
 
           {/* Desktop version */}
           

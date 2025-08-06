@@ -64,7 +64,7 @@ DockIconButton.displayName = "DockIconButton"
 const Dock = React.forwardRef<HTMLDivElement, DockProps>(
   ({ items, className }, ref) => {
     return (
-      <div ref={ref} className={cn("w-full h-20 flex items-center justify-center p-2", className)}>
+      <div ref={ref} className={cn("w-full h-16 flex items-center justify-center p-2 mb-4", className)}>
         <motion.div
           initial="initial"
           animate="animate"
