@@ -1,293 +1,213 @@
-import { useState, useEffect, useRef, FC } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, LineChart, Line, Tooltip, Legend, CartesianGrid, PieChart, Pie, Cell } from 'recharts';
-import { Users, Zap, Clock, Target, CheckCircle2, XCircle, DollarSign, BrainCircuit } from 'lucide-react';
-import { cn } from "@/lib/utils";
+import React from 'react'
+import { motion } from 'framer-motion'
+import { Users, Zap, FileText, Clock, Code, Brain, Activity, TrendingUp } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, AreaChart, Area } from 'recharts'
 
-// --- MEJORA 1: Animación de número más fluida ---
-const AnimatedNumber = ({ value }: { value: number }) => {
-  const [displayValue, setDisplayValue] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
+const timeData = [
+  { time: '00:00', traditional: 45, dentaxy: 8 },
+  { time: '06:00', traditional: 50, dentaxy: 9 },
+  { time: '12:00', traditional: 48, dentaxy: 7 },
+  { time: '18:00', traditional: 52, dentaxy: 10 },
+  { time: '24:00', traditional: 46, dentaxy: 8 }
+]
 
-  useEffect(() => {
-    if (!ref.current) return;
+const performanceData = [
+  { month: 'Ene', accuracy: 95, speed: 88 },
+  { month: 'Feb', accuracy: 97, speed: 92 },
+  { month: 'Mar', accuracy: 98, speed: 95 },
+  { month: 'Abr', accuracy: 99, speed: 97 }
+]
 
-    let startTime: number;
-    let requestId: number;
-
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / 1500, 1);
-      
-      // Easing function
-      const easedProgress = 1 - Math.pow(1 - progress, 3);
-      const currentValue = Math.floor(easedProgress * value);
-      
-      setDisplayValue(currentValue);
-      
-      if (progress < 1) {
-        requestId = requestAnimationFrame(animate);
-      }
-    };
-
-    requestId = requestAnimationFrame(animate);
-
-    return () => {
-      if (requestId) {
-        cancelAnimationFrame(requestId);
-      }
-    };
-  }, [value]);
-
-  return <motion.span ref={ref}>{displayValue.toLocaleString()}</motion.span>;
-};
-
-// --- MEJORA 2: Componente reutilizable para las tarjetas de KPI ---
-interface KpiCardProps {
-  title: string;
-  value: number;
-  label: string;
-  Icon: React.ElementType;
-  unit?: string;
-}
-
-const KpiCard: FC<KpiCardProps> = ({ title, value, label, Icon, unit = '' }) => (
-  <Card>
-    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-      <CardTitle className="text-sm font-medium">{title}</CardTitle>
-      <Icon className="h-5 w-5 text-muted-foreground" />
-    </CardHeader>
-    <CardContent>
-      <div className="text-4xl font-bold">
-        <AnimatedNumber value={value} />{unit}
-      </div>
-      <p className="text-xs text-muted-foreground">{label}</p>
-    </CardContent>
-  </Card>
-);
-
-// --- MEJORA 3: Tooltip para gráficas más robusto e inteligente ---
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    // Mapeo de claves de datos a sus unidades correspondientes
-    const units: { [key: string]: string } = {
-      tradicional: ' min',
-      dentaxy: ' min',
-      precision: '%',
-      velocidad: '%'
-    };
-
-    return (
-      <div className="bg-background/80 backdrop-blur-sm border border-border rounded-lg p-3 shadow-lg">
-        <p className="text-sm font-bold text-foreground mb-2">{`Mes: ${label}`}</p>
-        {payload.map((entry: any, index: number) => (
-          <p key={index} className="text-sm flex items-center" style={{ color: entry.color }}>
-            <span className="block w-2 h-2 rounded-full mr-2" style={{ backgroundColor: entry.color }}></span>
-            {`${entry.name}: ${entry.value.toLocaleString()}${units[entry.dataKey] || ''}`}
-          </p>
-        ))}
-      </div>
-    );
-  }
-  return null;
-};
-
-// --- Componente principal de Estadísticas (Versión 2.0) ---
-export const StatisticsContent = () => {
-
-  // --- MEJORA 4: Animaciones escalonadas para una entrada más elegante ---
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  };
-
-  // --- Datos de ejemplo (podrían venir de una API) ---
-  const kpiData: KpiCardProps[] = [
-    { title: "Usuarios Activos", value: 1247, label: "Clientes utilizando la plataforma", Icon: Users },
-    { title: "Generaciones Hoy", value: 5890, label: "Historias clínicas creadas hoy", Icon: Zap },
-    { title: "Horas Ahorradas (Mes)", value: 1950, label: "Tiempo total ahorrado a profesionales", Icon: Clock },
-    { title: "Precisión Media IA", value: 97, label: "Efectividad del modelo actual", Icon: Target, unit: '%' },
-  ];
-
-  const timeComparisonData = [
-    { month: 'Ene', tradicional: 120, dentaxy: 36 },
-    { month: 'Feb', tradicional: 115, dentaxy: 34 },
-    { month: 'Mar', tradicional: 118, dentaxy: 35 },
-    { month: 'Abr', tradicional: 122, dentaxy: 37 },
-    { month: 'May', tradicional: 119, dentaxy: 36 },
-    { month: 'Jun', tradicional: 125, dentaxy: 32 },
-  ];
-
-  const performanceData = [
-    { month: 'Ene', precision: 92, velocidad: 75 },
-    { month: 'Feb', precision: 94, velocidad: 78 },
-    { month: 'Mar', precision: 95, velocidad: 82 },
-    { month: 'Abr', precision: 96, velocidad: 85 },
-    { month: 'May', precision: 97, velocidad: 88 },
-    { month: 'Jun', precision: 98, velocidad: 92 },
-  ];
-  
-  // --- MEJORA 5: Datos para la nueva gráfica de Ahorro ---
-  const costSavingsData = [
-    { name: 'Costo Manual (Estimado)', value: 15600 }, // 1950 horas * $8/hr (ejemplo)
-    { name: 'Costo Dentaxy AI', value: 99 },
-  ];
-  const COLORS = ['hsl(var(--destructive))', 'hsl(var(--chart-2))'];
-
+export const StatisticsContent: React.FC = () => {
   return (
-    <div className="p-4 md:p-8 space-y-8 bg-background text-foreground">
-      
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <h1 className="text-3xl font-bold tracking-tight">Panel de Estadísticas y Rendimiento</h1>
-        <p className="text-muted-foreground">Métricas clave sobre el impacto y uso de Dentaxy AI.</p>
-      </motion.div>
-
-      {/* --- KPI Cards con animación escalonada --- */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
+    <div className="grid grid-cols-4 gap-4 auto-rows-[120px]">
+      {/* Usuarios Activos - Small Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-gradient-to-br from-primary/5 to-primary/10 rounded-xl p-4 border border-primary/20"
       >
-        {kpiData.map((kpi, index) => (
-          <motion.div key={index} variants={itemVariants}>
-            <KpiCard {...kpi} />
-          </motion.div>
-        ))}
+        <div className="flex items-center justify-between h-full">
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">Usuarios Activos</p>
+            <p className="text-2xl font-bold text-primary">2,847</p>
+            <p className="text-xs text-green-600">+12% hoy</p>
+          </div>
+          <Users className="w-8 h-8 text-primary/60" />
+        </div>
       </motion.div>
 
-      {/* --- Gráficas con animación escalonada --- */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="grid grid-cols-1 lg:grid-cols-5 gap-6"
+      {/* Velocidad Promedio - Small Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200"
       >
-        {/* --- MEJORA 6: Gráfica de tiempo rediseñada --- */}
-        <motion.div variants={itemVariants} className="lg:col-span-3">
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Reducción de Tiempo por Historia Clínica</CardTitle>
-              <CardDescription>Comparativa del tiempo en minutos: Método Tradicional vs. Dentaxy AI.</CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px] p-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={timeComparisonData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-                  <defs>
-                    <linearGradient id="colorTradicional" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorDentaxy" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.4}/>
-                      <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend />
-                  <Area type="monotone" name="Tradicional" dataKey="tradicional" stroke="hsl(var(--destructive))" fillOpacity={1} fill="url(#colorTradicional)" />
-                  <Area type="monotone" name="Dentaxy AI" dataKey="dentaxy" stroke="hsl(var(--chart-2))" fillOpacity={1} fill="url(#colorDentaxy)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </motion.div>
-        
-        {/* --- MEJORA 7: Nueva gráfica de Ahorro de Costos --- */}
-        <motion.div variants={itemVariants} className="lg:col-span-2">
-          <Card className="h-full">
-            <CardHeader>
-              <CardTitle>Ahorro Estimado Mensual</CardTitle>
-              <CardDescription>Comparativa de costo operativo manual vs. la suscripción a Dentaxy AI.</CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px] flex items-center justify-center">
-               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={costSavingsData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                    nameKey="name"
-                    label={({ name, value }) => `$${value.toLocaleString()} MXN`}
-                  >
-                    {costSavingsData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: number) => `$${value.toLocaleString()} MXN`} />
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </motion.div>
+        <div className="flex items-center justify-between h-full">
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">Velocidad Promedio</p>
+            <p className="text-2xl font-bold text-orange-600">8.2<span className="text-sm">min</span></p>
+            <p className="text-xs text-orange-500">vs 45min tradicional</p>
+          </div>
+          <Zap className="w-8 h-8 text-orange-500" />
+        </div>
       </motion.div>
-      
-      {/* --- MEJORA 8: Comparativa de Precios rediseñada y más vendedora --- */}
-      <motion.div variants={itemVariants} initial="hidden" animate="visible">
-          <Card>
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Una Inversión Inteligente en Eficiencia</CardTitle>
-              <CardDescription>Ve por qué Dentaxy AI es la herramienta preferida por profesionales sobre IAs genéricas.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center p-6">
-                
-                {/* Columna IA Genérica 1 */}
-                <div className="border rounded-lg p-6 space-y-4 opacity-70">
-                    <h3 className="text-xl font-semibold">MediBot Genérico</h3>
-                    <p className="text-3xl font-bold">$120 <span className="text-sm font-normal text-muted-foreground">MXN/mes</span></p>
-                    <ul className="space-y-3 text-left">
-                        <li className="flex items-center"><XCircle className="h-5 w-5 text-red-500 mr-2"/>No especializada en Odontología</li>
-                        <li className="flex items-center"><XCircle className="h-5 w-5 text-red-500 mr-2"/>Resultados inconsistentes</li>
-                        <li className="flex items-center"><CheckCircle2 className="h-5 w-5 text-yellow-500 mr-2"/>Soporte por email (lento)</li>
-                    </ul>
-                </div>
 
-                {/* Columna Dentaxy AI (Destacada) */}
-                <div className="border-2 border-primary rounded-lg p-6 space-y-4 relative ring-4 ring-primary/20">
-                    <div className="absolute top-0 -translate-y-1/2 left-1/2 -translate-x-1/2">
-                        <div className="bg-primary text-primary-foreground text-xs font-bold uppercase tracking-wider rounded-full px-4 py-1">Recomendado</div>
-                    </div>
-                    <h3 className="text-xl font-semibold flex items-center justify-center gap-2">Dentaxy AI <BrainCircuit className="h-6 w-6 text-primary" /></h3>
-                    <p className="text-3xl font-bold text-primary">$99 <span className="text-sm font-normal text-muted-foreground">MXN/mes</span></p>
-                     <ul className="space-y-3 text-left">
-                        <li className="flex items-center"><CheckCircle2 className="h-5 w-5 text-green-500 mr-2"/>IA especializada en Odontología</li>
-                        <li className="flex items-center"><CheckCircle2 className="h-5 w-5 text-green-500 mr-2"/>97% de precisión garantizada</li>
-                        <li className="flex items-center"><CheckCircle2 className="h-5 w-5 text-green-500 mr-2"/>Soporte prioritario 24/7</li>
-                    </ul>
-                </div>
+      {/* Tecnologías - Large Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="col-span-2 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl p-4 border border-blue-200"
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <Code className="w-5 h-5 text-blue-600" />
+          <h3 className="font-semibold text-blue-800">Stack Tecnológico</h3>
+        </div>
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">React</div>
+          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">TypeScript</div>
+          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">Tailwind</div>
+          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">Supabase</div>
+          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">Framer Motion</div>
+          <div className="bg-white/60 rounded px-2 py-1 text-center font-medium">Vite</div>
+        </div>
+      </motion.div>
 
-                {/* Columna IA Genérica 2 */}
-                <div className="border rounded-lg p-6 space-y-4 opacity-70">
-                    <h3 className="text-xl font-semibold">HealthScribe Básico</h3>
-                    <p className="text-3xl font-bold">$150 <span className="text-sm font-normal text-muted-foreground">MXN/mes</span></p>
-                     <ul className="space-y-3 text-left">
-                        <li className="flex items-center"><XCircle className="h-5 w-5 text-red-500 mr-2"/>Terminología médica limitada</li>
-                        <li className="flex items-center"><CheckCircle2 className="h-5 w-5 text-yellow-500 mr-2"/>Precisión variable</li>
-                        <li className="flex items-center"><XCircle className="h-5 w-5 text-red-500 mr-2"/>Sin integración a sistemas</li>
-                    </ul>
-                </div>
-            </CardContent>
-          </Card>
+      {/* Gráfica de Tiempo - Large Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="col-span-2 row-span-2 bg-white rounded-xl p-4 border border-gray-200 shadow-sm"
+      >
+        <div className="flex items-center gap-2 mb-4">
+          <Clock className="w-5 h-5 text-gray-600" />
+          <h3 className="font-semibold text-gray-800">Comparativa de Tiempo</h3>
+        </div>
+        <div className="h-32">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={timeData}>
+              <XAxis dataKey="time" fontSize={10} />
+              <YAxis fontSize={10} />
+              <Area type="monotone" dataKey="traditional" stroke="#ef4444" fill="#fecaca" strokeWidth={2} />
+              <Area type="monotone" dataKey="dentaxy" stroke="#22c55e" fill="#bbf7d0" strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="flex gap-4 mt-2 text-xs">
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 bg-red-400 rounded"></div>
+            <span>Método Tradicional</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 bg-green-400 rounded"></div>
+            <span>Dentaxy</span>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Estados IA - Small Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+        className="bg-gradient-to-br from-green-50 to-emerald-100 rounded-xl p-4 border border-green-200"
+      >
+        <div className="flex items-center justify-between h-full">
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">Estado IA</p>
+            <p className="text-lg font-bold text-green-600">Activa</p>
+            <p className="text-xs text-green-500">99.8% uptime</p>
+          </div>
+          <Brain className="w-8 h-8 text-green-500" />
+        </div>
+      </motion.div>
+
+      {/* Ahorro de Tiempo - Small Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="bg-gradient-to-br from-purple-50 to-violet-100 rounded-xl p-4 border border-purple-200"
+      >
+        <div className="flex items-center justify-between h-full">
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">Ahorro Hoy</p>
+            <p className="text-2xl font-bold text-purple-600">37h</p>
+            <p className="text-xs text-purple-500">tiempo ahorrado</p>
+          </div>
+          <Activity className="w-8 h-8 text-purple-500" />
+        </div>
+      </motion.div>
+
+      {/* Métricas de Rendimiento - Large Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.7 }}
+        className="col-span-2 bg-gradient-to-br from-gray-50 to-slate-100 rounded-xl p-4 border border-gray-200"
+      >
+        <div className="flex items-center gap-2 mb-3">
+          <TrendingUp className="w-5 h-5 text-gray-600" />
+          <h3 className="font-semibold text-gray-800">Rendimiento Mensual</h3>
+        </div>
+        <div className="h-16">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={performanceData}>
+              <XAxis dataKey="month" fontSize={10} />
+              <Line type="monotone" dataKey="accuracy" stroke="#3b82f6" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="speed" stroke="#8b5cf6" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+        <div className="flex gap-4 mt-2 text-xs">
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 bg-blue-500 rounded"></div>
+            <span>Precisión</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 bg-purple-500 rounded"></div>
+            <span>Velocidad</span>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Historias Completadas - Small Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8 }}
+        className="bg-gradient-to-br from-amber-50 to-yellow-100 rounded-xl p-4 border border-amber-200"
+      >
+        <div className="flex items-center justify-between h-full">
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">Historias Hoy</p>
+            <p className="text-2xl font-bold text-amber-600">847</p>
+            <p className="text-xs text-amber-500">completadas</p>
+          </div>
+          <FileText className="w-8 h-8 text-amber-500" />
+        </div>
+      </motion.div>
+
+      {/* Usuarios Conectados - Small Card */}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.9 }}
+        className="bg-gradient-to-br from-teal-50 to-cyan-100 rounded-xl p-4 border border-teal-200"
+      >
+        <div className="flex items-center justify-between h-full">
+          <div>
+            <p className="text-xs font-medium text-muted-foreground">En Línea</p>
+            <p className="text-2xl font-bold text-teal-600">127</p>
+            <p className="text-xs text-teal-500">usuarios</p>
+          </div>
+          <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+        </div>
       </motion.div>
     </div>
-  );
-};
+  )
+}
