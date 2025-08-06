@@ -58,12 +58,12 @@ export function DonationBanner() {
         clearInterval(typeInterval);
         setIsTyping(false);
         
-        // After 4 seconds, start typing the next phrase
+        // Change phrase daily (24 hours)
         setTimeout(() => {
           setCurrentPhraseIndex((prev) => (prev + 1) % dailyPhrases.length);
           setDisplayedText("");
           setIsTyping(true);
-        }, 4000);
+        }, 24 * 60 * 60 * 1000); // 24 hours in milliseconds
       }
     }, 80);
 
@@ -107,11 +107,11 @@ export function DonationBanner() {
           animate={{ opacity: 1, x: 0, y: 0 }}
           exit={{ opacity: 0, x: 100, y: 100 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed bottom-6 right-6 z-50 max-w-xs"
+          className="fixed bottom-6 right-6 z-50 max-w-sm md:max-w-xs"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <Card className="relative overflow-hidden bg-gradient-to-br from-primary/5 to-secondary/10 border-2 border-primary/20 shadow-xl backdrop-blur-sm">
+          <Card className="relative overflow-hidden bg-white border border-gray-200 shadow-xl">
             {/* Close button */}
             <Button
               variant="ghost"
@@ -122,47 +122,35 @@ export function DonationBanner() {
               <X className="h-3 w-3" />
             </Button>
 
-            {/* Animated background elements */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/10"
-              animate={{
-                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-              }}
-              transition={{
-                duration: 8,
-                repeat: Infinity,
-                ease: "linear"
-              }}
-            />
 
             <div className="relative p-4 space-y-3">
               {/* Header with coffee icon */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <motion.div
                   animate={isHovered ? { rotate: [0, -10, 10, 0] } : {}}
                   transition={{ duration: 0.5 }}
-                  className="bg-primary/10 p-2 rounded-full"
+                  className="bg-gray-100 p-2 rounded-full"
                 >
-                  <Coffee className="h-5 w-5 text-primary" />
+                  <Coffee className="h-5 w-5 text-gray-700" />
                 </motion.div>
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground">
+                  <h3 className="text-sm font-semibold text-gray-900">
                     Dona un café
                   </h3>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-gray-600">
                     para el creador
                   </p>
                 </div>
               </div>
 
               {/* Main message */}
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <div>
-                  <p className="text-xs text-muted-foreground font-medium mb-1">
+                  <p className="text-xs text-gray-600 font-medium mb-1">
                     Frase del día
                   </p>
-                  <div className="min-h-[32px] flex items-center">
-                    <p className="text-xs text-foreground leading-relaxed font-medium">
+                  <div className="min-h-[28px] flex items-center">
+                    <p className="text-xs text-gray-800 leading-relaxed font-medium">
                       "{displayedText}"
                       {isTyping && (
                         <motion.span
@@ -176,7 +164,7 @@ export function DonationBanner() {
                     </p>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <p className="text-xs text-gray-600 flex items-center gap-1">
                   Si te ahorré tiempo en la creación de tu historia clínica, invítame un café 
                   <span className="text-pink-500">😘</span>
                 </p>
@@ -190,7 +178,7 @@ export function DonationBanner() {
                 <Button
                   onClick={handleDonate}
                   disabled={isProcessing}
-                  className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground text-sm font-medium shadow-md"
+                  className="w-full bg-black hover:bg-gray-800 text-white text-sm font-medium shadow-md border border-gray-300"
                   size="sm"
                 >
                   {isProcessing ? (
@@ -200,22 +188,35 @@ export function DonationBanner() {
                       className="w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"
                     />
                   ) : (
-                    <Heart className="h-4 w-4 mr-2" />
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.3, 1],
+                        color: ["rgb(255, 255, 255)", "rgb(239, 68, 68)", "rgb(255, 255, 255)"]
+                      }}
+                      transition={{ 
+                        duration: 2, 
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                      className="mr-2"
+                    >
+                      <Heart className="h-4 w-4" />
+                    </motion.div>
                   )}
                   {isProcessing ? "Procesando..." : "Donar $20 MXN"}
                 </Button>
               </motion.div>
 
               {/* Small decorative elements */}
-              <div className="flex justify-center">
+              <div className="flex justify-center pt-1">
                 <motion.div
                   animate={{ scale: [1, 1.1, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                   className="flex gap-1"
                 >
-                  <div className="w-1 h-1 bg-primary/60 rounded-full"></div>
-                  <div className="w-1 h-1 bg-secondary/60 rounded-full"></div>
-                  <div className="w-1 h-1 bg-primary/60 rounded-full"></div>
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                  <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
                 </motion.div>
               </div>
             </div>
