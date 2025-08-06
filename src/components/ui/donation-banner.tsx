@@ -129,7 +129,7 @@ export function DonationBanner() {
             scale: 1.1
           }} whileTap={{
             scale: 0.9
-          }} className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center group transition-colors z-50 cursor-pointer bg-red-500 hover:bg-red-400 text-neutral-50">
+          }} className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center group transition-colors z-50 cursor-pointer bg-[#ff5555] text-[#ff0000]">
                   <X className="h-3 w-3 text-red-100 group-hover:text-white transition-colors" />
                 </motion.button>
 
