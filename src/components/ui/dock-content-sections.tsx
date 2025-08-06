@@ -1,3 +1,11 @@
+// Export all dock content sections from separate files
+export { StatisticsContent } from './dock-sections/StatisticsContent';
+export { ROICalculatorContent } from './dock-sections/ROICalculatorContent';
+export { AIDemoContent } from './dock-sections/AIDemoContent';
+export { BetaTestContent } from './dock-sections/BetaTestContent';
+export { BenefitsContent } from './dock-sections/BenefitsContent';
+
+// Legacy components for backward compatibility
 import { useState, useEffect, useRef } from 'react';
 import { Clock, Users, FileText, Brain, Calculator, TrendingUp, Award, Zap, Activity, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';

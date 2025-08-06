@@ -1,184 +1,202 @@
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Calculator, DollarSign, Clock, TrendingUp, Users, Sparkles } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Slider } from '@/components/ui/slider'
+import { useState } from 'react';
+import { Calculator } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Slider } from '@/components/ui/slider';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
-export const ROICalculatorContent: React.FC = () => {
-  const [dentistas, setDentistas] = useState([5])
-  const [historiasPorDia, setHistoriasPorDia] = useState([10])
-  const [costoHora, setCostoHora] = useState(25)
-  const [diasTrabajo, setDiasTrabajo] = useState(22)
+export const ROICalculatorContent = () => {
+  const [dentistas, setDentistas] = useState(3);
+  const [historiasPerDay, setHistoriasPerDay] = useState(8);
+  const [costoHora, setCostoHora] = useState(50);
+  const [diasTrabajo, setDiasTrabajo] = useState(22);
 
-  // Cálculos
-  const tiempoTradicional = 45 // minutos
-  const tiempoDentaxy = 8 // minutos
-  const ahorroTiempo = tiempoTradicional - tiempoDentaxy // 37 minutos por historia
-  
-  const ahorroMinutosDia = dentistas[0] * historiasPorDia[0] * ahorroTiempo
-  const ahorroHorasDia = ahorroMinutosDia / 60
-  const ahorroMensual = ahorroHorasDia * diasTrabajo * costoHora
-  const ahorroAnual = ahorroMensual * 12
-
-  const costoMensualDentaxy = 29 * dentistas[0] // $29 por dentista
-  const roiMensual = ((ahorroMensual - costoMensualDentaxy) / costoMensualDentaxy) * 100
+  // Calculations
+  const tiempoAhorroPerHistoria = 84; // minutes saved per story
+  const tiempoAhorroPerDay = (historiasPerDay * tiempoAhorroPerHistoria) / 60; // hours per day
+  const ahorroMensual = tiempoAhorroPerDay * diasTrabajo * costoHora * dentistas;
+  const ahorroAnual = ahorroMensual * 12;
+  const costoDentaxy = dentistas * 29; // $29 per dentist per month
+  const roiMensual = ((ahorroMensual - costoDentaxy) / costoDentaxy) * 100;
 
   return (
-    <div className="grid grid-cols-3 gap-6">
-      {/* Panel de Configuración */}
-      <motion.div 
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="col-span-1 bg-white rounded-xl p-6 border border-gray-200 shadow-sm"
-      >
-        <div className="flex items-center gap-2 mb-6">
-          <Calculator className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-gray-800">Configuración</h3>
-        </div>
-
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Número de Dentistas</Label>
-            <Slider
-              value={dentistas}
-              onValueChange={setDentistas}
-              max={50}
-              min={1}
-              step={1}
-              className="w-full"
-            />
-            <p className="text-xs text-muted-foreground">{dentistas[0]} dentistas</p>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Historias por Día</Label>
-            <Slider
-              value={historiasPorDia}
-              onValueChange={setHistoriasPorDia}
-              max={30}
-              min={1}
-              step={1}
-              className="w-full"
-            />
-            <p className="text-xs text-muted-foreground">{historiasPorDia[0]} historias/día</p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="costo-hora" className="text-sm font-medium">Costo por Hora (USD)</Label>
-            <Input
-              id="costo-hora"
-              type="number"
-              value={costoHora}
-              onChange={(e) => setCostoHora(Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="dias-trabajo" className="text-sm font-medium">Días de Trabajo/Mes</Label>
-            <Input
-              id="dias-trabajo"
-              type="number"
-              value={diasTrabajo}
-              onChange={(e) => setDiasTrabajo(Number(e.target.value))}
-              className="w-full"
-            />
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Resultados del ROI */}
-      <motion.div 
+    <div className="p-6 space-y-8">
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="col-span-2 space-y-4"
+        transition={{ duration: 0.6 }}
+        className="text-center"
       >
-        {/* ROI Destacado */}
-        <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm">ROI Mensual</p>
-              <p className="text-4xl font-bold">{roiMensual.toFixed(0)}%</p>
-              <p className="text-green-100 text-sm">Retorno de inversión</p>
-            </div>
-            <TrendingUp className="w-12 h-12 text-green-200" />
-          </div>
-        </div>
-
-        {/* Grid de Métricas */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
-            <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-blue-600" />
-              <h4 className="font-medium text-blue-800">Ahorro de Tiempo</h4>
-            </div>
-            <p className="text-2xl font-bold text-blue-600">{ahorroHorasDia.toFixed(1)}h</p>
-            <p className="text-xs text-blue-500">por día</p>
-          </div>
-
-          <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-            <div className="flex items-center gap-2 mb-2">
-              <DollarSign className="w-4 h-4 text-green-600" />
-              <h4 className="font-medium text-green-800">Ahorro Mensual</h4>
-            </div>
-            <p className="text-2xl font-bold text-green-600">${ahorroMensual.toLocaleString()}</p>
-            <p className="text-xs text-green-500">USD</p>
-          </div>
-
-          <div className="bg-purple-50 rounded-xl p-4 border border-purple-200">
-            <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="w-4 h-4 text-purple-600" />
-              <h4 className="font-medium text-purple-800">Ahorro Anual</h4>
-            </div>
-            <p className="text-2xl font-bold text-purple-600">${ahorroAnual.toLocaleString()}</p>
-            <p className="text-xs text-purple-500">USD</p>
-          </div>
-
-          <div className="bg-orange-50 rounded-xl p-4 border border-orange-200">
-            <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-orange-600" />
-              <h4 className="font-medium text-orange-800">Costo Dentaxy</h4>
-            </div>
-            <p className="text-2xl font-bold text-orange-600">${costoMensualDentaxy}</p>
-            <p className="text-xs text-orange-500">por mes</p>
-          </div>
-        </div>
-
-        {/* Comparativa */}
-        <div className="bg-white rounded-xl p-4 border border-gray-200">
-          <h4 className="font-medium text-gray-800 mb-3">Comparativa de Tiempo por Historia</h4>
-          <div className="flex gap-4">
-            <div className="flex-1 bg-red-50 rounded-lg p-3 border border-red-200">
-              <p className="text-xs text-red-600 font-medium">Método Tradicional</p>
-              <p className="text-xl font-bold text-red-700">{tiempoTradicional} min</p>
-            </div>
-            <div className="flex-1 bg-green-50 rounded-lg p-3 border border-green-200">
-              <p className="text-xs text-green-600 font-medium">Con Dentaxy</p>
-              <p className="text-xl font-bold text-green-700">{tiempoDentaxy} min</p>
-            </div>
-            <div className="flex-1 bg-blue-50 rounded-lg p-3 border border-blue-200">
-              <p className="text-xs text-blue-600 font-medium">Ahorro</p>
-              <p className="text-xl font-bold text-blue-700">{ahorroTiempo} min</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Call to Action */}
-        <div className="bg-gradient-to-r from-primary to-primary/80 rounded-xl p-4 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">¿Listo para estos ahorros?</p>
-              <p className="text-sm text-primary-foreground/80">Comienza tu prueba gratuita hoy</p>
-            </div>
-            <Button variant="secondary" size="sm">
-              Empezar Gratis
-            </Button>
-          </div>
-        </div>
+        <Calculator className="w-12 h-12 text-primary mx-auto mb-4" />
+        <h2 className="text-2xl font-bold mb-2">Calculadora de ROI</h2>
+        <p className="text-muted-foreground">
+          Descubre cuánto puedes ahorrar con Dentaxy en tu clínica
+        </p>
       </motion.div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Configuration Panel */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <Card className="p-6">
+            <CardContent className="p-0 space-y-6">
+              <h3 className="text-lg font-semibold">Configuración de tu clínica</h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Número de dentistas: {dentistas}
+                  </label>
+                  <Slider
+                    value={[dentistas]}
+                    onValueChange={(value) => setDentistas(value[0])}
+                    max={20}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Historias por día por dentista: {historiasPerDay}
+                  </label>
+                  <Slider
+                    value={[historiasPerDay]}
+                    onValueChange={(value) => setHistoriasPerDay(value[0])}
+                    max={15}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Costo por hora (USD)
+                  </label>
+                  <Input
+                    type="number"
+                    value={costoHora}
+                    onChange={(e) => setCostoHora(Number(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Días de trabajo por mes: {diasTrabajo}
+                  </label>
+                  <Slider
+                    value={[diasTrabajo]}
+                    onValueChange={(value) => setDiasTrabajo(value[0])}
+                    max={30}
+                    min={15}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Results Panel */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="space-y-6"
+        >
+          {/* ROI Highlight */}
+          <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+            <CardContent className="p-0 text-center">
+              <div className="text-4xl font-bold text-primary mb-2">
+                {roiMensual.toFixed(0)}%
+              </div>
+              <div className="text-lg font-semibold">ROI Mensual</div>
+              <div className="text-sm text-muted-foreground mt-2">
+                Retorno de inversión mensual
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Detailed Results */}
+          <Card className="p-6">
+            <CardContent className="p-0 space-y-4">
+              <h3 className="text-lg font-semibold">Ahorros detallados</h3>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {tiempoAhorroPerDay.toFixed(1)}h
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Tiempo ahorrado por día
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    ${ahorroMensual.toFixed(0)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Ahorro mensual
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    ${ahorroAnual.toFixed(0)}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Ahorro anual
+                  </div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-primary">
+                    ${costoDentaxy}
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Costo Dentaxy/mes
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Time Comparison */}
+          <Card className="p-6">
+            <CardContent className="p-0">
+              <h3 className="text-lg font-semibold mb-4">Comparación de tiempo</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Sin Dentaxy:</span>
+                  <span className="font-semibold text-red-600">120 min/historia</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm">Con Dentaxy:</span>
+                  <span className="font-semibold text-green-600">36 min/historia</span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t">
+                  <span className="text-sm font-semibold">Ahorro:</span>
+                  <span className="font-bold text-primary">84 min (70%)</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* CTA */}
+          <Button className="w-full" size="lg">
+            Comenzar prueba gratuita
+          </Button>
+        </motion.div>
+      </div>
     </div>
-  )
-}
+  );
+};

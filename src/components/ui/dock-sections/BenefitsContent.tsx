@@ -1,255 +1,243 @@
-import React from 'react'
-import { motion } from 'framer-motion'
-import { Clock, Brain, Shield, TrendingUp, Users, Zap, Award, Globe, HeartHandshake, Lightbulb } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+import { Clock, Brain, TrendingUp, Zap, Shield, Award, Users, Lightbulb } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { motion } from 'framer-motion';
 
 const primaryBenefits = [
   {
     icon: Clock,
-    title: "Ahorro de Tiempo Masivo",
-    description: "Reduce el tiempo de documentación de 45 minutos a solo 8 minutos por historia clínica",
-    stat: "82% menos tiempo",
-    color: "blue"
+    title: 'Ahorro de Tiempo',
+    description: 'Reduce el tiempo de redacción de historias clínicas de 120 minutos a solo 36 minutos.',
+    stat: '70% menos tiempo',
+    color: 'blue'
   },
   {
     icon: Brain,
-    title: "IA Especializada en Odontología",
-    description: "Algoritmos entrenados específicamente con terminología y protocolos dentales",
-    stat: "97.8% precisión",
-    color: "purple"
-  },
-  {
-    icon: Shield,
-    title: "Cumplimiento Normativo",
-    description: "Totalmente compatible con HIPAA, GDPR y regulaciones locales de salud",
-    stat: "100% seguro",
-    color: "green"
+    title: 'IA Especializada',
+    description: 'Inteligencia artificial entrenada específicamente para terminología odontológica.',
+    stat: '97% precisión',
+    color: 'purple'
   },
   {
     icon: TrendingUp,
-    title: "ROI Comprobado",
-    description: "Retorno de inversión promedio del 340% en los primeros 6 meses",
-    stat: "340% ROI",
-    color: "orange"
+    title: 'Mayor Productividad',
+    description: 'Atiende más pacientes al día optimizando los procesos administrativos.',
+    stat: '+40% pacientes',
+    color: 'green'
   }
-]
+];
 
 const secondaryBenefits = [
-  {
-    icon: Users,
-    title: "Mejor Experiencia del Paciente",
-    description: "Más tiempo para atención directa, menos tiempo en papelleo"
-  },
-  {
-    icon: Zap,
-    title: "Implementación Instantánea",
-    description: "Sin instalaciones complejas, funciona desde el primer día"
-  },
-  {
-    icon: Award,
-    title: "Calidad Profesional",
-    description: "Historias clínicas más completas y profesionales automáticamente"
-  },
-  {
-    icon: Globe,
-    title: "Acceso desde Cualquier Lugar",
-    description: "Plataforma web accesible desde cualquier dispositivo"
-  },
-  {
-    icon: HeartHandshake,
-    title: "Soporte Especializado",
-    description: "Equipo de soporte con conocimiento médico-dental"
-  },
-  {
-    icon: Lightbulb,
-    title: "Actualizaciones Continuas",
-    description: "Mejoras constantes basadas en feedback de profesionales"
-  }
-]
+  { icon: Zap, title: 'Velocidad', description: 'Respuestas instantáneas' },
+  { icon: Shield, title: 'Seguridad', description: 'Datos protegidos y encriptados' },
+  { icon: Award, title: 'Calidad', description: 'Estándares médicos profesionales' },
+  { icon: Users, title: 'Colaboración', description: 'Trabajo en equipo optimizado' },
+  { icon: Lightbulb, title: 'Innovación', description: 'Tecnología de vanguardia' }
+];
 
 const impactMetrics = [
-  { label: "Tiempo ahorrado por consulta", value: "37 min", progress: 82 },
-  { label: "Reducción de errores", value: "94%", progress: 94 },
-  { label: "Mejora en satisfacción", value: "89%", progress: 89 },
-  { label: "Aumento en productividad", value: "156%", progress: 75 }
-]
+  { label: 'Tiempo ahorrado por historia', value: '84 min', progress: 70 },
+  { label: 'Precisión diagnóstica', value: '97%', progress: 97 },
+  { label: 'Satisfacción del paciente', value: '95%', progress: 95 },
+  { label: 'ROI mensual promedio', value: '340%', progress: 85 }
+];
 
 const getColorClasses = (color: string) => {
-  const colorMap = {
-    blue: "from-blue-50 to-blue-100 border-blue-200 text-blue-800",
-    purple: "from-purple-50 to-purple-100 border-purple-200 text-purple-800",
-    green: "from-green-50 to-green-100 border-green-200 text-green-800",
-    orange: "from-orange-50 to-orange-100 border-orange-200 text-orange-800"
-  }
-  return colorMap[color as keyof typeof colorMap] || colorMap.blue
-}
+  const colors = {
+    blue: 'from-blue-500/20 to-blue-600/20 border-blue-500/30',
+    purple: 'from-purple-500/20 to-purple-600/20 border-purple-500/30',
+    green: 'from-green-500/20 to-green-600/20 border-green-500/30'
+  };
+  return colors[color as keyof typeof colors] || colors.blue;
+};
 
 const getIconColor = (color: string) => {
-  const colorMap = {
-    blue: "text-blue-600",
-    purple: "text-purple-600", 
-    green: "text-green-600",
-    orange: "text-orange-600"
-  }
-  return colorMap[color as keyof typeof colorMap] || colorMap.blue
-}
+  const colors = {
+    blue: 'text-blue-600',
+    purple: 'text-purple-600',
+    green: 'text-green-600'
+  };
+  return colors[color as keyof typeof colors] || colors.blue;
+};
 
-export const BenefitsContent: React.FC = () => {
+export const BenefitsContent = () => {
   return (
-    <div className="space-y-8">
-      {/* Beneficios Principales */}
-      <motion.div 
+    <div className="p-6 space-y-8">
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="grid grid-cols-2 gap-6"
+        transition={{ duration: 0.6 }}
+        className="text-center"
+      >
+        <Award className="w-12 h-12 text-primary mx-auto mb-4" />
+        <h2 className="text-2xl font-bold mb-2">Beneficios de Dentaxy</h2>
+        <p className="text-muted-foreground">
+          Descubre cómo Dentaxy puede transformar tu práctica odontológica
+        </p>
+      </motion.div>
+
+      {/* Primary Benefits */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-6"
       >
         {primaryBenefits.map((benefit, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-            className={`bg-gradient-to-br ${getColorClasses(benefit.color)} rounded-xl p-6 border`}
-          >
-            <div className="flex items-start gap-4">
-              <div className="p-3 bg-white/60 rounded-lg">
-                <benefit.icon className={`w-6 h-6 ${getIconColor(benefit.color)}`} />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold mb-2">{benefit.title}</h3>
-                <p className="text-sm opacity-80 mb-3">{benefit.description}</p>
-                <Badge variant="secondary" className="bg-white/80">
-                  {benefit.stat}
-                </Badge>
-              </div>
-            </div>
-          </motion.div>
+          <Card key={index} className={`p-6 bg-gradient-to-br ${getColorClasses(benefit.color)}`}>
+            <CardContent className="p-0">
+              <benefit.icon className={`w-8 h-8 ${getIconColor(benefit.color)} mb-4`} />
+              <h3 className="text-lg font-semibold mb-2">{benefit.title}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{benefit.description}</p>
+              <div className="text-2xl font-bold text-primary">{benefit.stat}</div>
+            </CardContent>
+          </Card>
         ))}
       </motion.div>
 
-      {/* Métricas de Impacto */}
-      <motion.div 
+      {/* Impact Metrics */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm"
+        transition={{ duration: 0.6, delay: 0.4 }}
       >
-        <h3 className="font-semibold text-gray-800 mb-6">Impacto Medible en tu Práctica</h3>
-        <div className="grid grid-cols-2 gap-6">
-          {impactMetrics.map((metric, index) => (
-            <div key={index} className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-700">{metric.label}</span>
-                <span className="text-lg font-bold text-primary">{metric.value}</span>
+        <Card className="p-6">
+          <CardContent className="p-0">
+            <h3 className="text-lg font-semibold mb-6">Impacto Medible</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {impactMetrics.map((metric, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between">
+                    <span className="text-sm font-medium">{metric.label}</span>
+                    <span className="text-sm font-bold text-primary">{metric.value}</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <motion.div
+                      className="bg-primary h-2 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${metric.progress}%` }}
+                      transition={{ duration: 1, delay: index * 0.2 }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Secondary Benefits */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.6 }}
+      >
+        <Card className="p-6">
+          <CardContent className="p-0">
+            <h3 className="text-lg font-semibold mb-6">Ventajas Adicionales</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {secondaryBenefits.map((benefit, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
+                  className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                >
+                  <benefit.icon className="w-5 h-5 text-primary" />
+                  <div>
+                    <div className="font-medium text-sm">{benefit.title}</div>
+                    <div className="text-xs text-muted-foreground">{benefit.description}</div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Before vs After */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.8 }}
+      >
+        <Card className="p-6">
+          <CardContent className="p-0">
+            <h3 className="text-lg font-semibold mb-6">Antes vs. Después</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <h4 className="font-medium text-red-600">Sin Dentaxy</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-sm">120 minutos por historia clínica</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-sm">Errores de transcripción</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-sm">Menos tiempo con pacientes</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span className="text-sm">Documentación inconsistente</span>
+                  </div>
+                </div>
               </div>
-              <Progress value={metric.progress} className="h-2" />
+
+              <div className="space-y-4">
+                <h4 className="font-medium text-green-600">Con Dentaxy</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">36 minutos por historia clínica</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">Precisión del 97%</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">Más tiempo para el cuidado</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="text-sm">Documentación estandarizada</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          ))}
-        </div>
+          </CardContent>
+        </Card>
       </motion.div>
 
-      {/* Beneficios Secundarios */}
-      <motion.div 
+      {/* Call to Action */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-        className="grid grid-cols-3 gap-4"
+        transition={{ duration: 0.6, delay: 1 }}
+        className="text-center"
       >
-        {secondaryBenefits.map((benefit, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 + index * 0.05 }}
-            className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="flex items-center gap-3 mb-3">
-              <benefit.icon className="w-5 h-5 text-primary" />
-              <h4 className="font-medium text-gray-800 text-sm">{benefit.title}</h4>
+        <Card className="p-8 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+          <CardContent className="p-0">
+            <h3 className="text-xl font-bold mb-4">¿Listo para transformar tu práctica?</h3>
+            <p className="text-muted-foreground mb-6">
+              Únete a más de 1,200 odontólogos que ya están usando Dentaxy
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="px-8">
+                Comenzar prueba gratuita
+              </Button>
+              <Button size="lg" variant="outline" className="px-8">
+                Ver demo en vivo
+              </Button>
             </div>
-            <p className="text-xs text-muted-foreground">{benefit.description}</p>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Comparativa Antes vs Después */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-        className="bg-gradient-to-r from-red-50 via-yellow-50 to-green-50 rounded-xl p-6 border"
-      >
-        <h3 className="font-semibold text-gray-800 mb-6 text-center">Transformación de tu Práctica</h3>
-        
-        <div className="grid grid-cols-3 gap-6">
-          {/* Antes */}
-          <div className="text-center">
-            <div className="bg-red-100 rounded-lg p-4 mb-3">
-              <h4 className="font-medium text-red-800 mb-2">Antes de Dentaxy</h4>
-              <ul className="text-xs text-red-700 space-y-1">
-                <li>• 45 min por historia</li>
-                <li>• Documentación manual</li>
-                <li>• Errores frecuentes</li>
-                <li>• Menos tiempo con pacientes</li>
-                <li>• Estrés administrativo</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Transición */}
-          <div className="text-center">
-            <div className="bg-yellow-100 rounded-lg p-4 mb-3">
-              <h4 className="font-medium text-yellow-800 mb-2">Durante la Transición</h4>
-              <ul className="text-xs text-yellow-700 space-y-1">
-                <li>• Capacitación rápida</li>
-                <li>• Soporte dedicado</li>
-                <li>• Migración asistida</li>
-                <li>• Primeros resultados</li>
-                <li>• Adaptación gradual</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Después */}
-          <div className="text-center">
-            <div className="bg-green-100 rounded-lg p-4 mb-3">
-              <h4 className="font-medium text-green-800 mb-2">Con Dentaxy</h4>
-              <ul className="text-xs text-green-700 space-y-1">
-                <li>• 8 min por historia</li>
-                <li>• IA automatizada</li>
-                <li>• Precisión del 97.8%</li>
-                <li>• Más tiempo para pacientes</li>
-                <li>• Enfoque en tratamiento</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Call to Action Final */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1 }}
-        className="bg-gradient-to-r from-primary to-primary/80 rounded-xl p-6 text-white text-center"
-      >
-        <h3 className="text-xl font-bold mb-2">¿Listo para Transformar tu Práctica?</h3>
-        <p className="text-primary-foreground/80 mb-4">
-          Únete a más de 2,847 profesionales que ya están ahorrando tiempo y mejorando su práctica
-        </p>
-        <div className="flex justify-center gap-4">
-          <Badge variant="secondary" className="bg-white/20 text-white">
-            Sin compromiso inicial
-          </Badge>
-          <Badge variant="secondary" className="bg-white/20 text-white">
-            Configuración en 24h
-          </Badge>
-          <Badge variant="secondary" className="bg-white/20 text-white">
-            Soporte incluido
-          </Badge>
-        </div>
+          </CardContent>
+        </Card>
       </motion.div>
     </div>
-  )
-}
+  );
+};

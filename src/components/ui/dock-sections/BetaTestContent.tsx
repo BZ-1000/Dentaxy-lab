@@ -1,14 +1,11 @@
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
-import { TestTube, Users, CheckCircle, Clock, Mail, Phone, Star, ArrowRight } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
+import { useState } from 'react';
+import { TestTube, Users, Star, Send, Mail } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { motion } from 'framer-motion';
 
-export const BetaTestContent: React.FC = () => {
+export const BetaTestContent = () => {
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
@@ -16,259 +13,279 @@ export const BetaTestContent: React.FC = () => {
     clinica: '',
     experiencia: '',
     expectativas: ''
-  })
+  });
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const [isSubmitted, setIsSubmitted] = useState(false)
-
-  const betaFeatures = [
-    { name: 'IA Conversacional', status: 'available', description: 'Interacción natural con la IA' },
-    { name: 'Análisis por Voz', status: 'available', description: 'Dictado médico inteligente' },
-    { name: 'Templates Personalizados', status: 'testing', description: 'Formularios adaptables' },
-    { name: 'Integración DICOM', status: 'coming', description: 'Conexión con equipos de imagen' },
-    { name: 'API para Clinicas', status: 'coming', description: 'Integración con sistemas existentes' }
-  ]
-
-  const testimonials = [
-    {
-      name: "Dr. María González",
-      clinic: "Clínica Dental Sonrisa",
-      comment: "Redujo mis tiempos de documentación en un 70%. Increíble tecnología.",
-      rating: 5
-    },
-    {
-      name: "Dr. Carlos Mendoza",
-      clinic: "Centro Odontológico Integral",
-      comment: "La IA realmente entiende terminología dental. Muy impresionado.",
-      rating: 5
-    }
-  ]
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitted(true)
-  }
+    e.preventDefault();
+    setIsSubmitted(true);
+  };
 
   if (isSubmitted) {
     return (
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="flex items-center justify-center h-[500px]"
+        className="p-6 text-center"
       >
-        <div className="text-center bg-green-50 rounded-xl p-8 border border-green-200">
-          <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
-          <h3 className="text-2xl font-bold text-green-800 mb-2">¡Solicitud Enviada!</h3>
-          <p className="text-green-600 mb-4">Te contactaremos en las próximas 24 horas para configurar tu acceso beta.</p>
-          <Badge variant="secondary" className="bg-green-100 text-green-700">
-            Posición en lista: #47
-          </Badge>
+        <div className="max-w-md mx-auto">
+          <TestTube className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold mb-4">¡Aplicación Enviada!</h2>
+          <p className="text-muted-foreground mb-6">
+            Gracias por tu interés en el programa beta de Dentaxy. 
+            Revisaremos tu aplicación y nos pondremos en contacto contigo pronto.
+          </p>
+          <Button onClick={() => setIsSubmitted(false)} variant="outline">
+            Enviar otra aplicación
+          </Button>
         </div>
       </motion.div>
-    )
+    );
   }
 
   return (
-    <div className="grid grid-cols-3 gap-6">
-      {/* Información del Programa Beta */}
-      <motion.div 
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="col-span-1 space-y-6"
+    <div className="p-6 space-y-8">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-center"
       >
-        {/* Estado del Programa */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <TestTube className="w-5 h-5 text-primary" />
-            <h3 className="font-semibold text-gray-800">Programa Beta</h3>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-sm mb-1">
-                <span>Cupos Ocupados</span>
-                <span>78/100</span>
-              </div>
-              <Progress value={78} className="h-2" />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3 text-center">
-              <div className="bg-blue-50 rounded-lg p-3">
-                <p className="text-xl font-bold text-blue-600">78</p>
-                <p className="text-xs text-blue-500">Beta Testers</p>
-              </div>
-              <div className="bg-green-50 rounded-lg p-3">
-                <p className="text-xl font-bold text-green-600">22</p>
-                <p className="text-xs text-green-500">Cupos Libres</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <TestTube className="w-12 h-12 text-primary mx-auto mb-4" />
+        <h2 className="text-2xl font-bold mb-2">Programa Beta</h2>
+        <p className="text-muted-foreground">
+          Únete a nuestro programa beta exclusivo y prueba las últimas funciones antes que nadie
+        </p>
+      </motion.div>
 
-        {/* Características Beta */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-          <h3 className="font-semibold text-gray-800 mb-4">Funciones en Beta</h3>
-          
-          <div className="space-y-3">
-            {betaFeatures.map((feature, index) => (
-              <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-50">
-                <div className="flex-1">
-                  <p className="font-medium text-sm">{feature.name}</p>
-                  <p className="text-xs text-muted-foreground">{feature.description}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Program Info */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="space-y-6"
+        >
+          <Card className="p-6">
+            <CardContent className="p-0">
+              <h3 className="text-lg font-semibold mb-4">Detalles del Programa</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-sm">Estado:</span>
+                  <span className="text-sm font-semibold text-green-600">Abierto</span>
                 </div>
-                <Badge 
-                  variant={feature.status === 'available' ? 'default' : 
-                          feature.status === 'testing' ? 'secondary' : 'outline'}
-                  className="text-xs"
-                >
-                  {feature.status === 'available' ? 'Disponible' :
-                   feature.status === 'testing' ? 'Probando' : 'Próximamente'}
-                </Badge>
+                <div className="flex justify-between">
+                  <span className="text-sm">Cupos ocupados:</span>
+                  <span className="text-sm font-semibold">23/50</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm">Duración:</span>
+                  <span className="text-sm font-semibold">3 meses</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm">Costo:</span>
+                  <span className="text-sm font-semibold text-green-600">Gratuito</span>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
+              
+              <div className="mt-4">
+                <div className="flex justify-between text-xs mb-1">
+                  <span>Progreso</span>
+                  <span>46%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-primary h-2 rounded-full" style={{ width: '46%' }}></div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-        {/* Testimonios */}
-        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-          <h3 className="font-semibold text-gray-800 mb-4">Beta Testers</h3>
-          
-          <div className="space-y-4">
-            {testimonials.map((testimonial, index) => (
-              <div key={index} className="bg-gray-50 rounded-lg p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <div className="flex">
-                    {[...Array(testimonial.rating)].map((_, i) => (
+          {/* Beta Features */}
+          <Card className="p-6">
+            <CardContent className="p-0">
+              <h3 className="text-lg font-semibold mb-4">Funciones Beta</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-sm">IA Avanzada v2.0</span>
+                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Disponible</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  <span className="text-sm">Análisis de Imágenes</span>
+                  <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">Probando</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                  <span className="text-sm">Integración DICOM</span>
+                  <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded">Próximamente</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Testimonials */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="space-y-6"
+        >
+          <Card className="p-6">
+            <CardContent className="p-0">
+              <h3 className="text-lg font-semibold mb-4">Testimonios Beta</h3>
+              <div className="space-y-4">
+                <div className="border-l-4 border-primary pl-4">
+                  <div className="flex items-center gap-1 mb-1">
+                    {[...Array(5)].map((_, i) => (
                       <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
+                  <p className="text-sm italic">
+                    "La nueva IA es increíble. Ha mejorado mi flujo de trabajo en un 80%."
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    - Dr. María González, Beta Tester
+                  </p>
                 </div>
-                <p className="text-xs text-gray-600 mb-2">"{testimonial.comment}"</p>
-                <div>
-                  <p className="font-medium text-xs">{testimonial.name}</p>
-                  <p className="text-xs text-muted-foreground">{testimonial.clinic}</p>
+
+                <div className="border-l-4 border-primary pl-4">
+                  <div className="flex items-center gap-1 mb-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    ))}
+                  </div>
+                  <p className="text-sm italic">
+                    "Las funciones beta son exactamente lo que necesitaba en mi clínica."
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    - Dr. Carlos Ruiz, Beta Tester
+                  </p>
+                </div>
+
+                <div className="border-l-4 border-primary pl-4">
+                  <div className="flex items-center gap-1 mb-1">
+                    {[...Array(4)].map((_, i) => (
+                      <Star key={i} className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    ))}
+                    <Star className="w-3 h-3 text-gray-300" />
+                  </div>
+                  <p className="text-sm italic">
+                    "Muy prometedor, aunque aún hay detalles por pulir."
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    - Dra. Ana Martín, Beta Tester
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </motion.div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-      {/* Formulario de Solicitud */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="col-span-2 bg-white rounded-xl p-6 border border-gray-200 shadow-sm"
-      >
-        <div className="flex items-center gap-2 mb-6">
-          <Users className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-gray-800">Solicitar Acceso Beta</h3>
-        </div>
+        {/* Application Form */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.6 }}
+        >
+          <Card className="p-6">
+            <CardContent className="p-0">
+              <h3 className="text-lg font-semibold mb-4">Aplicar al Beta</h3>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium block mb-1">Nombre completo *</label>
+                  <Input
+                    value={formData.nombre}
+                    onChange={(e) => handleInputChange('nombre', e.target.value)}
+                    placeholder="Dr. Juan Pérez"
+                    required
+                  />
+                </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="nombre">Nombre Completo *</Label>
-              <Input
-                id="nombre"
-                value={formData.nombre}
-                onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                placeholder="Dr. Juan Pérez"
-                required
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="email">Email Profesional *</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                placeholder="doctor@clinica.com"
-                required
-              />
-            </div>
-          </div>
+                <div>
+                  <label className="text-sm font-medium block mb-1">Email *</label>
+                  <Input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    placeholder="juan@clinica.com"
+                    required
+                  />
+                </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="telefono">Teléfono</Label>
-              <Input
-                id="telefono"
-                value={formData.telefono}
-                onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                placeholder="+1 234 567 8900"
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="clinica">Nombre de la Clínica *</Label>
-              <Input
-                id="clinica"
-                value={formData.clinica}
-                onChange={(e) => setFormData({...formData, clinica: e.target.value})}
-                placeholder="Clínica Dental Ejemplo"
-                required
-              />
-            </div>
-          </div>
+                <div>
+                  <label className="text-sm font-medium block mb-1">Teléfono</label>
+                  <Input
+                    value={formData.telefono}
+                    onChange={(e) => handleInputChange('telefono', e.target.value)}
+                    placeholder="+34 600 000 000"
+                  />
+                </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="experiencia">Años de Experiencia *</Label>
-            <Input
-              id="experiencia"
-              value={formData.experiencia}
-              onChange={(e) => setFormData({...formData, experiencia: e.target.value})}
-              placeholder="5 años"
-              required
-            />
-          </div>
+                <div>
+                  <label className="text-sm font-medium block mb-1">Clínica</label>
+                  <Input
+                    value={formData.clinica}
+                    onChange={(e) => handleInputChange('clinica', e.target.value)}
+                    placeholder="Clínica Dental ABC"
+                  />
+                </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="expectativas">¿Qué esperas del programa beta?</Label>
-            <Textarea
-              id="expectativas"
-              value={formData.expectativas}
-              onChange={(e) => setFormData({...formData, expectativas: e.target.value})}
-              placeholder="Describenos qué te interesa probar y cómo planeas usar Dentaxy..."
-              className="min-h-[80px]"
-            />
-          </div>
+                <div>
+                  <label className="text-sm font-medium block mb-1">Años de experiencia</label>
+                  <Input
+                    value={formData.experiencia}
+                    onChange={(e) => handleInputChange('experiencia', e.target.value)}
+                    placeholder="10 años"
+                  />
+                </div>
 
-          {/* Beneficios del Beta */}
-          <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
-            <h4 className="font-medium text-primary mb-2">Beneficios del Programa Beta:</h4>
-            <ul className="text-sm text-primary/80 space-y-1">
-              <li>✓ Acceso gratuito por 3 meses</li>
-              <li>✓ Soporte prioritario 24/7</li>
-              <li>✓ Influencia directa en el desarrollo</li>
-              <li>✓ Descuento del 50% al lanzamiento oficial</li>
-              <li>✓ Capacitación personalizada</li>
-            </ul>
-          </div>
+                <div>
+                  <label className="text-sm font-medium block mb-1">¿Qué esperas del beta?</label>
+                  <textarea
+                    value={formData.expectativas}
+                    onChange={(e) => handleInputChange('expectativas', e.target.value)}
+                    placeholder="Describe qué funciones te interesan más..."
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+                    rows={3}
+                  />
+                </div>
 
-          <div className="flex gap-3">
-            <Button type="submit" className="flex-1">
-              <ArrowRight className="w-4 h-4 mr-2" />
-              Solicitar Acceso Beta
-            </Button>
-            <Button variant="outline" type="button">
-              <Mail className="w-4 h-4 mr-2" />
-              Contactar
-            </Button>
-          </div>
-        </form>
+                <div className="space-y-3">
+                  <Button type="submit" className="w-full">
+                    <Send className="w-4 h-4 mr-2" />
+                    Enviar Aplicación
+                  </Button>
 
-        <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-          <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-yellow-600" />
-            <p className="text-sm text-yellow-800">
-              <strong>Tiempo de respuesta:</strong> Te contactaremos en 24-48 horas para confirmar tu acceso.
-            </p>
-          </div>
-        </div>
-      </motion.div>
+                  <Button type="button" variant="outline" className="w-full">
+                    <Mail className="w-4 h-4 mr-2" />
+                    Contactar Equipo
+                  </Button>
+                </div>
+              </form>
+
+              <div className="mt-4 p-3 bg-muted rounded-lg">
+                <h4 className="font-semibold text-sm mb-2">Beneficios del Beta:</h4>
+                <ul className="text-xs space-y-1">
+                  <li>• Acceso gratuito por 3 meses</li>
+                  <li>• Funciones exclusivas antes del lanzamiento</li>
+                  <li>• Soporte directo del equipo de desarrollo</li>
+                  <li>• Descuento especial en la versión final</li>
+                </ul>
+              </div>
+
+              <p className="text-xs text-muted-foreground mt-4 text-center">
+                Te responderemos en un plazo de 24-48 horas
+              </p>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
     </div>
-  )
-}
+  );
+};
