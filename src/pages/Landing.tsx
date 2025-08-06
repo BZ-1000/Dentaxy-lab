@@ -7,6 +7,7 @@ import { PlanPeriodProvider } from '@/contexts/PlanPeriodContext';
 import { AuthDialog } from '@/components/auth/AuthDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useSubscription } from '@/hooks/useSubscription';
 import { Input } from '@/components/ui/input';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { Database } from '@/types/supabase';
@@ -38,6 +39,7 @@ const menuItems = [{
 
 const Landing = () => {
   const navigate = useNavigate();
+  const { createCheckoutSession, loading } = useSubscription();
   const [activeItem, setActiveItem] = useState<string>("");
   const [authDialog, setAuthDialog] = useState<{
     isOpen: boolean;
@@ -754,12 +756,21 @@ const Landing = () => {
             <PlanPeriodProvider>
               <DentaxyPricing
                 hasBetaPlan={hasBetaPlan}
-                onSelectPlan={(planId) => {
+                onSelectPlan={async (planId) => {
                   if (planId === "beta") {
                     handleSelectBetaPlan();
                   } else {
-                    setShowPricingPopup(false);
-                    window.location.href = '/plans';
+                    if (!session) {
+                      toast.error("Debes iniciar sesión para suscribirte");
+                      setAuthDialog({ isOpen: true, mode: "login" });
+                      return;
+                    }
+                    
+                    const url = await createCheckoutSession(planId);
+                    if (url) {
+                      setShowPricingPopup(false);
+                      window.open(url, '_blank');
+                    }
                   }
                 }}
                 title="Planes de Suscripción"
