@@ -25,6 +25,9 @@ import Contact from './pages/contact/Contact';
 import TermsAndConditions from './pages/policies/TermsAndConditions';
 import PrivacyPolicy from './pages/policies/PrivacyPolicy';
 
+// Página de éxito de donación
+import DonationSuccess from './pages/DonationSuccess';
+
 // Componente protegido que verifica si el usuario está autenticado
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -65,6 +68,9 @@ function App() {
               {/* Páginas de políticas */}
               <Route path="/terms" element={<TermsAndConditions />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
+              
+              {/* Donación */}
+              <Route path="/donation-success" element={<DonationSuccess />} />
               
               {/* Autenticación */}
               <Route path="/auth/login" element={<Login />} />

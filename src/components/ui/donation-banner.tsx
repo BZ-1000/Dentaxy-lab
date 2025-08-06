@@ -3,23 +3,96 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Coffee, X, Heart } from "lucide-react";
 import { Button } from "./button";
 import { Card } from "./card";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+const dailyPhrases = [
+  "Menos papeles, más sonrisas.",
+  "Tu tiempo vale más que el papeleo.",
+  "Recupera el 70% de tu día.",
+  "Más pacientes. Menos administración.",
+  "Tu día, con más horas. Úsalas.",
+  "Manos a la obra, no al papeleo.",
+  "Dedícate a crear, no a documentar.",
+  "Menos rutina, más vocación.",
+  "Tu talento no está en teclear.",
+  "Reenamórate de la odontología.",
+  "Optimiza tu tiempo, maximiza tu éxito.",
+  "La clínica del futuro es eficiente.",
+  "Menos clics, más ganancias.",
+  "El éxito es trabajar inteligente.",
+  "Automatiza lo repetitivo. Domina lo excepcional."
+];
 
 export function DonationBanner() {
   const [isVisible, setIsVisible] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { session } = useAuth();
 
   useEffect(() => {
     // Show banner after 3 seconds
     const timer = setTimeout(() => {
       setIsVisible(true);
+      setIsTyping(true);
     }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
 
-  const handleDonate = () => {
-    // Open donation link - you can replace this with your actual donation URL
-    window.open('https://paypal.me/yourhandle/20', '_blank');
+  useEffect(() => {
+    if (!isTyping) return;
+
+    const currentPhrase = dailyPhrases[currentPhraseIndex];
+    let charIndex = 0;
+
+    const typeInterval = setInterval(() => {
+      if (charIndex <= currentPhrase.length) {
+        setDisplayedText(currentPhrase.slice(0, charIndex));
+        charIndex++;
+      } else {
+        clearInterval(typeInterval);
+        setIsTyping(false);
+        
+        // After 4 seconds, start typing the next phrase
+        setTimeout(() => {
+          setCurrentPhraseIndex((prev) => (prev + 1) % dailyPhrases.length);
+          setDisplayedText("");
+          setIsTyping(true);
+        }, 4000);
+      }
+    }, 80);
+
+    return () => clearInterval(typeInterval);
+  }, [isTyping, currentPhraseIndex]);
+
+  const handleDonate = async () => {
+    if (!session) {
+      toast.error("Debes iniciar sesión para donar");
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-donation', {
+        body: { amount: 2000 } // $20 MXN in cents
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error processing donation:', error);
+      toast.error("Error al procesar la donación. Intenta de nuevo.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleClose = () => {
@@ -34,24 +107,24 @@ export function DonationBanner() {
           animate={{ opacity: 1, x: 0, y: 0 }}
           exit={{ opacity: 0, x: 100, y: 100 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed bottom-6 right-6 z-50"
+          className="fixed bottom-6 right-6 z-50 max-w-xs"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
-          <Card className="relative overflow-hidden bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200/50 shadow-lg max-w-sm">
+          <Card className="relative overflow-hidden bg-gradient-to-br from-primary/5 to-secondary/10 border-2 border-primary/20 shadow-xl backdrop-blur-sm">
             {/* Close button */}
             <Button
               variant="ghost"
               size="sm"
               onClick={handleClose}
-              className="absolute top-2 right-2 h-6 w-6 p-0 text-amber-600 hover:text-amber-800 hover:bg-amber-100"
+              className="absolute top-2 right-2 h-6 w-6 p-0 text-muted-foreground hover:text-foreground hover:bg-secondary/50"
             >
               <X className="h-3 w-3" />
             </Button>
 
             {/* Animated background elements */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-amber-100/20 to-orange-100/20"
+              className="absolute inset-0 bg-gradient-to-r from-primary/5 to-secondary/10"
               animate={{
                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
               }}
@@ -68,26 +141,42 @@ export function DonationBanner() {
                 <motion.div
                   animate={isHovered ? { rotate: [0, -10, 10, 0] } : {}}
                   transition={{ duration: 0.5 }}
-                  className="bg-amber-100 p-2 rounded-full"
+                  className="bg-primary/10 p-2 rounded-full"
                 >
-                  <Coffee className="h-5 w-5 text-amber-600" />
+                  <Coffee className="h-5 w-5 text-primary" />
                 </motion.div>
                 <div>
-                  <h3 className="text-sm font-semibold text-amber-900">
+                  <h3 className="text-sm font-semibold text-foreground">
                     Dona un café
                   </h3>
-                  <p className="text-xs text-amber-700">
+                  <p className="text-xs text-muted-foreground">
                     para el creador
                   </p>
                 </div>
               </div>
 
               {/* Main message */}
-              <div className="space-y-2">
-                <p className="text-xs text-amber-800 leading-relaxed">
-                  <span className="font-medium">"Tu café de hoy es la nueva función de mañana."</span>
-                </p>
-                <p className="text-xs text-amber-700 flex items-center gap-1">
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs text-muted-foreground font-medium mb-1">
+                    Frase del día
+                  </p>
+                  <div className="min-h-[32px] flex items-center">
+                    <p className="text-xs text-foreground leading-relaxed font-medium">
+                      "{displayedText}"
+                      {isTyping && (
+                        <motion.span
+                          animate={{ opacity: [1, 0] }}
+                          transition={{ duration: 0.8, repeat: Infinity }}
+                          className="ml-1"
+                        >
+                          |
+                        </motion.span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
                   Si te ahorré tiempo en la creación de tu historia clínica, invítame un café 
                   <span className="text-pink-500">😘</span>
                 </p>
@@ -100,11 +189,20 @@ export function DonationBanner() {
               >
                 <Button
                   onClick={handleDonate}
-                  className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-sm font-medium shadow-md"
+                  disabled={isProcessing}
+                  className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-primary-foreground text-sm font-medium shadow-md"
                   size="sm"
                 >
-                  <Heart className="h-4 w-4 mr-2" />
-                  Donar $20 MXN
+                  {isProcessing ? (
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      className="w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"
+                    />
+                  ) : (
+                    <Heart className="h-4 w-4 mr-2" />
+                  )}
+                  {isProcessing ? "Procesando..." : "Donar $20 MXN"}
                 </Button>
               </motion.div>
 
@@ -115,9 +213,9 @@ export function DonationBanner() {
                   transition={{ duration: 2, repeat: Infinity }}
                   className="flex gap-1"
                 >
-                  <div className="w-1 h-1 bg-amber-400 rounded-full"></div>
-                  <div className="w-1 h-1 bg-orange-400 rounded-full"></div>
-                  <div className="w-1 h-1 bg-amber-400 rounded-full"></div>
+                  <div className="w-1 h-1 bg-primary/60 rounded-full"></div>
+                  <div className="w-1 h-1 bg-secondary/60 rounded-full"></div>
+                  <div className="w-1 h-1 bg-primary/60 rounded-full"></div>
                 </motion.div>
               </div>
             </div>
