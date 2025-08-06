@@ -62,15 +62,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export const StatisticsContent = () => {
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
-        delay: 0.2, 
-        duration: 0.6, 
-        ease: "easeOut"
-      }
-    }
+    visible: { opacity: 1, y: 0 }
   };
 
   // Sample data for area chart
@@ -100,6 +92,7 @@ export const StatisticsContent = () => {
         variants={cardVariants}
         initial="hidden"
         animate="visible"
+        transition={{ duration: 0.6, delay: 0.2 }}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
       >
         <Card className="p-6">
@@ -134,7 +127,7 @@ export const StatisticsContent = () => {
           variants={cardVariants}
           initial="hidden"
           animate="visible"
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
         >
           <Card className="p-6">
             <CardContent className="p-0">
@@ -183,7 +176,7 @@ export const StatisticsContent = () => {
           variants={cardVariants}
           initial="hidden"
           animate="visible"
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.6, duration: 0.6 }}
         >
           <Card className="p-6">
             <CardContent className="p-0">
@@ -221,7 +214,7 @@ export const StatisticsContent = () => {
         variants={cardVariants}
         initial="hidden"
         animate="visible"
-        transition={{ delay: 0.8 }}
+        transition={{ delay: 0.8, duration: 0.6 }}
       >
         <Card className="p-6">
           <CardContent className="p-0">

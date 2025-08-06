@@ -741,39 +741,4 @@ export const DemoContent = () => {
   );
 };
 
-// Benefits Content Component
-export const BenefitsContent = () => {
-  return (
-    <div>
-      <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-        Beneficios de Dentaxy
-      </h3>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="text-center p-4">
-          <Clock className="h-12 w-12 text-blue-600 mx-auto mb-3" />
-          <h4 className="font-semibold text-gray-900 mb-2">Ahorro de Tiempo</h4>
-          <p className="text-sm text-gray-600">
-            Reduce hasta 70% el tiempo de redacción de historias clínicas
-          </p>
-        </div>
-        
-        <div className="text-center p-4">
-          <Brain className="h-12 w-12 text-purple-600 mx-auto mb-3" />
-          <h4 className="font-semibold text-gray-900 mb-2">IA Avanzada</h4>
-          <p className="text-sm text-gray-600">
-            Tecnología de inteligencia artificial especializada en odontología
-          </p>
-        </div>
-        
-        <div className="text-center p-4">
-          <TrendingUp className="h-12 w-12 text-green-600 mx-auto mb-3" />
-          <h4 className="font-semibold text-gray-900 mb-2">Mayor Productividad</h4>
-          <p className="text-sm text-gray-600">
-            Atiende más pacientes o dedica más tiempo a la atención clínica
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
+// Legacy BenefitsContent component removed - now exported from separate file
