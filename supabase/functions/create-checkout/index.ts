@@ -60,9 +60,14 @@ serve(async (req) => {
       logStep("Found existing customer", { customerId });
     }
 
-    // Define plan configurations
+    // Define plan configurations - Updated with correct mappings
     const planConfigs = {
       express: {
+        amount: 2000, // $20 MXN in centavos
+        interval: "day" as const,
+        name: "Plan Exprés 24 Horas"
+      },
+      express_semester: {
         amount: 2000, // $20 MXN in centavos
         interval: "day" as const,
         name: "Plan Exprés 24 Horas"
@@ -72,16 +77,21 @@ serve(async (req) => {
         interval: "week" as const,
         name: "Plan Profesional 7 Días"
       },
-      pro_monthly: {
+      professional_semester: {
+        amount: 5900, // $59 MXN in centavos
+        interval: "week" as const,
+        name: "Plan Profesional 7 Días"
+      },
+      monthly_center: {
         amount: 9900, // $99 MXN in centavos
         interval: "month" as const,
         name: "Plan Pro Mensual"
       },
-      student_semester: {
+      monthly_center_semester: {
         amount: 49900, // $499 MXN in centavos
         interval: "month" as const,
         interval_count: 6,
-        name: "Plan Estudiante Semestral"
+        name: "Plan Pro Semestral"
       }
     };
 
@@ -109,11 +119,12 @@ serve(async (req) => {
         },
       ],
       mode: "subscription",
-      success_url: `${req.headers.get("origin")}/planes?success=true&plan=${plan_type}`,
-      cancel_url: `${req.headers.get("origin")}/planes?canceled=true`,
+      success_url: `${req.headers.get("origin")}/?success=true&plan=${plan_type}`,
+      cancel_url: `${req.headers.get("origin")}/?canceled=true`,
       metadata: {
         user_id: user.id,
-        plan_type: plan_type
+        plan_type: plan_type,
+        user_email: user.email
       }
     };
 
