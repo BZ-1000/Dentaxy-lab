@@ -64,51 +64,104 @@ const AnimatedCounter = ({ target, label, prefix = "", onReload }: {
   );
 };
 
-// Minimalist AI Activity Feed
+// Compact Dentaxy Activity Feed
 const AIActivityFeed = () => {
   const [currentActivity, setCurrentActivity] = useState(0);
+  const [dailyCount, setDailyCount] = useState(247);
+  const [avgSpeed, setAvgSpeed] = useState(2.1);
   
   const activities = [
-    "Redacción IA generada: 'Padecimiento Actual'",
-    "Completado automáticamente: 'Antecedentes Patológicos'",
-    "Nueva redacción: 'Examen Físico Intrabucal'",
-    "IA redactó: 'Antecedentes Heredofamiliares' en 2.1s",
-    "Generación automática: 'Interrogatorio por Sistemas'",
-    "Finalizada redacción: 'Exploración Física'",
-    "Historia clínica optimizada: 'Diagnóstico y Pronóstico'",
-    "IA completó: 'Antecedentes Quirúrgicos'"
+    "✨ Completado: Antecedentes • Padecimiento • Examen (2.1s)",
+    "🔍 Generando: Diagnóstico • Plan de tratamiento (1.8s)", 
+    "📝 Optimizado: Historia clínica • Resumen médico (2.3s)",
+    "⚡ Procesado: Examen físico • Antecedentes quirúrgicos (1.5s)",
+    "🎯 Finalizado: Padecimiento actual • Pronóstico (2.0s)",
+    "💡 Creado: Diagnóstico diferencial • Recomendaciones (1.9s)"
   ];
 
+  const techBadges = ["GPT-4", "ML Médico", "OCR Dental", "IA Contextual"];
+  const [currentBadge, setCurrentBadge] = useState(0);
+
   useEffect(() => {
-    const interval = setInterval(() => {
+    const activityInterval = setInterval(() => {
       setCurrentActivity((prev) => (prev + 1) % activities.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
+      // Simulate changing stats
+      setDailyCount(prev => prev + Math.floor(Math.random() * 3));
+      setAvgSpeed(prev => Number((1.5 + Math.random() * 1.5).toFixed(1)));
+    }, 2500);
+
+    const badgeInterval = setInterval(() => {
+      setCurrentBadge((prev) => (prev + 1) % techBadges.length);
+    }, 1500);
+
+    return () => {
+      clearInterval(activityInterval);
+      clearInterval(badgeInterval);
+    };
+  }, [activities.length, techBadges.length]);
 
   return (
     <div className="py-6">
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-6">
         <motion.div 
           className="w-2 h-2 bg-emerald-500 rounded-full"
           animate={{ opacity: [1, 0.3, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         />
-        <span className="text-sm font-medium text-emerald-600">IA en Acción</span>
+        <span className="text-sm font-medium text-emerald-600">Dentaxy en Acción</span>
       </div>
       
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentActivity}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -20 }}
-          transition={{ duration: 0.3 }}
-          className="text-sm text-muted-foreground"
-        >
-          {activities[currentActivity]}
-        </motion.div>
-      </AnimatePresence>
+      <div className="flex items-start gap-8">
+        {/* Left side - Compact stats and badges */}
+        <div className="flex flex-col gap-4 min-w-0 flex-1">
+          <div className="flex items-center gap-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">{dailyCount}</div>
+              <div className="text-xs text-muted-foreground">redacciones hoy</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-lg font-semibold text-foreground">{avgSpeed}s</div>
+              <div className="text-xs text-muted-foreground">promedio</div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">Powered by:</span>
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={currentBadge}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.2 }}
+                className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-primary/10 text-primary"
+              >
+                {techBadges[currentBadge]}
+              </motion.span>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Right side - Activity feed */}
+        <div className="min-w-0 flex-1">
+          <div className="text-xs font-medium text-muted-foreground mb-2">Estado actual:</div>
+          <div className="min-h-[2.5rem]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentActivity}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="text-sm text-foreground leading-relaxed"
+              >
+                {activities[currentActivity]}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
