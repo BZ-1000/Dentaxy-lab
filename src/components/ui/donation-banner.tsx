@@ -8,8 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 const dailyPhrases = ["Menos papeles, más sonrisas.", "Tu tiempo vale más que el papeleo.", "Recupera el 70% de tu día.", "Más pacientes. Menos administración.", "Tu día, con más horas. Úsalas.", "Manos a la obra, no al papeleo.", "Dedícate a crear, no a documentar.", "Menos rutina, más vocación.", "Tu talento no está en teclear.", "Reenamórate de la odontología.", "Optimiza tu tiempo, maximiza tu éxito.", "La clínica del futuro es eficiente.", "Menos clics, más ganancias.", "El éxito es trabajar inteligente.", "Automatiza lo repetitivo. Domina lo excepcional."];
 export function DonationBanner() {
-  const [isVisible, setIsVisible] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [isMinimized, setIsMinimized] = useState(true);
+  const [showFullOnLoad, setShowFullOnLoad] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
@@ -19,12 +20,22 @@ export function DonationBanner() {
     session
   } = useAuth();
   useEffect(() => {
-    // Show banner after 3 seconds
+    // Show full banner on page load after 3 seconds
     const timer = setTimeout(() => {
-      setIsVisible(true);
+      setShowFullOnLoad(true);
+      setIsMinimized(false);
       setIsTyping(true);
     }, 3000);
-    return () => clearTimeout(timer);
+
+    // Auto-minimize after 10 seconds
+    const autoMinimizeTimer = setTimeout(() => {
+      setIsMinimized(true);
+    }, 13000);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(autoMinimizeTimer);
+    };
   }, []);
   useEffect(() => {
     if (!isTyping) return;
