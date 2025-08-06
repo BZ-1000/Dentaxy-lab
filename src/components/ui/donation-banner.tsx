@@ -27,6 +27,7 @@ const dailyPhrases = [
 
 export function DonationBanner() {
   const [isVisible, setIsVisible] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
@@ -96,132 +97,159 @@ export function DonationBanner() {
   };
 
   const handleClose = () => {
-    setIsVisible(false);
+    setIsMinimized(true);
+  };
+
+  const handleExpand = () => {
+    setIsMinimized(false);
   };
 
   return (
     <AnimatePresence>
       {isVisible && (
-        <motion.div
-          initial={{ opacity: 0, x: 100, y: 100 }}
-          animate={{ opacity: 1, x: 0, y: 0 }}
-          exit={{ opacity: 0, x: 100, y: 100 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className="fixed bottom-6 right-6 z-50 max-w-sm md:max-w-xs"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <Card className="relative overflow-hidden bg-white border border-gray-200 shadow-xl">
-            {/* Close button */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClose}
-              className="absolute top-2 right-2 h-6 w-6 p-0 text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+        <>
+          {/* Minimized state */}
+          {isMinimized ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className="fixed bottom-6 right-6 z-50"
             >
-              <X className="h-3 w-3" />
-            </Button>
-
-
-            <div className="relative p-4 space-y-3">
-              {/* Header with coffee icon */}
-              <div className="flex items-center gap-3">
-                <motion.div
-                  animate={isHovered ? { rotate: [0, -10, 10, 0] } : {}}
-                  transition={{ duration: 0.5 }}
-                  className="bg-gray-100 p-2 rounded-full"
+              <motion.button
+                onClick={handleExpand}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-white border border-gray-200 shadow-lg rounded-full px-3 py-2 flex items-center gap-2 hover:shadow-xl transition-shadow"
+              >
+                <Coffee className="h-4 w-4 text-gray-700" />
+                <span className="text-xs text-gray-600 font-medium">donaciones</span>
+              </motion.button>
+            </motion.div>
+          ) : (
+            /* Full banner state */
+            <motion.div
+              initial={{ opacity: 0, x: 100, y: 100 }}
+              animate={{ opacity: 1, x: 0, y: 0 }}
+              exit={{ opacity: 0, x: 100, y: 100 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              className="fixed bottom-6 right-6 z-50 max-w-sm md:max-w-xs"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              <Card className="relative overflow-hidden bg-white border border-gray-200 shadow-xl">
+                {/* Apple-style close button */}
+                <motion.button
+                  onClick={handleClose}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="absolute top-3 right-3 w-5 h-5 bg-gray-100 hover:bg-red-100 rounded-full flex items-center justify-center group transition-colors"
                 >
-                  <Coffee className="h-5 w-5 text-gray-700" />
-                </motion.div>
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-900">
-                    Dona un café
-                  </h3>
-                  <p className="text-xs text-gray-600">
-                    para el creador
-                  </p>
-                </div>
-              </div>
+                  <X className="h-3 w-3 text-gray-500 group-hover:text-red-500 transition-colors" />
+                </motion.button>
 
-              {/* Main message */}
-              <div className="space-y-2">
-                <div>
-                  <p className="text-xs text-gray-600 font-medium mb-1">
-                    Frase del día
-                  </p>
-                  <div className="min-h-[28px] flex items-center">
-                    <p className="text-xs text-gray-800 leading-relaxed font-medium">
-                      "{displayedText}"
-                      {isTyping && (
-                        <motion.span
-                          animate={{ opacity: [1, 0] }}
-                          transition={{ duration: 0.8, repeat: Infinity }}
-                          className="ml-1"
-                        >
-                          |
-                        </motion.span>
-                      )}
+                <div className="relative p-4 space-y-3 pr-8">
+                  {/* Header with coffee icon */}
+                  <div className="flex items-center gap-3">
+                    <motion.div
+                      animate={isHovered ? { rotate: [0, -10, 10, 0] } : {}}
+                      transition={{ duration: 0.5 }}
+                      className="bg-gray-100 p-2 rounded-full"
+                    >
+                      <Coffee className="h-5 w-5 text-gray-700" />
+                    </motion.div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-900">
+                        Dona un café
+                      </h3>
+                      <p className="text-xs text-gray-600">
+                        para el creador
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Main message */}
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-xs text-gray-600 font-medium mb-1">
+                        Frase del día
+                      </p>
+                      <div className="min-h-[28px] flex items-center">
+                        <p className="text-xs text-gray-800 leading-relaxed font-medium">
+                          "{displayedText}"
+                          {isTyping && (
+                            <motion.span
+                              animate={{ opacity: [1, 0] }}
+                              transition={{ duration: 0.8, repeat: Infinity }}
+                              className="ml-1"
+                            >
+                              |
+                            </motion.span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 flex items-center gap-1">
+                      Si te ahorré tiempo en la creación de tu historia clínica, invítame un café 
+                      <span className="text-pink-500">😘</span>
                     </p>
                   </div>
-                </div>
-                <p className="text-xs text-gray-600 flex items-center gap-1">
-                  Si te ahorré tiempo en la creación de tu historia clínica, invítame un café 
-                  <span className="text-pink-500">😘</span>
-                </p>
-              </div>
 
-              {/* Donation button */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button
-                  onClick={handleDonate}
-                  disabled={isProcessing}
-                  className="w-full bg-black hover:bg-gray-800 text-white text-sm font-medium shadow-md border border-gray-300"
-                  size="sm"
-                >
-                  {isProcessing ? (
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      className="w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"
-                    />
-                  ) : (
-                    <motion.div
-                      animate={{ 
-                        scale: [1, 1.3, 1],
-                        color: ["rgb(255, 255, 255)", "rgb(239, 68, 68)", "rgb(255, 255, 255)"]
-                      }}
-                      transition={{ 
-                        duration: 2, 
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                      className="mr-2"
+                  {/* Donation button */}
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <Button
+                      onClick={handleDonate}
+                      disabled={isProcessing}
+                      className="w-full bg-black hover:bg-gray-800 text-white text-sm font-medium shadow-md border border-gray-300"
+                      size="sm"
                     >
-                      <Heart className="h-4 w-4" />
-                    </motion.div>
-                  )}
-                  {isProcessing ? "Procesando..." : "Donar $20 MXN"}
-                </Button>
-              </motion.div>
+                      {isProcessing ? (
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          className="w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2"
+                        />
+                      ) : (
+                        <motion.div
+                          animate={{ 
+                            scale: [1, 1.3, 1],
+                            color: ["rgb(255, 255, 255)", "rgb(239, 68, 68)", "rgb(255, 255, 255)"]
+                          }}
+                          transition={{ 
+                            duration: 2, 
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                          }}
+                          className="mr-2"
+                        >
+                          <Heart className="h-4 w-4" />
+                        </motion.div>
+                      )}
+                      {isProcessing ? "Procesando..." : "Donar $20 MXN"}
+                    </Button>
+                  </motion.div>
 
-              {/* Small decorative elements */}
-              <div className="flex justify-center pt-1">
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="flex gap-1"
-                >
-                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                  <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
-                  <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-                </motion.div>
-              </div>
-            </div>
-          </Card>
-        </motion.div>
+                  {/* Small decorative elements */}
+                  <div className="flex justify-center pt-1">
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="flex gap-1"
+                    >
+                      <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-500 rounded-full"></div>
+                      <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                    </motion.div>
+                  </div>
+                </div>
+              </Card>
+            </motion.div>
+          )}
+        </>
       )}
     </AnimatePresence>
   );
