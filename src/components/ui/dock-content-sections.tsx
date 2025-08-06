@@ -319,73 +319,223 @@ const TemporalLineChart = ({ onReload }: { onReload?: () => void }) => {
   );
 };
 
-// Minimalist Main Stats Content Component
+// Dashboard with small varied-sized cards
 export const StatsContent = () => {
   const [activeUsers, setActiveUsers] = useState(27);
-  const [dashboardKey, setDashboardKey] = useState(0);
+  const [dailyCompleted, setDailyCompleted] = useState(142);
+  const [timeSaved, setTimeSaved] = useState(8.4);
+  const [avgSpeed, setAvgSpeed] = useState(2.3);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveUsers(prev => {
         const change = Math.floor(Math.random() * 7) - 3;
-        const newValue = prev + change;
-        return Math.max(15, Math.min(45, newValue));
+        return Math.max(15, Math.min(45, prev + change));
       });
+      setDailyCompleted(prev => prev + Math.floor(Math.random() * 3));
+      setTimeSaved(prev => Number((prev + Math.random() * 0.5).toFixed(1)));
+      setAvgSpeed(prev => Number((1.5 + Math.random() * 1.5).toFixed(1)));
     }, Math.random() * 3000 + 2000);
 
     return () => clearInterval(interval);
   }, []);
 
-  const reloadDashboard = () => {
-    setDashboardKey(prev => prev + 1);
-  };
+  const technologies = [
+    { name: "React", color: "bg-blue-500" },
+    { name: "TypeScript", color: "bg-blue-600" },
+    { name: "Tailwind", color: "bg-cyan-500" },
+    { name: "Supabase", color: "bg-green-500" },
+    { name: "Vite", color: "bg-purple-500" },
+    { name: "Framer Motion", color: "bg-pink-500" }
+  ];
+
+  const languages = [
+    { name: "TypeScript", percent: 78 },
+    { name: "JavaScript", percent: 15 },
+    { name: "CSS", percent: 7 }
+  ];
+
+  const aiModels = ["GPT-4", "Gemini Pro", "Claude-3", "ML Médico"];
+  const [currentModel, setCurrentModel] = useState(0);
+
+  useEffect(() => {
+    const modelInterval = setInterval(() => {
+      setCurrentModel(prev => (prev + 1) % aiModels.length);
+    }, 2000);
+    return () => clearInterval(modelInterval);
+  }, []);
 
   return (
-    <div className="space-y-12 p-4">
-      {/* Minimalist Active Users Counter */}
-      <div className="text-center py-4">
-        <p className="text-lg text-muted-foreground">
-          En este momento hay{' '}
-          <motion.span 
-            className="font-bold text-2xl text-primary mx-1"
+    <div className="p-6">
+      {/* Dashboard Grid */}
+      <div className="grid grid-cols-4 grid-rows-4 gap-4 max-w-6xl mx-auto h-[600px]">
+        
+        {/* Active Users - Small card (1x1) */}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow"
+        >
+          <motion.div 
+            className="text-3xl font-bold text-primary mb-1"
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 0.3 }}
             key={activeUsers}
           >
             {activeUsers}
-          </motion.span>{' '}
-          odontólogos optimizando su consulta dentro de Dentaxy.
-        </p>
+          </motion.div>
+          <div className="text-xs text-muted-foreground text-center">Usuarios activos</div>
+        </motion.div>
+
+        {/* Average Speed - Small card (1x1) */}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow"
+        >
+          <div className="text-3xl font-bold text-emerald-600 mb-1">{avgSpeed}s</div>
+          <div className="text-xs text-muted-foreground text-center">Velocidad promedio</div>
+        </motion.div>
+
+        {/* Tech Stack - Medium card (2x1) */}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          className="col-span-2 bg-card border border-border rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <div className="text-sm font-semibold mb-3">Stack Tecnológico</div>
+          <div className="flex flex-wrap gap-2">
+            {technologies.map((tech, index) => (
+              <motion.span
+                key={tech.name}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: index * 0.1 }}
+                className="px-3 py-1 rounded-full text-xs bg-secondary text-secondary-foreground"
+              >
+                {tech.name}
+              </motion.span>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Temporal Chart - Large card (2x2) */}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          className="row-span-2 bg-card border border-border rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <div className="text-sm font-semibold mb-4">Ahorro de Tiempo</div>
+          <TemporalLineChart />
+        </motion.div>
+
+        {/* Success Dashboard - Large card (2x2) */}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          className="row-span-2 bg-card border border-border rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <div className="text-sm font-semibold mb-4">Métricas de Éxito</div>
+          <div className="grid grid-cols-2 gap-3 h-full">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">1,247</div>
+              <div className="text-xs text-muted-foreground">Redacciones IA</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">5,890</div>
+              <div className="text-xs text-muted-foreground">Historias clínicas</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">1,950</div>
+              <div className="text-xs text-muted-foreground">Horas ahorradas</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">284</div>
+              <div className="text-xs text-muted-foreground">Odontólogos</div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* AI Status - Small card (1x1) */}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="text-xs text-emerald-600">IA Activa</span>
+          </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentModel}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="text-xs font-medium text-center"
+            >
+              {aiModels[currentModel]}
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
+
+        {/* Daily Savings - Small card (1x1) */}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          className="bg-card border border-border rounded-xl p-4 flex flex-col justify-center items-center shadow-sm hover:shadow-md transition-shadow"
+        >
+          <div className="text-2xl font-bold text-orange-600 mb-1">{timeSaved}h</div>
+          <div className="text-xs text-muted-foreground text-center">Ahorradas hoy</div>
+        </motion.div>
+
+        {/* Programming Languages - Medium card (2x1) */}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          className="col-span-2 bg-card border border-border rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <div className="text-sm font-semibold mb-3">Lenguajes de Programación</div>
+          <div className="space-y-2">
+            {languages.map((lang, index) => (
+              <div key={lang.name} className="flex items-center gap-3">
+                <span className="text-xs font-medium w-16">{lang.name}</span>
+                <div className="flex-1 bg-secondary rounded-full h-2">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${lang.percent}%` }}
+                    transition={{ delay: index * 0.2, duration: 1 }}
+                    className="bg-primary h-2 rounded-full"
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground w-8">{lang.percent}%</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Today's Metrics - Medium card (2x1) */}
+        <motion.div
+          whileHover={{ scale: 1.02, y: -2 }}
+          className="col-span-2 bg-card border border-border rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+        >
+          <div className="text-sm font-semibold mb-3">Métricas de Hoy</div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center">
+              <motion.div 
+                className="text-xl font-bold text-blue-600 mb-1"
+                animate={{ scale: [1, 1.05, 1] }}
+                transition={{ duration: 0.3 }}
+                key={dailyCompleted}
+              >
+                {dailyCompleted}
+              </motion.div>
+              <div className="text-xs text-muted-foreground">Completadas</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold text-purple-600 mb-1">97%</div>
+              <div className="text-xs text-muted-foreground">Precisión IA</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold text-green-600 mb-1">24/7</div>
+              <div className="text-xs text-muted-foreground">Disponible</div>
+            </div>
+          </div>
+        </motion.div>
+
       </div>
-
-      {/* AI Activity Feed */}
-      <AIActivityFeed />
-
-      {/* Success Dashboard */}
-      <div className="py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h3 className="text-2xl font-semibold">Dashboard de Éxito</h3>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={reloadDashboard}
-            className="flex items-center gap-2"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Recargar
-          </Button>
-        </div>
-        
-        <div key={dashboardKey} className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-          <AnimatedCounter target={1000} label="Redacciones de IA Automáticas Generadas" prefix="+" />
-          <AnimatedCounter target={5900} label="Historias Clínicas Optimizadas" prefix="+" />
-          <AnimatedCounter target={1950} label="Horas de Trabajo Recuperadas" prefix="+" />
-          <AnimatedCounter target={280} label="Odontólogos en la Comunidad" prefix="+" />
-        </div>
-      </div>
-
-      {/* Temporal Line Chart */}
-      <TemporalLineChart />
     </div>
   );
 };
