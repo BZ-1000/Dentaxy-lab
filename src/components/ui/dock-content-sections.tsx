@@ -3,11 +3,16 @@ import { Clock, Users, FileText, Brain, Calculator, TrendingUp, Award, Zap, Acti
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
-import { motion, useInView } from 'framer-motion';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Area, Tooltip } from 'recharts';
 
-// Animated Counter Component
-const AnimatedCounter = ({ target, label, prefix = "" }: { target: number; label: string; prefix?: string }) => {
+// Animated Counter Component with Enhanced Apple-style Design
+const AnimatedCounter = ({ target, label, prefix = "", delay = 0 }: { 
+  target: number; 
+  label: string; 
+  prefix?: string;
+  delay?: number;
+}) => {
   const [count, setCount] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef(null);
@@ -15,33 +20,56 @@ const AnimatedCounter = ({ target, label, prefix = "" }: { target: number; label
 
   useEffect(() => {
     if (isInView && !hasAnimated) {
-      setHasAnimated(true);
-      let current = 0;
-      const increment = target / 60;
-      const timer = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-          setCount(target);
-          clearInterval(timer);
-        } else {
-          setCount(Math.floor(current));
-        }
-      }, 30);
-      return () => clearInterval(timer);
+      const timer = setTimeout(() => {
+        setHasAnimated(true);
+        let current = 0;
+        const duration = 2500; // Slower animation
+        const increment = target / (duration / 30);
+        
+        const counter = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+            setCount(target);
+            clearInterval(counter);
+          } else {
+            setCount(Math.floor(current));
+          }
+        }, 30);
+        
+        return () => clearInterval(counter);
+      }, delay);
+      
+      return () => clearTimeout(timer);
     }
-  }, [isInView, target, hasAnimated]);
+  }, [isInView, target, hasAnimated, delay]);
 
   return (
-    <div ref={ref} className="text-center">
-      <div className="text-4xl font-bold text-primary mb-2">
-        {prefix}{new Intl.NumberFormat('es-ES').format(count)}
+    <motion.div 
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ 
+        duration: 0.6, 
+        delay: delay / 1000,
+        ease: [0.16, 1, 0.3, 1] // Apple's ease curve
+      }}
+      className="group"
+    >
+      <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-xl">
+        <motion.div 
+          className="text-5xl font-bold bg-gradient-to-br from-primary to-primary/70 bg-clip-text text-transparent mb-3"
+          animate={hasAnimated ? { scale: [1, 1.1, 1] } : {}}
+          transition={{ duration: 0.4, delay: (delay + 1500) / 1000 }}
+        >
+          {prefix}{new Intl.NumberFormat('es-ES').format(count)}
+        </motion.div>
+        <div className="text-sm font-medium text-foreground/70 leading-relaxed">{label}</div>
       </div>
-      <div className="text-sm text-muted-foreground">{label}</div>
-    </div>
+    </motion.div>
   );
 };
 
-// AI Activity Feed Component
+// AI Activity Feed Component with Enhanced Apple Design
 const AIActivityFeed = () => {
   const [currentActivity, setCurrentActivity] = useState(0);
   
@@ -59,104 +87,209 @@ const AIActivityFeed = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentActivity((prev) => (prev + 1) % activities.length);
-    }, 3500);
+    }, 4000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-        <span className="text-sm font-medium text-emerald-800">Actividad Reciente de la IA</span>
+    <div className="backdrop-blur-xl bg-gradient-to-br from-emerald-500/10 to-green-500/10 border border-emerald-500/20 rounded-3xl p-6 shadow-lg">
+      <div className="flex items-center gap-3 mb-4">
+        <motion.div 
+          className="w-3 h-3 bg-emerald-500 rounded-full"
+          animate={{ scale: [1, 1.3, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        />
+        <span className="text-sm font-semibold text-emerald-600">IA en Acción • En Vivo</span>
       </div>
-      <motion.div
-        key={currentActivity}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="flex items-start gap-3"
-      >
-        <div className="w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center flex-shrink-0">
-          <div className="w-3 h-3 bg-white rounded-sm"></div>
-        </div>
-        <p className="text-sm text-gray-700 leading-relaxed">
-          {activities[currentActivity]}
-        </p>
-      </motion.div>
+      
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentActivity}
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -20, scale: 0.95 }}
+          transition={{ 
+            duration: 0.5,
+            ease: [0.16, 1, 0.3, 1]
+          }}
+          className="flex items-start gap-4"
+        >
+          <motion.div 
+            className="w-8 h-8 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
+            whileHover={{ scale: 1.1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div 
+              className="w-4 h-4 bg-white rounded-sm"
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            />
+          </motion.div>
+          <p className="text-sm font-medium text-foreground/80 leading-relaxed">
+            {activities[currentActivity]}
+          </p>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };
 
-// Before vs After Chart Component
-const BeforeAfterChart = () => {
-  const [showAnimation, setShowAnimation] = useState(false);
+// Temporal Line Chart Component with Apple Design
+const TemporalLineChart = () => {
+  const [currentMinute, setCurrentMinute] = useState(0);
+  const [phase, setPhase] = useState<'without' | 'transition' | 'with'>('without');
+  const [data, setData] = useState<Array<{minute: number, tiempo: number}>>([]);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
-  const data = [
-    {
-      name: 'Sin Dentaxy',
-      tiempo: showAnimation ? 120 : 120,
-      color: '#ef4444'
-    },
-    {
-      name: 'Con Dentaxy',
-      tiempo: showAnimation ? 36 : 120,
-      color: '#10b981'
-    }
-  ];
-
   useEffect(() => {
-    if (isInView) {
-      setTimeout(() => setShowAnimation(true), 500);
-    }
+    if (!isInView) return;
+
+    // Phase 1: Build line from 1 to 120 minutes (without Dentaxy)
+    const buildInitialLine = () => {
+      let minute = 0;
+      const interval = setInterval(() => {
+        minute += 2;
+        setCurrentMinute(minute);
+        setData(prev => [...prev, { minute, tiempo: 120 }]);
+        
+        if (minute >= 120) {
+          clearInterval(interval);
+          setTimeout(() => setPhase('transition'), 1000);
+        }
+      }, 30);
+    };
+
+    // Phase 2: Transition message
+    const showTransition = () => {
+      setTimeout(() => {
+        setPhase('with');
+        setData([]);
+        setCurrentMinute(0);
+        
+        // Phase 3: Build new line with 70% reduction
+        let minute = 0;
+        const interval = setInterval(() => {
+          minute += 2;
+          setCurrentMinute(minute);
+          setData(prev => [...prev, { minute, tiempo: 36 }]);
+          
+          if (minute >= 120) {
+            clearInterval(interval);
+          }
+        }, 30);
+      }, 2000);
+    };
+
+    buildInitialLine();
+    const transitionTimer = setTimeout(showTransition, 4000);
+    
+    return () => clearTimeout(transitionTimer);
   }, [isInView]);
 
   return (
-    <div ref={ref} className="bg-white border border-gray-200 rounded-lg p-6">
-      <h4 className="text-lg font-semibold text-center mb-4">
-        Tiempo promedio para crear una historia clínica
-      </h4>
-      <div className="h-64">
+    <motion.div 
+      ref={ref}
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={isInView ? { opacity: 1, scale: 1 } : {}}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="backdrop-blur-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-3xl p-8 shadow-xl"
+    >
+      <div className="text-center mb-6">
+        <h4 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mb-2">
+          Tiempo promedio para crear una historia clínica
+        </h4>
+        
+        <AnimatePresence mode="wait">
+          {phase === 'without' && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-lg font-medium text-red-500"
+            >
+              Sin Dentaxy: Proceso manual tradicional
+            </motion.p>
+          )}
+          {phase === 'transition' && (
+            <motion.p
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="text-xl font-bold text-primary"
+            >
+              ¡Ahora con Dentaxy! ✨
+            </motion.p>
+          )}
+          {phase === 'with' && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-lg font-medium text-emerald-500"
+            >
+              Con Dentaxy: Optimización con IA
+            </motion.p>
+          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+          <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
             <XAxis 
-              dataKey="name" 
-              tick={{ fontSize: 12 }}
+              dataKey="minute"
+              tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
               axisLine={false}
               tickLine={false}
+              label={{ value: 'Progreso del trabajo (minutos)', position: 'insideBottom', offset: -10 }}
             />
             <YAxis 
-              tick={{ fontSize: 12 }}
+              tick={{ fontSize: 12, fill: 'hsl(var(--foreground))' }}
               axisLine={false}
               tickLine={false}
               domain={[0, 140]}
-              label={{ value: 'Minutos', angle: -90, position: 'insideLeft' }}
+              label={{ value: 'Tiempo total requerido', angle: -90, position: 'insideLeft' }}
             />
-            <Bar 
-              dataKey="tiempo" 
-              radius={[8, 8, 0, 0]}
-              animationDuration={1500}
-              animationBegin={0}
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Bar>
-          </BarChart>
+            <Tooltip 
+              contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '12px',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.1)'
+              }}
+            />
+            <Line 
+              type="monotone"
+              dataKey="tiempo"
+              stroke={phase === 'without' ? '#ef4444' : '#10b981'}
+              strokeWidth={4}
+              dot={false}
+              animationDuration={100}
+              strokeDasharray={phase === 'transition' ? "5,5" : "0,0"}
+            />
+          </LineChart>
         </ResponsiveContainer>
       </div>
-      <div className="text-center mt-4">
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-          <TrendingUp className="w-4 h-4 mr-1" />
-          70% de ahorro de tiempo
-        </span>
-      </div>
-    </div>
+
+      <motion.div 
+        className="text-center mt-6"
+        animate={phase === 'with' ? { scale: [1, 1.05, 1] } : {}}
+        transition={{ duration: 0.5, delay: 2 }}
+      >
+        <motion.span 
+          className="inline-flex items-center px-6 py-3 rounded-2xl text-sm font-semibold bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-lg"
+          whileHover={{ scale: 1.05 }}
+        >
+          <TrendingUp className="w-5 h-5 mr-2" />
+          {phase === 'with' ? '70% de ahorro de tiempo' : 'Analizando eficiencia...'}
+        </motion.span>
+      </motion.div>
+    </motion.div>
   );
 };
 
-// Main Stats Content Component
+// Main Stats Content Component with Apple 2025 Design
 export const StatsContent = () => {
   const [activeUsers, setActiveUsers] = useState(27);
 
@@ -173,32 +306,53 @@ export const StatsContent = () => {
   }, []);
 
   return (
-    <div className="space-y-8">
-      {/* Active Users Counter */}
-      <div className="text-center">
-        <p className="text-lg text-gray-700">
-          En este momento hay <span className="font-bold text-2xl text-primary mx-1">{activeUsers}</span> odontólogos optimizando su consulta dentro de Dentaxy.
-        </p>
-      </div>
+    <div className="space-y-10 p-2">
+      {/* Active Users Counter with Glassmorphism */}
+      <motion.div 
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="text-center"
+      >
+        <div className="backdrop-blur-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-3xl p-8 shadow-lg">
+          <p className="text-xl font-medium text-foreground/80 leading-relaxed">
+            En este momento hay{' '}
+            <motion.span 
+              className="font-bold text-4xl bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent mx-2"
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 0.3 }}
+              key={activeUsers}
+            >
+              {activeUsers}
+            </motion.span>{' '}
+            odontólogos optimizando su consulta dentro de Dentaxy.
+          </p>
+        </div>
+      </motion.div>
 
       {/* AI Activity Feed */}
       <AIActivityFeed />
 
-      {/* Success Dashboard */}
-      <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6">
-        <h3 className="text-xl font-bold text-center mb-6 text-gray-900">
+      {/* Success Dashboard with Staggered Animations */}
+      <motion.div 
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="backdrop-blur-xl bg-gradient-to-br from-background/50 to-background/30 border border-white/10 rounded-3xl p-8 shadow-xl"
+      >
+        <h3 className="text-3xl font-bold text-center mb-8 bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">
           Dashboard de Éxito
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <AnimatedCounter target={1000} label="Redacciones de IA Automáticas Generadas" prefix="+" />
-          <AnimatedCounter target={5900} label="Historias Clínicas Optimizadas" prefix="+" />
-          <AnimatedCounter target={1950} label="Horas de Trabajo Recuperadas" prefix="+" />
-          <AnimatedCounter target={280} label="Odontólogos en la Comunidad" prefix="+" />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          <AnimatedCounter target={1000} label="Redacciones de IA Automáticas Generadas" prefix="+" delay={0} />
+          <AnimatedCounter target={5900} label="Historias Clínicas Optimizadas" prefix="+" delay={200} />
+          <AnimatedCounter target={1950} label="Horas de Trabajo Recuperadas" prefix="+" delay={400} />
+          <AnimatedCounter target={280} label="Odontólogos en la Comunidad" prefix="+" delay={600} />
         </div>
-      </div>
+      </motion.div>
 
-      {/* Before vs After Chart */}
-      <BeforeAfterChart />
+      {/* Temporal Line Chart */}
+      <TemporalLineChart />
     </div>
   );
 };
