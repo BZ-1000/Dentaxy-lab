@@ -8,9 +8,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 const dailyPhrases = ["Menos papeles, más sonrisas.", "Tu tiempo vale más que el papeleo.", "Recupera el 70% de tu día.", "Más pacientes. Menos administración.", "Tu día, con más horas. Úsalas.", "Manos a la obra, no al papeleo.", "Dedícate a crear, no a documentar.", "Menos rutina, más vocación.", "Tu talento no está en teclear.", "Reenamórate de la odontología.", "Optimiza tu tiempo, maximiza tu éxito.", "La clínica del futuro es eficiente.", "Menos clics, más ganancias.", "El éxito es trabajar inteligente.", "Automatiza lo repetitivo. Domina lo excepcional."];
 export function DonationBanner() {
-  const [isVisible, setIsVisible] = useState(true);
-  const [isMinimized, setIsMinimized] = useState(true);
-  const [showFullOnLoad, setShowFullOnLoad] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [displayedText, setDisplayedText] = useState("");
@@ -20,22 +19,12 @@ export function DonationBanner() {
     session
   } = useAuth();
   useEffect(() => {
-    // Show full banner on page load after 3 seconds
+    // Show banner after 3 seconds
     const timer = setTimeout(() => {
-      setShowFullOnLoad(true);
-      setIsMinimized(false);
+      setIsVisible(true);
       setIsTyping(true);
     }, 3000);
-
-    // Auto-minimize after 10 seconds
-    const autoMinimizeTimer = setTimeout(() => {
-      setIsMinimized(true);
-    }, 13000);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(autoMinimizeTimer);
-    };
+    return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
     if (!isTyping) return;
@@ -107,14 +96,14 @@ export function DonationBanner() {
         type: "spring",
         stiffness: 400,
         damping: 25
-      }} className="fixed bottom-20 md:bottom-6 right-6 z-50">
+      }} className="fixed bottom-6 right-6 z-50">
               <motion.button onClick={handleExpand} whileHover={{
           scale: 1.05
         }} whileTap={{
           scale: 0.95
-        }} className="border border-gray-200 shadow-lg px-3 py-2 flex items-center gap-2 hover:shadow-xl transition-shadow bg-black rounded-full text-orange-500 font-thin">
-                <Coffee className="h-4 w-4 text-emerald-400" />
-                <span className="text-xs font-medium text-zinc-50">Donaciones</span>
+        }} className="bg-white border border-gray-200 shadow-lg rounded-full px-3 py-2 flex items-center gap-2 hover:shadow-xl transition-shadow">
+                <Coffee className="h-4 w-4 text-gray-700" />
+                <span className="text-xs text-gray-600 font-medium">Donaciones</span>
               </motion.button>
             </motion.div> : (/* Full banner state */
       <motion.div initial={{
@@ -133,7 +122,7 @@ export function DonationBanner() {
         type: "spring",
         stiffness: 300,
         damping: 30
-      }} className="fixed bottom-20 md:bottom-6 left-1/2 md:left-auto md:right-6 transform -translate-x-1/2 md:translate-x-0 z-50 w-[90vw] max-w-[320px] md:max-w-xs" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+      }} className="fixed bottom-6 right-6 z-50 max-w-sm md:max-w-xs" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
               <Card className="relative overflow-hidden bg-white border border-gray-200 shadow-xl">
                 {/* Apple-style close button */}
                 <motion.button onClick={handleClose} whileHover={{
@@ -155,9 +144,18 @@ export function DonationBanner() {
                       <Coffee className="h-5 w-5 text-gray-700" />
                     </motion.div>
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-900">
-                        Dona un café
-                      </h3>
+                      <h3 className="text-sm font-semibold text-gray-900">Dona un café
+
+para el creador
+
+Frase del día
+
+"Menos papeles, más sonrisas."
+
+Si te ahorré tiempo en la creación de tu historia clínica, dona un café
+😘
+
+Donar $20 MXN</h3>
                       <p className="text-xs text-gray-600">
                         para el creador
                       </p>
