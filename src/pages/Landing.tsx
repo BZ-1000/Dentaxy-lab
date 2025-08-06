@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza } from '@/types/historiaClinica';
 import { DonationBanner } from '@/components/ui/donation-banner';
+import { InteractiveStatsMenu } from '@/components/ui/interactive-stats-menu';
 
 // Define missing types
 type InterrogatorioSistemas = Record<string, any>;
@@ -551,6 +552,9 @@ const Landing = () => {
           }} handleAntecedentePatologicoChange={handleAntecedentePatologicoChange} />
           </div>
         </div>
+
+        {/* Interactive Stats and Tools Menu */}
+        <InteractiveStatsMenu />
       </div>
 
       {/* Apple Style Footer */}
