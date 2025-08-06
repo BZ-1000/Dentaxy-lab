@@ -69,7 +69,7 @@ DockIconButton.displayName = "DockIconButton"
 
 const DockWithContent = React.forwardRef<HTMLDivElement, DockWithContentProps>(
   ({ items, className }, ref) => {
-    const [activeTab, setActiveTab] = React.useState<string | null>(null)
+    const [activeTab, setActiveTab] = React.useState<string | null>(items[0]?.id || null)
 
     const handleTabClick = (itemId: string) => {
       setActiveTab(activeTab === itemId ? null : itemId)

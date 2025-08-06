@@ -16,7 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza } from '@/types/historiaClinica';
 import { DonationBanner } from '@/components/ui/donation-banner';
-import { InteractiveStatsMenu } from '@/components/ui/interactive-stats-menu';
+
 import { DockWithContent } from '@/components/ui/interactive-dock-content';
 import { StatsContent, CalculatorContent, DemoContent, BenefitsContent } from '@/components/ui/dock-content-sections';
 
@@ -538,8 +538,12 @@ const Landing = () => {
           {/* Desktop version */}
           
 
-          {/* Mobile version */}
-          <div className={`${isMobile ? 'block' : 'hidden'} mx-4 mb-12`}>
+          {/* Mobile version - only show dock */}
+          {isMobile && (
+            <DockWithContent items={dockItems} className="mb-12" />
+          )}
+          
+          <div className={`${isMobile ? 'hidden' : 'block'} mx-4 mb-12`}>
             <h2 className="mb-6 text-slate-600 mx-0 my--3 font-normal text-base text-justify">
                 🔽 Demostracion de redacción automatica...
             </h2>
@@ -603,10 +607,6 @@ const Landing = () => {
           </div>
         </div>
 
-        {/* Interactive Stats and Tools Menu */}
-        <div ref={statsMenuRef}>
-          <InteractiveStatsMenu />
-        </div>
       </div>
 
       {/* Apple Style Footer */}
