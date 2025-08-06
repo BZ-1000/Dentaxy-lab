@@ -1,76 +1,204 @@
-import { useState, useEffect } from 'react';
-import { Clock, Users, FileText, Brain, Calculator, TrendingUp, Award, Zap } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Clock, Users, FileText, Brain, Calculator, TrendingUp, Award, Zap, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
+import { motion, useInView } from 'framer-motion';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from 'recharts';
 
-// Stats Content Component
-export const StatsContent = () => {
-  const [timesSaved, setTimesSaved] = useState(12450);
-  const [dentistsCount, setDentistsCount] = useState(1542);
-  const [historiesCount, setHistoriesCount] = useState(8234);
-  const [aiSuggestions, setAiSuggestions] = useState(1247832);
+// Animated Counter Component
+const AnimatedCounter = ({ target, label, prefix = "" }: { target: number; label: string; prefix?: string }) => {
+  const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    if (isInView && !hasAnimated) {
+      setHasAnimated(true);
+      let current = 0;
+      const increment = target / 60;
+      const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+          setCount(target);
+          clearInterval(timer);
+        } else {
+          setCount(Math.floor(current));
+        }
+      }, 30);
+      return () => clearInterval(timer);
+    }
+  }, [isInView, target, hasAnimated]);
+
+  return (
+    <div ref={ref} className="text-center">
+      <div className="text-4xl font-bold text-primary mb-2">
+        {prefix}{new Intl.NumberFormat('es-ES').format(count)}
+      </div>
+      <div className="text-sm text-muted-foreground">{label}</div>
+    </div>
+  );
+};
+
+// AI Activity Feed Component
+const AIActivityFeed = () => {
+  const [currentActivity, setCurrentActivity] = useState(0);
+  
+  const activities = [
+    "Dentaxy acaba de generar una redacción IA del apartado 'Padecimiento Actual'",
+    "Dentaxy completó automáticamente 'Antecedentes Patológicos' para un nuevo paciente",
+    "Nueva redacción IA generada para 'Examen Físico Intrabucal'",
+    "IA de Dentaxy redactó 'Antecedentes Heredofamiliares' en 2.1 segundos",
+    "Generación automática completada para 'Interrogatorio por Sistemas'",
+    "Dentaxy IA finalizó redacción de 'Exploración Física' con precisión médica",
+    "Nueva historia clínica optimizada con IA en 'Diagnóstico y Pronóstico'",
+    "IA especializada completó 'Antecedentes Quirúrgicos' exitosamente"
+  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimesSaved(prev => prev + Math.floor(Math.random() * 3));
-      setHistoriesCount(prev => prev + Math.floor(Math.random() * 2));
-      setAiSuggestions(prev => prev + Math.floor(Math.random() * 5));
-    }, 3000);
+      setCurrentActivity((prev) => (prev + 1) % activities.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+        <span className="text-sm font-medium text-emerald-800">Actividad Reciente de la IA</span>
+      </div>
+      <motion.div
+        key={currentActivity}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="flex items-start gap-3"
+      >
+        <div className="w-6 h-6 bg-gray-900 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="w-3 h-3 bg-white rounded-sm"></div>
+        </div>
+        <p className="text-sm text-gray-700 leading-relaxed">
+          {activities[currentActivity]}
+        </p>
+      </motion.div>
+    </div>
+  );
+};
+
+// Before vs After Chart Component
+const BeforeAfterChart = () => {
+  const [showAnimation, setShowAnimation] = useState(false);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
+
+  const data = [
+    {
+      name: 'Sin Dentaxy',
+      tiempo: showAnimation ? 120 : 120,
+      color: '#ef4444'
+    },
+    {
+      name: 'Con Dentaxy',
+      tiempo: showAnimation ? 36 : 120,
+      color: '#10b981'
+    }
+  ];
+
+  useEffect(() => {
+    if (isInView) {
+      setTimeout(() => setShowAnimation(true), 500);
+    }
+  }, [isInView]);
+
+  return (
+    <div ref={ref} className="bg-white border border-gray-200 rounded-lg p-6">
+      <h4 className="text-lg font-semibold text-center mb-4">
+        Tiempo promedio para crear una historia clínica
+      </h4>
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <XAxis 
+              dataKey="name" 
+              tick={{ fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis 
+              tick={{ fontSize: 12 }}
+              axisLine={false}
+              tickLine={false}
+              domain={[0, 140]}
+              label={{ value: 'Minutos', angle: -90, position: 'insideLeft' }}
+            />
+            <Bar 
+              dataKey="tiempo" 
+              radius={[8, 8, 0, 0]}
+              animationDuration={1500}
+              animationBegin={0}
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="text-center mt-4">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+          <TrendingUp className="w-4 h-4 mr-1" />
+          70% de ahorro de tiempo
+        </span>
+      </div>
+    </div>
+  );
+};
+
+// Main Stats Content Component
+export const StatsContent = () => {
+  const [activeUsers, setActiveUsers] = useState(27);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveUsers(prev => {
+        const change = Math.floor(Math.random() * 7) - 3; // -3 to +3
+        const newValue = prev + change;
+        return Math.max(15, Math.min(45, newValue)); // Keep between 15-45
+      });
+    }, Math.random() * 3000 + 2000); // Random interval 2-5 seconds
 
     return () => clearInterval(interval);
   }, []);
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('es-ES').format(num);
-  };
-
   return (
-    <div>
-      <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-        Estadísticas en Tiempo Real
-      </h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-indigo-100 border-0 shadow-lg">
-          <CardContent className="p-4 text-center">
-            <Clock className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 mb-1">
-              {formatNumber(timesSaved)}
-            </div>
-            <div className="text-xs text-gray-600">Horas ahorradas</div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-emerald-50 to-green-100 border-0 shadow-lg">
-          <CardContent className="p-4 text-center">
-            <Users className="h-6 w-6 text-emerald-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 mb-1">
-              +{formatNumber(dentistsCount)}
-            </div>
-            <div className="text-xs text-gray-600">Odontólogos</div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-purple-50 to-violet-100 border-0 shadow-lg">
-          <CardContent className="p-4 text-center">
-            <FileText className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 mb-1">
-              +{formatNumber(historiesCount)}
-            </div>
-            <div className="text-xs text-gray-600">Historias</div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-orange-50 to-amber-100 border-0 shadow-lg">
-          <CardContent className="p-4 text-center">
-            <Brain className="h-6 w-6 text-orange-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900 mb-1">
-              +{formatNumber(aiSuggestions)}
-            </div>
-            <div className="text-xs text-gray-600">IA Sugerencias</div>
-          </CardContent>
-        </Card>
+    <div className="space-y-8">
+      {/* Active Users Counter */}
+      <div className="text-center">
+        <p className="text-lg text-gray-700">
+          En este momento hay <span className="font-bold text-2xl text-primary mx-1">{activeUsers}</span> odontólogos optimizando su consulta dentro de Dentaxy.
+        </p>
       </div>
+
+      {/* AI Activity Feed */}
+      <AIActivityFeed />
+
+      {/* Success Dashboard */}
+      <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6">
+        <h3 className="text-xl font-bold text-center mb-6 text-gray-900">
+          Dashboard de Éxito
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <AnimatedCounter target={1000} label="Redacciones de IA Automáticas Generadas" prefix="+" />
+          <AnimatedCounter target={5900} label="Historias Clínicas Optimizadas" prefix="+" />
+          <AnimatedCounter target={1950} label="Horas de Trabajo Recuperadas" prefix="+" />
+          <AnimatedCounter target={280} label="Odontólogos en la Comunidad" prefix="+" />
+        </div>
+      </div>
+
+      {/* Before vs After Chart */}
+      <BeforeAfterChart />
     </div>
   );
 };
