@@ -47,7 +47,7 @@ export const InteractiveStatsMenu = () => {
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-16 px-4">
+    <div className="w-full max-w-6xl mx-auto py-16 px-4" data-stats-menu>
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-16">
         {/* Time Saved Counter */}
@@ -114,7 +114,7 @@ export const InteractiveStatsMenu = () => {
       {/* Interactive Tools Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* ROI Calculator */}
-        <Card className="bg-white border border-gray-200 shadow-xl">
+        <Card className="bg-white border border-gray-200 shadow-xl" data-calculator>
           <CardContent className="p-8">
             <div className="flex items-center gap-3 mb-6">
               <Calculator className="h-6 w-6 text-blue-600" />
@@ -177,7 +177,7 @@ export const InteractiveStatsMenu = () => {
         </Card>
 
         {/* Mini Demo */}
-        <Card className="bg-white border border-gray-200 shadow-xl">
+        <Card className="bg-white border border-gray-200 shadow-xl" data-demo>
           <CardContent className="p-8">
             <div className="flex items-center gap-3 mb-6">
               <Zap className="h-6 w-6 text-purple-600" />

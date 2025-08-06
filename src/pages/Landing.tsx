@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, ArrowRight, Star, Clock, Calendar, GraduationCap, Sparkles, TrendingUp, Eye } from 'lucide-react';
+import { Home, Settings, Bell, User, Save, LogOut, Crown, UserCircle, ArrowRight, Star, Clock, Calculator, Brain, TrendingUp, BarChart3, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DentaxyPricing } from '@/components/ui/dentaxy-pricing';
 import { PlanPeriodProvider } from '@/contexts/PlanPeriodContext';
@@ -17,6 +17,7 @@ import { Typewriter } from "@/components/ui/typewriter-text";
 import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza } from '@/types/historiaClinica';
 import { DonationBanner } from '@/components/ui/donation-banner';
 import { InteractiveStatsMenu } from '@/components/ui/interactive-stats-menu';
+import { Dock } from '@/components/ui/dock-two';
 
 // Define missing types
 type InterrogatorioSistemas = Record<string, any>;
@@ -58,10 +59,55 @@ const Landing = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [hasBetaPlan, setHasBetaPlan] = useState(false);
   const isMobile = useIsMobile();
+  const statsMenuRef = useRef<HTMLDivElement>(null);
 
   // Add new state for terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+
+  // Dock actions
+  const scrollToStats = () => {
+    statsMenuRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToCalculator = () => {
+    const calculatorElement = document.querySelector('[data-calculator]');
+    calculatorElement?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToDemo = () => {
+    const demoElement = document.querySelector('[data-demo]');
+    demoElement?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleBetaAccess = () => {
+    if (!session) {
+      toast.error('Debes iniciar sesión para acceder a la versión beta');
+      setAuthDialog({
+        isOpen: true,
+        mode: "login"
+      });
+      return;
+    }
+
+    // Clear all form data from localStorage
+    localStorage.removeItem('currentFormData');
+    localStorage.removeItem('formBackup');
+    if (hasBetaPlan) {
+      // Force a complete app reload to reset all states
+      window.location.href = '/app';
+    } else {
+      setShowPricingPopup(true);
+    }
+  };
+
+  const dockItems = [
+    { icon: BarChart3, label: "Ver Estadísticas", onClick: scrollToStats },
+    { icon: Calculator, label: "Calculadora ROI", onClick: scrollToCalculator },
+    { icon: Brain, label: "Demo de IA", onClick: scrollToDemo },
+    { icon: Zap, label: "Prueba Beta", onClick: handleBetaAccess },
+    { icon: TrendingUp, label: "Beneficios", onClick: () => window.location.href = '/benefits' }
+  ];
   useEffect(() => {
     // Load username from localStorage first
     const storedUsername = localStorage.getItem('dentaxy_username');
@@ -202,26 +248,6 @@ const Landing = () => {
   const handleChangeUsername = () => {
     setShowPopup(true);
     setShowDropdown(false);
-  };
-  const handleBetaAccess = () => {
-    if (!session) {
-      toast.error('Debes iniciar sesión para acceder a la versión beta');
-      setAuthDialog({
-        isOpen: true,
-        mode: "login"
-      });
-      return;
-    }
-
-    // Clear all form data from localStorage
-    localStorage.removeItem('currentFormData');
-    localStorage.removeItem('formBackup');
-    if (hasBetaPlan) {
-      // Force a complete app reload to reset all states
-      window.location.href = '/app';
-    } else {
-      setShowPricingPopup(true);
-    }
   };
   const [formData, setFormData] = useState({
     antecedentesPersonalesPatologicos: {
@@ -478,12 +504,15 @@ const Landing = () => {
             </div>
           </div>
 
-          <div className="mb-12">
+          <div className="mb-8">
             <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 flex items-center gap-2 mx-auto">
               PRUEBA BETA
               <ArrowRight className="h-5 w-5 text-white" />
             </button>
           </div>
+
+          {/* Interactive Dock */}
+          <Dock items={dockItems} className="mb-8" />
 
           {/* Desktop version */}
           
@@ -554,7 +583,9 @@ const Landing = () => {
         </div>
 
         {/* Interactive Stats and Tools Menu */}
-        <InteractiveStatsMenu />
+        <div ref={statsMenuRef}>
+          <InteractiveStatsMenu />
+        </div>
       </div>
 
       {/* Apple Style Footer */}
