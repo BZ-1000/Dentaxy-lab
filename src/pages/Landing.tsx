@@ -15,6 +15,7 @@ import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/Ant
 import { Checkbox } from "@/components/ui/checkbox";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza } from '@/types/historiaClinica';
+import { DonationBanner } from '@/components/ui/donation-banner';
 
 // Define missing types
 type InterrogatorioSistemas = Record<string, any>;
@@ -798,6 +799,9 @@ const Landing = () => {
         ...authDialog,
         isOpen: false
       })} defaultMode={authDialog.mode} onSuccess={handleAuthSuccess} />
+
+      {/* Donation Banner */}
+      <DonationBanner />
     </div>;
 };
 
