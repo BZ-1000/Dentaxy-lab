@@ -18,7 +18,8 @@ import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPers
 import { DonationBanner } from '@/components/ui/donation-banner';
 
 import { DockWithContent } from '@/components/ui/interactive-dock-content';
-import { StatsContent, CalculatorContent, DemoContent, BenefitsContent } from '@/components/ui/dock-content-sections';
+import { CalculatorContent, DemoContent, BenefitsContent } from '@/components/ui/dock-content-sections';
+import DashboardProductividad from '@/components/dashboard/DashboardProductividad';
 
 // Define missing types
 type InterrogatorioSistemas = Record<string, any>;
@@ -93,7 +94,7 @@ const Landing = () => {
       id: 'stats',
       icon: BarChart3, 
       label: "Ver Estadísticas", 
-      content: <StatsContent />
+      content: <div className="h-[80vh] overflow-auto"><DashboardProductividad /></div>
     },
     { 
       id: 'calculator',
