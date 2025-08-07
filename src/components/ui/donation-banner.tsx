@@ -114,7 +114,7 @@ export function DonationBanner() {
           scale: 0.95
         }} className="border border-gray-200 shadow-lg px-3 py-2 flex items-center gap-2 hover:shadow-xl transition-shadow bg-black rounded-full text-orange-500 font-thin">
                 <Coffee className="h-4 w-4 text-emerald-400" />
-                <span className="text-xs font-medium text-zinc-50">Donaciones</span>
+                <span className="text-xs font-medium text-zinc-50 hidden md:inline">Donaciones</span>
               </motion.button>
             </motion.div> : (/* Full banner state */
       <motion.div initial={{
@@ -133,7 +133,7 @@ export function DonationBanner() {
         type: "spring",
         stiffness: 300,
         damping: 30
-      }} className="fixed bottom-20 md:bottom-6 left-1/2 md:left-auto md:right-6 transform -translate-x-1/2 md:translate-x-0 z-50 w-[90vw] max-w-[320px] md:max-w-xs" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+      }} className="fixed bottom-20 md:bottom-6 left-1/2 md:left-auto md:right-6 transform -translate-x-1/2 md:translate-x-0 z-50 w-[85vw] max-w-[280px] md:max-w-xs" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
               <Card className="relative overflow-hidden bg-white border border-gray-200 shadow-xl">
                 {/* Apple-style close button */}
                 <motion.button onClick={handleClose} whileHover={{

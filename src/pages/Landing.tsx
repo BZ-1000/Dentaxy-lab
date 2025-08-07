@@ -538,10 +538,6 @@ const Landing = () => {
           {/* Desktop version */}
           
 
-          {/* Mobile version - only show dock */}
-          {isMobile && (
-            <DockWithContent items={dockItems} className="mb-12" />
-          )}
           
         </div>
 
