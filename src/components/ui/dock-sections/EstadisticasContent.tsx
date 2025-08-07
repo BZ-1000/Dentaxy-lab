@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, LineChart, Line, Tooltip } from 'recharts';
 import { Calendar, Star, TrendingUp, ShoppingBag, Smartphone, User, Plus, ChevronRight, X, Plane, Mountain, Gamepad2, Activity, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const productivityData = [
   { name: 'Ene', value: 12 },
@@ -52,6 +53,7 @@ const members = [
 
 export const EstadisticasContent = () => {
   const { user } = useAuth();
+  const isMobile = useIsMobile();
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
@@ -97,57 +99,59 @@ export const EstadisticasContent = () => {
   };
 
   return (
-    <div className="bg-white h-full flex">
+    <div className={`bg-white h-full ${isMobile ? 'flex flex-col' : 'flex'}`}>
       {/* Barra Lateral Izquierda - Eventos */}
-      <div className="w-48 p-2 border-r border-gray-200 space-y-2">
-        {/* Eventos y actualizaciones */}
-        <Card className="shadow-sm">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-semibold flex items-center gap-1">
-              <Calendar size={12} />
-              Eventos y actualizaciones
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 p-2">
-            <div className="space-y-1">
-              <div className="text-xs font-semibold">20 September</div>
-              <div className="text-xs text-gray-500">Sunday - All day</div>
-              {events.map((event, index) => (
-                <div key={index} className="text-xs p-1 rounded hover:bg-gray-50">
-                  <div className="font-medium">{event.title}</div>
-                  <div className="text-gray-500">{event.time}</div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Members */}
-        <Card className="shadow-sm">
-          <CardHeader className="pb-1">
-            <CardTitle className="text-xs font-semibold">Members</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 p-2">
-            <div className="flex -space-x-1 mb-2">
-              {members.slice(0, 4).map((member, index) => (
-                <div key={index} className="w-5 h-5 bg-gray-100 rounded-full border border-white flex items-center justify-center">
-                  <span className="text-xs">{member.avatar}</span>
-                </div>
-              ))}
-              <div className="w-5 h-5 bg-gray-200 rounded-full border border-white flex items-center justify-center">
-                <span className="text-xs text-gray-600">+</span>
+      {!isMobile && (
+        <div className="w-48 p-2 border-r border-gray-200 space-y-2">
+          {/* Eventos y actualizaciones */}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-1">
+              <CardTitle className="text-xs font-semibold flex items-center gap-1">
+                <Calendar size={12} />
+                Eventos y actualizaciones
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 p-2">
+              <div className="space-y-1">
+                <div className="text-xs font-semibold">20 September</div>
+                <div className="text-xs text-gray-500">Sunday - All day</div>
+                {events.map((event, index) => (
+                  <div key={index} className="text-xs p-1 rounded hover:bg-gray-50">
+                    <div className="font-medium">{event.title}</div>
+                    <div className="text-gray-500">{event.time}</div>
+                  </div>
+                ))}
               </div>
-            </div>
-            <div className="flex gap-1">
-              <Button variant="ghost" size="sm" className="text-xs h-5 px-2">Cancel</Button>
-              <Button size="sm" className="text-xs h-5 px-2 bg-purple-600 hover:bg-purple-700">More</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+
+          {/* Members */}
+          <Card className="shadow-sm">
+            <CardHeader className="pb-1">
+              <CardTitle className="text-xs font-semibold">Members</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 p-2">
+              <div className="flex -space-x-1 mb-2">
+                {members.slice(0, 4).map((member, index) => (
+                  <div key={index} className="w-5 h-5 bg-gray-100 rounded-full border border-white flex items-center justify-center">
+                    <span className="text-xs">{member.avatar}</span>
+                  </div>
+                ))}
+                <div className="w-5 h-5 bg-gray-200 rounded-full border border-white flex items-center justify-center">
+                  <span className="text-xs text-gray-600">+</span>
+                </div>
+              </div>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="sm" className="text-xs h-5 px-2">Cancel</Button>
+                <Button size="sm" className="text-xs h-5 px-2 bg-purple-600 hover:bg-purple-700">More</Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Contenido Principal */}
-      <div className="flex-1 p-3 space-y-3">
+      <div className={`flex-1 ${isMobile ? 'p-2 space-y-3' : 'p-3 space-y-3'}`}>
         {/* Header */}
         <div className="text-center mb-3">
           <h1 className="text-xl font-bold text-gray-900 mb-1">Estadísticas</h1>
@@ -155,9 +159,9 @@ export const EstadisticasContent = () => {
         </div>
 
         {/* Grid Principal - Cards Compactos */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+        <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-4 gap-3"}>
           {/* Mi Productividad */}
-          <div className="lg:col-span-2">
+          <div className={isMobile ? "w-full" : "lg:col-span-2"}>
             <Card className="shadow-sm h-full">
               <CardHeader className="pb-1">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -351,7 +355,7 @@ export const EstadisticasContent = () => {
         </div>
 
         {/* Segunda Fila - Transaction History y Outcome Statistics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-2 gap-3"}>
           {/* Transaction History */}
           <Card className="shadow-sm">
             <CardHeader className="pb-1">
@@ -434,11 +438,61 @@ export const EstadisticasContent = () => {
             </CardContent>
           </Card>
         </div>
+
+        {/* Barra Lateral en Móvil - Al final */}
+        {isMobile && (
+          <div className="space-y-3 mt-6">
+            {/* Eventos y actualizaciones */}
+            <Card className="shadow-sm">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-xs font-semibold flex items-center gap-1">
+                  <Calendar size={12} />
+                  Eventos y actualizaciones
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 p-2">
+                <div className="space-y-1">
+                  <div className="text-xs font-semibold">20 September</div>
+                  <div className="text-xs text-gray-500">Sunday - All day</div>
+                  {events.map((event, index) => (
+                    <div key={index} className="text-xs p-1 rounded hover:bg-gray-50">
+                      <div className="font-medium">{event.title}</div>
+                      <div className="text-gray-500">{event.time}</div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Members */}
+            <Card className="shadow-sm">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-xs font-semibold">Members</CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 p-2">
+                <div className="flex -space-x-1 mb-2">
+                  {members.slice(0, 4).map((member, index) => (
+                    <div key={index} className="w-5 h-5 bg-gray-100 rounded-full border border-white flex items-center justify-center">
+                      <span className="text-xs">{member.avatar}</span>
+                    </div>
+                  ))}
+                  <div className="w-5 h-5 bg-gray-200 rounded-full border border-white flex items-center justify-center">
+                    <span className="text-xs text-gray-600">+</span>
+                  </div>
+                </div>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="sm" className="text-xs h-5 px-2">Cancel</Button>
+                  <Button size="sm" className="text-xs h-5 px-2 bg-purple-600 hover:bg-purple-700">More</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
 
-      {/* Rating Modal - Fixed Bottom Left */}
-      <div className="fixed bottom-4 left-4 z-40">
-        <Card className="bg-white shadow-lg border w-64">
+      {/* Rating Modal - Fixed Bottom */}
+      <div className={`fixed ${isMobile ? 'bottom-2 left-2 right-2' : 'bottom-4 left-4'} z-40`}>
+        <Card className={`bg-white shadow-lg border ${isMobile ? 'w-full' : 'w-64'}`}>
           <CardContent className="p-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="bg-gray-100 rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">5</span>
