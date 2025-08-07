@@ -534,7 +534,7 @@ const Landing = () => {
           </div>
 
           {/* Interactive Dock */}
-          <DockWithContent items={dockItems} className="mb-12" />
+          <DockWithContent className="mb-12" />
 
           {/* Desktop version */}
           
