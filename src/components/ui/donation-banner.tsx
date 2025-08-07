@@ -133,7 +133,7 @@ export function DonationBanner() {
         type: "spring",
         stiffness: 300,
         damping: 30
-      }} className="fixed bottom-20 md:bottom-6 left-1/2 md:left-auto md:right-6 transform -translate-x-1/2 md:translate-x-0 z-50 w-[85vw] max-w-[280px] md:max-w-xs" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+      }} className="fixed bottom-20 md:bottom-6 left-1/2 md:left-auto md:right-6 transform -translate-x-1/2 md:translate-x-0 z-50 w-[90vw] max-w-[260px] md:max-w-xs" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
               <Card className="relative overflow-hidden bg-white border border-gray-200 shadow-xl">
                 {/* Apple-style close button */}
                 <motion.button onClick={handleClose} whileHover={{
@@ -144,18 +144,18 @@ export function DonationBanner() {
                   <X className="h-3 w-3 text-red-100 group-hover:text-white transition-colors" />
                 </motion.button>
 
-                <div className="relative p-4 space-y-3 pr-8">
+                <div className="relative p-3 md:p-4 space-y-2 md:space-y-3 pr-7 md:pr-8">
                   {/* Header with coffee icon */}
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 md:gap-3">
                     <motion.div animate={isHovered ? {
                 rotate: [0, -10, 10, 0]
               } : {}} transition={{
                 duration: 0.5
-              }} className="bg-gray-100 p-2 rounded-full">
-                      <Coffee className="h-5 w-5 text-gray-700" />
+              }} className="bg-gray-100 p-1.5 md:p-2 rounded-full">
+                      <Coffee className="h-4 w-4 md:h-5 md:w-5 text-gray-700" />
                     </motion.div>
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-900">
+                      <h3 className="text-xs md:text-sm font-semibold text-gray-900">
                         Dona un café
                       </h3>
                       <p className="text-xs text-gray-600">
@@ -165,12 +165,12 @@ export function DonationBanner() {
                   </div>
 
                   {/* Main message */}
-                  <div className="space-y-2">
+                  <div className="space-y-1.5 md:space-y-2">
                     <div>
                       <p className="text-xs text-gray-600 font-medium mb-1">
                         Frase del día
                       </p>
-                      <div className="min-h-[28px] flex items-center">
+                      <div className="min-h-[24px] md:min-h-[28px] flex items-center">
                         <p className="text-xs text-gray-800 leading-relaxed font-medium">
                           "{displayedText}"
                           {isTyping && <motion.span animate={{
@@ -184,8 +184,9 @@ export function DonationBanner() {
                         </p>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 flex items-center gap-1">
-                      Si te ahorré tiempo en la creación de tu historia clínica, invítame un café 
+                    <p className="text-xs text-gray-600 flex items-center gap-1 leading-relaxed">
+                      <span className="hidden md:inline">Si te ahorré tiempo en la creación de tu historia clínica, invítame un café</span>
+                      <span className="md:hidden">Si te ayudé, invítame un café</span>
                       <span className="text-pink-500">😘</span>
                     </p>
                   </div>
@@ -196,7 +197,7 @@ export function DonationBanner() {
             }} whileTap={{
               scale: 0.98
             }}>
-                    <Button onClick={handleDonate} disabled={isProcessing} className="w-full bg-black hover:bg-gray-800 text-white text-sm font-medium shadow-md border border-gray-300" size="sm">
+                    <Button onClick={handleDonate} disabled={isProcessing} className="w-full bg-black hover:bg-gray-800 text-white text-xs md:text-sm font-medium shadow-md border border-gray-300" size="sm">
                       {isProcessing ? <motion.div animate={{
                   rotate: 360
                 }} transition={{
