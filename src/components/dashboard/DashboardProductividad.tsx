@@ -14,41 +14,34 @@ const DashboardProductividad = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-4 space-y-4">
         {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">Dashboard de Productividad</h1>
-          <p className="text-muted-foreground">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-foreground mb-1">Dashboard de Productividad</h1>
+          <p className="text-sm text-muted-foreground">
             Monitorea tu actividad, progreso y el pulso de la comunidad Dentaxy.ai
           </p>
         </div>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column - Main Charts */}
-          <div className="lg:col-span-8 space-y-6">
-            {/* User Activity Chart */}
-            <div className="grid grid-cols-1">
-              <TiempoActividad />
-            </div>
-
-            {/* Platform Metrics */}
-            <div className="grid grid-cols-1">
-              <div className="space-y-2">
-                <h2 className="text-lg font-semibold text-foreground">Métricas Clave</h2>
-                <MetricasPlataforma />
-              </div>
-            </div>
-
+        {/* Compact Grid Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Left Column - Main Productivity Chart */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Main Productivity Chart */}
+            <TiempoActividad />
+            
+            {/* Goals/Metrics Row */}
+            <MetricasPlataforma />
+            
             {/* Bottom Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ComposicionTecnologica />
               <SistemaCalificacion />
             </div>
           </div>
 
-          {/* Right Column - Side Panel */}
-          <div className="lg:col-span-4 space-y-6">
+          {/* Right Column - Transaction History & Side Panel */}
+          <div className="space-y-4">
             <FeedActividadAI />
             <RankingUsuarios />
             <EventosActualizaciones />

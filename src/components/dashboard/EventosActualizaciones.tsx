@@ -98,85 +98,41 @@ const EventosActualizaciones = () => {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium">
           <Calendar className="h-4 w-4" />
-          Eventos y Actualizaciones
+          Updates & Events
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Platform Updates Section */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Zap className="h-4 w-4 text-primary" />
-            <h4 className="text-sm font-medium">Actualizaciones Recientes</h4>
-          </div>
-          <div className="space-y-3">
-            {updates.map((update, index) => (
-              <div 
-                key={update.id}
-                className="p-3 rounded-lg border bg-card/50 hover:bg-card transition-colors"
-              >
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <Badge variant="outline" className="text-xs">
-                    {update.version}
-                  </Badge>
-                  <span className="text-xs text-muted-foreground">
-                    {formatDate(update.release_date)}
-                  </span>
-                </div>
-                <h5 className="text-sm font-medium text-foreground mb-1">
-                  {update.title}
-                </h5>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {update.description}
-                </p>
+      <CardContent className="space-y-4">
+        {/* Recent Updates */}
+        <div className="space-y-2">
+          {updates.slice(0, 3).map((update, index) => (
+            <div 
+              key={update.id}
+              className="p-2 rounded-lg border bg-card/30 hover:bg-card/50 transition-colors"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <Badge variant="outline" className="text-xs">
+                  v{update.version}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {formatDate(update.release_date)}
+                </span>
               </div>
-            ))}
-            
-            {updates.length === 0 && (
-              <div className="text-center py-4">
-                <p className="text-sm text-muted-foreground">
-                  No hay actualizaciones recientes
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <Separator />
-
-        {/* Top Users Section */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4 text-primary" />
-            <h4 className="text-sm font-medium">Top Users</h4>
-          </div>
-          <div className="space-y-2">
-            {topUsers.map((user, index) => (
-              <div 
-                key={user.userId}
-                className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                  {index + 1}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-mono text-muted-foreground">
-                    {formatUserId(user.userId)}
-                  </p>
-                </div>
-                <div className="text-xs font-medium text-foreground">
-                  {formatTime(user.totalMinutes)}
-                </div>
-              </div>
-            ))}
-            
-            {topUsers.length === 0 && (
-              <div className="text-center py-4">
-                <p className="text-sm text-muted-foreground">
-                  No hay datos de usuarios aún
-                </p>
-              </div>
-            )}
-          </div>
+              <h5 className="text-xs font-medium text-foreground mb-1">
+                {update.title}
+              </h5>
+              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                {update.description}
+              </p>
+            </div>
+          ))}
+          
+          {updates.length === 0 && (
+            <div className="text-center py-4">
+              <p className="text-xs text-muted-foreground">
+                No hay actualizaciones
+              </p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

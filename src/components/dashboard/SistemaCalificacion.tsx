@@ -105,26 +105,30 @@ const SistemaCalificacion = () => {
   };
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium">
           <MessageSquare className="h-4 w-4" />
-          Califica Dentaxy.ai
+          Rate App
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {hasRated ? (
-          <div className="text-center space-y-3">
+          <div className="text-center space-y-2">
             <div className="flex justify-center gap-1">
-              {renderStars(currentRating)}
+              {renderStars(currentRating).map((star, i) => (
+                <div key={i} className="w-4 h-4">
+                  {React.cloneElement(star as React.ReactElement, { className: 'w-4 h-4' })}
+                </div>
+              ))}
             </div>
-            <p className="text-sm text-muted-foreground">
-              Ya has calificado la aplicación
+            <p className="text-xs text-muted-foreground">
+              ¡Gracias por tu calificación!
             </p>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full">
-                  Actualizar calificación
+                <Button variant="outline" size="sm" className="w-full text-xs h-8">
+                  Actualizar
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
@@ -133,7 +137,7 @@ const SistemaCalificacion = () => {
                 </DialogHeader>
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
-                    ¿Qué tan útil ha sido Dentaxy.ai para optimizar tus historias clínicas? ¡Tu opinión nos ayuda a mejorar!
+                    ¿Qué tan útil ha sido Dentaxy.ai para optimizar tus historias clínicas?
                   </p>
                   <div className="flex justify-center gap-1">
                     {renderStars(rating, true)}
@@ -142,31 +146,32 @@ const SistemaCalificacion = () => {
                     placeholder="Comparte tu experiencia (opcional)"
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
-                    className="min-h-[80px]"
+                    className="min-h-[60px]"
                   />
                   <Button
                     onClick={handleSubmit}
                     disabled={isSubmitting || rating === 0}
                     className="w-full"
                   >
-                    {isSubmitting ? 'Enviando...' : 'Actualizar Calificación'}
+                    {isSubmitting ? 'Enviando...' : 'Actualizar'}
                   </Button>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
         ) : (
-          <div className="text-center space-y-3">
-            <p className="text-sm text-muted-foreground">
-              Ayúdanos a mejorar con tu opinión
+          <div className="text-center space-y-2">
+            <p className="text-xs text-muted-foreground">
+              Ayúdanos a mejorar
             </p>
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button 
-                  className="w-full" 
+                  className="w-full text-xs h-8" 
                   disabled={!user}
+                  size="sm"
                 >
-                  {user ? 'Calificar Aplicación' : 'Inicia sesión para calificar'}
+                  {user ? 'Calificar' : 'Inicia sesión'}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
@@ -175,7 +180,7 @@ const SistemaCalificacion = () => {
                 </DialogHeader>
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
-                    ¿Qué tan útil ha sido Dentaxy.ai para optimizar tus historias clínicas? ¡Tu opinión nos ayuda a mejorar!
+                    ¿Qué tan útil ha sido Dentaxy.ai para optimizar tus historias clínicas?
                   </p>
                   <div className="flex justify-center gap-1">
                     {renderStars(rating, true)}
@@ -184,7 +189,7 @@ const SistemaCalificacion = () => {
                     placeholder="Comparte tu experiencia (opcional)"
                     value={feedback}
                     onChange={(e) => setFeedback(e.target.value)}
-                    className="min-h-[80px]"
+                    className="min-h-[60px]"
                   />
                   <Button
                     onClick={handleSubmit}

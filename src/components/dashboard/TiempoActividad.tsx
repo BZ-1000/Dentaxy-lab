@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
 import { Clock, TrendingUp } from 'lucide-react';
@@ -87,74 +87,87 @@ const TiempoActividad = () => {
 
   return (
     <Card className="h-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">Mi Productividad</CardTitle>
-        <Clock className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Total este mes</span>
-            <span className="text-lg font-semibold text-foreground">
-              {Math.round(totalMinutes / 60)}h {totalMinutes % 60}m
-            </span>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg font-semibold text-foreground">Mi Productividad</CardTitle>
+            <p className="text-sm text-muted-foreground">Tiempo total este mes</p>
           </div>
-          
-          {activityData.length > 0 ? (
-            <div className="h-48">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={activityData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis 
-                    dataKey="day" 
-                    className="text-xs fill-muted-foreground"
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis 
-                    className="text-xs fill-muted-foreground"
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip 
-                    content={({ active, payload, label }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-background border border-border rounded-lg p-2 shadow-md">
-                            <p className="text-sm">{`Día ${label}`}</p>
-                            <p className="text-sm font-semibold text-primary">
-                              {`${payload[0].value} minutos`}
-                            </p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Line 
-                    type="monotone" 
-                    dataKey="minutes" 
-                    stroke="hsl(var(--primary))" 
-                    strokeWidth={2}
-                    dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 3 }}
-                    activeDot={{ r: 5, stroke: "hsl(var(--primary))", strokeWidth: 2 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+          <div className="text-right">
+            <div className="text-3xl font-bold text-primary">
+              {Math.round(totalMinutes)}
             </div>
-          ) : (
-            <div className="h-48 flex items-center justify-center text-center">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  No hay datos de actividad aún
+            <div className="text-sm text-muted-foreground">minutos</div>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-2">
+        {activityData.length > 0 ? (
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={activityData}>
+                <defs>
+                  <linearGradient id="activityGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted/30" />
+                <XAxis 
+                  dataKey="day" 
+                  className="text-xs fill-muted-foreground"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis 
+                  className="text-xs fill-muted-foreground"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip 
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+                          <p className="text-sm font-medium">{`Día ${label}`}</p>
+                          <p className="text-sm font-semibold text-primary">
+                            {`${payload[0].value} minutos`}
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="minutes"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={3}
+                  fill="url(#activityGradient)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <div className="h-64 flex items-center justify-center text-center">
+            <div className="space-y-3">
+              <div className="w-16 h-16 mx-auto bg-primary/10 rounded-full flex items-center justify-center">
+                <TrendingUp className="w-8 h-8 text-primary" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-foreground">
+                  Comienza tu productividad
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Comienza a usar la aplicación para ver tu progreso
+                  Usa la aplicación para ver tu progreso aquí
                 </p>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

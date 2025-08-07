@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Trophy, TrendingUp, Award } from 'lucide-react';
+import { Trophy, TrendingUp, Award, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
 
@@ -106,71 +106,59 @@ const RankingUsuarios = () => {
     <Card className="h-full">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium">
-          <Trophy className="h-4 w-4" />
-          Ranking de Top Users
+          <Users className="h-4 w-4" />
+          Members
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* User Position Card */}
-        <div className="p-4 bg-primary/5 border border-primary/20 rounded-lg">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-              <PositionIcon className="w-4 h-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground mb-1">
-                Tu Posición
-              </p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {getPositionMessage()}
-              </p>
-              {user && userMinutes > 0 && (
-                <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="outline" className="text-xs">
-                    {formatTime(userMinutes)} este mes
-                  </Badge>
-                  {userPosition && (
-                    <Badge variant="secondary" className="text-xs">
-                      Posición #{userPosition}
-                    </Badge>
-                  )}
-                </div>
-              )}
-            </div>
+      <CardContent className="space-y-3">
+        {/* Current Date */}
+        <div className="text-center p-3 bg-muted/30 rounded-lg">
+          <div className="text-lg font-bold text-foreground">
+            {new Date().getDate()}
+          </div>
+          <div className="text-xs text-muted-foreground">
+            {new Date().toLocaleDateString('es-ES', { month: 'short', year: 'numeric' })}
           </div>
         </div>
 
         {/* Top Users List */}
         <div className="space-y-2">
-          <h4 className="text-sm font-medium text-muted-foreground">Top 5 Usuarios</h4>
-          {topUsers.slice(0, 5).map((user, index) => (
+          {topUsers.slice(0, 4).map((user, index) => (
             <div 
               key={user.userId}
               className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
             >
-              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-semibold">
-                {index === 0 && <Trophy className="w-3 h-3 text-yellow-500" />}
-                {index === 1 && <Award className="w-3 h-3 text-gray-400" />}
-                {index === 2 && <Award className="w-3 h-3 text-amber-600" />}
-                {index > 2 && (index + 1)}
+              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                  <span className="text-xs font-bold text-primary-foreground">
+                    {formatUserId(user.userId).charAt(0).toUpperCase()}
+                  </span>
+                </div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-mono text-muted-foreground">
-                  {formatUserId(user.userId)}
+                <p className="text-sm font-medium text-foreground">
+                  User {formatUserId(user.userId)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatTime(user.totalMinutes)} this month
                 </p>
               </div>
-              <div className="text-xs font-medium text-foreground">
-                {formatTime(user.totalMinutes)}
-              </div>
+              {index === 0 && <Trophy className="w-4 h-4 text-yellow-500" />}
             </div>
           ))}
           
           {topUsers.length === 0 && (
-            <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground">
-                No hay datos de ranking aún
+            <div className="text-center py-6">
+              <p className="text-xs text-muted-foreground">
+                No hay miembros aún
               </p>
             </div>
+          )}
+          
+          {topUsers.length > 0 && (
+            <button className="w-full text-xs text-primary hover:text-primary/80 transition-colors pt-2">
+              More
+            </button>
           )}
         </div>
       </CardContent>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
-import { Bot, Sparkles } from 'lucide-react';
+import { Bot, Sparkles, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AIActivity {
@@ -119,47 +119,52 @@ const FeedActividadAI = () => {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-sm font-medium">
           <Bot className="h-4 w-4" />
-          Actividad de la IA
+          Transaction History
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 max-h-96 overflow-y-auto">
+      <CardContent className="space-y-2 max-h-80 overflow-y-auto">
         {activities.length > 0 ? (
           activities.map((activity, index) => (
             <div 
               key={index}
-              className="flex items-start gap-3 p-3 rounded-lg border bg-card/50 hover:bg-card transition-colors animate-fade-in"
-              style={{ animationDelay: `${index * 100}ms` }}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
             >
               <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                <Sparkles className="w-4 h-4 text-primary" />
+                <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                  <span className="text-[8px] font-bold text-primary-foreground">D</span>
+                </div>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm text-foreground leading-relaxed">
-                  Dentaxy generó y redactó el apartado{' '}
-                  <span className="font-medium text-primary">
-                    '{activity.section_name}'
-                  </span>{' '}
-                  para el usuario{' '}
-                  <span className="font-mono text-xs bg-muted px-1 py-0.5 rounded">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-foreground truncate">
+                    {activity.section_name}
+                  </p>
+                  <div className="flex items-center gap-1">
+                    {index % 2 === 0 ? (
+                      <ArrowUpRight className="w-3 h-3 text-green-500" />
+                    ) : (
+                      <ArrowDownRight className="w-3 h-3 text-red-500" />
+                    )}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-muted-foreground font-mono">
                     {formatUserId(activity.user_id)}
-                  </span>
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {formatTime(activity.clicked_at)}
-                </p>
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatTime(activity.clicked_at)}
+                  </p>
+                </div>
               </div>
             </div>
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-3">
-              <Bot className="w-6 h-6 text-muted-foreground" />
+          <div className="flex flex-col items-center justify-center py-6 text-center">
+            <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mb-2">
+              <Bot className="w-5 h-5 text-muted-foreground" />
             </div>
-            <p className="text-sm text-muted-foreground">
-              No hay actividad reciente
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Las generaciones de IA aparecerán aquí
+            <p className="text-xs text-muted-foreground">
+              No hay transacciones recientes
             </p>
           </div>
         )}
