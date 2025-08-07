@@ -133,7 +133,7 @@ export function DonationBanner() {
         type: "spring",
         stiffness: 300,
         damping: 30
-      }} className="fixed bottom-20 md:bottom-6 left-1/2 md:left-auto md:right-6 transform -translate-x-1/2 md:translate-x-0 z-50 w-[90vw] max-w-[260px] md:max-w-xs" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
+      }} className="fixed bottom-20 md:bottom-6 left-4 right-4 md:left-auto md:right-6 mx-auto md:mx-0 z-50 w-[80vw] max-w-[240px] md:max-w-xs" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
               <Card className="relative overflow-hidden bg-white border border-gray-200 shadow-xl">
                 {/* Apple-style close button */}
                 <motion.button onClick={handleClose} whileHover={{
