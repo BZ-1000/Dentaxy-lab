@@ -72,275 +72,266 @@ export const EstadisticasContent = () => {
   };
 
   return (
-    <div className="bg-white p-4 space-y-4 overflow-y-auto max-h-screen">
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">Estadísticas</h1>
-        <p className="text-blue-500 text-sm">Hello <span className="text-blue-600 font-medium">(colocar nombre de usuario)</span>, welcome back!</p>
+    <div className="bg-white h-full flex">
+      {/* Barra Lateral Izquierda - Eventos */}
+      <div className="w-48 p-2 border-r border-gray-200 space-y-2">
+        {/* Eventos y actualizaciones */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-semibold flex items-center gap-1">
+              <Calendar size={12} />
+              Eventos y actualizaciones
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 p-2">
+            <div className="space-y-1">
+              <div className="text-xs font-semibold">20 September</div>
+              <div className="text-xs text-gray-500">Sunday - All day</div>
+              {events.map((event, index) => (
+                <div key={index} className="text-xs p-1 rounded hover:bg-gray-50">
+                  <div className="font-medium">{event.title}</div>
+                  <div className="text-gray-500">{event.time}</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Members */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-xs font-semibold">Members</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 p-2">
+            <div className="flex -space-x-1 mb-2">
+              {members.slice(0, 4).map((member, index) => (
+                <div key={index} className="w-5 h-5 bg-gray-100 rounded-full border border-white flex items-center justify-center">
+                  <span className="text-xs">{member.avatar}</span>
+                </div>
+              ))}
+              <div className="w-5 h-5 bg-gray-200 rounded-full border border-white flex items-center justify-center">
+                <span className="text-xs text-gray-600">+</span>
+              </div>
+            </div>
+            <div className="flex gap-1">
+              <Button variant="ghost" size="sm" className="text-xs h-5 px-2">Cancel</Button>
+              <Button size="sm" className="text-xs h-5 px-2 bg-purple-600 hover:bg-purple-700">More</Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Mi Productividad */}
-        <div className="lg:col-span-2">
+      {/* Contenido Principal */}
+      <div className="flex-1 p-3 space-y-3">
+        {/* Header */}
+        <div className="text-center mb-3">
+          <h1 className="text-xl font-bold text-gray-900 mb-1">Estadísticas</h1>
+          <p className="text-blue-500 text-xs">Hello <span className="text-blue-600 font-medium">(colocar nombre de usuario)</span>, welcome back!</p>
+        </div>
+
+        {/* Grid Principal - Cards Compactos */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+          {/* Mi Productividad */}
+          <div className="lg:col-span-2">
+            <Card className="shadow-sm h-full">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">1</span>
+                  Mi Productividad
+                </CardTitle>
+                <p className="text-xs text-gray-500">Si aún no inicias sesión no podras ver tu progreso</p>
+              </CardHeader>
+              <CardContent className="pt-0 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <div className="text-xl font-bold text-purple-600">17 min</div>
+                    <p className="text-xs text-gray-500">May</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">March 2020</p>
+                  </div>
+                </div>
+                <div className="h-20">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={productivityData}>
+                      <defs>
+                        <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} className="text-xs" />
+                      <YAxis hide />
+                      <Area
+                        type="monotone"
+                        dataKey="value"
+                        stroke="#8b5cf6"
+                        strokeWidth={2}
+                        fill="url(#colorUv)"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Goals */}
+          <div>
+            <Card className="shadow-sm h-full">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">2</span>
+                  Goals
+                  <Plus size={12} className="ml-auto text-gray-400" />
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0 p-2 space-y-2">
+                {goals.map((goal, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-50"
+                  >
+                    <div className={`p-1 rounded-lg ${goal.bgColor}`}>
+                      <goal.icon size={12} className={goal.color} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-bold text-gray-900">{goal.title}</span>
+                        <span className="text-xs text-gray-500">12/12/20</span>
+                      </div>
+                      <p className="text-xs text-gray-600 font-medium">{goal.subtitle}</p>
+                    </div>
+                    <ChevronRight size={10} className="text-gray-400" />
+                  </motion.div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Get Great Loan Card */}
+          <div>
+            <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg h-full">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-white/20 rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">6</span>
+                </div>
+                <h3 className="text-sm font-bold mb-1">Get great loan!</h3>
+                <div className="flex items-center justify-between">
+                  <ChevronRight size={14} className="text-white/80" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Segunda Fila - Transaction History y Outcome Statistics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          {/* Transaction History */}
           <Card className="shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <span className="bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">1</span>
-                Mi Productividad
+            <CardHeader className="pb-1">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">3</span>
+                Transaction history
               </CardTitle>
-              <p className="text-xs text-gray-500">Si aún no inicias sesión no podras ver tu progreso</p>
             </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <div className="text-2xl font-bold text-purple-600">17 min</div>
-                  <p className="text-xs text-gray-500">May</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs text-gray-500">March 2020</p>
-                </div>
-              </div>
-              <div className="h-32">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={productivityData}>
-                    <defs>
-                      <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis dataKey="name" axisLine={false} tickLine={false} className="text-xs" />
-                    <YAxis hide />
-                    <Area
-                      type="monotone"
-                      dataKey="value"
-                      stroke="#8b5cf6"
-                      strokeWidth={2}
-                      fill="url(#colorUv)"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+            <CardContent className="pt-0 p-2">
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="text-gray-500 border-b">
+                      <th className="text-left pb-1 font-medium">Receiver</th>
+                      <th className="text-left pb-1 font-medium">Type</th>
+                      <th className="text-left pb-1 font-medium">Date</th>
+                      <th className="text-right pb-1 font-medium">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transactionData.slice(0, 3).map((transaction) => (
+                      <tr key={transaction.id} className="border-b last:border-b-0">
+                        <td className="py-1">
+                          <div className="flex items-center gap-1">
+                            <div className="p-1 rounded bg-gray-100">
+                              <transaction.icon size={10} className="text-gray-600" />
+                            </div>
+                            <span className="font-medium text-gray-900 text-xs">{transaction.type}</span>
+                          </div>
+                        </td>
+                        <td className="py-1 text-gray-600 text-xs">{transaction.category}</td>
+                        <td className="py-1 text-gray-500 text-xs">{transaction.date}</td>
+                        <td className="py-1 text-right font-semibold text-gray-900 text-xs">{transaction.amount}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </CardContent>
           </Card>
-        </div>
 
-        {/* Goals */}
-        <div>
+          {/* Outcome Statistics */}
           <Card className="shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <span className="bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">2</span>
-                Goals
-                <Plus size={16} className="ml-auto text-gray-400" />
+            <CardHeader className="pb-1">
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">4</span>
+                Outcome Statistics
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 space-y-3">
-              {goals.map((goal, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50"
-                >
-                  <div className={`p-2 rounded-lg ${goal.bgColor}`}>
-                    <goal.icon size={16} className={goal.color} />
+            <CardContent className="pt-0 p-2 space-y-2">
+              {outcomeStats.map((stat, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div className={`p-1 rounded-lg ${
+                    stat.label === 'Shopping' ? 'bg-orange-50' : 
+                    stat.label === 'Electronics' ? 'bg-green-50' : 'bg-blue-50'
+                  }`}>
+                    {stat.label === 'Shopping' && <ShoppingBag size={12} className="text-orange-500" />}
+                    {stat.label === 'Electronics' && <Smartphone size={12} className="text-green-500" />}
+                    {stat.label === 'Travels' && <Plane size={12} className="text-blue-500" />}
                   </div>
                   <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-lg font-bold text-gray-900">{goal.title}</span>
-                      <span className="text-xs text-gray-500">12/12/20</span>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs font-medium text-gray-700">{stat.label}</span>
+                      <span className="text-xs font-bold text-gray-900">{stat.percentage}%</span>
                     </div>
-                    <p className="text-xs text-gray-600 font-medium">{goal.subtitle}</p>
+                    <div className="w-full bg-gray-200 rounded-full h-1.5">
+                      <motion.div
+                        className={`h-1.5 rounded-full ${
+                          stat.label === 'Shopping' ? 'bg-orange-500' : 
+                          stat.label === 'Electronics' ? 'bg-green-500' : 'bg-blue-500'
+                        }`}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${stat.percentage}%` }}
+                        transition={{ duration: 1, delay: index * 0.2 }}
+                      />
+                    </div>
                   </div>
-                  <ChevronRight size={14} className="text-gray-400" />
-                </motion.div>
+                </div>
               ))}
             </CardContent>
           </Card>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Transaction History */}
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <span className="bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">3</span>
-              Transaction history
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs">
-                <thead>
-                  <tr className="text-gray-500 border-b">
-                    <th className="text-left pb-2 font-medium">Receiver</th>
-                    <th className="text-left pb-2 font-medium">Type</th>
-                    <th className="text-left pb-2 font-medium">Date</th>
-                    <th className="text-right pb-2 font-medium">Amount</th>
-                  </tr>
-                </thead>
-                <tbody className="space-y-1">
-                  {transactionData.map((transaction) => (
-                    <tr key={transaction.id} className="border-b last:border-b-0">
-                      <td className="py-2">
-                        <div className="flex items-center gap-2">
-                          <div className="p-1 rounded bg-gray-100">
-                            <transaction.icon size={12} className="text-gray-600" />
-                          </div>
-                          <span className="font-medium text-gray-900">{transaction.type}</span>
-                        </div>
-                      </td>
-                      <td className="py-2 text-gray-600">{transaction.category}</td>
-                      <td className="py-2 text-gray-500">{transaction.date}</td>
-                      <td className="py-2 text-right font-semibold text-gray-900">{transaction.amount}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Outcome Statistics */}
-        <Card className="shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <span className="bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">4</span>
-              Outcome Statistics
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-4">
-            {outcomeStats.map((stat, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <div className={`p-2 rounded-lg ${
-                  stat.label === 'Shopping' ? 'bg-orange-50' : 
-                  stat.label === 'Electronics' ? 'bg-green-50' : 'bg-blue-50'
-                }`}>
-                  {stat.label === 'Shopping' && <ShoppingBag size={16} className="text-orange-500" />}
-                  {stat.label === 'Electronics' && <Smartphone size={16} className="text-green-500" />}
-                  {stat.label === 'Travels' && <Plane size={16} className="text-blue-500" />}
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-gray-700">{stat.label}</span>
-                    <span className="text-sm font-bold text-gray-900">{stat.percentage}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <motion.div
-                      className={`h-2 rounded-full ${
-                        stat.label === 'Shopping' ? 'bg-orange-500' : 
-                        stat.label === 'Electronics' ? 'bg-green-500' : 'bg-blue-500'
-                      }`}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${stat.percentage}%` }}
-                      transition={{ duration: 1, delay: index * 0.2 }}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Bottom Section */}
-      <div className="flex gap-4">
-        {/* Left Sidebar */}
-        <div className="w-64 space-y-3">
-          {/* Eventos y actualizaciones */}
-          <Card className="shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">7</span>
-                <Calendar size={14} />
-                Eventos y actualizaciones
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-50">
-                  <span className="text-xs font-semibold">20 September</span>
-                </div>
-                <div className="text-xs text-gray-500">Sunday</div>
-                <div className="flex items-center gap-2 text-xs">
-                  <span>All day</span>
-                  <ChevronRight size={12} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Members */}
-          <Card className="shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold">Members</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex -space-x-2 mb-2">
-                {members.slice(0, 6).map((member, index) => (
-                  <div key={index} className="relative">
-                    <div className="w-6 h-6 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center">
-                      <span className="text-xs">{member.avatar}</span>
-                    </div>
-                  </div>
-                ))}
-                <div className="w-6 h-6 bg-gray-200 rounded-full border-2 border-white flex items-center justify-center">
-                  <span className="text-xs text-gray-600">+</span>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button variant="ghost" size="sm" className="text-xs h-6">Cancel</Button>
-                <Button size="sm" className="text-xs h-6 bg-purple-600 hover:bg-purple-700">More</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content Area */}
-        <div className="flex-1"></div>
-
-        {/* Get Great Loan Card - Bottom Right */}
-        <div className="w-48">
-          <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-white/20 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">6</span>
-              </div>
-              <h3 className="text-lg font-bold mb-1">Get great loan!</h3>
-              <div className="flex items-center justify-between">
-                <ChevronRight size={16} className="text-white/80" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
       {/* Rating Modal - Fixed Bottom Left */}
-      <AnimatePresence>
-        {showRatingModal && (
-          <motion.div
-            initial={{ scale: 0.8, opacity: 0, x: -50 }}
-            animate={{ scale: 1, opacity: 1, x: 0 }}
-            exit={{ scale: 0.8, opacity: 0, x: -50 }}
-            className="fixed bottom-4 left-4 bg-white rounded-xl p-4 shadow-lg border z-40 w-80"
-          >
+      <div className="fixed bottom-4 left-4 z-40">
+        <Card className="bg-white shadow-lg border w-64">
+          <CardContent className="p-3">
             <div className="flex items-center gap-2 mb-2">
-              <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">5</span>
-              <h3 className="text-sm font-bold text-gray-900">How would you rate the overall user experience of our App?</h3>
+              <span className="bg-gray-100 rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">5</span>
+              <h3 className="text-xs font-bold text-gray-900">Rate your experience</h3>
               <button
                 onClick={() => setShowRatingModal(false)}
                 className="ml-auto text-gray-400 hover:text-gray-600"
               >
-                <X size={16} />
+                <X size={12} />
               </button>
             </div>
             
-            <p className="text-xs text-gray-600 mb-3">Do you find the app easy to use?</p>
+            <p className="text-xs text-gray-600 mb-2">Do you find the app easy to use?</p>
             
-            <div className="flex justify-center gap-1 mb-4">
+            <div className="flex justify-center gap-1 mb-3">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
                   key={star}
@@ -350,7 +341,7 @@ export const EstadisticasContent = () => {
                   className="transition-transform hover:scale-110"
                 >
                   <Star
-                    size={20}
+                    size={16}
                     className={`${
                       star <= (hoveredStar || rating)
                         ? 'fill-yellow-400 text-yellow-400'
@@ -365,7 +356,7 @@ export const EstadisticasContent = () => {
               <Button
                 variant="outline"
                 onClick={() => setShowRatingModal(false)}
-                className="flex-1 text-xs h-8"
+                className="flex-1 text-xs h-6"
               >
                 Cancel
               </Button>
@@ -374,15 +365,15 @@ export const EstadisticasContent = () => {
                   setShowRatingModal(false);
                   // Handle rating submission here
                 }}
-                className="flex-1 text-xs h-8 bg-purple-600 hover:bg-purple-700"
+                className="flex-1 text-xs h-6 bg-purple-600 hover:bg-purple-700"
                 disabled={rating === 0}
               >
                 Submit
               </Button>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
