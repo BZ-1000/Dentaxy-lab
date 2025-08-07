@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
-import { Clock, TrendingUp } from 'lucide-react';
+import { Clock, TrendingUp, BarChart3 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface ActivityData {
   date: string;
@@ -31,12 +32,25 @@ const TiempoActividad = () => {
     
     try {
       const data = await fetchUserActivityData(user.id);
-      const formattedData = data.map(item => ({
-        ...item,
-        day: new Date(item.date).getDate().toString()
-      }));
+      // Get current month data and format for daily display
+      const currentMonth = new Date().getMonth();
+      const currentYear = new Date().getFullYear();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
       
-      setActivityData(formattedData);
+      // Create array with all days of the month
+      const monthlyData = Array.from({ length: daysInMonth }, (_, i) => {
+        const day = i + 1;
+        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const dayData = data.find(item => item.date === dateStr);
+        
+        return {
+          date: dateStr,
+          minutes: dayData ? dayData.minutes : 0,
+          day: day.toString()
+        };
+      });
+      
+      setActivityData(monthlyData);
       setTotalMinutes(data.reduce((sum, item) => sum + item.minutes, 0));
     } catch (error) {
       console.error('Error loading activity data:', error);
