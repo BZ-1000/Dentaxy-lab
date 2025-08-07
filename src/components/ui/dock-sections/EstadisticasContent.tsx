@@ -1,12 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceDot } from 'recharts';
-import { Calendar, Star, TrendingUp, ShoppingBag, Smartphone, User, Plus, ChevronRight, X, Plane, Mountain, Gamepad2, UserPlus } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { Calendar, Star, TrendingUp, ShoppingBag, Smartphone, User, Plus, ChevronRight, X, Plane, Mountain, Gamepad2 } from 'lucide-react';
 
 const productivityData = [
   { name: 'Ene', value: 12 },
@@ -52,12 +50,9 @@ const members = [
 ];
 
 export const EstadisticasContent = () => {
-  const { user } = useAuth();
-  const isMobile = useIsMobile();
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
-  const [hoveredDay, setHoveredDay] = useState<number | null>(null);
 
   useEffect(() => {
     // Show rating modal after 3 seconds
@@ -76,194 +71,144 @@ export const EstadisticasContent = () => {
     setHoveredStar(starNumber);
   };
 
-  // Generate productivity data for current month
-  const productivityData = useMemo(() => {
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    
-    return Array.from({ length: daysInMonth }, (_, i) => {
-      const day = i + 1;
-      const randomActivity = user ? Math.floor(Math.random() * 60) + 5 : 0; // 5-65 minutes random
-      return {
-        day,
-        minutes: randomActivity,
-        date: `${day}/${currentMonth + 1}`
-      };
-    });
-  }, [user]);
+  return (
+    <div className="bg-white p-4 space-y-4 overflow-y-auto max-h-screen">
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Estadísticas</h1>
+        <p className="text-blue-500 text-sm">Hello <span className="text-blue-600 font-medium">(colocar nombre de usuario)</span>, welcome back!</p>
+      </div>
 
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-2 rounded-lg shadow-lg border text-xs">
-          <p className="font-semibold">{`Día ${label}`}</p>
-          <p className="text-primary">{`${payload[0].value} min`}</p>
-        </div>
-      );
-    }
-    return null;
-  };
-
-  // Mobile layout
-  if (isMobile) {
-    return (
-      <div className="bg-background min-h-full p-4 space-y-6">
-        {/* Header centrado */}
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-foreground mb-2">Estadísticas</h1>
-          <p className="text-primary text-sm">
-            {user ? (
-              <>Hola <span className="font-semibold">{user.user_metadata?.display_name || user.email?.split('@')[0] || 'Usuario'}</span> ¡bienvenido de vuelta!</>
-            ) : (
-              'Inicia sesión para ver tus estadísticas'
-            )}
-          </p>
-        </div>
-
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Mi Productividad */}
-        <Card className="shadow-lg">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-bold flex items-center gap-3">
-              <span className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">1</span>
-              Mi Productividad
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            {user ? (
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <div className="text-2xl font-bold text-primary">
-                      {hoveredDay ? productivityData[hoveredDay - 1]?.minutes : 
-                       productivityData.reduce((acc, day) => acc + day.minutes, 0) / productivityData.length}
-                      <span className="text-sm text-muted-foreground ml-1">min</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {hoveredDay ? `Día ${hoveredDay}` : 'Promedio diario'}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground">
-                      {new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
-                    </p>
-                  </div>
+        <div className="lg:col-span-2">
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <span className="bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">1</span>
+                Mi Productividad
+              </CardTitle>
+              <p className="text-xs text-gray-500">Si aún no inicias sesión no podras ver tu progreso</p>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <div className="text-2xl font-bold text-purple-600">17 min</div>
+                  <p className="text-xs text-gray-500">May</p>
                 </div>
-                <div className="h-32">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={productivityData}>
-                      <XAxis 
-                        dataKey="day" 
-                        axisLine={false} 
-                        tickLine={false} 
-                        className="text-xs"
-                        interval="preserveStartEnd"
-                      />
-                      <YAxis hide />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Line
-                        type="monotone"
-                        dataKey="minutes"
-                        stroke="hsl(var(--primary))"
-                        strokeWidth={3}
-                        dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 4 }}
-                        activeDot={{ r: 6, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">March 2020</p>
                 </div>
               </div>
-            ) : (
-              <div className="text-center py-8">
-                <div className="mb-4">
-                  <TrendingUp size={48} className="mx-auto text-primary/60" />
-                </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  Descubre tu verdadera eficiencia
-                </h3>
-                <p className="text-muted-foreground mb-6 text-sm leading-relaxed">
-                  Registra tu actividad y visualiza en minutos el tiempo que dedicas a perfeccionar tus historias clínicas. Empieza a medir tu productividad ahora.
-                </p>
-                <Button className="w-full">
-                  <UserPlus size={16} className="mr-2" />
-                  Regístrate Gratis
-                </Button>
+              <div className="h-32">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={productivityData}>
+                    <defs>
+                      <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} className="text-xs" />
+                    <YAxis hide />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#8b5cf6"
+                      strokeWidth={2}
+                      fill="url(#colorUv)"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Goals */}
-        <Card className="shadow-lg">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-bold flex items-center gap-3">
-              <span className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">2</span>
-              Goals
-              <Plus size={16} className="ml-auto text-muted-foreground" />
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3">
-            {goals.map((goal, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/50"
-              >
-                <div className={`p-2 rounded-lg ${goal.bgColor}`}>
-                  <goal.icon size={16} className={goal.color} />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-foreground">{goal.title}</span>
-                    <span className="text-xs text-muted-foreground">12/12/20</span>
+        <div>
+          <Card className="shadow-sm">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <span className="bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">2</span>
+                Goals
+                <Plus size={16} className="ml-auto text-gray-400" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-3">
+              {goals.map((goal, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50"
+                >
+                  <div className={`p-2 rounded-lg ${goal.bgColor}`}>
+                    <goal.icon size={16} className={goal.color} />
                   </div>
-                  <p className="text-sm text-muted-foreground font-medium">{goal.subtitle}</p>
-                </div>
-                <ChevronRight size={16} className="text-muted-foreground" />
-              </motion.div>
-            ))}
-          </CardContent>
-        </Card>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-lg font-bold text-gray-900">{goal.title}</span>
+                      <span className="text-xs text-gray-500">12/12/20</span>
+                    </div>
+                    <p className="text-xs text-gray-600 font-medium">{goal.subtitle}</p>
+                  </div>
+                  <ChevronRight size={14} className="text-gray-400" />
+                </motion.div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Transaction History */}
-        <Card className="shadow-lg">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-bold flex items-center gap-3">
-              <span className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">3</span>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <span className="bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">3</span>
               Transaction history
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="space-y-3">
-              {transactionData.slice(0, 4).map((transaction) => (
-                <div key={transaction.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50">
-                  <div className="p-2 rounded bg-muted">
-                    <transaction.icon size={16} className="text-muted-foreground" />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-foreground text-sm">{transaction.type}</span>
-                      <span className="font-semibold text-foreground text-sm">{transaction.amount}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">{transaction.category}</span>
-                      <span className="text-xs text-muted-foreground">{transaction.date}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-gray-500 border-b">
+                    <th className="text-left pb-2 font-medium">Receiver</th>
+                    <th className="text-left pb-2 font-medium">Type</th>
+                    <th className="text-left pb-2 font-medium">Date</th>
+                    <th className="text-right pb-2 font-medium">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="space-y-1">
+                  {transactionData.map((transaction) => (
+                    <tr key={transaction.id} className="border-b last:border-b-0">
+                      <td className="py-2">
+                        <div className="flex items-center gap-2">
+                          <div className="p-1 rounded bg-gray-100">
+                            <transaction.icon size={12} className="text-gray-600" />
+                          </div>
+                          <span className="font-medium text-gray-900">{transaction.type}</span>
+                        </div>
+                      </td>
+                      <td className="py-2 text-gray-600">{transaction.category}</td>
+                      <td className="py-2 text-gray-500">{transaction.date}</td>
+                      <td className="py-2 text-right font-semibold text-gray-900">{transaction.amount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </CardContent>
         </Card>
 
         {/* Outcome Statistics */}
-        <Card className="shadow-lg">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-bold flex items-center gap-3">
-              <span className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">4</span>
+        <Card className="shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <span className="bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">4</span>
               Outcome Statistics
             </CardTitle>
           </CardHeader>
@@ -279,11 +224,11 @@ export const EstadisticasContent = () => {
                   {stat.label === 'Travels' && <Plane size={16} className="text-blue-500" />}
                 </div>
                 <div className="flex-1">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-foreground">{stat.label}</span>
-                    <span className="text-sm font-bold text-foreground">{stat.percentage}%</span>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium text-gray-700">{stat.label}</span>
+                    <span className="text-sm font-bold text-gray-900">{stat.percentage}%</span>
                   </div>
-                  <div className="w-full bg-muted rounded-full h-2">
+                  <div className="w-full bg-gray-200 rounded-full h-2">
                     <motion.div
                       className={`h-2 rounded-full ${
                         stat.label === 'Shopping' ? 'bg-orange-500' : 
@@ -299,456 +244,142 @@ export const EstadisticasContent = () => {
             ))}
           </CardContent>
         </Card>
-
-        {/* Eventos */}
-        <Card className="shadow-lg border-l-4 border-l-blue-500">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-bold flex items-center gap-3 text-blue-600">
-              <Calendar size={20} />
-              Eventos y actualizaciones
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="space-y-3">
-              <div>
-                <div className="text-sm font-semibold text-foreground">20 September</div>
-                <div className="text-xs text-muted-foreground">Sunday - All day</div>
-              </div>
-              {events.map((event, index) => (
-                <div key={index} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50">
-                  <div className="bg-blue-100 text-blue-600 rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm">
-                    {event.date}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-foreground text-sm">{event.title}</div>
-                    <div className="text-xs text-muted-foreground">{event.time}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Members */}
-        <Card className="shadow-lg">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg font-bold flex items-center gap-3">
-              <span className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">M</span>
-              Members
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              {members.map((member, index) => (
-                <div key={index} className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm ${
-                    member.status === 'online' ? 'bg-gradient-to-br from-green-400 to-blue-500' :
-                    member.status === 'away' ? 'bg-gradient-to-br from-yellow-400 to-orange-500' :
-                    'bg-gradient-to-br from-gray-400 to-gray-600'
-                  }`}>
-                    <span className="text-white">{member.avatar}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-foreground truncate">{member.name}</div>
-                    <div className={`text-xs ${
-                      member.status === 'online' ? 'text-green-600' :
-                      member.status === 'away' ? 'text-yellow-600' :
-                      'text-gray-500'
-                    }`}>
-                      {member.status}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex-1 text-sm">Cancel</Button>
-              <Button className="flex-1 text-sm">More</Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Desktop layout
-  return (
-    <div className="bg-background h-full">
-      {/* Header centrado fuera del layout principal */}
-      <div className="text-center py-6 px-4">
-        <h1 className="text-3xl font-bold text-foreground mb-2">Estadísticas</h1>
-        <p className="text-primary text-base">
-          {user ? (
-            <>Hola <span className="font-semibold">{user.user_metadata?.display_name || user.email?.split('@')[0] || 'Usuario'}</span> ¡bienvenido de vuelta!</>
-          ) : (
-            'Inicia sesión para ver tus estadísticas'
-          )}
-        </p>
       </div>
 
-      <div className="flex h-full">
-        {/* Barra Lateral Izquierda */}
-        <div className="w-72 p-4 border-r border-border space-y-4">
-          {/* Dental Basics Academy Header */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-200">
-            <h2 className="text-lg font-bold text-blue-800 mb-1">Dental Basics Academy</h2>
-            <p className="text-xs text-blue-600">Tu centro de conocimiento dental</p>
-          </div>
-
+      {/* Bottom Section */}
+      <div className="flex gap-4">
+        {/* Left Sidebar */}
+        <div className="w-64 space-y-3">
           {/* Eventos y actualizaciones */}
-          <Card className="shadow-lg border-l-4 border-l-blue-500">
+          <Card className="shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold flex items-center gap-2 text-blue-600">
-                <Calendar size={16} />
+              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">7</span>
+                <Calendar size={14} />
                 Eventos y actualizaciones
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 p-3">
-              <div className="space-y-3">
-                <div>
-                  <div className="text-sm font-semibold text-foreground">20 September</div>
-                  <div className="text-xs text-muted-foreground">Sunday - All day</div>
+            <CardContent className="pt-0">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                  <span className="text-xs font-semibold">20 September</span>
                 </div>
-                {events.map((event, index) => (
-                  <div key={index} className="flex items-center gap-2 p-2 rounded-lg hover:bg-blue-50 transition-colors">
-                    <div className="bg-blue-100 text-blue-600 rounded-full w-6 h-6 flex items-center justify-center font-bold text-xs">
-                      {event.date}
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-foreground text-sm">{event.title}</div>
-                      <div className="text-xs text-muted-foreground">{event.time}</div>
-                    </div>
-                  </div>
-                ))}
+                <div className="text-xs text-gray-500">Sunday</div>
+                <div className="flex items-center gap-2 text-xs">
+                  <span>All day</span>
+                  <ChevronRight size={12} />
+                </div>
               </div>
             </CardContent>
           </Card>
 
           {/* Members */}
-          <Card className="shadow-lg">
+          <Card className="shadow-sm">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-bold text-foreground">Members</CardTitle>
+              <CardTitle className="text-sm font-semibold">Members</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 p-3">
-              <div className="space-y-2 mb-3">
-                {members.map((member, index) => (
-                  <div key={index} className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs relative ${
-                      member.status === 'online' ? 'bg-gradient-to-br from-green-400 to-blue-500' :
-                      member.status === 'away' ? 'bg-gradient-to-br from-yellow-400 to-orange-500' :
-                      'bg-gradient-to-br from-gray-400 to-gray-600'
-                    }`}>
-                      <span className="text-white">{member.avatar}</span>
-                      <div className={`absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full border border-white ${
-                        member.status === 'online' ? 'bg-green-500' :
-                        member.status === 'away' ? 'bg-yellow-500' :
-                        'bg-gray-500'
-                      }`} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-medium text-foreground">{member.name}</div>
-                      <div className={`text-xs ${
-                        member.status === 'online' ? 'text-green-600' :
-                        member.status === 'away' ? 'text-yellow-600' :
-                        'text-gray-500'
-                      }`}>
-                        {member.status}
-                      </div>
+            <CardContent className="pt-0">
+              <div className="flex -space-x-2 mb-2">
+                {members.slice(0, 6).map((member, index) => (
+                  <div key={index} className="relative">
+                    <div className="w-6 h-6 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center">
+                      <span className="text-xs">{member.avatar}</span>
                     </div>
                   </div>
                 ))}
+                <div className="w-6 h-6 bg-gray-200 rounded-full border-2 border-white flex items-center justify-center">
+                  <span className="text-xs text-gray-600">+</span>
+                </div>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="flex-1 text-xs">Cancel</Button>
-                <Button size="sm" className="flex-1 text-xs">More</Button>
+                <Button variant="ghost" size="sm" className="text-xs h-6">Cancel</Button>
+                <Button size="sm" className="text-xs h-6 bg-purple-600 hover:bg-purple-700">More</Button>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Contenido Principal */}
-        <div className="flex-1 p-6 space-y-6">
-          {/* Grid Principal */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Mi Productividad */}
-            <div className="lg:col-span-2">
-              <Card className="shadow-lg h-full">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-bold flex items-center gap-3">
-                    <span className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">1</span>
-                    Mi Productividad
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  {user ? (
-                    <div>
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <div className="text-3xl font-bold text-primary">
-                            {hoveredDay ? productivityData[hoveredDay - 1]?.minutes : 
-                             Math.round(productivityData.reduce((acc, day) => acc + day.minutes, 0) / productivityData.length)}
-                            <span className="text-lg text-muted-foreground ml-1">min</span>
-                          </div>
-                          <p className="text-sm text-muted-foreground">
-                            {hoveredDay ? `Día ${hoveredDay}` : 'Promedio diario'}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm text-muted-foreground">
-                            {new Date().toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="h-32">
-                        <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={productivityData}>
-                            <XAxis 
-                              dataKey="day" 
-                              axisLine={false} 
-                              tickLine={false} 
-                              className="text-xs"
-                              interval="preserveStartEnd"
-                            />
-                            <YAxis hide />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Line
-                              type="monotone"
-                              dataKey="minutes"
-                              stroke="hsl(var(--primary))"
-                              strokeWidth={3}
-                              dot={{ fill: 'hsl(var(--primary))', strokeWidth: 2, r: 4 }}
-                              activeDot={{ r: 6, stroke: 'hsl(var(--primary))', strokeWidth: 2 }}
-                            />
-                          </LineChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="mb-4">
-                        <TrendingUp size={64} className="mx-auto text-primary/60" />
-                      </div>
-                      <h3 className="text-xl font-semibold text-foreground mb-3">
-                        Descubre tu verdadera eficiencia
-                      </h3>
-                      <p className="text-muted-foreground mb-6 leading-relaxed max-w-md mx-auto">
-                        Registra tu actividad y visualiza en minutos el tiempo que dedicas a perfeccionar tus historias clínicas. Empieza a medir tu productividad ahora.
-                      </p>
-                      <Button size="lg" className="px-8">
-                        <UserPlus size={20} className="mr-2" />
-                        Regístrate Gratis
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+        {/* Main Content Area */}
+        <div className="flex-1"></div>
 
-            {/* Goals */}
-            <div>
-              <Card className="shadow-lg h-full">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-bold flex items-center gap-3">
-                    <span className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">2</span>
-                    Goals
-                    <Plus size={16} className="ml-auto text-muted-foreground" />
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0 space-y-3">
-                  {goals.map((goal, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
-                    >
-                      <div className={`p-2 rounded-lg ${goal.bgColor}`}>
-                        <goal.icon size={16} className={goal.color} />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className="font-bold text-foreground">{goal.title}</span>
-                          <span className="text-xs text-muted-foreground">12/12/20</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground font-medium">{goal.subtitle}</p>
-                      </div>
-                      <ChevronRight size={14} className="text-muted-foreground" />
-                    </motion.div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Get Great Loan Card */}
-            <div>
-              <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg h-full">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">6</span>
-                  </div>
-                  <h3 className="text-lg font-bold mb-2">Get great loan!</h3>
-                  <div className="flex items-center justify-between">
-                    <ChevronRight size={18} className="text-white/80" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Segunda Fila */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Transaction History */}
-            <Card className="shadow-lg">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-bold flex items-center gap-3">
-                  <span className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">3</span>
-                  Transaction history
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="text-muted-foreground border-b">
-                        <th className="text-left pb-2 font-semibold">Receiver</th>
-                        <th className="text-left pb-2 font-semibold">Type</th>
-                        <th className="text-left pb-2 font-semibold">Date</th>
-                        <th className="text-right pb-2 font-semibold">Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {transactionData.slice(0, 4).map((transaction) => (
-                        <tr key={transaction.id} className="border-b last:border-b-0 hover:bg-muted/50">
-                          <td className="py-2">
-                            <div className="flex items-center gap-2">
-                              <div className="p-1.5 rounded bg-muted">
-                                <transaction.icon size={14} className="text-muted-foreground" />
-                              </div>
-                              <span className="font-medium text-foreground">{transaction.type}</span>
-                            </div>
-                          </td>
-                          <td className="py-2 text-muted-foreground">{transaction.category}</td>
-                          <td className="py-2 text-muted-foreground">{transaction.date}</td>
-                          <td className="py-2 text-right font-semibold text-foreground">{transaction.amount}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Outcome Statistics */}
-            <Card className="shadow-lg">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-bold flex items-center gap-3">
-                  <span className="bg-primary/10 text-primary rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">4</span>
-                  Outcome Statistics
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 space-y-4">
-                {outcomeStats.map((stat, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${
-                      stat.label === 'Shopping' ? 'bg-orange-50' : 
-                      stat.label === 'Electronics' ? 'bg-green-50' : 'bg-blue-50'
-                    }`}>
-                      {stat.label === 'Shopping' && <ShoppingBag size={16} className="text-orange-500" />}
-                      {stat.label === 'Electronics' && <Smartphone size={16} className="text-green-500" />}
-                      {stat.label === 'Travels' && <Plane size={16} className="text-blue-500" />}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-medium text-foreground">{stat.label}</span>
-                        <span className="font-bold text-foreground">{stat.percentage}%</span>
-                      </div>
-                      <div className="w-full bg-muted rounded-full h-2">
-                        <motion.div
-                          className={`h-2 rounded-full ${
-                            stat.label === 'Shopping' ? 'bg-orange-500' : 
-                            stat.label === 'Electronics' ? 'bg-green-500' : 'bg-blue-500'
-                          }`}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${stat.percentage}%` }}
-                          transition={{ duration: 1, delay: index * 0.2 }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
+        {/* Get Great Loan Card - Bottom Right */}
+        <div className="w-48">
+          <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="bg-white/20 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">6</span>
+              </div>
+              <h3 className="text-lg font-bold mb-1">Get great loan!</h3>
+              <div className="flex items-center justify-between">
+                <ChevronRight size={16} className="text-white/80" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       {/* Rating Modal - Fixed Bottom Left */}
       <AnimatePresence>
         {showRatingModal && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className={`fixed ${isMobile ? 'bottom-4 left-4 right-4' : 'bottom-6 left-6'} z-50`}
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0, x: -50 }}
+            animate={{ scale: 1, opacity: 1, x: 0 }}
+            exit={{ scale: 0.8, opacity: 0, x: -50 }}
+            className="fixed bottom-4 left-4 bg-white rounded-xl p-4 shadow-lg border z-40 w-80"
           >
-            <Card className="bg-background shadow-xl border border-border">
-              <CardContent className={`${isMobile ? 'p-4' : 'p-3'}`}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">5</span>
-                  <h3 className="text-sm font-bold text-foreground">Rate your experience</h3>
-                  <button
-                    onClick={() => setShowRatingModal(false)}
-                    className="ml-auto text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                
-                <p className="text-sm text-muted-foreground mb-4">Do you find the app easy to use?</p>
-                
-                <div className="flex justify-center gap-1 mb-4">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      onClick={() => handleStarClick(star)}
-                      onMouseEnter={() => handleStarHover(star)}
-                      onMouseLeave={() => setHoveredStar(0)}
-                      className="transition-transform hover:scale-110"
-                    >
-                      <Star
-                        size={20}
-                        className={`${
-                          star <= (hoveredStar || rating)
-                            ? 'fill-yellow-400 text-yellow-400'
-                            : 'text-muted-foreground'
-                        } transition-colors`}
-                      />
-                    </button>
-                  ))}
-                </div>
-                
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowRatingModal(false)}
-                    className="flex-1 text-sm"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      setShowRatingModal(false);
-                      // Handle rating submission here
-                    }}
-                    className="flex-1 text-sm"
-                    disabled={rating === 0}
-                  >
-                    Submit
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">5</span>
+              <h3 className="text-sm font-bold text-gray-900">How would you rate the overall user experience of our App?</h3>
+              <button
+                onClick={() => setShowRatingModal(false)}
+                className="ml-auto text-gray-400 hover:text-gray-600"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            
+            <p className="text-xs text-gray-600 mb-3">Do you find the app easy to use?</p>
+            
+            <div className="flex justify-center gap-1 mb-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => handleStarClick(star)}
+                  onMouseEnter={() => handleStarHover(star)}
+                  onMouseLeave={() => setHoveredStar(0)}
+                  className="transition-transform hover:scale-110"
+                >
+                  <Star
+                    size={20}
+                    className={`${
+                      star <= (hoveredStar || rating)
+                        ? 'fill-yellow-400 text-yellow-400'
+                        : 'text-gray-300'
+                    } transition-colors`}
+                  />
+                </button>
+              ))}
+            </div>
+            
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowRatingModal(false)}
+                className="flex-1 text-xs h-8"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowRatingModal(false);
+                  // Handle rating submission here
+                }}
+                className="flex-1 text-xs h-8 bg-purple-600 hover:bg-purple-700"
+                disabled={rating === 0}
+              >
+                Submit
+              </Button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
