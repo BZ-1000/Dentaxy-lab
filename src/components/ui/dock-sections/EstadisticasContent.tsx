@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { Calendar, Star, TrendingUp, ShoppingBag, Smartphone, User, Plus, ChevronRight, X, Plane, Mountain, Gamepad2 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const productivityData = [
   { name: 'Ene', value: 12 },
@@ -53,6 +54,7 @@ export const EstadisticasContent = () => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     // Show rating modal after 3 seconds
@@ -71,14 +73,310 @@ export const EstadisticasContent = () => {
     setHoveredStar(starNumber);
   };
 
+  if (isMobile) {
+    // Layout móvil: apilado verticalmente
+    return (
+      <div className="bg-white h-full p-3 space-y-4 overflow-auto">
+        {/* Header */}
+        <div className="text-center">
+          <h1 className="text-lg font-bold text-gray-900 mb-1">Estadísticas</h1>
+          <p className="text-blue-500 text-xs">Hello <span className="text-blue-600 font-medium">(colocar nombre de usuario)</span>, welcome back!</p>
+        </div>
+
+        {/* Mi Productividad - Ancho Completo */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">1</span>
+              Mi Productividad
+            </CardTitle>
+            <p className="text-xs text-gray-500">Si aún no inicias sesión no podras ver tu progreso</p>
+          </CardHeader>
+          <CardContent className="pt-0 p-3">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <div className="text-xl font-bold text-purple-600">17 min</div>
+                <p className="text-xs text-gray-500">May</p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-gray-500">March 2020</p>
+              </div>
+            </div>
+            <div className="h-20">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={productivityData}>
+                  <defs>
+                    <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} className="text-xs" />
+                  <YAxis hide />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#8b5cf6"
+                    strokeWidth={2}
+                    fill="url(#colorUv)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Goals - Stack Vertical */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">2</span>
+              Goals
+              <Plus size={12} className="ml-auto text-gray-400" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 p-2 space-y-2">
+            {goals.map((goal, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="flex items-center gap-2 p-2 rounded-lg bg-gray-50"
+              >
+                <div className={`p-2 rounded-lg ${goal.bgColor}`}>
+                  <goal.icon size={16} className={goal.color} />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-gray-900">{goal.title}</span>
+                    <span className="text-xs text-gray-500">12/12/20</span>
+                  </div>
+                  <p className="text-xs text-gray-600 font-medium">{goal.subtitle}</p>
+                </div>
+                <ChevronRight size={12} className="text-gray-400" />
+              </motion.div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Get Great Loan */}
+        <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">6</span>
+            </div>
+            <h3 className="text-base font-bold mb-1">Get great loan!</h3>
+            <div className="flex items-center justify-between">
+              <ChevronRight size={16} className="text-white/80" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Transaction History */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">3</span>
+              Transaction history
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 p-2">
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-gray-500 border-b">
+                    <th className="text-left pb-1 font-medium whitespace-nowrap">Receiver</th>
+                    <th className="text-left pb-1 font-medium whitespace-nowrap">Type</th>
+                    <th className="text-left pb-1 font-medium whitespace-nowrap">Date</th>
+                    <th className="text-right pb-1 font-medium whitespace-nowrap">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactionData.slice(0, 3).map((transaction) => (
+                    <tr key={transaction.id} className="border-b last:border-b-0">
+                      <td className="py-1">
+                        <div className="flex items-center gap-1">
+                          <div className="p-1 rounded bg-gray-100">
+                            <transaction.icon size={10} className="text-gray-600" />
+                          </div>
+                          <span className="font-medium text-gray-900 text-xs whitespace-nowrap">{transaction.type}</span>
+                        </div>
+                      </td>
+                      <td className="py-1 text-gray-600 text-xs whitespace-nowrap">{transaction.category}</td>
+                      <td className="py-1 text-gray-500 text-xs whitespace-nowrap">{transaction.date}</td>
+                      <td className="py-1 text-right font-semibold text-gray-900 text-xs whitespace-nowrap">{transaction.amount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Outcome Statistics */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">4</span>
+              Outcome Statistics
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 p-2 space-y-3">
+            {outcomeStats.map((stat, index) => (
+              <div key={index} className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${
+                  stat.label === 'Shopping' ? 'bg-orange-50' : 
+                  stat.label === 'Electronics' ? 'bg-green-50' : 'bg-blue-50'
+                }`}>
+                  {stat.label === 'Shopping' && <ShoppingBag size={16} className="text-orange-500" />}
+                  {stat.label === 'Electronics' && <Smartphone size={16} className="text-green-500" />}
+                  {stat.label === 'Travels' && <Plane size={16} className="text-blue-500" />}
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium text-gray-700">{stat.label}</span>
+                    <span className="text-sm font-bold text-gray-900">{stat.percentage}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <motion.div
+                      className={`h-2 rounded-full ${
+                        stat.label === 'Shopping' ? 'bg-orange-500' : 
+                        stat.label === 'Electronics' ? 'bg-green-500' : 'bg-blue-500'
+                      }`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${stat.percentage}%` }}
+                      transition={{ duration: 1, delay: index * 0.2 }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Eventos y actualizaciones - Móvil */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">7</span>
+              <Calendar size={14} />
+              Eventos y actualizaciones
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 p-3">
+            <div className="space-y-2">
+              <div className="text-sm font-semibold">20 September</div>
+              <div className="text-xs text-gray-500">Sunday - All day</div>
+              {events.map((event, index) => (
+                <div key={index} className="text-sm p-2 rounded bg-gray-50">
+                  <div className="font-medium">{event.title}</div>
+                  <div className="text-gray-500 text-xs">{event.time}</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Members - Móvil */}
+        <Card className="shadow-sm">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm font-semibold">Members</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 p-3">
+            <div className="flex -space-x-1 mb-3">
+              {members.slice(0, 4).map((member, index) => (
+                <div key={index} className="w-8 h-8 bg-gray-100 rounded-full border-2 border-white flex items-center justify-center">
+                  <span className="text-sm">{member.avatar}</span>
+                </div>
+              ))}
+              <div className="w-8 h-8 bg-gray-200 rounded-full border-2 border-white flex items-center justify-center">
+                <span className="text-sm text-gray-600">+</span>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" className="text-sm flex-1">Cancel</Button>
+              <Button size="sm" className="text-sm flex-1 bg-purple-600 hover:bg-purple-700">More</Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Rating Modal - Móvil */}
+        {showRatingModal && (
+          <div className="fixed bottom-4 left-4 right-4 z-40">
+            <Card className="bg-white shadow-lg border">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">5</span>
+                  <h3 className="text-sm font-bold text-gray-900">Rate your experience</h3>
+                  <button
+                    onClick={() => setShowRatingModal(false)}
+                    className="ml-auto text-gray-400 hover:text-gray-600"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+                
+                <p className="text-sm text-gray-600 mb-3">Do you find the app easy to use?</p>
+                
+                <div className="flex justify-center gap-2 mb-4">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => handleStarClick(star)}
+                      onMouseEnter={() => handleStarHover(star)}
+                      onMouseLeave={() => setHoveredStar(0)}
+                      className="transition-transform hover:scale-110"
+                    >
+                      <Star
+                        size={20}
+                        className={`${
+                          star <= (hoveredStar || rating)
+                            ? 'fill-yellow-400 text-yellow-400'
+                            : 'text-gray-300'
+                        } transition-colors`}
+                      />
+                    </button>
+                  ))}
+                </div>
+                
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowRatingModal(false)}
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setShowRatingModal(false);
+                      // Handle rating submission here
+                    }}
+                    className="flex-1 bg-purple-600 hover:bg-purple-700"
+                    disabled={rating === 0}
+                  >
+                    Submit
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Layout desktop: original con sidebar
   return (
     <div className="bg-white h-full flex">
       {/* Barra Lateral Izquierda - Eventos */}
-      <div className="w-48 p-2 border-r border-gray-200 space-y-2">
+      <div className="w-48 p-2 border-r border-gray-200 space-y-2 hidden lg:block">
         {/* Eventos y actualizaciones */}
         <Card className="shadow-sm">
           <CardHeader className="pb-1">
             <CardTitle className="text-xs font-semibold flex items-center gap-1">
+              <span className="bg-gray-100 rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">7</span>
               <Calendar size={12} />
               Eventos y actualizaciones
             </CardTitle>
@@ -130,9 +428,9 @@ export const EstadisticasContent = () => {
         </div>
 
         {/* Grid Principal - Cards Compactos */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           {/* Mi Productividad */}
-          <div className="lg:col-span-2">
+          <div className="md:col-span-2">
             <Card className="shadow-sm h-full">
               <CardHeader className="pb-1">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -177,7 +475,7 @@ export const EstadisticasContent = () => {
           </div>
 
           {/* Goals */}
-          <div>
+          <div className="md:col-span-1">
             <Card className="shadow-sm h-full">
               <CardHeader className="pb-1">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -213,7 +511,7 @@ export const EstadisticasContent = () => {
           </div>
 
           {/* Get Great Loan Card */}
-          <div>
+          <div className="md:col-span-1">
             <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg h-full">
               <CardContent className="p-3">
                 <div className="flex items-center gap-2 mb-2">
@@ -314,66 +612,68 @@ export const EstadisticasContent = () => {
         </div>
       </div>
 
-      {/* Rating Modal - Fixed Bottom Left */}
-      <div className="fixed bottom-4 left-4 z-40">
-        <Card className="bg-white shadow-lg border w-64">
-          <CardContent className="p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-gray-100 rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">5</span>
-              <h3 className="text-xs font-bold text-gray-900">Rate your experience</h3>
-              <button
-                onClick={() => setShowRatingModal(false)}
-                className="ml-auto text-gray-400 hover:text-gray-600"
-              >
-                <X size={12} />
-              </button>
-            </div>
-            
-            <p className="text-xs text-gray-600 mb-2">Do you find the app easy to use?</p>
-            
-            <div className="flex justify-center gap-1 mb-3">
-              {[1, 2, 3, 4, 5].map((star) => (
+      {/* Rating Modal - Fixed Bottom Left (Desktop) */}
+      {showRatingModal && (
+        <div className="fixed bottom-4 left-4 z-40 hidden lg:block">
+          <Card className="bg-white shadow-lg border w-64">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="bg-gray-100 rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">5</span>
+                <h3 className="text-xs font-bold text-gray-900">Rate your experience</h3>
                 <button
-                  key={star}
-                  onClick={() => handleStarClick(star)}
-                  onMouseEnter={() => handleStarHover(star)}
-                  onMouseLeave={() => setHoveredStar(0)}
-                  className="transition-transform hover:scale-110"
+                  onClick={() => setShowRatingModal(false)}
+                  className="ml-auto text-gray-400 hover:text-gray-600"
                 >
-                  <Star
-                    size={16}
-                    className={`${
-                      star <= (hoveredStar || rating)
-                        ? 'fill-yellow-400 text-yellow-400'
-                        : 'text-gray-300'
-                    } transition-colors`}
-                  />
+                  <X size={12} />
                 </button>
-              ))}
-            </div>
-            
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowRatingModal(false)}
-                className="flex-1 text-xs h-6"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowRatingModal(false);
-                  // Handle rating submission here
-                }}
-                className="flex-1 text-xs h-6 bg-purple-600 hover:bg-purple-700"
-                disabled={rating === 0}
-              >
-                Submit
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+              </div>
+              
+              <p className="text-xs text-gray-600 mb-2">Do you find the app easy to use?</p>
+              
+              <div className="flex justify-center gap-1 mb-3">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => handleStarClick(star)}
+                    onMouseEnter={() => handleStarHover(star)}
+                    onMouseLeave={() => setHoveredStar(0)}
+                    className="transition-transform hover:scale-110"
+                  >
+                    <Star
+                      size={16}
+                      className={`${
+                        star <= (hoveredStar || rating)
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300'
+                      } transition-colors`}
+                    />
+                  </button>
+                ))}
+              </div>
+              
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowRatingModal(false)}
+                  className="flex-1 text-xs h-6"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowRatingModal(false);
+                    // Handle rating submission here
+                  }}
+                  className="flex-1 text-xs h-6 bg-purple-600 hover:bg-purple-700"
+                  disabled={rating === 0}
+                >
+                  Submit
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
