@@ -1,7 +1,7 @@
 import * as React from "react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
-import { BarChart3, Calendar, PieChart, TrendingUp, Zap, Star, User, Gamepad2, ShoppingCart, PaintBrush, Home, ChevronRight, Cloud, Laptop, Shirt } from "lucide-react"
+import { BarChart3, Calendar, PieChart, TrendingUp, Zap, Star, User, Gamepad2, ShoppingCart, Paintbrush, Home, ChevronRight, Cloud, Laptop, Shirt } from "lucide-react"
 
 // Un componente simple para los avatares de los miembros
 const MemberAvatar = () => (
@@ -180,7 +180,7 @@ const DockWithContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HT
                       <div className="text-2xl font-bold mb-1">$200</div>
                       <div className="text-xs text-gray-400 mb-3">12/20/20</div>
                       <div className="w-10 h-10 flex items-center justify-center bg-orange-100 rounded-full mb-2">
-                        <PaintBrush className="w-5 h-5 text-orange-500" />
+                        <Paintbrush className="w-5 h-5 text-orange-500" />
                       </div>
                       <div className="text-sm font-medium text-gray-700">Renovation</div>
                     </div>
