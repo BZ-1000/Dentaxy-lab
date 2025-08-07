@@ -19,6 +19,7 @@ import { DonationBanner } from '@/components/ui/donation-banner';
 
 import { DockWithContent } from '@/components/ui/interactive-dock-content';
 import { StatsContent, CalculatorContent, DemoContent, BenefitsContent } from '@/components/ui/dock-content-sections';
+import { EstadisticasContent } from '@/components/ui/dock-sections/EstadisticasContent';
 
 // Define missing types
 type InterrogatorioSistemas = Record<string, any>;
@@ -90,10 +91,10 @@ const Landing = () => {
 
   const dockItems = [
     { 
-      id: 'stats',
+      id: 'estadisticas',
       icon: BarChart3, 
-      label: "Ver Estadísticas", 
-      content: <StatsContent />
+      label: "Estadísticas", 
+      content: <EstadisticasContent />
     },
     { 
       id: 'calculator',
