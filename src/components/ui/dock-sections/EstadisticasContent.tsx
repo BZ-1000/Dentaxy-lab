@@ -1,16 +1,60 @@
-import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, LineChart, Line, Tooltip } from 'recharts';
-import { Calendar, Star, TrendingUp, ShoppingBag, Smartphone, User, Plus, ChevronRight, X, Plane, Mountain, Gamepad2, Activity, ArrowRight } from 'lucide-react';
+import { Calendar, Star, TrendingUp, ShoppingBag, Smartphone, User, Plus, ChevronRight, X, Plane, Mountain, Gamepad2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
-const productivityData = [] as any[];
 
-const transactionData = [
+interface Transaction {
+  id: number;
+  type: string;
+  category: string;
+  date: string;
+  amount: string;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+}
+
+interface OutcomeStat {
+  label: string;
+  percentage: number;
+  color: string;
+}
+
+interface Goal {
+  title: string;
+  subtitle: string;
+  current: number;
+  target: number;
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  color: string;
+  bgColor: string;
+}
+
+interface Event {
+  date: string;
+  title: string;
+  time: string;
+}
+
+interface Member {
+  name: string;
+  avatar: string;
+  status: string;
+}
+
+interface ChartDataPoint {
+  date: string;
+  label: string;
+  minutes: number;
+  firstSession?: string;
+  aboveAvg?: boolean;
+}
+
+const transactionData: Transaction[] = [
   { id: 1, type: 'Tesco Market', category: 'Shopping', date: '13 Dec 2020', amount: '$75.67', icon: ShoppingBag },
   { id: 2, type: 'ElectroMan Market', category: 'Shopping', date: '14 Dec 2020', amount: '$250.00', icon: ShoppingBag },
   { id: 3, type: 'Fiergio Restaurant', category: 'Food', date: '15 Dec 2020', amount: '$19.50', icon: User },
@@ -18,25 +62,25 @@ const transactionData = [
   { id: 5, type: 'Ann Martin', category: 'Shopping', date: '17 Nov 2020', amount: '$430', icon: ShoppingBag },
 ];
 
-const outcomeStats = [
+const outcomeStats: OutcomeStat[] = [
   { label: 'Shopping', percentage: 52, color: 'bg-blue-500' },
   { label: 'Electronics', percentage: 21, color: 'bg-green-500' },
   { label: 'Travels', percentage: 74, color: 'bg-purple-500' },
 ];
 
-const goals = [
+const goals: Goal[] = [
   { title: '$550', subtitle: 'Holidays', current: 450, target: 550, icon: Plane, color: 'text-blue-500', bgColor: 'bg-blue-50' },
   { title: '$200', subtitle: 'Renovation', current: 120, target: 200, icon: Mountain, color: 'text-orange-500', bgColor: 'bg-orange-50' },
   { title: '$820', subtitle: 'Xbox', current: 680, target: 820, icon: Gamepad2, color: 'text-green-500', bgColor: 'bg-green-50' },
 ];
 
-const events = [
+const events: Event[] = [
   { date: '15', title: 'Team Meeting', time: '10:00 AM' },
   { date: '18', title: 'Project Review', time: '2:00 PM' },
   { date: '22', title: 'Client Call', time: '4:00 PM' },
 ];
 
-const members = [
+const members: Member[] = [
   { name: 'John D.', avatar: '👨‍💼', status: 'online' },
   { name: 'Sarah M.', avatar: '👩‍💻', status: 'away' },
   { name: 'Mike R.', avatar: '👨‍🎨', status: 'online' },
@@ -49,28 +93,26 @@ export const EstadisticasContent = () => {
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
-  const [hoveredDataPoint, setHoveredDataPoint] = useState<any>(null);
-
-  // Estado para la gráfica de productividad real
+  const [hoveredDataPoint, setHoveredDataPoint] = useState<ChartDataPoint | null>(null);
   const [range, setRange] = useState<'7d' | '30d' | 'custom'>('7d');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
-  const [chartData, setChartData] = useState<Array<{ date: string; label: string; minutes: number; firstSession?: string; aboveAvg?: boolean }>>([]);
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [avgMinutes, setAvgMinutes] = useState<number>(0);
 
-
-  // Helpers de fecha
   const toISO = (d: Date) => {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
   };
+
   const addDays = (d: Date, days: number) => {
     const nd = new Date(d);
     nd.setDate(nd.getDate() + days);
     return nd;
   };
+
   const eachDay = (from: Date, to: Date) => {
     const arr: string[] = [];
     let cur = new Date(from);
@@ -84,7 +126,6 @@ export const EstadisticasContent = () => {
   useEffect(() => {
     if (!user) return;
 
-    // Calcular rango
     const today = new Date();
     let fromISO = '';
     let toISODate = '';
@@ -98,7 +139,7 @@ export const EstadisticasContent = () => {
       fromISO = toISO(from);
       toISODate = toISO(today);
     } else {
-      if (!startDate || !endDate) return; // esperar selección completa
+      if (!startDate || !endDate) return;
       fromISO = startDate;
       toISODate = endDate;
     }
@@ -139,6 +180,7 @@ export const EstadisticasContent = () => {
 
       const avg = result.length ? result.reduce((s, r) => s + r.minutes, 0) / result.length : 0;
       const withAvg = result.map((r) => ({ ...r, aboveAvg: r.minutes > avg }));
+
       setAvgMinutes(avg);
       setChartData(withAvg);
     };
@@ -151,10 +193,8 @@ export const EstadisticasContent = () => {
 
   return (
     <div className={`bg-white h-full ${isMobile ? 'flex flex-col' : 'flex'}`}>
-      {/* Barra Lateral Izquierda - Eventos */}
       {!isMobile && (
         <div className="w-48 p-2 border-r border-gray-200 space-y-2">
-          {/* Eventos y actualizaciones */}
           <Card className="shadow-sm">
             <CardHeader className="pb-1">
               <CardTitle className="text-xs font-semibold flex items-center gap-1">
@@ -175,8 +215,6 @@ export const EstadisticasContent = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Members */}
           <Card className="shadow-sm">
             <CardHeader className="pb-1">
               <CardTitle className="text-xs font-semibold">Members</CardTitle>
@@ -200,143 +238,122 @@ export const EstadisticasContent = () => {
           </Card>
         </div>
       )}
-
-      {/* Contenido Principal */}
       <div className={`flex-1 ${isMobile ? 'p-2 space-y-3' : 'p-3 space-y-3'}`}>
-        {/* Header */}
         <div className="text-center mb-3">
-          {/* Espacio reservado sin título */}
           <div className="h-4" />
         </div>
-
-        {/* Grid Principal - Cards Compactos */}
-       <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-4 gap-3"}>
-  {/* Mi Productividad */}
-  <div className={isMobile ? "w-full" : "lg:col-span-2"}>
-    <Card className="shadow-sm h-full">
-      <CardHeader className="pb-1">
-        <CardTitle className="text-sm font-semibold flex items-center gap-2">
-          <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">1</span>
-          Mi Productividad
-        </CardTitle>
-        <p className="text-xs text-gray-500">Si aún no inicias sesión no podrás ver tu progreso</p>
-      </CardHeader>
-      <CardContent className="pt-0 p-3">
-        {user ? (
-          <>
-            {/* Controles estilo Apple */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex bg-gray-100 rounded-full p-1">
-                <Button size="sm" variant={range === '7d' ? 'default' : 'ghost'} className="rounded-full" onClick={() => setRange('7d')}>Día</Button>
-                <Button size="sm" variant={range === '30d' ? 'default' : 'ghost'} className="rounded-full" onClick={() => setRange('30d')}>Semana</Button>
-                <Button size="sm" variant={range === 'custom' ? 'default' : 'ghost'} className="rounded-full" onClick={() => setRange('custom')}>Mes</Button>
-              </div>
-              {avgMinutes > 0 && (
-                <div className="text-xs text-muted-foreground">
-                  Promedio: <span className="font-semibold text-foreground">{Math.round(avgMinutes)} min</span>
-                </div>
-              )}
-            </div>
-
-            {range === 'custom' && (
-              <div className="flex items-center gap-2 mb-3">
-                <input type="date" className="border rounded px-2 py-1 text-xs" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                <span className="text-xs text-muted-foreground">a</span>
-                <input type="date" className="border rounded px-2 py-1 text-xs" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-              </div>
-            )}
-
-            {/* Datos del día */}
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <div className="text-xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(90deg, #007AFF, #34C759)' }}>
-                  {chartData[chartData.length - 1]?.minutes ?? 0} min
-                </div>
-                <p className="text-xs text-muted-foreground">Hoy</p>
-              </div>
-            </div>
-
-            {/* Gráfica animada */}
-            <div className="h-32 md:h-40 relative">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={chartData}>
-                  <defs>
-                    <linearGradient id="prodLine" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#007AFF" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#007AFF" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis dataKey="label" axisLine={false} tickLine={false} className="text-xs" />
-                  <YAxis axisLine={false} tickLine={false} className="text-xs" tickFormatter={(v) => `${v}`} />
-                  <Tooltip 
-                    content={({ active, payload }) => {
-                      if (active && payload && payload[0]) {
-                        const d = payload[0].payload as any;
-                        const fullDate = new Date(d.date);
-                        const fecha = fullDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-                        const hora = d.firstSession ? new Date(d.firstSession).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '—';
-                        return (
-                          <div className="bg-white/90 border rounded p-2 text-xs shadow-md">
-                            <div className="font-semibold capitalize">{fecha}</div>
-                            <div>{d.minutes} minutos</div>
-                            <div>Inicio: {hora}</div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Area type="monotone" dataKey="minutes" stroke="none" fill="url(#prodLine)" />
-                  <Line 
-                    type="monotone" 
-                    dataKey="minutes" 
-                    stroke="#007AFF" 
-                    strokeWidth={2} 
-                    dot={({ cx, cy, payload }) => (
-                      <circle cx={cx} cy={cy} r={3} fill={payload.aboveAvg ? "#34C759" : "#007AFF"} stroke="#fff" strokeWidth={2} />
+        <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-4 gap-3"}>
+          <div className={isMobile ? "w-full" : "lg:col-span-2"}>
+            <Card className="shadow-sm h-full">
+              <CardHeader className="pb-1">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">1</span>
+                  Mi Productividad
+                </CardTitle>
+                <p className="text-xs text-gray-500">Si aún no inicias sesión no podrás ver tu progreso</p>
+              </CardHeader>
+              <CardContent className="pt-0 p-3">
+                {user ? (
+                  <>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex bg-gray-100 rounded-full p-1">
+                        <Button size="sm" variant={range === '7d' ? 'default' : 'ghost'} className="rounded-full" onClick={() => setRange('7d')}>Día</Button>
+                        <Button size="sm" variant={range === '30d' ? 'default' : 'ghost'} className="rounded-full" onClick={() => setRange('30d')}>Semana</Button>
+                        <Button size="sm" variant={range === 'custom' ? 'default' : 'ghost'} className="rounded-full" onClick={() => setRange('custom')}>Mes</Button>
+                      </div>
+                      {avgMinutes > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          Promedio: <span className="font-semibold text-foreground">{Math.round(avgMinutes)} min</span>
+                        </div>
+                      )}
+                    </div>
+                    {range === 'custom' && (
+                      <div className="flex items-center gap-2 mb-3">
+                        <input type="date" className="border rounded px-2 py-1 text-xs" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                        <span className="text-xs text-muted-foreground">a</span>
+                        <input type="date" className="border rounded px-2 py-1 text-xs" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                      </div>
                     )}
-                    activeDot={{ r: 5 }}
-                    isAnimationActive={true}
-                    animationDuration={1000}
-                    strokeDasharray="500"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Panel de datos */}
-            <div className="mt-4 flex items-center justify-between text-sm">
-              <span className="text-green-600 font-medium">Hoy llevas un 18% más que ayer</span>
-              <span className="flex items-center text-green-600">↑ Tendencia positiva</span>
-            </div>
-
-            {/* Historial rápido */}
-            <div className="mt-4 grid grid-cols-5 gap-2 text-center text-xs text-gray-600">
-              {chartData.slice(-5).map((d, i) => (
-                <div key={i}>
-                  <strong>{d.label}</strong><br />{d.minutes} min
-                </div>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center text-center py-6">
-            <div className="mb-3 text-sm text-muted-foreground max-w-xs">
-              Regístrate para llevar un seguimiento de tu progreso y ver tu tiempo en la app.
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={() => (window.location.href = '/auth/register')}>Crear cuenta</Button>
-              <Button variant="outline" onClick={() => (window.location.href = '/auth/login')}>Iniciar sesión</Button>
-            </div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <div className="text-xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(90deg, #007AFF, #34C759)' }}>
+                          {chartData[chartData.length - 1]?.minutes ?? 0} min
+                        </div>
+                        <p className="text-xs text-muted-foreground">Hoy</p>
+                      </div>
+                    </div>
+                    <div className="h-32 md:h-40 relative">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={chartData}>
+                          <defs>
+                            <linearGradient id="prodLine" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#007AFF" stopOpacity={0.3} />
+                              <stop offset="100%" stopColor="#007AFF" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <XAxis dataKey="label" axisLine={false} tickLine={false} />
+                          <YAxis axisLine={false} tickLine={false} tickFormatter={(v) => `${v}`} />
+                          <Tooltip
+                            content={({ active, payload }) => {
+                              if (active && payload && payload[0]) {
+                                const d = payload[0].payload as ChartDataPoint;
+                                const fullDate = new Date(d.date);
+                                const fecha = fullDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                                const hora = d.firstSession ? new Date(d.firstSession).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '—';
+                                return (
+                                  <div className="bg-white/90 border rounded p-2 text-xs shadow-md">
+                                    <div className="font-semibold capitalize">{fecha}</div>
+                                    <div>{d.minutes} minutos</div>
+                                    <div>Inicio: {hora}</div>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Area type="monotone" dataKey="minutes" stroke="none" fill="url(#prodLine)" />
+                          <Line
+                            type="monotone"
+                            dataKey="minutes"
+                            stroke="#007AFF"
+                            strokeWidth={2}
+                            dot={({ cx, cy, payload }) => (
+                              <circle cx={cx} cy={cy} r={3} fill={payload.aboveAvg ? "#34C759" : "#007AFF"} stroke="#fff" strokeWidth={2} />
+                            )}
+                            activeDot={{ r: 5 }}
+                            isAnimationActive={true}
+                            animationDuration={1000}
+                            strokeDasharray="500"
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between text-sm">
+                      <span className="text-green-600 font-medium">Hoy llevas un 18% más que ayer</span>
+                      <span className="flex items-center text-green-600">↑ Tendencia positiva</span>
+                    </div>
+                    <div className="mt-4 grid grid-cols-5 gap-2 text-center text-xs text-gray-600">
+                      {chartData.slice(-5).map((d, i) => (
+                        <div key={i}>
+                          <strong>{d.label}</strong><br />{d.minutes} min
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center py-6">
+                    <div className="mb-3 text-sm text-muted-foreground max-w-xs">
+                      Regístrate para llevar un seguimiento de tu progreso y ver tu tiempo en la app.
+                    </div>
+                    <div className="flex gap-2">
+                      <Button onClick={() => (window.location.href = '/auth/register')}>Crear cuenta</Button>
+                      <Button variant="outline" onClick={() => (window.location.href = '/auth/login')}>Iniciar sesión</Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
-        )}
-      </CardContent>
-    </Card>
-  </div>
-</div>
-
-
-          {/* Goals */}
           <div>
             <Card className="shadow-sm h-full">
               <CardHeader className="pb-1">
@@ -371,8 +388,6 @@ export const EstadisticasContent = () => {
               </CardContent>
             </Card>
           </div>
-
-          {/* Get Great Loan Card */}
           <div>
             <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg h-full">
               <CardContent className="p-3">
@@ -387,10 +402,7 @@ export const EstadisticasContent = () => {
             </Card>
           </div>
         </div>
-
-        {/* Segunda Fila - Transaction History y Outcome Statistics */}
         <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-2 gap-3"}>
-          {/* Transaction History */}
           <Card className="shadow-sm">
             <CardHeader className="pb-1">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -430,8 +442,6 @@ export const EstadisticasContent = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Outcome Statistics */}
           <Card className="shadow-sm">
             <CardHeader className="pb-1">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
@@ -443,7 +453,7 @@ export const EstadisticasContent = () => {
               {outcomeStats.map((stat, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <div className={`p-1 rounded-lg ${
-                    stat.label === 'Shopping' ? 'bg-orange-50' : 
+                    stat.label === 'Shopping' ? 'bg-orange-50' :
                     stat.label === 'Electronics' ? 'bg-green-50' : 'bg-blue-50'
                   }`}>
                     {stat.label === 'Shopping' && <ShoppingBag size={12} className="text-orange-500" />}
@@ -458,7 +468,7 @@ export const EstadisticasContent = () => {
                     <div className="w-full bg-gray-200 rounded-full h-1.5">
                       <motion.div
                         className={`h-1.5 rounded-full ${
-                          stat.label === 'Shopping' ? 'bg-orange-500' : 
+                          stat.label === 'Shopping' ? 'bg-orange-500' :
                           stat.label === 'Electronics' ? 'bg-green-500' : 'bg-blue-500'
                         }`}
                         initial={{ width: 0 }}
@@ -472,11 +482,8 @@ export const EstadisticasContent = () => {
             </CardContent>
           </Card>
         </div>
-
-        {/* Barra Lateral en Móvil - Al final */}
         {isMobile && (
           <div className="space-y-3 mt-6">
-            {/* Eventos y actualizaciones */}
             <Card className="shadow-sm">
               <CardHeader className="pb-1">
                 <CardTitle className="text-xs font-semibold flex items-center gap-1">
@@ -497,8 +504,6 @@ export const EstadisticasContent = () => {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Members */}
             <Card className="shadow-sm">
               <CardHeader className="pb-1">
                 <CardTitle className="text-xs font-semibold">Members</CardTitle>
@@ -523,8 +528,6 @@ export const EstadisticasContent = () => {
           </div>
         )}
       </div>
-
-      {/* Rating Modal - Fixed Bottom */}
       <div className={`fixed ${isMobile ? 'bottom-2 left-2 right-2' : 'bottom-4 left-4'} z-40`}>
         <Card className={`bg-white shadow-lg border ${isMobile ? 'w-full' : 'w-64'}`}>
           <CardContent className="p-3">
@@ -538,9 +541,7 @@ export const EstadisticasContent = () => {
                 <X size={12} />
               </button>
             </div>
-            
             <p className="text-xs text-gray-600 mb-2">Do you find the app easy to use?</p>
-            
             <div className="flex justify-center gap-1 mb-3">
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -561,7 +562,6 @@ export const EstadisticasContent = () => {
                 </button>
               ))}
             </div>
-            
             <div className="flex gap-2">
               <Button
                 variant="outline"
@@ -573,7 +573,6 @@ export const EstadisticasContent = () => {
               <Button
                 onClick={() => {
                   setShowRatingModal(false);
-                  // Handle rating submission here
                 }}
                 className="flex-1 text-xs h-6 bg-purple-600 hover:bg-purple-700"
                 disabled={rating === 0}
