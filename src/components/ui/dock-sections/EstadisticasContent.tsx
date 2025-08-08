@@ -1,399 +1,298 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { 
-    Calendar, Star, TrendingUp, ShoppingBag, Smartphone, User, Plus, ChevronRight, X, 
-    Plane, Mountain, Gamepad2, Activity, PieChart, History, Target, AlertTriangle, Briefcase 
+    BarChart3, Calendar, CreditCard, TrendingUp, Briefcase, Plus, ChevronRight, Star, Settings2, ShieldQuestion
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
 
-// --- DATOS DE EJEMPLO (MANTENIDOS COMO EN EL ORIGINAL) ---
+// --- DATOS DE EJEMPLO (Se usarán para poblar el nuevo diseño) ---
 const transactionData = [
-  { id: 1, type: 'Insumos Médicos', category: 'Compras', date: '05 Ago 2025', amount: '$75.67', icon: ShoppingBag },
-  { id: 2, type: 'Equipo de Rayos X', category: 'Equipamiento', date: '04 Ago 2025', amount: '$2500.00', icon: Smartphone },
-  { id: 3, type: 'Cena de equipo', category: 'Alimentos', date: '03 Ago 2025', amount: '$190.50', icon: User },
+  { id: 1, type: 'Tesco Market', category: 'Shopping', date: '13 Dec 2020', amount: '$75.67' },
+  { id: 2, type: 'ElectroMan Market', category: 'Shopping', date: '14 Dec 2020', amount: '$250.00' },
+  { id: 3, type: 'Fiergio Restaurant', category: 'Food', date: '15 Dec 2020', amount: '$19.50' },
+  { id: 4, type: 'John Mathew Kayne', category: 'Sports', date: '16 Dec 2020', amount: '$350' },
+  { id: 5, type: 'Ann Martin', category: 'Shopping', date: '17 Nov 2020', amount: '$430' },
 ];
 const outcomeStats = [
-  { label: 'Insumos', percentage: 52, icon: ShoppingBag },
-  { label: 'Equipamiento', percentage: 21, icon: Smartphone },
-  { label: 'Viajes de Negocios', percentage: 74, icon: Plane },
+  { label: 'Shopping', percentage: 52, color: 'bg-orange-400' },
+  { label: 'Electronics', percentage: 21, color: 'bg-green-400' },
+  { label: 'Travels', percentage: 74, color: 'bg-blue-400' },
 ];
 const goals = [
-  { title: 'Congreso Anual', subtitle: 'Viáticos', current: 450, target: 550, icon: Plane },
-  { title: 'Renovación de Oficina', subtitle: 'Mobiliario', current: 120, target: 200, icon: Mountain },
-  { title: 'Nuevo Software', subtitle: 'Licencia', current: 680, target: 820, icon: Gamepad2 },
+  { title: 'Holidays', amount: '$550', date: '12/20/20', icon: '🌴' },
+  { title: 'Renovation', amount: '$200', date: '12/20/20', icon: '🏠' },
+  { title: 'Xbox', amount: '$820', date: '12/20/20', icon: '🎮' },
 ];
-const events = [
-  { date: '15', title: 'Junta de Equipo', time: '10:00 AM' },
-  { date: '18', title: 'Revisión de Proyecto', time: '2:00 PM' },
-];
-const members = [
-  { name: 'Dr. John', avatar: '👨‍⚕️' },
-  { name: 'Dra. Sarah', avatar: '👩‍⚕️' },
-  { name: 'Asist. Mike', avatar: '👨‍💼' },
-];
+const events = [ { date: '20 September', day: 'Sunday' } ];
+const members = [ '👨‍⚕️', '👩‍⚕️', '👨‍💼', '👩‍🔬' ];
 // --- FIN DE DATOS DE EJEMPLO ---
 
-
-export const EstadisticasContent = () => {
-  const { user } = useAuth();
-  const isMobile = useIsMobile();
-  const [showRatingModal, setShowRatingModal] = useState(true); // Se inicia visible para demostración
-  const [rating, setRating] = useState(0);
-  const [hoveredStar, setHoveredStar] = useState(0);
-  
-  // --- LÓGICA DE DATOS (SIN MODIFICAR) ---
-  const [range, setRange] = useState<'7d' | '30d' | 'custom'>('7d');
-  const [startDate, setStartDate] =useState<string>('');
-  const [endDate, setEndDate] = useState<string>('');
-  const [chartData, setChartData] = useState<Array<{ date: string; label: string; minutes: number; firstSession?: string; aboveAvg?: boolean }>>([]);
-  const [avgMinutes, setAvgMinutes] = useState<number>(0);
-
-  const toISO = (d: Date) => d.toISOString().split('T')[0];
-  const addDays = (d: Date, days: number) => {
-    const nd = new Date(d);
-    nd.setDate(nd.getDate() + days);
-    return nd;
-  };
-  const eachDay = (from: Date, to: Date) => {
-    const arr: string[] = [];
-    let cur = new Date(from);
-    while (cur <= to) {
-      arr.push(toISO(cur));
-      cur = addDays(cur, 1);
-    }
-    return arr;
-  };
-
-  useEffect(() => {
-    if (!user) return;
-    const today = new Date();
-    let fromISO = '';
-    let toISODate = '';
-
-    if (range === '7d') {
-      fromISO = toISO(addDays(today, -6));
-      toISODate = toISO(today);
-    } else if (range === '30d') {
-      fromISO = toISO(addDays(today, -29));
-      toISODate = toISO(today);
-    } else {
-      if (!startDate || !endDate) return;
-      fromISO = startDate;
-      toISODate = endDate;
-    }
-
-    const load = async () => {
-      const { data, error } = await supabase
-        .from('user_activity_sessions')
-        .select('date, session_start, duration_minutes')
-        .gte('date', fromISO)
-        .lte('date', toISODate)
-        .order('date', { ascending: true });
-
-      if (error) {
-        console.error('Error cargando sesiones', error);
-        setChartData([]);
-        setAvgMinutes(0);
-        return;
-      }
-
-      const byDate = new Map<string, { minutes: number; firstSession?: string }>();
-      data?.forEach((row: any) => {
-        const key = row.date;
-        const current = byDate.get(key) || { minutes: 0 };
-        current.minutes += row.duration_minutes || 0;
-        if (!current.firstSession || new Date(row.session_start) < new Date(current.firstSession)) {
-          current.firstSession = row.session_start;
-        }
-        byDate.set(key, current);
-      });
-      
-      const days = eachDay(new Date(`${fromISO}T00:00:00`), new Date(`${toISODate}T00:00:00`));
-      const result = days.map((iso) => {
-        const d = new Date(`${iso}T00:00:00`);
-        const label = d.toLocaleDateString('es-ES', { weekday: 'short' }).replace('.', '');
-        const info = byDate.get(iso);
-        return { date: iso, label, minutes: info?.minutes || 0, firstSession: info?.firstSession };
-      });
-
-      const totalMinutes = result.reduce((s, r) => s + r.minutes, 0);
-      const activeDays = result.filter(r => r.minutes > 0).length;
-      const avg = activeDays > 0 ? totalMinutes / activeDays : 0;
-      
-      const withAvg = result.map((r) => ({ ...r, aboveAvg: r.minutes > avg }));
-      
-      setAvgMinutes(avg);
-      setChartData(withAvg);
-    };
-
-    void load();
-  }, [user, range, startDate, endDate]);
-  // --- FIN DE LÓGICA DE DATOS ---
-
-  const handleStarClick = (starNumber: number) => setRating(starNumber);
-  const handleStarHover = (starNumber: number) => setHoveredStar(starNumber);
-
-  const todayFormatted = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-  
-  const MainContent = () => (
-    <div className="flex-1 p-4 md:p-6 space-y-6">
-      <header>
-        <h1 className="text-3xl font-bold text-slate-800">Panel de Estadísticas</h1>
-        <p className="text-slate-500 mt-1 capitalize">{todayFormatted}</p>
-      </header>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        
-        {/* Columna Principal (Gráfica y Transacciones) */}
-        <div className="lg:col-span-2 xl:col-span-3 space-y-6">
-          {/* Mi Productividad */}
-          <Card className="shadow-md border-slate-200/80">
-            <CardHeader>
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <Activity className="w-6 h-6 text-violet-600"/>
-                    <div>
-                        <CardTitle className="text-lg font-semibold text-slate-800">Mi Productividad</CardTitle>
-                        <p className="text-sm text-slate-500">Tiempo de uso de la aplicación por día.</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button size="sm" variant={range === '7d' ? 'default' : 'outline'} onClick={() => setRange('7d')}>7d</Button>
-                  <Button size="sm" variant={range === '30d' ? 'default' : 'outline'} onClick={() => setRange('30d')}>30d</Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {user ? (
-                <div className="h-72 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                      <defs>
-                        <linearGradient id="colorArea" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.4}/>
-                          <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <XAxis dataKey="label" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false}/>
-                      <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}m`}/>
-                      <Tooltip
-                        content={({ active, payload }) => {
-                          if (active && payload && payload.length) {
-                            const data = payload[0].payload;
-                            return (
-                              <div className="bg-white/80 backdrop-blur-sm border border-slate-200 p-3 rounded-lg shadow-xl">
-                                <p className="font-bold text-slate-800">{new Date(data.date + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}</p>
-                                <p className="text-violet-600 text-lg font-semibold">{`${data.minutes} minutos`}</p>
-                              </div>
-                            );
-                          }
-                          return null;
-                        }}
-                      />
-                      <Area type="monotone" dataKey="minutes" stroke="#8B5CF6" strokeWidth={3} fillOpacity={1} fill="url(#colorArea)" activeDot={{ r: 8, stroke: 'white', strokeWidth: 2 }} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center text-center py-10">
-                    <AlertTriangle className="w-10 h-10 text-amber-500 mb-3" />
-                    <p className="text-slate-600 font-medium mb-4">Regístrate para ver tu progreso.</p>
-                    <div className="flex gap-3">
-                        <Button onClick={() => (window.location.href = '/auth/register')}>Crear cuenta</Button>
-                        <Button variant="outline" onClick={() => (window.location.href = '/auth/login')}>Iniciar sesión</Button>
-                    </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Transaction History */}
-          <Card className="shadow-md border-slate-200/80">
-              <CardHeader>
-                  <div className="flex items-center gap-3">
-                      <History className="w-6 h-6 text-violet-600"/>
-                      <CardTitle className="text-lg font-semibold text-slate-800">Historial de Gastos</CardTitle>
-                  </div>
-              </CardHeader>
-              <CardContent>
-                  <table className="w-full text-sm">
-                      <thead>
-                          <tr className="text-slate-500 border-b border-slate-200">
-                              <th className="text-left pb-2 font-medium">Concepto</th>
-                              <th className="text-left pb-2 font-medium">Tipo</th>
-                              <th className="text-left pb-2 font-medium">Fecha</th>
-                              <th className="text-right pb-2 font-medium">Monto</th>
-                          </tr>
-                      </thead>
-                      <tbody>
-                          {transactionData.map((transaction) => (
-                              <tr key={transaction.id} className="border-b border-slate-200 last:border-b-0">
-                                  <td className="py-3">
-                                      <div className="flex items-center gap-3">
-                                          <div className="p-2 rounded-full bg-slate-100">
-                                              <transaction.icon size={16} className="text-slate-600" />
-                                          </div>
-                                          <span className="font-medium text-slate-800">{transaction.type}</span>
-                                      </div>
-                                  </td>
-                                  <td className="py-3 text-slate-600">{transaction.category}</td>
-                                  <td className="py-3 text-slate-500">{transaction.date}</td>
-                                  <td className="py-3 text-right font-semibold text-slate-800">{transaction.amount}</td>
-                              </tr>
-                          ))}
-                      </tbody>
-                  </table>
-              </CardContent>
-          </Card>
-        </div>
-
-        {/* Columna Lateral (Goals, Stats, etc.) */}
-        <div className="lg:col-span-1 xl:col-span-1 space-y-6">
-          {/* Goals */}
-          <Card className="shadow-md border-slate-200/80">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div className="flex items-center gap-3">
-                  <Target className="w-6 h-6 text-violet-600"/>
-                  <CardTitle className="text-lg font-semibold text-slate-800">Metas</CardTitle>
-              </div>
-              <Button variant="ghost" size="icon" className="w-8 h-8">
-                  <Plus size={18} className="text-slate-500" />
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {goals.map((goal, index) => (
-                <motion.div key={index} className="flex items-center gap-3"
-                  initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.1 }}>
-                  <div className="p-2 rounded-lg bg-violet-100">
-                    <goal.icon size={20} className="text-violet-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-slate-800">{goal.title}</p>
-                    <p className="text-xs text-slate-500">{goal.subtitle}</p>
-                  </div>
-                  <ChevronRight size={16} className="text-slate-400" />
-                </motion.div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Outcome Statistics */}
-          <Card className="shadow-md border-slate-200/80">
-            <CardHeader>
-                <div className="flex items-center gap-3">
-                  <PieChart className="w-6 h-6 text-violet-600"/>
-                  <CardTitle className="text-lg font-semibold text-slate-800">Estadísticas de Gastos</CardTitle>
-                </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {outcomeStats.map((stat, index) => (
-                <div key={index}>
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="text-sm font-medium text-slate-700">{stat.label}</span>
-                    <span className="text-sm font-bold text-slate-800">{stat.percentage}%</span>
-                  </div>
-                  <div className="w-full bg-slate-200 rounded-full h-2">
-                    <motion.div
-                      className="h-2 rounded-full bg-violet-500"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${stat.percentage}%` }}
-                      transition={{ duration: 1, delay: index * 0.2, ease: "easeOut" }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    </div>
-  );
-
-  const SideBar = () => (
-      <div className="w-64 p-4 border-l border-slate-200 space-y-6 bg-white">
-          <Card className="shadow-none border-0">
-              <CardHeader>
-                  <CardTitle className="text-base font-semibold flex items-center gap-2 text-slate-700">
-                      <Calendar size={18} />
-                      Próximos Eventos
-                  </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                  <div className="text-sm font-semibold text-violet-600">Viernes, 8 de Agosto</div>
-                  {events.map((event, index) => (
-                      <div key={index} className="text-sm p-2 rounded-lg hover:bg-slate-50 transition-colors">
-                          <div className="font-medium text-slate-800">{event.title}</div>
-                          <div className="text-slate-500">{event.time}</div>
-                      </div>
-                  ))}
-              </CardContent>
-          </Card>
-
-          <Card className="shadow-none border-0">
-              <CardHeader>
-                  <CardTitle className="text-base font-semibold flex items-center gap-2 text-slate-700">
-                    <User size={18} />
-                    Miembros del Equipo
-                  </CardTitle>
-              </CardHeader>
-              <CardContent>
-                  <div className="flex -space-x-2 mb-4">
-                      {members.map((member, index) => (
-                          <div key={index} title={member.name} className="w-10 h-10 bg-slate-200 rounded-full border-2 border-white flex items-center justify-center text-lg shadow-sm">
-                              {member.avatar}
-                          </div>
-                      ))}
-                      <div className="w-10 h-10 bg-slate-100 rounded-full border-2 border-white flex items-center justify-center text-slate-500 cursor-pointer hover:bg-slate-200">
-                          <Plus size={20} />
-                      </div>
-                  </div>
-                  <Button className="w-full">Administrar Equipo</Button>
-              </CardContent>
-          </Card>
-
-           {showRatingModal && <RatingModal />}
-      </div>
-  );
-
-  const RatingModal = () => (
-    <Card className="shadow-lg border-violet-200 bg-violet-50/50">
-        <CardHeader>
-            <div className="flex items-start justify-between">
-                <CardTitle className="text-base font-semibold text-slate-800">Valora tu experiencia</CardTitle>
-                <button onClick={() => setShowRatingModal(false)} className="text-slate-400 hover:text-slate-600">
-                    <X size={18} />
-                </button>
-            </div>
-             <p className="text-sm text-slate-600 pt-1">¿La app te resulta fácil de usar?</p>
-        </CardHeader>
-        <CardContent>
-            <div className="flex justify-center gap-2 mb-4">
-                {[1, 2, 3, 4, 5].map((star) => (
-                    <button key={star} onClick={() => handleStarClick(star)} onMouseEnter={() => handleStarHover(star)} onMouseLeave={() => setHoveredStar(0)}
-                        className="transition-transform hover:scale-125">
-                        <Star size={24} className={`${star <= (hoveredStar || rating) ? 'fill-amber-400 text-amber-400' : 'text-slate-300'} transition-colors`} />
-                    </button>
+// --- COMPONENTES DE UI PEQUEÑOS ---
+const TopNav = () => {
+    const navItems = [
+        { icon: BarChart3, active: true },
+        { icon: Calendar, active: false },
+        { icon: CreditCard, active: false },
+        { icon: TrendingUp, active: false },
+    ];
+    return (
+        <div className="flex justify-center mb-8">
+            <div className="bg-white rounded-full shadow-md p-2 flex items-center gap-2">
+                {navItems.map((item, index) => (
+                    <Button key={index} variant={item.active ? 'secondary' : 'ghost'} size="icon" className="rounded-full">
+                        <item.icon className={`h-5 w-5 ${item.active ? 'text-indigo-600' : 'text-gray-500'}`} />
+                    </Button>
                 ))}
             </div>
-            <Button className="w-full" onClick={() => setShowRatingModal(false)} disabled={rating === 0}>
-                Enviar valoración
-            </Button>
-        </CardContent>
-    </Card>
-  );
+        </div>
+    );
+};
 
-  return (
-    <div className="bg-slate-50 min-h-screen font-sans">
-      <div className="flex">
-        <MainContent />
-        {!isMobile && <SideBar />}
-      </div>
-      {/* En móvil, la barra lateral podría ser un modal o no mostrarse, según el diseño deseado */}
-    </div>
-  );
+const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-slate-900 text-white px-3 py-1 rounded-md shadow-lg">
+                <p className="font-bold">{`${payload[0].value} min`}</p>
+            </div>
+        );
+    }
+    return null;
+};
+
+// --- COMPONENTE PRINCIPAL ---
+export const EstadisticasContent = () => {
+    const { user } = useAuth();
+    const isMobile = useIsMobile();
+
+    // --- LÓGICA DE DATOS (SIN MODIFICAR) ---
+    const [chartData, setChartData] = useState([]);
+    useEffect(() => {
+        // Simulación de carga de datos para la gráfica
+        const data = [
+            { name: '1', m: 180 }, { name: '5', m: 200 }, { name: '10', m: 190 }, 
+            { name: '15', m: 220 }, { name: '20', m: 250 }, { name: '25', m: 210 },
+            { name: '30', m: 180 },
+        ];
+        setChartData(data);
+    }, []);
+
+    const MotionCard = motion(Card);
+
+    return (
+        <div className="bg-slate-50 min-h-screen p-4 sm:p-6 lg:p-8 font-sans">
+            <div className="max-w-screen-xl mx-auto">
+                <TopNav />
+                
+                <header className="text-center mb-10">
+                    <h1 className="text-4xl font-bold text-slate-800">Estadísticas</h1>
+                    <p className="text-indigo-500 mt-2">
+                        Hello {user?.email || 'usuario'}, welcome back!
+                    </p>
+                </header>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    {/* --- COLUMNA IZQUIERDA --- */}
+                    <aside className="lg:col-span-3">
+                        <MotionCard 
+                            className="p-6 shadow-lg border-none"
+                            initial={{ opacity: 0, x: -50 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="bg-gray-100 p-2 rounded-lg">
+                                    <Briefcase className="h-6 w-6 text-indigo-600"/>
+                                </div>
+                                <h2 className="font-bold text-lg text-slate-800">Dental Basics Academy</h2>
+                            </div>
+                            
+                            <h3 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                                <Calendar className="w-5 h-5 text-gray-400"/>
+                                Eventos y actualizaciones
+                            </h3>
+                            <div className="bg-gray-50 p-3 rounded-lg mb-6">
+                                <div className="flex justify-between items-center">
+                                    <p className="font-semibold text-sm text-slate-800">{events[0].date}</p>
+                                    <p className="text-xs text-gray-500">{events[0].day}</p>
+                                </div>
+                                <p className="text-xs text-indigo-500">All day</p>
+                            </div>
+
+                            <div className="flex justify-between items-center mb-3">
+                                <h3 className="font-semibold text-slate-700">Members</h3>
+                                <div className="flex -space-x-2">
+                                    {members.map((avatar, index) => (
+                                        <div key={index} className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center text-sm border-2 border-white">
+                                            {avatar}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button variant="outline" className="w-full">Cancel</Button>
+                                <Button className="w-full bg-indigo-600 hover:bg-indigo-700">More</Button>
+                            </div>
+                        </MotionCard>
+                    </aside>
+
+                    {/* --- COLUMNA DERECHA (PRINCIPAL) --- */}
+                    <main className="lg:col-span-9">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            
+                            {/* --- CARD DE PRODUCTIVIDAD (OCUPA 2/3) --- */}
+                            <MotionCard 
+                                className="md:col-span-3 p-6 shadow-lg border-none"
+                                initial={{ opacity: 0, y: 50 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.1 }}
+                            >
+                                <CardTitle className="text-xl font-bold mb-1 text-slate-800">Mi Productividad</CardTitle>
+                                <p className="text-sm text-gray-500 mb-4">Si aún no inicias sesión no podras ver tu progreso</p>
+                                
+                                <div className="flex items-center gap-4 mb-4 text-sm">
+                                    <h4 className="font-semibold text-indigo-600 border-b-2 border-indigo-600 pb-1">Tiempo de actividad</h4>
+                                    <h4 className="font-semibold text-gray-400">Previous Month</h4>
+                                    <h4 className="font-semibold text-gray-400">March 2020</h4>
+                                </div>
+
+                                <div className="h-64 w-full">
+                                    <ResponsiveContainer>
+                                        <AreaChart data={chartData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                                            <defs>
+                                                <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop offset="5%" stopColor="#818CF8" stopOpacity={0.4}/>
+                                                    <stop offset="95%" stopColor="#C7D2FE" stopOpacity={0.1}/>
+                                                </linearGradient>
+                                            </defs>
+                                            <XAxis dataKey="name" stroke="#9CA3AF" fontSize={12} tickLine={false} axisLine={false} />
+                                            <YAxis dataKey="m" stroke="#9CA3AF" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value} M`} />
+                                            <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'rgba(139, 92, 246, 0.5)', strokeWidth: 1, strokeDasharray: '3 3' }} />
+                                            <Area type="monotone" dataKey="m" stroke="#6366F1" strokeWidth={3} fill="url(#chartGradient)" />
+                                        </AreaChart>
+                                    </div>
+                            </MotionCard>
+                            
+                            {/* --- CARD DE GOALS --- */}
+                            <MotionCard 
+                                className="md:col-span-3 p-6 shadow-lg border-none"
+                                initial={{ opacity: 0, y: 50 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                            >
+                                <div className="flex justify-between items-center mb-4">
+                                    <CardTitle className="text-xl font-bold text-slate-800">Goals</CardTitle>
+                                    <Button variant="ghost" size="icon"><Plus className="w-5 h-5 text-gray-500"/></Button>
+                                </div>
+                                <div className="relative">
+                                    <div className="flex gap-4 overflow-x-auto pb-2 -mb-2">
+                                        {goals.map((goal, index) => (
+                                            <div key={index} className="bg-gray-50 p-4 rounded-xl min-w-[150px] flex-shrink-0">
+                                                <p className="font-bold text-slate-800">{goal.amount}</p>
+                                                <p className="text-xs text-gray-400 mb-2">{goal.date}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-xl">{goal.icon}</span>
+                                                    <p className="font-semibold text-sm">{goal.title}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="absolute top-1/2 -right-4 -translate-y-1/2 bg-white rounded-full shadow-md h-8 w-8 flex items-center justify-center cursor-pointer">
+                                        <ChevronRight className="w-5 h-5 text-gray-600"/>
+                                    </div>
+                                </div>
+                            </MotionCard>
+                            
+                            {/* --- TRANSACTION HISTORY --- */}
+                            <MotionCard 
+                                className="md:col-span-3 xl:col-span-2 p-6 shadow-lg border-none"
+                                initial={{ opacity: 0, y: 50 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.3 }}
+                            >
+                                <CardTitle className="text-xl font-bold mb-4 text-slate-800">Transaction history</CardTitle>
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="text-left text-gray-400">
+                                            <th className="font-medium pb-2">Receiver</th>
+                                            <th className="font-medium pb-2">Type</th>
+                                            <th className="font-medium pb-2">Date</th>
+                                            <th className="font-medium pb-2 text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {transactionData.slice(0, 4).map(tx => (
+                                            <tr key={tx.id} className="border-b border-gray-100 last:border-none">
+                                                <td className="py-3 font-semibold text-slate-700">{tx.type}</td>
+                                                <td className="py-3 text-gray-500">{tx.category}</td>
+                                                <td className="py-3 text-gray-500">{tx.date}</td>
+                                                <td className="py-3 font-semibold text-slate-700 text-right">{tx.amount}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </MotionCard>
+                            
+                            {/* --- COLUMNA DE WIDGETS (OUTCOME, RATING, LOAN) --- */}
+                            <div className="md:col-span-3 xl:col-span-1 space-y-8">
+                                <MotionCard 
+                                    className="p-6 shadow-lg border-none"
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: 0.4 }}
+                                >
+                                    <CardTitle className="text-xl font-bold mb-4 text-slate-800">Outcome Statistics</CardTitle>
+                                    {outcomeStats.map((stat, index) => (
+                                        <div key={index} className="mb-4 last:mb-0">
+                                            <div className="flex justify-between items-center mb-1 text-sm">
+                                                <span className="font-semibold text-slate-700">{stat.label}</span>
+                                                <span className="text-gray-500">{stat.percentage}%</span>
+                                            </div>
+                                            <div className="w-full bg-gray-200 rounded-full h-2">
+                                                <div className={`h-2 rounded-full ${stat.color}`} style={{ width: `${stat.percentage}%` }}/>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </MotionCard>
+
+                                <MotionCard 
+                                    className="p-6 shadow-lg border-none"
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: 0.5 }}
+                                >
+                                    <CardTitle className="text-xl font-bold mb-1 text-slate-800">How would you rate us?</CardTitle>
+                                    <p className="text-sm text-gray-500 mb-4">Do you find the app easy to use?</p>
+                                    <div className="flex justify-center gap-4 mb-5">
+                                        {[1, 2, 3, 4, 5].map(i => (
+                                            <Star key={i} className="w-7 h-7 text-gray-300 cursor-pointer hover:text-amber-400"/>
+                                        ))}
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <Button variant="outline" className="w-full">Cancel</Button>
+                                        <Button className="w-full bg-indigo-600 hover:bg-indigo-700">Submit</Button>
+                                    </div>
+                                </MotionCard>
+
+                                <MotionCard 
+                                    className="p-6 shadow-lg border-none bg-gradient-to-br from-red-400 to-orange-400 text-white"
+                                    initial={{ opacity: 0, y: 50 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: 0.6 }}
+                                >
+                                    <CardTitle className="text-xl font-bold mb-2">Get great loan!</CardTitle>
+                                    <p className="text-sm opacity-80 mb-4">You can get a loan for your business needs.</p>
+                                    <Button variant="secondary" className="w-full bg-white/30 hover:bg-white/40 text-white">Learn More</Button>
+                                </MotionCard>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </div>
+    );
 };
