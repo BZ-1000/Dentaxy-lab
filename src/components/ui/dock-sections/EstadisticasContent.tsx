@@ -7,16 +7,8 @@ import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, LineChart, Line, To
 import { Calendar, Star, TrendingUp, ShoppingBag, Smartphone, User, Plus, ChevronRight, X, Plane, Mountain, Gamepad2, Activity, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-const productivityData = [
-  { name: 'Ene', value: 12 },
-  { name: 'Feb', value: 19 },
-  { name: 'Mar', value: 25 },
-  { name: 'Abr', value: 22 },
-  { name: 'May', value: 30 },
-  { name: 'Jun', value: 28 },
-  { name: 'Jul', value: 35 },
-];
+import { supabase } from '@/integrations/supabase/client';
+const productivityData = [] as any[];
 
 const transactionData = [
   { id: 1, type: 'Tesco Market', category: 'Shopping', date: '13 Dec 2020', amount: '$75.67', icon: ShoppingBag },
@@ -59,44 +51,103 @@ export const EstadisticasContent = () => {
   const [hoveredStar, setHoveredStar] = useState(0);
   const [hoveredDataPoint, setHoveredDataPoint] = useState<any>(null);
 
-  // Generar datos del mes actual para usuarios autenticados
-  const currentMonthData = useMemo(() => {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    
-    return Array.from({ length: daysInMonth }, (_, i) => {
-      const day = i + 1;
-      const minutes = Math.floor(Math.random() * 45) + 5; // 5-50 minutos aleatorios
-      return {
-        day,
-        date: `${day}`,
-        minutes,
-        formattedDate: `${day} ${new Date(currentYear, currentMonth, day).toLocaleDateString('es-ES', { month: 'short' })}`
-      };
-    });
-  }, []);
+  // Estado para la gráfica de productividad real
+  const [range, setRange] = useState<'7d' | '30d' | 'custom'>('7d');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
+  const [chartData, setChartData] = useState<Array<{ date: string; label: string; minutes: number; firstSession?: string; aboveAvg?: boolean }>>([]);
+  const [avgMinutes, setAvgMinutes] = useState<number>(0);
 
-  const totalMinutesToday = currentMonthData[currentMonthData.length - 1]?.minutes || 0;
-  const currentMonthName = new Date().toLocaleDateString('es-ES', { month: 'long' });
+
+  // Helpers de fecha
+  const toISO = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+  const addDays = (d: Date, days: number) => {
+    const nd = new Date(d);
+    nd.setDate(nd.getDate() + days);
+    return nd;
+  };
+  const eachDay = (from: Date, to: Date) => {
+    const arr: string[] = [];
+    let cur = new Date(from);
+    while (cur <= to) {
+      arr.push(toISO(cur));
+      cur = addDays(cur, 1);
+    }
+    return arr;
+  };
 
   useEffect(() => {
-    // Show rating modal after 3 seconds
-    const timer = setTimeout(() => {
-      setShowRatingModal(true);
-    }, 3000);
+    if (!user) return;
 
-    return () => clearTimeout(timer);
-  }, []);
+    // Calcular rango
+    const today = new Date();
+    let fromISO = '';
+    let toISODate = '';
 
-  const handleStarClick = (starNumber: number) => {
-    setRating(starNumber);
-  };
+    if (range === '7d') {
+      const from = addDays(today, -6);
+      fromISO = toISO(from);
+      toISODate = toISO(today);
+    } else if (range === '30d') {
+      const from = addDays(today, -29);
+      fromISO = toISO(from);
+      toISODate = toISO(today);
+    } else {
+      if (!startDate || !endDate) return; // esperar selección completa
+      fromISO = startDate;
+      toISODate = endDate;
+    }
 
-  const handleStarHover = (starNumber: number) => {
-    setHoveredStar(starNumber);
-  };
+    const load = async () => {
+      const { data, error } = await supabase
+        .from('user_activity_sessions')
+        .select('date, session_start, duration_minutes')
+        .gte('date', fromISO)
+        .lte('date', toISODate)
+        .order('date', { ascending: true });
+
+      if (error) {
+        console.error('Error cargando sesiones', error);
+        setChartData([]);
+        setAvgMinutes(0);
+        return;
+      }
+
+      const byDate = new Map<string, { minutes: number; firstSession?: string }>();
+      data?.forEach((row: any) => {
+        const key = row.date;
+        const current = byDate.get(key) || { minutes: 0 };
+        current.minutes += row.duration_minutes || 0;
+        if (!current.firstSession || new Date(row.session_start) < new Date(current.firstSession)) {
+          current.firstSession = row.session_start;
+        }
+        byDate.set(key, current);
+      });
+
+      const days = eachDay(new Date(fromISO), new Date(toISODate));
+      const result = days.map((iso) => {
+        const d = new Date(iso + 'T00:00:00');
+        const label = d.toLocaleDateString('es-ES', { weekday: 'short' }).replace('.', '');
+        const info = byDate.get(iso);
+        return { date: iso, label, minutes: info?.minutes || 0, firstSession: info?.firstSession };
+      });
+
+      const avg = result.length ? result.reduce((s, r) => s + r.minutes, 0) / result.length : 0;
+      const withAvg = result.map((r) => ({ ...r, aboveAvg: r.minutes > avg }));
+      setAvgMinutes(avg);
+      setChartData(withAvg);
+    };
+
+    void load();
+  }, [user, range, startDate, endDate]);
+
+  const handleStarClick = (starNumber: number) => setRating(starNumber);
+  const handleStarHover = (starNumber: number) => setHoveredStar(starNumber);
 
   return (
     <div className={`bg-white h-full ${isMobile ? 'flex flex-col' : 'flex'}`}>
@@ -154,8 +205,8 @@ export const EstadisticasContent = () => {
       <div className={`flex-1 ${isMobile ? 'p-2 space-y-3' : 'p-3 space-y-3'}`}>
         {/* Header */}
         <div className="text-center mb-3">
-          <h1 className="text-xl font-bold text-gray-900 mb-1">Estadísticas</h1>
-          <p className="text-blue-500 text-xs">Hello <span className="text-blue-600 font-medium">(colocar nombre de usuario)</span>, welcome back!</p>
+          {/* Espacio reservado sin título */}
+          <div className="h-4" />
         </div>
 
         {/* Grid Principal - Cards Compactos */}
@@ -172,131 +223,88 @@ export const EstadisticasContent = () => {
               </CardHeader>
               <CardContent className="pt-0 p-3">
                 {user ? (
-                  // Usuario autenticado - Mostrar gráfica funcional
                   <>
+                    {/* Controles de rango */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-1">
+                        <Button size="sm" variant={range === '7d' ? 'default' : 'outline'} onClick={() => setRange('7d')}>7 días</Button>
+                        <Button size="sm" variant={range === '30d' ? 'default' : 'outline'} onClick={() => setRange('30d')}>30 días</Button>
+                        <Button size="sm" variant={range === 'custom' ? 'default' : 'outline'} onClick={() => setRange('custom')}>Personalizado</Button>
+                      </div>
+                      {avgMinutes > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          Promedio: <span className="font-semibold text-foreground">{Math.round(avgMinutes)} min</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {range === 'custom' && (
+                      <div className="flex items-center gap-2 mb-3">
+                        <input type="date" className="border rounded px-2 py-1 text-xs" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                        <span className="text-xs text-muted-foreground">a</span>
+                        <input type="date" className="border rounded px-2 py-1 text-xs" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                      </div>
+                    )}
+
+                    {/* Resumen y gráfica */}
                     <div className="flex items-center justify-between mb-3">
                       <div>
-                        <div className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                          {totalMinutesToday} min
+                        <div className="text-xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(90deg, hsl(var(--chart-4)), hsl(var(--chart-1)))' }}>
+                          {chartData[chartData.length - 1]?.minutes ?? 0} min
                         </div>
-                        <p className="text-xs text-gray-500 capitalize">{currentMonthName}</p>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center gap-1 text-xs text-green-600 font-medium">
-                          <TrendingUp size={12} />
-                          +12% vs mes anterior
-                        </div>
+                        <p className="text-xs text-muted-foreground">Hoy</p>
                       </div>
                     </div>
-                    <div className="h-20 relative">
+
+                    <div className="h-32 md:h-40 relative">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart 
-                          data={currentMonthData}
-                          onMouseMove={(data) => {
-                            if (data && data.activePayload) {
-                              setHoveredDataPoint(data.activePayload[0]?.payload);
-                            }
-                          }}
-                          onMouseLeave={() => setHoveredDataPoint(null)}
-                        >
+                        <LineChart data={chartData}>
                           <defs>
-                            <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                              <stop offset="0%" stopColor="#8b5cf6" />
-                              <stop offset="50%" stopColor="#3b82f6" />
-                              <stop offset="100%" stopColor="#06b6d4" />
+                            <linearGradient id="prodLine" x1="0" y1="0" x2="1" y2="0">
+                              <stop offset="0%" stopColor={`hsl(var(--chart-1))`} />
+                              <stop offset="100%" stopColor={`hsl(var(--chart-4))`} />
                             </linearGradient>
                           </defs>
-                          <XAxis 
-                            dataKey="date" 
-                            axisLine={false} 
-                            tickLine={false} 
-                            className="text-xs" 
-                            interval="preserveStartEnd"
-                          />
-                          <YAxis hide />
+                          <XAxis dataKey="label" axisLine={false} tickLine={false} className="text-xs" />
+                          <YAxis axisLine={false} tickLine={false} className="text-xs" tickFormatter={(v) => `${v}`} />
                           <Tooltip 
                             content={({ active, payload }) => {
                               if (active && payload && payload[0]) {
-                                const data = payload[0].payload;
+                                const d = payload[0].payload as any
+                                const fullDate = new Date(d.date)
+                                const fecha = fullDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+                                const hora = d.firstSession ? new Date(d.firstSession).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '—'
                                 return (
-                                  <motion.div
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    className="bg-white/95 backdrop-blur-sm border border-gray-200 rounded-lg p-2 shadow-lg"
-                                  >
-                                    <p className="text-xs font-semibold text-gray-900">{data.formattedDate}</p>
-                                    <p className="text-xs text-purple-600 flex items-center gap-1">
-                                      <Activity size={10} />
-                                      {data.minutes} minutos
-                                    </p>
-                                  </motion.div>
-                                );
+                                  <div className="bg-white/95 border rounded p-2 text-xs shadow">
+                                    <div className="font-semibold capitalize">{fecha}</div>
+                                    <div>{d.minutes} minutos</div>
+                                    <div>Inicio: {hora}</div>
+                                  </div>
+                                )
                               }
-                              return null;
+                              return null
                             }}
                           />
-                          <Line
-                            type="monotone"
-                            dataKey="minutes"
-                            stroke="url(#lineGradient)"
-                            strokeWidth={3}
-                            dot={(props) => {
-                              const { cx, cy, payload } = props;
-                              return (
-                                <motion.circle
-                                  cx={cx}
-                                  cy={cy}
-                                  r={hoveredDataPoint?.day === payload?.day ? 5 : 3}
-                                  fill="#8b5cf6"
-                                  stroke="#fff"
-                                  strokeWidth={2}
-                                  className="drop-shadow-sm"
-                                  animate={{
-                                    r: hoveredDataPoint?.day === payload?.day ? 5 : 3,
-                                    scale: hoveredDataPoint?.day === payload?.day ? 1.2 : 1,
-                                  }}
-                                  transition={{ duration: 0.2 }}
-                                />
-                              );
-                            }}
-                            activeDot={{
-                              r: 6,
-                              fill: '#8b5cf6',
-                              stroke: '#fff',
-                              strokeWidth: 3,
-                            }}
+                          <Line type="monotone" dataKey="minutes" stroke="url(#prodLine)" strokeWidth={3}
+                            dot={({ cx, cy, payload }) => (
+                              <circle cx={cx} cy={cy} r={3} fill={payload.aboveAvg ? `hsl(var(--chart-2))` : `hsl(var(--chart-1))`} stroke="#fff" strokeWidth={2} />
+                            )}
+                            activeDot={{ r: 5 }}
                           />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
                   </>
                 ) : (
-                  // Usuario no autenticado - Call to action
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex flex-col items-center justify-center h-20 text-center"
-                  >
-                    <div className="mb-3">
-                      <div className="w-10 h-10 mx-auto mb-2 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center">
-                        <Activity className="w-5 h-5 text-white" />
-                      </div>
-                      <h4 className="text-sm font-bold text-gray-900 mb-1">
-                        Descubre tu verdadera eficiencia
-                      </h4>
-                      <p className="text-xs text-gray-600 leading-relaxed">
-                        Visualiza en tiempo real los minutos que dedicas a crear historias clínicas
-                      </p>
+                  <div className="flex flex-col items-center justify-center text-center py-6">
+                    <div className="mb-3 text-sm text-muted-foreground max-w-xs">
+                      Regístrate para llevar un seguimiento de tu progreso y ver tu tiempo en la app.
                     </div>
-                    <Button 
-                      size="sm" 
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-xs px-4 py-1.5 h-auto shadow-lg hover:shadow-xl transition-all duration-300 group"
-                      onClick={() => window.location.href = '/auth/register'}
-                    >
-                      Regístrate Gratis
-                      <ArrowRight className="w-3 h-3 ml-1 group-hover:translate-x-0.5 transition-transform" />
-                    </Button>
-                  </motion.div>
+                    <div className="flex gap-2">
+                      <Button onClick={() => (window.location.href = '/auth/register')}>Crear cuenta</Button>
+                      <Button variant="outline" onClick={() => (window.location.href = '/auth/login')}>Iniciar sesión</Button>
+                    </div>
+                  </div>
                 )}
               </CardContent>
             </Card>
