@@ -210,105 +210,131 @@ export const EstadisticasContent = () => {
         </div>
 
         {/* Grid Principal - Cards Compactos */}
-        <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-4 gap-3"}>
-          {/* Mi Productividad */}
-          <div className={isMobile ? "w-full" : "lg:col-span-2"}>
-            <Card className="shadow-sm h-full">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">1</span>
-                  Mi Productividad
-                </CardTitle>
-                <p className="text-xs text-gray-500">Si aún no inicias sesión no podras ver tu progreso</p>
-              </CardHeader>
-              <CardContent className="pt-0 p-3">
-                {user ? (
-                  <>
-                    {/* Controles de rango */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-1">
-                        <Button size="sm" variant={range === '7d' ? 'default' : 'outline'} onClick={() => setRange('7d')}>7 días</Button>
-                        <Button size="sm" variant={range === '30d' ? 'default' : 'outline'} onClick={() => setRange('30d')}>30 días</Button>
-                        <Button size="sm" variant={range === 'custom' ? 'default' : 'outline'} onClick={() => setRange('custom')}>Personalizado</Button>
-                      </div>
-                      {avgMinutes > 0 && (
-                        <div className="text-xs text-muted-foreground">
-                          Promedio: <span className="font-semibold text-foreground">{Math.round(avgMinutes)} min</span>
-                        </div>
-                      )}
-                    </div>
+       <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-4 gap-3"}>
+  {/* Mi Productividad */}
+  <div className={isMobile ? "w-full" : "lg:col-span-2"}>
+    <Card className="shadow-sm h-full">
+      <CardHeader className="pb-1">
+        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+          <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">1</span>
+          Mi Productividad
+        </CardTitle>
+        <p className="text-xs text-gray-500">Si aún no inicias sesión no podrás ver tu progreso</p>
+      </CardHeader>
+      <CardContent className="pt-0 p-3">
+        {user ? (
+          <>
+            {/* Controles estilo Apple */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex bg-gray-100 rounded-full p-1">
+                <Button size="sm" variant={range === '7d' ? 'default' : 'ghost'} className="rounded-full" onClick={() => setRange('7d')}>Día</Button>
+                <Button size="sm" variant={range === '30d' ? 'default' : 'ghost'} className="rounded-full" onClick={() => setRange('30d')}>Semana</Button>
+                <Button size="sm" variant={range === 'custom' ? 'default' : 'ghost'} className="rounded-full" onClick={() => setRange('custom')}>Mes</Button>
+              </div>
+              {avgMinutes > 0 && (
+                <div className="text-xs text-muted-foreground">
+                  Promedio: <span className="font-semibold text-foreground">{Math.round(avgMinutes)} min</span>
+                </div>
+              )}
+            </div>
 
-                    {range === 'custom' && (
-                      <div className="flex items-center gap-2 mb-3">
-                        <input type="date" className="border rounded px-2 py-1 text-xs" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                        <span className="text-xs text-muted-foreground">a</span>
-                        <input type="date" className="border rounded px-2 py-1 text-xs" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                      </div>
+            {range === 'custom' && (
+              <div className="flex items-center gap-2 mb-3">
+                <input type="date" className="border rounded px-2 py-1 text-xs" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                <span className="text-xs text-muted-foreground">a</span>
+                <input type="date" className="border rounded px-2 py-1 text-xs" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+              </div>
+            )}
+
+            {/* Datos del día */}
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <div className="text-xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(90deg, #007AFF, #34C759)' }}>
+                  {chartData[chartData.length - 1]?.minutes ?? 0} min
+                </div>
+                <p className="text-xs text-muted-foreground">Hoy</p>
+              </div>
+            </div>
+
+            {/* Gráfica animada */}
+            <div className="h-32 md:h-40 relative">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData}>
+                  <defs>
+                    <linearGradient id="prodLine" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#007AFF" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="#007AFF" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="label" axisLine={false} tickLine={false} className="text-xs" />
+                  <YAxis axisLine={false} tickLine={false} className="text-xs" tickFormatter={(v) => `${v}`} />
+                  <Tooltip 
+                    content={({ active, payload }) => {
+                      if (active && payload && payload[0]) {
+                        const d = payload[0].payload as any;
+                        const fullDate = new Date(d.date);
+                        const fecha = fullDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+                        const hora = d.firstSession ? new Date(d.firstSession).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '—';
+                        return (
+                          <div className="bg-white/90 border rounded p-2 text-xs shadow-md">
+                            <div className="font-semibold capitalize">{fecha}</div>
+                            <div>{d.minutes} minutos</div>
+                            <div>Inicio: {hora}</div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Area type="monotone" dataKey="minutes" stroke="none" fill="url(#prodLine)" />
+                  <Line 
+                    type="monotone" 
+                    dataKey="minutes" 
+                    stroke="#007AFF" 
+                    strokeWidth={2} 
+                    dot={({ cx, cy, payload }) => (
+                      <circle cx={cx} cy={cy} r={3} fill={payload.aboveAvg ? "#34C759" : "#007AFF"} stroke="#fff" strokeWidth={2} />
                     )}
+                    activeDot={{ r: 5 }}
+                    isAnimationActive={true}
+                    animationDuration={1000}
+                    strokeDasharray="500"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
 
-                    {/* Resumen y gráfica */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <div className="text-xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(90deg, hsl(var(--chart-4)), hsl(var(--chart-1)))' }}>
-                          {chartData[chartData.length - 1]?.minutes ?? 0} min
-                        </div>
-                        <p className="text-xs text-muted-foreground">Hoy</p>
-                      </div>
-                    </div>
+            {/* Panel de datos */}
+            <div className="mt-4 flex items-center justify-between text-sm">
+              <span className="text-green-600 font-medium">Hoy llevas un 18% más que ayer</span>
+              <span className="flex items-center text-green-600">↑ Tendencia positiva</span>
+            </div>
 
-                    <div className="h-32 md:h-40 relative">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData}>
-                          <defs>
-                            <linearGradient id="prodLine" x1="0" y1="0" x2="1" y2="0">
-                              <stop offset="0%" stopColor={`hsl(var(--chart-1))`} />
-                              <stop offset="100%" stopColor={`hsl(var(--chart-4))`} />
-                            </linearGradient>
-                          </defs>
-                          <XAxis dataKey="label" axisLine={false} tickLine={false} className="text-xs" />
-                          <YAxis axisLine={false} tickLine={false} className="text-xs" tickFormatter={(v) => `${v}`} />
-                          <Tooltip 
-                            content={({ active, payload }) => {
-                              if (active && payload && payload[0]) {
-                                const d = payload[0].payload as any
-                                const fullDate = new Date(d.date)
-                                const fecha = fullDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-                                const hora = d.firstSession ? new Date(d.firstSession).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '—'
-                                return (
-                                  <div className="bg-white/95 border rounded p-2 text-xs shadow">
-                                    <div className="font-semibold capitalize">{fecha}</div>
-                                    <div>{d.minutes} minutos</div>
-                                    <div>Inicio: {hora}</div>
-                                  </div>
-                                )
-                              }
-                              return null
-                            }}
-                          />
-                          <Line type="monotone" dataKey="minutes" stroke="url(#prodLine)" strokeWidth={3}
-                            dot={({ cx, cy, payload }) => (
-                              <circle cx={cx} cy={cy} r={3} fill={payload.aboveAvg ? `hsl(var(--chart-2))` : `hsl(var(--chart-1))`} stroke="#fff" strokeWidth={2} />
-                            )}
-                            activeDot={{ r: 5 }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-center py-6">
-                    <div className="mb-3 text-sm text-muted-foreground max-w-xs">
-                      Regístrate para llevar un seguimiento de tu progreso y ver tu tiempo en la app.
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={() => (window.location.href = '/auth/register')}>Crear cuenta</Button>
-                      <Button variant="outline" onClick={() => (window.location.href = '/auth/login')}>Iniciar sesión</Button>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            {/* Historial rápido */}
+            <div className="mt-4 grid grid-cols-5 gap-2 text-center text-xs text-gray-600">
+              {chartData.slice(-5).map((d, i) => (
+                <div key={i}>
+                  <strong>{d.label}</strong><br />{d.minutes} min
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center text-center py-6">
+            <div className="mb-3 text-sm text-muted-foreground max-w-xs">
+              Regístrate para llevar un seguimiento de tu progreso y ver tu tiempo en la app.
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => (window.location.href = '/auth/register')}>Crear cuenta</Button>
+              <Button variant="outline" onClick={() => (window.location.href = '/auth/login')}>Iniciar sesión</Button>
+            </div>
           </div>
+        )}
+      </CardContent>
+    </Card>
+  </div>
+</div>
+
 
           {/* Goals */}
           <div>
