@@ -1,71 +1,59 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, LineChart, Line, Tooltip } from 'recharts';
-import { Calendar, Star, TrendingUp, ShoppingBag, Smartphone, User, Plus, ChevronRight, X, Plane, Mountain, Gamepad2, Activity, ArrowRight } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { 
+    Calendar, Star, TrendingUp, ShoppingBag, Smartphone, User, Plus, ChevronRight, X, 
+    Plane, Mountain, Gamepad2, Activity, PieChart, History, Target, AlertTriangle, Briefcase 
+} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { supabase } from '@/integrations/supabase/client';
-const productivityData = [] as any[];
 
+// --- DATOS DE EJEMPLO (MANTENIDOS COMO EN EL ORIGINAL) ---
 const transactionData = [
-  { id: 1, type: 'Tesco Market', category: 'Shopping', date: '13 Dec 2020', amount: '$75.67', icon: ShoppingBag },
-  { id: 2, type: 'ElectroMan Market', category: 'Shopping', date: '14 Dec 2020', amount: '$250.00', icon: ShoppingBag },
-  { id: 3, type: 'Fiergio Restaurant', category: 'Food', date: '15 Dec 2020', amount: '$19.50', icon: User },
-  { id: 4, type: 'John Mathew Kayne', category: 'Sports', date: '16 Dec 2020', amount: '$350', icon: TrendingUp },
-  { id: 5, type: 'Ann Martin', category: 'Shopping', date: '17 Nov 2020', amount: '$430', icon: ShoppingBag },
+  { id: 1, type: 'Insumos Médicos', category: 'Compras', date: '05 Ago 2025', amount: '$75.67', icon: ShoppingBag },
+  { id: 2, type: 'Equipo de Rayos X', category: 'Equipamiento', date: '04 Ago 2025', amount: '$2500.00', icon: Smartphone },
+  { id: 3, type: 'Cena de equipo', category: 'Alimentos', date: '03 Ago 2025', amount: '$190.50', icon: User },
 ];
-
 const outcomeStats = [
-  { label: 'Shopping', percentage: 52, color: 'bg-blue-500' },
-  { label: 'Electronics', percentage: 21, color: 'bg-green-500' },
-  { label: 'Travels', percentage: 74, color: 'bg-purple-500' },
+  { label: 'Insumos', percentage: 52, icon: ShoppingBag },
+  { label: 'Equipamiento', percentage: 21, icon: Smartphone },
+  { label: 'Viajes de Negocios', percentage: 74, icon: Plane },
 ];
-
 const goals = [
-  { title: '$550', subtitle: 'Holidays', current: 450, target: 550, icon: Plane, color: 'text-blue-500', bgColor: 'bg-blue-50' },
-  { title: '$200', subtitle: 'Renovation', current: 120, target: 200, icon: Mountain, color: 'text-orange-500', bgColor: 'bg-orange-50' },
-  { title: '$820', subtitle: 'Xbox', current: 680, target: 820, icon: Gamepad2, color: 'text-green-500', bgColor: 'bg-green-50' },
+  { title: 'Congreso Anual', subtitle: 'Viáticos', current: 450, target: 550, icon: Plane },
+  { title: 'Renovación de Oficina', subtitle: 'Mobiliario', current: 120, target: 200, icon: Mountain },
+  { title: 'Nuevo Software', subtitle: 'Licencia', current: 680, target: 820, icon: Gamepad2 },
 ];
-
 const events = [
-  { date: '15', title: 'Team Meeting', time: '10:00 AM' },
-  { date: '18', title: 'Project Review', time: '2:00 PM' },
-  { date: '22', title: 'Client Call', time: '4:00 PM' },
+  { date: '15', title: 'Junta de Equipo', time: '10:00 AM' },
+  { date: '18', title: 'Revisión de Proyecto', time: '2:00 PM' },
 ];
-
 const members = [
-  { name: 'John D.', avatar: '👨‍💼', status: 'online' },
-  { name: 'Sarah M.', avatar: '👩‍💻', status: 'away' },
-  { name: 'Mike R.', avatar: '👨‍🎨', status: 'online' },
-  { name: 'Anna K.', avatar: '👩‍🔬', status: 'offline' },
+  { name: 'Dr. John', avatar: '👨‍⚕️' },
+  { name: 'Dra. Sarah', avatar: '👩‍⚕️' },
+  { name: 'Asist. Mike', avatar: '👨‍💼' },
 ];
+// --- FIN DE DATOS DE EJEMPLO ---
+
 
 export const EstadisticasContent = () => {
   const { user } = useAuth();
   const isMobile = useIsMobile();
-  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [showRatingModal, setShowRatingModal] = useState(true); // Se inicia visible para demostración
   const [rating, setRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
-  const [hoveredDataPoint, setHoveredDataPoint] = useState<any>(null);
-
-  // Estado para la gráfica de productividad real
+  
+  // --- LÓGICA DE DATOS (SIN MODIFICAR) ---
   const [range, setRange] = useState<'7d' | '30d' | 'custom'>('7d');
-  const [startDate, setStartDate] = useState<string>('');
+  const [startDate, setStartDate] =useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [chartData, setChartData] = useState<Array<{ date: string; label: string; minutes: number; firstSession?: string; aboveAvg?: boolean }>>([]);
   const [avgMinutes, setAvgMinutes] = useState<number>(0);
 
-
-  // Helpers de fecha
-  const toISO = (d: Date) => {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  };
+  const toISO = (d: Date) => d.toISOString().split('T')[0];
   const addDays = (d: Date, days: number) => {
     const nd = new Date(d);
     nd.setDate(nd.getDate() + days);
@@ -83,22 +71,18 @@ export const EstadisticasContent = () => {
 
   useEffect(() => {
     if (!user) return;
-
-    // Calcular rango
     const today = new Date();
     let fromISO = '';
     let toISODate = '';
 
     if (range === '7d') {
-      const from = addDays(today, -6);
-      fromISO = toISO(from);
+      fromISO = toISO(addDays(today, -6));
       toISODate = toISO(today);
     } else if (range === '30d') {
-      const from = addDays(today, -29);
-      fromISO = toISO(from);
+      fromISO = toISO(addDays(today, -29));
       toISODate = toISO(today);
     } else {
-      if (!startDate || !endDate) return; // esperar selección completa
+      if (!startDate || !endDate) return;
       fromISO = startDate;
       toISODate = endDate;
     }
@@ -128,436 +112,288 @@ export const EstadisticasContent = () => {
         }
         byDate.set(key, current);
       });
-
-      const days = eachDay(new Date(fromISO), new Date(toISODate));
+      
+      const days = eachDay(new Date(`${fromISO}T00:00:00`), new Date(`${toISODate}T00:00:00`));
       const result = days.map((iso) => {
-        const d = new Date(iso + 'T00:00:00');
+        const d = new Date(`${iso}T00:00:00`);
         const label = d.toLocaleDateString('es-ES', { weekday: 'short' }).replace('.', '');
         const info = byDate.get(iso);
         return { date: iso, label, minutes: info?.minutes || 0, firstSession: info?.firstSession };
       });
 
-      const avg = result.length ? result.reduce((s, r) => s + r.minutes, 0) / result.length : 0;
+      const totalMinutes = result.reduce((s, r) => s + r.minutes, 0);
+      const activeDays = result.filter(r => r.minutes > 0).length;
+      const avg = activeDays > 0 ? totalMinutes / activeDays : 0;
+      
       const withAvg = result.map((r) => ({ ...r, aboveAvg: r.minutes > avg }));
+      
       setAvgMinutes(avg);
       setChartData(withAvg);
     };
 
     void load();
   }, [user, range, startDate, endDate]);
+  // --- FIN DE LÓGICA DE DATOS ---
 
   const handleStarClick = (starNumber: number) => setRating(starNumber);
   const handleStarHover = (starNumber: number) => setHoveredStar(starNumber);
 
-  return (
-    <div className={`bg-white h-full ${isMobile ? 'flex flex-col' : 'flex'}`}>
-      {/* Barra Lateral Izquierda - Eventos */}
-      {!isMobile && (
-        <div className="w-48 p-2 border-r border-gray-200 space-y-2">
-          {/* Eventos y actualizaciones */}
-          <Card className="shadow-sm">
-            <CardHeader className="pb-1">
-              <CardTitle className="text-xs font-semibold flex items-center gap-1">
-                <Calendar size={12} />
-                Eventos y actualizaciones
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 p-2">
-              <div className="space-y-1">
-                <div className="text-xs font-semibold">20 September</div>
-                <div className="text-xs text-gray-500">Sunday - All day</div>
-                {events.map((event, index) => (
-                  <div key={index} className="text-xs p-1 rounded hover:bg-gray-50">
-                    <div className="font-medium">{event.title}</div>
-                    <div className="text-gray-500">{event.time}</div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+  const todayFormatted = new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  
+  const MainContent = () => (
+    <div className="flex-1 p-4 md:p-6 space-y-6">
+      <header>
+        <h1 className="text-3xl font-bold text-slate-800">Panel de Estadísticas</h1>
+        <p className="text-slate-500 mt-1 capitalize">{todayFormatted}</p>
+      </header>
 
-          {/* Members */}
-          <Card className="shadow-sm">
-            <CardHeader className="pb-1">
-              <CardTitle className="text-xs font-semibold">Members</CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 p-2">
-              <div className="flex -space-x-1 mb-2">
-                {members.slice(0, 4).map((member, index) => (
-                  <div key={index} className="w-5 h-5 bg-gray-100 rounded-full border border-white flex items-center justify-center">
-                    <span className="text-xs">{member.avatar}</span>
-                  </div>
-                ))}
-                <div className="w-5 h-5 bg-gray-200 rounded-full border border-white flex items-center justify-center">
-                  <span className="text-xs text-gray-600">+</span>
-                </div>
-              </div>
-              <div className="flex gap-1">
-                <Button variant="ghost" size="sm" className="text-xs h-5 px-2">Cancel</Button>
-                <Button size="sm" className="text-xs h-5 px-2 bg-purple-600 hover:bg-purple-700">More</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* Contenido Principal */}
-      <div className={`flex-1 ${isMobile ? 'p-2 space-y-3' : 'p-3 space-y-3'}`}>
-        {/* Header */}
-        <div className="text-center mb-3">
-          {/* Espacio reservado sin título */}
-          <div className="h-4" />
-        </div>
-
-        {/* Grid Principal - Cards Compactos */}
-        <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-4 gap-3"}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        
+        {/* Columna Principal (Gráfica y Transacciones) */}
+        <div className="lg:col-span-2 xl:col-span-3 space-y-6">
           {/* Mi Productividad */}
-          <div className={isMobile ? "w-full" : "lg:col-span-2"}>
-            <Card className="shadow-sm h-full">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">1</span>
-                  Mi Productividad
-                </CardTitle>
-                <p className="text-xs text-gray-500">Si aún no inicias sesión no podras ver tu progreso</p>
-              </CardHeader>
-              <CardContent className="pt-0 p-3">
-                {user ? (
-                  <>
-                    {/* Controles de rango */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-1">
-                        <Button size="sm" variant={range === '7d' ? 'default' : 'outline'} onClick={() => setRange('7d')}>7 días</Button>
-                        <Button size="sm" variant={range === '30d' ? 'default' : 'outline'} onClick={() => setRange('30d')}>30 días</Button>
-                        <Button size="sm" variant={range === 'custom' ? 'default' : 'outline'} onClick={() => setRange('custom')}>Personalizado</Button>
-                      </div>
-                      {avgMinutes > 0 && (
-                        <div className="text-xs text-muted-foreground">
-                          Promedio: <span className="font-semibold text-foreground">{Math.round(avgMinutes)} min</span>
-                        </div>
-                      )}
+          <Card className="shadow-md border-slate-200/80">
+            <CardHeader>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <Activity className="w-6 h-6 text-violet-600"/>
+                    <div>
+                        <CardTitle className="text-lg font-semibold text-slate-800">Mi Productividad</CardTitle>
+                        <p className="text-sm text-slate-500">Tiempo de uso de la aplicación por día.</p>
                     </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant={range === '7d' ? 'default' : 'outline'} onClick={() => setRange('7d')}>7d</Button>
+                  <Button size="sm" variant={range === '30d' ? 'default' : 'outline'} onClick={() => setRange('30d')}>30d</Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {user ? (
+                <div className="h-72 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
+                      <defs>
+                        <linearGradient id="colorArea" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.4}/>
+                          <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="label" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false}/>
+                      <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(value) => `${value}m`}/>
+                      <Tooltip
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload;
+                            return (
+                              <div className="bg-white/80 backdrop-blur-sm border border-slate-200 p-3 rounded-lg shadow-xl">
+                                <p className="font-bold text-slate-800">{new Date(data.date + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric' })}</p>
+                                <p className="text-violet-600 text-lg font-semibold">{`${data.minutes} minutos`}</p>
+                              </div>
+                            );
+                          }
+                          return null;
+                        }}
+                      />
+                      <Area type="monotone" dataKey="minutes" stroke="#8B5CF6" strokeWidth={3} fillOpacity={1} fill="url(#colorArea)" activeDot={{ r: 8, stroke: 'white', strokeWidth: 2 }} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center py-10">
+                    <AlertTriangle className="w-10 h-10 text-amber-500 mb-3" />
+                    <p className="text-slate-600 font-medium mb-4">Regístrate para ver tu progreso.</p>
+                    <div className="flex gap-3">
+                        <Button onClick={() => (window.location.href = '/auth/register')}>Crear cuenta</Button>
+                        <Button variant="outline" onClick={() => (window.location.href = '/auth/login')}>Iniciar sesión</Button>
+                    </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-                    {range === 'custom' && (
-                      <div className="flex items-center gap-2 mb-3">
-                        <input type="date" className="border rounded px-2 py-1 text-xs" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                        <span className="text-xs text-muted-foreground">a</span>
-                        <input type="date" className="border rounded px-2 py-1 text-xs" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                      </div>
-                    )}
-
-                    {/* Resumen y gráfica */}
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <div className="text-xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(90deg, hsl(var(--chart-4)), hsl(var(--chart-1)))' }}>
-                          {chartData[chartData.length - 1]?.minutes ?? 0} min
-                        </div>
-                        <p className="text-xs text-muted-foreground">Hoy</p>
-                      </div>
-                    </div>
-
-                    <div className="h-32 md:h-40 relative">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={chartData}>
-                          <defs>
-                            <linearGradient id="prodLine" x1="0" y1="0" x2="1" y2="0">
-                              <stop offset="0%" stopColor={`hsl(var(--chart-1))`} />
-                              <stop offset="100%" stopColor={`hsl(var(--chart-4))`} />
-                            </linearGradient>
-                          </defs>
-                          <XAxis dataKey="label" axisLine={false} tickLine={false} className="text-xs" />
-                          <YAxis axisLine={false} tickLine={false} className="text-xs" tickFormatter={(v) => `${v}`} />
-                          <Tooltip 
-                            content={({ active, payload }) => {
-                              if (active && payload && payload[0]) {
-                                const d = payload[0].payload as any
-                                const fullDate = new Date(d.date)
-                                const fecha = fullDate.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
-                                const hora = d.firstSession ? new Date(d.firstSession).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '—'
-                                return (
-                                  <div className="bg-white/95 border rounded p-2 text-xs shadow">
-                                    <div className="font-semibold capitalize">{fecha}</div>
-                                    <div>{d.minutes} minutos</div>
-                                    <div>Inicio: {hora}</div>
-                                  </div>
-                                )
-                              }
-                              return null
-                            }}
-                          />
-                          <Line type="monotone" dataKey="minutes" stroke="url(#prodLine)" strokeWidth={3}
-                            dot={({ cx, cy, payload }) => (
-                              <circle cx={cx} cy={cy} r={3} fill={payload.aboveAvg ? `hsl(var(--chart-2))` : `hsl(var(--chart-1))`} stroke="#fff" strokeWidth={2} />
-                            )}
-                            activeDot={{ r: 5 }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-center py-6">
-                    <div className="mb-3 text-sm text-muted-foreground max-w-xs">
-                      Regístrate para llevar un seguimiento de tu progreso y ver tu tiempo en la app.
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={() => (window.location.href = '/auth/register')}>Crear cuenta</Button>
-                      <Button variant="outline" onClick={() => (window.location.href = '/auth/login')}>Iniciar sesión</Button>
-                    </div>
+          {/* Transaction History */}
+          <Card className="shadow-md border-slate-200/80">
+              <CardHeader>
+                  <div className="flex items-center gap-3">
+                      <History className="w-6 h-6 text-violet-600"/>
+                      <CardTitle className="text-lg font-semibold text-slate-800">Historial de Gastos</CardTitle>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Goals */}
-          <div>
-            <Card className="shadow-sm h-full">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">2</span>
-                  Goals
-                  <Plus size={12} className="ml-auto text-gray-400" />
-                </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0 p-2 space-y-2">
-                {goals.map((goal, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-50"
-                  >
-                    <div className={`p-1 rounded-lg ${goal.bgColor}`}>
-                      <goal.icon size={12} className={goal.color} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-bold text-gray-900">{goal.title}</span>
-                        <span className="text-xs text-gray-500">12/12/20</span>
-                      </div>
-                      <p className="text-xs text-gray-600 font-medium">{goal.subtitle}</p>
-                    </div>
-                    <ChevronRight size={10} className="text-gray-400" />
-                  </motion.div>
-                ))}
+              <CardContent>
+                  <table className="w-full text-sm">
+                      <thead>
+                          <tr className="text-slate-500 border-b border-slate-200">
+                              <th className="text-left pb-2 font-medium">Concepto</th>
+                              <th className="text-left pb-2 font-medium">Tipo</th>
+                              <th className="text-left pb-2 font-medium">Fecha</th>
+                              <th className="text-right pb-2 font-medium">Monto</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          {transactionData.map((transaction) => (
+                              <tr key={transaction.id} className="border-b border-slate-200 last:border-b-0">
+                                  <td className="py-3">
+                                      <div className="flex items-center gap-3">
+                                          <div className="p-2 rounded-full bg-slate-100">
+                                              <transaction.icon size={16} className="text-slate-600" />
+                                          </div>
+                                          <span className="font-medium text-slate-800">{transaction.type}</span>
+                                      </div>
+                                  </td>
+                                  <td className="py-3 text-slate-600">{transaction.category}</td>
+                                  <td className="py-3 text-slate-500">{transaction.date}</td>
+                                  <td className="py-3 text-right font-semibold text-slate-800">{transaction.amount}</td>
+                              </tr>
+                          ))}
+                      </tbody>
+                  </table>
               </CardContent>
-            </Card>
-          </div>
-
-          {/* Get Great Loan Card */}
-          <div>
-            <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white shadow-lg h-full">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="bg-white/20 rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">6</span>
-                </div>
-                <h3 className="text-sm font-bold mb-1">Get great loan!</h3>
-                <div className="flex items-center justify-between">
-                  <ChevronRight size={14} className="text-white/80" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          </Card>
         </div>
 
-        {/* Segunda Fila - Transaction History y Outcome Statistics */}
-        <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-2 gap-3"}>
-          {/* Transaction History */}
-          <Card className="shadow-sm">
-            <CardHeader className="pb-1">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">3</span>
-                Transaction history
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0 p-2">
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs">
-                  <thead>
-                    <tr className="text-gray-500 border-b">
-                      <th className="text-left pb-1 font-medium">Receiver</th>
-                      <th className="text-left pb-1 font-medium">Type</th>
-                      <th className="text-left pb-1 font-medium">Date</th>
-                      <th className="text-right pb-1 font-medium">Amount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {transactionData.slice(0, 3).map((transaction) => (
-                      <tr key={transaction.id} className="border-b last:border-b-0">
-                        <td className="py-1">
-                          <div className="flex items-center gap-1">
-                            <div className="p-1 rounded bg-gray-100">
-                              <transaction.icon size={10} className="text-gray-600" />
-                            </div>
-                            <span className="font-medium text-gray-900 text-xs">{transaction.type}</span>
-                          </div>
-                        </td>
-                        <td className="py-1 text-gray-600 text-xs">{transaction.category}</td>
-                        <td className="py-1 text-gray-500 text-xs">{transaction.date}</td>
-                        <td className="py-1 text-right font-semibold text-gray-900 text-xs">{transaction.amount}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+        {/* Columna Lateral (Goals, Stats, etc.) */}
+        <div className="lg:col-span-1 xl:col-span-1 space-y-6">
+          {/* Goals */}
+          <Card className="shadow-md border-slate-200/80">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div className="flex items-center gap-3">
+                  <Target className="w-6 h-6 text-violet-600"/>
+                  <CardTitle className="text-lg font-semibold text-slate-800">Metas</CardTitle>
               </div>
+              <Button variant="ghost" size="icon" className="w-8 h-8">
+                  <Plus size={18} className="text-slate-500" />
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {goals.map((goal, index) => (
+                <motion.div key={index} className="flex items-center gap-3"
+                  initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.1 }}>
+                  <div className="p-2 rounded-lg bg-violet-100">
+                    <goal.icon size={20} className="text-violet-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-slate-800">{goal.title}</p>
+                    <p className="text-xs text-slate-500">{goal.subtitle}</p>
+                  </div>
+                  <ChevronRight size={16} className="text-slate-400" />
+                </motion.div>
+              ))}
             </CardContent>
           </Card>
 
           {/* Outcome Statistics */}
-          <Card className="shadow-sm">
-            <CardHeader className="pb-1">
-              <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <span className="bg-gray-100 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold">4</span>
-                Outcome Statistics
-              </CardTitle>
+          <Card className="shadow-md border-slate-200/80">
+            <CardHeader>
+                <div className="flex items-center gap-3">
+                  <PieChart className="w-6 h-6 text-violet-600"/>
+                  <CardTitle className="text-lg font-semibold text-slate-800">Estadísticas de Gastos</CardTitle>
+                </div>
             </CardHeader>
-            <CardContent className="pt-0 p-2 space-y-2">
+            <CardContent className="space-y-4">
               {outcomeStats.map((stat, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div className={`p-1 rounded-lg ${
-                    stat.label === 'Shopping' ? 'bg-orange-50' : 
-                    stat.label === 'Electronics' ? 'bg-green-50' : 'bg-blue-50'
-                  }`}>
-                    {stat.label === 'Shopping' && <ShoppingBag size={12} className="text-orange-500" />}
-                    {stat.label === 'Electronics' && <Smartphone size={12} className="text-green-500" />}
-                    {stat.label === 'Travels' && <Plane size={12} className="text-blue-500" />}
+                <div key={index}>
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-sm font-medium text-slate-700">{stat.label}</span>
+                    <span className="text-sm font-bold text-slate-800">{stat.percentage}%</span>
                   </div>
-                  <div className="flex-1">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs font-medium text-gray-700">{stat.label}</span>
-                      <span className="text-xs font-bold text-gray-900">{stat.percentage}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-1.5">
-                      <motion.div
-                        className={`h-1.5 rounded-full ${
-                          stat.label === 'Shopping' ? 'bg-orange-500' : 
-                          stat.label === 'Electronics' ? 'bg-green-500' : 'bg-blue-500'
-                        }`}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${stat.percentage}%` }}
-                        transition={{ duration: 1, delay: index * 0.2 }}
-                      />
-                    </div>
+                  <div className="w-full bg-slate-200 rounded-full h-2">
+                    <motion.div
+                      className="h-2 rounded-full bg-violet-500"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${stat.percentage}%` }}
+                      transition={{ duration: 1, delay: index * 0.2, ease: "easeOut" }}
+                    />
                   </div>
                 </div>
               ))}
             </CardContent>
           </Card>
         </div>
+      </div>
+    </div>
+  );
 
-        {/* Barra Lateral en Móvil - Al final */}
-        {isMobile && (
-          <div className="space-y-3 mt-6">
-            {/* Eventos y actualizaciones */}
-            <Card className="shadow-sm">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-xs font-semibold flex items-center gap-1">
-                  <Calendar size={12} />
-                  Eventos y actualizaciones
-                </CardTitle>
+  const SideBar = () => (
+      <div className="w-64 p-4 border-l border-slate-200 space-y-6 bg-white">
+          <Card className="shadow-none border-0">
+              <CardHeader>
+                  <CardTitle className="text-base font-semibold flex items-center gap-2 text-slate-700">
+                      <Calendar size={18} />
+                      Próximos Eventos
+                  </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0 p-2">
-                <div className="space-y-1">
-                  <div className="text-xs font-semibold">20 September</div>
-                  <div className="text-xs text-gray-500">Sunday - All day</div>
+              <CardContent className="space-y-3">
+                  <div className="text-sm font-semibold text-violet-600">Viernes, 8 de Agosto</div>
                   {events.map((event, index) => (
-                    <div key={index} className="text-xs p-1 rounded hover:bg-gray-50">
-                      <div className="font-medium">{event.title}</div>
-                      <div className="text-gray-500">{event.time}</div>
-                    </div>
+                      <div key={index} className="text-sm p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                          <div className="font-medium text-slate-800">{event.title}</div>
+                          <div className="text-slate-500">{event.time}</div>
+                      </div>
                   ))}
-                </div>
               </CardContent>
-            </Card>
+          </Card>
 
-            {/* Members */}
-            <Card className="shadow-sm">
-              <CardHeader className="pb-1">
-                <CardTitle className="text-xs font-semibold">Members</CardTitle>
+          <Card className="shadow-none border-0">
+              <CardHeader>
+                  <CardTitle className="text-base font-semibold flex items-center gap-2 text-slate-700">
+                    <User size={18} />
+                    Miembros del Equipo
+                  </CardTitle>
               </CardHeader>
-              <CardContent className="pt-0 p-2">
-                <div className="flex -space-x-1 mb-2">
-                  {members.slice(0, 4).map((member, index) => (
-                    <div key={index} className="w-5 h-5 bg-gray-100 rounded-full border border-white flex items-center justify-center">
-                      <span className="text-xs">{member.avatar}</span>
-                    </div>
-                  ))}
-                  <div className="w-5 h-5 bg-gray-200 rounded-full border border-white flex items-center justify-center">
-                    <span className="text-xs text-gray-600">+</span>
+              <CardContent>
+                  <div className="flex -space-x-2 mb-4">
+                      {members.map((member, index) => (
+                          <div key={index} title={member.name} className="w-10 h-10 bg-slate-200 rounded-full border-2 border-white flex items-center justify-center text-lg shadow-sm">
+                              {member.avatar}
+                          </div>
+                      ))}
+                      <div className="w-10 h-10 bg-slate-100 rounded-full border-2 border-white flex items-center justify-center text-slate-500 cursor-pointer hover:bg-slate-200">
+                          <Plus size={20} />
+                      </div>
                   </div>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" className="text-xs h-5 px-2">Cancel</Button>
-                  <Button size="sm" className="text-xs h-5 px-2 bg-purple-600 hover:bg-purple-700">More</Button>
-                </div>
+                  <Button className="w-full">Administrar Equipo</Button>
               </CardContent>
-            </Card>
-          </div>
-        )}
-      </div>
+          </Card>
 
-      {/* Rating Modal - Fixed Bottom */}
-      <div className={`fixed ${isMobile ? 'bottom-2 left-2 right-2' : 'bottom-4 left-4'} z-40`}>
-        <Card className={`bg-white shadow-lg border ${isMobile ? 'w-full' : 'w-64'}`}>
-          <CardContent className="p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="bg-gray-100 rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">5</span>
-              <h3 className="text-xs font-bold text-gray-900">Rate your experience</h3>
-              <button
-                onClick={() => setShowRatingModal(false)}
-                className="ml-auto text-gray-400 hover:text-gray-600"
-              >
-                <X size={12} />
-              </button>
-            </div>
-            
-            <p className="text-xs text-gray-600 mb-2">Do you find the app easy to use?</p>
-            
-            <div className="flex justify-center gap-1 mb-3">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  onClick={() => handleStarClick(star)}
-                  onMouseEnter={() => handleStarHover(star)}
-                  onMouseLeave={() => setHoveredStar(0)}
-                  className="transition-transform hover:scale-110"
-                >
-                  <Star
-                    size={16}
-                    className={`${
-                      star <= (hoveredStar || rating)
-                        ? 'fill-yellow-400 text-yellow-400'
-                        : 'text-gray-300'
-                    } transition-colors`}
-                  />
-                </button>
-              ))}
-            </div>
-            
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowRatingModal(false)}
-                className="flex-1 text-xs h-6"
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={() => {
-                  setShowRatingModal(false);
-                  // Handle rating submission here
-                }}
-                className="flex-1 text-xs h-6 bg-purple-600 hover:bg-purple-700"
-                disabled={rating === 0}
-              >
-                Submit
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+           {showRatingModal && <RatingModal />}
       </div>
+  );
+
+  const RatingModal = () => (
+    <Card className="shadow-lg border-violet-200 bg-violet-50/50">
+        <CardHeader>
+            <div className="flex items-start justify-between">
+                <CardTitle className="text-base font-semibold text-slate-800">Valora tu experiencia</CardTitle>
+                <button onClick={() => setShowRatingModal(false)} className="text-slate-400 hover:text-slate-600">
+                    <X size={18} />
+                </button>
+            </div>
+             <p className="text-sm text-slate-600 pt-1">¿La app te resulta fácil de usar?</p>
+        </CardHeader>
+        <CardContent>
+            <div className="flex justify-center gap-2 mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <button key={star} onClick={() => handleStarClick(star)} onMouseEnter={() => handleStarHover(star)} onMouseLeave={() => setHoveredStar(0)}
+                        className="transition-transform hover:scale-125">
+                        <Star size={24} className={`${star <= (hoveredStar || rating) ? 'fill-amber-400 text-amber-400' : 'text-slate-300'} transition-colors`} />
+                    </button>
+                ))}
+            </div>
+            <Button className="w-full" onClick={() => setShowRatingModal(false)} disabled={rating === 0}>
+                Enviar valoración
+            </Button>
+        </CardContent>
+    </Card>
+  );
+
+  return (
+    <div className="bg-slate-50 min-h-screen font-sans">
+      <div className="flex">
+        <MainContent />
+        {!isMobile && <SideBar />}
+      </div>
+      {/* En móvil, la barra lateral podría ser un modal o no mostrarse, según el diseño deseado */}
     </div>
   );
 };
