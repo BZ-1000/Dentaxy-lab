@@ -14,30 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      ai_button_usage: {
-        Row: {
-          clicked_at: string
-          date: string
-          id: string
-          section_name: string
-          user_id: string
-        }
-        Insert: {
-          clicked_at?: string
-          date?: string
-          id?: string
-          section_name: string
-          user_id: string
-        }
-        Update: {
-          clicked_at?: string
-          date?: string
-          id?: string
-          section_name?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       dental_terms: {
         Row: {
           categoria: string
@@ -74,54 +50,6 @@ export type Database = {
           subcategoria?: string | null
           termino?: string
           updated_at?: string
-        }
-        Relationships: []
-      }
-      platform_metrics: {
-        Row: {
-          id: string
-          metric_name: string
-          metric_value: number
-          updated_at: string
-        }
-        Insert: {
-          id?: string
-          metric_name: string
-          metric_value?: number
-          updated_at?: string
-        }
-        Update: {
-          id?: string
-          metric_name?: string
-          metric_value?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      platform_updates: {
-        Row: {
-          created_at: string
-          description: string
-          id: string
-          release_date: string
-          title: string
-          version: string
-        }
-        Insert: {
-          created_at?: string
-          description: string
-          id?: string
-          release_date?: string
-          title: string
-          version: string
-        }
-        Update: {
-          created_at?: string
-          description?: string
-          id?: string
-          release_date?: string
-          title?: string
-          version?: string
         }
         Relationships: []
       }
@@ -227,66 +155,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_activity_sessions: {
-        Row: {
-          created_at: string
-          date: string
-          duration_minutes: number | null
-          id: string
-          session_end: string | null
-          session_start: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          date?: string
-          duration_minutes?: number | null
-          id?: string
-          session_end?: string | null
-          session_start?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          date?: string
-          duration_minutes?: number | null
-          id?: string
-          session_end?: string | null
-          session_start?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_daily_activity: {
-        Row: {
-          activity_date: string
-          created_at: string
-          first_session_at: string | null
-          id: string
-          total_seconds: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          activity_date?: string
-          created_at?: string
-          first_session_at?: string | null
-          id?: string
-          total_seconds?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          activity_date?: string
-          created_at?: string
-          first_session_at?: string | null
-          id?: string
-          total_seconds?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       user_plans: {
         Row: {
           created_at: string
@@ -323,39 +191,12 @@ export type Database = {
         }
         Relationships: []
       }
-      user_ratings: {
-        Row: {
-          created_at: string
-          feedback: string | null
-          id: string
-          rating: number
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          feedback?: string | null
-          id?: string
-          rating: number
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          feedback?: string | null
-          id?: string
-          rating?: number
-          user_id?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      increment_user_daily_activity: {
-        Args: { p_seconds: number; p_at?: string }
-        Returns: undefined
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
