@@ -12,8 +12,22 @@ export const ProductividadSection = () => {
   const { user } = useAuth();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   
-  // Llamar hook antes del early return para cumplir las reglas de React
+  // Always call hooks regardless of user state
   const { data7d, todaySecondsFromDB, loading } = useDailyActivityData();
+  
+  // Memoize chart data calculation
+  const chartData = useMemo(() => {
+    if (!user || data7d.length === 0) return [];
+    const bufferSeconds = 0;
+    const lastIndex = data7d.length - 1;
+    return data7d.map((d, idx) => {
+      const seconds = idx === lastIndex ? d.seconds + bufferSeconds : d.seconds;
+      return {
+        ...d,
+        minutes: seconds / 60,
+      };
+    });
+  }, [user, data7d]);
 
   if (!user) {
     return (
@@ -65,18 +79,7 @@ export const ProductividadSection = () => {
   const todaySecondsLive = todaySecondsFromDB + bufferSeconds;
   const todayMinutesLive = todaySecondsLive / 60;
 
-  const chartData = useMemo(() => {
-    // Proyectamos la data, añadiendo el buffer al último punto (hoy)
-    if (data7d.length === 0) return [];
-    const lastIndex = data7d.length - 1;
-    return data7d.map((d, idx) => {
-      const seconds = idx === lastIndex ? d.seconds + bufferSeconds : d.seconds;
-      return {
-        ...d,
-        minutes: seconds / 60,
-      };
-    });
-  }, [data7d, bufferSeconds]);
+  // Use the already computed chartData from above
 
   const currentMonthName = new Date().toLocaleDateString('es-ES', { month: 'long' });
   const totalMinutesTodayDisplay =
