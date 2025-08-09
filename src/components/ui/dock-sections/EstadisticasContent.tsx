@@ -1,100 +1,56 @@
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Star, X } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+
 import { useIsMobile } from '@/hooks/use-mobile';
+import { SidebarSection } from './SidebarSection';
 import { ProductividadSection } from './ProductividadSection';
 import { LiveMetricsSection } from './GoalsSection';
-import { GreatLoanSection } from './GreatLoanSection';
-import { TransactionSection } from './TransactionSection';
-import { OutcomeStatsModern } from './OutcomeStatsSection';
-import { BudgetSection } from './BudgetSection';
-import { SidebarSection } from './SidebarSection';
+import { TechnologyUsageCard, CommunityOpinionCard } from './OutcomeStatsSection';
+
 export const EstadisticasContent = () => {
-  const {
-    user
-  } = useAuth();
   const isMobile = useIsMobile();
-  const [showRatingModal, setShowRatingModal] = useState(false);
-  const [rating, setRating] = useState(0);
-  const [hoveredStar, setHoveredStar] = useState(0);
-  useEffect(() => {
-    // Show rating modal after 3 seconds
-    const timer = setTimeout(() => {
-      setShowRatingModal(true);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, []);
-  const handleStarClick = (starNumber: number) => {
-    setRating(starNumber);
-  };
-  const handleStarHover = (starNumber: number) => {
-    setHoveredStar(starNumber);
-  };
-  return <div className={`bg-white h-full ${isMobile ? 'flex flex-col' : 'flex'}`}>
-      {/* Barra Lateral Izquierda - Eventos */}
+
+  return (
+    <div className={`${isMobile ? 'flex flex-col' : 'flex'} relative min-h-screen`}>
+      {/* Fondo sutil y animado (no en las cards) */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-background to-background"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -z-10 top-10 right-[-10%] h-64 w-64 rounded-full bg-primary/10 blur-3xl pulse"
+      />
+
+      {/* Barra Lateral Izquierda - ocupa toda la altura del contenedor */}
       {!isMobile && <SidebarSection />}
 
       {/* Contenido Principal */}
-      <div className={`flex-1 ${isMobile ? 'p-2 space-y-3' : 'p-3 space-y-3'}`}>
-        {/* Header */}
-        <div className="text-center mb-3">
-          
-        </div>
-
-        {/* Grid Principal - Cards Compactos */}
-        <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-4 gap-3"}>
-          {/* Mi Productividad */}
-          <div className={isMobile ? "w-full" : "lg:col-span-2"}>
+      <main className={`flex-1 ${isMobile ? 'p-3 space-y-3' : 'p-6 space-y-6'}`}>
+        {/* Grid profesional, compacto y adaptable */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
+          {/* Mi Productividad (protagonista, 2 columnas) */}
+          <div className="lg:col-span-2">
             <ProductividadSection />
           </div>
 
-          {/* Live Metrics */}
-          <div>
+          {/* Columna derecha: métricas en vivo + lenguajes usados */}
+          <div className="lg:col-span-2 space-y-4">
             <LiveMetricsSection />
+            <TechnologyUsageCard />
           </div>
 
-          {/* Get Great Loan Card */}
-          <div>
-            <GreatLoanSection />
+          {/* Segunda fila: opinión de la comunidad (ocupa todo el ancho) */}
+          <div className="lg:col-span-4">
+            <CommunityOpinionCard />
           </div>
         </div>
 
-        {/* Segunda Fila - Transaction History y Outcome Statistics */}
-        <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-2 gap-3"}>
-          <TransactionSection />
-          <OutcomeStatsModern />
-        </div>
-
-        {/* Tercera Fila - Budget */}
-        <div className="w-full">
-          <BudgetSection />
-        </div>
-
-        {/* Barra Lateral en Móvil - Al final */}
-        {isMobile && <div className="space-y-3 mt-6">
+        {/* Barra Lateral en Móvil - al final y con separación */}
+        {isMobile && (
+          <div className="space-y-3 mt-6">
             <SidebarSection />
-          </div>}
-      </div>
-
-      {/* Rating Modal - Fixed Bottom */}
-      <AnimatePresence>
-        {showRatingModal && <motion.div initial={{
-        opacity: 0,
-        y: 50
-      }} animate={{
-        opacity: 1,
-        y: 0
-      }} exit={{
-        opacity: 0,
-        y: 50
-      }} className={`fixed ${isMobile ? 'bottom-2 left-2 right-2' : 'bottom-4 left-4'} z-40`}>
-            <Card className={`bg-white shadow-lg border ${isMobile ? 'w-full' : 'w-64'}`}>
-              
-            </Card>
-          </motion.div>}
-      </AnimatePresence>
-    </div>;
+          </div>
+        )}
+      </main>
+    </div>
+  );
 };
