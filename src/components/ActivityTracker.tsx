@@ -13,8 +13,5 @@ export default function ActivityTracker() {
 
   if (!user) return null;
 
-  // Útil para depuración
-  console.debug('[ActivityTracker] active:', isActive, 'bufferSeconds:', bufferSeconds);
-
   return null;
 }

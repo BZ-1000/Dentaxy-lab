@@ -84,16 +84,17 @@ export function useDailyActivityTracker(flushIntervalMs: number = 20000): UseDai
       window.removeEventListener('blur', onBlur);
       document.removeEventListener('visibilitychange', onVisibility);
     };
-  }, [user]);
+  }, []);
 
   // Timer por segundo para acumular buffer
   useEffect(() => {
-    if (!user) return;
-
     if (secTimerRef.current) {
       window.clearInterval(secTimerRef.current);
       secTimerRef.current = null;
     }
+    
+    if (!user?.id) return;
+
     secTimerRef.current = window.setInterval(() => {
       if (isActive) {
         setBufferSeconds((s) => s + 1);
@@ -106,16 +107,17 @@ export function useDailyActivityTracker(flushIntervalMs: number = 20000): UseDai
         secTimerRef.current = null;
       }
     };
-  }, [user, isActive]);
+  }, [user?.id, isActive]);
 
   // Flush periódico
   useEffect(() => {
-    if (!user) return;
-
     if (flushTimerRef.current) {
       window.clearInterval(flushTimerRef.current);
       flushTimerRef.current = null;
     }
+    
+    if (!user?.id) return;
+
     flushTimerRef.current = window.setInterval(() => {
       flush();
     }, flushIntervalMs);
@@ -126,7 +128,7 @@ export function useDailyActivityTracker(flushIntervalMs: number = 20000): UseDai
         flushTimerRef.current = null;
       }
     };
-  }, [user, flushIntervalMs]);
+  }, [user?.id, flushIntervalMs]);
 
   // Best-effort: intentar flush al cerrar pestaña
   useEffect(() => {
@@ -136,7 +138,7 @@ export function useDailyActivityTracker(flushIntervalMs: number = 20000): UseDai
     };
     window.addEventListener('beforeunload', onBeforeUnload);
     return () => window.removeEventListener('beforeunload', onBeforeUnload);
-  }, [user, bufferSeconds]);
+  }, []);
 
   return { bufferSeconds, isActive, lastFlushAt };
 }

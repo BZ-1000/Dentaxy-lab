@@ -30,10 +30,10 @@ function esDayLabel(d: Date) {
 
 export function useDailyActivityData(): UseDailyActivityDataResult {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(!!user);
+  const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<{ activity_date: string; total_seconds: number }[]>([]);
 
-  // Construir los últimos 7 días (hoy incluido)
+  // Construir los últimos 7 días (hoy incluido) - siempre se ejecuta
   const last7Days = useMemo(() => {
     const arr: Date[] = [];
     const now = new Date();
@@ -45,9 +45,9 @@ export function useDailyActivityData(): UseDailyActivityDataResult {
     return arr;
   }, []);
 
-  // Fetch inicial
+  // Fetch inicial - siempre se ejecuta
   useEffect(() => {
-    if (!user) {
+    if (!user?.id) {
       setRows([]);
       setLoading(false);
       return;
@@ -74,11 +74,11 @@ export function useDailyActivityData(): UseDailyActivityDataResult {
     };
 
     fetchData();
-  }, [user]);
+  }, [user?.id]);
 
-  // Realtime: escuchar inserts/updates del propio usuario
+  // Realtime: escuchar inserts/updates - siempre se ejecuta
   useEffect(() => {
-    if (!user) return;
+    if (!user?.id) return;
 
     const channel = supabase
       .channel('user_daily_activity_changes')
@@ -107,7 +107,7 @@ export function useDailyActivityData(): UseDailyActivityDataResult {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user?.id]);
 
   // Proyectar datos a la última semana completa
   const data7d: DailyActivityPoint[] = useMemo(() => {
