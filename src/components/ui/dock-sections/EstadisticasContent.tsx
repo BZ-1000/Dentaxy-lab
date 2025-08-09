@@ -92,35 +92,7 @@ export const EstadisticasContent = () => {
         y: 50
       }} className={`fixed ${isMobile ? 'bottom-2 left-2 right-2' : 'bottom-4 left-4'} z-40`}>
             <Card className={`bg-white shadow-lg border ${isMobile ? 'w-full' : 'w-64'}`}>
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="bg-gray-100 rounded-full w-4 h-4 flex items-center justify-center text-xs font-bold">5</span>
-                  <h3 className="text-xs font-bold text-gray-900">Rate your experience</h3>
-                  <button onClick={() => setShowRatingModal(false)} className="ml-auto text-gray-400 hover:text-gray-600">
-                    <X size={12} />
-                  </button>
-                </div>
-                
-                <p className="text-xs text-gray-600 mb-2">Do you find the app easy to use?</p>
-                
-                <div className="flex justify-center gap-1 mb-3">
-                  {[1, 2, 3, 4, 5].map(star => <button key={star} onClick={() => handleStarClick(star)} onMouseEnter={() => handleStarHover(star)} onMouseLeave={() => setHoveredStar(0)} className="transition-transform hover:scale-110">
-                      <Star size={16} className={`${star <= (hoveredStar || rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'} transition-colors`} />
-                    </button>)}
-                </div>
-                
-                <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => setShowRatingModal(false)} className="flex-1 text-xs h-6">
-                    Cancel
-                  </Button>
-                  <Button onClick={() => {
-                setShowRatingModal(false);
-                // Handle rating submission here
-              }} className="flex-1 text-xs h-6 bg-purple-600 hover:bg-purple-700" disabled={rating === 0}>
-                    Submit
-                  </Button>
-                </div>
-              </CardContent>
+              
             </Card>
           </motion.div>}
       </AnimatePresence>
