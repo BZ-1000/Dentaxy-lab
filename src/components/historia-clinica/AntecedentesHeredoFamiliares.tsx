@@ -403,6 +403,13 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   };
 
   const handleCopy = async () => {
+    // Track copy click
+    try {
+      const { trackCopyClick } = await import('@/utils/trackCopyClick');
+      trackCopyClick();
+    } catch (error) {
+      console.error('Error tracking copy:', error);
+    }
     await navigator.clipboard.writeText(redaccionIA);
     setCopied(true);
     setTimeout(() => {

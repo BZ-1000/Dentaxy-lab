@@ -6,7 +6,7 @@ import { Star, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ProductividadSection } from './ProductividadSection';
-import { GoalsSection } from './GoalsSection';
+import { LiveMetricsSection } from './GoalsSection';
 import { GreatLoanSection } from './GreatLoanSection';
 import { TransactionSection } from './TransactionSection';
 import { OutcomeStatsSection } from './OutcomeStatsSection';
@@ -51,9 +51,9 @@ export const EstadisticasContent = () => {
             <ProductividadSection />
           </div>
 
-          {/* Goals */}
+          {/* Live Metrics */}
           <div>
-            <GoalsSection />
+            <LiveMetricsSection />
           </div>
 
           {/* Get Great Loan Card */}

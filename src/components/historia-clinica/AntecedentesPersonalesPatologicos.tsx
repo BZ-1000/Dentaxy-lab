@@ -310,7 +310,14 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     return opciones[categoria]?.[opcion] || opcion;
   };
 
-  const handleCopy = (section: keyof CopiedState) => {
+  const handleCopy = async (section: keyof CopiedState) => {
+    // Track copy click
+    try {
+      const { trackCopyClick } = await import('@/utils/trackCopyClick');
+      trackCopyClick();
+    } catch (error) {
+      console.error('Error tracking copy:', error);
+    }
     if (redacciones[section]) {
       navigator.clipboard.writeText(redacciones[section]);
       setCopied(prev => ({
