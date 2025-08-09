@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
@@ -41,11 +40,15 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+import ActivityTracker from './components/ActivityTracker';
+
 function App() {
 
   return (
     <ErrorBoundary>
       <AuthProvider>
+        {/* Tracker global: cuenta minutos en cualquier apartado para usuarios logueados */}
+        <ActivityTracker />
         <div translate="no">
           <Toaster richColors position="top-right" />
           <Router>
