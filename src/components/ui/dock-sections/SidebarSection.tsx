@@ -15,14 +15,13 @@ export const SidebarSection = () => {
       <SidebarHeader />
       
       {/* Content Area */}
-      <div className="flex-1 p-2 md:p-3 gap-2 md:gap-3 overflow-hidden flex flex-col min-h-0">
-        {/* Actualizaciones Automáticas - 50% del espacio */}
-        <div className="flex-1 min-h-0">
+      <div className="flex-1 p-2 md:p-3 space-y-2 md:space-y-3 overflow-hidden">
+        {/* Layout responsivo: vertical en móviles, horizontal en tablets+ */}
+        <div className="flex flex-col lg:flex-col space-y-2 md:space-y-3 lg:space-y-3">
+          {/* Actualizaciones Automáticas */}
           <UpdatesSection />
-        </div>
-        
-        {/* Recursos Educativos - 50% del espacio */}
-        <div className="flex-1 min-h-0">
+          
+          {/* Recursos Educativos */}
           <ResourcesSection />
         </div>
       </div>

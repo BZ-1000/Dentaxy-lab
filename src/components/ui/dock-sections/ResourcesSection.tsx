@@ -66,8 +66,8 @@ export const ResourcesSection = () => {
   }
 
   return (
-    <Card className="shadow-sm bg-white border-border/50 h-full flex flex-col">
-      <CardHeader className="pb-1 md:pb-2 flex-shrink-0">
+    <Card className="shadow-sm bg-white border-border/50">
+      <CardHeader className="pb-1 md:pb-2">
         <CardTitle className="text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2 text-foreground">
           <motion.div
             className="w-3 h-3 md:w-4 md:h-4 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center"
@@ -79,7 +79,7 @@ export const ResourcesSection = () => {
           Recursos Educativos
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-0 p-2 md:p-3 flex-1 min-h-0">
+      <CardContent className="pt-0 p-2 md:p-3">
         {loading ? (
           <div className="space-y-1 md:space-y-2">
             {[...Array(4)].map((_, i) => (
@@ -92,9 +92,9 @@ export const ResourcesSection = () => {
             ))}
           </div>
         ) : (
-          <ScrollArea className="h-full max-h-[calc(50vh-120px)] sm:max-h-[calc(50vh-100px)]">
+          <ScrollArea className="h-36 md:h-48">
             <AnimatePresence>
-              <div className="space-y-1 md:space-y-2 pr-2">
+              <div className="space-y-1 md:space-y-2">
                 {resources.map((resource, index) => (
                   <motion.div
                     key={resource.id}
@@ -120,30 +120,30 @@ export const ResourcesSection = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-xs font-semibold text-foreground break-words flex items-center gap-1">
+                            <h4 className="text-xs font-semibold text-foreground truncate flex items-center gap-1">
                               {resource.title}
                               {resource.is_featured && (
-                                <Star className="w-2.5 h-2.5 text-amber-500 fill-current flex-shrink-0" />
+                                <Star className="w-2.5 h-2.5 text-amber-500 fill-current" />
                               )}
                             </h4>
                             {resource.url && (
-                              <ExternalLink className="w-2.5 h-2.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                              <ExternalLink className="w-2.5 h-2.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                             )}
                           </div>
                           {resource.description && (
-                            <p className="text-xs text-muted-foreground leading-relaxed mb-2 break-words">
+                            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-2">
                               {resource.description}
                             </p>
                           )}
-                          <div className="flex items-center justify-between flex-wrap gap-1">
+                          <div className="flex items-center justify-between">
                             <Badge 
-                              className={`text-xs px-1.5 py-0.5 h-auto border ${getCategoryColor(resource.category)} flex-shrink-0`}
+                              className={`text-xs px-1.5 py-0.5 h-auto border ${getCategoryColor(resource.category)}`}
                               variant="outline"
                             >
                               {getCategoryLabel(resource.category)}
                             </Badge>
                             {resource.author && (
-                              <span className="text-xs text-muted-foreground font-medium break-words ml-2">
+                              <span className="text-xs text-muted-foreground font-medium truncate ml-2">
                                 {resource.author}
                               </span>
                             )}
