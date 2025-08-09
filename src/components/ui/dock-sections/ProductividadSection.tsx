@@ -27,7 +27,7 @@ export const ProductividadSection = () => {
   const weekAverage = weeklyData.reduce((sum, d) => sum + d.minutes, 0) / 7;
 
   return (
-    <Card className="shadow-sm h-full overflow-hidden bg-gradient-to-br from-background to-secondary/20">
+    <Card className="shadow-sm h-full overflow-hidden bg-white">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
           <motion.span 

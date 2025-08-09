@@ -1,0 +1,32 @@
+import { motion } from 'framer-motion';
+
+export const SidebarHeader = () => {
+  return (
+    <motion.div 
+      className="flex items-center gap-3 p-4 bg-white border-b border-border/50"
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="w-8 h-8 flex-shrink-0"
+      >
+        <img 
+          src="/favicon.ico" 
+          alt="Dental Basics Academy" 
+          className="w-full h-full object-contain"
+        />
+      </motion.div>
+      <div className="flex-1 min-w-0">
+        <h2 className="text-sm font-semibold text-foreground leading-tight">
+          Dental Basics
+        </h2>
+        <p className="text-xs text-muted-foreground leading-tight">
+          Academy
+        </p>
+      </div>
+    </motion.div>
+  );
+};
