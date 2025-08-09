@@ -3,11 +3,10 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import { TrendingUp, Activity, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDailyActivityData } from '@/hooks/useDailyActivityData';
-import { useDailyActivityTracker } from '@/hooks/useDailyActivityTracker';
 
 export const ProductividadSection = () => {
   const { user } = useAuth();
@@ -54,9 +53,11 @@ export const ProductividadSection = () => {
     );
   }
 
-  // Usuario autenticado: activar tracker y leer datos
-  const { bufferSeconds } = useDailyActivityTracker(20000);
+  // Usuario autenticado: leer datos (el tracker global ya está activo)
   const { data7d, todaySecondsFromDB, loading } = useDailyActivityData();
+  
+  // Obtenemos el buffer desde el componente global ActivityTracker
+  const bufferSeconds = 0; // El tracking se maneja globalmente, aquí solo mostramos datos
 
   // Sumamos el buffer local (en vivo) para el día de hoy
   const todaySecondsLive = todaySecondsFromDB + bufferSeconds;
@@ -105,10 +106,10 @@ export const ProductividadSection = () => {
           </div>
         </div>
 
-        {/* Gráfica 7 días - estilo Apple */}
+        {/* Gráfica 7 días - estilo Apple con barras */}
         <div className="h-28 relative">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart 
+            <BarChart 
               data={chartData}
               onMouseMove={(state: any) => {
                 if (state && state.activeTooltipIndex != null) {
@@ -116,19 +117,21 @@ export const ProductividadSection = () => {
                 }
               }}
               onMouseLeave={() => setHoveredIndex(null)}
+              barCategoryGap="20%"
             >
               <defs>
-                <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor="hsl(var(--primary))" />
-                  <stop offset="50%" stopColor="#3b82f6" />
-                  <stop offset="100%" stopColor="#06b6d4" />
+                  <stop offset="50%" stopColor="hsl(var(--primary)/0.8)" />
+                  <stop offset="100%" stopColor="hsl(var(--primary)/0.6)" />
                 </linearGradient>
-                <linearGradient id="fillGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="rgba(139,92,246,0.25)" />
-                  <stop offset="100%" stopColor="rgba(139,92,246,0.02)" />
+                <linearGradient id="barGradientHover" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsl(var(--primary)/0.9)" />
+                  <stop offset="50%" stopColor="hsl(var(--primary)/0.7)" />
+                  <stop offset="100%" stopColor="hsl(var(--primary)/0.5)" />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted-foreground)/0.2)" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted-foreground)/0.15)" vertical={false} />
               <XAxis 
                 dataKey="dayLabel" 
                 axisLine={false} 
@@ -138,7 +141,7 @@ export const ProductividadSection = () => {
               />
               <YAxis 
                 hide 
-                domain={[0, (dataMax: number) => Math.max(5, Math.ceil(dataMax))]}
+                domain={[0, (dataMax: number) => Math.max(5, Math.ceil(dataMax * 1.1))]}
               />
               <Tooltip 
                 content={({ active, payload }) => {
@@ -146,13 +149,14 @@ export const ProductividadSection = () => {
                     const d: any = payload[0].payload;
                     return (
                       <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-background/95 backdrop-blur-sm border border-border rounded-md px-2 py-1 shadow-md"
+                        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        transition={{ duration: 0.15 }}
+                        className="bg-background/95 backdrop-blur-sm border border-border rounded-lg px-3 py-2 shadow-lg"
                       >
-                        <p className="text-[10px] md:text-xs font-semibold text-foreground">{d.dayLabel}</p>
-                        <p className="text-[10px] md:text-xs text-primary flex items-center gap-1">
-                          <Activity size={10} />
+                        <p className="text-xs font-semibold text-foreground">{d.dayLabel}</p>
+                        <p className="text-xs text-primary flex items-center gap-1.5 mt-1">
+                          <Activity size={12} />
                           {d.minutes < 10 ? d.minutes.toFixed(1) : Math.floor(d.minutes)} min
                         </p>
                       </motion.div>
@@ -160,43 +164,43 @@ export const ProductividadSection = () => {
                   }
                   return null;
                 }}
+                cursor={{ fill: 'transparent' }}
               />
-              <Line
-                type="monotone"
+              <Bar
                 dataKey="minutes"
-                stroke="url(#lineGradient)"
-                strokeWidth={3}
-                dot={(props: any) => {
-                  const { cx, cy, index } = props;
-                  const active = hoveredIndex === index;
+                fill="url(#barGradient)"
+                radius={[3, 3, 0, 0]}
+                isAnimationActive
+                animationDuration={800}
+                animationEasing="ease-out"
+                shape={(props: any) => {
+                  const { payload, x, y, width, height, index } = props;
+                  const isHovered = hoveredIndex === index;
+                  const isToday = index === chartData.length - 1;
+                  
                   return (
-                    <motion.circle
-                      cx={cx}
-                      cy={cy}
-                      r={active ? 5 : 3}
-                      fill="hsl(var(--primary))"
-                      stroke="#fff"
-                      strokeWidth={2}
-                      className="drop-shadow-sm"
+                    <motion.rect
+                      x={x}
+                      y={y}
+                      width={width}
+                      height={height}
+                      fill={isHovered ? "url(#barGradientHover)" : "url(#barGradient)"}
+                      rx={3}
+                      ry={3}
+                      className={`drop-shadow-sm ${isToday ? 'opacity-100' : 'opacity-90'}`}
                       animate={{
-                        r: active ? 5 : 3,
-                        scale: active ? 1.15 : 1,
+                        scale: isHovered ? 1.05 : 1,
+                        y: isHovered ? y - 2 : y,
                       }}
-                      transition={{ duration: 0.2 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      style={{
+                        filter: isToday ? 'drop-shadow(0 2px 4px hsl(var(--primary)/0.3))' : 'none',
+                      }}
                     />
                   );
                 }}
-                activeDot={{
-                  r: 6,
-                  fill: 'hsl(var(--primary))',
-                  stroke: '#fff',
-                  strokeWidth: 3,
-                }}
-                isAnimationActive
-                animationDuration={600}
-                animationEasing="ease-out"
               />
-            </LineChart>
+            </BarChart>
           </ResponsiveContainer>
         </div>
 
