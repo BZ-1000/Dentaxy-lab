@@ -77,6 +77,33 @@ export type Database = {
         }
         Relationships: []
       }
+      donations: {
+        Row: {
+          amount: number
+          created_at: string
+          donor_name: string
+          id: string
+          message: string | null
+          session_id: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          donor_name: string
+          id?: string
+          message?: string | null
+          session_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          donor_name?: string
+          id?: string
+          message?: string | null
+          session_id?: string | null
+        }
+        Relationships: []
+      }
       educational_resources: {
         Row: {
           author: string | null
@@ -397,8 +424,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      increment_copy_clicks: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       increment_user_daily_activity: {
         Args: { p_seconds: number; p_at?: string }
+        Returns: undefined
+      }
+      update_active_users_count: {
+        Args: { new_count: number }
         Returns: undefined
       }
     }
