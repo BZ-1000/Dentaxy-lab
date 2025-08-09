@@ -57,7 +57,7 @@ export const ResourcesSection = () => {
 
   if (error) {
     return (
-      <Card className="shadow-sm bg-white border-border/50">
+    <Card className="shadow-sm bg-white border-border/50 w-full">
         <CardContent className="p-4 text-center">
           <p className="text-xs text-muted-foreground">Error al cargar recursos</p>
         </CardContent>
@@ -67,34 +67,34 @@ export const ResourcesSection = () => {
 
   return (
     <Card className="shadow-sm bg-white border-border/50">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
+      <CardHeader className="pb-1 md:pb-2">
+        <CardTitle className="text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2 text-foreground">
           <motion.div
-            className="w-4 h-4 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center"
+            className="w-3 h-3 md:w-4 md:h-4 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center"
             whileHover={{ rotate: 180 }}
             transition={{ duration: 0.3 }}
           >
-            <GraduationCap className="w-2 h-2 text-primary-foreground" />
+            <GraduationCap className="w-1.5 h-1.5 md:w-2 md:h-2 text-primary-foreground" />
           </motion.div>
           Recursos Educativos
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-0 p-3">
+      <CardContent className="pt-0 p-2 md:p-3">
         {loading ? (
-          <div className="space-y-2">
+          <div className="space-y-1 md:space-y-2">
             {[...Array(4)].map((_, i) => (
               <motion.div
                 key={i}
-                className="h-16 bg-muted/50 rounded-lg"
+                className="h-12 md:h-16 bg-muted/50 rounded-lg"
                 animate={{ opacity: [0.5, 1, 0.5] }}
                 transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
               />
             ))}
           </div>
         ) : (
-          <ScrollArea className="h-48">
+          <ScrollArea className="h-36 md:h-48">
             <AnimatePresence>
-              <div className="space-y-2">
+              <div className="space-y-1 md:space-y-2">
                 {resources.map((resource, index) => (
                   <motion.div
                     key={resource.id}
@@ -105,7 +105,7 @@ export const ResourcesSection = () => {
                     className="group relative"
                   >
                     <motion.div
-                      className="p-3 bg-muted/30 rounded-lg border border-border/30 hover:bg-muted/50 transition-all duration-200 cursor-pointer"
+                      className="p-2 md:p-3 bg-muted/30 rounded-lg border border-border/30 hover:bg-muted/50 transition-all duration-200 cursor-pointer"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => {
@@ -114,7 +114,7 @@ export const ResourcesSection = () => {
                         }
                       }}
                     >
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-start gap-1 md:gap-2">
                         <div className="mt-0.5 flex-shrink-0">
                           {getResourceIcon(resource.type)}
                         </div>

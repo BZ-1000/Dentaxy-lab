@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 export const SidebarHeader = () => {
   return (
     <motion.div 
-      className="flex items-center gap-3 p-4 bg-white border-b border-border/50"
+      className="flex items-center gap-2 p-4 bg-white border-b border-border/50"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -14,7 +14,7 @@ export const SidebarHeader = () => {
         className="w-8 h-8 flex-shrink-0"
       >
         <img 
-          src="/favicon.ico" 
+          src="/lovable-uploads/47756bd5-fe5d-45cf-bbb4-f61daf4a38cd.png" 
           alt="Dental Basics Academy" 
           className="w-full h-full object-contain"
         />
