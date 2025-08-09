@@ -9,7 +9,7 @@ import { ProductividadSection } from './ProductividadSection';
 import { LiveMetricsSection } from './GoalsSection';
 import { GreatLoanSection } from './GreatLoanSection';
 import { TransactionSection } from './TransactionSection';
-import { OutcomeStatsSection } from './OutcomeStatsSection';
+import { OutcomeStatsModern } from './OutcomeStatsSection';
 import { BudgetSection } from './BudgetSection';
 import { SidebarSection } from './SidebarSection';
 export const EstadisticasContent = () => {
@@ -65,7 +65,7 @@ export const EstadisticasContent = () => {
         {/* Segunda Fila - Transaction History y Outcome Statistics */}
         <div className={isMobile ? "space-y-3" : "grid grid-cols-1 lg:grid-cols-2 gap-3"}>
           <TransactionSection />
-          <OutcomeStatsSection />
+          <OutcomeStatsModern />
         </div>
 
         {/* Tercera Fila - Budget */}
