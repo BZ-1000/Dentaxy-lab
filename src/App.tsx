@@ -13,14 +13,6 @@ import { Toaster } from './components/ui/sonner';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './App.css';
-import { useUserActivityTracker } from './hooks/useUserActivityTracker';
-
-// Componente que inicializa el tracker de actividad del usuario
-const ActivityTracker: React.FC = () => {
-  useUserActivityTracker();
-  return null;
-};
-
 
 // Páginas del menú principal
 import About from './pages/about/About';
