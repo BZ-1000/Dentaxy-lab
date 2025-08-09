@@ -43,8 +43,8 @@ export const UpdatesSection = () => {
   }
 
   return (
-    <Card className="shadow-sm bg-white border-border/50 w-full">
-      <CardHeader className="pb-1 md:pb-2">
+    <Card className="shadow-sm bg-white border-border/50 w-full h-full flex flex-col">
+      <CardHeader className="pb-1 md:pb-2 flex-shrink-0">
         <CardTitle className="text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2 text-foreground">
           <motion.div
             className="w-3 h-3 md:w-4 md:h-4 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center"
@@ -56,7 +56,7 @@ export const UpdatesSection = () => {
           Actualizaciones
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-0 p-2 md:p-3">
+      <CardContent className="pt-0 p-2 md:p-3 flex-1 min-h-0">
         {loading ? (
           <div className="space-y-1 md:space-y-2">
             {[...Array(3)].map((_, i) => (
@@ -69,9 +69,9 @@ export const UpdatesSection = () => {
             ))}
           </div>
         ) : (
-          <ScrollArea className="h-32 md:h-40">
+          <ScrollArea className="h-full max-h-[calc(50vh-120px)] sm:max-h-[calc(50vh-100px)]">
             <AnimatePresence>
-              <div className="space-y-1 md:space-y-2">
+              <div className="space-y-1 md:space-y-2 pr-2">
                 {updates.map((update, index) => (
                   <motion.div
                     key={update.id}
@@ -92,17 +92,17 @@ export const UpdatesSection = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-xs font-semibold text-foreground truncate">
+                            <h4 className="text-xs font-semibold text-foreground break-words">
                               {update.title}
                             </h4>
                             <Badge 
                               variant="secondary" 
-                              className="text-xs px-1.5 py-0.5 h-auto bg-muted text-muted-foreground"
+                              className="text-xs px-1.5 py-0.5 h-auto bg-muted text-muted-foreground flex-shrink-0"
                             >
                               {update.version}
                             </Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-muted-foreground leading-relaxed break-words">
                             {update.description}
                           </p>
                           <div className="flex items-center justify-between mt-2">
