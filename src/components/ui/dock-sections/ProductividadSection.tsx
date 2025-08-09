@@ -11,6 +11,9 @@ import { useDailyActivityData } from '@/hooks/useDailyActivityData';
 export const ProductividadSection = () => {
   const { user } = useAuth();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  
+  // Llamar hook antes del early return para cumplir las reglas de React
+  const { data7d, todaySecondsFromDB, loading } = useDailyActivityData();
 
   if (!user) {
     return (
@@ -53,8 +56,7 @@ export const ProductividadSection = () => {
     );
   }
 
-  // Usuario autenticado: leer datos (el tracker global ya está activo)
-  const { data7d, todaySecondsFromDB, loading } = useDailyActivityData();
+  // Usuario autenticado: usar los datos ya obtenidos
   
   // Obtenemos el buffer desde el componente global ActivityTracker
   const bufferSeconds = 0; // El tracking se maneja globalmente, aquí solo mostramos datos
