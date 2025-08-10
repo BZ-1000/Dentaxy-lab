@@ -1,6 +1,6 @@
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ProductividadSection } from './ProductividadSection';
-import { LiveMetricsSection } from './GoalsSection';
+import { LiveMetricsSection } from './LiveMetricsSection';
 import { SidebarSection } from './SidebarSection';
 import { TechnologyUsageSection } from './TechnologyUsageSection';
 import { CommunityOpinionSection } from './CommunityOpinionSection';
