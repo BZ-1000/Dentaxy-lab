@@ -4,28 +4,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, Area, AreaChart } from 'recharts';
 import { TrendingUp, Activity, ArrowRight, Clock, Zap, Target, Award, ChevronUp } from 'lucide-react';
-
-// Mock data since we don't have the actual hooks
-const mockWeeklyData = [
-  { dayName: 'L', minutes: 45, formattedDate: 'Lunes 5 Ago' },
-  { dayName: 'M', minutes: 32, formattedDate: 'Martes 6 Ago' },
-  { dayName: 'X', minutes: 67, formattedDate: 'Miércoles 7 Ago' },
-  { dayName: 'J', minutes: 23, formattedDate: 'Jueves 8 Ago' },
-  { dayName: 'V', minutes: 89, formattedDate: 'Viernes 9 Ago' },
-  { dayName: 'S', minutes: 15, formattedDate: 'Sábado 10 Ago' },
-  { dayName: 'D', minutes: 42, formattedDate: 'Domingo 11 Ago' }
-];
+import { useTimeTracker } from '@/hooks/useTimeTracker';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const ProductividadSection = () => {
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   
-  // Mock values
-  const user = true; // Set to false to see login state
-  const weeklyData = mockWeeklyData;
-  const currentSessionMinutes = 12;
-  const totalTodayMinutes = 42;
-  const isTracking = true;
+  // Real data from hooks
+  const { user } = useAuth();
+  const { weeklyData, currentSessionMinutes, totalTodayMinutes, isTracking } = useTimeTracker();
 
   // Enhanced color system with gradients and depth
   const getBarGradient = (index: number, minutes: number) => {
@@ -109,11 +97,11 @@ export const ProductividadSection = () => {
           ))}
         </div>
 
-        <CardHeader className="relative pb-3 pt-6">
+        <CardHeader className="relative pb-3 pt-4 sm:pt-6 px-4 sm:px-6">
           <motion.div variants={itemVariants}>
-            <CardTitle className="text-sm font-bold flex items-center gap-3">
+            <CardTitle className="text-sm sm:text-base font-bold flex items-center gap-2 sm:gap-3">
               <motion.span 
-                className="relative bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-xl w-8 h-8 flex items-center justify-center text-xs font-bold text-white shadow-lg shadow-blue-500/25"
+                className="relative bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-xl w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-xs font-bold text-white shadow-lg shadow-blue-500/25"
                 animate={{ 
                   scale: isTracking ? [1, 1.05, 1] : 1,
                   boxShadow: isTracking 
@@ -159,13 +147,13 @@ export const ProductividadSection = () => {
           </motion.div>
         </CardHeader>
 
-        <CardContent className="relative pt-0 p-6">
+        <CardContent className="relative pt-0 p-4 sm:p-6">
           {user ? (
             <motion.div variants={itemVariants}>
               {/* Enhanced Stats Grid */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <motion.div 
-                  className="bg-gradient-to-br from-white to-blue-50/50 p-4 rounded-2xl border border-blue-100/50 shadow-lg shadow-blue-500/5"
+                  className="bg-gradient-to-br from-white to-blue-50/50 p-3 sm:p-4 rounded-2xl border border-blue-100/50 shadow-lg shadow-blue-500/5"
                   whileHover={{ scale: 1.02, y: -2 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
@@ -198,36 +186,37 @@ export const ProductividadSection = () => {
                 </motion.div>
 
                 <motion.div 
-                  className="bg-gradient-to-br from-white to-purple-50/50 p-4 rounded-2xl border border-purple-100/50 shadow-lg shadow-purple-500/5"
+                  className="bg-gradient-to-br from-white to-purple-50/50 p-3 sm:p-4 rounded-2xl border border-purple-100/50 shadow-lg shadow-purple-500/5"
                   whileHover={{ scale: 1.02, y: -2 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <TrendingUp className="w-5 h-5 text-white" />
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                     </div>
                     <div>
-                      <div className="text-2xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                      <div className="text-xl sm:text-2xl font-black bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
                         {Math.round(weekAverage)}
                       </div>
                       <p className="text-xs text-slate-600 font-semibold">promedio</p>
                     </div>
                   </div>
                   <motion.div 
-                    className={`flex items-center gap-2 text-xs px-3 py-2 rounded-lg font-semibold shadow-lg ${
+                    className={`flex items-center gap-2 text-xs px-2 sm:px-3 py-1 sm:py-2 rounded-lg font-semibold shadow-lg ${
                       weekAverage > 30 
                         ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white' 
                         : 'bg-gradient-to-r from-orange-500 to-yellow-500 text-white'
                     }`}
                   >
                     <Target className="w-3 h-3" />
-                    {weekAverage > 60 ? 'Extraordinario' : weekAverage > 30 ? 'Excelente' : 'En progreso'}
+                    <span className="hidden sm:inline">{weekAverage > 60 ? 'Extraordinario' : weekAverage > 30 ? 'Excelente' : 'En progreso'}</span>
+                    <span className="sm:hidden">{weekAverage > 60 ? 'Top' : weekAverage > 30 ? 'Bien' : 'OK'}</span>
                   </motion.div>
                 </motion.div>
               </div>
 
               {/* Additional Stats Row */}
-              <div className="flex gap-3 mb-6">
+              <div className="flex flex-col sm:flex-row gap-3 mb-4 sm:mb-6">
                 <motion.div 
                   className="flex-1 bg-gradient-to-r from-indigo-50 to-blue-50 p-3 rounded-xl border border-indigo-100"
                   whileHover={{ scale: 1.01 }}
@@ -258,10 +247,10 @@ export const ProductividadSection = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  {showDetails ? 'Ocultar detalles' : 'Ver detalles'}
+                  {showDetails ? 'Ocultar' : 'Detalles'}
                 </motion.button>
                 
-                <div className="h-32 bg-gradient-to-b from-slate-50/50 to-transparent rounded-2xl p-4 border border-slate-100/50">
+                <div className="h-28 sm:h-32 bg-gradient-to-b from-slate-50/50 to-transparent rounded-2xl p-3 sm:p-4 border border-slate-100/50">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart 
                       data={weeklyData}
@@ -278,7 +267,7 @@ export const ProductividadSection = () => {
                         axisLine={false} 
                         tickLine={false} 
                         className="text-xs font-semibold" 
-                        tick={{ fontSize: 11, fill: '#64748b', fontWeight: 600 }}
+                        tick={{ fontSize: 10, fill: '#64748b', fontWeight: 600 }}
                       />
                       <YAxis hide />
                       <Tooltip 
@@ -292,26 +281,26 @@ export const ProductividadSection = () => {
                                   initial={{ opacity: 0, scale: 0.8, y: 10 }}
                                   animate={{ opacity: 1, scale: 1, y: 0 }}
                                   exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                                  className="bg-white/95 backdrop-blur-xl border border-slate-200/50 rounded-2xl p-4 shadow-2xl shadow-slate-500/20"
+                                  className="bg-white/95 backdrop-blur-xl border border-slate-200/50 rounded-2xl p-3 sm:p-4 shadow-2xl shadow-slate-500/20 max-w-xs"
                                 >
-                                  <div className="flex items-center gap-3 mb-3">
+                                  <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-3">
                                     <div 
-                                      className="w-4 h-4 rounded-full shadow-lg"
+                                      className="w-3 h-3 sm:w-4 sm:h-4 rounded-full shadow-lg"
                                       style={{ background: getBarGradient(weeklyData.indexOf(data), data.minutes) }}
                                     />
                                     <div>
-                                      <p className="text-sm font-bold text-slate-800">
+                                      <p className="text-xs sm:text-sm font-bold text-slate-800">
                                         {data.formattedDate}
                                         {isToday && ' (Hoy)'}
                                       </p>
-                                      <div className="flex items-center gap-2 mt-1">
+                                      <div className="flex items-center gap-1 sm:gap-2 mt-1">
                                         <Activity className="w-3 h-3 text-slate-600" />
-                                        <span className="text-sm font-semibold text-slate-700">
-                                          {data.minutes} minutos
+                                        <span className="text-xs sm:text-sm font-semibold text-slate-700">
+                                          {data.minutes} min
                                         </span>
                                         {isToday && currentSessionMinutes > 0 && (
-                                          <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full font-semibold">
-                                            +{currentSessionMinutes}m activos
+                                          <span className="text-xs bg-emerald-100 text-emerald-700 px-1 sm:px-2 py-1 rounded-full font-semibold">
+                                            +{currentSessionMinutes}m
                                           </span>
                                         )}
                                       </div>
@@ -335,8 +324,8 @@ export const ProductividadSection = () => {
                       />
                       <Bar 
                         dataKey="minutes" 
-                        radius={[6, 6, 0, 0]}
-                        maxBarSize={32}
+                        radius={[4, 4, 0, 0]}
+                        maxBarSize={24}
                       >
                         {weeklyData.map((entry, index) => (
                           <Cell 
@@ -361,7 +350,7 @@ export const ProductividadSection = () => {
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="mt-4 grid grid-cols-7 gap-2"
+                      className="mt-3 sm:mt-4 grid grid-cols-7 gap-1 sm:gap-2"
                     >
                       {weeklyData.map((day, index) => (
                         <motion.div
@@ -369,10 +358,10 @@ export const ProductividadSection = () => {
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          className="text-center p-2 bg-gradient-to-b from-white to-slate-50 rounded-lg border border-slate-100/50"
+                          className="text-center p-1 sm:p-2 bg-gradient-to-b from-white to-slate-50 rounded-lg border border-slate-100/50"
                         >
                           <div className="text-xs font-bold text-slate-700">{day.dayName}</div>
-                          <div className="text-lg font-black bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
+                          <div className="text-sm sm:text-lg font-black bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
                             {day.minutes}
                           </div>
                           <div className="text-xs text-slate-500">min</div>
@@ -390,7 +379,6 @@ export const ProductividadSection = () => {
             >
               <motion.div 
                 className="relative w-20 h-20 mx-auto bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/25"
-                whileHover={{ scale: 1.1, rotate: 10 }}
                 animate={{ 
                   boxShadow: [
                     "0 20px 40px rgba(59, 130, 246, 0.25)",
@@ -399,9 +387,10 @@ export const ProductividadSection = () => {
                   ]
                 }}
                 transition={{ 
-                  boxShadow: { duration: 3, repeat: Infinity },
-                  hover: { type: "spring", stiffness: 300 }
+                  boxShadow: { duration: 3, repeat: Infinity }
                 }}
+                whileHover={{ scale: 1.1, rotate: 10 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <Activity className="w-10 h-10 text-white" />
                 <motion.div
