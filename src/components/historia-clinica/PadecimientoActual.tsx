@@ -9,6 +9,7 @@ import { Typewriter } from "@/components/ui/typewriter-text";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
 import SintomasToggle from "./padecimiento/SintomasToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
+import DOMPurify from "dompurify";
 interface PadecimientoActualProps {
   formData: {
     padecimientoActual: {
@@ -276,7 +277,7 @@ El paciente refiere la presencia de dolor ${ubicacion || ''} en ${ubicacion === 
 <div className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-y-auto whitespace-pre-wrap" style={{
           whiteSpace: 'pre-wrap'
         }} dangerouslySetInnerHTML={{
-          __html: displayedText
+          __html: DOMPurify.sanitize(displayedText, { ALLOWED_TAGS: ['strong','div','br','p','span'], ALLOWED_ATTR: [] })
         }} data-redaction-content />
             <Button onClick={handleCopy} className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2 relative">
               <Copy className="w-4 h-4" />
