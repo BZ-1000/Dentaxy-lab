@@ -2,7 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Analytics } from '@vercel/analytics/react';
-import IndexOptimized from './pages/IndexOptimized';
+import Index from './pages/Index';
 import Landing from './pages/Landing';
 import NotFound from './pages/NotFound';
 import Login from './pages/auth/Login';
@@ -30,29 +30,11 @@ import DonationSuccess from './pages/DonationSuccess';
 
 // Componente protegido que verifica si el usuario está autenticado
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, session } = useAuth();
+  const { user, loading } = useAuth();
   
-  // Check cached session first for instant loading
-  const cachedSession = localStorage.getItem('userSession');
-  if (cachedSession && !loading) {
-    try {
-      const parsed = JSON.parse(cachedSession);
-      if (parsed?.user) {
-        return <>{children}</>;
-      }
-    } catch (error) {
-      localStorage.removeItem('userSession');
-    }
-  }
+  if (loading) return <div>Cargando...</div>;
   
-  // Show loading only if truly loading and no cached data
-  if (loading && !cachedSession) {
-    return <div className="flex items-center justify-center min-h-screen">
-      <div className="text-slate-600">Cargando...</div>
-    </div>;
-  }
-  
-  if (!user && !session) {
+  if (!user) {
     return <Navigate to="/auth/login" replace />;
   }
   
@@ -99,7 +81,7 @@ function App() {
               {/* App protegida */}
               <Route path="/app" element={
                 <ProtectedRoute>
-                  <IndexOptimized />
+                  <Index />
                 </ProtectedRoute>
               } />
               
