@@ -356,7 +356,14 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
     }
   };
 
-  const handleCopy = (section: string) => {
+  const handleCopy = async (section: string) => {
+    // Track copy click
+    try {
+      const { trackCopyClick } = await import('@/utils/trackCopyClick');
+      trackCopyClick();
+    } catch (error) {
+      console.error('Error tracking copy:', error);
+    }
     navigator.clipboard.writeText(redacciones[section]);
     setCopied(prev => ({
       ...prev,
