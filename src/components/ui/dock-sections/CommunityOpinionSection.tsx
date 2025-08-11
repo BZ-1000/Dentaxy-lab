@@ -64,56 +64,56 @@ export const CommunityOpinionSection = () => {
   };
 
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-background via-muted/20 to-accent/5 border-0 shadow-lg shadow-primary/5">
+    <Card className="relative overflow-hidden bg-gradient-to-br from-background via-muted/20 to-accent/5 border-0 shadow-lg shadow-primary/5 w-full">
       <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-transparent backdrop-blur-xl" />
       
       <CardContent className="relative p-3 sm:p-4">
-        <div className="flex items-center gap-2 mb-3 sm:mb-4">
+        <div className="flex items-center gap-3 mb-3 sm:mb-4">
           <span className="bg-gradient-to-br from-primary via-primary to-primary/80 rounded-xl w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-xs font-bold text-primary-foreground shadow-lg shadow-primary/25">
             <Users className="w-3 h-3 sm:w-4 sm:h-4" />
           </span>
-          <div>
+          <div className="flex-1">
             <h3 className="text-sm sm:text-base font-black bg-gradient-to-r from-foreground via-muted-foreground to-foreground bg-clip-text text-transparent">
-              Comunidad
+              Opinión de la Comunidad
             </h3>
             <p className="text-xs text-muted-foreground font-medium">
               {totalRatings > 0 ? `${totalRatings} valoraciones` : 'Sé el primero en valorar'}
             </p>
           </div>
+          <div className="text-right">
+            <div className="text-lg sm:text-xl font-black bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+              {averageRating.toFixed(1)}★
+            </div>
+          </div>
         </div>
 
-        {/* Rating compacto */}
+        {/* Rating horizontal compacto */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="text-lg sm:text-xl font-black bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-                {averageRating.toFixed(1)}
-              </div>
-              <div className="flex items-center gap-0.5">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <motion.button
-                    key={star}
-                    onClick={() => handleRating(star)}
-                    onMouseEnter={() => setHoveredStar(star)}
-                    onMouseLeave={() => setHoveredStar(0)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="transition-colors duration-200 focus:outline-none"
-                  >
-                    <Star
-                      className={`w-3 h-3 sm:w-4 sm:h-4 transition-all duration-200 ${
-                        (hoveredStar > 0 ? star <= hoveredStar : star <= (userRating || averageRating))
-                          ? 'text-yellow-400 fill-yellow-400'
-                          : 'text-muted-foreground'
-                      }`}
-                    />
-                  </motion.button>
-                ))}
-              </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <motion.button
+                  key={star}
+                  onClick={() => handleRating(star)}
+                  onMouseEnter={() => setHoveredStar(star)}
+                  onMouseLeave={() => setHoveredStar(0)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="transition-colors duration-200 focus:outline-none"
+                >
+                  <Star
+                    className={`w-4 h-4 transition-all duration-200 ${
+                      (hoveredStar > 0 ? star <= hoveredStar : star <= (userRating || averageRating))
+                        ? 'text-yellow-400 fill-yellow-400'
+                        : 'text-muted-foreground'
+                    }`}
+                  />
+                </motion.button>
+              ))}
             </div>
             {userRating > 0 && (
-              <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
-                Tu: {userRating}★
+              <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full ml-auto">
+                Tu valoración: {userRating}★
               </span>
             )}
           </div>

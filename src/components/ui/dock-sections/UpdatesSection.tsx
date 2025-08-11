@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Package, AlertCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Sparkles, Package, AlertCircle, ExternalLink, Eye } from 'lucide-react';
 import { useUpdates } from '@/hooks/useUpdates';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -31,6 +33,7 @@ const formatReleaseDate = (dateString: string) => {
 
 export const UpdatesSection = () => {
   const { updates, loading, error } = useUpdates();
+  const [selectedUpdate, setSelectedUpdate] = useState<any>(null);
 
   if (error) {
     return (
@@ -81,19 +84,23 @@ export const UpdatesSection = () => {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                     className="group"
                   >
-                    <motion.div
-                      className="p-2.5 bg-gradient-to-r from-muted/20 to-muted/40 rounded-lg border border-border/20 hover:border-border/40 hover:shadow-sm transition-all duration-200"
-                      whileHover={{ scale: 1.01, y: -1 }}
-                      whileTap={{ scale: 0.99 }}
-                    >
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <motion.div
+                          className="p-2.5 bg-gradient-to-r from-muted/20 to-muted/40 rounded-lg border border-border/20 hover:border-border/40 hover:shadow-sm transition-all duration-200 cursor-pointer group"
+                          whileHover={{ scale: 1.01, y: -1 }}
+                          whileTap={{ scale: 0.99 }}
+                          onClick={() => setSelectedUpdate(update)}
+                        >
                       <div className="flex items-start gap-2">
                         <div className="mt-0.5 flex-shrink-0">
                           {getUpdateIcon(update.version)}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-1 mb-1">
-                            <h4 className="text-xs font-medium text-foreground leading-tight line-clamp-1">
+                            <h4 className="text-xs font-medium text-foreground leading-tight line-clamp-1 flex items-center gap-1">
                               {update.title}
+                              <Eye className="w-2.5 h-2.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                             </h4>
                             <Badge 
                               variant="outline" 
@@ -119,7 +126,28 @@ export const UpdatesSection = () => {
                           </div>
                         </div>
                       </div>
-                    </motion.div>
+                        </motion.div>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2">
+                            {getUpdateIcon(update.version)}
+                            {update.title}
+                            <Badge variant="outline" className="ml-auto">
+                              {update.version}
+                            </Badge>
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div className="text-sm text-muted-foreground">
+                            <span className="font-medium">Fecha de lanzamiento:</span> {formatReleaseDate(update.release_date)}
+                          </div>
+                          <div className="prose prose-sm max-w-none">
+                            <p className="whitespace-pre-wrap">{update.description}</p>
+                          </div>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   </motion.div>
                 ))}
               </div>

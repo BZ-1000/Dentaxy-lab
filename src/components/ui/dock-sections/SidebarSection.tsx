@@ -6,7 +6,7 @@ import { ResourcesSection } from './ResourcesSection';
 export const SidebarSection = () => {
   return (
     <motion.div 
-      className="w-64 bg-background border-r border-border/50 flex flex-col h-full"
+      className="w-52 bg-background border-r border-border/50 flex flex-col h-full"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
