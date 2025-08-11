@@ -13,7 +13,6 @@ import { Toaster } from './components/ui/sonner';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './App.css';
-import { Component as LumaSpin } from '@/components/ui/luma-spin';
 
 // Páginas del menú principal
 import About from './pages/about/About';
@@ -33,11 +32,7 @@ import DonationSuccess from './pages/DonationSuccess';
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <LumaSpin />
-    </div>
-  );
+  if (loading) return <div>Cargando...</div>;
   
   if (!user) {
     return <Navigate to="/auth/login" replace />;
