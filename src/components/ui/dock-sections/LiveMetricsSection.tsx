@@ -1,94 +1,176 @@
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, Copy, Heart } from 'lucide-react';
+// -------------------------------------------------------------------
+// Componente de Métricas en Vivo - Versión Todo en Uno
+// Diseño por Gemini - inspirado en la estética de Apple
+// Características:
+// - Diseño adaptativo (responsive grid)
+// - Estilo "Frosted Glass" (vidrio esmerilado)
+// - Contadores numéricos animados
+// - Animaciones de entrada y efecto hover
+// - Código limpio y estructurado en un solo archivo
+// -------------------------------------------------------------------
+
+import { useEffect, useRef } from 'react';
+import { motion, animate } from 'framer-motion';
+import { Users, Copy, Heart, BarChart2, type LucideIcon } from 'lucide-react';
 import { useLiveMetrics } from '@/hooks/useLiveMetrics';
 import { useActiveUsers } from '@/hooks/useActiveUsers';
 
+// --- Sub-componente 1: Contador Animado ---
+// Responsable de la animación de los números.
+interface AnimatedCounterProps {
+  value: number;
+}
+
+const AnimatedCounter = ({ value }: AnimatedCounterProps) => {
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const previousValue = parseInt(node.textContent?.replace(/,/g, '') || '0', 10);
+
+    if (previousValue === value) return; // Evita animar si el valor no cambia
+
+    const controls = animate(previousValue, value, {
+      duration: 0.8,
+      ease: 'easeOut',
+      onUpdate(latest) {
+        node.textContent = Math.round(latest).toLocaleString('en-US');
+      },
+    });
+
+    return () => controls.stop();
+  }, [value]);
+
+  return <span ref={ref}>{value.toLocaleString('en-US')}</span>;
+};
+
+
+// --- Sub-componente 2: Tarjeta de Métrica ---
+// Define la apariencia y estructura de cada tarjeta individual.
+const cardVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 100 } },
+};
+
+interface MetricCardProps {
+  title: number;
+  subtitle: string;
+  icon: LucideIcon;
+  color: string;
+  isLoading: boolean;
+  extraInfo?: string;
+}
+
+const MetricCard = ({ title, subtitle, icon: Icon, color, isLoading, extraInfo }: MetricCardProps) => {
+  return (
+    <motion.div
+      variants={cardVariants}
+      whileHover={{ scale: 1.04, transition: { type: 'spring', stiffness: 300 } }}
+      className="relative p-6 overflow-hidden text-left bg-white/60 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-lg"
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium text-gray-500">{subtitle}</p>
+          <div className="flex items-baseline gap-2">
+            {isLoading ? (
+              <div className="w-24 h-9 mt-1 bg-gray-200 rounded-md animate-pulse" />
+            ) : (
+              <span className="text-4xl font-bold tracking-tighter text-gray-800">
+                <AnimatedCounter value={title} />
+              </span>
+            )}
+          </div>
+          {extraInfo && (
+             <p className="text-xs text-gray-400 mt-2">
+               {isLoading ? (
+                  <div className="w-32 h-4 bg-gray-200 rounded-md animate-pulse" />
+               ) : (
+                  extraInfo
+               )}
+            </p>
+          )}
+        </div>
+        <div className={`flex-shrink-0 w-12 h-12 flex items-center justify-center bg-gray-100 rounded-xl`}>
+          <Icon className={`${color} w-6 h-6`} strokeWidth={2} />
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+
+// --- Componente Principal y Exportado ---
+// Organiza el layout, obtiene los datos y renderiza las tarjetas.
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
 export const LiveMetricsSection = () => {
   const { metrics, loading } = useLiveMetrics();
-  useActiveUsers();
+  useActiveUsers(); // Hook para mantener los datos de usuarios actualizados
 
   const metricsData = [
     {
-      title: metrics.activeUsers.toString(),
-      subtitle: 'Usuarios dentro de la app',
+      title: metrics.activeUsers,
+      subtitle: 'Usuarios en la App',
       icon: Users,
       color: 'text-green-500',
-      bgColor: 'bg-green-50',
-      isLoading: loading
+      isLoading: loading,
     },
     {
-      title: metrics.copyClicks.toString(),
-      subtitle: 'Copias de redacciones utilizadas',
+      title: metrics.copyClicks,
+      subtitle: 'Redacciones Copiadas',
       icon: Copy,
       color: 'text-blue-500',
-      bgColor: 'bg-blue-50',
-      isLoading: loading
+      isLoading: loading,
     },
     {
-      title: metrics.donations.toString(),
-      subtitle: 'Donaciones',
+      title: metrics.donations,
+      subtitle: 'Donaciones Recibidas',
       icon: Heart,
       color: 'text-red-500',
-      bgColor: 'bg-red-50',
       isLoading: loading,
-      extraInfo: metrics.latestDonor ? `Último: ${metrics.latestDonor.name}` : undefined
-    }
+      extraInfo: metrics.latestDonor ? `Último: ${metrics.latestDonor.name}` : undefined,
+    },
   ];
 
   return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 px-2 mb-3">
-        <span className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-          📊
-        </span>
-        <h3 className="text-sm font-semibold text-foreground">Métricas en Vivo</h3>
+    <section className="w-full max-w-5xl mx-auto p-4 md:p-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="bg-gray-100 rounded-lg p-2">
+           <BarChart2 className="text-gray-600" />
+        </div>
+        <h2 className="text-2xl font-bold tracking-tight text-gray-900">
+          Métricas en Vivo
+        </h2>
       </div>
-      
-      <div className="space-y-2">
+
+      <motion.div
+        className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {metricsData.map((metric, index) => (
-          <motion.div
+          <MetricCard
             key={index}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1 }}
-          >
-            <Card className="shadow-sm">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-lg ${metric.bgColor}`}>
-                    <metric.icon size={16} className={metric.color} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      {metric.isLoading ? (
-                        <div className="h-5 w-8 bg-muted rounded animate-pulse" />
-                      ) : (
-                        <motion.span
-                          key={metric.title}
-                          initial={{ scale: 1.2 }}
-                          animate={{ scale: 1 }}
-                          className="text-lg font-bold text-foreground"
-                        >
-                          {metric.title}
-                        </motion.span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground font-medium truncate">
-                      {metric.subtitle}
-                    </p>
-                    {metric.extraInfo && (
-                      <p className="text-xs text-primary/70 mt-1 truncate">
-                        {metric.extraInfo}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+            title={metric.title}
+            subtitle={metric.subtitle}
+            icon={metric.icon}
+            color={metric.color}
+            isLoading={metric.isLoading}
+            extraInfo={metric.extraInfo}
+          />
         ))}
-      </div>
-    </div>
+      </motion.div>
+    </section>
   );
 };
