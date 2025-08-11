@@ -13,6 +13,7 @@ import { Toaster } from './components/ui/sonner';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './App.css';
+import AnimatedLoadingSkeleton from '@/components/ui/animated-loading-skeleton';
 
 // Páginas del menú principal
 import About from './pages/about/About';
@@ -31,14 +32,25 @@ import DonationSuccess from './pages/DonationSuccess';
 // Componente protegido que verifica si el usuario está autenticado
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
-  
-  if (loading) return <div>Cargando...</div>;
-  
+
+  // Show skeleton immediately while auth resolves
+  if (loading) return <AnimatedLoadingSkeleton />;
+
+  // If not authenticated, go to login instantly
   if (!user) {
     return <Navigate to="/auth/login" replace />;
   }
-  
-  return <>{children}</>;
+
+  // For authenticated users, keep a 5s skeleton to avoid white screens while heavy content mounts
+  const [showSplash, setShowSplash] = React.useState(true);
+  React.useEffect(() => {
+    const t = setTimeout(() => setShowSplash(false), 5000);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (showSplash) return <AnimatedLoadingSkeleton />;
+
+  return <div className="animate-fade-in">{children}</div>;
 };
 
 function App() {
