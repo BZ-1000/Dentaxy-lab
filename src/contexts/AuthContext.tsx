@@ -105,21 +105,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    // Get initial session with minimum loading time
-    const startTime = Date.now();
-    const minLoadingTime = 1500; // 1.5 seconds minimum
-
+    // Get initial session immediately
     supabase.auth.getSession().then(({ data: { session } }) => {
-      const elapsed = Date.now() - startTime;
-      const remainingTime = Math.max(0, minLoadingTime - elapsed);
-      
-      setTimeout(() => {
-        setSession(session);
-        if (session) {
-          localStorage.setItem('userSession', JSON.stringify(session));
-        }
-        setLoading(false);
-      }, remainingTime);
+      setSession(session);
+      if (session) {
+        localStorage.setItem('userSession', JSON.stringify(session));
+      }
+      setLoading(false);
     });
 
     // Listen for auth changes
