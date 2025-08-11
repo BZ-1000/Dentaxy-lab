@@ -13,24 +13,22 @@ export const EstadisticasContent = () => {
       {!isMobile && <SidebarSection />}
 
       <div className={`flex-1 ${isMobile ? 'p-3 space-y-4' : 'p-4 space-y-4'}`}>
-        {/* Grid principal: Productividad + (Métricas en vivo / Tecnologías) */}
-        <div className={isMobile ? 'space-y-4' : 'grid grid-cols-1 lg:grid-cols-4 gap-4'}>
-          <div className={isMobile ? 'w-full' : 'lg:col-span-2'}>
+        {/* Grid principal compacto */}
+        <div className={isMobile ? 'space-y-3' : 'grid grid-cols-1 lg:grid-cols-5 gap-3'}>
+          <div className={isMobile ? 'w-full' : 'lg:col-span-3'}>
             <ProductividadSection />
           </div>
-          <div>
-            <LiveMetricsSection />
-          </div>
-          <div>
+          <div className={isMobile ? 'w-full' : 'lg:col-span-1'}>
             <TechnologyUsageSection />
+          </div>
+          <div className={isMobile ? 'w-full' : 'lg:col-span-1'}>
+            <CommunityOpinionSection />
           </div>
         </div>
 
-        {/* Opinión de la comunidad */}
-        <div className={isMobile ? 'space-y-4' : 'grid grid-cols-1 lg:grid-cols-4 gap-4'}>
-          <div className="lg:col-span-4">
-            <CommunityOpinionSection />
-          </div>
+        {/* Métricas en vivo */}
+        <div className="w-full">
+          <LiveMetricsSection />
         </div>
 
         {/* Sidebar en móvil al final */}

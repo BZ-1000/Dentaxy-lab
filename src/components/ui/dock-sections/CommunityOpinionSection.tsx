@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star } from "lucide-react";
+import { Star, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 export const CommunityOpinionSection = () => {
   const [userRating, setUserRating] = useState(0);
   const [hoveredStar, setHoveredStar] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
   const [totalRatings, setTotalRatings] = useState(0);
-  const [ratingDistribution, setRatingDistribution] = useState<number[]>([0, 0, 0, 0, 0]);
-  const { toast } = useToast();
+  const [ratingDistribution, setRatingDistribution] = useState<Record<number, number>>({});
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchRatings = async () => {
@@ -45,13 +46,8 @@ export const CommunityOpinionSection = () => {
   }, []);
 
   const handleRating = async (rating: number) => {
-    const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      toast({
-        title: "Inicia sesión para calificar",
-        description: "Necesitas una cuenta para poder dejar tu opinión.",
-        variant: "destructive",
-      });
+      toast.error("Inicia sesión para valorar");
       return;
     }
     try {
@@ -60,97 +56,92 @@ export const CommunityOpinionSection = () => {
         .upsert({ user_id: user.id, rating });
       if (error) throw error;
       setUserRating(rating);
-      toast({
-        title: "¡Gracias por tu opinión!",
-        description: `Has calificado la aplicación con ${rating} estrella${rating > 1 ? "s" : ""}.`,
-      });
+      toast.success(`¡Gracias! Calificaste con ${rating} estrella${rating > 1 ? "s" : ""}`);
     } catch (error) {
       console.error("Error saving rating:", error);
-      toast({
-        title: "Error al guardar",
-        description: "No se pudo guardar tu calificación. Inténtalo de nuevo.",
-        variant: "destructive",
-      });
+      toast.error("No se pudo guardar tu calificación");
     }
   };
 
   return (
-    <Card className="shadow-sm">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="bg-primary/10 text-primary rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">
-            ★
+    <Card className="relative overflow-hidden bg-gradient-to-br from-background via-muted/20 to-accent/5 border-0 shadow-lg shadow-primary/5">
+      <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-transparent backdrop-blur-xl" />
+      
+      <CardContent className="relative p-3 sm:p-4">
+        <div className="flex items-center gap-2 mb-3 sm:mb-4">
+          <span className="bg-gradient-to-br from-primary via-primary to-primary/80 rounded-xl w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-xs font-bold text-primary-foreground shadow-lg shadow-primary/25">
+            <Users className="w-3 h-3 sm:w-4 sm:h-4" />
           </span>
-          <h3 className="text-sm font-semibold text-foreground">Opinión de la Comunidad</h3>
+          <div>
+            <h3 className="text-sm sm:text-base font-black bg-gradient-to-r from-foreground via-muted-foreground to-foreground bg-clip-text text-transparent">
+              Comunidad
+            </h3>
+            <p className="text-xs text-muted-foreground font-medium">
+              {totalRatings > 0 ? `${totalRatings} valoraciones` : 'Sé el primero en valorar'}
+            </p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Izquierda: Resumen y calificación del usuario */}
-          <div className="bg-muted/50 rounded-lg p-4 flex flex-col items-center text-center">
-            <span className="text-xs font-medium text-muted-foreground">Calificación Promedio</span>
-            <div className="flex items-center gap-2 my-2">
-              <span className="text-4xl font-bold text-foreground">{averageRating}</span>
-              <div className="flex flex-col items-start">
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => (
+        {/* Rating compacto */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="text-lg sm:text-xl font-black bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                {averageRating.toFixed(1)}
+              </div>
+              <div className="flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <motion.button
+                    key={star}
+                    onClick={() => handleRating(star)}
+                    onMouseEnter={() => setHoveredStar(star)}
+                    onMouseLeave={() => setHoveredStar(0)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="transition-colors duration-200 focus:outline-none"
+                  >
                     <Star
-                      key={star}
-                      size={16}
-                      className={star <= averageRating ? "text-primary fill-primary" : "text-muted-foreground"}
+                      className={`w-3 h-3 sm:w-4 sm:h-4 transition-all duration-200 ${
+                        (hoveredStar > 0 ? star <= hoveredStar : star <= (userRating || averageRating))
+                          ? 'text-yellow-400 fill-yellow-400'
+                          : 'text-muted-foreground'
+                      }`}
                     />
-                  ))}
-                </div>
-                <span className="text-xs text-muted-foreground">{totalRatings} calificaciones</span>
+                  </motion.button>
+                ))}
               </div>
             </div>
-            <span className="text-xs text-muted-foreground">¡Tu opinión es importante! Califícanos:</span>
-            <div className="flex gap-1 mt-2">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <motion.button
-                  key={star}
-                  whileHover={{ scale: 1.15, y: -1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handleRating(star)}
-                  onMouseEnter={() => setHoveredStar(star)}
-                  onMouseLeave={() => setHoveredStar(0)}
-                  aria-label={`Calificar ${star} estrellas`}
-                >
-                  <Star
-                    size={22}
-                    className={
-                      star <= (hoveredStar || userRating)
-                        ? "text-primary fill-primary"
-                        : "text-muted-foreground"
-                    }
-                  />
-                </motion.button>
-              ))}
-            </div>
+            {userRating > 0 && (
+              <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
+                Tu: {userRating}★
+              </span>
+            )}
           </div>
 
-          {/* Derecha: Distribución */}
-          <div className="space-y-2">
-            <h4 className="text-xs font-medium text-muted-foreground">Distribución</h4>
-            {[...ratingDistribution].reverse().map((count, revIndex) => {
-              const starValue = 5 - revIndex; // 5 a 1
-              const percentage = totalRatings > 0 ? (count / totalRatings) * 100 : 0;
-              return (
-                <div key={starValue} className="flex items-center gap-2 text-xs">
-                  <span className="font-medium text-muted-foreground w-3 text-right">{starValue}</span>
-                  <Star size={12} className="text-primary fill-primary" />
-                  <div className="flex-grow bg-muted rounded-full h-1.5 overflow-hidden">
-                    <motion.div
-                      className="bg-primary h-1.5 rounded-full"
-                      initial={{ width: "0%" }}
-                      animate={{ width: `${percentage}%` }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                    />
+          {/* Distribución compacta */}
+          {totalRatings > 0 && (
+            <div className="space-y-1">
+              {[5, 4, 3, 2, 1].map((stars) => {
+                const count = ratingDistribution[stars] || 0;
+                const percentage = totalRatings > 0 ? (count / totalRatings) * 100 : 0;
+                
+                return (
+                  <div key={stars} className="flex items-center gap-2 text-xs">
+                    <span className="w-3 text-muted-foreground font-medium">{stars}</span>
+                    <div className="flex-1 bg-muted/50 rounded-full h-1.5">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${percentage}%` }}
+                        transition={{ duration: 0.5, delay: (5 - stars) * 0.05 }}
+                      />
+                    </div>
+                    <span className="w-4 text-muted-foreground text-right">{count}</span>
                   </div>
-                  <span className="w-6 text-right font-mono text-muted-foreground">{count}</span>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
