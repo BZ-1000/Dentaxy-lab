@@ -5,6 +5,7 @@ import { SidebarSection } from './SidebarSection';
 import { TechnologyUsageSection } from './TechnologyUsageSection';
 import { CommunityOpinionSection } from './CommunityOpinionSection';
 import { SystemStatusSection } from './SystemStatusSection';
+import { MedicalCalendar } from '@/components/medical-events/MedicalCalendar';
 
 export const EstadisticasContent = () => {
   const isMobile = useIsMobile();
@@ -22,10 +23,10 @@ export const EstadisticasContent = () => {
             {!isMobile && <CommunityOpinionSection />}
           </div>
           
-          {/* Columna 2: Tecnologías + Estado del Sistema */}
+          {/* Columna 2: Tecnologías + Calendario Médico */}
           <div className={isMobile ? 'w-full space-y-3' : 'lg:col-span-1 space-y-4'}>
             <TechnologyUsageSection />
-            <SystemStatusSection />
+            <MedicalCalendar />
             {isMobile && <CommunityOpinionSection />}
           </div>
         </div>
