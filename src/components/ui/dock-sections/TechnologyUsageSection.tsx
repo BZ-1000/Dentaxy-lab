@@ -13,10 +13,10 @@ const programmingLanguages = [
 
 export const TechnologyUsageSection = () => {
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-background via-muted/20 to-accent/5 border-0 shadow-lg shadow-primary/5 h-full">
+    <Card className="relative overflow-hidden bg-gradient-to-br from-background via-muted/20 to-accent/5 border-0 shadow-lg shadow-primary/5">
       <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-transparent backdrop-blur-xl" />
       
-      <CardContent className="relative p-3 sm:p-4 h-full flex flex-col">
+      <CardContent className="relative p-3 sm:p-4">
         <div className="flex items-center gap-2 mb-3 sm:mb-4">
           <span className="bg-gradient-to-br from-primary via-primary to-primary/80 rounded-xl w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-xs font-bold text-primary-foreground shadow-lg shadow-primary/25">
             <Code2 className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -31,7 +31,7 @@ export const TechnologyUsageSection = () => {
           </div>
         </div>
 
-        <div className="flex-1 space-y-2 sm:space-y-3">
+        <div className="space-y-2 sm:space-y-3">
           {programmingLanguages.map((lang, idx) => (
             <div key={lang.label} className="space-y-1">
               <div className="flex items-center justify-between">

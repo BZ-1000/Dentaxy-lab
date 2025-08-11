@@ -1,10 +1,8 @@
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Book, FileText, Play, BookOpen, GraduationCap, Star, ExternalLink, Eye } from 'lucide-react';
+import { Book, FileText, Play, BookOpen, GraduationCap, Star, ExternalLink } from 'lucide-react';
 import { useResources } from '@/hooks/useResources';
 
 const getResourceIcon = (type: string) => {
@@ -56,7 +54,6 @@ const getCategoryLabel = (category: string) => {
 
 export const ResourcesSection = () => {
   const { resources, loading, error } = useResources();
-  const [selectedResource, setSelectedResource] = useState<any>(null);
 
   if (error) {
     return (
@@ -107,14 +104,16 @@ export const ResourcesSection = () => {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                     className="group"
                   >
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <motion.div
-                          className="p-2.5 bg-gradient-to-r from-muted/20 to-muted/40 rounded-lg border border-border/20 hover:border-border/40 hover:shadow-sm transition-all duration-200 cursor-pointer group"
-                          whileHover={{ scale: 1.01, y: -1 }}
-                          whileTap={{ scale: 0.99 }}
-                          onClick={() => setSelectedResource(resource)}
-                        >
+                    <motion.div
+                      className="p-2.5 bg-gradient-to-r from-muted/20 to-muted/40 rounded-lg border border-border/20 hover:border-border/40 hover:shadow-sm transition-all duration-200 cursor-pointer"
+                      whileHover={{ scale: 1.01, y: -1 }}
+                      whileTap={{ scale: 0.99 }}
+                      onClick={() => {
+                        if (resource.url) {
+                          window.open(resource.url, '_blank');
+                        }
+                      }}
+                    >
                       <div className="flex items-start gap-2">
                         <div className="mt-0.5 flex-shrink-0">
                           {getResourceIcon(resource.type)}
@@ -126,8 +125,10 @@ export const ResourcesSection = () => {
                               {resource.is_featured && (
                                 <Star className="w-2.5 h-2.5 text-amber-500 fill-current flex-shrink-0" />
                               )}
-                              <Eye className="w-2.5 h-2.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                             </h4>
+                            {resource.url && (
+                              <ExternalLink className="w-2.5 h-2.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+                            )}
                           </div>
                           {resource.description && (
                             <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-2">
@@ -149,53 +150,7 @@ export const ResourcesSection = () => {
                           </div>
                         </div>
                       </div>
-                        </motion.div>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle className="flex items-center gap-2">
-                            {getResourceIcon(resource.type)}
-                            {resource.title}
-                            {resource.is_featured && (
-                              <Star className="w-4 h-4 text-amber-500 fill-current" />
-                            )}
-                          </DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-2">
-                            <Badge 
-                              className={`text-sm px-2 py-1 border ${getCategoryColor(resource.category)}`}
-                              variant="outline"
-                            >
-                              {getCategoryLabel(resource.category)}
-                            </Badge>
-                            {resource.author && (
-                              <span className="text-sm text-muted-foreground">
-                                por <span className="font-medium">{resource.author}</span>
-                              </span>
-                            )}
-                          </div>
-                          {resource.description && (
-                            <div className="prose prose-sm max-w-none">
-                              <p className="whitespace-pre-wrap">{resource.description}</p>
-                            </div>
-                          )}
-                          {resource.url && (
-                            <div className="flex justify-end">
-                              <motion.button
-                                onClick={() => window.open(resource.url, '_blank')}
-                                className="inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                                Ver Recurso
-                              </motion.button>
-                            </div>
-                          )}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    </motion.div>
                   </motion.div>
                 ))}
               </div>

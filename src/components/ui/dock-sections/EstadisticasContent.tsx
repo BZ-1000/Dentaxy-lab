@@ -4,8 +4,6 @@ import { LiveMetricsSection } from './LiveMetricsSection';
 import { SidebarSection } from './SidebarSection';
 import { TechnologyUsageSection } from './TechnologyUsageSection';
 import { CommunityOpinionSection } from './CommunityOpinionSection';
-import { SystemStatusSection } from './SystemStatusSection';
-import { MedicalCalendar } from '@/components/medical-events/MedicalCalendar';
 
 export const EstadisticasContent = () => {
   const isMobile = useIsMobile();
@@ -16,18 +14,13 @@ export const EstadisticasContent = () => {
 
       <div className={`flex-1 ${isMobile ? 'p-3 space-y-4' : 'p-4 space-y-4'}`}>
         {/* Grid principal reorganizado */}
-        <div className={isMobile ? 'space-y-3' : 'grid grid-cols-1 lg:grid-cols-3 gap-4'}>
-          {/* Columna 1: Productividad + Comunidad */}
-          <div className={isMobile ? 'w-full space-y-3' : 'lg:col-span-2 space-y-4'}>
+        <div className={isMobile ? 'space-y-3' : 'grid grid-cols-1 lg:grid-cols-4 gap-3'}>
+          <div className={isMobile ? 'w-full' : 'lg:col-span-3'}>
             <ProductividadSection />
-            {!isMobile && <CommunityOpinionSection />}
           </div>
-          
-          {/* Columna 2: Tecnologías + Calendario Médico */}
-          <div className={isMobile ? 'w-full space-y-3' : 'lg:col-span-1 space-y-4'}>
+          <div className={isMobile ? 'w-full space-y-3' : 'lg:col-span-1 space-y-3'}>
             <TechnologyUsageSection />
-            <MedicalCalendar />
-            {isMobile && <CommunityOpinionSection />}
+            <CommunityOpinionSection />
           </div>
         </div>
 
