@@ -105,25 +105,40 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    // Get initial session
+    // Try to get cached session first for instant loading
+    const cachedSession = localStorage.getItem('userSession');
+    if (cachedSession) {
+      try {
+        const parsed = JSON.parse(cachedSession);
+        setSession(parsed);
+        setLoading(false);
+        // Check subscription in background without blocking
+        setTimeout(() => checkSubscription(), 0);
+      } catch (error) {
+        console.error('Error parsing cached session:', error);
+        localStorage.removeItem('userSession');
+      }
+    }
+
+    // Get session from Supabase
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) {
         localStorage.setItem('userSession', JSON.stringify(session));
+        // Non-blocking subscription check
+        setTimeout(() => checkSubscription(), 0);
       }
       setLoading(false);
     });
 
     // Listen for auth changes
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      (_event, session) => {
         setSession(session);
         if (session) {
           localStorage.setItem('userSession', JSON.stringify(session));
-          // Check subscription status when user logs in
-          setTimeout(() => {
-            checkSubscription();
-          }, 1000);
+          // Non-blocking subscription check
+          setTimeout(() => checkSubscription(), 0);
         } else {
           localStorage.removeItem('userSession');
           setSubscription({
@@ -141,13 +156,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       authSubscription.unsubscribe();
     };
   }, []);
-
-  // Check subscription when session changes
-  useEffect(() => {
-    if (session) {
-      checkSubscription();
-    }
-  }, [session]);
 
   const value = {
     session,

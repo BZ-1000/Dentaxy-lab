@@ -1,0 +1,80 @@
+import HistoriaClinica from "@/components/HistoriaClinica";
+import { AnalysisModeProvider } from "@/contexts/AnalysisModeContext";
+import { useEffect, lazy, Suspense } from "react";
+
+// Lazy load heavy components that don't affect core functionality
+const AppleStyleDock = lazy(() => import("@/components/AppleStyleDock").then(module => ({ default: module.AppleStyleDock })));
+const TechBanner = lazy(() => import("@/components/ui/tech-banner"));
+
+function IndexContent() {
+  useEffect(() => {
+    document.title = "DENTAXY.ai";
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white overflow-x-hidden">
+      {/* Lazy load tech banner */}
+      <Suspense fallback={null}>
+        <TechBanner />
+      </Suspense>
+      
+      {/* Simplified hero section - no complex animations */}
+      <div className="min-h-screen relative">        
+        <div className="relative z-10 container mx-auto px-2 sm:px-4 py-8 sm:py-16 bg-slate-50 max-w-full">
+          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-8rem)] text-center">
+            {/* Logo and Brand */}
+            <div className="flex items-center gap-2 sm:gap-3 mb-8 sm:mb-12 mt-4 sm:mt-8">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center p-1">
+                <img 
+                  src="/lovable-uploads/fde8b90b-dc35-4ac3-baf8-f54862d6becb.png" 
+                  alt="Dental tooth icon"
+                  className="w-full h-full object-contain"
+                  loading="eager"
+                />
+              </div>
+              <div className="text-slate-700 font-mplus">
+                <div className="text-sm sm:text-lg font-semibold leading-tight">DENTAL BASICS</div>
+                <div className="text-sm sm:text-lg font-semibold leading-tight">ACADEMY</div>
+              </div>
+            </div>
+
+            {/* Main Title - No animations for instant loading */}
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-slate-800 mb-4 sm:mb-6 px-2">
+              Generador de<br />
+              Historias Clínicas<br />
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">IA</span>
+            </h1>
+            
+            {/* Static text - no typewriter effect */}
+            <div className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-8 sm:mb-12 px-2">
+              Bienvenido a nuestra Historia clínica inteligente
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Form Section - Priority content */}
+      <div className="min-h-screen bg-white py-0">
+        <div className="container mx-auto px-2 sm:px-4 bg-slate-50 max-w-full">
+          <HistoriaClinica />
+        </div>
+      </div>
+
+      {/* Lazy load dock */}
+      <Suspense fallback={null}>
+        <AppleStyleDock />
+      </Suspense>
+      <div className="h-16 sm:h-24" />
+    </div>
+  );
+}
+
+const IndexOptimized = () => {
+  return (
+    <AnalysisModeProvider>
+      <IndexContent />
+    </AnalysisModeProvider>
+  );
+};
+
+export default IndexOptimized;
