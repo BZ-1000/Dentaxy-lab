@@ -4,9 +4,13 @@ import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import TechBanner from "@/components/ui/tech-banner";
 import { AnalysisModeProvider } from "@/contexts/AnalysisModeContext";
+import { useGlobalMetrics } from "@/hooks/useGlobalMetrics";
 import { useEffect, useState } from "react";
 
 function IndexContent() {
+  // Initialize metrics tracking for all visitors
+  useGlobalMetrics();
+  
   useEffect(() => {
     document.title = "DENTAXY.ai";
   }, []);

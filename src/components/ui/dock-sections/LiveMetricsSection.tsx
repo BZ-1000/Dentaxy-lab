@@ -50,7 +50,7 @@ const PulseIndicator = () => (
 );
 
 export const LiveMetricsSection = () => {
-  const { metrics, loading } = useLiveMetrics();
+  const { metrics, loading, lastUpdate } = useLiveMetrics();
 
   const metricsData = [
     {
@@ -131,7 +131,7 @@ export const LiveMetricsSection = () => {
         <div className="mt-3 sm:mt-4 pt-3 border-t border-border/50">
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <PulseIndicator />
-            <span>En vivo • Actualizado ahora</span>
+            <span>En vivo • Actualizado: {new Date(lastUpdate).toLocaleTimeString()}</span>
           </div>
         </div>
       </div>

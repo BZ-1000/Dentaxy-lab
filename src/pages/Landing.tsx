@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza } from '@/types/historiaClinica';
 import { DonationBanner } from '@/components/ui/donation-banner';
+import { useGlobalMetrics } from '@/hooks/useGlobalMetrics';
 
 import { DockWithContent } from '@/components/ui/interactive-dock-content';
 import { StatsContent, CalculatorContent, DemoContent, BenefitsContent } from '@/components/ui/dock-content-sections';
@@ -41,6 +42,9 @@ const menuItems = [{
   href: "/contact"
 }];
 const Landing = () => {
+  // Initialize metrics tracking for all visitors
+  useGlobalMetrics();
+  
   const navigate = useNavigate();
   const {
     createCheckoutSession,

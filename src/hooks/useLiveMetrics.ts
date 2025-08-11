@@ -15,6 +15,7 @@ export const useLiveMetrics = () => {
     donations: 0
   });
   const [loading, setLoading] = useState(true);
+  const [lastUpdate, setLastUpdate] = useState(Date.now());
 
   // Fetch initial metrics
   useEffect(() => {
@@ -59,29 +60,36 @@ export const useLiveMetrics = () => {
 
     fetchMetrics();
 
-    // Set up real-time subscriptions
+    // Refresh metrics every 30 seconds to ensure real-time data
+    const interval = setInterval(fetchMetrics, 30000);
+
+    // Set up real-time subscriptions for immediate updates
     const metricsChannel = supabase
-      .channel('metrics-changes')
+      .channel('live-metrics-updates')
       .on('postgres_changes', {
-        event: 'UPDATE',
+        event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
         schema: 'public',
         table: 'platform_metrics'
       }, (payload) => {
+        console.log('Real-time metrics update:', payload);
         const { metric_name, metric_value } = payload.new as { metric_name: string; metric_value: number };
+        
         setMetrics(prev => ({
           ...prev,
           [metric_name === 'active_users' ? 'activeUsers' : 'copyClicks']: metric_value
         }));
+        setLastUpdate(Date.now());
       })
       .subscribe();
 
     const donationsChannel = supabase
-      .channel('donations-changes')
+      .channel('live-donations-updates')
       .on('postgres_changes', {
         event: 'INSERT',
         schema: 'public',
         table: 'donations'
       }, (payload) => {
+        console.log('Real-time donation update:', payload);
         const newDonation = payload.new as { donor_name: string; created_at: string };
         setMetrics(prev => ({
           ...prev,
@@ -91,14 +99,16 @@ export const useLiveMetrics = () => {
             timestamp: newDonation.created_at
           }
         }));
+        setLastUpdate(Date.now());
       })
       .subscribe();
 
     return () => {
+      clearInterval(interval);
       supabase.removeChannel(metricsChannel);
       supabase.removeChannel(donationsChannel);
     };
   }, []);
 
-  return { metrics, loading };
+  return { metrics, loading, lastUpdate };
 };

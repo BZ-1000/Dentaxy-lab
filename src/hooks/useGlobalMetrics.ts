@@ -11,8 +11,8 @@ export const useGlobalMetrics = () => {
     // Track page visits and interactions
     const trackPageView = async () => {
       try {
-        // You can add additional page view tracking here if needed
-        console.log('Page loaded - metrics tracking initialized');
+        // Track page view (you can add additional page view tracking here if needed)
+        console.log('Page loaded - metrics tracking initialized for:', window.location.href);
       } catch (error) {
         console.error('Error tracking page view:', error);
       }
@@ -20,16 +20,8 @@ export const useGlobalMetrics = () => {
 
     trackPageView();
 
-    // Add global copy click tracking to all copy operations
-    const handleCopyEvent = () => {
-      trackCopyClick();
-    };
-
-    // Listen for copy events globally
-    document.addEventListener('copy', handleCopyEvent);
-
-    return () => {
-      document.removeEventListener('copy', handleCopyEvent);
-    };
+    // Note: Individual copy tracking is handled in specific components
+    // This avoids duplicate tracking since components already import trackCopyClick
+    
   }, []);
 };
