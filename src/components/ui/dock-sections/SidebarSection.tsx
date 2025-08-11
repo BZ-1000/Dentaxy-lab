@@ -6,7 +6,7 @@ import { ResourcesSection } from './ResourcesSection';
 export const SidebarSection = () => {
   return (
     <motion.div 
-      className="w-56 md:w-48 lg:w-56 bg-white border-r border-border/50 flex flex-col h-full"
+      className="w-64 bg-background border-r border-border/50 flex flex-col h-full"
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.5 }}
@@ -14,14 +14,15 @@ export const SidebarSection = () => {
       {/* Header with Logo */}
       <SidebarHeader />
       
-      {/* Content Area */}
-      <div className="flex-1 p-2 md:p-3 space-y-2 md:space-y-3 overflow-hidden">
-        {/* Layout responsivo: vertical en móviles, horizontal en tablets+ */}
-        <div className="flex flex-col lg:flex-col space-y-2 md:space-y-3 lg:space-y-3">
-          {/* Actualizaciones Automáticas */}
+      {/* Content Area - Expandir al máximo */}
+      <div className="flex-1 flex flex-col gap-3 p-3 overflow-hidden">
+        {/* Actualizaciones - Altura fija optimizada */}
+        <div className="flex-1 min-h-0">
           <UpdatesSection />
-          
-          {/* Recursos Educativos */}
+        </div>
+        
+        {/* Recursos Educativos - Altura fija optimizada */}
+        <div className="flex-1 min-h-0">
           <ResourcesSection />
         </div>
       </div>

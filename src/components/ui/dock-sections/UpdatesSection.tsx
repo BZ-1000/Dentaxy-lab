@@ -34,8 +34,8 @@ export const UpdatesSection = () => {
 
   if (error) {
     return (
-      <Card className="shadow-sm bg-white border-border/50">
-        <CardContent className="p-4 text-center">
+      <Card className="h-full flex flex-col bg-gradient-to-br from-card via-card to-card/80 border-border/30 shadow-md">
+        <CardContent className="p-3 text-center flex-1 flex items-center justify-center">
           <p className="text-xs text-muted-foreground">Error al cargar actualizaciones</p>
         </CardContent>
       </Card>
@@ -43,77 +43,77 @@ export const UpdatesSection = () => {
   }
 
   return (
-    <Card className="shadow-sm bg-white border-border/50 w-full">
-      <CardHeader className="pb-1 md:pb-2">
-        <CardTitle className="text-xs md:text-sm font-semibold flex items-center gap-1 md:gap-2 text-foreground">
+    <Card className="h-full flex flex-col bg-gradient-to-br from-card via-card to-card/80 border-border/30 shadow-md">
+      <CardHeader className="pb-2 px-3 pt-3">
+        <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
           <motion.div
-            className="w-3 h-3 md:w-4 md:h-4 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center"
+            className="w-4 h-4 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center"
             animate={{ rotate: 360 }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           >
-            <Sparkles className="w-1.5 h-1.5 md:w-2 md:h-2 text-primary-foreground" />
+            <Sparkles className="w-2 h-2 text-primary-foreground" />
           </motion.div>
           Actualizaciones
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-0 p-2 md:p-3">
+      <CardContent className="flex-1 px-3 pb-3 pt-0">
         {loading ? (
-          <div className="space-y-1 md:space-y-2">
-            {[...Array(3)].map((_, i) => (
+          <div className="space-y-2">
+            {[...Array(4)].map((_, i) => (
               <motion.div
                 key={i}
-                className="h-10 md:h-12 bg-muted/50 rounded-lg"
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.2 }}
+                className="h-14 bg-muted/40 rounded-lg"
+                animate={{ opacity: [0.4, 0.8, 0.4] }}
+                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.15 }}
               />
             ))}
           </div>
         ) : (
-          <ScrollArea className="h-32 md:h-40">
+          <ScrollArea className="h-full">
             <AnimatePresence>
-              <div className="space-y-1 md:space-y-2">
-                {updates.map((update, index) => (
+              <div className="space-y-2 pr-2">
+                {updates.slice(0, 5).map((update, index) => (
                   <motion.div
                     key={update.id}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                    className="group relative"
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                    className="group"
                   >
                     <motion.div
-                      className="p-2 md:p-3 bg-muted/30 rounded-lg border border-border/30 hover:bg-muted/50 transition-all duration-200"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      className="p-2.5 bg-gradient-to-r from-muted/20 to-muted/40 rounded-lg border border-border/20 hover:border-border/40 hover:shadow-sm transition-all duration-200"
+                      whileHover={{ scale: 1.01, y: -1 }}
+                      whileTap={{ scale: 0.99 }}
                     >
-                      <div className="flex items-start gap-1 md:gap-2">
-                        <div className="mt-0.5">
+                      <div className="flex items-start gap-2">
+                        <div className="mt-0.5 flex-shrink-0">
                           {getUpdateIcon(update.version)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h4 className="text-xs font-semibold text-foreground truncate">
+                          <div className="flex items-start justify-between gap-1 mb-1">
+                            <h4 className="text-xs font-medium text-foreground leading-tight line-clamp-1">
                               {update.title}
                             </h4>
                             <Badge 
-                              variant="secondary" 
-                              className="text-xs px-1.5 py-0.5 h-auto bg-muted text-muted-foreground"
+                              variant="outline" 
+                              className="text-xs px-1.5 py-0.5 h-auto bg-background/50 border-border/40 flex-shrink-0"
                             >
                               {update.version}
                             </Badge>
                           </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-2">
                             {update.description}
                           </p>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="text-xs text-muted-foreground font-medium">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground/80 font-medium">
                               {formatReleaseDate(update.release_date)}
                             </span>
                             {isToday(parseISO(update.release_date)) && (
                               <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="w-2 h-2 bg-green-500 rounded-full"
+                                className="w-1.5 h-1.5 bg-emerald-500 rounded-full"
                               />
                             )}
                           </div>

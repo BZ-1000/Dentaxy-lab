@@ -13,15 +13,13 @@ export const EstadisticasContent = () => {
       {!isMobile && <SidebarSection />}
 
       <div className={`flex-1 ${isMobile ? 'p-3 space-y-4' : 'p-4 space-y-4'}`}>
-        {/* Grid principal compacto */}
-        <div className={isMobile ? 'space-y-3' : 'grid grid-cols-1 lg:grid-cols-5 gap-3'}>
+        {/* Grid principal reorganizado */}
+        <div className={isMobile ? 'space-y-3' : 'grid grid-cols-1 lg:grid-cols-4 gap-3'}>
           <div className={isMobile ? 'w-full' : 'lg:col-span-3'}>
             <ProductividadSection />
           </div>
-          <div className={isMobile ? 'w-full' : 'lg:col-span-1'}>
+          <div className={isMobile ? 'w-full space-y-3' : 'lg:col-span-1 space-y-3'}>
             <TechnologyUsageSection />
-          </div>
-          <div className={isMobile ? 'w-full' : 'lg:col-span-1'}>
             <CommunityOpinionSection />
           </div>
         </div>
