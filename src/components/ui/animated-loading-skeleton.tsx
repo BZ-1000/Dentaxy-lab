@@ -83,11 +83,7 @@ const AnimatedLoadingSkeleton = () => {
         controls.start(generateSearchPath(config) as any)
     }, [windowWidth, controls])
 
-    // Variants for frame animations
-    const frameVariants = {
-        hidden: { opacity: 0, scale: 0.95 }, // Initial state (hidden)
-        visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } } // Transition to visible state
-    }
+    // Frame variants removed to render instantly without initial fade
 
     // Variants for individual card animations
     const cardVariants = {
@@ -119,80 +115,78 @@ const AnimatedLoadingSkeleton = () => {
     const config = getGridConfig(windowWidth) // Get current grid configuration
 
     return (
-        <motion.div
-            className="w-full max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg"
-            variants={frameVariants}
-            initial="hidden"
-            animate="visible"
-        >
-            <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 p-8">
-                {/* Search icon with animation */}
-                <motion.div
-                    className="absolute z-10 pointer-events-none"
-                    animate={controls}
-                    style={{ left: 24, top: 24 }}
-                >
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 bg-gradient-to-br from-gray-50 to-gray-100">
+            <div className="w-full max-w-6xl">
+                <div className="relative overflow-hidden rounded-lg bg-white p-8 shadow-lg">
+                    {/* Search icon with animation */}
                     <motion.div
-                        className="bg-blue-500/20 p-3 rounded-full backdrop-blur-sm"
-                        variants={glowVariants}
-                        animate="animate"
+                        className="absolute z-10 pointer-events-none"
+                        animate={controls}
+                        style={{ left: 24, top: 24 }}
                     >
-                        <svg
-                            className="w-6 h-6 text-blue-600"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                            />
-                        </svg>
-                    </motion.div>
-                </motion.div>
-
-                {/* Grid of animated cards */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {[...Array(config.numCards)].map((_, i) => (
                         <motion.div
-                            key={i}
-                            variants={cardVariants}
-                            initial="hidden"
-                            animate="visible"
-                            custom={i} // Index-based animation delay
-                            whileHover={{ scale: 1.02 }} // Slight scale on hover
-                            className="bg-white rounded-lg shadow-sm p-4"
+                            className="bg-blue-500/20 p-3 rounded-full backdrop-blur-sm"
+                            variants={glowVariants}
+                            animate="animate"
                         >
-                            {/* Card placeholders */}
-                            <motion.div
-                                className="h-32 bg-gray-200 rounded-md mb-3"
-                                animate={{
-                                    background: ["#f3f4f6", "#e5e7eb", "#f3f4f6"],
-                                }}
-                                transition={{ duration: 1.5, repeat: Infinity }}
-                            />
-                            <motion.div
-                                className="h-3 w-3/4 bg-gray-200 rounded mb-2"
-                                animate={{
-                                    background: ["#f3f4f6", "#e5e7eb", "#f3f4f6"],
-                                }}
-                                transition={{ duration: 1.5, repeat: Infinity }}
-                            />
-                            <motion.div
-                                className="h-3 w-1/2 bg-gray-200 rounded"
-                                animate={{
-                                    background: ["#f3f4f6", "#e5e7eb", "#f3f4f6"],
-                                }}
-                                transition={{ duration: 1.5, repeat: Infinity }}
-                            />
+                            <svg
+                                className="w-6 h-6 text-blue-600"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                />
+                            </svg>
                         </motion.div>
-                    ))}
+                    </motion.div>
+
+                    {/* Grid of animated cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {[...Array(config.numCards)].map((_, i) => (
+                            <motion.div
+                                key={i}
+                                variants={cardVariants}
+                                initial="hidden"
+                                animate="visible"
+                                custom={i} // Index-based animation delay
+                                whileHover={{ scale: 1.02 }} // Slight scale on hover
+                                className="bg-white rounded-lg shadow-sm p-4"
+                            >
+                                {/* Card placeholders */}
+                                <motion.div
+                                    className="h-32 bg-gray-200 rounded-md mb-3"
+                                    animate={{
+                                        background: ["#f3f4f6", "#e5e7eb", "#f3f4f6"],
+                                    }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                />
+                                <motion.div
+                                    className="h-3 w-3/4 bg-gray-200 rounded mb-2"
+                                    animate={{
+                                        background: ["#f3f4f6", "#e5e7eb", "#f3f4f6"],
+                                    }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                />
+                                <motion.div
+                                    className="h-3 w-1/2 bg-gray-200 rounded"
+                                    animate={{
+                                        background: ["#f3f4f6", "#e5e7eb", "#f3f4f6"],
+                                    }}
+                                    transition={{ duration: 1.5, repeat: Infinity }}
+                                />
+                            </motion.div>
+                        ))}
+                    </div>
                 </div>
             </div>
-        </motion.div>
+        </div>
     )
 }
+
 
 export default AnimatedLoadingSkeleton
