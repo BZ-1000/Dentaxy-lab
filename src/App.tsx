@@ -33,29 +33,24 @@ import DonationSuccess from './pages/DonationSuccess';
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
-  // Always declare hooks before any return to keep hook order stable
-  const [splashActive, setSplashActive] = React.useState<boolean>(Boolean(user));
+  // One-shot splash shown immediately to avoid any white flash
+  const [splashActive, setSplashActive] = React.useState(true);
+  const splashStartedRef = React.useRef(false);
 
   React.useEffect(() => {
-    if (user) {
-      // Show a 5s splash only for authenticated users when entering the app
-      setSplashActive(true);
+    if (!splashStartedRef.current) {
+      splashStartedRef.current = true;
       const t = setTimeout(() => setSplashActive(false), 5000);
       return () => clearTimeout(t);
-    } else {
-      setSplashActive(false);
     }
-  }, [user]);
+  }, []);
 
-  // Instant skeleton while auth state resolves
-  if (loading) return <AnimatedLoadingSkeleton />;
-
-  // If not authenticated, go to login instantly
-  if (!user) {
+  // If not authenticated (and auth finished), redirect instantly
+  if (!loading && !user) {
     return <Navigate to="/auth/login" replace />;
   }
 
-  // Keep splash active for the first 5s after entering
+  // Show skeleton overlay while resolving auth and during splash window
   if (splashActive) return <AnimatedLoadingSkeleton />;
 
   return <div className="animate-fade-in">{children}</div>;
