@@ -3,10 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 
 export const useActiveUsers = () => {
   useEffect(() => {
+    // Generate a unique session ID for this browser tab
+    const sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     const channel = supabase.channel('user-presence', {
       config: {
         presence: {
-          key: 'user_id'
+          key: sessionId
         }
       }
     });
@@ -33,10 +36,12 @@ export const useActiveUsers = () => {
       })
       .subscribe(async (status) => {
         if (status === 'SUBSCRIBED') {
-          // Track this user as active
+          // Track this session as active
           await channel.track({
-            user_id: 'user_' + Math.random().toString(36).substr(2, 9),
-            online_at: new Date().toISOString()
+            session_id: sessionId,
+            online_at: new Date().toISOString(),
+            url: window.location.href,
+            user_agent: navigator.userAgent.substring(0, 100)
           });
         }
       });
