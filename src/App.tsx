@@ -33,7 +33,21 @@ import DonationSuccess from './pages/DonationSuccess';
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
-  // Show skeleton immediately while auth resolves
+  // Always declare hooks before any return to keep hook order stable
+  const [splashActive, setSplashActive] = React.useState<boolean>(Boolean(user));
+
+  React.useEffect(() => {
+    if (user) {
+      // Show a 5s splash only for authenticated users when entering the app
+      setSplashActive(true);
+      const t = setTimeout(() => setSplashActive(false), 5000);
+      return () => clearTimeout(t);
+    } else {
+      setSplashActive(false);
+    }
+  }, [user]);
+
+  // Instant skeleton while auth state resolves
   if (loading) return <AnimatedLoadingSkeleton />;
 
   // If not authenticated, go to login instantly
@@ -41,14 +55,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth/login" replace />;
   }
 
-  // For authenticated users, keep a 5s skeleton to avoid white screens while heavy content mounts
-  const [showSplash, setShowSplash] = React.useState(true);
-  React.useEffect(() => {
-    const t = setTimeout(() => setShowSplash(false), 5000);
-    return () => clearTimeout(t);
-  }, []);
-
-  if (showSplash) return <AnimatedLoadingSkeleton />;
+  // Keep splash active for the first 5s after entering
+  if (splashActive) return <AnimatedLoadingSkeleton />;
 
   return <div className="animate-fade-in">{children}</div>;
 };
