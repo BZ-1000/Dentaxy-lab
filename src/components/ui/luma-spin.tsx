@@ -19,8 +19,8 @@ export const Component: React.FC = () => {
           87.5% { inset: 0 0 35px 0; }
           100% { inset: 0 35px 35px 0; }
         }
-        .animate-loaderAnim { animation: loaderAnim 2.5s infinite; }
-        .animation-delay { animation-delay: -1.25s; }
+        .animate-loaderAnim { animation: loaderAnim 4s infinite ease-in-out; }
+        .animation-delay { animation-delay: -2s; }
       `}</style>
     </div>
   );
