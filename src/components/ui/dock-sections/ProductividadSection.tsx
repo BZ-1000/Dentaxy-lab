@@ -9,7 +9,6 @@ import { useAuth } from '@/contexts/AuthContext';
 
 export const ProductividadSection = () => {
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
   
   // Real data from hooks
   const { user } = useAuth();
@@ -241,14 +240,6 @@ export const ProductividadSection = () => {
 
               {/* Enhanced Chart */}
               <div className="relative">
-                <motion.button
-                  className="absolute -top-2 right-0 text-xs text-slate-500 hover:text-slate-700 transition-colors z-10"
-                  onClick={() => setShowDetails(!showDetails)}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  {showDetails ? 'Ocultar' : 'Detalles'}
-                </motion.button>
                 
                 <div className="h-28 sm:h-32 bg-gradient-to-b from-slate-50/50 to-transparent rounded-2xl p-3 sm:p-4 border border-slate-100/50">
                   <ResponsiveContainer width="100%" height="100%">
@@ -344,32 +335,6 @@ export const ProductividadSection = () => {
                   </ResponsiveContainer>
                 </div>
 
-                <AnimatePresence>
-                  {showDetails && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="mt-3 sm:mt-4 grid grid-cols-7 gap-1 sm:gap-2"
-                    >
-                      {weeklyData.map((day, index) => (
-                        <motion.div
-                          key={index}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="text-center p-1 sm:p-2 bg-gradient-to-b from-white to-slate-50 rounded-lg border border-slate-100/50"
-                        >
-                          <div className="text-xs font-bold text-slate-700">{day.dayName}</div>
-                          <div className="text-sm sm:text-lg font-black bg-gradient-to-r from-slate-700 to-slate-900 bg-clip-text text-transparent">
-                            {day.minutes}
-                          </div>
-                          <div className="text-xs text-slate-500">min</div>
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
             </motion.div>
           ) : (
