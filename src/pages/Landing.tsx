@@ -17,7 +17,6 @@ import { Typewriter } from "@/components/ui/typewriter-text";
 import type { PadecimientoActual, AntecedentesHeredoFamiliares, AntecedentesPersonalesNoPatologicos, AntecedentesAlergicos, AntecedentesHemorragicos, AntecedentesQuirurgicos, ExploracionFisica, ExamenCabeza } from '@/types/historiaClinica';
 import { DonationBanner } from '@/components/ui/donation-banner';
 import { useGlobalMetrics } from '@/hooks/useGlobalMetrics';
-
 import { DockWithContent } from '@/components/ui/interactive-dock-content';
 import { StatsContent, CalculatorContent, DemoContent, BenefitsContent } from '@/components/ui/dock-content-sections';
 import { EstadisticasContent } from '@/components/ui/dock-sections/EstadisticasContent';
@@ -44,7 +43,6 @@ const menuItems = [{
 const Landing = () => {
   // Initialize metrics tracking for all visitors
   useGlobalMetrics();
-  
   const navigate = useNavigate();
   const {
     createCheckoutSession,
@@ -70,8 +68,6 @@ const Landing = () => {
   // Add new state for terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
-
-
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -92,32 +88,26 @@ const Landing = () => {
       setShowPricingPopup(true);
     }
   };
-
-  const dockItems = [
-    { 
-      id: 'estadisticas',
-      icon: BarChart3, 
-      label: "Estadísticas", 
-      content: <EstadisticasContent />
-    },
-    { 
-      id: 'calculator',
-      icon: Calculator, 
-      label: "Calculadora ROI", 
-      content: <CalculatorContent />
-    },
-    { 
-      id: 'demo',
-      icon: Brain, 
-      label: "Demo de IA", 
-      content: <DemoContent />
-    },
-    { 
-      id: 'beta',
-      icon: Zap, 
-      label: "Prueba Beta", 
-      content: (
-        <div className="text-center py-8">
+  const dockItems = [{
+    id: 'estadisticas',
+    icon: BarChart3,
+    label: "Estadísticas",
+    content: <EstadisticasContent />
+  }, {
+    id: 'calculator',
+    icon: Calculator,
+    label: "Calculadora ROI",
+    content: <CalculatorContent />
+  }, {
+    id: 'demo',
+    icon: Brain,
+    label: "Demo de IA",
+    content: <DemoContent />
+  }, {
+    id: 'beta',
+    icon: Zap,
+    label: "Prueba Beta",
+    content: <div className="text-center py-8">
           <h3 className="text-2xl font-bold text-gray-900 mb-4">Acceso Beta</h3>
           <p className="text-gray-600 mb-6">¿Listo para experimentar el futuro de la redacción clínica?</p>
           <Button onClick={handleBetaAccess} className="bg-emerald-500 hover:bg-emerald-600 text-white px-8 py-3 text-lg">
@@ -125,15 +115,12 @@ const Landing = () => {
             Acceder a Beta
           </Button>
         </div>
-      )
-    },
-    { 
-      id: 'benefits',
-      icon: TrendingUp, 
-      label: "Beneficios", 
-      content: <BenefitsContent />
-    }
-  ];
+  }, {
+    id: 'benefits',
+    icon: TrendingUp,
+    label: "Beneficios",
+    content: <BenefitsContent />
+  }];
   useEffect(() => {
     // Load username from localStorage first
     const storedUsername = localStorage.getItem('dentaxy_username');
@@ -492,27 +479,7 @@ const Landing = () => {
                 {item.label}
               </Link>)}
           </div>
-          {showDropdown && <div className="absolute bottom-full mb-2 left-0 right-0 mx-4 py-2 bg-white rounded-xl border border-gray-200 shadow-xl">
-              {session ? <>
-                  <button onClick={handleChangeUsername} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                    Cambiar nombre
-                  </button>
-                  <button onClick={() => setShowPricingPopup(true)} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 flex items-center gap-x-2">
-                    <Crown className="h-4 w-4" />
-                    Cambiar plan
-                  </button>
-                  <button onClick={handleLogout} className="w-full px-4 py-2 text-left text-red-500 hover:bg-gray-100">
-                    Cerrar sesión
-                  </button>
-                </> : <>
-                  <button onClick={handleLogin} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                    Iniciar sesión
-                  </button>
-                  <button onClick={handleRegister} className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
-                    Registrarse
-                  </button>
-                </>}
-            </div>}
+          {showDropdown}
         </div>}
 
       {/* Main Content */}
