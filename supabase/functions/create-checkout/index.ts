@@ -95,6 +95,20 @@ serve(async (req) => {
       }
     };
 
+    // Check for free/beta plans first
+    if (plan_type === "beta" || plan_type === "gratis" || plan_type === "free") {
+      return new Response(
+        JSON.stringify({ 
+          error: "Free plan doesn't require checkout",
+          redirect_url: `${req.headers.get('origin')}/app`
+        }),
+        { 
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200
+        }
+      );
+    }
+
     const config = planConfigs[plan_type as keyof typeof planConfigs];
     if (!config) throw new Error("Invalid plan type");
 

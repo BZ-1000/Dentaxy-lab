@@ -38,6 +38,15 @@ export const useSubscription = () => {
         return null;
       }
 
+      // Handle free plan response
+      if (data.error && data.error.includes("Free plan")) {
+        toast({
+          title: "Acceso concedido",
+          description: "Accediendo a la aplicación...",
+        });
+        return data.redirect_url || '/app';
+      }
+
       return data.url;
     } catch (error) {
       console.error('Error in createCheckoutSession:', error);

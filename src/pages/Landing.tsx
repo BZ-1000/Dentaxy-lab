@@ -81,12 +81,12 @@ const Landing = () => {
     // Clear all form data from localStorage
     localStorage.removeItem('currentFormData');
     localStorage.removeItem('formBackup');
-    if (hasBetaPlan) {
-      // Force a complete app reload to reset all states
-      window.location.href = '/app';
-    } else {
-      setShowPricingPopup(true);
-    }
+    // Clear all form data and navigate to app
+    localStorage.removeItem('currentFormData');
+    localStorage.removeItem('formBackup');
+    
+    // Navigate directly to the app for beta access
+    navigate('/app');
   };
   const dockItems = [{
     id: 'estadisticas',

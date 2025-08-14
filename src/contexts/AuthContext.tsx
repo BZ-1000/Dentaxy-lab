@@ -88,44 +88,94 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
+      // Clear all local storage
       localStorage.removeItem('userSession');
       localStorage.removeItem('dentaxy_username');
+      localStorage.removeItem('currentFormData');
+      localStorage.removeItem('formBackup');
+      
+      // Reset subscription state
+      setSubscription({
+        subscribed: false,
+        subscription_tier: null,
+        subscription_end: null,
+        loading: false,
+      });
+      
       toast({
         title: "Sesión cerrada",
         description: "Has cerrado sesión exitosamente",
       });
     } catch (error) {
       console.error('Error signing out:', error);
+      // Force logout even if there's an error
+      localStorage.clear();
+      setSession(null);
+      setSubscription({
+        subscribed: false,
+        subscription_tier: null,
+        subscription_end: null,
+        loading: false,
+      });
+      
       toast({
-        title: "Error",
-        description: "No se pudo cerrar sesión",
-        variant: "destructive",
+        title: "Sesión cerrada",
+        description: "Tu sesión ha sido cerrada",
       });
     }
   };
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) {
-        localStorage.setItem('userSession', JSON.stringify(session));
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        // Get initial session
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        if (mounted) {
+          setSession(session);
+          if (session) {
+            localStorage.setItem('userSession', JSON.stringify(session));
+          } else {
+            localStorage.removeItem('userSession');
+          }
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error in initializeAuth:', error);
+        if (mounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
-    });
+    };
 
     // Listen for auth changes
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
+        if (!mounted) return;
+        
+        console.log('Auth state changed:', event, session?.user?.email);
+        
         setSession(session);
+        
         if (session) {
           localStorage.setItem('userSession', JSON.stringify(session));
           // Check subscription status when user logs in
-          setTimeout(() => {
-            checkSubscription();
-          }, 1000);
+          if (event === 'SIGNED_IN') {
+            setTimeout(() => {
+              if (mounted) {
+                checkSubscription();
+              }
+            }, 1000);
+          }
         } else {
           localStorage.removeItem('userSession');
+          localStorage.removeItem('dentaxy_username');
           setSubscription({
             subscribed: false,
             subscription_tier: null,
@@ -133,11 +183,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             loading: false,
           });
         }
+        
         setLoading(false);
       }
     );
 
+    // Initialize auth
+    initializeAuth();
+
     return () => {
+      mounted = false;
       authSubscription.unsubscribe();
     };
   }, []);

@@ -22,9 +22,9 @@ export default function AuthCallback() {
         }
         
         if (data?.session) {
-          // The user is authenticated, redirect to landing page
+          // The user is authenticated, redirect to app
           toast.success('¡Autenticación exitosa!');
-          navigate('/'); // Redirect to landing page after login
+          navigate('/app'); // Redirect to app after successful login
           return;
         }
         
@@ -41,7 +41,7 @@ export default function AuthCallback() {
             const { data: sessionData } = await supabase.auth.getSession();
             if (sessionData?.session) {
               toast.success('¡Autenticación exitosa!');
-              navigate('/'); // Redirect to landing page after login
+              navigate('/app'); // Redirect to app after successful login
             } else {
               console.error('No se pudo obtener la sesión después del callback');
               toast.error('Error durante la autenticación');

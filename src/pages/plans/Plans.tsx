@@ -135,8 +135,9 @@ const Plans = () => {
   const { loading, createCheckoutSession } = useSubscription();
 
   const handleSelectPlan = async (planType: string) => {
-    if (planType === "beta") {
-      console.log("Plan Beta seleccionado");
+    if (planType === "beta" || planType === "gratis") {
+      // Beta/Free plan - redirect to app
+      window.location.href = '/app';
       return;
     }
 
