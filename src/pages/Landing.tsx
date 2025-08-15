@@ -68,6 +68,7 @@ const Landing = () => {
   // Add new state for terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
+
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -88,6 +89,22 @@ const Landing = () => {
     // Navigate directly to the app for beta access
     navigate('/app');
   };
+
+  // Add function to handle "Comenzar a rastrear" button
+  const handleStartTracking = () => {
+    if (!session) {
+      toast.info('Inicia sesión para comenzar a rastrear tu productividad');
+      setAuthDialog({
+        isOpen: true,
+        mode: "login"
+      });
+      return;
+    }
+    
+    // If user is logged in, redirect to app
+    navigate('/app');
+  };
+
   const dockItems = [{
     id: 'estadisticas',
     icon: BarChart3,
@@ -497,10 +514,15 @@ const Landing = () => {
             </div>
           </div>
 
-          <div className="mb-8">
-            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 flex items-center gap-2 mx-auto">
+          <div className="mb-8 flex flex-col sm:flex-row gap-4 items-center justify-center">
+            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 flex items-center gap-2">
               PRUEBA BETA
               <ArrowRight className="h-5 w-5 text-white" />
+            </button>
+            
+            <button onClick={handleStartTracking} className="rounded-full px-[20px] py-[8px] text-xl font-bold bg-blue-500 hover:bg-blue-400 text-gray-50 flex items-center gap-2">
+              COMENZAR A RASTREAR
+              <Clock className="h-5 w-5 text-white" />
             </button>
           </div>
 
