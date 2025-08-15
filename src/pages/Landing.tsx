@@ -90,7 +90,7 @@ const Landing = () => {
     navigate('/app');
   };
 
-  // Add function to handle "Comenzar a rastrear" button
+  // Function to handle "Comenzar a rastrear" button
   const handleStartTracking = () => {
     if (!session) {
       toast.info('Inicia sesión para comenzar a rastrear tu productividad');
@@ -109,7 +109,7 @@ const Landing = () => {
     id: 'estadisticas',
     icon: BarChart3,
     label: "Estadísticas",
-    content: <EstadisticasContent />
+    content: <EstadisticasContent onStartTracking={handleStartTracking} />
   }, {
     id: 'calculator',
     icon: Calculator,
@@ -514,15 +514,10 @@ const Landing = () => {
             </div>
           </div>
 
-          <div className="mb-8 flex flex-col sm:flex-row gap-4 items-center justify-center">
-            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 flex items-center gap-2">
+          <div className="mb-8">
+            <button onClick={handleBetaAccess} className="rounded-full px-[20px] py-[8px] hover:bg-slate-1 text-xl font-bold bg-emerald-500 hover:bg-emerald-400 text-gray-50 flex items-center gap-2 mx-auto">
               PRUEBA BETA
               <ArrowRight className="h-5 w-5 text-white" />
-            </button>
-            
-            <button onClick={handleStartTracking} className="rounded-full px-[20px] py-[8px] text-xl font-bold bg-blue-500 hover:bg-blue-400 text-gray-50 flex items-center gap-2">
-              COMENZAR A RASTREAR
-              <Clock className="h-5 w-5 text-white" />
             </button>
           </div>
 
