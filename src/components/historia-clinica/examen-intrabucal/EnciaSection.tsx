@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -13,31 +13,6 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
   onToggleOption,
   colorOptions
 }) => {
-  const [currentSubSection, setCurrentSubSection] = useState(0);
-  const sections = ['Encías generalidades', 'Encía libre', 'Encía adherida', 'Encía interproximal'];
-  const formRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [currentSubSection]);
-
-  const handleNextSection = () => {
-    if (currentSubSection < sections.length - 1) {
-      setCurrentSubSection(currentSubSection + 1);
-    } else {
-      // Lógica para guardar el formulario
-      console.log("Formulario de encías guardado", selectedOptions);
-      alert("Formulario de encías guardado exitosamente.");
-    }
-  };
-
-  const handlePreviousSection = () => {
-    if (currentSubSection > 0) {
-      setCurrentSubSection(currentSubSection - 1);
-    }
-  };
 
   const handleToggleOption = (option: string, category: string) => {
     const isSelected = selectedOptions[category] === option;
@@ -250,38 +225,30 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
     </div>
   );
 
-  const renderSubSection = () => {
-    switch (currentSubSection) {
-      case 0: return renderGeneralidades();
-      case 1: return renderEnciaLibre();
-      case 2: return renderEnciaAdherida();
-      case 3: return renderEnciaInterproximal();
-      default: return null;
-    }
-  };
-
   return (
-    <div className="space-y-4" ref={formRef}>
-      <h2 className="text-xl font-bold">{sections[currentSubSection]}</h2>
-      <div className="border-b-2 border-gray-200 mb-4 pb-4">
-        {renderSubSection()}
+    <div className="space-y-6">
+      {/* --- Sección 1: Encías generalidades --- */}
+      <div>
+        <h3 className="text-lg font-bold border-b pb-2 mb-4">Encías generalidades</h3>
+        {renderGeneralidades()}
       </div>
-      <div className="flex justify-between items-center mt-4">
-        {currentSubSection > 0 && (
-          <Button
-            onClick={handlePreviousSection}
-            variant="outline"
-            className="w-full sm:w-auto"
-          >
-            Anterior
-          </Button>
-        )}
-        <Button
-          onClick={handleNextSection}
-          className={`w-full sm:w-auto ${currentSubSection > 0 ? 'ml-auto' : ''}`}
-        >
-          {currentSubSection < sections.length - 1 ? 'Siguiente' : 'Guardar'}
-        </Button>
+
+      {/* --- Sección 2: Encía libre --- */}
+      <div>
+        <h3 className="text-lg font-bold border-b pb-2 mb-4">Encía libre</h3>
+        {renderEnciaLibre()}
+      </div>
+
+      {/* --- Sección 3: Encía adherida --- */}
+      <div>
+        <h3 className="text-lg font-bold border-b pb-2 mb-4">Encía adherida</h3>
+        {renderEnciaAdherida()}
+      </div>
+
+      {/* --- Sección 4: Encía interproximal --- */}
+      <div>
+        <h3 className="text-lg font-bold border-b pb-2 mb-4">Encía interproximal</h3>
+        {renderEnciaInterproximal()}
       </div>
     </div>
   );
