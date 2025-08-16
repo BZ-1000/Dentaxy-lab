@@ -21,16 +21,7 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('ErrorBoundary caught an error:', error);
-    console.error('Error details:', {
-      message: error.message,
-      stack: error.stack,
-      componentStack: errorInfo.componentStack
-    });
-    
-    // Log to help identify the issue
-    console.error('Error occurred in component:', errorInfo.componentStack);
-    console.error('Full error object:', error);
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
   render(): ReactNode {

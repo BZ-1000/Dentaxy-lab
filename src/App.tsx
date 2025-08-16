@@ -13,7 +13,6 @@ import { Toaster } from './components/ui/sonner';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useGlobalMetrics } from './hooks/useGlobalMetrics';
-import { useSecurityHeaders } from './hooks/useSecurityHeaders';
 import './App.css';
 import AnimatedLoadingSkeleton from '@/components/ui/animated-loading-skeleton';
 
@@ -58,19 +57,9 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <div className="animate-fade-in">{children}</div>;
 };
 
-// Component to initialize global tracking and security
+// Component to initialize global tracking
 const GlobalTracker = () => {
-  try {
-    console.log('GlobalTracker: Initializing global metrics...');
-    useGlobalMetrics(); // Initialize all metrics tracking globally
-    console.log('GlobalTracker: Global metrics initialized');
-    
-    console.log('GlobalTracker: Initializing security headers...');
-    useSecurityHeaders(); // Initialize security measures
-    console.log('GlobalTracker: Security headers initialized');
-  } catch (error) {
-    console.error('GlobalTracker: Error during initialization:', error);
-  }
+  useGlobalMetrics(); // Initialize all metrics tracking globally
   return null;
 };
 

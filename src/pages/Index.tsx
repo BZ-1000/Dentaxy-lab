@@ -4,11 +4,12 @@ import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import TechBanner from "@/components/ui/tech-banner";
 import { AnalysisModeProvider } from "@/contexts/AnalysisModeContext";
-import { useEffect } from "react";
+import { useGlobalMetrics } from "@/hooks/useGlobalMetrics";
+import { useEffect, useState } from "react";
 
 function IndexContent() {
-  // Metrics tracking is already initialized globally in App.tsx
-  // useGlobalMetrics(); // Removed to prevent double initialization
+  // Initialize metrics tracking for all visitors
+  useGlobalMetrics();
   
   useEffect(() => {
     document.title = "DENTAXY.ai";

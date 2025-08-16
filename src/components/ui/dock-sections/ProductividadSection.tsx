@@ -7,11 +7,7 @@ import { TrendingUp, Activity, ArrowRight, Clock, Zap, Target, Award, ChevronUp 
 import { useTimeTracker } from '@/hooks/useTimeTracker';
 import { useAuth } from '@/contexts/AuthContext';
 
-interface ProductividadSectionProps {
-  onStartTracking?: () => void;
-}
-
-export const ProductividadSection = ({ onStartTracking }: ProductividadSectionProps = {}) => {
+export const ProductividadSection = () => {
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
   
   // Real data from hooks
@@ -397,7 +393,7 @@ export const ProductividadSection = ({ onStartTracking }: ProductividadSectionPr
               >
                 <Button 
                   className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white text-sm px-8 py-3 h-auto shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-500 group rounded-2xl font-bold border-0"
-                  onClick={onStartTracking || (() => {})}
+                  onClick={() => console.log('Navigate to register')}
                 >
                   <Clock className="w-4 h-4 mr-3" />
                   Comenzar a Rastrear
