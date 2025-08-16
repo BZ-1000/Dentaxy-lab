@@ -72,7 +72,7 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
           >
             {option}
           </Button>
-          {(option.toLowerCase().includes('otro') || option.toLowerCase().includes('especificar') || option.toLowerCase().includes('localizada')) && selectedOptions[category] === option && (
+          {(option.toLowerCase().includes('otro') || option.toLowerCase().includes('especificar') || option.toLowerCase().includes('localizado')) && selectedOptions[category] === option && (
             <Textarea
               placeholder={option.toLowerCase().includes('especificar') ? "Especifica..." : "Especificar ubicación..."}
               className="mt-1 w-full text-xs h-6"
@@ -144,49 +144,55 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
         {renderOptionButtons(['Firme (normal)', 'Blanda', 'Edematosa', 'Hiperplásica', 'Fibrótica', 'Otro'], 'consistencia-generalidades')}
       </div>
 
-      {/* --- INICIO DE PREGUNTAS AGREGADAS --- */}
-
-      {/* NUEVO: 5. Distribución de los hallazgos */}
+      {/* 5. Distribución de los hallazgos */}
       <div>
         <h4 className="font-semibold text-sm">5. Distribución de los hallazgos:</h4>
         {renderOptionButtons(['Generalizada', 'Localizada (especificar)'], 'distribucion-generalidades')}
       </div>
       
-      {/* NUEVO: 6. Humedad y Exudado */}
+      {/* --- INICIO DE CAMBIOS SOLICITADOS --- */}
+      
+      {/* 6. Humedad (Separado) */}
       <div>
-          <h4 className="font-semibold text-sm">6. Humedad y Exudado:</h4>
-          {renderOptionButtons(['Húmeda (normal)', 'Seca', 'Exudado purulento', 'Exudado seroso', 'Otro'], 'humedad-generalidades')}
+          <h4 className="font-semibold text-sm">6. Humedad:</h4>
+          {renderOptionButtons(['Normal/bien humectada', 'Disminuida', 'Seca/Xerostómica'], 'humedad-generalidades')}
       </div>
 
-      {/* NUEVO: 7. Sangrado al Sondaje (BOP) */}
+      {/* 7. Presencia de Exudado (Separado) */}
       <div>
-          <h4 className="font-semibold text-sm">7. Sangrado al Sondaje (BOP):</h4>
-          {renderOptionButtons(['Positivo Generalizado', 'Positivo Localizado', 'Negativo'], 'sondaje-generalidades')}
+          <h4 className="font-semibold text-sm">7. Presencia de Exudado:</h4>
+          {renderOptionButtons(['Ausente', 'Purulento', 'Seroso', 'Otro'], 'exudado-generalidades')}
       </div>
 
-      {/* NUEVO: 8. Pigmentación Adicional */}
+      {/* 8. Sangrado al Sondaje (BOP) (con Textarea en localizado) */}
       <div>
-        <h4 className="font-semibold text-sm">8. Pigmentación Adicional:</h4>
+          <h4 className="font-semibold text-sm">8. Sangrado al Sondaje (BOP):</h4>
+          {renderOptionButtons(['Positivo Generalizado', 'Positivo Localizado (especificar)', 'Negativo'], 'sondaje-generalidades')}
+      </div>
+      
+      {/* --- FIN DE CAMBIOS SOLICITADOS --- */}
+
+      {/* 9. Pigmentación Adicional (renumerada) */}
+      <div>
+        <h4 className="font-semibold text-sm">9. Pigmentación Adicional:</h4>
         {renderOptionButtons(['Ausente', 'Fisiológica (melánica)', 'Patológica (especificar)'], 'pigmentacion-generalidades')}
       </div>
       
-      {/* --- FIN DE PREGUNTAS AGREGADAS --- */}
-      
-      {/* 9. Presencia de sangrado espontáneo (pregunta actualizada y renumerada) */}
+      {/* 10. Presencia de sangrado espontáneo (renumerada) */}
       <div>
-        <h4 className="font-semibold text-sm">9. ¿Se observa sangrado espontáneo, al cepillado o masticación?</h4>
+        <h4 className="font-semibold text-sm">10. ¿Se observa sangrado espontáneo, al cepillado o masticación?</h4>
         {renderOptionButtons(['Sí, espontáneo', 'Sí, al cepillado', 'Sí, al masticar', 'No'], 'sangrado-generalidades')}
       </div>
 
-      {/* 10. Dolor o sensibilidad (renumerada) */}
+      {/* 11. Dolor o sensibilidad (renumerada) */}
       <div>
-        <h4 className="font-semibold text-sm">10. Dolor o sensibilidad:</h4>
+        <h4 className="font-semibold text-sm">11. Dolor o sensibilidad:</h4>
         {renderOptionButtons(['Sí', 'No'], 'dolor-generalidades')}
       </div>
       
-      {/* 11. Presencia de lesiones (con pop-up) (renumerada) */}
+      {/* 12. Presencia de lesiones (con pop-up) (renumerada) */}
       <div>
-        <h4 className="font-semibold text-sm">11. Presencia de lesiones:</h4>
+        <h4 className="font-semibold text-sm">12. Presencia de lesiones:</h4>
         <div className="flex flex-wrap gap-1">
           {Object.keys(lesionDescriptions).map((lesionName) => (
              <Button
@@ -207,15 +213,15 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
         </div>
       </div>
 
-      {/* 12. Condición visual alrededor de restauraciones (renumerada) */}
+      {/* 13. Condición visual alrededor de restauraciones (renumerada) */}
       <div>
-        <h4 className="font-semibold text-sm">12. Condición visual alrededor de restauraciones:</h4>
+        <h4 className="font-semibold text-sm">13. Condición visual alrededor de restauraciones:</h4>
         {renderOptionButtons(['Normal', 'Inflamación marginal', 'Recesión gingival', 'Sangrado al sondeo', 'Hiperplasia'], 'restauraciones-generalidades')}
       </div>
 
-      {/* 13. Otros hallazgos clínicos (renumerada) */}
+      {/* 14. Otros hallazgos clínicos (renumerada) */}
       <div>
-        <h4 className="font-semibold text-sm">13. Otros hallazgos clínicos:</h4>
+        <h4 className="font-semibold text-sm">14. Otros hallazgos clínicos:</h4>
         <Textarea placeholder="Describe cualquier otro hallazgo relevante..." className="mt-1 w-full text-xs" />
       </div>
     </div>
