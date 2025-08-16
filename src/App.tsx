@@ -60,8 +60,17 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 // Component to initialize global tracking and security
 const GlobalTracker = () => {
-  useGlobalMetrics(); // Initialize all metrics tracking globally
-  useSecurityHeaders(); // Initialize security measures
+  try {
+    console.log('GlobalTracker: Initializing global metrics...');
+    useGlobalMetrics(); // Initialize all metrics tracking globally
+    console.log('GlobalTracker: Global metrics initialized');
+    
+    console.log('GlobalTracker: Initializing security headers...');
+    useSecurityHeaders(); // Initialize security measures
+    console.log('GlobalTracker: Security headers initialized');
+  } catch (error) {
+    console.error('GlobalTracker: Error during initialization:', error);
+  }
   return null;
 };
 

@@ -3,9 +3,18 @@ import { useEffect } from 'react';
 // Hook to enhance client-side security
 export const useSecurityHeaders = () => {
   useEffect(() => {
-    // Prevent clickjacking
-    if (window.self !== window.top) {
-      window.top!.location.href = window.self.location.href;
+    // Prevent clickjacking - but only in production and with safety checks
+    try {
+      if (process.env.NODE_ENV === 'production' && window.self !== window.top) {
+        // Add a small delay to ensure proper initialization
+        setTimeout(() => {
+          if (window.top && window.self) {
+            window.top.location.href = window.self.location.href;
+          }
+        }, 100);
+      }
+    } catch (error) {
+      console.warn('Security header initialization error:', error);
     }
 
     // Add security event listeners

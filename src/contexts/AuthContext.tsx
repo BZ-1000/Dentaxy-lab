@@ -34,6 +34,8 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
+  console.log('AuthProvider: Initializing...');
+  
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const [subscription, setSubscription] = useState<SubscriptionData>({
@@ -42,6 +44,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     subscription_end: null,
     loading: false,
   });
+  
+  console.log('AuthProvider: State initialized');
+  
   const { toast } = useToast();
 
   const checkSubscription = async () => {
