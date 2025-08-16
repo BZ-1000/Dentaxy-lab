@@ -5,11 +5,7 @@ import { SidebarSection } from './SidebarSection';
 import { TechnologyUsageSection } from './TechnologyUsageSection';
 import { CommunityOpinionSection } from './CommunityOpinionSection';
 
-interface EstadisticasContentProps {
-  onStartTracking?: () => void;
-}
-
-export const EstadisticasContent = ({ onStartTracking }: EstadisticasContentProps = {}) => {
+export const EstadisticasContent = () => {
   const isMobile = useIsMobile();
 
   return (
@@ -20,7 +16,7 @@ export const EstadisticasContent = ({ onStartTracking }: EstadisticasContentProp
         {/* Grid principal reorganizado */}
         <div className={isMobile ? 'space-y-3' : 'grid grid-cols-1 lg:grid-cols-4 gap-3'}>
           <div className={isMobile ? 'w-full' : 'lg:col-span-3'}>
-            <ProductividadSection onStartTracking={onStartTracking} />
+            <ProductividadSection />
           </div>
           <div className={isMobile ? 'w-full space-y-3' : 'lg:col-span-1 space-y-3'}>
             <TechnologyUsageSection />
