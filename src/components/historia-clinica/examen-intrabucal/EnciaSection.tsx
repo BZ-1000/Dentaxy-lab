@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Eye, EyeOff, X } from "lucide-react";
 
-// --- Diccionario de Lesiones ---
+// --- Diccionario de Lesiones (Datos) ---
 const lesionDescriptions = {
   'Aftas/úlceras': 'Se observan como lesiones redondas u ovaladas, de tamaño variable, con un centro blanquecino o amarillento y un borde o halo rojo bien definido. Son dolorosas al tacto y pueden aparecer en la encía no adherida (mucosa).',
   'Gingivitis ulceronecrotizante': 'Presenta un aspecto de "encía en sacabocados", con necrosis y ulceración de las papilas interdentales. Se cubre con una pseudomembrana grisácea o amarillenta que al retirarse deja una superficie sangrante y muy dolorosa. Se acompaña de un fuerte mal aliento (halitosis).',
@@ -15,7 +15,7 @@ const lesionDescriptions = {
   'Leucoplasia': 'Es una placa o mancha blanca que no se desprende al rasparla. Puede tener una superficie lisa, arrugada o fisurada. Se adhiere firmemente a la encía y es fundamental diferenciarla de otras lesiones blancas que sí se desprenden.',
 };
 
-// --- Componente Pop-up ---
+// --- Componente Pop-up para el Diccionario ---
 const LesionPopup = ({ lesion, onClose }) => (
   <div 
     className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
@@ -36,7 +36,6 @@ const LesionPopup = ({ lesion, onClose }) => (
     </div>
   </div>
 );
-
 
 interface EnciaSectionProps {
   selectedOptions: {[key: string]: string};
@@ -89,7 +88,42 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
       {/* 1. Color observado */}
       <div>
         <h4 className="font-semibold text-sm">1. Color observado:</h4>
-        {/* ... (código de color sin cambios) ... */}
+        <div className="space-y-1 mt-2">
+          {colorOptions.map((option, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <div
+                style={{
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  backgroundColor: option.color,
+                  border: '1px solid #000'
+                }}
+              />
+              <Button
+                variant={selectedOptions['color-generalidades'] === option.label ? "default" : "outline"}
+                size="xs"
+                onClick={() => handleToggleOption(option.label, 'color-generalidades')}
+                className="px-2 py-1 text-xs rounded-lg"
+              >
+                {option.label}
+              </Button>
+            </div>
+          ))}
+          <div className="flex flex-col mt-1">
+            <Button
+              variant={selectedOptions['color-generalidades'] === "Otro color (especificar)" ? "default" : "outline"}
+              size="xs"
+              onClick={() => handleToggleOption("Otro color (especificar)", 'color-generalidades')}
+              className="px-2 py-1 text-xs rounded-lg"
+            >
+              Otro color (especificar)
+            </Button>
+            {selectedOptions['color-generalidades'] === "Otro color (especificar)" && (
+              <Textarea placeholder="Especifica el color..." className="mt-1 w-full text-xs h-6" />
+            )}
+          </div>
+        </div>
       </div>
        {/* 2. Textura de la superficie */}
       <div>
@@ -187,9 +221,33 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
   );
 
   const renderEnciaAdherida = () => (
-    // ... Sin cambios en las preguntas de esta sección, solo se mantiene el "Otros hallazgos"
     <div className="space-y-4">
-      {/* ... preguntas 1 a 5 ... */}
+      {/* 1. ¿Cuál es el ancho de la banda de encía adherida? */}
+      <div>
+        <h4 className="font-semibold text-sm">1. ¿Cuál es el ancho de la banda de encía adherida?</h4>
+        {renderOptionButtons(['Adecuado (>2mm)', 'Reducido (1-2mm)', 'Muy reducido (<1mm)', 'Ausente'], 'ancho-adherida')}
+      </div>
+      {/* 2. ¿Se observa punteado en cáscara de naranja? */}
+      <div>
+        <h4 className="font-semibold text-sm">2. ¿Se observa punteado en cáscara de naranja?</h4>
+        {renderOptionButtons(['Presente y normal', 'Ausente', 'Alterado'], 'punteado-adherida')}
+      </div>
+      {/* 3. ¿Hay firme adherencia al hueso subyacente? */}
+      <div>
+        <h4 className="font-semibold text-sm">3. ¿Hay firme adherencia al hueso subyacente?</h4>
+        {renderOptionButtons(['Sí, firme', 'Parcialmente adherida', 'Poco adherida'], 'adherencia-adherida')}
+      </div>
+      {/* 4. ¿Se observa la línea mucogingival claramente definida? */}
+      <div>
+        <h4 className="font-semibold text-sm">4. ¿Se observa la línea mucogingival claramente definida?</h4>
+        {renderOptionButtons(['Sí, bien definida', 'Parcialmente definida', 'No definida'], 'linea-adherida')}
+      </div>
+      {/* 5. ¿Hay presencia de frenillos que comprometan la encía adherida? */}
+      <div>
+        <h4 className="font-semibold text-sm">5. ¿Hay presencia de frenillos que comprometan la encía adherida?</h4>
+        {renderOptionButtons(['Sí, compromete', 'Presente pero no compromete', 'Ausente'], 'frenillos-adherida')}
+      </div>
+      {/* 6. Otros hallazgos clínicos */}
       <div>
         <h4 className="font-semibold text-sm">6. Otros hallazgos clínicos:</h4>
         <Textarea placeholder="Describe cualquier otro hallazgo relevante..." className="mt-1 w-full text-xs" />
@@ -198,9 +256,33 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
   );
 
   const renderEnciaInterproximal = () => (
-     // ... Sin cambios en las preguntas de esta sección, solo se mantiene el "Otros hallazgos"
-     <div className="space-y-4">
-      {/* ... preguntas 1 a 5 ... */}
+    <div className="space-y-4">
+      {/* 1. ¿Las papilas gingivales llenan completamente los espacios interproximales? */}
+      <div>
+        <h4 className="font-semibold text-sm">1. ¿Las papilas gingivales llenan completamente los espacios interproximales?</h4>
+        {renderOptionButtons(['Sí, completamente', 'Parcialmente', 'No, hay espacios vacíos'], 'papilas-interproximal')}
+      </div>
+      {/* 2. ¿Hay sangrado al sondeo en áreas interproximales? */}
+      <div>
+        <h4 className="font-semibold text-sm">2. ¿Hay sangrado al sondeo en áreas interproximales?</h4>
+        {renderOptionButtons(['Sí, generalizado', 'Sí, localizado', 'No'], 'sangrado-interproximal')}
+      </div>
+      {/* 3. ¿Se observa acumulación de placa en espacios interproximales? */}
+      <div>
+        <h4 className="font-semibold text-sm">3. ¿Se observa acumulación de placa en espacios interproximales?</h4>
+        {renderOptionButtons(['Abundante', 'Moderada', 'Escasa', 'Ausente'], 'placa-interproximal')}
+      </div>
+      {/* 4. ¿Hay presencia de cálculo dental interproximal? */}
+      <div>
+        <h4 className="font-semibold text-sm">4. ¿Hay presencia de cálculo dental interproximal?</h4>
+        {renderOptionButtons(['Abundante', 'Moderado', 'Escaso', 'Ausente'], 'calculo-interproximal')}
+      </div>
+      {/* 5. ¿Se observa pérdida de inserción en áreas interproximales? */}
+      <div>
+        <h4 className="font-semibold text-sm">5. ¿Se observa pérdida de inserción en áreas interproximales?</h4>
+        {renderOptionButtons(['Sí, severa', 'Sí, moderada', 'Sí, leve', 'No'], 'insercion-interproximal')}
+      </div>
+      {/* 6. Otros hallazgos clínicos */}
       <div>
         <h4 className="font-semibold text-sm">6. Otros hallazgos clínicos:</h4>
         <Textarea placeholder="Describe cualquier otro hallazgo relevante..." className="mt-1 w-full text-xs" />
@@ -214,7 +296,34 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
         className="bg-blue-50 dark:bg-blue-900/20 p-2 sm:p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
         onClick={handleEnciasNormalesChange}
       >
-        {/* ... (código del Switch sin cambios) ... */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+            <Label className="text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
+              Redacción de encías normal
+              {enciasNormales ? (
+                <span className="ml-1 sm:ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-1 sm:px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <EyeOff className="h-3 w-3" />
+                  <span className="hidden sm:inline">Secciones ocultas</span>
+                  <span className="sm:hidden">Ocultas</span>
+                </span>
+              ) : (
+                <span className="ml-1 sm:ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-1 sm:px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <Eye className="h-3 w-3" />
+                  <span className="hidden sm:inline">Secciones visibles</span>
+                  <span className="sm:hidden">Visibles</span>
+                </span>
+              )}
+            </Label>
+          </div>
+          <Switch
+            id="sin-patologia"
+            checked={enciasNormales}
+            onCheckedChange={handleEnciasNormalesChange}
+            className="data-[state=checked]:bg-blue-500 scale-75 sm:scale-100"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       </div>
 
       {!enciasNormales && (
@@ -245,6 +354,7 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
         </div>
       )}
       
+      {/* El componente Pop-up se renderiza aquí cuando está activo */}
       {activeLesion && <LesionPopup lesion={activeLesion} onClose={() => setActiveLesion(null)} />}
     </div>
   );
