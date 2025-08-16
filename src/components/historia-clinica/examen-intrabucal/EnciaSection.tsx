@@ -3,48 +3,39 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { AlertCircle, Eye, EyeOff } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { AlertCircle, Eye, EyeOff, X } from "lucide-react";
 
-// --- Diccionario de Lesiones (Datos con JSX y palabras subrayadas) ---
+// --- Diccionario de Lesiones (Datos) ---
 const lesionDescriptions = {
-  'Aftas/úlceras': (
-    <>
-      Se observan como <u>lesiones redondas u ovaladas</u>, de tamaño variable, con un <u>centro blanquecino o amarillento</u> y un <u>borde o halo rojo bien definido</u>. Son <u>dolorosas al tacto</u> y pueden aparecer en la encía no adherida (mucosa).
-    </>
-  ),
-  'Gingivitis ulceronecrotizante': (
-    <>
-      Presenta un aspecto de <u>"encía en sacabocados"</u>, con <u>necrosis y ulceración de las papilas interdentales</u>. Se cubre con una <u>pseudomembrana grisácea o amarillenta</u> que al retirarse deja una superficie sangrante y muy dolorosa. Se acompaña de un <u>fuerte mal aliento (halitosis)</u>.
-    </>
-  ),
-  'Hiperplasia gingival': (
-    <>
-      Es un <u>agrandamiento o sobrecrecimiento</u> del tejido gingival. La encía se ve <u>más abultada de lo normal</u>, pudiendo cubrir parcial o totalmente las coronas de los dientes. Puede ser de consistencia <u>firme y color pálido (fibrótica)</u> o <u>blanda, roja y con tendencia al sangrado (inflamatoria)</u>.
-    </>
-  ),
-  'Quistes gingivales': (
-    <>
-      Aparecen como <u>pequeñas protuberancias o vesículas</u> en la encía, generalmente en la zona de la encía adherida. Suelen ser del mismo color de la encía o <u>ligeramente azulados</u>, de <u>consistencia blanda</u> y generalmente no son dolorosos.
-    </>
-  ),
-  'Épulis/granuloma piógeno': (
-    <>
-      Se manifiesta como una <u>masa de tejido de color rojo intenso o violáceo</u>, de superficie lisa o lobulada que <u>sangra con extrema facilidad</u> al mínimo contacto. Suele tener una base de implantación (pediculada o sésil) y <u>crece rápidamente</u>.
-    </>
-  ),
-  'Leucoplasia': (
-    <>
-      Es una <u>placa o mancha blanca que no se desprende al rasparla</u>. Puede tener una superficie lisa, arrugada o fisurada. Se <u>adhiere firmemente</u> a la encía y es fundamental diferenciarla de otras lesiones blancas que sí se desprenden.
-    </>
-  ),
+  'Aftas/úlceras': 'Se observan como lesiones redondas u ovaladas, de tamaño variable, con un centro blanquecino o amarillento y un borde o halo rojo bien definido. Son dolorosas al tacto y pueden aparecer en la encía no adherida (mucosa).',
+  'Gingivitis ulceronecrotizante': 'Presenta un aspecto de "encía en sacabocados", con necrosis y ulceración de las papilas interdentales. Se cubre con una pseudomembrana grisácea o amarillenta que al retirarse deja una superficie sangrante y muy dolorosa. Se acompaña de un fuerte mal aliento (halitosis).',
+  'Hiperplasia gingival': 'Es un agrandamiento o sobrecrecimiento del tejido gingival. La encía se ve más abultada de lo normal, pudiendo cubrir parcial o totalmente las coronas de los dientes. Puede ser de consistencia firme y color pálido (fibrótica) o blanda, roja y con tendencia al sangrado (inflamatoria).',
+  'Quistes gingivales': 'Aparecen como pequeñas protuberancias o vesículas en la encía, generalmente en la zona de la encía adherida. Suelen ser del mismo color de la encía o ligeramente azulados, de consistencia blanda y generalmente no son dolorosos.',
+  'Épulis/granuloma piógeno': 'Se manifiesta como una masa de tejido de color rojo intenso o violáceo, de superficie lisa o lobulada que sangra con extrema facilidad al mínimo contacto. Suele tener una base de implantación (pediculada o sésil) y crece rápidamente.',
+  'Leucoplasia': 'Es una placa o mancha blanca que no se desprende al rasparla. Puede tener una superficie lisa, arrugada o fisurada. Se adhiere firmemente a la encía y es fundamental diferenciarla de otras lesiones blancas que sí se desprenden.',
 };
 
-// --- El componente LesionPopup ya no es necesario y ha sido eliminado ---
+// --- Componente Pop-up para el Diccionario ---
+const LesionPopup = ({ lesion, onClose }) => (
+  <div 
+    className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+    onClick={onClose}
+  >
+    <div 
+      className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl max-w-md w-full relative transform transition-all"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{lesion.title}</h3>
+      <p className="text-sm text-gray-600 dark:text-gray-300">{lesion.description}</p>
+      <button 
+        onClick={onClose}
+        className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+      >
+        <X size={20} />
+      </button>
+    </div>
+  </div>
+);
 
 interface EnciaSectionProps {
   selectedOptions: {[key: string]: string};
@@ -58,8 +49,7 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
   colorOptions
 }) => {
   const [enciasNormales, setEnciasNormales] = useState(false);
-  // El estado activeLesion ya no es necesario
-  // const [activeLesion, setActiveLesion] = useState(null);
+  const [activeLesion, setActiveLesion] = useState(null);
 
   const handleEnciasNormalesChange = () => {
     setEnciasNormales(prevState => !prevState);
@@ -95,9 +85,8 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
 
   const renderGeneralidades = () => (
     <div className="space-y-4">
-      {/* ... (Preguntas 1 a 6 sin cambios) ... */}
-       {/* 1. Color observado */}
-       <div>
+      {/* 1. Color observado */}
+      <div>
         <h4 className="font-semibold text-sm">1. Color observado:</h4>
         <div className="space-y-1 mt-2">
           {colorOptions.map((option, index) => (
@@ -136,17 +125,17 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
           </div>
         </div>
       </div>
-      {/* 2. Textura de la superficie */}
+       {/* 2. Textura de la superficie */}
       <div>
         <h4 className="font-semibold text-sm">2. Textura de la superficie:</h4>
         {renderOptionButtons(['Lisa', 'Punteada (piel de naranja)', 'Rugosa', 'Granular', 'Ulcerada', 'Fibrosa', 'Otro'], 'textura-generalidades')}
       </div>
-        {/* 3. Contorno o forma observada */}
+       {/* 3. Contorno o forma observada */}
       <div>
         <h4 className="font-semibold text-sm">3. Contorno o forma observada:</h4>
         {renderOptionButtons(['Festoneado (normal)', 'Aumentado de volumen', 'Recesión gingival', 'Engrosamiento marginal', 'Pseudobolsas', 'Otro'], 'contorno-generalidades')}
       </div>
-        {/* 4. Consistencia al tacto */}
+       {/* 4. Consistencia al tacto */}
       <div>
         <h4 className="font-semibold text-sm">4. Consistencia al tacto:</h4>
         {renderOptionButtons(['Firme (normal)', 'Blanda', 'Edematosa', 'Hiperplásica', 'Fibrótica', 'Otro'], 'consistencia-generalidades')}
@@ -158,39 +147,29 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
         {renderOptionButtons(['Sí', 'No', 'Solo al cepillado', 'Solo al masticar'], 'sangrado-generalidades')}
       </div>
 
-        {/* 6. Dolor o sensibilidad */}
+       {/* 6. Dolor o sensibilidad */}
       <div>
         <h4 className="font-semibold text-sm">6. Dolor o sensibilidad:</h4>
         {renderOptionButtons(['Sí', 'No'], 'dolor-generalidades')}
       </div>
       
-      {/* 7. Presencia de lesiones (con popover) */}
+       {/* 7. Presencia de lesiones (con pop-up) */}
       <div>
         <h4 className="font-semibold text-sm">7. Presencia de lesiones:</h4>
         <div className="flex flex-wrap gap-1">
           {Object.keys(lesionDescriptions).map((lesionName) => (
-             <Popover key={lesionName}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={selectedOptions['lesiones-generalidades'] === lesionName ? "default" : "outline"}
-                    size="xs"
-                    onClick={() => handleToggleOption(lesionName, 'lesiones-generalidades')}
-                    className="px-2 py-1 text-xs rounded-lg"
-                  >
-                    {lesionName}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 z-20" side="top" align="center">
-                  <div className="grid gap-4">
-                    <div className="space-y-2">
-                      <h4 className="font-medium leading-none">{lesionName}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {lesionDescriptions[lesionName]}
-                      </p>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
+             <Button
+                key={lesionName}
+                variant={selectedOptions['lesiones-generalidades'] === lesionName ? "default" : "outline"}
+                size="xs"
+                onClick={() => {
+                  handleToggleOption(lesionName, 'lesiones-generalidades');
+                  setActiveLesion({ title: lesionName, description: lesionDescriptions[lesionName] });
+                }}
+                className="px-2 py-1 text-xs rounded-lg"
+              >
+                {lesionName}
+              </Button>
           ))}
           {/* Botón para "Otras Lesiones" que usa la lógica del textarea */}
           {renderOptionButtons(['Otras lesiones (especificar)'], 'lesiones-generalidades')}
@@ -211,7 +190,6 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
     </div>
   );
 
-  // ... (renderEnciaLibre, renderEnciaAdherida, renderEnciaInterproximal no tienen cambios) ...
   const renderEnciaLibre = () => (
     <div className="space-y-4">
       {/* 1. ¿Hay inflamación del margen gingival? (Ahora es la 1) */}
@@ -312,7 +290,6 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
     </div>
   );
 
-
   return (
     <div className="space-y-4">
       <div
@@ -377,7 +354,8 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
         </div>
       )}
       
-      {/* La renderización del pop-up aquí ya no es necesaria */}
+      {/* El componente Pop-up se renderiza aquí cuando está activo */}
+      {activeLesion && <LesionPopup lesion={activeLesion} onClose={() => setActiveLesion(null)} />}
     </div>
   );
 };
