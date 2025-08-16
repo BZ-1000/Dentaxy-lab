@@ -13,6 +13,7 @@ import { Toaster } from './components/ui/sonner';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useGlobalMetrics } from './hooks/useGlobalMetrics';
+import { useSecurityHeaders } from './hooks/useSecurityHeaders';
 import './App.css';
 import AnimatedLoadingSkeleton from '@/components/ui/animated-loading-skeleton';
 
@@ -57,9 +58,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <div className="animate-fade-in">{children}</div>;
 };
 
-// Component to initialize global tracking
+// Component to initialize global tracking and security
 const GlobalTracker = () => {
   useGlobalMetrics(); // Initialize all metrics tracking globally
+  useSecurityHeaders(); // Initialize security measures
   return null;
 };
 

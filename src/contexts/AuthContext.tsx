@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useSessionSecurity } from '@/hooks/useSessionSecurity';
 
 interface SubscriptionData {
   subscribed: boolean;
@@ -43,6 +44,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     loading: false,
   });
   const { toast } = useToast();
+  
+  // Initialize session security monitoring
+  useSessionSecurity();
 
   const checkSubscription = async () => {
     if (!session) return;
