@@ -2,7 +2,6 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useSessionSecurity } from '@/hooks/useSessionSecurity';
 
 interface SubscriptionData {
   subscribed: boolean;
@@ -44,9 +43,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     loading: false,
   });
   const { toast } = useToast();
-  
-  // Initialize session security monitoring
-  useSessionSecurity();
 
   const checkSubscription = async () => {
     if (!session) return;
@@ -128,6 +124,71 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
     }
   };
+
+  // Session security implementation directly in AuthProvider
+  useEffect(() => {
+    if (!session) return;
+
+    // Session timeout (24 hours)
+    const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    
+    // Check session age
+    const sessionStart = new Date(session.user.created_at || session.user.email_confirmed_at || Date.now());
+    const sessionAge = Date.now() - sessionStart.getTime();
+    
+    if (sessionAge > SESSION_TIMEOUT) {
+      console.warn('Session expired due to age');
+      signOut();
+      return;
+    }
+
+    // Set up activity monitoring
+    let lastActivity = Date.now();
+    const INACTIVITY_TIMEOUT = 2 * 60 * 60 * 1000; // 2 hours
+
+    const updateActivity = () => {
+      lastActivity = Date.now();
+    };
+
+    const checkInactivity = () => {
+      const inactiveTime = Date.now() - lastActivity;
+      if (inactiveTime > INACTIVITY_TIMEOUT) {
+        console.warn('Session expired due to inactivity');
+        signOut();
+      }
+    };
+
+    // Track user activity
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    events.forEach(event => {
+      document.addEventListener(event, updateActivity, true);
+    });
+
+    // Check inactivity every 5 minutes
+    const inactivityCheck = setInterval(checkInactivity, 5 * 60 * 1000);
+
+    // Session validation every 10 minutes
+    const sessionValidation = setInterval(async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        if (error || !currentSession) {
+          console.warn('Session validation failed');
+          signOut();
+        }
+      } catch (error) {
+        console.error('Session validation error:', error);
+        signOut();
+      }
+    }, 10 * 60 * 1000);
+
+    return () => {
+      events.forEach(event => {
+        document.removeEventListener(event, updateActivity, true);
+      });
+      clearInterval(inactivityCheck);
+      clearInterval(sessionValidation);
+    };
+  }, [session]);
 
   useEffect(() => {
     let mounted = true;
