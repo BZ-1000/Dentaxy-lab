@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { AlertCircle, Eye, EyeOff } from "lucide-react";
 
 interface EnciaSectionProps {
   selectedOptions: {[key: string]: string};
@@ -13,6 +16,11 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
   onToggleOption,
   colorOptions
 }) => {
+  const [enciasNormales, setEnciasNormales] = useState(false);
+
+  const handleEnciasNormalesChange = () => {
+    setEnciasNormales(prevState => !prevState);
+  };
 
   const handleToggleOption = (option: string, category: string) => {
     const isSelected = selectedOptions[category] === option;
@@ -31,7 +39,7 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
           >
             {option}
           </Button>
-          {(option.includes('Otro') || option.includes('especificar') || option.includes('localizado')) && selectedOptions[category] === option && (
+          {(option.includes('Otro') || option.includes('especificar') || option.toLowerCase().includes('localizado')) && selectedOptions[category] === option && (
             <Textarea
               placeholder={option.includes('especificar') ? "Especifica..." : "Especificar ubicación..."}
               className="mt-1 w-full text-xs h-6"
@@ -84,50 +92,43 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
           </div>
         </div>
       </div>
-
-      {/* 2. Textura de la superficie */}
+      {/* ... (resto de preguntas de generalidades sin cambios) ... */}
+       {/* 2. Textura de la superficie */}
       <div>
         <h4 className="font-semibold text-sm">2. Textura de la superficie:</h4>
         {renderOptionButtons(['Lisa', 'Punteada (piel de naranja)', 'Rugosa', 'Granular', 'Ulcerada', 'Fibrosa', 'Otro'], 'textura-generalidades')}
       </div>
-
-      {/* 3. Contorno o forma observada */}
+       {/* 3. Contorno o forma observada */}
       <div>
         <h4 className="font-semibold text-sm">3. Contorno o forma observada:</h4>
         {renderOptionButtons(['Festoneado (normal)', 'Aumentado de volumen', 'Recesión gingival', 'Engrosamiento marginal', 'Pseudobolsas', 'Otro'], 'contorno-generalidades')}
       </div>
-
-      {/* 4. Consistencia al tacto */}
+       {/* 4. Consistencia al tacto */}
       <div>
         <h4 className="font-semibold text-sm">4. Consistencia al tacto:</h4>
         {renderOptionButtons(['Firme (normal)', 'Blanda', 'Edematosa', 'Hiperplásica', 'Fibrótica', 'Otro'], 'consistencia-generalidades')}
       </div>
-
-      {/* 5. Presencia de sangrado */}
+       {/* 5. Presencia de sangrado */}
       <div>
         <h4 className="font-semibold text-sm">5. Presencia de sangrado:</h4>
         {renderOptionButtons(['Sí', 'No'], 'sangrado-generalidades')}
       </div>
-      
-      {/* 6. Dolor o sensibilidad */}
+       {/* 6. Dolor o sensibilidad */}
       <div>
         <h4 className="font-semibold text-sm">6. Dolor o sensibilidad:</h4>
         {renderOptionButtons(['Sí', 'No'], 'dolor-generalidades')}
       </div>
-      
-      {/* 7. Presencia de lesiones */}
+       {/* 7. Presencia de lesiones */}
       <div>
         <h4 className="font-semibold text-sm">7. Presencia de lesiones:</h4>
         {renderOptionButtons(['Aftas/úlceras', 'Gingivitis ulceronecrotizante', 'Hiperplasia gingival', 'Quistes gingivales', 'Épulis/granuloma piógeno', 'Leucoplasia', 'Otras lesiones'], 'lesiones-generalidades')}
       </div>
-
-      {/* 8. Condición visual alrededor de restauraciones */}
+       {/* 8. Condición visual alrededor de restauraciones */}
       <div>
         <h4 className="font-semibold text-sm">8. Condición visual alrededor de restauraciones:</h4>
         {renderOptionButtons(['Normal', 'Inflamación marginal', 'Recesión gingival', 'Sangrado al sondeo', 'Hiperplasia'], 'restauraciones-generalidades')}
       </div>
-
-      {/* 9. Otros hallazgos clínicos */}
+       {/* 9. Otros hallazgos clínicos */}
       <div>
         <h4 className="font-semibold text-sm">9. Otros hallazgos clínicos:</h4>
         <Textarea placeholder="Describe cualquier otro hallazgo relevante..." className="mt-1 w-full text-xs" />
@@ -162,6 +163,11 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
         <h4 className="font-semibold text-sm">5. ¿Se observa retracción o recesión del margen gingival?</h4>
         {renderOptionButtons(['Sí, generalizada', 'Sí, localizada', 'No'], 'recesion-libre')}
       </div>
+      {/* 6. Otros hallazgos clínicos */}
+      <div>
+        <h4 className="font-semibold text-sm">6. Otros hallazgos clínicos:</h4>
+        <Textarea placeholder="Describe cualquier otro hallazgo relevante..." className="mt-1 w-full text-xs" />
+      </div>
     </div>
   );
 
@@ -191,6 +197,11 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
       <div>
         <h4 className="font-semibold text-sm">5. ¿Hay presencia de frenillos que comprometan la encía adherida?</h4>
         {renderOptionButtons(['Sí, compromete', 'Presente pero no compromete', 'Ausente'], 'frenillos-adherida')}
+      </div>
+      {/* 6. Otros hallazgos clínicos */}
+      <div>
+        <h4 className="font-semibold text-sm">6. Otros hallazgos clínicos:</h4>
+        <Textarea placeholder="Describe cualquier otro hallazgo relevante..." className="mt-1 w-full text-xs" />
       </div>
     </div>
   );
@@ -222,34 +233,77 @@ const EnciaSection: React.FC<EnciaSectionProps> = ({
         <h4 className="font-semibold text-sm">5. ¿Se observa pérdida de inserción en áreas interproximales?</h4>
         {renderOptionButtons(['Sí, severa', 'Sí, moderada', 'Sí, leve', 'No'], 'insercion-interproximal')}
       </div>
+      {/* 6. Otros hallazgos clínicos */}
+      <div>
+        <h4 className="font-semibold text-sm">6. Otros hallazgos clínicos:</h4>
+        <Textarea placeholder="Describe cualquier otro hallazgo relevante..." className="mt-1 w-full text-xs" />
+      </div>
     </div>
   );
 
   return (
-    <div className="space-y-6">
-      {/* --- Sección 1: Encías generalidades --- */}
-      <div>
-        <h3 className="text-lg font-bold border-b pb-2 mb-4">Encías generalidades</h3>
-        {renderGeneralidades()}
+    <div className="space-y-4">
+      <div
+        className="bg-blue-50 dark:bg-blue-900/20 p-2 sm:p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
+        onClick={handleEnciasNormalesChange}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
+            <Label className="text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
+              Redacción de encías normal
+              {enciasNormales ? (
+                <span className="ml-1 sm:ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-1 sm:px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <EyeOff className="h-3 w-3" />
+                  <span className="hidden sm:inline">Secciones ocultas</span>
+                  <span className="sm:hidden">Ocultas</span>
+                </span>
+              ) : (
+                <span className="ml-1 sm:ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-1 sm:px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <Eye className="h-3 w-3" />
+                  <span className="hidden sm:inline">Secciones visibles</span>
+                  <span className="sm:hidden">Visibles</span>
+                </span>
+              )}
+            </Label>
+          </div>
+          <Switch
+            id="sin-patologia"
+            checked={enciasNormales}
+            onCheckedChange={handleEnciasNormalesChange}
+            className="data-[state=checked]:bg-blue-500 scale-75 sm:scale-100"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       </div>
 
-      {/* --- Sección 2: Encía libre --- */}
-      <div>
-        <h3 className="text-lg font-bold border-b pb-2 mb-4">Encía libre</h3>
-        {renderEnciaLibre()}
-      </div>
+      {!enciasNormales && (
+        <div className="space-y-6 pt-4">
+          {/* --- Sección 1: Encías generalidades --- */}
+          <div>
+            <h3 className="text-lg font-bold border-b pb-2 mb-4">Encías generalidades</h3>
+            {renderGeneralidades()}
+          </div>
 
-      {/* --- Sección 3: Encía adherida --- */}
-      <div>
-        <h3 className="text-lg font-bold border-b pb-2 mb-4">Encía adherida</h3>
-        {renderEnciaAdherida()}
-      </div>
+          {/* --- Sección 2: Encía libre --- */}
+          <div>
+            <h3 className="text-lg font-bold border-b pb-2 mb-4">Encía libre</h3>
+            {renderEnciaLibre()}
+          </div>
 
-      {/* --- Sección 4: Encía interproximal --- */}
-      <div>
-        <h3 className="text-lg font-bold border-b pb-2 mb-4">Encía interproximal</h3>
-        {renderEnciaInterproximal()}
-      </div>
+          {/* --- Sección 3: Encía adherida --- */}
+          <div>
+            <h3 className="text-lg font-bold border-b pb-2 mb-4">Encía adherida</h3>
+            {renderEnciaAdherida()}
+          </div>
+
+          {/* --- Sección 4: Encía interproximal --- */}
+          <div>
+            <h3 className="text-lg font-bold border-b pb-2 mb-4">Encía interproximal</h3>
+            {renderEnciaInterproximal()}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
