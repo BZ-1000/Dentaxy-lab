@@ -66,53 +66,105 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
   };
 
   const generarRedaccionPorArea = (area: string) => {
-    const areaData = formData.examenIntrabucal?.[area] as any;
+    const areaData = formData.examenIntrabucal?.[area];
     
-    if (!areaData || typeof areaData !== 'object') {
-      return `No se ha registrado información para ${getTituloArea(area).toLowerCase()}.`;
+    if (!areaData || (typeof areaData === 'object' && areaData !== null && Object.keys(areaData).length === 0)) {
+      return `Examen de ${getTituloArea(area).toLowerCase()}: no se registraron datos durante la evaluación clínica.`;
     }
 
     let redaccion = `Examen de ${getTituloArea(area).toLowerCase()}: `;
-    const caracteristicas: string[] = [];
+    const hallazgos: string[] = [];
+    const alteraciones: string[] = [];
 
-    // Analizar el color si está presente
-    if (areaData.color && areaData.color !== 'Rosado coral') {
-      caracteristicas.push(`color ${String(areaData.color).toLowerCase()}`);
+    // Si es un string simple, usar como está
+    if (typeof areaData === 'string') {
+      return `Examen de ${getTituloArea(area).toLowerCase()}: ${areaData}`;
     }
 
-    // Analizar la textura si está presente
-    if (areaData.textura) {
-      if (areaData.textura === 'Otro' && areaData.texturaOtro) {
-        caracteristicas.push(`textura ${String(areaData.texturaOtro).toLowerCase()}`);
-      } else if (areaData.textura !== 'Lisa') {
-        caracteristicas.push(`textura ${String(areaData.textura).toLowerCase()}`);
+    // Si es un objeto, procesar las propiedades
+    if (typeof areaData === 'object' && areaData !== null) {
+      const data = areaData as any;
+      
+      // Analizar color
+      if (data.color && data.color !== '' && data.color !== 'Rosado coral') {
+        alteraciones.push(`color ${String(data.color).toLowerCase()}`);
+      } else if (data.color === 'Rosado coral') {
+        hallazgos.push('color rosado coral normal');
+      }
+
+      // Analizar textura
+      if (data.textura && data.textura !== '') {
+        if (data.textura === 'Otro' && data.texturaOtro) {
+          if (data.texturaOtro.toLowerCase() !== 'lisa') {
+            alteraciones.push(`textura ${String(data.texturaOtro).toLowerCase()}`);
+          } else {
+            hallazgos.push('textura lisa normal');
+          }
+        } else if (data.textura !== 'Lisa') {
+          alteraciones.push(`textura ${String(data.textura).toLowerCase()}`);
+        } else {
+          hallazgos.push('textura lisa normal');
+        }
+      }
+
+      // Analizar lesiones
+      if (data.lesiones === 'Sí') {
+        let descripcionLesion = 'lesiones';
+        if (data.tipoLesion && data.tipoLesion !== '') {
+          descripcionLesion = String(data.tipoLesion).toLowerCase();
+          if (data.descripcionLesion && data.descripcionLesion !== '') {
+            descripcionLesion += ` (${data.descripcionLesion})`;
+          }
+        }
+        alteraciones.push(`presencia de ${descripcionLesion}`);
+      } else if (data.lesiones === 'No') {
+        hallazgos.push('ausencia de lesiones');
+      }
+
+      // Agregar características específicas del área
+      const caracteristicasEspecificas = [];
+      Object.entries(data).forEach(([key, value]) => {
+        if (key !== 'color' && key !== 'textura' && key !== 'texturaOtro' && 
+            key !== 'lesiones' && key !== 'tipoLesion' && key !== 'descripcionLesion') {
+          if (value === true) {
+            caracteristicasEspecificas.push(getDescripcionCaracteristica(key, area));
+          } else if (value === false && key === 'inflamacion') {
+            hallazgos.push('sin signos de inflamación');
+          } else if (value === false && key === 'sangrado') {
+            hallazgos.push('sin sangrado');
+          } else if (value === false && key === 'edema') {
+            hallazgos.push('sin edema');
+          }
+        }
+      });
+
+      if (caracteristicasEspecificas.length > 0) {
+        alteraciones.push(...caracteristicasEspecificas);
       }
     }
 
-    // Analizar lesiones si están presentes
-    if (areaData.lesiones === 'Sí') {
-      if (areaData.tipoLesion && areaData.descripcionLesion) {
-        caracteristicas.push(`presencia de ${String(areaData.tipoLesion).toLowerCase()}: ${areaData.descripcionLesion}`);
-      } else if (areaData.tipoLesion) {
-        caracteristicas.push(`presencia de ${String(areaData.tipoLesion).toLowerCase()}`);
-      } else {
-        caracteristicas.push('presencia de lesiones');
+    // Construir la redacción final
+    if (alteraciones.length > 0) {
+      redaccion += `se observa ${alteraciones.join(', ')}`;
+      if (hallazgos.length > 0) {
+        redaccion += `, manteniendo ${hallazgos.join(', ')}`;
       }
-    }
-
-    // Agregar características específicas del área
-    Object.entries(areaData).forEach(([key, value]) => {
-      if (key !== 'color' && key !== 'textura' && key !== 'texturaOtro' && 
-          key !== 'lesiones' && key !== 'tipoLesion' && key !== 'descripcionLesion' && 
-          value === true) {
-        caracteristicas.push(getDescripcionCaracteristica(key, area));
-      }
-    });
-
-    if (caracteristicas.length > 0) {
-      redaccion += `se observa ${caracteristicas.join(', ')}.`;
+      redaccion += '.';
+    } else if (hallazgos.length > 0) {
+      redaccion += `se observa ${hallazgos.join(', ')}, dentro de parámetros normales.`;
     } else {
-      redaccion += 'se observa dentro de parámetros normales, sin alteraciones aparentes.';
+      redaccion += 'se observa dentro de parámetros normales, sin alteraciones aparentes en la estructura evaluada.';
+    }
+
+    // Agregar recomendaciones específicas si hay alteraciones
+    if (alteraciones.length > 0) {
+      redaccion += ` Se recomienda seguimiento clínico`;
+      if (area === 'encias' && alteraciones.some(a => a.includes('inflamación') || a.includes('sangrado'))) {
+        redaccion += ' y refuerzo en técnicas de higiene oral';
+      } else if (area === 'orofaringe' && alteraciones.some(a => a.includes('hipertrofia'))) {
+        redaccion += ' y evaluación otorrinolaringológica';
+      }
+      redaccion += '.';
     }
 
     return redaccion;
@@ -215,7 +267,31 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`}>
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex justify-center flex-1">
+            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
+              <button 
+                onClick={() => setShowForm(true)}
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
+                  showForm 
+                    ? "bg-blue-500 text-white shadow-md" 
+                    : "text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                Formulario
+              </button>
+              <button 
+                onClick={() => setShowForm(false)}
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
+                  !showForm 
+                    ? "bg-blue-500 text-white shadow-md" 
+                    : "text-gray-700 dark:text-gray-300"
+                }`}
+              >
+                Redacción IA
+              </button>
+            </div>
+          </div>
           <div className="flex items-center gap-1 sm:gap-2">
             <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
               <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -229,30 +305,6 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">XIII.</span> EXAMEN INTRABUCAL
           </h2>
-        </div>
-        <div className="flex justify-center px-6 py-2">
-          <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-            <button 
-              onClick={() => setShowForm(true)}
-              className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                showForm 
-                  ? "bg-blue-500 text-white shadow-md" 
-                  : "text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              Formulario
-            </button>
-            <button 
-              onClick={() => setShowForm(false)}
-              className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                !showForm 
-                  ? "bg-blue-500 text-white shadow-md" 
-                  : "text-gray-700 dark:text-gray-300"
-              }`}
-            >
-              Redacción IA
-            </button>
-          </div>
         </div>
         {!isMinimized && (
           <div className="p-6">
