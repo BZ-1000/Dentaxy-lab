@@ -56,7 +56,7 @@ const FormulariosSidebar = ({
     }[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('formulario_')) {
+      if (key && key.startsWith('formulario_') && !key.includes('_examen-intrabucal-')) {
         const nombre = key.replace('formulario_', '');
         const data = JSON.parse(localStorage.getItem(key) || '{}');
         savedForms.push({
@@ -88,6 +88,13 @@ const FormulariosSidebar = ({
   const handleEliminarFormulario = () => {
     if (!formularioSeleccionado) return;
     localStorage.removeItem(`formulario_${formularioSeleccionado}`);
+    
+    // Eliminar también los datos específicos del examen intrabucal
+    const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+    areas.forEach(area => {
+      localStorage.removeItem(`formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
+    });
+    
     loadSavedForms();
     setAlertDialogOpen(false);
     if (formularioSeleccionado === pacienteActual) {
@@ -105,6 +112,17 @@ const FormulariosSidebar = ({
     if (oldData) {
       localStorage.setItem(`formulario_${nuevoNombre}`, oldData);
       localStorage.removeItem(`formulario_${formularioSeleccionado}`);
+      
+      // Renombrar también los datos específicos del examen intrabucal
+      const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+      areas.forEach(area => {
+        const areaData = localStorage.getItem(`formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
+        if (areaData) {
+          localStorage.setItem(`formulario_${nuevoNombre}_examen-intrabucal-${area}`, areaData);
+          localStorage.removeItem(`formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
+        }
+      });
+      
       if (formularioSeleccionado === pacienteActual) {
         const data = JSON.parse(oldData);
         onCargarFormulario(data, nuevoNombre);
@@ -180,7 +198,17 @@ const FormulariosSidebar = ({
                       <SidebarLink link={{
                     label: form.nombre,
                     icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
-                    onClick: () => onCargarFormulario(form.data, form.nombre)
+                    onClick: () => {
+                      // Cargar los datos específicos del examen intrabucal antes de cargar el formulario
+                      const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+                      areas.forEach(area => {
+                        const areaData = localStorage.getItem(`formulario_${form.nombre}_examen-intrabucal-${area}`);
+                        if (areaData) {
+                          localStorage.setItem(`examen-intrabucal-${area}`, areaData);
+                        }
+                      });
+                      onCargarFormulario(form.data, form.nombre);
+                    }
                   }} className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1" />
                       {open && <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={() => handleFormularioAction('renombrar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700" title="Renombrar paciente">

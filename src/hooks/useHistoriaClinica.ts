@@ -505,6 +505,12 @@ export const useHistoriaClinica = () => {
     setFormData(getInitialFormState());
     setResumen('');
     localStorage.removeItem('currentFormData');
+    
+    // Limpiar también los datos específicos del examen intrabucal
+    const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+    areas.forEach(area => {
+      localStorage.removeItem(`examen-intrabucal-${area}`);
+    });
   };
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {
@@ -523,7 +529,17 @@ export const useHistoriaClinica = () => {
       }
     };
     
+    // Guardar formulario principal
     localStorage.setItem(`formulario_${nombre}`, JSON.stringify(formDataToSave));
+    
+    // Guardar también los datos específicos del examen intrabucal
+    const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+    areas.forEach(area => {
+      const areaData = data.examenIntrabucal?.[area];
+      if (areaData && typeof areaData === 'string') {
+        localStorage.setItem(`formulario_${nombre}_examen-intrabucal-${area}`, areaData);
+      }
+    });
   };
 
   const cargarFormulario = (data: FormDataState | null) => {
@@ -532,6 +548,15 @@ export const useHistoriaClinica = () => {
       setResumen('');
     } else {
       setFormData(data);
+      
+      // Cargar también los datos específicos del examen intrabucal al localStorage específico
+      const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+      areas.forEach(area => {
+        const areaData = data.examenIntrabucal?.[area];
+        if (areaData && typeof areaData === 'string') {
+          localStorage.setItem(`examen-intrabucal-${area}`, areaData);
+        }
+      });
     }
   };
 

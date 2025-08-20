@@ -31,6 +31,19 @@ const ExamenIntrabucalWrapper: React.FC<ExamenIntrabucalWrapperProps> = ({
 
   // Cargar datos guardados al inicializar
   useEffect(() => {
+    // Primero intentar cargar desde formData (datos del formulario principal)
+    const formDataValue = formData.examenIntrabucal?.[area];
+    if (formDataValue && typeof formDataValue === 'string') {
+      try {
+        const parsedFormData = JSON.parse(formDataValue);
+        setSelectedOptions(parsedFormData);
+        return;
+      } catch (error) {
+        console.error('Error parsing form data:', error);
+      }
+    }
+    
+    // Si no hay datos en formData, intentar cargar desde localStorage específico
     const savedData = localStorage.getItem(`examen-intrabucal-${area}`);
     if (savedData) {
       try {
@@ -40,7 +53,7 @@ const ExamenIntrabucalWrapper: React.FC<ExamenIntrabucalWrapperProps> = ({
         console.error('Error loading saved data:', error);
       }
     }
-  }, [area]);
+  }, [area, formData.examenIntrabucal]);
 
   const colorOptions = [
     { color: '#FF7F7F', label: 'Rosa coral: mucosa sana, normal' },
