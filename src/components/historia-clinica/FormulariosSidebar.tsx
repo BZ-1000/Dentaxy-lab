@@ -56,7 +56,9 @@ const FormulariosSidebar = ({
     }[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('formulario_') && !key.includes('_examen-intrabucal-')) {
+      if (key && key.startsWith('formulario_') && 
+          !key.includes('_examen-intrabucal-') && 
+          !key.includes('_interrogatorio-sistemas-')) {
         const nombre = key.replace('formulario_', '');
         const data = JSON.parse(localStorage.getItem(key) || '{}');
         savedForms.push({
@@ -90,10 +92,13 @@ const FormulariosSidebar = ({
     localStorage.removeItem(`formulario_${formularioSeleccionado}`);
     
     // Eliminar también los datos específicos del examen intrabucal
-    const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
-    areas.forEach(area => {
+    const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+    areasIntrabucal.forEach(area => {
       localStorage.removeItem(`formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
     });
+    
+    // Eliminar también los datos específicos del interrogatorio de sistemas
+    localStorage.removeItem(`formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
     
     loadSavedForms();
     setAlertDialogOpen(false);
@@ -114,14 +119,21 @@ const FormulariosSidebar = ({
       localStorage.removeItem(`formulario_${formularioSeleccionado}`);
       
       // Renombrar también los datos específicos del examen intrabucal
-      const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
-      areas.forEach(area => {
+      const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+      areasIntrabucal.forEach(area => {
         const areaData = localStorage.getItem(`formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
         if (areaData) {
           localStorage.setItem(`formulario_${nuevoNombre}_examen-intrabucal-${area}`, areaData);
           localStorage.removeItem(`formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
         }
       });
+      
+      // Renombrar también los datos específicos del interrogatorio de sistemas
+      const interrogatorioData = localStorage.getItem(`formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
+      if (interrogatorioData) {
+        localStorage.setItem(`formulario_${nuevoNombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
+        localStorage.removeItem(`formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
+      }
       
       if (formularioSeleccionado === pacienteActual) {
         const data = JSON.parse(oldData);
@@ -200,13 +212,20 @@ const FormulariosSidebar = ({
                     icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
                     onClick: () => {
                       // Cargar los datos específicos del examen intrabucal antes de cargar el formulario
-                      const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
-                      areas.forEach(area => {
+                      const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+                      areasIntrabucal.forEach(area => {
                         const areaData = localStorage.getItem(`formulario_${form.nombre}_examen-intrabucal-${area}`);
                         if (areaData) {
                           localStorage.setItem(`examen-intrabucal-${area}`, areaData);
                         }
                       });
+                      
+                      // Cargar también los datos específicos del interrogatorio de sistemas
+                      const interrogatorioData = localStorage.getItem(`formulario_${form.nombre}_interrogatorio-sistemas-formValues`);
+                      if (interrogatorioData) {
+                        localStorage.setItem('interrogatorio-sistemas-formValues', interrogatorioData);
+                      }
+                      
                       onCargarFormulario(form.data, form.nombre);
                     }
                   }} className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1" />

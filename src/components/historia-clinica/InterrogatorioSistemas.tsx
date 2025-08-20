@@ -119,6 +119,40 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
     }
   });
 
+  // Cargar datos desde localStorage al inicializar
+  useEffect(() => {
+    // Primero intentar cargar desde formData (datos del formulario principal)
+    const interrogatorioData = formData.interrogatorioSistemas;
+    if (interrogatorioData && Object.keys(interrogatorioData).length > 0) {
+      const savedLocalData = localStorage.getItem('interrogatorio-sistemas-formValues');
+      if (savedLocalData) {
+        try {
+          const parsedData = JSON.parse(savedLocalData);
+          setFormValues(parsedData);
+          return;
+        } catch (error) {
+          console.error('Error parsing localStorage data:', error);
+        }
+      }
+    }
+    
+    // Si no hay datos en formData, intentar cargar desde localStorage específico
+    const savedData = localStorage.getItem('interrogatorio-sistemas-formValues');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        setFormValues(parsedData);
+      } catch (error) {
+        console.error('Error loading saved data:', error);
+      }
+    }
+  }, []);
+
+  // Guardar en localStorage cada vez que cambien los formValues
+  useEffect(() => {
+    localStorage.setItem('interrogatorio-sistemas-formValues', JSON.stringify(formValues));
+  }, [formValues]);
+
   useEffect(() => {
     if (showForm === false) {
       generateAndUpdateRedacciones();
@@ -1027,6 +1061,9 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                     Generar Redacción IA
                   </Button>
                   <Button onClick={() => {
+                    // Limpiar localStorage
+                    localStorage.removeItem('interrogatorio-sistemas-formValues');
+                    
                     setFormValues({
                       digestivo: {
                         alimentacion: "",

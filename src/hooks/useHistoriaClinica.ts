@@ -507,10 +507,13 @@ export const useHistoriaClinica = () => {
     localStorage.removeItem('currentFormData');
     
     // Limpiar también los datos específicos del examen intrabucal
-    const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
-    areas.forEach(area => {
+    const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+    areasIntrabucal.forEach(area => {
       localStorage.removeItem(`examen-intrabucal-${area}`);
     });
+    
+    // Limpiar también los datos específicos del interrogatorio de sistemas
+    localStorage.removeItem('interrogatorio-sistemas-formValues');
   };
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {
@@ -533,13 +536,19 @@ export const useHistoriaClinica = () => {
     localStorage.setItem(`formulario_${nombre}`, JSON.stringify(formDataToSave));
     
     // Guardar también los datos específicos del examen intrabucal
-    const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
-    areas.forEach(area => {
+    const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+    areasIntrabucal.forEach(area => {
       const areaData = data.examenIntrabucal?.[area];
       if (areaData && typeof areaData === 'string') {
         localStorage.setItem(`formulario_${nombre}_examen-intrabucal-${area}`, areaData);
       }
     });
+    
+    // Guardar también los datos específicos del interrogatorio de sistemas
+    const interrogatorioData = localStorage.getItem('interrogatorio-sistemas-formValues');
+    if (interrogatorioData) {
+      localStorage.setItem(`formulario_${nombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
+    }
   };
 
   const cargarFormulario = (data: FormDataState | null) => {
@@ -550,8 +559,8 @@ export const useHistoriaClinica = () => {
       setFormData(data);
       
       // Cargar también los datos específicos del examen intrabucal al localStorage específico
-      const areas = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
-      areas.forEach(area => {
+      const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+      areasIntrabucal.forEach(area => {
         const areaData = data.examenIntrabucal?.[area];
         if (areaData && typeof areaData === 'string') {
           localStorage.setItem(`examen-intrabucal-${area}`, areaData);
