@@ -60,23 +60,13 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
       tosExpectoracion: ""
     },
     cardiovascular: {
-      dolorToracico: "",
-      dolorToracicoDetalle: "",
+      dolorPecho: "",
       lipotimia: "",
-      lipotimiaDetalle: "",
       ritmoCardiaco: "",
-      ritmoCardiacoDetalle: "",
       sintomasCardiovasculares: [] as string[],
-      sintomasCardiovascularesDetalle: "",
       presionArterial: "",
-      antecedentesCardiovasculares: [] as string[],
-      antecedentesCardiovascularesDetalle: "",
-      capacidadFuncional: "",
-      capacidadFuncionalDetalle: "",
-      disnea: "",
-      disneaDetalle: "",
-      otrosAntecedentes: [] as string[],
-      otrosAntecedentesDetalle: ""
+      antecedentesInfarto: "",
+      fatigaEsfuerzo: ""
     },
     genitoUrinario: {
       frecuenciaUrinaria: "",
@@ -232,16 +222,6 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
     }));
   };
 
-  const handleTextareaChange = (section: string, field: string, value: string) => {
-    setFormValues(prev => ({
-      ...prev,
-      [section]: {
-        ...(prev as any)[section],
-        [field]: value
-      }
-    }));
-  };
-
   const generateAndUpdateRedacciones = () => {
     let digestivoText = `El paciente refiere alimentación de tipo ${formValues.digestivo.alimentacion || "[sin especificar]"}. Su patrón de masticación es ${formValues.digestivo.masticacion || "[sin especificar]"}. Manifiesta ${getPercepcionGustoText()}. ${formValues.digestivo.percepcionGustoEspecificaciones ? `Especificaciones: ${formValues.digestivo.percepcionGustoEspecificaciones}` : ''} La salivación ${getSalivacionText()}. Respecto a la deglución, ${getDeglusiónText()}. ${formValues.digestivo.halitosis === "Sí" ? "Presenta halitosis" : "No presenta halitosis"}. ${formValues.digestivo.halitosis === "Sí" ? `Especificaciones: ${formValues.digestivo.halitosisEspecificaciones}` : ''}`;
 
@@ -261,161 +241,13 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
     }
     respiratorioText += ` ${formValues.respiratorio.apneaSuenio === "Sí" ? "Presenta apnea del sueño" : "No presenta apnea del sueño"}. ${formValues.respiratorio.oxigenoSuplementario === "Sí" ? "Usa oxígeno suplementario" : "No usa oxígeno suplementario"}. ${formValues.respiratorio.tosExpectoracion ? `Tos con expectoración: ${formValues.respiratorio.tosExpectoracion}` : ''}.`;
 
-    // Nueva redacción cardiovascular siguiendo las especificaciones
-    let cardiovascularText = "";
-    
-    // Dolor torácico
-    if (formValues.cardiovascular.dolorToracico === "No refiere dolor torácico") {
-      cardiovascularText += "El paciente niega dolor torácico. ";
-    } else if (formValues.cardiovascular.dolorToracico) {
-      const variaciones = [
-        `El paciente refiere dolor torácico de tipo ${formValues.cardiovascular.dolorToracico.replace('Dolor ', '').toLowerCase()}`,
-        `Se documenta la presencia de dolor torácico caracterizado como ${formValues.cardiovascular.dolorToracico.replace('Dolor ', '').toLowerCase()}`
-      ];
-      cardiovascularText += variaciones[Math.floor(Math.random() * variaciones.length)];
-      
-      if (formValues.cardiovascular.dolorToracicoDetalle) {
-        const conectores = ["especificando que", "señalado por el paciente con evolución de"];
-        cardiovascularText += `, ${conectores[Math.floor(Math.random() * conectores.length)]} ${formValues.cardiovascular.dolorToracicoDetalle}. `;
-      } else {
-        cardiovascularText += ". ";
-      }
+    let cardiovascularText = `${formValues.cardiovascular.dolorPecho === "No" ? "No refiere" : "Refiere"} dolor en el pecho. ${formValues.cardiovascular.lipotimia === "Sí" ? "Ha presentado" : "No ha presentado"} episodios de lipotimia. El ritmo cardíaco es ${formValues.cardiovascular.ritmoCardiaco || "[sin especificar]"}.`;
+    if (formValues.cardiovascular.sintomasCardiovasculares.includes("Ninguno")) {
+      cardiovascularText += " El paciente niega alteraciones relacionadas al sistema cardiovascular. Se exploró la frecuencia urinaria, síntomas urinarios, urgencia urinaria, fuerza del chorro, infecciones recurrentes y flujo anormal.";
+    } else {
+      cardiovascularText += ` Sintomatología cardiovascular reportada: ${formValues.cardiovascular.sintomasCardiovasculares.join(", ")}.`;
     }
-
-    // Lipotimia o síncope
-    if (formValues.cardiovascular.lipotimia === "No ha presentado episodios") {
-      cardiovascularText += "El paciente niega episodios de lipotimia o síncope. ";
-    } else if (formValues.cardiovascular.lipotimia) {
-      const variaciones = [
-        `El paciente refiere ${formValues.cardiovascular.lipotimia.toLowerCase()}`,
-        `Se reporta antecedente de ${formValues.cardiovascular.lipotimia.toLowerCase()}`
-      ];
-      cardiovascularText += variaciones[Math.floor(Math.random() * variaciones.length)];
-      
-      if (formValues.cardiovascular.lipotimiaDetalle) {
-        const conectores = ["describiendo que", "con características mencionadas por el paciente como"];
-        cardiovascularText += `, ${conectores[Math.floor(Math.random() * conectores.length)]} ${formValues.cardiovascular.lipotimiaDetalle}. `;
-      } else {
-        cardiovascularText += ". ";
-      }
-    }
-
-    // Ritmo cardíaco percibido
-    if (formValues.cardiovascular.ritmoCardiaco === "No percibe irregularidad en el ritmo cardíaco") {
-      cardiovascularText += "El paciente no refiere alteraciones en la percepción del ritmo cardíaco. ";
-    } else if (formValues.cardiovascular.ritmoCardiaco) {
-      const variaciones = [
-        `El paciente refiere sensación de ${formValues.cardiovascular.ritmoCardiaco.toLowerCase()}`,
-        `Se identifica percepción subjetiva de ${formValues.cardiovascular.ritmoCardiaco.toLowerCase()}`
-      ];
-      cardiovascularText += variaciones[Math.floor(Math.random() * variaciones.length)];
-      
-      if (formValues.cardiovascular.ritmoCardiacoDetalle) {
-        const conectores = ["detallando que", "manifestada con"];
-        cardiovascularText += `, ${conectores[Math.floor(Math.random() * conectores.length)]} ${formValues.cardiovascular.ritmoCardiacoDetalle}. `;
-      } else {
-        cardiovascularText += ". ";
-      }
-    }
-
-    // Síntomas cardiovasculares asociados
-    if (formValues.cardiovascular.sintomasCardiovasculares.includes("Ninguno de los anteriores")) {
-      cardiovascularText += "El paciente niega síntomas cardiovasculares asociados. ";
-    } else if (formValues.cardiovascular.sintomasCardiovasculares.length > 0) {
-      const variaciones = [
-        `El paciente refiere ${formValues.cardiovascular.sintomasCardiovasculares.join(", ")}`,
-        `Se documenta presencia de ${formValues.cardiovascular.sintomasCardiovasculares.join(", ")}`
-      ];
-      cardiovascularText += variaciones[Math.floor(Math.random() * variaciones.length)];
-      
-      if (formValues.cardiovascular.sintomasCardiovascularesDetalle) {
-        const conectores = ["indicando que", "con evolución descrita como"];
-        cardiovascularText += `, ${conectores[Math.floor(Math.random() * conectores.length)]} ${formValues.cardiovascular.sintomasCardiovascularesDetalle}. `;
-      } else {
-        cardiovascularText += ". ";
-      }
-    }
-
-    // Presión arterial conocida
-    if (formValues.cardiovascular.presionArterial === "Ha referido diagnóstico previo de hipertensión arterial") {
-      cardiovascularText += "El paciente refiere antecedente de hipertensión arterial previamente diagnosticada. ";
-    } else if (formValues.cardiovascular.presionArterial === "Ha referido diagnóstico previo de hipotensión arterial") {
-      cardiovascularText += "El paciente refiere antecedente de hipotensión arterial diagnosticada. ";
-    } else if (formValues.cardiovascular.presionArterial === "No cuenta con diagnóstico conocido de alteraciones en la presión arterial") {
-      cardiovascularText += "El paciente no cuenta con diagnóstico conocido de alteraciones en la presión arterial. ";
-    }
-
-    // Antecedentes cardiovasculares
-    if (formValues.cardiovascular.antecedentesCardiovasculares.includes("Niega antecedentes cardiovasculares")) {
-      cardiovascularText += "El paciente niega antecedentes personales de enfermedad cardiovascular. ";
-    } else if (formValues.cardiovascular.antecedentesCardiovasculares.length > 0) {
-      const variaciones = [
-        `El paciente presenta antecedente de ${formValues.cardiovascular.antecedentesCardiovasculares.join(", ")}`,
-        `Se registra antecedente de ${formValues.cardiovascular.antecedentesCardiovasculares.join(", ")}`
-      ];
-      cardiovascularText += variaciones[Math.floor(Math.random() * variaciones.length)];
-      
-      if (formValues.cardiovascular.antecedentesCardiovascularesDetalle) {
-        const conectores = ["indicando que", "descrito por el paciente como"];
-        cardiovascularText += `, ${conectores[Math.floor(Math.random() * conectores.length)]} ${formValues.cardiovascular.antecedentesCardiovascularesDetalle}. `;
-      } else {
-        cardiovascularText += ". ";
-      }
-    }
-
-    // Capacidad funcional
-    if (formValues.cardiovascular.capacidadFuncional === "No refiere fatiga con la actividad cotidiana") {
-      cardiovascularText += "El paciente no presenta limitaciones en su capacidad funcional. ";
-    } else if (formValues.cardiovascular.capacidadFuncional) {
-      const variaciones = [
-        `El paciente refiere fatiga con esfuerzos ${formValues.cardiovascular.capacidadFuncional.includes("leves") ? "leves" : "moderados"}`,
-        `Se reporta disminución de la capacidad funcional caracterizada por fatiga con ${formValues.cardiovascular.capacidadFuncional.includes("leves") ? "esfuerzos leves" : "esfuerzos moderados"}`
-      ];
-      cardiovascularText += variaciones[Math.floor(Math.random() * variaciones.length)];
-      
-      if (formValues.cardiovascular.capacidadFuncionalDetalle) {
-        const conectores = ["manifestando que", "detallada como"];
-        cardiovascularText += `, ${conectores[Math.floor(Math.random() * conectores.length)]} ${formValues.cardiovascular.capacidadFuncionalDetalle}. `;
-      } else {
-        cardiovascularText += ". ";
-      }
-    }
-
-    // Disnea
-    if (formValues.cardiovascular.disnea === "No refiere dificultad respiratoria") {
-      cardiovascularText += "El paciente niega dificultad respiratoria. ";
-    } else if (formValues.cardiovascular.disnea) {
-      const variaciones = [
-        `El paciente refiere disnea de tipo ${formValues.cardiovascular.disnea.replace("Disnea ", "").toLowerCase()}`,
-        `Se identifica dificultad respiratoria descrita como ${formValues.cardiovascular.disnea.replace("Disnea ", "").toLowerCase()}`
-      ];
-      cardiovascularText += variaciones[Math.floor(Math.random() * variaciones.length)];
-      
-      if (formValues.cardiovascular.disneaDetalle) {
-        const conectores = ["señalando que", "con características clínicas de"];
-        cardiovascularText += `, ${conectores[Math.floor(Math.random() * conectores.length)]} ${formValues.cardiovascular.disneaDetalle}. `;
-      } else {
-        cardiovascularText += ". ";
-      }
-    }
-
-    // Otros antecedentes relevantes
-    if (formValues.cardiovascular.otrosAntecedentes.includes("Niega antecedentes familiares relevantes")) {
-      cardiovascularText += "El paciente niega antecedentes familiares relevantes ni uso actual de fármacos cardiovasculares. ";
-    } else if (formValues.cardiovascular.otrosAntecedentes.length > 0) {
-      const variaciones = [
-        `El paciente refiere ${formValues.cardiovascular.otrosAntecedentes.join(", ")}`,
-        `Se documenta antecedente de ${formValues.cardiovascular.otrosAntecedentes.join(", ")}`
-      ];
-      cardiovascularText += variaciones[Math.floor(Math.random() * variaciones.length)];
-      
-      if (formValues.cardiovascular.otrosAntecedentesDetalle) {
-        const conectores = ["especificando que", "detallado por el paciente como"];
-        cardiovascularText += `, ${conectores[Math.floor(Math.random() * conectores.length)]} ${formValues.cardiovascular.otrosAntecedentesDetalle}. `;
-      } else {
-        cardiovascularText += ". ";
-      }
-    }
+    cardiovascularText += ` ${formValues.cardiovascular.presionArterial ? `Presión arterial conocida: ${formValues.cardiovascular.presionArterial}` : ''} ${formValues.cardiovascular.antecedentesInfarto === "Sí" ? "Tiene antecedentes de infarto o enfermedad coronaria" : "No tiene antecedentes de infarto o enfermedad coronaria"}. ${formValues.cardiovascular.fatigaEsfuerzo === "Sí" ? "Presenta fatiga fácil con esfuerzo leve" : "No presenta fatiga fácil con esfuerzo leve"}.`;
 
     let genitoUrinarioText = `El paciente refiere una frecuencia urinaria de ${formValues.genitoUrinario.frecuenciaUrinaria || "[sin especificar]"} veces al día.`;
     if (formValues.genitoUrinario.sintomasUrinarios.includes("Ninguno")) {
@@ -807,192 +639,62 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                   <h4 className="text-lg font-semibold mb-2 text-justify">Aparato Cardiovascular</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Dolor torácico</Label>
+                      <Label>Dolor en el Pecho</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="No refiere dolor torácico" isSelected={formValues.cardiovascular.dolorToracico === "No refiere dolor torácico"} onClick={() => handleRadioChange("cardiovascular", "dolorToracico", "No refiere dolor torácico")} />
-                        <WordButton label="Dolor opresivo retroesternal" isSelected={formValues.cardiovascular.dolorToracico === "Dolor opresivo retroesternal irradiado a brazo, cuello o mandíbula"} onClick={() => handleRadioChange("cardiovascular", "dolorToracico", "Dolor opresivo retroesternal irradiado a brazo, cuello o mandíbula")} />
-                        <WordButton label="Dolor punzante precordial" isSelected={formValues.cardiovascular.dolorToracico === "Dolor punzante localizado en región precordial"} onClick={() => handleRadioChange("cardiovascular", "dolorToracico", "Dolor punzante localizado en región precordial")} />
-                        <WordButton label="Dolor en relación al esfuerzo" isSelected={formValues.cardiovascular.dolorToracico === "Dolor en relación al esfuerzo físico"} onClick={() => handleRadioChange("cardiovascular", "dolorToracico", "Dolor en relación al esfuerzo físico")} />
-                        <WordButton label="Dolor en reposo o nocturno" isSelected={formValues.cardiovascular.dolorToracico === "Dolor en reposo o nocturno"} onClick={() => handleRadioChange("cardiovascular", "dolorToracico", "Dolor en reposo o nocturno")} />
+                        <WordButton label="No" isSelected={formValues.cardiovascular.dolorPecho === "No"} onClick={() => handleRadioChange("cardiovascular", "dolorPecho", "No")} />
+                        <WordButton label="Sí" isSelected={formValues.cardiovascular.dolorPecho === "Sí"} onClick={() => handleRadioChange("cardiovascular", "dolorPecho", "Sí")} />
                       </div>
-                      {formValues.cardiovascular.dolorToracico && formValues.cardiovascular.dolorToracico !== "No refiere dolor torácico" && (
-                        <div className="mt-2">
-                          <Label>Especificar características (intensidad, duración, desencadenantes, alivio, tiempo de evolución)</Label>
-                          <textarea
-                            value={formValues.cardiovascular.dolorToracicoDetalle || ""}
-                            onChange={(e) => handleTextareaChange("cardiovascular", "dolorToracicoDetalle", e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
-                            rows={2}
-                            placeholder="Describa las características del dolor..."
-                          />
-                        </div>
-                      )}
                     </div>
-                    
                     <div>
-                      <Label>Lipotimia o síncope</Label>
+                      <Label>Lipotimia</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="No ha presentado episodios" isSelected={formValues.cardiovascular.lipotimia === "No ha presentado episodios"} onClick={() => handleRadioChange("cardiovascular", "lipotimia", "No ha presentado episodios")} />
-                        <WordButton label="Lipotimia ocasional" isSelected={formValues.cardiovascular.lipotimia === "Lipotimia ocasional sin pérdida total de conciencia"} onClick={() => handleRadioChange("cardiovascular", "lipotimia", "Lipotimia ocasional sin pérdida total de conciencia")} />
-                        <WordButton label="Síncope súbito" isSelected={formValues.cardiovascular.lipotimia === "Síncope súbito con recuperación espontánea"} onClick={() => handleRadioChange("cardiovascular", "lipotimia", "Síncope súbito con recuperación espontánea")} />
+                        <WordButton label="Sí" isSelected={formValues.cardiovascular.lipotimia === "Sí"} onClick={() => handleRadioChange("cardiovascular", "lipotimia", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.cardiovascular.lipotimia === "No"} onClick={() => handleRadioChange("cardiovascular", "lipotimia", "No")} />
                       </div>
-                      {formValues.cardiovascular.lipotimia && formValues.cardiovascular.lipotimia !== "No ha presentado episodios" && (
-                        <div className="mt-2">
-                          <Label>Especificar frecuencia, circunstancias, duración y síntomas asociados</Label>
-                          <textarea
-                            value={formValues.cardiovascular.lipotimiaDetalle || ""}
-                            onChange={(e) => handleTextareaChange("cardiovascular", "lipotimiaDetalle", e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
-                            rows={2}
-                            placeholder="Describa la frecuencia, circunstancias y síntomas..."
-                          />
-                        </div>
-                      )}
                     </div>
-
                     <div>
-                      <Label>Ritmo cardíaco percibido</Label>
+                      <Label>Ritmo Cardíaco</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="No percibe irregularidad" isSelected={formValues.cardiovascular.ritmoCardiaco === "No percibe irregularidad en el ritmo cardíaco"} onClick={() => handleRadioChange("cardiovascular", "ritmoCardiaco", "No percibe irregularidad en el ritmo cardíaco")} />
-                        <WordButton label="Latidos acelerados persistentes" isSelected={formValues.cardiovascular.ritmoCardiaco === "Latidos acelerados persistentes"} onClick={() => handleRadioChange("cardiovascular", "ritmoCardiaco", "Latidos acelerados persistentes")} />
-                        <WordButton label="Latidos lentos o débiles" isSelected={formValues.cardiovascular.ritmoCardiaco === "Latidos lentos o débiles"} onClick={() => handleRadioChange("cardiovascular", "ritmoCardiaco", "Latidos lentos o débiles")} />
-                        <WordButton label="Palpitaciones intermitentes" isSelected={formValues.cardiovascular.ritmoCardiaco === "Episodios de palpitaciones intermitentes"} onClick={() => handleRadioChange("cardiovascular", "ritmoCardiaco", "Episodios de palpitaciones intermitentes")} />
+                        <WordButton label="Normal" isSelected={formValues.cardiovascular.ritmoCardiaco === "Normal"} onClick={() => handleRadioChange("cardiovascular", "ritmoCardiaco", "Normal")} />
+                        <WordButton label="Rápido" isSelected={formValues.cardiovascular.ritmoCardiaco === "Rápido"} onClick={() => handleRadioChange("cardiovascular", "ritmoCardiaco", "Rápido")} />
+                        <WordButton label="Lento" isSelected={formValues.cardiovascular.ritmoCardiaco === "Lento"} onClick={() => handleRadioChange("cardiovascular", "ritmoCardiaco", "Lento")} />
                       </div>
-                      {formValues.cardiovascular.ritmoCardiaco && formValues.cardiovascular.ritmoCardiaco !== "No percibe irregularidad en el ritmo cardíaco" && (
-                        <div className="mt-2">
-                          <Label>Especificar inicio, frecuencia, duración, factores desencadenantes</Label>
-                          <textarea
-                            value={formValues.cardiovascular.ritmoCardiacoDetalle || ""}
-                            onChange={(e) => handleTextareaChange("cardiovascular", "ritmoCardiacoDetalle", e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
-                            rows={2}
-                            placeholder="Describa inicio, frecuencia y desencadenantes..."
-                          />
-                        </div>
-                      )}
                     </div>
-
                     <div>
-                      <Label>Síntomas cardiovasculares asociados</Label>
+                      <Label>Síntomas Cardiovasculares</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Mareos o vértigo recurrente" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Mareos o vértigo recurrente")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Mareos o vértigo recurrente", !formValues.cardiovascular.sintomasCardiovasculares.includes("Mareos o vértigo recurrente"))} />
-                        <WordButton label="Edema en extremidades inferiores" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Edema en extremidades inferiores")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Edema en extremidades inferiores", !formValues.cardiovascular.sintomasCardiovasculares.includes("Edema en extremidades inferiores"))} />
-                        <WordButton label="Equimosis o tendencia a hematomas" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Equimosis o tendencia a hematomas")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Equimosis o tendencia a hematomas", !formValues.cardiovascular.sintomasCardiovasculares.includes("Equimosis o tendencia a hematomas"))} />
-                        <WordButton label="Várices visibles o dolorosas" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Várices visibles o dolorosas")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Várices visibles o dolorosas", !formValues.cardiovascular.sintomasCardiovasculares.includes("Várices visibles o dolorosas"))} />
-                        <WordButton label="Cefalea relacionada a presión arterial" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Cefalea relacionada a presión arterial")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Cefalea relacionada a presión arterial", !formValues.cardiovascular.sintomasCardiovasculares.includes("Cefalea relacionada a presión arterial"))} />
-                        <WordButton label="Acúfenos (zumbido en los oídos)" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Acúfenos (zumbido en los oídos)")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Acúfenos (zumbido en los oídos)", !formValues.cardiovascular.sintomasCardiovasculares.includes("Acúfenos (zumbido en los oídos)"))} />
-                        <WordButton label="Fosfenos o visión borrosa transitoria" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Fosfenos o visión borrosa transitoria")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Fosfenos o visión borrosa transitoria", !formValues.cardiovascular.sintomasCardiovasculares.includes("Fosfenos o visión borrosa transitoria"))} />
-                        <WordButton label="Palpitaciones frecuentes" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Palpitaciones frecuentes")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Palpitaciones frecuentes", !formValues.cardiovascular.sintomasCardiovasculares.includes("Palpitaciones frecuentes"))} />
-                        <WordButton label="Ninguno de los anteriores" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Ninguno de los anteriores")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Ninguno de los anteriores", !formValues.cardiovascular.sintomasCardiovasculares.includes("Ninguno de los anteriores"))} />
+                        <WordButton label="Mareos" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Mareos")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Mareos", !formValues.cardiovascular.sintomasCardiovasculares.includes("Mareos"))} />
+                        <WordButton label="Edema" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Hinchazón (edema)")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Hinchazón (edema)", !formValues.cardiovascular.sintomasCardiovasculares.includes("Hinchazón (edema)"))} />
+                        <WordButton label="Equimosis" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Moretones (equimosis)")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Moretones (equimosis)", !formValues.cardiovascular.sintomasCardiovasculares.includes("Moretones (equimosis)"))} />
+                        <WordButton label="Várices" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Várices")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Várices", !formValues.cardiovascular.sintomasCardiovasculares.includes("Várices"))} />
+                        <WordButton label="Cefalea" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Dolor de cabeza (cefalea)")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Dolor de cabeza (cefalea)", !formValues.cardiovascular.sintomasCardiovasculares.includes("Dolor de cabeza (cefalea)"))} />
+                        <WordButton label="Acúfenos" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Zumbidos en los oídos (acúfenos)")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Zumbidos en los oídos (acúfenos)", !formValues.cardiovascular.sintomasCardiovasculares.includes("Zumbidos en los oídos (acúfenos)"))} />
+                        <WordButton label="Fosfenos" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Luces al cerrar los ojos (fosfenos)")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Luces al cerrar los ojos (fosfenos)", !formValues.cardiovascular.sintomasCardiovasculares.includes("Luces al cerrar los ojos (fosfenos)"))} />
+                        <WordButton label="Palpitaciones" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Palpitaciones")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Palpitaciones", !formValues.cardiovascular.sintomasCardiovasculares.includes("Palpitaciones"))} />
+                        <WordButton label="Ninguno" isSelected={formValues.cardiovascular.sintomasCardiovasculares.includes("Ninguno")} onClick={() => handleCheckboxChange("cardiovascular", "sintomasCardiovasculares", "Ninguno", !formValues.cardiovascular.sintomasCardiovasculares.includes("Ninguno"))} />
                       </div>
-                      {formValues.cardiovascular.sintomasCardiovasculares.length > 0 && !formValues.cardiovascular.sintomasCardiovasculares.includes("Ninguno de los anteriores") && (
-                        <div className="mt-2">
-                          <Label>Describir evolución, intensidad y relación con actividades</Label>
-                          <textarea
-                            value={formValues.cardiovascular.sintomasCardiovascularesDetalle || ""}
-                            onChange={(e) => handleTextareaChange("cardiovascular", "sintomasCardiovascularesDetalle", e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
-                            rows={2}
-                            placeholder="Describa evolución y relación con actividades..."
-                          />
-                        </div>
-                      )}
                     </div>
-
                     <div>
                       <Label>Presión arterial conocida</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Hipertensión arterial" isSelected={formValues.cardiovascular.presionArterial === "Ha referido diagnóstico previo de hipertensión arterial"} onClick={() => handleRadioChange("cardiovascular", "presionArterial", "Ha referido diagnóstico previo de hipertensión arterial")} />
-                        <WordButton label="Hipotensión arterial" isSelected={formValues.cardiovascular.presionArterial === "Ha referido diagnóstico previo de hipotensión arterial"} onClick={() => handleRadioChange("cardiovascular", "presionArterial", "Ha referido diagnóstico previo de hipotensión arterial")} />
-                        <WordButton label="Sin diagnóstico conocido" isSelected={formValues.cardiovascular.presionArterial === "No cuenta con diagnóstico conocido de alteraciones en la presión arterial"} onClick={() => handleRadioChange("cardiovascular", "presionArterial", "No cuenta con diagnóstico conocido de alteraciones en la presión arterial")} />
+                        <WordButton label="Alta" isSelected={formValues.cardiovascular.presionArterial === "Alta"} onClick={() => handleRadioChange("cardiovascular", "presionArterial", "Alta")} />
+                        <WordButton label="Baja" isSelected={formValues.cardiovascular.presionArterial === "Baja"} onClick={() => handleRadioChange("cardiovascular", "presionArterial", "Baja")} />
+                        <WordButton label="Normal" isSelected={formValues.cardiovascular.presionArterial === "Normal"} onClick={() => handleRadioChange("cardiovascular", "presionArterial", "Normal")} />
                       </div>
                     </div>
-
                     <div>
-                      <Label>Antecedentes cardiovasculares</Label>
+                      <Label>Antecedentes de infarto o enfermedad coronaria</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Infarto agudo al miocardio" isSelected={formValues.cardiovascular.antecedentesCardiovasculares.includes("Infarto agudo al miocardio")} onClick={() => handleCheckboxChange("cardiovascular", "antecedentesCardiovasculares", "Infarto agudo al miocardio", !formValues.cardiovascular.antecedentesCardiovasculares.includes("Infarto agudo al miocardio"))} />
-                        <WordButton label="Enfermedad coronaria" isSelected={formValues.cardiovascular.antecedentesCardiovasculares.includes("Enfermedad coronaria (ej. angina de pecho)")} onClick={() => handleCheckboxChange("cardiovascular", "antecedentesCardiovasculares", "Enfermedad coronaria (ej. angina de pecho)", !formValues.cardiovascular.antecedentesCardiovasculares.includes("Enfermedad coronaria (ej. angina de pecho)"))} />
-                        <WordButton label="Insuficiencia cardíaca" isSelected={formValues.cardiovascular.antecedentesCardiovasculares.includes("Insuficiencia cardíaca")} onClick={() => handleCheckboxChange("cardiovascular", "antecedentesCardiovasculares", "Insuficiencia cardíaca", !formValues.cardiovascular.antecedentesCardiovasculares.includes("Insuficiencia cardíaca"))} />
-                        <WordButton label="Procedimientos cardiovasculares" isSelected={formValues.cardiovascular.antecedentesCardiovasculares.includes("Procedimientos cardiovasculares (cateterismo, bypass, angioplastía)")} onClick={() => handleCheckboxChange("cardiovascular", "antecedentesCardiovasculares", "Procedimientos cardiovasculares (cateterismo, bypass, angioplastía)", !formValues.cardiovascular.antecedentesCardiovasculares.includes("Procedimientos cardiovasculares (cateterismo, bypass, angioplastía)"))} />
-                        <WordButton label="Niega antecedentes cardiovasculares" isSelected={formValues.cardiovascular.antecedentesCardiovasculares.includes("Niega antecedentes cardiovasculares")} onClick={() => handleCheckboxChange("cardiovascular", "antecedentesCardiovasculares", "Niega antecedentes cardiovasculares", !formValues.cardiovascular.antecedentesCardiovasculares.includes("Niega antecedentes cardiovasculares"))} />
+                        <WordButton label="Sí" isSelected={formValues.cardiovascular.antecedentesInfarto === "Sí"} onClick={() => handleRadioChange("cardiovascular", "antecedentesInfarto", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.cardiovascular.antecedentesInfarto === "No"} onClick={() => handleRadioChange("cardiovascular", "antecedentesInfarto", "No")} />
                       </div>
-                      {formValues.cardiovascular.antecedentesCardiovasculares.length > 0 && !formValues.cardiovascular.antecedentesCardiovasculares.includes("Niega antecedentes cardiovasculares") && (
-                        <div className="mt-2">
-                          <Label>Detallar año, tratamiento recibido, secuelas, hospitalizaciones</Label>
-                          <textarea
-                            value={formValues.cardiovascular.antecedentesCardiovascularesDetalle || ""}
-                            onChange={(e) => handleTextareaChange("cardiovascular", "antecedentesCardiovascularesDetalle", e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
-                            rows={2}
-                            placeholder="Detallar año, tratamiento, secuelas..."
-                          />
-                        </div>
-                      )}
                     </div>
-
                     <div>
-                      <Label>Capacidad funcional</Label>
+                      <Label>Fatiga fácil con esfuerzo leve</Label>
                       <div className="flex flex-wrap mt-1">
-                        <WordButton label="Fatiga con esfuerzos leves" isSelected={formValues.cardiovascular.capacidadFuncional === "Fatiga fácil con esfuerzos leves (caminar, subir escaleras cortas)"} onClick={() => handleRadioChange("cardiovascular", "capacidadFuncional", "Fatiga fácil con esfuerzos leves (caminar, subir escaleras cortas)")} />
-                        <WordButton label="Fatiga con esfuerzos moderados" isSelected={formValues.cardiovascular.capacidadFuncional === "Fatiga únicamente con esfuerzos moderados o intensos"} onClick={() => handleRadioChange("cardiovascular", "capacidadFuncional", "Fatiga únicamente con esfuerzos moderados o intensos")} />
-                        <WordButton label="No refiere fatiga" isSelected={formValues.cardiovascular.capacidadFuncional === "No refiere fatiga con la actividad cotidiana"} onClick={() => handleRadioChange("cardiovascular", "capacidadFuncional", "No refiere fatiga con la actividad cotidiana")} />
+                        <WordButton label="Sí" isSelected={formValues.cardiovascular.fatigaEsfuerzo === "Sí"} onClick={() => handleRadioChange("cardiovascular", "fatigaEsfuerzo", "Sí")} />
+                        <WordButton label="No" isSelected={formValues.cardiovascular.fatigaEsfuerzo === "No"} onClick={() => handleRadioChange("cardiovascular", "fatigaEsfuerzo", "No")} />
                       </div>
-                      {formValues.cardiovascular.capacidadFuncional && formValues.cardiovascular.capacidadFuncional !== "No refiere fatiga con la actividad cotidiana" && (
-                        <div className="mt-2">
-                          <Label>Especificar limitaciones, tiempo de inicio y progresión</Label>
-                          <textarea
-                            value={formValues.cardiovascular.capacidadFuncionalDetalle || ""}
-                            onChange={(e) => handleTextareaChange("cardiovascular", "capacidadFuncionalDetalle", e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
-                            rows={2}
-                            placeholder="Especificar limitaciones y progresión..."
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label>Disnea (dificultad para respirar)</Label>
-                      <div className="flex flex-wrap mt-1">
-                        <WordButton label="No refiere dificultad respiratoria" isSelected={formValues.cardiovascular.disnea === "No refiere dificultad respiratoria"} onClick={() => handleRadioChange("cardiovascular", "disnea", "No refiere dificultad respiratoria")} />
-                        <WordButton label="Disnea de esfuerzo leve" isSelected={formValues.cardiovascular.disnea === "Disnea de esfuerzo leve"} onClick={() => handleRadioChange("cardiovascular", "disnea", "Disnea de esfuerzo leve")} />
-                        <WordButton label="Disnea paroxística nocturna" isSelected={formValues.cardiovascular.disnea === "Disnea paroxística nocturna"} onClick={() => handleRadioChange("cardiovascular", "disnea", "Disnea paroxística nocturna")} />
-                        <WordButton label="Ortopnea" isSelected={formValues.cardiovascular.disnea === "Ortopnea (dificultad respiratoria al estar acostado)"} onClick={() => handleRadioChange("cardiovascular", "disnea", "Ortopnea (dificultad respiratoria al estar acostado)")} />
-                      </div>
-                      {formValues.cardiovascular.disnea && formValues.cardiovascular.disnea !== "No refiere dificultad respiratoria" && (
-                        <div className="mt-2">
-                          <Label>Especificar desencadenantes, duración, intensidad y tratamiento recibido</Label>
-                          <textarea
-                            value={formValues.cardiovascular.disneaDetalle || ""}
-                            onChange={(e) => handleTextareaChange("cardiovascular", "disneaDetalle", e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
-                            rows={2}
-                            placeholder="Especificar desencadenantes, duración e intensidad..."
-                          />
-                        </div>
-                      )}
-                    </div>
-
-                    <div>
-                      <Label>Otros antecedentes relevantes</Label>
-                      <div className="flex flex-wrap mt-1">
-                        <WordButton label="Uso de medicamentos cardiovasculares" isSelected={formValues.cardiovascular.otrosAntecedentes.includes("Uso actual o previo de medicamentos cardiovasculares")} onClick={() => handleCheckboxChange("cardiovascular", "otrosAntecedentes", "Uso actual o previo de medicamentos cardiovasculares", !formValues.cardiovascular.otrosAntecedentes.includes("Uso actual o previo de medicamentos cardiovasculares"))} />
-                        <WordButton label="Antecedentes familiares" isSelected={formValues.cardiovascular.otrosAntecedentes.includes("Antecedentes familiares de enfermedad cardiovascular prematura")} onClick={() => handleCheckboxChange("cardiovascular", "otrosAntecedentes", "Antecedentes familiares de enfermedad cardiovascular prematura", !formValues.cardiovascular.otrosAntecedentes.includes("Antecedentes familiares de enfermedad cardiovascular prematura"))} />
-                        <WordButton label="Niega antecedentes familiares" isSelected={formValues.cardiovascular.otrosAntecedentes.includes("Niega antecedentes familiares relevantes")} onClick={() => handleCheckboxChange("cardiovascular", "otrosAntecedentes", "Niega antecedentes familiares relevantes", !formValues.cardiovascular.otrosAntecedentes.includes("Niega antecedentes familiares relevantes"))} />
-                      </div>
-                      {formValues.cardiovascular.otrosAntecedentes.length > 0 && !formValues.cardiovascular.otrosAntecedentes.includes("Niega antecedentes familiares relevantes") && (
-                        <div className="mt-2">
-                          <Label>Especificar nombres de fármacos, dosis, parentesco y edad de presentación en familiares</Label>
-                          <textarea
-                            value={formValues.cardiovascular.otrosAntecedentesDetalle || ""}
-                            onChange={(e) => handleTextareaChange("cardiovascular", "otrosAntecedentesDetalle", e.target.value)}
-                            className="w-full p-2 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-sm"
-                            rows={2}
-                            placeholder="Especificar medicamentos, dosis, antecedentes familiares..."
-                          />
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -1387,25 +1089,15 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         oxigenoSuplementario: "",
                         tosExpectoracion: ""
                       },
-                        cardiovascular: {
-                          dolorToracico: "",
-                          dolorToracicoDetalle: "",
-                          lipotimia: "",
-                          lipotimiaDetalle: "",
-                          ritmoCardiaco: "",
-                          ritmoCardiacoDetalle: "",
-                          sintomasCardiovasculares: [],
-                          sintomasCardiovascularesDetalle: "",
-                          presionArterial: "",
-                          antecedentesCardiovasculares: [],
-                          antecedentesCardiovascularesDetalle: "",
-                          capacidadFuncional: "",
-                          capacidadFuncionalDetalle: "",
-                          disnea: "",
-                          disneaDetalle: "",
-                          otrosAntecedentes: [],
-                          otrosAntecedentesDetalle: ""
-                        },
+                      cardiovascular: {
+                        dolorPecho: "",
+                        lipotimia: "",
+                        ritmoCardiaco: "",
+                        sintomasCardiovasculares: [],
+                        presionArterial: "",
+                        antecedentesInfarto: "",
+                        fatigaEsfuerzo: ""
+                      },
                       genitoUrinario: {
                         frecuenciaUrinaria: "",
                         sintomasUrinarios: [],
