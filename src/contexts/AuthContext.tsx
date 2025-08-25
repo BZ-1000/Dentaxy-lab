@@ -165,8 +165,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         if (session) {
           localStorage.setItem('userSession', JSON.stringify(session));
-      // Suscripción: se maneja en el efecto que observa `session`
-
+          // Check subscription status when user logs in
+          if (event === 'SIGNED_IN') {
+            setTimeout(() => {
+              if (mounted) {
+                checkSubscription();
+              }
+            }, 1000);
+          }
         } else {
           localStorage.removeItem('userSession');
           localStorage.removeItem('dentaxy_username');
