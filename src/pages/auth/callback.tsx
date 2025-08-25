@@ -11,49 +11,73 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Check if we need to get the session (for OAuth providers)
-        const { data, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error('Error al obtener la sesión:', error);
+        const url = new URL(window.location.href);
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const queryParams = url.searchParams;
+
+        // 1) Handle explicit OAuth errors from provider
+        const oauthError = queryParams.get('error_description') || queryParams.get('error');
+        if (oauthError) {
+          console.error('OAuth error:', oauthError);
+          toast.error(`Error de autenticación: ${oauthError}`);
+          navigate('/auth/login');
+          return;
+        }
+
+        // 2) PKCE flow: exchange authorization code for session if present
+        const code = queryParams.get('code');
+        if (code) {
+          try {
+            const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+            if (error) throw error;
+            if (data?.session) {
+              toast.success('¡Autenticación exitosa!');
+              navigate('/app', { replace: true });
+              return;
+            }
+          } catch (err: any) {
+            console.error('Error al intercambiar el código PKCE:', err);
+            toast.error('No se pudo completar la autenticación (PKCE).');
+            navigate('/auth/login');
+            return;
+          }
+        }
+
+        // 3) Implicit flow (hash tokens) or previously processed session
+        const { data: sessionResult, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+          console.error('Error al obtener la sesión:', sessionError);
           toast.error('Error al procesar la autenticación');
           navigate('/auth/login');
           return;
         }
-        
-        if (data?.session) {
-          // The user is authenticated, redirect to app
+
+        if (sessionResult?.session) {
           toast.success('¡Autenticación exitosa!');
-          navigate('/app'); // Redirect to app after successful login
+          navigate('/app', { replace: true });
           return;
         }
-        
-        // Try to exchange the code if there's no session yet
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const queryParams = new URLSearchParams(window.location.search);
-        
-        if (hashParams.get('access_token') || queryParams.get('code')) {
-          // There's an access token or auth code in the URL, Supabase should be processing it
-          console.log('Procesando autenticación...');
-          
-          // Wait a moment for Supabase to process the auth
+
+        if (hashParams.get('access_token')) {
+          // Give supabase a moment to persist the hash tokens
           setTimeout(async () => {
-            const { data: sessionData } = await supabase.auth.getSession();
-            if (sessionData?.session) {
+            const { data: refreshed } = await supabase.auth.getSession();
+            if (refreshed?.session) {
               toast.success('¡Autenticación exitosa!');
-              navigate('/app'); // Redirect to app after successful login
+              navigate('/app', { replace: true });
             } else {
-              console.error('No se pudo obtener la sesión después del callback');
+              console.error('No se pudo obtener la sesión después del callback (hash)');
               toast.error('Error durante la autenticación');
               navigate('/auth/login');
             }
-          }, 1000);
-        } else {
-          // No session and no access token in URL, redirect to login
-          console.error('No se encontró información de autenticación');
-          toast.error('Enlace de autenticación inválido');
-          navigate('/auth/login');
+          }, 600);
+          return;
         }
+
+        // 4) Nothing useful found
+        console.error('No se encontró información de autenticación en la URL');
+        toast.error('Enlace de autenticación inválido');
+        navigate('/auth/login');
       } catch (err) {
         console.error('Error en el callback de autenticación:', err);
         toast.error('Error inesperado durante la autenticación');

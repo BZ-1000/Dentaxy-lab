@@ -88,13 +88,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      // Clear all local storage
-      localStorage.removeItem('userSession');
-      localStorage.removeItem('dentaxy_username');
-      localStorage.removeItem('currentFormData');
-      localStorage.removeItem('formBackup');
-      
-      // Reset subscription state
+      // Let Supabase handle session cleanup - don't manipulate localStorage directly
+      setSession(null);
       setSubscription({
         subscribed: false,
         subscription_tier: null,
@@ -108,8 +103,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       });
     } catch (error) {
       console.error('Error signing out:', error);
-      // Force logout even if there's an error
-      localStorage.clear();
+      
+      // Force state reset on error but let Supabase handle storage
       setSession(null);
       setSubscription({
         subscribed: false,
@@ -139,11 +134,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         if (mounted) {
           setSession(session);
-          if (session) {
-            localStorage.setItem('userSession', JSON.stringify(session));
-          } else {
-            localStorage.removeItem('userSession');
-          }
           setLoading(false);
         }
       } catch (error) {
@@ -163,19 +153,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         
         setSession(session);
         
-        if (session) {
-          localStorage.setItem('userSession', JSON.stringify(session));
-          // Check subscription status when user logs in
-          if (event === 'SIGNED_IN') {
-            setTimeout(() => {
-              if (mounted) {
-                checkSubscription();
-              }
-            }, 1000);
-          }
-        } else {
-          localStorage.removeItem('userSession');
-          localStorage.removeItem('dentaxy_username');
+        if (!session) {
+          // Clear subscription state when logged out
           setSubscription({
             subscribed: false,
             subscription_tier: null,
