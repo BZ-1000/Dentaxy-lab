@@ -568,6 +568,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_user_role: {
+        Args: { user_uuid: string }
+        Returns: string
+      }
       increment_copy_clicks: {
         Args: Record<PropertyKey, never>
         Returns: undefined
