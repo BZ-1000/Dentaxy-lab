@@ -202,9 +202,6 @@ const HistoriaClinica = ({
   const formData = propFormData || hookFormData;
   const handleArticulacionCraneomandibularChange = propHandleArticulacionCraneomandibularChange || hookHandleArticulacionCraneomandibularChange;
 
-  const handleSidebarStateChange = (isOpen: boolean) => {
-    setSidebarOpen(isOpen);
-  };
 
   const searchLocalTerms = async (searchText: string) => {
     try {
@@ -379,7 +376,6 @@ const HistoriaClinica = ({
             if (resetFormulario) resetFormulario();
           }} 
           pacienteActual={pacienteActual}
-          onSidebarStateChange={handleSidebarStateChange}
         />
       )}
       

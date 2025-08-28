@@ -17,7 +17,6 @@ interface FormulariosSidebarProps {
   onCerrarFormulario: () => void;
   onResetFormulario: () => void;
   pacienteActual: string;
-  onSidebarStateChange: (isOpen: boolean) => void;
 }
 
 const FormulariosSidebar = ({
@@ -25,8 +24,7 @@ const FormulariosSidebar = ({
   onGuardarFormulario,
   onCerrarFormulario,
   onResetFormulario,
-  pacienteActual,
-  onSidebarStateChange
+  pacienteActual
 }: FormulariosSidebarProps) => {
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [formularios, setFormularios] = useState<{
@@ -44,11 +42,6 @@ const FormulariosSidebar = ({
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
 
-  // Notify parent component when sidebar state changes
-  useEffect(() => {
-    onSidebarStateChange(open);
-  }, [open, onSidebarStateChange]);
-
   const loadSavedForms = () => {
     const savedForms: {
       nombre: string;
@@ -56,9 +49,7 @@ const FormulariosSidebar = ({
     }[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('formulario_') && 
-          !key.includes('_examen-intrabucal-') && 
-          !key.includes('_interrogatorio-sistemas-')) {
+      if (key && key.startsWith('formulario_')) {
         const nombre = key.replace('formulario_', '');
         const data = JSON.parse(localStorage.getItem(key) || '{}');
         savedForms.push({
@@ -90,16 +81,6 @@ const FormulariosSidebar = ({
   const handleEliminarFormulario = () => {
     if (!formularioSeleccionado) return;
     localStorage.removeItem(`formulario_${formularioSeleccionado}`);
-    
-    // Eliminar también los datos específicos del examen intrabucal
-    const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
-    areasIntrabucal.forEach(area => {
-      localStorage.removeItem(`formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
-    });
-    
-    // Eliminar también los datos específicos del interrogatorio de sistemas
-    localStorage.removeItem(`formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
-    
     loadSavedForms();
     setAlertDialogOpen(false);
     if (formularioSeleccionado === pacienteActual) {
@@ -117,24 +98,6 @@ const FormulariosSidebar = ({
     if (oldData) {
       localStorage.setItem(`formulario_${nuevoNombre}`, oldData);
       localStorage.removeItem(`formulario_${formularioSeleccionado}`);
-      
-      // Renombrar también los datos específicos del examen intrabucal
-      const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
-      areasIntrabucal.forEach(area => {
-        const areaData = localStorage.getItem(`formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
-        if (areaData) {
-          localStorage.setItem(`formulario_${nuevoNombre}_examen-intrabucal-${area}`, areaData);
-          localStorage.removeItem(`formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
-        }
-      });
-      
-      // Renombrar también los datos específicos del interrogatorio de sistemas
-      const interrogatorioData = localStorage.getItem(`formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
-      if (interrogatorioData) {
-        localStorage.setItem(`formulario_${nuevoNombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
-        localStorage.removeItem(`formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
-      }
-      
       if (formularioSeleccionado === pacienteActual) {
         const data = JSON.parse(oldData);
         onCargarFormulario(data, nuevoNombre);
@@ -184,11 +147,11 @@ const FormulariosSidebar = ({
 
   return (
     <div className="">
-      <div className="fixed top-0 left-0 h-screen hidden md:block z-40">
+      <div className="sticky top-0 h-screen hidden md:block">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
-          <SidebarBody className="bg-slate-50">
+          <SidebarBody className="bg-white dark:bg-neutral-900">
             <div className="sticky top-0 bg-slate-50 z-10">
-              <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-slate-50">
+              <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-white">
                 {open ? <Logo>
                     <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
                   </Logo> : <LogoIcon>
@@ -210,24 +173,7 @@ const FormulariosSidebar = ({
                       <SidebarLink link={{
                     label: form.nombre,
                     icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
-                    onClick: () => {
-                      // Cargar los datos específicos del examen intrabucal antes de cargar el formulario
-                      const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
-                      areasIntrabucal.forEach(area => {
-                        const areaData = localStorage.getItem(`formulario_${form.nombre}_examen-intrabucal-${area}`);
-                        if (areaData) {
-                          localStorage.setItem(`examen-intrabucal-${area}`, areaData);
-                        }
-                      });
-                      
-                      // Cargar también los datos específicos del interrogatorio de sistemas
-                      const interrogatorioData = localStorage.getItem(`formulario_${form.nombre}_interrogatorio-sistemas-formValues`);
-                      if (interrogatorioData) {
-                        localStorage.setItem('interrogatorio-sistemas-formValues', interrogatorioData);
-                      }
-                      
-                      onCargarFormulario(form.data, form.nombre);
-                    }
+                    onClick: () => onCargarFormulario(form.data, form.nombre)
                   }} className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1" />
                       {open && <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={() => handleFormularioAction('renombrar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700" title="Renombrar paciente">
