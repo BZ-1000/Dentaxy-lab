@@ -1,5 +1,8 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { pipeline } from "@huggingface/transformers";
-import { supabase } from "@/integrations/supabase/client";
+
+const GOOGLE_AI_API_KEY = import.meta.env.VITE_GOOGLE_AI_API_KEY;
+const genAI = new GoogleGenerativeAI(GOOGLE_AI_API_KEY);
 
 interface TextGenerationResult {
   generated_text: string;
@@ -115,6 +118,8 @@ function formatText(text: string): string {
 
 export const generateMedicalReport = async (formData: any) => {
   try {
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+
     // Procesar el texto del motivo de consulta antes de incluirlo en el prompt
     const motivoConsulta = processPadecimientoText(formData.padecimientoActual.motivoConsulta);
 
@@ -165,13 +170,9 @@ export const generateMedicalReport = async (formData: any) => {
     Pronóstico:
     ${formData.pronosticos || 'No se ha establecido pronóstico.'}`;
 
-    const { data, error } = await supabase.functions.invoke('generate-with-gemini', {
-      body: { prompt }
-    });
-    if (error || !data?.text) {
-      throw new Error(error?.message || 'No se pudo generar el reporte con Gemini');
-    }
-    let text = data.text;
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    let text = response.text();
 
     // Procesamiento mejorado del texto:
     // 1. Primero limpiamos redundancias básicas

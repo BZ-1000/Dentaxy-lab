@@ -8,7 +8,6 @@ import { BookOpen, Lightbulb } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Typewriter } from "@/components/ui/typewriter-text";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CaracteristicasDolorProps {
   dolor: {
@@ -65,7 +64,6 @@ const causasProvocadoEjemplo = [
 ];
 
 const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProps) => {
-  const isMobile = useIsMobile();
   const [showIcon, setShowIcon] = useState(false);
   const [localizacionText, setLocalizacionText] = useState(dolor.localizacion?.descripcion || defaultLocalizacion);
   const [causaProvocadoText, setCausaProvocadoText] = useState(dolor.causaProvocado || defaultCausaProvocado);
@@ -250,7 +248,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
                 placeholder={defaultLocalizacion} 
                 className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify" 
               />
-              {localizacionText === defaultLocalizacion && !isMobile && (
+              {localizacionText === defaultLocalizacion && (
                 <div className="absolute top-2 left-[105px] pointer-events-none">
                   <Typewriter 
                     text={localizacionesEjemplo} 
@@ -312,7 +310,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
                 placeholder={defaultCausaProvocado} 
                 className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify" 
               />
-              {causaProvocadoText === defaultCausaProvocado && !isMobile && (
+              {causaProvocadoText === defaultCausaProvocado && (
                 <div className="absolute top-2 left-[110px] pointer-events-none">
                   <Typewriter 
                     text={causasProvocadoEjemplo} 

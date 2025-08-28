@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -310,14 +309,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     return opciones[categoria]?.[opcion] || opcion;
   };
 
-  const handleCopy = async (section: keyof CopiedState) => {
-    // Track copy click
-    try {
-      const { trackCopyClick } = await import('@/utils/trackCopyClick');
-      trackCopyClick();
-    } catch (error) {
-      console.error('Error tracking copy:', error);
-    }
+  const handleCopy = (section: keyof CopiedState) => {
     if (redacciones[section]) {
       navigator.clipboard.writeText(redacciones[section]);
       setCopied(prev => ({
@@ -483,31 +475,31 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
+            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
               <button
                 onClick={() => setShowForm(true)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
                 Formulario
               </button>
               <button
                 onClick={() => setShowForm(false)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
               >
                 Redacción IA
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+          <div className="flex items-center gap-2">
+            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
+              <Minus className="w-4 h-4" />
             </button>
-            <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
+            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
+              <Maximize2 className="w-4 h-4" />
             </button>
-            <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-3 h-3 sm:w-4 sm:h-4" />
+            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -523,25 +515,23 @@ const AntecedentesPersonalesPatologicos: React.FC<{
             {showForm ? (
               <div className="space-y-6">
                 <div
-                  className="bg-blue-50 dark:bg-blue-900/20 p-2 sm:p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
+                  className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 w-full text-left cursor-pointer"
                   onClick={handleSinPatologiaChange}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500" />
-                      <Label className="text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="h-5 w-5 text-blue-500" />
+                      <Label className="text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-1">
                         Paciente sin patologías
                         {sinPatologia ? (
-                          <span className="ml-1 sm:ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-1 sm:px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <span className="ml-2 text-xs text-green-500 bg-green-50 dark:bg-green-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
                             <EyeOff className="h-3 w-3" />
-                            <span className="hidden sm:inline">Secciones ocultas</span>
-                            <span className="sm:hidden">Ocultas</span>
+                            Secciones ocultas
                           </span>
                         ) : (
-                          <span className="ml-1 sm:ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-1 sm:px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <span className="ml-2 text-xs text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full flex items-center gap-1">
                             <Eye className="h-3 w-3" />
-                            <span className="hidden sm:inline">Secciones visibles</span>
-                            <span className="sm:hidden">Visibles</span>
+                            Secciones visibles
                           </span>
                         )}
                       </Label>
@@ -550,7 +540,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                       id="sin-patologia"
                       checked={sinPatologia}
                       onCheckedChange={handleSinPatologiaChange}
-                      className="data-[state=checked]:bg-blue-500 scale-75 sm:scale-100"
+                      className="data-[state=checked]:bg-blue-500"
                       onClick={(e) => e.stopPropagation()}
                     />
                   </div>

@@ -1,7 +1,8 @@
+
 "use client"
 
 import * as React from "react"
-import { motion, HTMLMotionProps, Variants } from "framer-motion"
+import { motion, HTMLMotionProps } from "framer-motion"
 import { useTheme } from "@/hooks/use-theme"
 import { cn } from "@/lib/utils"
 import { LucideIcon } from "lucide-react"
@@ -31,7 +32,19 @@ const backVariants = {
   hover: { rotateX: 0, opacity: 1 },
 }
 
-const navGlowVariants: Variants = {
+const glowVariants = {
+  initial: { opacity: 0, scale: 0.8 },
+  hover: {
+    opacity: 1,
+    scale: 2,
+    transition: {
+      opacity: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
+      scale: { duration: 0.5, type: "spring", stiffness: 300, damping: 25 },
+    },
+  },
+}
+
+const navGlowVariants = {
   initial: { opacity: 0 },
   hover: {
     opacity: 1,
@@ -42,20 +55,8 @@ const navGlowVariants: Variants = {
   },
 }
 
-const glowVariants: Variants = {
-  initial: { opacity: 0, scale: 0.8 },
-  hover: {
-    opacity: 1,
-    scale: 2,
-    transition: {
-      opacity: { duration: 0.5, ease: [0.4, 0, 0.2, 1] },
-      scale: { duration: 0.5, type: "spring" as const, stiffness: 300, damping: 25 },
-    },
-  },
-}
-
 const sharedTransition = {
-  type: "spring" as const,
+  type: "spring",
   stiffness: 100,
   damping: 20,
   duration: 0.5,
