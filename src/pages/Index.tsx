@@ -2,67 +2,91 @@
 import { AppleStyleDock } from "@/components/AppleStyleDock";
 import HistoriaClinica from "@/components/HistoriaClinica";
 import { Typewriter } from "@/components/ui/typewriter-text";
+import TechBanner from "@/components/ui/tech-banner";
+import { AnalysisModeProvider } from "@/contexts/AnalysisModeContext";
+import { useGlobalMetrics } from "@/hooks/useGlobalMetrics";
 import { useEffect, useState } from "react";
 
-const Index = () => {
-  const [offset, setOffset] = useState(0);
+function IndexContent() {
+  // Initialize metrics tracking for all visitors
+  useGlobalMetrics();
   
   useEffect(() => {
-    const handleScroll = () => {
-      setOffset(window.pageYOffset);
-    };
-    window.addEventListener('scroll', handleScroll);
-    
-    // Actualizar el título de la página
     document.title = "DENTAXY.ai";
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
   }, []);
-  
-  return <div className="min-h-screen">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white overflow-x-hidden">
+      {/* Tech Banner - Floating over main content */}
+      <TechBanner />
+      
       {/* Hero Section */}
-      <div className="min-h-screen relative overflow-hidden">
-        {/* Background image with parallax effect */}
-        <img src="/lovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png" alt="Background" className="absolute inset-0 w-full h-full object-cover" style={{
-        transform: `translateY(${offset * 0.5}px)`,
-        transition: 'transform 0 ease-out'
-      }} />
+      <div className="min-h-screen relative">        
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"></div>
+          <div 
+            className="absolute inset-0" 
+            style={{
+              backgroundImage: `radial-gradient(circle at 25px 25px, rgba(59, 130, 246, 0.1) 2px, transparent 0)`,
+              backgroundSize: '50px 50px'
+            }}
+          ></div>
+        </div>
         
-        <div className="relative z-10 container mx-auto px-4 py-16">
-          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] text-center">
-            {/* Logo and Title */}
-            <div className="flex items-center gap-2 mb-12">
-              <div className="w-12 h-12">
-                <img src="/lovable-uploads/5636450b-9d56-40a0-b095-dd830e161077.png" alt="Dental Logo" className="w-full h-full object-contain" />
+        <div className="relative z-10 container mx-auto px-2 sm:px-4 py-8 sm:py-16 bg-slate-50 max-w-full">
+          <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] sm:min-h-[calc(100vh-8rem)] text-center">
+            {/* Logo and Brand */}
+            <div className="flex items-center gap-2 sm:gap-3 mb-8 sm:mb-12 mt-4 sm:mt-8">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center p-1">
+                <img 
+                  src="/lovable-uploads/fde8b90b-dc35-4ac3-baf8-f54862d6becb.png" 
+                  alt="Dental tooth icon"
+                  className="w-full h-full object-contain"
+                />
               </div>
-              <div className="text-white font-mplus text-justify">
-                <div className="text-lg font-semibold leading-tight">DENTAL BASICS</div>
-                <div className="text-lg font-semibold leading-tight">ACADEMY</div>
+              <div className="text-slate-700 font-mplus">
+                <div className="text-sm sm:text-lg font-semibold leading-tight">DENTAL BASICS</div>
+                <div className="text-sm sm:text-lg font-semibold leading-tight">ACADEMY</div>
               </div>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
+            {/* Main Title */}
+            <h1 className="text-3xl sm:text-5xl md:text-7xl font-bold text-slate-800 mb-4 sm:mb-6 px-2">
               Generador de<br />
               Historias Clínicas<br />
-              <span className="text-blue-300">IA</span>
+              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">IA</span>
             </h1>
             
-            <Typewriter text={["Bienvenido a nuestra Historia clínica inteligente", "Registra Más...", "Escribe Menos..."]} speed={50} loop={true} className="text-xl md:text-2xl text-blue-100 mb-12" />
+            {/* Typewriter effect */}
+            <div>
+              <div className="text-lg sm:text-xl md:text-2xl text-slate-600 mb-8 sm:mb-12 px-2">
+                Bienvenido a nuestra Historia clínica inteligente
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Form Section */}
-      <div className="min-h-screen bg-background py-0">
-        <div className="container mx-auto px-4">
+      <div className="min-h-screen bg-white py-0">
+        <div className="container mx-auto px-2 sm:px-4 bg-slate-50 max-w-full">
           <HistoriaClinica />
         </div>
       </div>
 
       <AppleStyleDock />
-      <div className="h-24" /> {/* Spacer for dock */}
-    </div>;
+      <div className="h-16 sm:h-24" />
+    </div>
+  );
+}
+
+const Index = () => {
+  return (
+    <AnalysisModeProvider>
+      <IndexContent />
+    </AnalysisModeProvider>
+  );
 };
+
 export default Index;

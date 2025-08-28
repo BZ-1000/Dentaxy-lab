@@ -1,7 +1,4 @@
 
-// Corregido para que los inputs numéricos manejen estado correctamente y permitan edición,
-// y corregido el anidamiento incorrecto de <button> alrededor del VoiceInput.
-
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
@@ -100,9 +97,9 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
+            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
               <button
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
                   activeTab === "formulario"
                     ? "bg-blue-500 text-white shadow-md"
                     : "text-gray-700 dark:text-gray-300"
@@ -112,7 +109,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                 Formulario
               </button>
               <button
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
                   activeTab === "redaccion"
                     ? "bg-blue-500 text-white shadow-md"
                     : "text-gray-700 dark:text-gray-300"
@@ -124,27 +121,27 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               onClick={handleMinimize}
-              className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
+              className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
               type="button"
             >
-              <Minus className="w-4 h-4" />
+              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
             <button
               onClick={handleMaximize}
-              className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors"
+              className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors"
               type="button"
             >
-              <Maximize2 className="w-4 h-4" />
+              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
             <button
               onClick={handleClose}
-              className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+              className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
               type="button"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
@@ -216,7 +213,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
 
                 <div className="relative">
                   <label htmlFor="complicaciones" className="block text-sm font-medium mb-1">Complicaciones:</label>
-                  <div className="flex items-center">
+                  <div className="flex items-center gap-2 sm:gap-4">
                     <Textarea
                       id="complicaciones"
                       value={formData.antecedentesGinecoObstetricos?.complicaciones || ""}
@@ -224,7 +221,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                       placeholder="Describa cualquier complicación durante embarazos o partos"
                       className="min-h-[80px] flex-1 resize-y"
                     />
-                    <div className="ml-2">
+                    <div className="h-8 sm:h-10">
                       <VoiceInput onTranscriptionComplete={handleVoiceInput("complicaciones")} />
                     </div>
                   </div>

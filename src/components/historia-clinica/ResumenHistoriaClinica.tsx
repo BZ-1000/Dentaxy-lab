@@ -1,5 +1,6 @@
 
 import { useTheme } from "@/hooks/use-theme";
+import { InteractiveTextSelector } from "@/components/ui/InteractiveTextSelector";
 
 interface ResumenHistoriaClinicaProps {
   resumen: string;
@@ -11,7 +12,7 @@ const ResumenHistoriaClinica = ({ resumen }: ResumenHistoriaClinicaProps) => {
   if (!resumen) return null;
 
   return (
-    <div className="mt-8 animate-fade-in">
+    <InteractiveTextSelector className="mt-8 animate-fade-in">
       <div className={`${theme === 'dark' ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-xl p-8 backdrop-blur-sm bg-opacity-90 transition-colors duration-200`}>
         <h2 className={`text-2xl font-semibold mb-6 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
           Historia Clínica Generada con IA
@@ -22,7 +23,7 @@ const ResumenHistoriaClinica = ({ resumen }: ResumenHistoriaClinicaProps) => {
           </pre>
         </div>
       </div>
-    </div>
+    </InteractiveTextSelector>
   );
 };
 

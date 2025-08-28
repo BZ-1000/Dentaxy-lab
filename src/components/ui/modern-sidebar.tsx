@@ -1,7 +1,7 @@
 
 import { cn } from "@/lib/utils";
 import React, { useState, createContext, useContext, ReactNode } from "react";
-import { AnimatePresence, motion, MotionValue, useTransform } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -37,7 +37,7 @@ export const SidebarProvider = ({
   children: React.ReactNode;
   open?: boolean;
   setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-  animate?: boolean;
+  animate?: boolean
 }) => {
   const [openState, setOpenState] = useState(false);
   const open = openProp !== undefined ? openProp : openState;
@@ -101,7 +101,7 @@ export const DesktopSidebar = ({
       onMouseLeave={() => setOpen(false)}
       {...props}
     >
-      {children}
+      <div>{children as ReactNode}</div>
     </motion.div>
   );
 };
@@ -144,7 +144,7 @@ export const MobileSidebar = ({
               >
                 <X className="h-6 w-6 text-neutral-800 dark:text-neutral-200" />
               </button>
-              {children}
+              {children as ReactNode}
             </div>
           </motion.div>
         )}
@@ -228,22 +228,17 @@ export const LogoIcon = ({
 interface DockIconProps {
   children: ReactNode;
   className?: string;
-  width: MotionValue<number>;
 }
 
-function DockIcon({ children, className, width }: DockIconProps) {
-  const widthTransform = useTransform(width, (val) => val / 2);
-
+function DockIcon({ children, className }: DockIconProps) {
+  
   return (
-    <motion.div
-      style={{ width: widthTransform }}
+    <div
       className={cn('flex items-center justify-center', className)}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
-export {
-  DockIcon
-};
+export { DockIcon };

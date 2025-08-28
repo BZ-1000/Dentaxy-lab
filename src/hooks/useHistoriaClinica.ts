@@ -121,32 +121,78 @@ export const useHistoriaClinica = () => {
   };
 
   const handleFamiliarChange = (familiar: string, field: string, value: boolean | string) => {
-    setFormData(prev => ({
-      ...prev,
-      antecedentesHeredoFamiliares: {
-        ...prev.antecedentesHeredoFamiliares,
-        [familiar]: {
-          ...prev.antecedentesHeredoFamiliares[familiar],
-          [field]: value
-        }
+    setFormData(prev => {
+      // Crear una copia profunda del estado actual
+      const newState = { ...prev };
+      
+      // Si el familiar no existe en antecedentesHeredoFamiliares, crearlo
+      if (!newState.antecedentesHeredoFamiliares[familiar]) {
+        newState.antecedentesHeredoFamiliares[familiar] = {
+          finado: false,
+          vivoSano: false,
+          causaMuerte: '',
+          condiciones: {
+            diabetesMellitus: false,
+            hipertensionArterial: false,
+            osteoporosis: false,
+            artritisReumatoide: false,
+            parkinson: false,
+            alzheimer: false,
+            asma: false,
+            cancer: false,
+            anemia: false,
+            otras: ''
+          }
+        };
       }
-    }));
+      
+      // Actualizar el campo específico
+      newState.antecedentesHeredoFamiliares[familiar] = {
+        ...newState.antecedentesHeredoFamiliares[familiar],
+        [field]: value
+      };
+      
+      return newState;
+    });
   };
 
   const handleCondicionChange = (familiar: string, condicion: string, value: boolean | string) => {
-    setFormData(prev => ({
-      ...prev,
-      antecedentesHeredoFamiliares: {
-        ...prev.antecedentesHeredoFamiliares,
-        [familiar]: {
-          ...prev.antecedentesHeredoFamiliares[familiar],
+    setFormData(prev => {
+      // Crear una copia profunda del estado actual
+      const newState = { ...prev };
+      
+      // Si el familiar no existe en antecedentesHeredoFamiliares, crearlo
+      if (!newState.antecedentesHeredoFamiliares[familiar]) {
+        newState.antecedentesHeredoFamiliares[familiar] = {
+          finado: false,
+          vivoSano: false,
+          causaMuerte: '',
           condiciones: {
-            ...prev.antecedentesHeredoFamiliares[familiar].condiciones,
-            [condicion]: value
+            diabetesMellitus: false,
+            hipertensionArterial: false,
+            osteoporosis: false,
+            artritisReumatoide: false,
+            parkinson: false,
+            alzheimer: false,
+            asma: false,
+            cancer: false,
+            anemia: false,
+            otras: ''
           }
-        }
+        };
       }
-    }));
+      
+      // Actualizar la condición específica
+      newState.antecedentesHeredoFamiliares[familiar] = {
+        ...newState.antecedentesHeredoFamiliares[familiar],
+        condiciones: {
+          ...newState.antecedentesHeredoFamiliares[familiar].condiciones,
+          [condicion]: value
+        }
+      };
+      
+      return newState;
+    });
   };
 
   const handleAntecedenteChange = (field: string, value: any) => {
@@ -459,6 +505,15 @@ export const useHistoriaClinica = () => {
     setFormData(getInitialFormState());
     setResumen('');
     localStorage.removeItem('currentFormData');
+    
+    // Limpiar también los datos específicos del examen intrabucal
+    const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+    areasIntrabucal.forEach(area => {
+      localStorage.removeItem(`examen-intrabucal-${area}`);
+    });
+    
+    // Limpiar también los datos específicos del interrogatorio de sistemas
+    localStorage.removeItem('interrogatorio-sistemas-formValues');
   };
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {
@@ -477,7 +532,23 @@ export const useHistoriaClinica = () => {
       }
     };
     
+    // Guardar formulario principal
     localStorage.setItem(`formulario_${nombre}`, JSON.stringify(formDataToSave));
+    
+    // Guardar también los datos específicos del examen intrabucal
+    const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+    areasIntrabucal.forEach(area => {
+      const areaData = data.examenIntrabucal?.[area];
+      if (areaData && typeof areaData === 'string') {
+        localStorage.setItem(`formulario_${nombre}_examen-intrabucal-${area}`, areaData);
+      }
+    });
+    
+    // Guardar también los datos específicos del interrogatorio de sistemas
+    const interrogatorioData = localStorage.getItem('interrogatorio-sistemas-formValues');
+    if (interrogatorioData) {
+      localStorage.setItem(`formulario_${nombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
+    }
   };
 
   const cargarFormulario = (data: FormDataState | null) => {
@@ -486,6 +557,15 @@ export const useHistoriaClinica = () => {
       setResumen('');
     } else {
       setFormData(data);
+      
+      // Cargar también los datos específicos del examen intrabucal al localStorage específico
+      const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
+      areasIntrabucal.forEach(area => {
+        const areaData = data.examenIntrabucal?.[area];
+        if (areaData && typeof areaData === 'string') {
+          localStorage.setItem(`examen-intrabucal-${area}`, areaData);
+        }
+      });
     }
   };
 
