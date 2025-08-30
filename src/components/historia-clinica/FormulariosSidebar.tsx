@@ -134,9 +134,9 @@ const FormulariosSidebar = ({
     });
   };
   return <div className="">
-      <div className="fixed top-0 left-0 h-screen z-50 hidden md:block">
+      <div className="sticky top-0 h-screen hidden md:block">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
-          <SidebarBody className="bg-background border-r border-border">
+          <SidebarBody className="bg-gray-50">
             <div className="sticky top-0 bg-slate-50 z-10">
               <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-gray-50">
                 {open ? <Logo>
