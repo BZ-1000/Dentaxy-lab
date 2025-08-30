@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { securityLogger } from '@/utils/securityLogger';
 
 interface SubscriptionData {
   subscribed: boolean;
@@ -84,6 +85,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const signOut = async () => {
+    const userId = session?.user?.id;
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -102,11 +104,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         loading: false,
       });
       
+      securityLogger.logAuthEvent('signout', userId);
+      
       toast({
         title: "Sesión cerrada",
         description: "Has cerrado sesión exitosamente",
       });
     } catch (error) {
+      securityLogger.logError('Signout failed', 'AuthContext');
       console.error('Error signing out:', error);
       // Force logout even if there's an error
       localStorage.clear();
@@ -160,6 +165,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (!mounted) return;
         
         console.log('Auth state changed:', event, session?.user?.email);
+        
+        // Log security events
+        if (event === 'SIGNED_IN') {
+          securityLogger.logAuthEvent('signin', session?.user?.id);
+        } else if (event === 'SIGNED_OUT') {
+          securityLogger.logAuthEvent('signout', session?.user?.id);
+        } else if (event === 'TOKEN_REFRESHED') {
+          securityLogger.logAuthEvent('token_refresh', session?.user?.id);
+        }
         
         setSession(session);
         

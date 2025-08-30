@@ -7,19 +7,34 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
 
+const logStep = (step: string, details?: any) => {
+  console.log(`[STRIPE-WEBHOOK] ${step}`, details ? JSON.stringify(details) : '');
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    logStep("Webhook received", { method: req.method, url: req.url });
+    
     const signature = req.headers.get("stripe-signature");
     const stripeWebhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
     const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!signature || !stripeWebhookSecret || !stripeSecretKey || !supabaseUrl || !supabaseServiceKey) {
+    if (!signature) {
+      logStep("Missing Stripe signature");
+      return new Response(JSON.stringify({ error: "Missing signature" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 401,
+      });
+    }
+
+    if (!stripeWebhookSecret || !stripeSecretKey || !supabaseUrl || !supabaseServiceKey) {
+      logStep("Missing environment variables");
       throw new Error("Missing required environment variables");
     }
 
@@ -28,9 +43,19 @@ serve(async (req) => {
     });
 
     const body = await req.text();
-    const event = stripe.webhooks.constructEvent(body, signature, stripeWebhookSecret);
-
-    console.log(`Received webhook event: ${event.type}`);
+    
+    // Verify the webhook signature - this will throw if invalid
+    let event: Stripe.Event;
+    try {
+      event = stripe.webhooks.constructEvent(body, signature, stripeWebhookSecret);
+      logStep("Webhook signature verified", { type: event.type });
+    } catch (err) {
+      logStep("Webhook signature verification failed", { error: err.message });
+      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
@@ -54,9 +79,9 @@ serve(async (req) => {
         });
 
         if (error) {
-          console.error('Error inserting donation:', error);
+          logStep("Error inserting donation", { error: error.message, customer: customerName });
         } else {
-          console.log(`Donation recorded for ${customerName}`);
+          logStep("Donation recorded successfully", { customer: customerName, amount: session.amount_total });
         }
       }
     }
@@ -67,8 +92,8 @@ serve(async (req) => {
     });
 
   } catch (error) {
-    console.error('Webhook error:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    logStep("Webhook error", { error: error.message });
+    return new Response(JSON.stringify({ error: "Webhook processing failed" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
     });
