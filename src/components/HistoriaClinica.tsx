@@ -353,7 +353,7 @@ const HistoriaClinica = ({
   };
 
   return (
-    <div className={`${theme} min-h-screen w-full flex flex-col md:flex-row md:items-start md:gap-8 relative overflow-x-hidden p-4 sm:p-6 lg:p-8`}>
+    <div className={`${theme} min-h-screen w-full flex relative overflow-x-hidden`}>
       {/* FormulariosSidebar only if functions are available */}
       {guardarFormulario && cargarFormulario && (
         <FormulariosSidebar 
@@ -379,7 +379,7 @@ const HistoriaClinica = ({
         />
       )}
       
-      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 transition-all duration-200 max-w-full overflow-x-hidden w-full`}>
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 px-2 sm:px-4 lg:px-8 transition-all duration-200 max-w-full overflow-x-hidden ${sidebarOpen ? 'md:ml-[300px]' : 'md:ml-[60px]'}`}>
         <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
           {/* Patient name input - only show if functions are available */}
           {guardarFormulario && (
