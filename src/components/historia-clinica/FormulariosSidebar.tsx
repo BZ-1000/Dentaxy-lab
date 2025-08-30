@@ -133,8 +133,8 @@ const FormulariosSidebar = ({
       description: "El formulario ha sido reseteado al estado inicial."
     });
   };
-  return <div className="">
-      <div className="sticky top-0 h-screen hidden md:block">
+  return <div className="sticky top-0 z-40">
+      <div className="h-screen hidden md:block">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
           <SidebarBody className="bg-gray-50">
             <div className="sticky top-0 bg-slate-50 z-10">
