@@ -12,7 +12,7 @@ export const CommunityOpinionSection = () => {
   const [averageRating, setAverageRating] = useState(0);
   const [totalRatings, setTotalRatings] = useState(0);
   const [ratingDistribution, setRatingDistribution] = useState<Record<number, number>>({});
-  const { user } = useAuth();
+  const { user, subscription } = useAuth();
 
   useEffect(() => {
     const fetchRatings = async () => {
@@ -48,6 +48,11 @@ export const CommunityOpinionSection = () => {
   const handleRating = async (rating: number) => {
     if (!user) {
       toast.error("Inicia sesión para valorar");
+      return;
+    }
+    
+    if (!subscription.subscribed && subscription.subscription_tier !== 'beta') {
+      toast.error("Necesitas tener un plan activo para valorar");
       return;
     }
     try {
@@ -98,7 +103,12 @@ export const CommunityOpinionSection = () => {
                     onMouseLeave={() => setHoveredStar(0)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="transition-colors duration-200 focus:outline-none"
+                    disabled={!user || (!subscription.subscribed && subscription.subscription_tier !== 'beta')}
+                    className={`transition-colors duration-200 focus:outline-none ${
+                      !user || (!subscription.subscribed && subscription.subscription_tier !== 'beta')
+                        ? 'opacity-50 cursor-not-allowed' 
+                        : ''
+                    }`}
                   >
                     <Star
                       className={`w-3 h-3 sm:w-4 sm:h-4 transition-all duration-200 ${
