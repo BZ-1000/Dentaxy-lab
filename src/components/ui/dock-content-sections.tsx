@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Area, Tooltip } from 'recharts';
+import AntecedentesHeredoFamiliares from '@/components/historia-clinica/AntecedentesHeredoFamiliares';
 
 // Minimalist Animated Counter Component
 const AnimatedCounter = ({ target, label, prefix = "", onReload }: { 
