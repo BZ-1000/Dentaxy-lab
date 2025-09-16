@@ -453,110 +453,29 @@ export const CalculatorContent = () => {
   );
 };
 
-// Demo Content Component
+// Import for family history component
+import AntecedentesHeredoFamiliares from '@/components/historia-clinica/AntecedentesHeredoFamiliares';
+import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
+
+// Demo Content Component - Family History
 export const DemoContent = () => {
-  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
-  const [generatedText, setGeneratedText] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-
-  const conditions = [
-    'Diabetes mellitus tipo 2',
-    'Hipertensión arterial',
-    'Asma bronquial',
-    'Artritis reumatoide',
-    'Hipotiroidismo'
-  ];
-
-  const handleConditionToggle = (condition: string) => {
-    setSelectedConditions(prev => 
-      prev.includes(condition) 
-        ? prev.filter(c => c !== condition)
-        : [...prev, condition]
-    );
-  };
-
-  const generateText = () => {
-    if (selectedConditions.length === 0) return;
-    
-    setIsGenerating(true);
-    setGeneratedText('');
-    
-    setTimeout(() => {
-      let text = 'El paciente presenta antecedentes de ';
-      
-      if (selectedConditions.length === 1) {
-        text += `${selectedConditions[0].toLowerCase()} bajo control médico.`;
-      } else if (selectedConditions.length === 2) {
-        text += `${selectedConditions[0].toLowerCase()} y ${selectedConditions[1].toLowerCase()}, ambas bajo control médico.`;
-      } else {
-        const lastCondition = selectedConditions[selectedConditions.length - 1];
-        const otherConditions = selectedConditions.slice(0, -1);
-        text += `${otherConditions.map(c => c.toLowerCase()).join(', ')}, y ${lastCondition.toLowerCase()}, todas bajo control médico.`;
-      }
-      
-      text += ' Se recomienda seguimiento periódico y adherencia al tratamiento farmacológico indicado.';
-      
-      setGeneratedText(text);
-      setIsGenerating(false);
-    }, 2000);
-  };
+  // Use the existing hook for managing form data
+  const { formData, handleFamiliarChange, handleCondicionChange } = useHistoriaClinica();
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <div className="flex items-center gap-3 mb-6 justify-center">
-        <Brain className="h-6 w-6 text-purple-600" />
+        <Users className="h-6 w-6 text-blue-600" />
         <h3 className="text-2xl font-bold text-gray-900">
-          Demo de IA - Antecedentes Patológicos
+          Demo Interactivo - Antecedentes Heredo Familiares
         </h3>
       </div>
 
-      <div className="space-y-4">
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h4 className="font-medium text-gray-900 mb-3">Selecciona las condiciones del paciente:</h4>
-          
-          <div className="space-y-2">
-            {conditions.map((condition) => (
-              <label key={condition} className="flex items-center space-x-3 cursor-pointer">
-                <input 
-                  type="checkbox" 
-                  className="rounded text-blue-600"
-                  checked={selectedConditions.includes(condition)}
-                  onChange={() => handleConditionToggle(condition)}
-                />
-                <span className="text-sm">{condition}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        <Button 
-          onClick={generateText}
-          disabled={selectedConditions.length === 0 || isGenerating}
-          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
-        >
-          <Brain className="h-4 w-4 mr-2" />
-          {isGenerating ? 'Generando...' : 'Generar redacción con IA'}
-        </Button>
-
-        {(generatedText || isGenerating) && (
-          <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-            <div className="text-sm text-purple-900">
-              <strong>Resultado generado:</strong><br />
-              {isGenerating ? (
-                <div className="animate-pulse">Analizando condiciones y generando redacción médica profesional...</div>
-              ) : (
-                generatedText
-              )}
-            </div>
-          </div>
-        )}
-
-        {generatedText && !isGenerating && (
-          <div className="text-center text-xs text-gray-500">
-            ⚡ Generado en 2.0 segundos
-          </div>
-        )}
-      </div>
+      <AntecedentesHeredoFamiliares 
+        formData={formData}
+        handleFamiliarChange={handleFamiliarChange}
+        handleCondicionChange={handleCondicionChange}
+      />
     </div>
   );
 };
