@@ -64,131 +64,83 @@ export const CommunityOpinionSection = () => {
   };
 
   return (
-    <Card className="relative overflow-hidden bg-gradient-to-br from-background via-background/95 to-primary/5 border border-primary/10 shadow-xl shadow-primary/10 rounded-3xl backdrop-blur-sm">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/10 rounded-3xl" />
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/60 via-accent to-primary/60 rounded-t-3xl" />
+    <Card className="relative overflow-hidden bg-gradient-to-br from-background via-muted/20 to-accent/5 border-0 shadow-lg shadow-primary/5">
+      <div className="absolute inset-0 bg-gradient-to-br from-background/80 via-background/60 to-transparent backdrop-blur-xl" />
       
-      <CardContent className="relative p-4 sm:p-6">
-        <div className="flex items-center gap-3 mb-5 sm:mb-6">
-          <div className="relative">
-            <span className="bg-gradient-to-br from-primary via-primary to-primary/90 rounded-2xl w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30">
-              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-            </span>
-            <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full animate-pulse shadow-lg shadow-accent/50" />
-          </div>
+      <CardContent className="relative p-3 sm:p-4">
+        <div className="flex items-center gap-2 mb-3 sm:mb-4">
+          <span className="bg-gradient-to-br from-primary via-primary to-primary/80 rounded-xl w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center text-xs font-bold text-primary-foreground shadow-lg shadow-primary/25">
+            <Users className="w-3 h-3 sm:w-4 sm:h-4" />
+          </span>
           <div>
-            <h3 className="text-base sm:text-lg font-black bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-              Comunidad Dentaxy
+            <h3 className="text-sm sm:text-base font-black bg-gradient-to-r from-foreground via-muted-foreground to-foreground bg-clip-text text-transparent">
+              Comunidad
             </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground font-medium bg-muted/30 px-3 py-1 rounded-full inline-block">
+            <p className="text-xs text-muted-foreground font-medium">
               {totalRatings > 0 ? `${totalRatings} valoraciones` : 'Sé el primero en valorar'}
             </p>
           </div>
         </div>
 
-        {/* Sección de calificación elegante */}
-        <div className="space-y-4">
-          <div className="bg-gradient-to-r from-muted/20 via-muted/10 to-muted/20 rounded-2xl p-4 border border-primary/5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className="bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl p-3 shadow-inner">
-                  <div className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                    {averageRating.toFixed(1)}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <motion.button
-                        key={star}
-                        onClick={() => handleRating(star)}
-                        onMouseEnter={() => setHoveredStar(star)}
-                        onMouseLeave={() => setHoveredStar(0)}
-                        whileHover={{ scale: 1.15 }}
-                        whileTap={{ scale: 0.9 }}
-                        className="p-1 rounded-full hover:bg-primary/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                      >
-                        <Star
-                          className={`w-4 h-4 sm:w-5 sm:h-5 transition-all duration-300 ${
-                            (hoveredStar > 0 ? star <= hoveredStar : star <= (userRating || averageRating))
-                              ? 'text-yellow-400 fill-yellow-400 drop-shadow-lg'
-                              : 'text-muted-foreground hover:text-yellow-300'
-                          }`}
-                        />
-                      </motion.button>
-                    ))}
-                  </div>
-                  <p className="text-xs text-muted-foreground font-medium">
-                    {user ? 'Haz clic para calificar' : 'Inicia sesión para calificar'}
-                  </p>
-                </div>
+        {/* Rating compacto */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="text-lg sm:text-xl font-black bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
+                {averageRating.toFixed(1)}
               </div>
-              {userRating > 0 && (
-                <motion.div 
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="bg-gradient-to-r from-accent/20 to-primary/20 text-primary border border-primary/20 px-3 py-2 rounded-2xl text-xs font-bold shadow-lg"
-                >
-                  Tu calificación: {userRating}★
-                </motion.div>
-              )}
+              <div className="flex items-center gap-0.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <motion.button
+                    key={star}
+                    onClick={() => handleRating(star)}
+                    onMouseEnter={() => setHoveredStar(star)}
+                    onMouseLeave={() => setHoveredStar(0)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="transition-colors duration-200 focus:outline-none"
+                  >
+                    <Star
+                      className={`w-3 h-3 sm:w-4 sm:h-4 transition-all duration-200 ${
+                        (hoveredStar > 0 ? star <= hoveredStar : star <= (userRating || averageRating))
+                          ? 'text-yellow-400 fill-yellow-400'
+                          : 'text-muted-foreground'
+                      }`}
+                    />
+                  </motion.button>
+                ))}
+              </div>
             </div>
+            {userRating > 0 && (
+              <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
+                Tu: {userRating}★
+              </span>
+            )}
           </div>
 
-          {/* Distribución elegante de calificaciones */}
+          {/* Distribución compacta */}
           {totalRatings > 0 && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-gradient-to-r from-muted/10 via-transparent to-muted/10 rounded-2xl p-4 border border-muted/20"
-            >
-              <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                Distribución de calificaciones
-              </h4>
-              <div className="space-y-2">
-                {[5, 4, 3, 2, 1].map((stars) => {
-                  const count = ratingDistribution[stars] || 0;
-                  const percentage = totalRatings > 0 ? (count / totalRatings) * 100 : 0;
-                  
-                  return (
-                    <motion.div 
-                      key={stars} 
-                      className="flex items-center gap-3 text-sm"
-                      initial={{ x: -20, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ delay: (5 - stars) * 0.1 }}
-                    >
-                      <div className="flex items-center gap-1 min-w-[40px]">
-                        <span className="text-muted-foreground font-bold">{stars}</span>
-                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                      </div>
-                      <div className="flex-1 bg-muted/30 rounded-full h-2 overflow-hidden">
-                        <motion.div
-                          className="h-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 rounded-full shadow-inner"
-                          initial={{ width: 0 }}
-                          animate={{ width: `${percentage}%` }}
-                          transition={{ 
-                            duration: 0.8, 
-                            delay: (5 - stars) * 0.1,
-                            ease: "easeOut"
-                          }}
-                        />
-                      </div>
-                      <motion.span 
-                        className="min-w-[30px] text-right text-muted-foreground font-bold bg-muted/20 px-2 py-0.5 rounded-full text-xs"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: (5 - stars) * 0.1 + 0.5 }}
-                      >
-                        {count}
-                      </motion.span>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </motion.div>
+            <div className="space-y-1">
+              {[5, 4, 3, 2, 1].map((stars) => {
+                const count = ratingDistribution[stars] || 0;
+                const percentage = totalRatings > 0 ? (count / totalRatings) * 100 : 0;
+                
+                return (
+                  <div key={stars} className="flex items-center gap-2 text-xs">
+                    <span className="w-3 text-muted-foreground font-medium">{stars}</span>
+                    <div className="flex-1 bg-muted/50 rounded-full h-1.5">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${percentage}%` }}
+                        transition={{ duration: 0.5, delay: (5 - stars) * 0.05 }}
+                      />
+                    </div>
+                    <span className="w-4 text-muted-foreground text-right">{count}</span>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
       </CardContent>
