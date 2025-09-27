@@ -310,44 +310,69 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
   };
 
   const generateAndUpdateRedacciones = () => {
-    let digestivoText = `El paciente refiere alimentación de tipo ${formValues.digestivo.alimentacion || "[sin especificar]"}. Su patrón de masticación es ${formValues.digestivo.masticacion || "[sin especificar]"}. Manifiesta ${getPercepcionGustoText()}. ${formValues.digestivo.percepcionGustoEspecificaciones ? `Especificaciones: ${formValues.digestivo.percepcionGustoEspecificaciones}` : ''} La salivación ${getSalivacionText()}. Respecto a la deglución, ${getDeglusiónText()}. ${formValues.digestivo.halitosis === "Sí" ? "Presenta halitosis" : "No presenta halitosis"}. ${formValues.digestivo.halitosis === "Sí" ? `Especificaciones: ${formValues.digestivo.halitosisEspecificaciones}` : ''}`;
+    // Verificar si hay toggles activos y usar redacciones predeterminadas
+    const newRedacciones = { ...redacciones };
+    
+    // Para cada sistema, verificar si el toggle está activo
+    Object.keys(sintomasToggle).forEach(system => {
+      if (sintomasToggle[system as keyof typeof sintomasToggle]) {
+        newRedacciones[system as keyof typeof newRedacciones] = redaccionesSinSintomas[system as keyof typeof redaccionesSinSintomas];
+        handleInterrogatorioChange(system, redaccionesSinSintomas[system as keyof typeof redaccionesSinSintomas]);
+        return; // Si el toggle está activo, usar la redacción predeterminada
+      }
+    });
 
-    if (formValues.digestivo.sintomasDigestivos.includes("Ninguno")) {
-      digestivoText += " El paciente niega alteraciones relacionadas al sistema digestivo. Se interrogó específicamente sobre distensión abdominal, estreñimiento, plenitud posprandial, pirosis, dolor abdominal, náuseas, vómito y reflujo.";
-    } else {
-      digestivoText += ` Ha experimentado los siguientes síntomas digestivos: ${formValues.digestivo.sintomasDigestivos.join(", ")}.`;
+    // Solo generar redacción desde formulario si el toggle NO está activo
+    let digestivoText = "";
+    if (!sintomasToggle.digestivo) {
+      digestivoText = `El paciente refiere alimentación de tipo ${formValues.digestivo.alimentacion || "[sin especificar]"}. Su patrón de masticación es ${formValues.digestivo.masticacion || "[sin especificar]"}. Manifiesta ${getPercepcionGustoText()}. ${formValues.digestivo.percepcionGustoEspecificaciones ? `Especificaciones: ${formValues.digestivo.percepcionGustoEspecificaciones}` : ''} La salivación ${getSalivacionText()}. Respecto a la deglución, ${getDeglusiónText()}. ${formValues.digestivo.halitosis === "Sí" ? "Presenta halitosis" : "No presenta halitosis"}. ${formValues.digestivo.halitosis === "Sí" ? `Especificaciones: ${formValues.digestivo.halitosisEspecificaciones}` : ''}`;
+
+      if (formValues.digestivo.sintomasDigestivos.includes("Ninguno")) {
+        digestivoText += " El paciente niega alteraciones relacionadas al sistema digestivo. Se interrogó específicamente sobre distensión abdominal, estreñimiento, plenitud posprandial, pirosis, dolor abdominal, náuseas, vómito y reflujo.";
+      } else {
+        digestivoText += ` Ha experimentado los siguientes síntomas digestivos: ${formValues.digestivo.sintomasDigestivos.join(", ")}.`;
+      }
+
+      digestivoText += ` ${formValues.digestivo.cambiosApetito ? `Cambios en el apetito: ${formValues.digestivo.cambiosApetito}` : ''} ${formValues.digestivo.habitosAlimenticios ? `Hábitos alimenticios: ${formValues.digestivo.habitosAlimenticios}` : ''} El color de las evacuaciones es ${getColorEvacuacionesText()}. ${formValues.digestivo.hematemesis === "Sí" ? "Presenta hematemesis" : "No presenta hematemesis"}. Realiza ${formValues.digestivo.frecuenciaEvacuacion || "[sin especificar]"} evacuaciones diarias. ${formValues.digestivo.frecuenciaEvacuacion === "Otra" ? `Especificaciones: ${formValues.digestivo.frecuenciaEvacuacionEspecificaciones}` : ''}.`;
+      
+      newRedacciones.digestivo = digestivoText;
+      handleInterrogatorioChange('digestivo', digestivoText);
     }
 
-    digestivoText += ` ${formValues.digestivo.cambiosApetito ? `Cambios en el apetito: ${formValues.digestivo.cambiosApetito}` : ''} ${formValues.digestivo.habitosAlimenticios ? `Hábitos alimenticios: ${formValues.digestivo.habitosAlimenticios}` : ''} El color de las evacuaciones es ${getColorEvacuacionesText()}. ${formValues.digestivo.hematemesis === "Sí" ? "Presenta hematemesis" : "No presenta hematemesis"}. Realiza ${formValues.digestivo.frecuenciaEvacuacion || "[sin especificar]"} evacuaciones diarias. ${formValues.digestivo.frecuenciaEvacuacion === "Otra" ? `Especificaciones: ${formValues.digestivo.frecuenciaEvacuacionEspecificaciones}` : ''}.`;
-
-    let respiratorioText = `El tipo de respiración habitual es ${formValues.respiratorio.tipoRespiracion || "[sin especificar]"}.`;
-    if (formValues.respiratorio.sintomasRespiratorios.includes("Ninguno")) {
-      respiratorioText += " El paciente niega alteraciones relacionadas al sistema respiratorio. Se interrogó específicamente sobre obstrucción nasal, rinorrea, congestión nasal, epistaxis, disnea, tos, dolor torácico, hernias, expectoraciones, secreciones y cianosis.";
-    } else {
-      respiratorioText += ` Presenta síntomas respiratorios como: ${formValues.respiratorio.sintomasRespiratorios.join(", ")}.`;
+    let respiratorioText = "";
+    if (!sintomasToggle.respiratorio) {
+      respiratorioText = `El tipo de respiración habitual es ${formValues.respiratorio.tipoRespiracion || "[sin especificar]"}.`;
+      if (formValues.respiratorio.sintomasRespiratorios.includes("Ninguno")) {
+        respiratorioText += " El paciente niega alteraciones relacionadas al sistema respiratorio. Se interrogó específicamente sobre obstrucción nasal, rinorrea, congestión nasal, epistaxis, disnea, tos, dolor torácico, hernias, expectoraciones, secreciones y cianosis.";
+      } else {
+        respiratorioText += ` Presenta síntomas respiratorios como: ${formValues.respiratorio.sintomasRespiratorios.join(", ")}.`;
+      }
+      respiratorioText += ` ${formValues.respiratorio.apneaSuenio === "Sí" ? "Presenta apnea del sueño" : "No presenta apnea del sueño"}. ${formValues.respiratorio.oxigenoSuplementario === "Sí" ? "Usa oxígeno suplementario" : "No usa oxígeno suplementario"}. ${formValues.respiratorio.tosExpectoracion ? `Tos con expectoración: ${formValues.respiratorio.tosExpectoracion}` : ''}.`;
+      
+      newRedacciones.respiratorio = respiratorioText;
+      handleInterrogatorioChange('respiratorio', respiratorioText);
     }
-    respiratorioText += ` ${formValues.respiratorio.apneaSuenio === "Sí" ? "Presenta apnea del sueño" : "No presenta apnea del sueño"}. ${formValues.respiratorio.oxigenoSuplementario === "Sí" ? "Usa oxígeno suplementario" : "No usa oxígeno suplementario"}. ${formValues.respiratorio.tosExpectoracion ? `Tos con expectoración: ${formValues.respiratorio.tosExpectoracion}` : ''}.`;
 
     // Nueva redacción cardiovascular siguiendo las especificaciones
     let cardiovascularText = "";
-    
-    // Dolor torácico
-    if (formValues.cardiovascular.dolorToracico === "No refiere dolor torácico") {
-      cardiovascularText += "El paciente niega dolor torácico. ";
-    } else if (formValues.cardiovascular.dolorToracico) {
-      const variaciones = [
-        `El paciente refiere dolor torácico de tipo ${formValues.cardiovascular.dolorToracico.replace('Dolor ', '').toLowerCase()}`,
-        `Se documenta la presencia de dolor torácico caracterizado como ${formValues.cardiovascular.dolorToracico.replace('Dolor ', '').toLowerCase()}`
-      ];
-      cardiovascularText += variaciones[Math.floor(Math.random() * variaciones.length)];
-      
-      if (formValues.cardiovascular.dolorToracicoDetalle) {
-        const conectores = ["especificando que", "señalado por el paciente con evolución de"];
-        cardiovascularText += `, ${conectores[Math.floor(Math.random() * conectores.length)]} ${formValues.cardiovascular.dolorToracicoDetalle}. `;
-      } else {
-        cardiovascularText += ". ";
+    if (!sintomasToggle.cardiovascular) {
+      // Dolor torácico
+      if (formValues.cardiovascular.dolorToracico === "No refiere dolor torácico") {
+        cardiovascularText += "El paciente niega dolor torácico. ";
+      } else if (formValues.cardiovascular.dolorToracico) {
+        const variaciones = [
+          `El paciente refiere dolor torácico de tipo ${formValues.cardiovascular.dolorToracico.replace('Dolor ', '').toLowerCase()}`,
+          `Se documenta la presencia de dolor torácico caracterizado como ${formValues.cardiovascular.dolorToracico.replace('Dolor ', '').toLowerCase()}`
+        ];
+        cardiovascularText += variaciones[Math.floor(Math.random() * variaciones.length)];
+        
+        if (formValues.cardiovascular.dolorToracicoDetalle) {
+          const conectores = ["especificando que", "señalado por el paciente con evolución de"];
+          cardiovascularText += `, ${conectores[Math.floor(Math.random() * conectores.length)]} ${formValues.cardiovascular.dolorToracicoDetalle}. `;
+        } else {
+          cardiovascularText += ". ";
+        }
       }
-    }
 
     // Lipotimia o síncope
     if (formValues.cardiovascular.lipotimia === "No ha presentado episodios") {
@@ -483,63 +508,79 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
         cardiovascularText += ". ";
       }
     }
-
-    let genitoUrinarioText = `El paciente refiere una frecuencia urinaria de ${formValues.genitoUrinario.frecuenciaUrinaria || "[sin especificar]"} veces al día.`;
-    if (formValues.genitoUrinario.sintomasUrinarios.includes("Ninguno")) {
-      genitoUrinarioText += " El paciente niega alteraciones relacionadas al aparato genito-urinario. Se exploró la frecuencia urinaria, síntomas urinarios, urgencia urinaria, fuerza del chorro, infecciones recurrentes y flujo anormal.";
-    } else {
-      genitoUrinarioText += ` Síntomas urinarios presentes: ${formValues.genitoUrinario.sintomasUrinarios.join(", ")}.`;
-    }
-    genitoUrinarioText += ` ${formValues.genitoUrinario.urgenciaUrinaria === "Sí" ? "Presenta urgencia urinaria" : "No presenta urgencia urinaria"}. ${formValues.genitoUrinario.chorroUrinarioDebil === "Sí" ? "Presenta chorro urinario débil" : "No presenta chorro urinario débil"}. ${formValues.genitoUrinario.chorroUrinarioIntermitente === "Sí" ? "Presenta chorro urinario intermitente" : "No presenta chorro urinario intermitente"}. ${formValues.genitoUrinario.flujoVaginalUretral === "Sí" ? "Presenta flujo vaginal/uretral anormal" : "No presenta flujo vaginal/uretral anormal"}. ${formValues.genitoUrinario.infeccionesUrinarias === "Sí" ? "Presenta infecciones urinarias frecuentes" : "No presenta infecciones urinarias frecuentes"}. ${formValues.genitoUrinario.ultimaMenstruacion ? `En pacientes mujeres: Fecha de última menstruación: ${formValues.genitoUrinario.ultimaMenstruacion}.` : ""} ${formValues.genitoUrinario.dismenorrea ? `Dismenorrea: ${formValues.genitoUrinario.dismenorrea}` : ''} ${formValues.genitoUrinario.duracionMenstruacion ? `Días de duración de menstruación: ${formValues.genitoUrinario.duracionMenstruacion}` : ''} ${formValues.genitoUrinario.ultimoParto ? `Fecha de último parto: ${formValues.genitoUrinario.ultimoParto}` : ''} Antecedentes obstétricos: ${formValues.genitoUrinario.antecedentesObstetricos || "ninguno"}.`;
-
-    let endocrinoText = `El paciente refiere los siguientes síntomas endocrinos: ${formValues.endocrino.sintomasEndocrinos.join(", ")}.`;
-    if (formValues.endocrino.sintomasEndocrinos.includes("Ninguno")) {
-      endocrinoText += " El paciente niega alteraciones relacionadas al sistema endocrino. Se indagó sobre poliuria, polidipsia, polifagia, exoftalmos, nerviosismo, temblores, insomnio, cambios de peso e intolerancia al frío o calor.";
-    }
-    endocrinoText += ` ${formValues.endocrino.sudoracionNocturna === "Sí" ? "Presenta sudoración excesiva nocturna" : "No presenta sudoración excesiva nocturna"}. ${formValues.endocrino.hirsutismo === "Sí" ? "Presenta hirsutismo" : "No presenta hirsutismo"}. ${formValues.endocrino.galactorrea === "Sí" ? "Presenta galactorrea" : "No presenta galactorrea"}. ${formValues.endocrino.cambiosRitmoMenstrual ? `Cambios en el ritmo menstrual: ${formValues.endocrino.cambiosRitmoMenstrual}` : ''} Reporta ${getCambiosPesoText()}. ${getIntoleranciaText()}. Antecedentes patológicos conocidos: ${formValues.endocrino.condicionesEndocrinas || "ninguno"}.`;
-
-    let tegumentarioText = `${formValues.tegumentario.cambiosColoracion === "Sí" ? "Ha notado cambios en la coloración de la piel" : "No ha notado cambios en la coloración de la piel"}. ${formValues.tegumentario.cambiosColoracion === "Sí" ? `Especificaciones: ${formValues.tegumentario.cambiosColoracionEspecificaciones}` : ''}`;
-    if (formValues.tegumentario.sintomasTegumentarios.includes("Ninguno")) {
-      tegumentarioText += " El paciente niega alteraciones relacionadas al sistema tegumentario. Se investigó presencia de erupciones, prurito, hiperhidrosis, pérdida de cabello y piel seca.";
-    } else {
-      tegumentarioText += ` Otros síntomas presentes: ${formValues.tegumentario.sintomasTegumentarios.join(", ")}.`;
-    }
-    tegumentarioText += ` ${formValues.tegumentario.cambiosUnas ? `Cambios en uñas: ${formValues.tegumentario.cambiosUnas}` : ''} ${formValues.tegumentario.cambiosLunares === "Sí" ? "Presenta cambios en lunares" : "No presenta cambios en lunares"}. ${formValues.tegumentario.lesionesPigmentadas === "Sí" ? "Presenta lesiones pigmentadas" : "No presenta lesiones pigmentadas"}.`;
-
-    let musculoEsqueleticoText = `${formValues.musculoEsqueletico.fracturas === "No" ? "No ha presentado" : "Ha presentado"} fracturas o esguinces. ${formValues.musculoEsqueletico.fracturas === "Sí" ? `En caso afirmativo, se registran: ${formValues.musculoEsqueletico.detallesFracturas || "[sin especificar]"}.` : ""}`;
-    if (formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Ninguno")) {
-      musculoEsqueleticoText += " El paciente niega alteraciones relacionadas al sistema músculo-esquelético. Se interrogó sobre fracturas, esguinces, deformidad o dolor articular, rigidez matutina, calambres musculares y limitaciones de movimiento.";
-    } else {
-      musculoEsqueleticoText += ` Sintomatología musculoesquelética actual: ${formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.join(", ")}.`;
-    }
-    musculoEsqueleticoText += ` ${formValues.musculoEsqueletico.rigidezMatutina ? `Rigidez matutina: ${formValues.musculoEsqueletico.rigidezMatutina}` : ''} ${formValues.musculoEsqueletico.debilidadMuscular ? `Debilidad muscular: ${formValues.musculoEsqueletico.debilidadMuscular}` : ''} ${formValues.musculoEsqueletico.limitacionesMovimiento ? `Limitaciones de movimiento: ${formValues.musculoEsqueletico.limitacionesMovimiento}` : ''}.`;
-
-    let nerviosoText = `${formValues.nervioso.percepcionSentidos === "Sí" ? "Percibe" : "No percibe"} adecuadamente a través de los órganos de los sentidos. El patrón de sueño habitual es de ${formValues.nervioso.horasSueno || "[sin especificar]"} horas por noche. ${formValues.nervioso.trastornosSueno === "Sí" ? "Presenta trastornos del sueño" : "No presenta trastornos del sueño"}. ${formValues.nervioso.trastornosSueno === "Sí" ? `Especificaciones: ${formValues.nervioso.trastornosSuenoEspecificaciones}` : ''} Su carácter habitual se describe como ${formValues.nervioso.estadoAnimo || "[sin especificar]"}. ${formValues.nervioso.parestesias === "Sí" ? "Presenta" : "No presenta"} parestesias (hormigueos, adormecimiento o pérdida de sensibilidad).`;
-    if (formValues.nervioso.otrosSintomasNeurologicos.includes("Ninguno")) {
-      nerviosoText += " El paciente niega alteraciones relacionadas al sistema nervioso. Se preguntó sobre trastornos del sueño, estado de ánimo, parestesias, convulsiones, temblores, problemas de memoria, personalidad y coordinación.";
-    } else {
-      nerviosoText += ` Otros síntomas neurológicos: ${formValues.nervioso.otrosSintomasNeurologicos.join(", ")}.`;
+      
+      newRedacciones.cardiovascular = cardiovascularText;
+      handleInterrogatorioChange('cardiovascular', cardiovascularText);
     }
 
-    setRedacciones({
-      digestivo: digestivoText,
-      respiratorio: respiratorioText,
-      cardiovascular: cardiovascularText,
-      genitoUrinario: genitoUrinarioText,
-      endocrino: endocrinoText,
-      tegumentario: tegumentarioText,
-      musculoEsqueletico: musculoEsqueleticoText,
-      nervioso: nerviosoText
-    });
+    let genitoUrinarioText = "";
+    if (!sintomasToggle.genitoUrinario) {
+      genitoUrinarioText = `El paciente refiere una frecuencia urinaria de ${formValues.genitoUrinario.frecuenciaUrinaria || "[sin especificar]"} veces al día.`;
+      if (formValues.genitoUrinario.sintomasUrinarios.includes("Ninguno")) {
+        genitoUrinarioText += " El paciente niega alteraciones relacionadas al aparato genito-urinario. Se exploró la frecuencia urinaria, síntomas urinarios, urgencia urinaria, fuerza del chorro, infecciones recurrentes y flujo anormal.";
+      } else {
+        genitoUrinarioText += ` Síntomas urinarios presentes: ${formValues.genitoUrinario.sintomasUrinarios.join(", ")}.`;
+      }
+      genitoUrinarioText += ` ${formValues.genitoUrinario.urgenciaUrinaria === "Sí" ? "Presenta urgencia urinaria" : "No presenta urgencia urinaria"}. ${formValues.genitoUrinario.chorroUrinarioDebil === "Sí" ? "Presenta chorro urinario débil" : "No presenta chorro urinario débil"}. ${formValues.genitoUrinario.chorroUrinarioIntermitente === "Sí" ? "Presenta chorro urinario intermitente" : "No presenta chorro urinario intermitente"}. ${formValues.genitoUrinario.flujoVaginalUretral === "Sí" ? "Presenta flujo vaginal/uretral anormal" : "No presenta flujo vaginal/uretral anormal"}. ${formValues.genitoUrinario.infeccionesUrinarias === "Sí" ? "Presenta infecciones urinarias frecuentes" : "No presenta infecciones urinarias frecuentes"}. ${formValues.genitoUrinario.ultimaMenstruacion ? `En pacientes mujeres: Fecha de última menstruación: ${formValues.genitoUrinario.ultimaMenstruacion}.` : ""} ${formValues.genitoUrinario.dismenorrea ? `Dismenorrea: ${formValues.genitoUrinario.dismenorrea}` : ''} ${formValues.genitoUrinario.duracionMenstruacion ? `Días de duración de menstruación: ${formValues.genitoUrinario.duracionMenstruacion}` : ''} ${formValues.genitoUrinario.ultimoParto ? `Fecha de último parto: ${formValues.genitoUrinario.ultimoParto}` : ''} Antecedentes obstétricos: ${formValues.genitoUrinario.antecedentesObstetricos || "ninguno"}.`;
+      
+      newRedacciones.genitoUrinario = genitoUrinarioText;
+      handleInterrogatorioChange('genitoUrinario', genitoUrinarioText);
+    }
 
-    handleInterrogatorioChange("digestivo", digestivoText);
-    handleInterrogatorioChange("respiratorio", respiratorioText);
-    handleInterrogatorioChange("cardiovascular", cardiovascularText);
-    handleInterrogatorioChange("genitoUrinario", genitoUrinarioText);
-    handleInterrogatorioChange("endocrino", endocrinoText);
-    handleInterrogatorioChange("tegumentario", tegumentarioText);
-    handleInterrogatorioChange("musculoEsqueletico", musculoEsqueleticoText);
-    handleInterrogatorioChange("nervioso", nerviosoText);
+    let endocrinoText = "";
+    if (!sintomasToggle.endocrino) {
+      endocrinoText = `El paciente refiere los siguientes síntomas endocrinos: ${formValues.endocrino.sintomasEndocrinos.join(", ")}.`;
+      if (formValues.endocrino.sintomasEndocrinos.includes("Ninguno")) {
+        endocrinoText += " El paciente niega alteraciones relacionadas al sistema endocrino. Se indagó sobre poliuria, polidipsia, polifagia, exoftalmos, nerviosismo, temblores, insomnio, cambios de peso e intolerancia al frío o calor.";
+      }
+      endocrinoText += ` ${formValues.endocrino.sudoracionNocturna === "Sí" ? "Presenta sudoración excesiva nocturna" : "No presenta sudoración excesiva nocturna"}. ${formValues.endocrino.hirsutismo === "Sí" ? "Presenta hirsutismo" : "No presenta hirsutismo"}. ${formValues.endocrino.galactorrea === "Sí" ? "Presenta galactorrea" : "No presenta galactorrea"}. ${formValues.endocrino.cambiosRitmoMenstrual ? `Cambios en el ritmo menstrual: ${formValues.endocrino.cambiosRitmoMenstrual}` : ''} Reporta ${getCambiosPesoText()}. ${getIntoleranciaText()}. Antecedentes patológicos conocidos: ${formValues.endocrino.condicionesEndocrinas || "ninguno"}.`;
+      
+      newRedacciones.endocrino = endocrinoText;
+      handleInterrogatorioChange('endocrino', endocrinoText);
+    }
+
+    let tegumentarioText = "";
+    if (!sintomasToggle.tegumentario) {
+      tegumentarioText = `${formValues.tegumentario.cambiosColoracion === "Sí" ? "Ha notado cambios en la coloración de la piel" : "No ha notado cambios en la coloración de la piel"}. ${formValues.tegumentario.cambiosColoracion === "Sí" ? `Especificaciones: ${formValues.tegumentario.cambiosColoracionEspecificaciones}` : ''}`;
+      if (formValues.tegumentario.sintomasTegumentarios.includes("Ninguno")) {
+        tegumentarioText += " El paciente niega alteraciones relacionadas al sistema tegumentario. Se investigó presencia de erupciones, prurito, hiperhidrosis, pérdida de cabello y piel seca.";
+      } else {
+        tegumentarioText += ` Otros síntomas presentes: ${formValues.tegumentario.sintomasTegumentarios.join(", ")}.`;
+      }
+      tegumentarioText += ` ${formValues.tegumentario.cambiosUnas ? `Cambios en uñas: ${formValues.tegumentario.cambiosUnas}` : ''} ${formValues.tegumentario.cambiosLunares === "Sí" ? "Presenta cambios en lunares" : "No presenta cambios en lunares"}. ${formValues.tegumentario.lesionesPigmentadas === "Sí" ? "Presenta lesiones pigmentadas" : "No presenta lesiones pigmentadas"}.`;
+      
+      newRedacciones.tegumentario = tegumentarioText;
+      handleInterrogatorioChange('tegumentario', tegumentarioText);
+    }
+
+    let musculoEsqueleticoText = "";
+    if (!sintomasToggle.musculoEsqueletico) {
+      musculoEsqueleticoText = `${formValues.musculoEsqueletico.fracturas === "No" ? "No ha presentado" : "Ha presentado"} fracturas o esguinces. ${formValues.musculoEsqueletico.fracturas === "Sí" ? `En caso afirmativo, se registran: ${formValues.musculoEsqueletico.detallesFracturas || "[sin especificar]"}.` : ""}`;
+      if (formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.includes("Ninguno")) {
+        musculoEsqueleticoText += " El paciente niega alteraciones relacionadas al sistema músculo-esquelético. Se interrogó sobre fracturas, esguinces, deformidad o dolor articular, rigidez matutina, calambres musculares y limitaciones de movimiento.";
+      } else {
+        musculoEsqueleticoText += ` Sintomatología musculoesquelética actual: ${formValues.musculoEsqueletico.sintomasMusculoEsqueleticos.join(", ")}.`;
+      }
+      musculoEsqueleticoText += ` ${formValues.musculoEsqueletico.rigidezMatutina ? `Rigidez matutina: ${formValues.musculoEsqueletico.rigidezMatutina}` : ''} ${formValues.musculoEsqueletico.debilidadMuscular ? `Debilidad muscular: ${formValues.musculoEsqueletico.debilidadMuscular}` : ''} ${formValues.musculoEsqueletico.limitacionesMovimiento ? `Limitaciones de movimiento: ${formValues.musculoEsqueletico.limitacionesMovimiento}` : ''}.`;
+      
+      newRedacciones.musculoEsqueletico = musculoEsqueleticoText;
+      handleInterrogatorioChange('musculoEsqueletico', musculoEsqueleticoText);
+    }
+
+    let nerviosoText = "";
+    if (!sintomasToggle.nervioso) {
+      nerviosoText = `${formValues.nervioso.percepcionSentidos === "Sí" ? "Percibe" : "No percibe"} adecuadamente a través de los órganos de los sentidos. El patrón de sueño habitual es de ${formValues.nervioso.horasSueno || "[sin especificar]"} horas por noche. ${formValues.nervioso.trastornosSueno === "Sí" ? "Presenta trastornos del sueño" : "No presenta trastornos del sueño"}. ${formValues.nervioso.trastornosSueno === "Sí" ? `Especificaciones: ${formValues.nervioso.trastornosSuenoEspecificaciones}` : ''} Su carácter habitual se describe como ${formValues.nervioso.estadoAnimo || "[sin especificar]"}. ${formValues.nervioso.parestesias === "Sí" ? "Presenta" : "No presenta"} parestesias (hormigueos, adormecimiento o pérdida de sensibilidad).`;
+      if (formValues.nervioso.otrosSintomasNeurologicos.includes("Ninguno")) {
+        nerviosoText += " El paciente niega alteraciones relacionadas al sistema nervioso. Se preguntó sobre trastornos del sueño, estado de ánimo, parestesias, convulsiones, temblores, problemas de memoria, personalidad y coordinación.";
+      } else {
+        nerviosoText += ` Otros síntomas neurológicos: ${formValues.nervioso.otrosSintomasNeurologicos.join(", ")}.`;
+      }
+      
+      newRedacciones.nervioso = nerviosoText;
+      handleInterrogatorioChange('nervioso', nerviosoText);
+    }
+
+    setRedacciones(newRedacciones);
 
     // Cambiar al apartado de redacción IA y hacer auto scroll
     setShowForm(false);
