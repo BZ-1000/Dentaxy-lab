@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { AnimatedTextarea } from "@/components/ui/animated-textarea";
+import SintomasToggle from './padecimiento/SintomasToggle';
 
 interface InterrogatorioSistemasProps {
   formData: FormDataState;
@@ -31,6 +32,18 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
     nervioso: ""
   });
   const [copied, setCopied] = useState<Record<string, boolean>>({});
+  
+  // Estados para los toggles de sintomatología
+  const [sintomasToggle, setSintomasToggle] = useState({
+    digestivo: false,
+    respiratorio: false,
+    cardiovascular: false,
+    genitoUrinario: false,
+    endocrino: false,
+    tegumentario: false,
+    musculoEsqueletico: false,
+    nervioso: false
+  });
   const formRef = useRef<HTMLDivElement>(null);
   const redaccionesRef = useRef<HTMLDivElement>(null);
 
@@ -163,6 +176,24 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
     localStorage.setItem('interrogatorio-sistemas-formValues', JSON.stringify(formValues));
   }, [formValues]);
 
+  // Cargar estados de toggle desde localStorage
+  useEffect(() => {
+    const savedToggleData = localStorage.getItem('interrogatorio-sistemas-toggles');
+    if (savedToggleData) {
+      try {
+        const parsedData = JSON.parse(savedToggleData);
+        setSintomasToggle(parsedData);
+      } catch (error) {
+        console.error('Error loading toggle data:', error);
+      }
+    }
+  }, []);
+
+  // Guardar estados de toggle en localStorage
+  useEffect(() => {
+    localStorage.setItem('interrogatorio-sistemas-toggles', JSON.stringify(sintomasToggle));
+  }, [sintomasToggle]);
+
   useEffect(() => {
     if (showForm === false) {
       generateAndUpdateRedacciones();
@@ -240,6 +271,42 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
         [field]: value
       }
     }));
+  };
+
+  // Redacciones predeterminadas para cuando no hay sintomatología
+  const redaccionesSinSintomas = {
+    digestivo: "El paciente refiere llevar una alimentación combinada con adecuado consumo de alimentos blandos y fibrosos. Presenta un patrón de masticación bilateral, lo que permite un proceso adecuado de trituración de los alimentos. La percepción del gusto se mantiene íntegra, sin alteraciones referidas. La producción de saliva se percibe suficiente y constante, sin sensación de sequedad o exceso. No reporta dificultad ni dolor al deglutir. Niega halitosis. No presenta síntomas digestivos como distensión abdominal, estreñimiento, plenitud posprandial, pirosis, dolor abdominal, náusea, vómito ni reflujo. Mantiene un apetito estable, sin cambios referidos. En relación con los hábitos alimenticios, niega ingesta nocturna, picoteo frecuente o ayunos prolongados. Las evacuaciones se describen con color fisiológico, sin presencia de moco ni hematemesis. La frecuencia de evacuación es de 1 a 2 veces por día, lo que se considera dentro de parámetros funcionales.",
+    respiratorio: "El paciente refiere una respiración habitual por vía nasal, sin predominio de respiración bucal ni combinada. Niega síntomas respiratorios como obstrucción nasal, rinorrea, congestión, epistaxis, disnea, tos, dolor torácico, hernias, expectoraciones o secreciones. No manifiesta cianosis. No refiere ronquido ni pausas respiratorias durante el sueño, descartando apnea del sueño. No utiliza oxígeno suplementario. Niega tos con expectoración en cualquiera de sus variantes.",
+    cardiovascular: "El paciente no refiere dolor torácico ni en reposo ni en relación con el esfuerzo. No ha presentado episodios de lipotimia o síncope. Refiere no percibir irregularidades en el ritmo cardíaco, sin palpitaciones ni latidos acelerados o débiles. Niega síntomas cardiovasculares asociados como mareos, vértigo, edema en extremidades inferiores, várices, equimosis, cefalea relacionada a la presión arterial, acúfenos, fosfenos, visión borrosa o palpitaciones frecuentes. No cuenta con diagnóstico previo de hipertensión o hipotensión arterial. Niega antecedentes cardiovasculares como infarto, enfermedad coronaria, insuficiencia cardíaca o procedimientos relacionados. En cuanto a la capacidad funcional, no refiere fatiga con esfuerzos habituales. Niega disnea en cualquier circunstancia. No refiere uso de medicamentos cardiovasculares y niega antecedentes familiares relevantes.",
+    genitoUrinario: "El paciente refiere una frecuencia urinaria entre 3 a 6 veces al día. Niega síntomas urinarios como incontinencia, disuria, hematuria, poliuria, nicturia o dolor lumbar. No presenta urgencia urinaria ni alteraciones en la fuerza o continuidad del chorro urinario. Niega flujo vaginal o uretral anormal, así como infecciones urinarias frecuentes. En el caso de pacientes masculinos, no aplica la sección de antecedentes menstruales u obstétricos. En caso de pacientes femeninos, refiere menstruaciones regulares, con última menstruación en fecha reciente, sin dismenorrea, con duración de 3 a 5 días. Niega antecedentes de abortos o cesáreas.",
+    endocrino: "El paciente niega síntomas endocrinos como poliuria, polidipsia, polifagia, exoftalmos, nerviosismo, temblores o insomnio. No refiere sudoraciones nocturnas excesivas. En caso de paciente femenino, no presenta hirsutismo ni galactorrea. Los ciclos menstruales se describen regulares, sin retrasos ni alteraciones. No se reportan cambios significativos de peso ni intolerancia a frío o calor. Niega diagnóstico de hipotiroidismo o hipertiroidismo.",
+    tegumentario: "El paciente no refiere cambios en la coloración de la piel ni presencia de erupciones, prurito, hiperhidrosis, pérdida de pelo o resequedad. No describe alteraciones en las uñas como fragilidad, quebraduras o deformidades. Niega cambios en lunares ni aparición de lesiones pigmentadas.",
+    musculoEsqueletico: "El paciente no refiere antecedentes de fracturas o esguinces. No presenta síntomas musculoesqueléticos como deformidades articulares, dolor articular, calambres frecuentes ni rigidez matutina. No manifiesta debilidad muscular generalizada ni localizada. Tampoco refiere limitaciones de movimiento.",
+    nervioso: "El paciente no presenta alteraciones en la percepción de los sentidos. Refiere dormir entre 7 y 8 horas por la noche, sin trastornos del sueño. El estado de ánimo se describe como tranquilo y estable. Niega parestesias. No reporta antecedentes de convulsiones, temblores, problemas de memoria, cambios de personalidad, alteraciones de la coordinación motora ni otros síntomas neurológicos."
+  };
+
+  const handleSintomasToggle = (system: string, checked: boolean) => {
+    setSintomasToggle(prev => ({
+      ...prev,
+      [system]: checked
+    }));
+
+    // Si se activa el toggle, usar la redacción predeterminada
+    if (checked) {
+      const redaccionPredeterminada = redaccionesSinSintomas[system as keyof typeof redaccionesSinSintomas];
+      handleInterrogatorioChange(system, redaccionPredeterminada);
+      setRedacciones(prev => ({
+        ...prev,
+        [system]: redaccionPredeterminada
+      }));
+    } else {
+      // Si se desactiva, limpiar la redacción para que se genere desde el formulario
+      handleInterrogatorioChange(system, "");
+      setRedacciones(prev => ({
+        ...prev,
+        [system]: ""
+      }));
+    }
   };
 
   const generateAndUpdateRedacciones = () => {
@@ -617,7 +684,14 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
               <div className="space-y-6">
                 {/* APARATO DIGESTIVO */}
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Aparato Digestivo</h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-justify">Aparato Digestivo</h4>
+                    <SintomasToggle 
+                      checked={sintomasToggle.digestivo}
+                      onChange={(checked) => handleSintomasToggle('digestivo', checked)}
+                    />
+                  </div>
+                  {!sintomasToggle.digestivo && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Tipo de Alimentación</Label>
@@ -743,13 +817,21 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                           className="w-full p-2 border rounded-md mt-2"
                         />
                       )}
-                    </div>
-                  </div>
+                     </div>
+                   </div>
+                  )}
                 </div>
 
                 {/* APARATO RESPIRATORIO */}
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Aparato Respiratorio</h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-justify">Aparato Respiratorio</h4>
+                    <SintomasToggle 
+                      checked={sintomasToggle.respiratorio}
+                      onChange={(checked) => handleSintomasToggle('respiratorio', checked)}
+                    />
+                  </div>
+                  {!sintomasToggle.respiratorio && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Tipo de Respiración</Label>
@@ -798,13 +880,21 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         <WordButton label="Verdosa" isSelected={formValues.respiratorio.tosExpectoracion === "Verdosa"} onClick={() => handleRadioChange("respiratorio", "tosExpectoracion", "Verdosa")} />
                         <WordButton label="Hemoptoica" isSelected={formValues.respiratorio.tosExpectoracion === "Hemoptoica"} onClick={() => handleRadioChange("respiratorio", "tosExpectoracion", "Hemoptoica")} />
                       </div>
-                    </div>
-                  </div>
+                     </div>
+                   </div>
+                  )}
                 </div>
 
                 {/* APARATO CARDIOVASCULAR */}
                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Aparato Cardiovascular</h4>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="text-lg font-semibold text-justify">Aparato Cardiovascular</h4>
+                    <SintomasToggle 
+                      checked={sintomasToggle.cardiovascular}
+                      onChange={(checked) => handleSintomasToggle('cardiovascular', checked)}
+                    />
+                  </div>
+                  {!sintomasToggle.cardiovascular && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Dolor torácico</Label>
@@ -993,13 +1083,21 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                           />
                         </div>
                       )}
-                    </div>
-                  </div>
+                     </div>
+                   </div>
+                  )}
                 </div>
 
-                {/* APARATO GENITO-URINARIO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Aparato Genito-Urinario</h4>
+                 {/* APARATO GENITO-URINARIO */}
+                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                   <div className="flex items-center justify-between mb-4">
+                     <h4 className="text-lg font-semibold text-justify">Aparato Genito-Urinario</h4>
+                     <SintomasToggle 
+                       checked={sintomasToggle.genitoUrinario}
+                       onChange={(checked) => handleSintomasToggle('genitoUrinario', checked)}
+                     />
+                   </div>
+                   {!sintomasToggle.genitoUrinario && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Frecuencia Urinaria</Label>
@@ -1097,13 +1195,21 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         <WordButton label="Cesáreas" isSelected={formValues.genitoUrinario.antecedentesObstetricos === "Cesáreas"} onClick={() => handleRadioChange("genitoUrinario", "antecedentesObstetricos", "Cesáreas")} />
                         <WordButton label="Ambos" isSelected={formValues.genitoUrinario.antecedentesObstetricos === "Ambos"} onClick={() => handleRadioChange("genitoUrinario", "antecedentesObstetricos", "Ambos")} />
                       </div>
-                    </div>
-                  </div>
+                     </div>
+                   </div>
+                  )}
                 </div>
 
-                {/* SISTEMA ENDOCRINO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Sistema Endocrino</h4>
+                 {/* SISTEMA ENDOCRINO */}
+                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                   <div className="flex items-center justify-between mb-4">
+                     <h4 className="text-lg font-semibold text-justify">Sistema Endocrino</h4>
+                     <SintomasToggle 
+                       checked={sintomasToggle.endocrino}
+                       onChange={(checked) => handleSintomasToggle('endocrino', checked)}
+                     />
+                   </div>
+                   {!sintomasToggle.endocrino && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Síntomas Endocrinos</Label>
@@ -1170,13 +1276,21 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         <WordButton label="Hipertiroidismo" isSelected={formValues.endocrino.condicionesEndocrinas === "Hipertiroidismo"} onClick={() => handleRadioChange("endocrino", "condicionesEndocrinas", "Hipertiroidismo")} />
                         <WordButton label="Ninguno" isSelected={formValues.endocrino.condicionesEndocrinas === "Ninguno"} onClick={() => handleRadioChange("endocrino", "condicionesEndocrinas", "Ninguno")} />
                       </div>
-                    </div>
-                  </div>
+                     </div>
+                   </div>
+                  )}
                 </div>
 
-                {/* SISTEMA TEGUMENTARIO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Sistema Tegumentario</h4>
+                 {/* SISTEMA TEGUMENTARIO */}
+                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                   <div className="flex items-center justify-between mb-4">
+                     <h4 className="text-lg font-semibold text-justify">Sistema Tegumentario</h4>
+                     <SintomasToggle 
+                       checked={sintomasToggle.tegumentario}
+                       onChange={(checked) => handleSintomasToggle('tegumentario', checked)}
+                     />
+                   </div>
+                   {!sintomasToggle.tegumentario && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Cambios en la Coloración de la Piel</Label>
@@ -1225,13 +1339,21 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         <WordButton label="Sí" isSelected={formValues.tegumentario.lesionesPigmentadas === "Sí"} onClick={() => handleRadioChange("tegumentario", "lesionesPigmentadas", "Sí")} />
                         <WordButton label="No" isSelected={formValues.tegumentario.lesionesPigmentadas === "No"} onClick={() => handleRadioChange("tegumentario", "lesionesPigmentadas", "No")} />
                       </div>
-                    </div>
-                  </div>
+                     </div>
+                   </div>
+                  )}
                 </div>
 
-                {/* SISTEMA MÚSCULO-ESQUELÉTICO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Sistema Músculo-Esquelético</h4>
+                 {/* SISTEMA MÚSCULO-ESQUELÉTICO */}
+                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                   <div className="flex items-center justify-between mb-4">
+                     <h4 className="text-lg font-semibold text-justify">Sistema Músculo-Esquelético</h4>
+                     <SintomasToggle 
+                       checked={sintomasToggle.musculoEsqueletico}
+                       onChange={(checked) => handleSintomasToggle('musculoEsqueletico', checked)}
+                     />
+                   </div>
+                   {!sintomasToggle.musculoEsqueletico && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Fracturas o Esguinces</Label>
@@ -1285,13 +1407,21 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                           className="w-full p-2 border rounded-md mt-2"
                         />
                       )}
-                    </div>
-                  </div>
+                     </div>
+                   </div>
+                  )}
                 </div>
 
-                {/* SISTEMA NERVIOSO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <h4 className="text-lg font-semibold mb-2 text-justify">Sistema Nervioso</h4>
+                 {/* SISTEMA NERVIOSO */}
+                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                   <div className="flex items-center justify-between mb-4">
+                     <h4 className="text-lg font-semibold text-justify">Sistema Nervioso</h4>
+                     <SintomasToggle 
+                       checked={sintomasToggle.nervioso}
+                       onChange={(checked) => handleSintomasToggle('nervioso', checked)}
+                     />
+                   </div>
+                   {!sintomasToggle.nervioso && (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <Label>Percepción de los Sentidos</Label>
@@ -1350,11 +1480,12 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                         <WordButton label="Coordinación motora alterada" isSelected={formValues.nervioso.otrosSintomasNeurologicos.includes("Coordinación motora alterada")} onClick={() => handleCheckboxChange("nervioso", "otrosSintomasNeurologicos", "Coordinación motora alterada", !formValues.nervioso.otrosSintomasNeurologicos.includes("Coordinación motora alterada"))} />
                         <WordButton label="Ninguno" isSelected={formValues.nervioso.otrosSintomasNeurologicos.includes("Ninguno")} onClick={() => handleCheckboxChange("nervioso", "otrosSintomasNeurologicos", "Ninguno", !formValues.nervioso.otrosSintomasNeurologicos.includes("Ninguno"))} />
                       </div>
-                    </div>
-                  </div>
+                     </div>
+                   </div>
+                  )}
                 </div>
 
-                <div className="flex justify-center pt-4">
+                 <div className="flex justify-center pt-4">
                   <Button onClick={generateAndUpdateRedacciones} className="bg-blue-500 hover:bg-blue-600 text-white">
                     Generar Redacción IA
                   </Button>
