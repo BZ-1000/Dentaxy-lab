@@ -1,8 +1,9 @@
 
 "use client";
 
-import { AnimatePresence, motion, Variants } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useMemo } from "react";
 
 interface GradualSpacingProps {
   text: string;
@@ -15,54 +16,41 @@ interface GradualSpacingProps {
 
 function GradualSpacing({
   text,
-  duration = 0.5,
-  delayMultiple = 0.04,
+  duration = 0.3,
+  delayMultiple = 0.02,
   framerProps = {
-    hidden: { opacity: 0, x: -20, scale: 1 },
-    visible: { 
-      opacity: 1, 
-      x: 0,
-      scale: [1, 1.2, 1],
-      transition: {
-        scale: {
-          repeat: Infinity,
-          repeatDelay: 5,
-          duration: 1.5,
-          ease: "easeInOut"
-        }
-      }
-    },
+    hidden: { opacity: 0, x: -10 },
+    visible: { opacity: 1, x: 0 },
   },
   className,
   textAlign = "center",
 }: GradualSpacingProps) {
-  const containerClass = {
+  const containerClass = useMemo(() => ({
     left: "justify-start",
     center: "justify-center",
     right: "justify-end",
     justify: "justify-between",
-  }[textAlign];
+  }[textAlign]), [textAlign]);
+
+  const chars = useMemo(() => text.split(""), [text]);
 
   return (
     <div className={`flex ${containerClass} space-x-1`}>
-      <AnimatePresence>
-        {text.split("").map((char, i) => (
-          <motion.h1
-            key={i}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={framerProps}
-            transition={{ 
-              duration, 
-              delay: i * delayMultiple,
-            }}
-            className={cn("drop-shadow-sm transform-gpu", className)}
-          >
-            {char === " " ? <span>&nbsp;</span> : char}
-          </motion.h1>
-        ))}
-      </AnimatePresence>
+      {chars.map((char, i) => (
+        <motion.h1
+          key={i}
+          initial="hidden"
+          animate="visible"
+          variants={framerProps}
+          transition={{ 
+            duration, 
+            delay: i * delayMultiple,
+          }}
+          className={cn("drop-shadow-sm", className)}
+        >
+          {char === " " ? <span>&nbsp;</span> : char}
+        </motion.h1>
+      ))}
     </div>
   );
 }

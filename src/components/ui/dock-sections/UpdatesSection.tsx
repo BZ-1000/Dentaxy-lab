@@ -1,11 +1,11 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, Package, AlertCircle } from 'lucide-react';
-import { useUpdates } from '@/hooks/useUpdates';
 import { format, isToday, isYesterday, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { PLATFORM_UPDATES } from '@/data/updates';
 
 const getUpdateIcon = (version: string) => {
   if (version.includes('beta') || version.includes('alpha')) {
@@ -30,17 +30,7 @@ const formatReleaseDate = (dateString: string) => {
 };
 
 export const UpdatesSection = () => {
-  const { updates, loading, error } = useUpdates();
-
-  if (error) {
-    return (
-      <Card className="h-full flex flex-col bg-gradient-to-br from-card via-card to-card/80 border-border/30 shadow-md">
-        <CardContent className="p-3 text-center flex-1 flex items-center justify-center">
-          <p className="text-xs text-muted-foreground">Error al cargar actualizaciones</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const updates = PLATFORM_UPDATES;
 
   return (
     <Card className="h-full flex flex-col bg-gradient-to-br from-card via-card to-card/80 border-border/30 shadow-md">
@@ -57,75 +47,50 @@ export const UpdatesSection = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 px-3 pb-3 pt-0">
-        {loading ? (
-          <div className="space-y-2">
-            {[...Array(4)].map((_, i) => (
+        <ScrollArea className="h-full">
+          <div className="space-y-2 pr-2">
+            {updates.slice(0, 5).map((update, index) => (
               <motion.div
-                key={i}
-                className="h-14 bg-muted/40 rounded-lg"
-                animate={{ opacity: [0.4, 0.8, 0.4] }}
-                transition={{ duration: 1.5, repeat: Infinity, delay: i * 0.15 }}
-              />
+                key={update.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2, delay: index * 0.03 }}
+              >
+                <div className="p-2.5 bg-gradient-to-r from-muted/20 to-muted/40 rounded-lg border border-border/20 hover:border-border/40 hover:shadow-sm transition-all duration-200">
+                  <div className="flex items-start gap-2">
+                    <div className="mt-0.5 flex-shrink-0">
+                      {getUpdateIcon(update.version)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-1 mb-1">
+                        <h4 className="text-xs font-medium text-foreground leading-tight line-clamp-1">
+                          {update.title}
+                        </h4>
+                        <Badge 
+                          variant="outline" 
+                          className="text-xs px-1.5 py-0.5 h-auto bg-background/50 border-border/40 flex-shrink-0"
+                        >
+                          {update.version}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-2">
+                        {update.description}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground/80 font-medium">
+                          {formatReleaseDate(update.release_date)}
+                        </span>
+                        {isToday(parseISO(update.release_date)) && (
+                          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             ))}
           </div>
-        ) : (
-          <ScrollArea className="h-full">
-            <AnimatePresence>
-              <div className="space-y-2 pr-2">
-                {updates.slice(0, 5).map((update, index) => (
-                  <motion.div
-                    key={update.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className="group"
-                  >
-                    <motion.div
-                      className="p-2.5 bg-gradient-to-r from-muted/20 to-muted/40 rounded-lg border border-border/20 hover:border-border/40 hover:shadow-sm transition-all duration-200"
-                      whileHover={{ scale: 1.01, y: -1 }}
-                      whileTap={{ scale: 0.99 }}
-                    >
-                      <div className="flex items-start gap-2">
-                        <div className="mt-0.5 flex-shrink-0">
-                          {getUpdateIcon(update.version)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-1 mb-1">
-                            <h4 className="text-xs font-medium text-foreground leading-tight line-clamp-1">
-                              {update.title}
-                            </h4>
-                            <Badge 
-                              variant="outline" 
-                              className="text-xs px-1.5 py-0.5 h-auto bg-background/50 border-border/40 flex-shrink-0"
-                            >
-                              {update.version}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed mb-2">
-                            {update.description}
-                          </p>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground/80 font-medium">
-                              {formatReleaseDate(update.release_date)}
-                            </span>
-                            {isToday(parseISO(update.release_date)) && (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className="w-1.5 h-1.5 bg-emerald-500 rounded-full"
-                              />
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </motion.div>
-                ))}
-              </div>
-            </AnimatePresence>
-          </ScrollArea>
-        )}
+        </ScrollArea>
       </CardContent>
     </Card>
   );
