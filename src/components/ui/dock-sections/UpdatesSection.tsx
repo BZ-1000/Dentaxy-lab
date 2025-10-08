@@ -74,10 +74,10 @@ export const UpdatesSection = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-1 mb-1">
-                          <h4 className="text-xs font-medium text-foreground leading-tight line-clamp-1">
+                          <h4 className={`text-xs font-medium text-foreground leading-tight ${!isExpanded ? 'line-clamp-1' : ''}`}>
                             {update.title}
                           </h4>
-                          <Badge 
+                          <Badge
                             variant="outline" 
                             className="text-xs px-1.5 py-0.5 h-auto bg-background/50 border-border/40 flex-shrink-0"
                           >
