@@ -96,10 +96,8 @@ const ExamenIntrabucalWrapper: React.FC<ExamenIntrabucalWrapperProps> = ({
 
   const handleSave = () => {
     try {
-      // Guardar en localStorage
-      localStorage.setItem(`examen-intrabucal-${area}`, JSON.stringify(selectedOptions));
-      
-      // Guardar en el estado global del formulario
+      // Solo guardar en el estado global del formulario
+      // NO guardar en localStorage individual para prevenir formularios duplicados
       handleExamenIntrabucalChange(area, JSON.stringify(selectedOptions));
       
       toast.success("Datos guardados correctamente");
