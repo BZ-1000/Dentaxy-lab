@@ -59,39 +59,17 @@ const FormulariosSidebar = ({
   useEffect(() => {
     loadSavedForms();
   }, []);
-  const handleGuardarFormulario = (nombre?: string) => {
-    const nombreAGuardar = nombre || nombrePaciente;
-    
-    if (!nombreAGuardar.trim()) {
-      toast({
-        title: "Error",
-        description: "Por favor ingrese un nombre para el paciente",
-        variant: "destructive"
-      });
+  const handleGuardarFormulario = () => {
+    if (!nombrePaciente.trim()) {
       return;
     }
-    
-    // Prevenir guardado de nombres por defecto no deseados
-    if (nombreAGuardar.includes('-interrogatorio-sistemas-form') || 
-        nombreAGuardar.includes('-examen-intrabucal-')) {
-      return;
-    }
-    
-    onGuardarFormulario(nombreAGuardar);
-    
-    // Actualizar lista inmediatamente con animación
-    setTimeout(() => {
-      loadSavedForms();
-      toast({
-        title: "✓ Formulario guardado",
-        description: `${nombreAGuardar} ha sido guardado exitosamente.`,
-        duration: 2000
-      });
-    }, 100);
-    
-    if (!nombre) {
-      setNombrePaciente('');
-    }
+    onGuardarFormulario(nombrePaciente);
+    loadSavedForms();
+    setNombrePaciente('');
+    toast({
+      title: "Formulario guardado",
+      description: `El formulario de ${nombrePaciente} ha sido guardado exitosamente.`
+    });
   };
   const handleEliminarFormulario = () => {
     if (!formularioSeleccionado) return;
@@ -155,12 +133,12 @@ const FormulariosSidebar = ({
       description: "El formulario ha sido reseteado al estado inicial."
     });
   };
-  return <div className="sticky top-4 self-start z-40">
-      <div className="hidden md:block h-fit">
+  return <div className="">
+      <div className="hidden md:block md:sticky md:top-4 md:self-start h-fit">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
-          <SidebarBody className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-            <div className="sticky top-0 bg-background/95 backdrop-blur z-10">
-              <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-background/50">
+          <SidebarBody className="bg-gray-50">
+            <div className="sticky top-0 bg-slate-50 z-10">
+              <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-gray-50">
                 {open ? <Logo>
                     <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
                   </Logo> : <LogoIcon>
@@ -178,12 +156,12 @@ const FormulariosSidebar = ({
             <div className="flex-1 overflow-y-auto">
               <ScrollArea className="flex-1">
                 <div className="space-y-1 pr-2">
-                  {formularios.map((form, index) => <div key={index} className="group flex justify-between items-center mb-2 animate-fade-in">
+                  {formularios.map((form, index) => <div key={index} className="group flex justify-between items-center mb-2">
                       <SidebarLink link={{
                     label: form.nombre,
                     icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
                     onClick: () => onCargarFormulario(form.data, form.nombre)
-                  }} className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1 transition-all" />
+                  }} className="hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded-md px-2 flex-1" />
                       {open && <div className="flex gap-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button onClick={() => handleFormularioAction('renombrar', form.nombre)} className="p-1 rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-700" title="Renombrar paciente">
                             <Pencil className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
