@@ -134,7 +134,7 @@ const FormulariosSidebar = ({
     });
   };
   return <div className="sticky top-4 z-20">
-      <div className="hidden md:block md:sticky md:top-4 md:self-start h-fit">
+      <div className="md:sticky md:top-4 md:self-start h-fit z-20">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
           <SidebarBody className="bg-gray-50">
             <div className="sticky top-0 bg-slate-50 z-10">
@@ -230,8 +230,6 @@ const FormulariosSidebar = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      
-      {pacienteActual}
     </div>;
 };
 export default FormulariosSidebar;
