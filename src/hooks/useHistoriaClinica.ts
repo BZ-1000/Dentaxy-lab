@@ -535,20 +535,8 @@ export const useHistoriaClinica = () => {
     // Guardar formulario principal
     localStorage.setItem(`formulario_${nombre}`, JSON.stringify(formDataToSave));
     
-    // Guardar también los datos específicos del examen intrabucal
-    const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
-    areasIntrabucal.forEach(area => {
-      const areaData = data.examenIntrabucal?.[area];
-      if (areaData && typeof areaData === 'string') {
-        localStorage.setItem(`formulario_${nombre}_examen-intrabucal-${area}`, areaData);
-      }
-    });
-    
-    // Guardar también los datos específicos del interrogatorio de sistemas
-    const interrogatorioData = localStorage.getItem('interrogatorio-sistemas-formValues');
-    if (interrogatorioData) {
-      localStorage.setItem(`formulario_${nombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
-    }
+    // Guardado estricto: solo el formulario completo (sin parciales de intrabucal ni interrogatorio)
+    // Eliminado guardado de claves parciales para evitar formularios separados y errores al cargar.
   };
 
   const cargarFormulario = (data: FormDataState | null) => {

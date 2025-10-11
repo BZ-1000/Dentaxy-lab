@@ -45,7 +45,7 @@ const FormulariosSidebar = ({
     }[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith('formulario_')) {
+      if (key && key.startsWith('formulario_') && !key.includes('_examen-intrabucal-') && !key.includes('_interrogatorio-sistemas-')) {
         const nombre = key.replace('formulario_', '');
         const data = JSON.parse(localStorage.getItem(key) || '{}');
         savedForms.push({
@@ -133,7 +133,7 @@ const FormulariosSidebar = ({
       description: "El formulario ha sido reseteado al estado inicial."
     });
   };
-  return <div className="">
+  return <div className="sticky top-4 z-20">
       <div className="hidden md:block md:sticky md:top-4 md:self-start h-fit">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
           <SidebarBody className="bg-gray-50">
