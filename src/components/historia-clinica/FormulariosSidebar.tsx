@@ -38,6 +38,7 @@ const FormulariosSidebar = ({
   const [formularioSeleccionado, setFormularioSeleccionado] = useState<string | null>(null);
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [emailCompartir, setEmailCompartir] = useState('');
+  const [recienGuardado, setRecienGuardado] = useState<string | null>(null);
   const loadSavedForms = () => {
     const savedForms: {
       nombre: string;
@@ -64,7 +65,12 @@ const FormulariosSidebar = ({
       return;
     }
     onGuardarFormulario(nombrePaciente);
-    loadSavedForms();
+    // Actualiza la lista al instante y resalta el nuevo elemento
+    setTimeout(() => {
+      loadSavedForms();
+      setRecienGuardado(nombrePaciente);
+      setTimeout(() => setRecienGuardado(null), 1500);
+    }, 0);
     setNombrePaciente('');
     toast({
       title: "Formulario guardado",
@@ -134,7 +140,7 @@ const FormulariosSidebar = ({
     });
   };
   return <div className="sticky top-4 z-20">
-      <div className="md:sticky md:top-4 md:self-start h-fit z-20">
+      <div className="md:self-start h-fit z-20">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
           <SidebarBody className="bg-gray-50">
             <div className="sticky top-0 bg-slate-50 z-10">
@@ -156,7 +162,7 @@ const FormulariosSidebar = ({
             <div className="flex-1 overflow-y-auto">
               <ScrollArea className="flex-1">
                 <div className="space-y-1 pr-2">
-                  {formularios.map((form, index) => <div key={index} className="group flex justify-between items-center mb-2">
+                  {formularios.map((form, index) => <div key={index} className={`group flex justify-between items-center mb-2 ${form.nombre === recienGuardado ? 'animate-fade-in' : ''}`}>
                       <SidebarLink link={{
                     label: form.nombre,
                     icon: <FileText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />,
