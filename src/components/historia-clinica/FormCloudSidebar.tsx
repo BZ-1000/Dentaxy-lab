@@ -220,7 +220,7 @@ export default function FormCloudSidebar({
               onClick={() => {
                 setSidebarOpen(true);
               }}
-              className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-2.5 sm:p-3 lg:hidden rounded-full shadow-lg hover:shadow-xl transition-all"
+              className="relative bg-primary hover:bg-primary/90 text-primary-foreground md:bg-transparent md:hover:bg-primary/10 md:text-primary p-2.5 sm:p-3 lg:hidden rounded-full md:shadow-none shadow-lg hover:shadow-xl transition-all"
               aria-label="Formularios guardados"
             >
               <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
