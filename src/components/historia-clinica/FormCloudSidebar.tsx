@@ -195,10 +195,10 @@ export default function FormCloudSidebar({
               onClick={() => {
                 setSidebarOpen(true);
               }}
-              className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-2.5 sm:p-3 md:p-4 rounded-full shadow-lg hover:shadow-xl transition-all"
+              className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-2.5 sm:p-3 lg:p-4 rounded-full shadow-lg hover:shadow-xl transition-all"
               aria-label="Formularios guardados"
             >
-              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
               {formularios.length > 0 && hasNewForms && (
                 <motion.span
                   initial={{ scale: 0 }}
