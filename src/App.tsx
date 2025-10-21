@@ -14,7 +14,6 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useGlobalMetrics } from './hooks/useGlobalMetrics';
 import './App.css';
-import AnimatedLoadingSkeleton from '@/components/ui/animated-loading-skeleton';
 
 // Páginas del menú principal
 import About from './pages/about/About';
@@ -59,8 +58,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/auth/login" replace />;
   }
 
-  // Show skeleton overlay while resolving auth and during splash window
-  if (splashActive) return <AnimatedLoadingSkeleton />;
+  // Show nothing while resolving auth and during splash window
+  if (splashActive) return null;
 
   return <div className="animate-fade-in">{children}</div>;
 };
