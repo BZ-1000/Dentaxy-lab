@@ -26,7 +26,7 @@ export default function FormCloudSidebar({
   const [formularios, setFormularios] = useState<SavedForm[]>([]);
   const [formularioAEliminar, setFormularioAEliminar] = useState<string | null>(null);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
-  const [recienGuardado, setRecienGuardado] = useState<string | null>(null);
+  
 
   // Load saved forms from localStorage
   const loadSavedForms = () => {
@@ -66,44 +66,7 @@ export default function FormCloudSidebar({
     }
   }, [sidebarOpen]);
 
-  // Listen for storage changes (new saves)
-  useEffect(() => {
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key?.startsWith('formulario_') && !e.key.includes('_examen-intrabucal-') && !e.key.includes('_interrogatorio-sistemas-')) {
-        const nombre = e.key.replace('formulario_', '');
-        setRecienGuardado(nombre);
-        loadSavedForms();
-        
-        // Clear animation after 2 seconds
-        setTimeout(() => {
-          setRecienGuardado(null);
-        }, 2000);
-      }
-    };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
-
-  // Custom event for same-window storage updates
-  useEffect(() => {
-    const handleCustomSave = (e: CustomEvent) => {
-      const nombre = e.detail.nombre;
-      setRecienGuardado(nombre);
-      loadSavedForms();
-      
-      setTimeout(() => {
-        setRecienGuardado(null);
-      }, 2000);
-      
-      if (onGuardarCallback) {
-        onGuardarCallback();
-      }
-    };
-
-    window.addEventListener('formularioGuardado' as any, handleCustomSave as any);
-    return () => window.removeEventListener('formularioGuardado' as any, handleCustomSave as any);
-  }, [onGuardarCallback]);
 
   const handleEliminarFormulario = (nombre: string) => {
     setFormularioAEliminar(nombre);
@@ -154,11 +117,6 @@ export default function FormCloudSidebar({
 
     onCargarFormulario(data, nombre);
     setSidebarOpen(false);
-
-    toast({
-      title: "Formulario cargado",
-      description: `Se cargó el formulario de ${nombre}`
-    });
   };
 
   return (
@@ -240,11 +198,7 @@ export default function FormCloudSidebar({
                         key={form.nombre}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`group relative border rounded-lg p-3 transition-all cursor-pointer ${
-                          recienGuardado === form.nombre 
-                            ? 'border-primary bg-primary/5 animate-pulse' 
-                            : 'border-border bg-card hover:border-primary/50 hover:shadow-sm'
-                        }`}
+                         className="group relative border rounded-lg p-3 transition-all cursor-pointer border-border bg-card hover:border-primary/50 hover:shadow-sm"
                         onClick={() => handleCargarFormulario(form.nombre, form.data)}
                       >
                         <div className="flex items-start gap-2.5">

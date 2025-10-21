@@ -562,10 +562,6 @@ export const useHistoriaClinica = () => {
     // Dispatch custom event for same-window storage updates
     window.dispatchEvent(new CustomEvent('formularioGuardado', { detail: { nombre } }));
     
-    toast({
-      title: "Formulario guardado",
-      description: `El formulario de ${nombre} se guardó correctamente.`
-    });
   };
 
   const cargarFormulario = (data: FormDataState | null) => {

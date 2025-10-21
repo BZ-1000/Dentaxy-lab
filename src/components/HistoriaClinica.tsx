@@ -152,6 +152,7 @@ const HistoriaClinica = ({
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const pdfSectionsRef = useRef<{ [key: string]: string; }>({});
+  const isLoadingFromSavedRef = useRef(false);
   
   const {
     isAnalysisMode,
@@ -342,7 +343,7 @@ const HistoriaClinica = ({
   }, [isAnalysisMode, setAnalysisMode, setSelectedText, setSelectedPosition]);
 
   useEffect(() => {
-    if (pacienteActual && guardarFormulario) {
+    if (pacienteActual && guardarFormulario && !isLoadingFromSavedRef.current) {
       guardarFormulario(formData, pacienteActual);
     }
   }, [formData, pacienteActual, guardarFormulario]);
@@ -357,14 +358,18 @@ const HistoriaClinica = ({
       {guardarFormulario && cargarFormulario && (
         <FormCloudSidebar 
           onCargarFormulario={(data, nombre) => {
+            isLoadingFromSavedRef.current = true;
             cargarFormulario(data);
             setPacienteActual(nombre);
             setNombrePaciente(nombre);
+            setTimeout(() => {
+              isLoadingFromSavedRef.current = false;
+            }, 300);
           }}
         />
       )}
       
-      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 pl-16 pr-2 sm:pl-20 sm:pr-4 lg:px-8 transition-all duration-200 max-w-full overflow-x-hidden`}>
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 pl-8 pr-2 sm:pl-12 sm:pr-4 lg:px-8 transition-all duration-200 max-w-full overflow-x-hidden`}>
         <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
           {/* Patient name input - only show if functions are available */}
           {guardarFormulario && (
