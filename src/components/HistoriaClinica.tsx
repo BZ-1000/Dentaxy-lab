@@ -373,7 +373,7 @@ const HistoriaClinica = ({
         <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
           {/* Patient name input - only show if functions are available */}
           {guardarFormulario && (
-            <div className="text-center">
+            <div className="text-center" data-formulario-ia>
               <h1 className="text-2xl sm:text-4xl font-bold mb-2">Formulario IA</h1>
               <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6 px-2">
                 (llena el formulario y deja que nuestra inteligencia artificial se encargue de hacer la redacción)

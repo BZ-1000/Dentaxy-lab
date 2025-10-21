@@ -26,6 +26,8 @@ export default function FormCloudSidebar({
   const [formularios, setFormularios] = useState<SavedForm[]>([]);
   const [formularioAEliminar, setFormularioAEliminar] = useState<string | null>(null);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [badgeClicked, setBadgeClicked] = useState(false);
   
 
   // Load saved forms from localStorage
@@ -65,6 +67,36 @@ export default function FormCloudSidebar({
       loadSavedForms();
     }
   }, [sidebarOpen]);
+
+  // Intersection Observer to detect when "Formulario IA" section is visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '-100px 0px 0px 0px'
+      }
+    );
+
+    // Find the "Formulario IA" section by looking for an element with specific text or ID
+    const checkElement = () => {
+      const formularioSection = document.querySelector('[data-formulario-ia]');
+      if (formularioSection) {
+        observer.observe(formularioSection);
+      } else {
+        // Retry after a short delay if element not found yet
+        setTimeout(checkElement, 500);
+      }
+    };
+
+    checkElement();
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
 
 
@@ -121,30 +153,38 @@ export default function FormCloudSidebar({
 
   return (
     <>
-      {/* Floating icon button */}
-      <motion.div
-        className="fixed top-20 left-4 z-50"
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ type: "spring", stiffness: 260, damping: 20 }}
-      >
-        <button
-          onClick={() => setSidebarOpen(true)}
-          className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-3 rounded-full shadow-lg hover:shadow-xl transition-all"
-          aria-label="Formularios guardados"
-        >
-          <BookOpen className="w-5 h-5" />
-          {formularios.length > 0 && (
-            <motion.span
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+      {/* Floating icon button - only visible when "Formulario IA" section is in view */}
+      <AnimatePresence>
+        {isVisible && (
+          <motion.div
+            className="fixed top-20 left-4 z-50"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+          >
+            <button
+              onClick={() => {
+                setSidebarOpen(true);
+                setBadgeClicked(true);
+              }}
+              className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-3 rounded-full shadow-lg hover:shadow-xl transition-all"
+              aria-label="Formularios guardados"
             >
-              {formularios.length}
-            </motion.span>
-          )}
-        </button>
-      </motion.div>
+              <BookOpen className="w-5 h-5" />
+              {formularios.length > 0 && !badgeClicked && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                >
+                  {formularios.length}
+                </motion.span>
+              )}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Sliding panel */}
       <AnimatePresence>

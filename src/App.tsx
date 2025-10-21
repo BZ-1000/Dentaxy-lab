@@ -34,17 +34,25 @@ import DonationSuccess from './pages/DonationSuccess';
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
 
+  // Check if splash should be skipped
+  const skipSplash = sessionStorage.getItem('skipSplash') === 'true';
+  
   // One-shot splash shown immediately to avoid any white flash
-  const [splashActive, setSplashActive] = React.useState(true);
+  const [splashActive, setSplashActive] = React.useState(!skipSplash);
   const splashStartedRef = React.useRef(false);
 
   React.useEffect(() => {
-    if (!splashStartedRef.current) {
+    // Clear the skip flag after reading it
+    if (skipSplash) {
+      sessionStorage.removeItem('skipSplash');
+    }
+    
+    if (!splashStartedRef.current && !skipSplash) {
       splashStartedRef.current = true;
       const t = setTimeout(() => setSplashActive(false), 5000);
       return () => clearTimeout(t);
     }
-  }, []);
+  }, [skipSplash]);
 
   // If not authenticated (and auth finished), redirect instantly
   if (!loading && !user) {

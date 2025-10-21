@@ -82,9 +82,9 @@ const Landing = () => {
     // Clear all form data from localStorage
     localStorage.removeItem('currentFormData');
     localStorage.removeItem('formBackup');
-    // Clear all form data and navigate to app
-    localStorage.removeItem('currentFormData');
-    localStorage.removeItem('formBackup');
+    
+    // Set flag to skip splash screen
+    sessionStorage.setItem('skipSplash', 'true');
     
     // Navigate directly to the app for beta access
     navigate('/app');
