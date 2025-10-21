@@ -206,7 +206,7 @@ export function AppleStyleDock({ onOpenFormularios }: AppleStyleDockProps = {}) 
               onClick={() => handleItemClick(item.title)}
               className={`aspect-square rounded-full cursor-pointer ${
                 item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'DentaxyGPT' ? 'bg-black' : (item.title === 'Inicio' ? 'bg-amber-400' : (item.title === 'Formularios' ? 'bg-blue-500' : 'bg-gray-200 dark:bg-neutral-800')))
-              }`}
+              } ${item.title === 'Formularios' ? 'hidden md:flex' : ''}`}
             >
               <DockLabel>{item.title}</DockLabel>
               <DockIcon>{item.icon}</DockIcon>
