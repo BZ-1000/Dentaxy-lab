@@ -6,6 +6,7 @@ import TechBanner from "@/components/ui/tech-banner";
 import { AnalysisModeProvider } from "@/contexts/AnalysisModeContext";
 import { useGlobalMetrics } from "@/hooks/useGlobalMetrics";
 import { useEffect, useState } from "react";
+import { AppSidebar } from "@/components/sidebar/AppSidebar";
 
 function IndexContent() {
   // Initialize metrics tracking for all visitors
@@ -17,7 +18,9 @@ function IndexContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white overflow-x-hidden">
+    <div className="min-h-screen flex w-full">
+      <AppSidebar />
+      <div className="flex-1 lg:ml-[280px] min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white overflow-x-hidden transition-all duration-300">
       {/* Tech Banner - Floating over main content */}
       <TechBanner />
       
@@ -79,8 +82,9 @@ function IndexContent() {
         </div>
       </div>
 
-      <AppleStyleDock onOpenFormularios={() => setFormSidebarOpen(true)} />
-      <div className="h-16 sm:h-24" />
+        <AppleStyleDock onOpenFormularios={() => setFormSidebarOpen(true)} />
+        <div className="h-16 sm:h-24" />
+      </div>
     </div>
   );
 }
