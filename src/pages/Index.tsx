@@ -29,7 +29,7 @@ function IndexContent() {
   return <div className="min-h-screen flex w-full">
       <AppSidebar />
       <div className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white overflow-x-hidden transition-all duration-300" style={{
-      marginLeft: window.innerWidth >= 768 ? sidebarCollapsed ? '72px' : '280px' : '0'
+      marginLeft: window.innerWidth >= 768 ? sidebarCollapsed ? '56px' : '220px' : '0'
     }}>
       {/* Tech Banner - Floating over main content */}
       <TechBanner />
