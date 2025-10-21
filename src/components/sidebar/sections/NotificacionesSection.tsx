@@ -32,7 +32,7 @@ export const NotificacionesSection = ({ collapsed }: NotificacionesSectionProps)
                 className="w-full flex items-center justify-center p-3 hover:bg-accent/50 transition-colors relative rounded-lg"
                 onClick={() => setOverlayOpen(true)}
               >
-                <Bell className="h-5 w-5" style={{ color: '#8B5CF6', strokeWidth: 1.5 }} />
+                <Bell className="h-[18px] w-[18px]" style={{ color: '#8B5CF6', strokeWidth: 1.5 }} />
                 {unreadCount > 0 && (
                   <span className="absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-destructive text-[10px] text-destructive-foreground">
                     {unreadCount}
@@ -59,10 +59,10 @@ export const NotificacionesSection = ({ collapsed }: NotificacionesSectionProps)
         className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-accent/50 transition-colors text-left rounded-lg"
         onClick={() => setOverlayOpen(true)}
       >
-        <Bell className="h-5 w-5 flex-shrink-0" style={{ color: '#8B5CF6', strokeWidth: 1.5 }} />
+        <Bell className="h-[18px] w-[18px] flex-shrink-0" style={{ color: '#8B5CF6', strokeWidth: 1.5 }} />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium">Notificaciones</p>
-          <p className="text-xs text-muted-foreground">Actualizaciones</p>
+          <p className="text-xs font-medium">Notificaciones</p>
+          <p className="text-[10px] text-muted-foreground">Actualizaciones</p>
         </div>
         {unreadCount > 0 && (
           <Badge variant="destructive" className="text-xs">

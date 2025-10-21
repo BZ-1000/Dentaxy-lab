@@ -43,7 +43,7 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
       animate={{ width: collapsed ? 56 : 220 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className={cn(
-        'hidden md:flex flex-col h-screen bg-background border-r border-border/50 fixed left-0 top-0 z-[60]',
+        'hidden md:flex flex-col h-screen bg-background border-r border-border/50 fixed left-0 top-0 z-40',
         className
       )}
     >
@@ -74,7 +74,7 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] md:hidden"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 md:hidden"
             onClick={toggleMobileOpen}
           />
           
@@ -83,7 +83,7 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed left-0 top-0 h-screen w-[220px] bg-background border-r border-border/50 z-[60] md:hidden flex flex-col"
+            className="fixed left-0 top-0 h-screen w-[220px] bg-background border-r border-border/50 z-50 md:hidden flex flex-col"
           >
             <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-2">
