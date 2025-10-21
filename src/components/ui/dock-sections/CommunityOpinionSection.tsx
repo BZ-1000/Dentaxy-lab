@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, Users } from "lucide-react";
+import { Star, Users, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -12,12 +12,25 @@ export const CommunityOpinionSection = () => {
   const [averageRating, setAverageRating] = useState(0);
   const [totalRatings, setTotalRatings] = useState(0);
   const [ratingDistribution, setRatingDistribution] = useState<Record<number, number>>({});
+  const [hasActivePlan, setHasActivePlan] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
   useEffect(() => {
     const fetchRatings = async () => {
+      setIsLoading(true);
+      
+      // Check user subscription status
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        const { data: subscription } = await supabase
+          .from("subscribers")
+          .select("subscribed")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        
+        setHasActivePlan(subscription?.subscribed || false);
+        
         const { data: userRatingData } = await supabase
           .from("user_ratings")
           .select("rating")
@@ -26,6 +39,7 @@ export const CommunityOpinionSection = () => {
         if (userRatingData) setUserRating(userRatingData.rating);
       }
 
+      // Fetch all ratings for statistics
       const { data: ratings } = await supabase.from("user_ratings").select("rating");
       if (ratings && ratings.length > 0) {
         const total = ratings.length;
@@ -34,12 +48,16 @@ export const CommunityOpinionSection = () => {
         setTotalRatings(total);
         setAverageRating(Number(avg.toFixed(1)));
 
-        const distribution = [0, 0, 0, 0, 0];
+        const distribution: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
         ratings.forEach((r) => {
-          if (r.rating >= 1 && r.rating <= 5) distribution[r.rating - 1]++;
+          if (r.rating >= 1 && r.rating <= 5) {
+            distribution[r.rating] = (distribution[r.rating] || 0) + 1;
+          }
         });
         setRatingDistribution(distribution);
       }
+      
+      setIsLoading(false);
     };
 
     fetchRatings();
@@ -50,13 +68,28 @@ export const CommunityOpinionSection = () => {
       toast.error("Inicia sesión para valorar");
       return;
     }
+    
+    if (!hasActivePlan) {
+      toast.error("Necesitas un plan activo para valorar", {
+        description: "Activa tu suscripción para participar"
+      });
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from("user_ratings")
-        .upsert({ user_id: user.id, rating });
+        .upsert({ user_id: user.id, rating }, { onConflict: 'user_id' });
+      
       if (error) throw error;
+      
       setUserRating(rating);
       toast.success(`¡Gracias! Calificaste con ${rating} estrella${rating > 1 ? "s" : ""}`);
+      
+      // Refresh ratings after submitting
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (error) {
       console.error("Error saving rating:", error);
       toast.error("No se pudo guardar tu calificación");
@@ -82,40 +115,76 @@ export const CommunityOpinionSection = () => {
           </div>
         </div>
 
-        {/* Rating compacto */}
+        {/* Rating section */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="text-lg sm:text-xl font-black bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-                {averageRating.toFixed(1)}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent">
+                  {averageRating > 0 ? averageRating.toFixed(1) : "0.0"}
+                </div>
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <Star
+                      key={star}
+                      className={`w-4 h-4 sm:w-5 sm:h-5 ${
+                        star <= averageRating
+                          ? 'text-yellow-400 fill-yellow-400'
+                          : 'text-muted/30'
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
-              <div className="flex items-center gap-0.5">
+              {userRating > 0 && (
+                <span className="text-xs font-medium text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
+                  Tu voto: {userRating}★
+                </span>
+              )}
+            </div>
+            
+            {/* Interactive rating buttons */}
+            <div className="flex flex-col gap-2">
+              <p className="text-xs font-medium text-muted-foreground">
+                {hasActivePlan && user ? "Tu calificación:" : "¿Qué te parece?"}
+              </p>
+              <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <motion.button
                     key={star}
                     onClick={() => handleRating(star)}
                     onMouseEnter={() => setHoveredStar(star)}
                     onMouseLeave={() => setHoveredStar(0)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="transition-colors duration-200 focus:outline-none"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    disabled={isLoading || (!user || !hasActivePlan)}
+                    className="transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative group"
                   >
                     <Star
-                      className={`w-3 h-3 sm:w-4 sm:h-4 transition-all duration-200 ${
-                        (hoveredStar > 0 ? star <= hoveredStar : star <= (userRating || averageRating))
-                          ? 'text-yellow-400 fill-yellow-400'
-                          : 'text-muted-foreground'
+                      className={`w-6 h-6 sm:w-7 sm:h-7 transition-all duration-200 ${
+                        (hoveredStar > 0 ? star <= hoveredStar : star <= userRating)
+                          ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.5)]'
+                          : 'text-muted-foreground/40'
                       }`}
                     />
+                    {(!user || !hasActivePlan) && star === 3 && (
+                      <Lock className="w-3 h-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-muted-foreground/60" />
+                    )}
                   </motion.button>
                 ))}
               </div>
+              {!user && (
+                <p className="text-xs text-muted-foreground/70">
+                  Inicia sesión para valorar
+                </p>
+              )}
+              {user && !hasActivePlan && (
+                <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
+                  <Lock className="w-3 h-3" />
+                  Requiere plan activo
+                </p>
+              )}
             </div>
-            {userRating > 0 && (
-              <span className="text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded-full">
-                Tu: {userRating}★
-              </span>
-            )}
           </div>
 
           {/* Distribución compacta */}
