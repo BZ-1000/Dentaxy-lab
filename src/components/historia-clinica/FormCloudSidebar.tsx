@@ -27,6 +27,7 @@ export default function FormCloudSidebar({
   const [formularioAEliminar, setFormularioAEliminar] = useState<string | null>(null);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [hasBeenVisible, setHasBeenVisible] = useState(false);
   const [badgeClicked, setBadgeClicked] = useState(false);
   
 
@@ -72,6 +73,10 @@ export default function FormCloudSidebar({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (entry.isIntersecting && !hasBeenVisible) {
+          // Once it becomes visible, mark it as having been visible
+          setHasBeenVisible(true);
+        }
         setIsVisible(entry.isIntersecting);
       },
       {
@@ -96,7 +101,7 @@ export default function FormCloudSidebar({
     return () => {
       observer.disconnect();
     };
-  }, []);
+  }, [hasBeenVisible]);
 
 
 
@@ -153,15 +158,20 @@ export default function FormCloudSidebar({
 
   return (
     <>
-      {/* Floating icon button - only visible when "Formulario IA" section is in view */}
+      {/* Floating icon button - invisible only in main section, always visible after reaching "Formulario IA" */}
       <AnimatePresence>
-        {isVisible && (
+        {hasBeenVisible && (
           <motion.div
             className="fixed top-20 left-4 z-50"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 260, 
+              damping: 20,
+              delay: 0.3 
+            }}
           >
             <button
               onClick={() => {
