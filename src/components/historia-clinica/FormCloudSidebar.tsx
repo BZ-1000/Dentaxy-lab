@@ -197,7 +197,7 @@ export default function FormCloudSidebar({
       <AnimatePresence>
         {showButton && (
           <motion.div
-            className="fixed top-4 right-4 z-50 md:hidden"
+            className="fixed top-4 left-4 z-50 md:hidden"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
