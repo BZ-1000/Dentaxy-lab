@@ -26,19 +26,24 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
 
   useEffect(() => {
     localStorage.setItem('sidebar_collapsed', collapsed.toString());
+    
+    // Dispatch event to notify Index.tsx about sidebar state change
+    window.dispatchEvent(new CustomEvent('sidebar-state-change', { 
+      detail: { collapsed } 
+    }));
   }, [collapsed]);
 
   const toggleCollapsed = () => setCollapsed(!collapsed);
   const toggleMobileOpen = () => setMobileOpen(!mobileOpen);
 
-  // Desktop sidebar
+  // Desktop sidebar - Fixed lateral sidebar (not overlay)
   const DesktopSidebar = () => (
     <motion.aside
       initial={false}
       animate={{ width: collapsed ? 72 : 280 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className={cn(
-        'hidden lg:flex flex-col h-screen bg-background border-r border-border fixed left-0 top-0 z-50',
+        'hidden lg:flex flex-col h-screen bg-background border-r border-border fixed left-0 top-0 z-40',
         className
       )}
     >

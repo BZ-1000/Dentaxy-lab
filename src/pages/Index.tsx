@@ -12,15 +12,35 @@ function IndexContent() {
   // Initialize metrics tracking for all visitors
   useGlobalMetrics();
   const [formSidebarOpen, setFormSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    const stored = localStorage.getItem('sidebar_collapsed');
+    return stored === 'true';
+  });
   
   useEffect(() => {
     document.title = "DENTAXY.ai";
+    
+    // Listen for sidebar state changes
+    const handleSidebarStateChange = (event: CustomEvent) => {
+      setSidebarCollapsed(event.detail.collapsed);
+    };
+    
+    window.addEventListener('sidebar-state-change', handleSidebarStateChange as EventListener);
+    
+    return () => {
+      window.removeEventListener('sidebar-state-change', handleSidebarStateChange as EventListener);
+    };
   }, []);
 
   return (
     <div className="min-h-screen flex w-full">
       <AppSidebar />
-      <div className="flex-1 lg:ml-[280px] min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white overflow-x-hidden transition-all duration-300">
+      <div 
+        className="flex-1 min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-white overflow-x-hidden transition-all duration-300"
+        style={{
+          marginLeft: window.innerWidth >= 1024 ? (sidebarCollapsed ? '72px' : '280px') : '0'
+        }}
+      >
       {/* Tech Banner - Floating over main content */}
       <TechBanner />
       

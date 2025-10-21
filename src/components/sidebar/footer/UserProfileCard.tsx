@@ -84,15 +84,15 @@ export const UserProfileCard = ({ collapsed }: UserProfileCardProps) => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mt-2 flex gap-2"
+            className="mt-2"
           >
             <Button 
               size="sm" 
-              variant="outline" 
-              className="flex-1 text-xs"
+              variant="ghost"
+              className="w-full text-xs"
               onClick={() => setMenuOpen(!menuOpen)}
             >
-              💎 Ver planes
+              ⚙️ Configuración
             </Button>
           </motion.div>
         )}
