@@ -120,7 +120,7 @@ export const CommunityOpinionSection = () => {
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="text-2xl sm:text-3xl font-black text-foreground">
+                <div className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent">
                   {averageRating > 0 ? averageRating.toFixed(1) : "0.0"}
                 </div>
                 <div className="flex items-center gap-0.5">
