@@ -165,22 +165,22 @@ export default function FormCloudSidebar({
     <>
       {/* Floating icon button */}
       <motion.div
-        className="fixed top-20 right-4 z-50"
+        className="fixed top-20 left-4 z-50"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ type: "spring", stiffness: 260, damping: 20 }}
       >
         <button
           onClick={() => setSidebarOpen(true)}
-          className="relative bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all"
+          className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-3 rounded-full shadow-lg hover:shadow-xl transition-all"
           aria-label="Formularios guardados"
         >
-          <BookOpen className="w-6 h-6" />
+          <BookOpen className="w-5 h-5" />
           {formularios.length > 0 && (
             <motion.span
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"
+              className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
             >
               {formularios.length}
             </motion.span>
@@ -203,80 +203,70 @@ export default function FormCloudSidebar({
 
             {/* Panel */}
             <motion.div
-              initial={{ x: "100%" }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: "100%" }}
+              exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-full sm:w-96 bg-white dark:bg-gray-800 shadow-2xl z-50 flex flex-col"
+              className="fixed top-0 left-0 h-full w-full sm:w-80 bg-background border-r border-border shadow-2xl z-50 flex flex-col"
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between p-4 border-b border-border">
                 <div className="flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-blue-500" />
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    Formularios Guardados
+                  <BookOpen className="w-4 h-4 text-muted-foreground" />
+                  <h2 className="text-sm font-medium text-foreground">
+                    Formularios
                   </h2>
                 </div>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
                   aria-label="Cerrar"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* List of forms */}
-              <ScrollArea className="flex-1 p-4">
+              <ScrollArea className="flex-1 p-3">
                 {formularios.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-                    <FileText className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                    <p className="text-sm">No hay formularios guardados</p>
+                  <div className="text-center py-12 text-muted-foreground">
+                    <FileText className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                    <p className="text-xs">Sin formularios</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {formularios.map((form) => (
                       <motion.div
                         key={form.nombre}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`border rounded-lg p-4 hover:shadow-md transition-all ${
+                        className={`group relative border rounded-lg p-3 transition-all cursor-pointer ${
                           recienGuardado === form.nombre 
-                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 animate-pulse' 
-                            : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-750'
+                            ? 'border-primary bg-primary/5 animate-pulse' 
+                            : 'border-border bg-card hover:border-primary/50 hover:shadow-sm'
                         }`}
+                        onClick={() => handleCargarFormulario(form.nombre, form.data)}
                       >
-                        <div className="flex items-start justify-between mb-3">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="text-lg">👤</span>
-                              <h3 className="font-medium text-gray-900 dark:text-white">
-                                {form.nombre}
-                              </h3>
-                            </div>
-                            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-                              <span>📅</span>
-                              <span>{form.fecha.toLocaleDateString()} {form.fecha.toLocaleTimeString()}</span>
-                            </div>
+                        <div className="flex items-start gap-2.5">
+                          <FileText className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-sm font-medium text-foreground truncate">
+                              {form.nombre}
+                            </h3>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {form.fecha.toLocaleDateString()}
+                            </p>
                           </div>
-                        </div>
-
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => handleCargarFormulario(form.nombre, form.data)}
-                            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"
-                            size="sm"
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEliminarFormulario(form.nombre);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1"
+                            aria-label="Eliminar"
                           >
-                            Cargar
-                          </Button>
-                          <Button
-                            onClick={() => handleEliminarFormulario(form.nombre)}
-                            variant="outline"
-                            size="sm"
-                            className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </motion.div>
                     ))}
