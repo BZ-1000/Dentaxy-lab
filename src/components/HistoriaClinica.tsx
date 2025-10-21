@@ -151,7 +151,6 @@ const HistoriaClinica = ({
   const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(false);
   const pdfSectionsRef = useRef<{ [key: string]: string; }>({});
   const isLoadingFromSavedRef = useRef(false);
   
@@ -367,11 +366,10 @@ const HistoriaClinica = ({
               isLoadingFromSavedRef.current = false;
             }, 300);
           }}
-          onDesktopSidebarChange={setIsDesktopSidebarOpen}
         />
       )}
       
-      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 pl-8 pr-2 sm:pl-12 md:pl-14 sm:pr-4 lg:px-8 transition-all duration-300 max-w-full overflow-x-hidden ${isDesktopSidebarOpen ? 'lg:pl-[340px]' : ''}`}>
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 pl-8 pr-2 sm:pl-12 md:pl-14 sm:pr-4 lg:px-8 transition-all duration-200 max-w-full overflow-x-hidden`}>
         <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
           {/* Patient name input - only show if functions are available */}
           {guardarFormulario && (
