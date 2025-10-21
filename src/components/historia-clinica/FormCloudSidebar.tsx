@@ -16,18 +16,22 @@ interface SavedForm {
 interface FormCloudSidebarProps {
   onCargarFormulario: (data: FormDataState, nombre: string) => void;
   onGuardarCallback?: () => void;
+  onDesktopSidebarChange?: (isOpen: boolean) => void;
 }
 
 export default function FormCloudSidebar({ 
   onCargarFormulario,
-  onGuardarCallback
+  onGuardarCallback,
+  onDesktopSidebarChange
 }: FormCloudSidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpenDesktop, setSidebarOpenDesktop] = useState(true); // Open by default on desktop
   const [formularios, setFormularios] = useState<SavedForm[]>([]);
   const [formularioAEliminar, setFormularioAEliminar] = useState<string | null>(null);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const [hasNewForms, setHasNewForms] = useState(false);
+  const [isHoveringLeftEdge, setIsHoveringLeftEdge] = useState(false);
   
 
   // Load saved forms from localStorage
@@ -76,7 +80,7 @@ export default function FormCloudSidebar({
   }, []);
 
   useEffect(() => {
-    if (sidebarOpen) {
+    if (sidebarOpen || sidebarOpenDesktop) {
       loadSavedForms();
       // Mark forms as viewed when sidebar opens
       const keys = Object.keys(localStorage).filter(key => 
@@ -87,7 +91,27 @@ export default function FormCloudSidebar({
       localStorage.setItem('formularios_last_viewed_count', keys.length.toString());
       setHasNewForms(false);
     }
-  }, [sidebarOpen]);
+  }, [sidebarOpen, sidebarOpenDesktop]);
+
+  // Hover effect for desktop left edge
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (window.innerWidth >= 1024) { // lg breakpoint
+        if (e.clientX <= 50 && !sidebarOpenDesktop) {
+          setIsHoveringLeftEdge(true);
+          setSidebarOpenDesktop(true);
+        }
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [sidebarOpenDesktop]);
+
+  // Notify parent about desktop sidebar state
+  useEffect(() => {
+    onDesktopSidebarChange?.(sidebarOpenDesktop);
+  }, [sidebarOpenDesktop, onDesktopSidebarChange]);
 
   // Intersection Observer to hide button only in main hero section
   useEffect(() => {
@@ -172,6 +196,7 @@ export default function FormCloudSidebar({
 
     onCargarFormulario(data, nombre);
     setSidebarOpen(false);
+    setSidebarOpenDesktop(false);
   };
 
   return (
@@ -195,10 +220,30 @@ export default function FormCloudSidebar({
               onClick={() => {
                 setSidebarOpen(true);
               }}
-              className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-2.5 sm:p-3 lg:p-4 rounded-full shadow-lg hover:shadow-xl transition-all"
+              className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-2.5 sm:p-3 lg:hidden rounded-full shadow-lg hover:shadow-xl transition-all"
               aria-label="Formularios guardados"
             >
-              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+              {formularios.length > 0 && hasNewForms && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                  className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full w-5 h-5 md:w-6 md:h-6 flex items-center justify-center"
+                >
+                  {formularios.length}
+                </motion.span>
+              )}
+            </button>
+            {/* Desktop/Tablet button - transparent with blue icon */}
+            <button
+              onClick={() => {
+                setSidebarOpenDesktop(true);
+              }}
+              className="hidden lg:block relative bg-transparent hover:bg-primary/10 p-2.5 sm:p-3 lg:p-4 rounded-full transition-all"
+              aria-label="Formularios guardados"
+            >
+              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-primary" />
               {formularios.length > 0 && hasNewForms && (
                 <motion.span
                   initial={{ scale: 0 }}
@@ -214,7 +259,7 @@ export default function FormCloudSidebar({
         )}
       </AnimatePresence>
 
-      {/* Sliding panel */}
+      {/* Sliding panel - Mobile/Tablet */}
       <AnimatePresence>
         {sidebarOpen && (
           <>
@@ -224,7 +269,7 @@ export default function FormCloudSidebar({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSidebarOpen(false)}
-              className="fixed inset-0 bg-black/50 z-40"
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
             />
 
             {/* Panel */}
@@ -233,7 +278,7 @@ export default function FormCloudSidebar({
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 h-full w-full sm:w-80 bg-background border-r border-border shadow-2xl z-50 flex flex-col"
+              className="fixed top-0 left-0 h-full w-full sm:w-80 bg-background border-r border-border shadow-2xl z-50 flex flex-col lg:hidden"
             >
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border">
@@ -297,6 +342,80 @@ export default function FormCloudSidebar({
               </ScrollArea>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop sidebar - not overlaying */}
+      <AnimatePresence>
+        {sidebarOpenDesktop && (
+          <motion.div
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="hidden lg:block fixed top-0 left-0 h-full w-80 bg-background border-r border-border shadow-xl z-30"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-muted-foreground" />
+                <h2 className="text-sm font-medium text-foreground">
+                  Formularios
+                </h2>
+              </div>
+              <button
+                onClick={() => setSidebarOpenDesktop(false)}
+                className="text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Cerrar"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* List of forms */}
+            <ScrollArea className="h-[calc(100vh-4rem)] p-3">
+              {formularios.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <FileText className="w-10 h-10 mx-auto mb-2 opacity-30" />
+                  <p className="text-xs">Sin formularios</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {formularios.map((form) => (
+                    <motion.div
+                      key={form.nombre}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                       className="group relative border rounded-lg p-3 transition-all cursor-pointer border-border bg-card hover:border-primary/50 hover:shadow-sm"
+                      onClick={() => handleCargarFormulario(form.nombre, form.data)}
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <FileText className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-medium text-foreground truncate">
+                            {form.nombre}
+                          </h3>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {form.fecha.toLocaleDateString()}
+                          </p>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEliminarFormulario(form.nombre);
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive p-1"
+                          aria-label="Eliminar"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+          </motion.div>
         )}
       </AnimatePresence>
 
