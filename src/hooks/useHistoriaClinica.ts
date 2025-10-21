@@ -519,6 +519,15 @@ export const useHistoriaClinica = () => {
   const guardarFormulario = (data: FormDataState, nombre: string) => {
     if (!nombre.trim()) return;
     
+    // VALIDAR que el nombre no contenga partes inválidas de guardado automático
+    if (nombre.includes('-interrogatorio-sistemas-form') || 
+        nombre.includes('-examen-intrabucal-') ||
+        nombre.includes('_examen-intrabucal-') ||
+        nombre.includes('_interrogatorio-sistemas-')) {
+      console.warn('Intento de guardar formulario con nombre inválido:', nombre);
+      return;
+    }
+    
     // Asegurar que se guarden completos los valores de localizacion y causaProvocado
     const formDataToSave = {
       ...data,
@@ -549,6 +558,14 @@ export const useHistoriaClinica = () => {
     if (interrogatorioData) {
       localStorage.setItem(`formulario_${nombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
     }
+    
+    // Dispatch custom event for same-window storage updates
+    window.dispatchEvent(new CustomEvent('formularioGuardado', { detail: { nombre } }));
+    
+    toast({
+      title: "Formulario guardado",
+      description: `El formulario de ${nombre} se guardó correctamente.`
+    });
   };
 
   const cargarFormulario = (data: FormDataState | null) => {

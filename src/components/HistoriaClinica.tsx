@@ -25,7 +25,7 @@ import { Input } from "@/components/ui/input";
 import { useTheme } from '@/hooks/use-theme';
 import { Loader2, X, Save, User, FileText, Search } from "lucide-react";
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
-import FormulariosSidebar from './historia-clinica/FormulariosSidebar';
+import FormCloudSidebar from './historia-clinica/FormCloudSidebar';
 import { useState, useEffect, useRef } from 'react';
 import { toast } from "@/hooks/use-toast";
 import ConfirmationAlert from './historia-clinica/ConfirmationAlert';
@@ -151,7 +151,6 @@ const HistoriaClinica = ({
   const [pdfGenerationProgress, setPdfGenerationProgress] = useState(0);
   const [activeResponse, setActiveResponse] = useState<ChatMessage | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const pdfSectionsRef = useRef<{ [key: string]: string; }>({});
   
   const {
@@ -354,32 +353,18 @@ const HistoriaClinica = ({
 
   return (
     <div className={`${theme} min-h-screen w-full flex relative overflow-x-hidden`}>
-      {/* FormulariosSidebar only if functions are available */}
+      {/* FormCloudSidebar - nuevo sidebar minimalista */}
       {guardarFormulario && cargarFormulario && (
-        <FormulariosSidebar 
+        <FormCloudSidebar 
           onCargarFormulario={(data, nombre) => {
             cargarFormulario(data);
             setPacienteActual(nombre);
             setNombrePaciente(nombre);
-          }} 
-          onGuardarFormulario={nombre => {
-            guardarFormulario(formData, nombre);
-            setPacienteActual(nombre);
-          }} 
-          onCerrarFormulario={() => {
-            setPacienteActual('');
-            setNombrePaciente('');
-            if (cargarFormulario) cargarFormulario(null);
-          }} 
-          onResetFormulario={() => {
-            setPacienteActual('');
-            if (resetFormulario) resetFormulario();
-          }} 
-          pacienteActual={pacienteActual}
+          }}
         />
       )}
       
-      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 px-2 sm:px-4 lg:px-8 transition-all duration-200 max-w-full overflow-x-hidden ${sidebarOpen ? 'md:ml-[300px]' : 'md:ml-[60px]'}`}>
+      <div className={`${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex-1 py-6 sm:py-12 px-2 sm:px-4 lg:px-8 transition-all duration-200 max-w-full overflow-x-hidden`}>
         <div className="max-w-5xl mx-auto space-y-6 sm:space-y-8">
           {/* Patient name input - only show if functions are available */}
           {guardarFormulario && (
