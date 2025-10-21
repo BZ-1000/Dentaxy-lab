@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -10,45 +9,40 @@ interface SidebarHeaderProps {
 
 export const SidebarHeader = ({ collapsed, onToggle }: SidebarHeaderProps) => {
   return (
-    <div className="flex items-center justify-between p-4 border-b border-border bg-card">
-      <motion.div 
-        className="flex items-center gap-2"
-        animate={{ opacity: collapsed ? 0 : 1 }}
-      >
-        <img 
-          src="/lovable-uploads/47756bd5-fe5d-45cf-bbb4-f61daf4a38cd.png" 
-          alt="DENTAXY" 
-          className="w-8 h-8 flex-shrink-0"
-        />
-        {!collapsed && (
-          <div>
-            <h2 className="text-sm font-semibold">DENTAXY</h2>
-            <p className="text-xs text-muted-foreground">Academy</p>
-          </div>
-        )}
-      </motion.div>
-      
+    <div className="flex items-center gap-2 p-3">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               onClick={onToggle}
-              className="flex-shrink-0"
+              className="flex-shrink-0 p-1 rounded-lg hover:bg-accent transition-colors"
             >
-              {collapsed ? (
-                <ChevronRight className="h-4 w-4" />
-              ) : (
-                <ChevronLeft className="h-4 w-4" />
-              )}
-            </Button>
+              <img 
+                src="/lovable-uploads/47756bd5-fe5d-45cf-bbb4-f61daf4a38cd.png" 
+                alt="DENTAXY" 
+                className="w-7 h-7"
+              />
+            </motion.button>
           </TooltipTrigger>
           <TooltipContent side="right">
-            {collapsed ? 'Expandir' : 'Colapsar'}
+            {collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
+      
+      {!collapsed && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="flex-1 min-w-0"
+        >
+          <h2 className="text-xs font-semibold">DENTAXY</h2>
+          <p className="text-[10px] text-muted-foreground">Academy</p>
+        </motion.div>
+      )}
     </div>
   );
 };
