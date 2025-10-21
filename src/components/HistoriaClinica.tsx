@@ -133,12 +133,16 @@ Si el término no está relacionado con odontología, indica que te especializas
 interface HistoriaClinicaProps {
   formData?: any;
   handleArticulacionCraneomandibularChange?: (part: string, value: string | boolean) => void;
+  formSidebarOpen?: boolean;
+  onFormSidebarChange?: (open: boolean) => void;
   // ... other optional props
 }
 
 const HistoriaClinica = ({
   formData: propFormData,
   handleArticulacionCraneomandibularChange: propHandleArticulacionCraneomandibularChange,
+  formSidebarOpen: externalFormSidebarOpen,
+  onFormSidebarChange,
   ...otherProps
 }: HistoriaClinicaProps = {}) => {
   const { theme } = useTheme();
@@ -357,6 +361,8 @@ const HistoriaClinica = ({
       {/* FormCloudSidebar - nuevo sidebar minimalista */}
       {guardarFormulario && cargarFormulario && (
         <FormCloudSidebar 
+          isOpen={externalFormSidebarOpen}
+          onOpenChange={onFormSidebarChange}
           onCargarFormulario={(data, nombre) => {
             isLoadingFromSavedRef.current = true;
             cargarFormulario(data);

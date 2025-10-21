@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 function IndexContent() {
   // Initialize metrics tracking for all visitors
   useGlobalMetrics();
+  const [formSidebarOpen, setFormSidebarOpen] = useState(false);
   
   useEffect(() => {
     document.title = "DENTAXY.ai";
@@ -71,11 +72,14 @@ function IndexContent() {
       {/* Form Section */}
       <div className="min-h-screen bg-white py-0">
         <div className="container mx-auto px-2 sm:px-4 bg-slate-50 max-w-full">
-          <HistoriaClinica />
+          <HistoriaClinica 
+            formSidebarOpen={formSidebarOpen}
+            onFormSidebarChange={setFormSidebarOpen}
+          />
         </div>
       </div>
 
-      <AppleStyleDock />
+      <AppleStyleDock onOpenFormularios={() => setFormSidebarOpen(true)} />
       <div className="h-16 sm:h-24" />
     </div>
   );

@@ -9,6 +9,7 @@ import {
   Trash,
   Cross,
   Search,
+  BookOpen,
 } from 'lucide-react';
 import { useTheme } from '@/hooks/use-theme';
 import { Dock, DockIcon, DockItem, DockLabel } from '@/components/ui/dock';
@@ -57,9 +58,20 @@ const data = [
     ),
     href: '#',
   },
+  {
+    title: 'Formularios',
+    icon: (
+      <BookOpen className='h-full w-full text-white' />
+    ),
+    href: '#',
+  },
 ];
 
-export function AppleStyleDock() {
+interface AppleStyleDockProps {
+  onOpenFormularios?: () => void;
+}
+
+export function AppleStyleDock({ onOpenFormularios }: AppleStyleDockProps = {}) {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
@@ -113,6 +125,9 @@ export function AppleStyleDock() {
         break;
       case 'Comentarios':
         setShowFeedback(true);
+        break;
+      case 'Formularios':
+        onOpenFormularios?.();
         break;
       case 'Actividad':
         const { data: { session: currentSession } } = await supabase.auth.getSession();
@@ -190,7 +205,7 @@ export function AppleStyleDock() {
               key={idx}
               onClick={() => handleItemClick(item.title)}
               className={`aspect-square rounded-full cursor-pointer ${
-                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'DentaxyGPT' ? 'bg-black' : (item.title === 'Inicio' ? 'bg-amber-400' : 'bg-gray-200 dark:bg-neutral-800'))
+                item.title === 'Medicamentos' ? 'bg-emerald-500' : (item.title === 'DentaxyGPT' ? 'bg-black' : (item.title === 'Inicio' ? 'bg-amber-400' : (item.title === 'Formularios' ? 'bg-blue-500' : 'bg-gray-200 dark:bg-neutral-800')))
               }`}
             >
               <DockLabel>{item.title}</DockLabel>

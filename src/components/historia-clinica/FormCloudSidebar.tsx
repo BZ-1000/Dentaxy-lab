@@ -16,11 +16,15 @@ interface SavedForm {
 interface FormCloudSidebarProps {
   onCargarFormulario: (data: FormDataState, nombre: string) => void;
   onGuardarCallback?: () => void;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export default function FormCloudSidebar({ 
   onCargarFormulario,
-  onGuardarCallback
+  onGuardarCallback,
+  isOpen: externalIsOpen,
+  onOpenChange
 }: FormCloudSidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [formularios, setFormularios] = useState<SavedForm[]>([]);
@@ -28,6 +32,19 @@ export default function FormCloudSidebar({
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [showButton, setShowButton] = useState(false);
   const [hasNewForms, setHasNewForms] = useState(false);
+  
+  // Sync external control with internal state
+  useEffect(() => {
+    if (externalIsOpen !== undefined) {
+      setSidebarOpen(externalIsOpen);
+    }
+  }, [externalIsOpen]);
+
+  // Notify parent when internal state changes
+  const handleSetSidebarOpen = (open: boolean) => {
+    setSidebarOpen(open);
+    onOpenChange?.(open);
+  };
   
 
   // Load saved forms from localStorage
@@ -171,16 +188,16 @@ export default function FormCloudSidebar({
     }
 
     onCargarFormulario(data, nombre);
-    setSidebarOpen(false);
+    handleSetSidebarOpen(false);
   };
 
   return (
     <>
-      {/* Floating icon button - invisible only in hero section, visible everywhere else */}
+      {/* Floating icon button - only visible on mobile */}
       <AnimatePresence>
         {showButton && (
           <motion.div
-            className="fixed top-4 left-4 md:left-2 lg:left-12 z-50"
+            className="fixed top-4 left-4 z-50 md:hidden"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
@@ -193,18 +210,18 @@ export default function FormCloudSidebar({
           >
             <button
               onClick={() => {
-                setSidebarOpen(true);
+                handleSetSidebarOpen(true);
               }}
-              className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-2.5 sm:p-3 lg:p-4 rounded-full shadow-lg hover:shadow-xl transition-all"
+              className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-2.5 rounded-full shadow-lg hover:shadow-xl transition-all"
               aria-label="Formularios guardados"
             >
-              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+              <BookOpen className="w-4 h-4" />
               {formularios.length > 0 && hasNewForms && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 500, damping: 15 }}
-                  className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full w-5 h-5 md:w-6 md:h-6 flex items-center justify-center"
+                  className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
                 >
                   {formularios.length}
                 </motion.span>
@@ -223,7 +240,7 @@ export default function FormCloudSidebar({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setSidebarOpen(false)}
+              onClick={() => handleSetSidebarOpen(false)}
               className="fixed inset-0 bg-black/50 z-40"
             />
 
@@ -244,7 +261,7 @@ export default function FormCloudSidebar({
                   </h2>
                 </div>
                 <button
-                  onClick={() => setSidebarOpen(false)}
+                  onClick={() => handleSetSidebarOpen(false)}
                   className="text-muted-foreground hover:text-foreground transition-colors"
                   aria-label="Cerrar"
                 >
