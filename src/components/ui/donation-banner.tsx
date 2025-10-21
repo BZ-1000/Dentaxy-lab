@@ -31,7 +31,6 @@ export function DonationBanner() {
     const autoMinimizeTimer = setTimeout(() => {
       setIsMinimized(true);
     }, 13000);
-
     return () => {
       clearTimeout(timer);
       clearTimeout(autoMinimizeTimer);
@@ -185,9 +184,9 @@ export function DonationBanner() {
                       </div>
                     </div>
                     <p className="text-xs text-gray-600 flex items-center gap-1 leading-relaxed">
-                      <span className="hidden md:inline">Si te ahorré tiempo en la creación de tu historia clínica, invítame un café</span>
+                      <span className="hidden md:inline">☕ ¿DentaXy te hizo ahorrar tiempo? ¡dona un café y sigamos mejorando juntos!</span>
                       <span className="md:hidden">Si te ayudé, invítame un café</span>
-                      <span className="text-pink-500">😘</span>
+                      
                     </p>
                   </div>
 
