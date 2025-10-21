@@ -27,7 +27,7 @@ export default function FormCloudSidebar({
   const [formularioAEliminar, setFormularioAEliminar] = useState<string | null>(null);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
   const [showButton, setShowButton] = useState(false);
-  const [badgeClicked, setBadgeClicked] = useState(false);
+  const [hasNewForms, setHasNewForms] = useState(false);
   
 
   // Load saved forms from localStorage
@@ -57,14 +57,35 @@ export default function FormCloudSidebar({
     setFormularios(forms);
   };
 
-  // Load forms on mount and when sidebar opens
+  // Load forms on mount and check for new forms
   useEffect(() => {
     loadSavedForms();
+    
+    // Check if there are new forms since last view
+    const lastViewedCount = localStorage.getItem('formularios_last_viewed_count');
+    const keys = Object.keys(localStorage).filter(key => 
+      key.startsWith('formulario_') && 
+      !key.includes('_examen-intrabucal-') && 
+      !key.includes('_interrogatorio-sistemas-')
+    );
+    const currentCount = keys.length;
+    
+    if (lastViewedCount === null || parseInt(lastViewedCount) < currentCount) {
+      setHasNewForms(true);
+    }
   }, []);
 
   useEffect(() => {
     if (sidebarOpen) {
       loadSavedForms();
+      // Mark forms as viewed when sidebar opens
+      const keys = Object.keys(localStorage).filter(key => 
+        key.startsWith('formulario_') && 
+        !key.includes('_examen-intrabucal-') && 
+        !key.includes('_interrogatorio-sistemas-')
+      );
+      localStorage.setItem('formularios_last_viewed_count', keys.length.toString());
+      setHasNewForms(false);
     }
   }, [sidebarOpen]);
 
@@ -159,7 +180,7 @@ export default function FormCloudSidebar({
       <AnimatePresence>
         {showButton && (
           <motion.div
-            className="fixed top-20 left-4 z-50"
+            className="fixed top-20 left-4 md:left-8 lg:left-12 z-50"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
@@ -173,17 +194,17 @@ export default function FormCloudSidebar({
             <button
               onClick={() => {
                 setSidebarOpen(true);
-                setBadgeClicked(true);
               }}
-              className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-3 rounded-full shadow-lg hover:shadow-xl transition-all"
+              className="relative bg-primary hover:bg-primary/90 text-primary-foreground p-2.5 sm:p-3 md:p-4 rounded-full shadow-lg hover:shadow-xl transition-all"
               aria-label="Formularios guardados"
             >
-              <BookOpen className="w-5 h-5" />
-              {formularios.length > 0 && !badgeClicked && (
+              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+              {formularios.length > 0 && hasNewForms && (
                 <motion.span
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                  transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                  className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full w-5 h-5 md:w-6 md:h-6 flex items-center justify-center"
                 >
                   {formularios.length}
                 </motion.span>
