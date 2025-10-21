@@ -26,8 +26,7 @@ export default function FormCloudSidebar({
   const [formularios, setFormularios] = useState<SavedForm[]>([]);
   const [formularioAEliminar, setFormularioAEliminar] = useState<string | null>(null);
   const [alertDialogOpen, setAlertDialogOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  const [hasBeenVisible, setHasBeenVisible] = useState(false);
+  const [showButton, setShowButton] = useState(false);
   const [badgeClicked, setBadgeClicked] = useState(false);
   
 
@@ -69,27 +68,25 @@ export default function FormCloudSidebar({
     }
   }, [sidebarOpen]);
 
-  // Intersection Observer to detect when "Formulario IA" section is visible
+  // Intersection Observer to hide button only in main hero section
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !hasBeenVisible) {
-          // Once it becomes visible, mark it as having been visible
-          setHasBeenVisible(true);
-        }
-        setIsVisible(entry.isIntersecting);
+        // Show button when main section is NOT visible (scrolled past it)
+        // Hide button when main section IS visible (at the top)
+        setShowButton(!entry.isIntersecting);
       },
       {
         threshold: 0.1,
-        rootMargin: '-100px 0px 0px 0px'
+        rootMargin: '0px'
       }
     );
 
-    // Find the "Formulario IA" section by looking for an element with specific text or ID
+    // Find the main hero section
     const checkElement = () => {
-      const formularioSection = document.querySelector('[data-formulario-ia]');
-      if (formularioSection) {
-        observer.observe(formularioSection);
+      const heroSection = document.querySelector('[data-hero-section]');
+      if (heroSection) {
+        observer.observe(heroSection);
       } else {
         // Retry after a short delay if element not found yet
         setTimeout(checkElement, 500);
@@ -101,7 +98,7 @@ export default function FormCloudSidebar({
     return () => {
       observer.disconnect();
     };
-  }, [hasBeenVisible]);
+  }, []);
 
 
 
@@ -158,9 +155,9 @@ export default function FormCloudSidebar({
 
   return (
     <>
-      {/* Floating icon button - invisible only in main section, always visible after reaching "Formulario IA" */}
+      {/* Floating icon button - invisible only in hero section, visible everywhere else */}
       <AnimatePresence>
-        {hasBeenVisible && (
+        {showButton && (
           <motion.div
             className="fixed top-20 left-4 z-50"
             initial={{ scale: 0, opacity: 0 }}

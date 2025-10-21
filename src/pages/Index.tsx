@@ -21,7 +21,7 @@ function IndexContent() {
       <TechBanner />
       
       {/* Hero Section */}
-      <div className="min-h-screen relative">        
+      <div className="min-h-screen relative" data-hero-section>        
         {/* Subtle background pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600"></div>
