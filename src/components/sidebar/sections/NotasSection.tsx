@@ -24,10 +24,10 @@ export const NotasSection = ({ collapsed }: NotasSectionProps) => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-full flex items-center justify-center p-3 hover:bg-accent/50 transition-colors relative rounded-lg"
+                className="w-full flex items-center justify-center p-4 hover:bg-accent transition-colors relative"
                 onClick={() => setOverlayOpen(true)}
               >
-                <ClipboardList className="h-[18px] w-[18px]" style={{ color: '#F59E0B', strokeWidth: 1.5 }} />
+                <ClipboardList className="h-5 w-5 text-primary" />
                 {pendingCount > 0 && (
                   <span className="absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
                     {pendingCount}
@@ -51,13 +51,13 @@ export const NotasSection = ({ collapsed }: NotasSectionProps) => {
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-accent/50 transition-colors text-left rounded-lg"
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent transition-colors text-left"
         onClick={() => setOverlayOpen(true)}
       >
-        <ClipboardList className="h-[18px] w-[18px] flex-shrink-0" style={{ color: '#F59E0B', strokeWidth: 1.5 }} />
+        <ClipboardList className="h-5 w-5 text-primary flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-medium">Notas</p>
-          <p className="text-[10px] text-muted-foreground">Tareas y pendientes</p>
+          <p className="text-sm font-medium">Notas</p>
+          <p className="text-xs text-muted-foreground">Tareas y pendientes</p>
         </div>
         {pendingCount > 0 && (
           <Badge variant="secondary" className="text-xs">

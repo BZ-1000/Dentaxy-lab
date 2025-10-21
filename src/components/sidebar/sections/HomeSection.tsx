@@ -24,10 +24,10 @@ export const HomeSection = ({ collapsed }: HomeSectionProps) => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-full flex items-center justify-center p-3 hover:bg-accent/50 transition-colors rounded-lg"
+                className="w-full flex items-center justify-center p-4 hover:bg-accent transition-colors"
                 onClick={handleClick}
               >
-                <Home className="h-[18px] w-[18px]" style={{ color: '#3B82F6', strokeWidth: 1.5 }} />
+                <Home className="h-5 w-5 text-primary" />
               </motion.button>
             </TooltipTrigger>
             <TooltipContent side="right">
@@ -45,13 +45,13 @@ export const HomeSection = ({ collapsed }: HomeSectionProps) => {
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-accent/50 transition-colors text-left rounded-lg"
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent transition-colors text-left"
         onClick={handleClick}
       >
-        <Home className="h-[18px] w-[18px] flex-shrink-0" style={{ color: '#3B82F6', strokeWidth: 1.5 }} />
+        <Home className="h-5 w-5 text-primary flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-medium">Inicio</p>
-          <p className="text-[10px] text-muted-foreground">Panel principal</p>
+          <p className="text-sm font-medium">Inicio</p>
+          <p className="text-xs text-muted-foreground">Panel principal</p>
         </div>
       </motion.button>
       <HomeOverlay open={overlayOpen} onClose={() => setOverlayOpen(false)} />
