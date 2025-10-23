@@ -26,31 +26,26 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
 
   useEffect(() => {
     localStorage.setItem('sidebar_collapsed', collapsed.toString());
-    
-    // Dispatch event to notify Index.tsx about sidebar state change
-    window.dispatchEvent(new CustomEvent('sidebar-state-change', { 
-      detail: { collapsed } 
-    }));
   }, [collapsed]);
 
   const toggleCollapsed = () => setCollapsed(!collapsed);
   const toggleMobileOpen = () => setMobileOpen(!mobileOpen);
 
-  // Desktop sidebar - Fixed lateral sidebar (not overlay)
+  // Desktop sidebar
   const DesktopSidebar = () => (
     <motion.aside
       initial={false}
-      animate={{ width: collapsed ? 56 : 220 }}
+      animate={{ width: collapsed ? 72 : 280 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className={cn(
-        'hidden md:flex flex-col h-screen bg-background border-r border-border/50 fixed left-0 top-0 z-[11000]',
+        'hidden lg:flex flex-col h-screen bg-background border-r border-border fixed left-0 top-0 z-50',
         className
       )}
     >
       <SidebarHeader collapsed={collapsed} onToggle={toggleCollapsed} />
       
       <div className="flex-1 overflow-y-auto custom-scrollbar sidebar-content">
-        <div className="py-1.5 px-2">
+        <div className="py-2">
           <HomeSection collapsed={collapsed} />
           <AgendaSection collapsed={collapsed} />
           <HistoriaClinicaNav collapsed={collapsed} />
@@ -74,7 +69,7 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[10999] md:hidden"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 lg:hidden"
             onClick={toggleMobileOpen}
           />
           
@@ -83,7 +78,7 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed left-0 top-0 h-screen w-[220px] bg-background border-r border-border/50 z-[11000] md:hidden flex flex-col"
+            className="fixed left-0 top-0 h-screen w-[280px] bg-background border-r border-border z-50 lg:hidden flex flex-col"
           >
             <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-2">
@@ -100,7 +95,7 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
             </div>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar">
-              <div className="py-1.5 px-2">
+              <div className="py-2">
                 <HomeSection collapsed={false} />
                 <AgendaSection collapsed={false} />
                 <HistoriaClinicaNav collapsed={false} />
@@ -123,7 +118,7 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
     <Button
       variant="outline"
       size="icon"
-      className="fixed top-4 left-4 z-[11001] md:hidden"
+      className="fixed top-4 left-4 z-40 lg:hidden"
       onClick={toggleMobileOpen}
     >
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
