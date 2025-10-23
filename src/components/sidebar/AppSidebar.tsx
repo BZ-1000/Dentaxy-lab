@@ -43,7 +43,7 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
       animate={{ width: collapsed ? 72 : 280 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className={cn(
-        'hidden md:flex flex-col h-screen bg-background border-r border-border fixed left-0 top-0 z-[110000]',
+        'hidden md:flex flex-col h-screen bg-background border-r border-border fixed left-0 top-0 z-6',
         className
       )}
     >
