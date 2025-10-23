@@ -56,7 +56,7 @@ export const HistoriaClinicaNav = ({ collapsed }: HistoriaClinicaNavProps) => {
               whileTap={{ scale: 0.95 }}
               className="w-full flex items-center justify-center p-4 hover:bg-accent transition-colors"
             >
-              <FileText className="h-5 w-5 text-primary" />
+              <FileText className="h-5 w-5" style={{ color: '#8B5CF6', strokeWidth: 2 }} />
             </motion.button>
           </TooltipTrigger>
           <TooltipContent side="right">
@@ -76,7 +76,7 @@ export const HistoriaClinicaNav = ({ collapsed }: HistoriaClinicaNavProps) => {
           whileTap={{ scale: 0.98 }}
           className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent transition-colors text-left"
         >
-          <FileText className="h-5 w-5 text-primary flex-shrink-0" />
+          <FileText className="h-5 w-5 flex-shrink-0" style={{ color: '#8B5CF6', strokeWidth: 2 }} />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium">Historia Clínica</p>
             <p className="text-xs text-muted-foreground">Navegación rápida</p>

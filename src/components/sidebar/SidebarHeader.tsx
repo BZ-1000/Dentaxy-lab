@@ -12,13 +12,25 @@ export const SidebarHeader = ({ collapsed, onToggle }: SidebarHeaderProps) => {
   return (
     <div className="flex items-center justify-between p-4 border-b border-border bg-card">
       {collapsed ? (
-        <div className="flex items-center justify-center w-full">
-          <img 
-            src="/lovable-uploads/47756bd5-fe5d-45cf-bbb4-f61daf4a38cd.png" 
-            alt="DENTAXY" 
-            className="w-8 h-8"
-          />
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={onToggle}
+                className="flex items-center justify-center w-full p-2 hover:bg-accent rounded-lg transition-colors"
+              >
+                <img 
+                  src="/lovable-uploads/47756bd5-fe5d-45cf-bbb4-f61daf4a38cd.png" 
+                  alt="DENTAXY" 
+                  className="w-8 h-8"
+                />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              Expandir
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       ) : (
         <div className="flex items-center gap-2">
           <img 
@@ -33,27 +45,25 @@ export const SidebarHeader = ({ collapsed, onToggle }: SidebarHeaderProps) => {
         </div>
       )}
       
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              onClick={onToggle}
-              className="flex-shrink-0"
-            >
-              {collapsed ? (
-                <ChevronRight className="h-4 w-4" />
-              ) : (
+      {!collapsed && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={onToggle}
+                className="flex-shrink-0"
+              >
                 <ChevronLeft className="h-4 w-4" />
-              )}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            {collapsed ? 'Expandir' : 'Colapsar'}
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              Colapsar
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
     </div>
   );
 };

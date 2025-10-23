@@ -27,7 +27,7 @@ export const NotasSection = ({ collapsed }: NotasSectionProps) => {
                 className="w-full flex items-center justify-center p-4 hover:bg-accent transition-colors relative"
                 onClick={() => setOverlayOpen(true)}
               >
-                <ClipboardList className="h-5 w-5 text-primary" />
+                <ClipboardList className="h-5 w-5" style={{ color: '#F59E0B', strokeWidth: 2 }} />
                 {pendingCount > 0 && (
                   <span className="absolute top-2 right-2 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
                     {pendingCount}
@@ -54,7 +54,7 @@ export const NotasSection = ({ collapsed }: NotasSectionProps) => {
         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-accent transition-colors text-left"
         onClick={() => setOverlayOpen(true)}
       >
-        <ClipboardList className="h-5 w-5 text-primary flex-shrink-0" />
+        <ClipboardList className="h-5 w-5 flex-shrink-0" style={{ color: '#F59E0B', strokeWidth: 2 }} />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium">Notas</p>
           <p className="text-xs text-muted-foreground">Tareas y pendientes</p>
