@@ -197,7 +197,7 @@ export default function FormCloudSidebar({
       <AnimatePresence>
         {showButton && (
           <motion.div
-            className="fixed top-4 right-4 z-[120000] md:hidden"
+            className="fixed top-4 right-4 z-50 md:hidden"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
@@ -241,7 +241,7 @@ export default function FormCloudSidebar({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => handleSetSidebarOpen(false)}
-              className="fixed inset-0 bg-black/50 z-[120000]"
+              className="fixed inset-0 bg-black/50 z-40"
             />
 
             {/* Panel */}
@@ -250,7 +250,7 @@ export default function FormCloudSidebar({
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 left-0 h-full w-full sm:w-80 bg-background border-r border-border shadow-2xl z-[120000] flex flex-col"
+              className="fixed top-0 left-0 h-full w-full sm:w-80 bg-background border-r border-border shadow-2xl z-50 flex flex-col"
             >
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border">
