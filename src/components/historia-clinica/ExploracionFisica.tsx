@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -60,71 +61,47 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
   };
 
   return (
-    <div
-      className={`max-w-5xl mx-auto transition-all duration-300 ${
-        isMaximized ? "fixed inset-6 z-[9999]" : ""
-      }`}
-      data-formulario-section="exploracion-fisica"
-    >
-      <Card
-        className={`bg-gradient-to-br from-white/80 to-blue-50/70 dark:from-gray-800/80 dark:to-gray-900/80
-        backdrop-blur-md border border-blue-200/40 dark:border-blue-800/30
-        shadow-[0_4px_20px_rgba(0,0,0,0.1)] rounded-2xl transition-all duration-300 ${
-          isMaximized ? "h-[calc(100vh-3rem)] overflow-y-auto" : "hover:shadow-[0_8px_30px_rgba(0,0,0,0.15)]"
-        }`}
-      >
-        {/* HEADER */}
-        <div className="flex items-center justify-between p-4 border-b border-blue-200/50 dark:border-blue-800/40 bg-gradient-to-r from-blue-500/10 to-blue-100/5 rounded-t-2xl">
+    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="exploracion-fisica">
+      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
-            <div className="flex bg-blue-100/60 dark:bg-blue-900/50 rounded-full p-0.5 sm:p-1 shadow-inner">
-              <button className="px-4 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-sm font-semibold bg-blue-500 text-white shadow-md hover:scale-105">
+            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
+              <button className="px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm bg-blue-500 text-white shadow-md">
                 Formulario
               </button>
-              <button className="px-4 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-sm text-blue-800 dark:text-blue-200 hover:bg-blue-300/30">
+              <button className="px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm text-gray-700 dark:text-gray-300">
                 Redacción IA
               </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-1 sm:gap-2 absolute right-4">
-            <button
-              onClick={handleMinimize}
-              className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-all duration-200 hover:scale-110"
-            >
-              <Minus className="w-4 h-4" />
+          <div className="flex items-center gap-1 sm:gap-2">
+            <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
+              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
-            <button
-              onClick={handleMaximize}
-              className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-all duration-200 hover:scale-110"
-            >
-              <Maximize2 className="w-4 h-4" />
+            <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
+              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
-            <button
-              onClick={handleClose}
-              className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-all duration-200 hover:scale-110"
-            >
-              <X className="w-4 h-4" />
+            <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
+              <X className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
 
-        {/* TITLE */}
-        <div className="flex justify-start px-6 py-3 bg-blue-50/40 dark:bg-gray-800/40 border-b border-blue-200/40 dark:border-blue-900/40">
-          <h2 className="text-xl font-semibold flex items-center gap-2 text-blue-700 dark:text-blue-300">
-            <span className="text-blue-400 font-bold">IX.</span> EXPLORACIÓN FÍSICA
+        <div className="flex justify-start px-6 py-2">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <span className="text-gray-400">IX.</span> EXPLORACIÓN FÍSICA
           </h2>
         </div>
 
-        {/* BODY */}
         {!isMinimized && (
-          <div className="p-6 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              
+          <div className="p-6 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* IMC Section */}
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="peso" className="text-blue-600 dark:text-blue-300 font-medium">Peso</Label>
+                    <Label htmlFor="peso">Peso</Label>
                     <div className="relative">
                       <Input
                         id="peso"
@@ -132,21 +109,21 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                         step="0.1"
                         value={formData.exploracionFisica?.signosVitales?.peso || ''}
                         onChange={(e) => handleExploracionFisicaChange('signosVitales.peso', e.target.value)}
-                        className="pr-12 border-blue-200 dark:border-blue-800 focus:ring-2 focus:ring-blue-400"
+                        className="pr-12"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">kg</span>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="talla" className="text-blue-600 dark:text-blue-300 font-medium">Talla</Label>
+                    <Label htmlFor="talla">Talla</Label>
                     <div className="relative">
                       <Input
                         id="talla"
                         type="text"
                         value={formData.exploracionFisica?.signosVitales?.talla || ''}
                         onChange={handleHeightInput}
-                        className="pr-8 border-blue-200 dark:border-blue-800 focus:ring-2 focus:ring-blue-400"
+                        className="pr-8"
                         placeholder="Ej: 170"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">m</span>
@@ -154,41 +131,32 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-blue-100/60 to-blue-50/30 dark:from-blue-900/40 dark:to-gray-900/30 rounded-lg w-full px-4 py-3 shadow-inner">
-                  <div className="text-sm text-gray-800 dark:text-gray-200">
-                    IMC: <span className="font-semibold">{imc}</span>
-                  </div>
-                  <div className={`text-sm mt-1 ${getIMCCategory(imc).color}`}>
+                <div className="bg-gray-50 dark:bg-gray-900 rounded-lg w-full px-4 py-3">
+                  <div className="text-sm">IMC: <span className="font-semibold">{imc}</span></div>
+                  <div className={`text-sm ${getIMCCategory(imc).color}`}>
                     Categoría: {getIMCCategory(imc).label}
                   </div>
                 </div>
               </div>
 
-              {/* Vital Signs */}
+              {/* Vital Signs Section */}
               <div className="space-y-4">
-                <Label className="text-blue-600 dark:text-blue-300 font-medium">Rango de edad</Label>
-                <Select
-                  value={ageRange}
-                  onValueChange={(value: keyof typeof vitalSignRanges) => setAgeRange(value)}
-                >
-                  <SelectTrigger className="border-blue-200 dark:border-blue-800 focus:ring-2 focus:ring-blue-400">
+                <Label>Rango de edad</Label>
+                <Select value={ageRange} onValueChange={(value: keyof typeof vitalSignRanges) => setAgeRange(value)}>
+                  <SelectTrigger>
                     <SelectValue placeholder="Seleccionar rango de edad" />
                   </SelectTrigger>
                   <SelectContent>
                     {Object.entries(vitalSignRanges).map(([key, value]) => (
-                      <SelectItem key={key} value={key}>
-                        {value.label}
-                      </SelectItem>
+                      <SelectItem key={key} value={key}>{value.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Pressure */}
-              <div className="space-y-3">
-                <Label htmlFor="ta" className="text-blue-600 dark:text-blue-300 font-medium">
-                  Presión arterial
-                </Label>
+              {/* Blood Pressure */}
+              <div className="space-y-2">
+                <Label htmlFor="ta">Presión arterial</Label>
                 <div className="relative">
                   <Input
                     id="ta"
@@ -196,7 +164,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     value={formData.exploracionFisica?.signosVitales?.ta || ''}
                     onChange={(e) => handleExploracionFisicaChange('signosVitales.ta', e.target.value)}
                     placeholder="120/80"
-                    className="pr-16 border-blue-200 dark:border-blue-800 focus:ring-2 focus:ring-blue-400"
+                    className="pr-16"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">mmHg</span>
                 </div>
@@ -208,15 +176,15 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
               </div>
 
               {/* Pulse */}
-              <div className="space-y-3">
-                <Label htmlFor="pulso" className="text-blue-600 dark:text-blue-300 font-medium">Pulso</Label>
+              <div className="space-y-2">
+                <Label htmlFor="pulso">Pulso</Label>
                 <div className="relative">
                   <Input
                     id="pulso"
                     type="number"
                     value={formData.exploracionFisica?.signosVitales?.pulso || ''}
                     onChange={(e) => handleExploracionFisicaChange('signosVitales.pulso', e.target.value)}
-                    className="pr-16 border-blue-200 dark:border-blue-800 focus:ring-2 focus:ring-blue-400"
+                    className="pr-16"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">ppm</span>
                 </div>
@@ -226,9 +194,9 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
               </div>
 
               {/* Heart Rate */}
-              <div className="space-y-3">
-                <Label htmlFor="fc" className="flex items-center gap-2 text-blue-600 dark:text-blue-300 font-medium">
-                  <HeartPulse className="w-4 h-4 text-red-500" />
+              <div className="space-y-2">
+                <Label htmlFor="fc" className="flex items-center gap-2">
+                  <HeartPulse className="w-4 h-4" />
                   Frecuencia cardíaca
                 </Label>
                 <div className="relative">
@@ -237,7 +205,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     type="number"
                     value={formData.exploracionFisica?.signosVitales?.fc || ''}
                     onChange={(e) => handleExploracionFisicaChange('signosVitales.fc', e.target.value)}
-                    className="pr-16 border-blue-200 dark:border-blue-800 focus:ring-2 focus:ring-blue-400"
+                    className="pr-16"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">lpm</span>
                 </div>
@@ -247,9 +215,9 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
               </div>
 
               {/* Temperature */}
-              <div className="space-y-3">
-                <Label htmlFor="temperatura" className="flex items-center gap-2 text-blue-600 dark:text-blue-300 font-medium">
-                  <ThermometerSun className="w-4 h-4 text-orange-400" />
+              <div className="space-y-2">
+                <Label htmlFor="temperatura" className="flex items-center gap-2">
+                  <ThermometerSun className="w-4 h-4" />
                   Temperatura
                 </Label>
                 <div className="relative">
@@ -259,7 +227,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     step="0.1"
                     value={formData.exploracionFisica?.signosVitales?.temperatura || ''}
                     onChange={(e) => handleExploracionFisicaChange('signosVitales.temperatura', e.target.value)}
-                    className="pr-12 border-blue-200 dark:border-blue-800 focus:ring-2 focus:ring-blue-400"
+                    className="pr-12"
                   />
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">°C</span>
                 </div>
