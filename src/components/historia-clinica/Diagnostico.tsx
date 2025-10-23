@@ -1,8 +1,9 @@
 
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X } from "lucide-react";
+import { Minus, Maximize2, X, Copy, CheckCircle } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
+import { Textarea } from "@/components/ui/textarea";
 
 interface DiagnosticoProps {
   formData: FormDataState;
@@ -15,6 +16,8 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [diagnosticoText, setDiagnosticoText] = useState("");
+  const [copied, setCopied] = useState(false);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -29,6 +32,21 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({
   const handleClose = () => {
     setIsMinimized(false);
     setIsMaximized(false);
+  };
+
+  const handleCopy = async () => {
+    try {
+      const { trackCopyClick } = await import('@/utils/trackCopyClick');
+      trackCopyClick();
+    } catch (error) {
+      console.error('Error tracking copy:', error);
+    }
+    
+    if (diagnosticoText) {
+      navigator.clipboard.writeText(diagnosticoText);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (
@@ -66,8 +84,26 @@ const Diagnostico: React.FC<DiagnosticoProps> = ({
         </div>
 
         {!isMinimized && (
-          <div className="p-6 flex items-center justify-center">
-            <h1 className="text-4xl font-bold text-gray-400 dark:text-gray-500">Próximamente</h1>
+          <div className="p-6">
+            <div className="relative">
+              <Textarea
+                value={diagnosticoText}
+                onChange={(e) => setDiagnosticoText(e.target.value)}
+                placeholder="Escriba el diagnóstico aquí..."
+                className="min-h-[200px] pr-12 resize-none"
+              />
+              <button
+                onClick={handleCopy}
+                className="absolute top-2 right-2 p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                title={copied ? "Copiado" : "Copiar"}
+              >
+                {copied ? (
+                  <CheckCircle className="h-5 w-5 text-green-500 animate-scale-in" />
+                ) : (
+                  <Copy className="h-5 w-5 text-gray-500" />
+                )}
+              </button>
+            </div>
           </div>
         )}
       </Card>
