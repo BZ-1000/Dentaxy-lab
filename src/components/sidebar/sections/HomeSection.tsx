@@ -27,7 +27,7 @@ export const HomeSection = ({ collapsed }: HomeSectionProps) => {
                 className="w-full flex items-center justify-center p-3 hover:bg-accent/50 transition-colors rounded-lg"
                 onClick={handleClick}
               >
-                <Home className="h-6 w-6" style={{ color: '#3B82F6', strokeWidth: 2 }} />
+                <Home className="h-5 w-5" style={{ color: '#3B82F6', strokeWidth: 1.5 }} />
               </motion.button>
             </TooltipTrigger>
             <TooltipContent side="right">
@@ -48,7 +48,7 @@ export const HomeSection = ({ collapsed }: HomeSectionProps) => {
         className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-accent/50 transition-colors text-left rounded-lg"
         onClick={handleClick}
       >
-        <Home className="h-6 w-6 flex-shrink-0" style={{ color: '#3B82F6', strokeWidth: 2 }} />
+        <Home className="h-5 w-5 flex-shrink-0" style={{ color: '#3B82F6', strokeWidth: 1.5 }} />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium">Inicio</p>
           <p className="text-xs text-muted-foreground">Panel principal</p>
