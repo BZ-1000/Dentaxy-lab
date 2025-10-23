@@ -40,7 +40,7 @@ export const ProfileMenu = ({ open, onOpenChange }: ProfileMenuProps) => {
       <DropdownMenuTrigger asChild>
         <div className="hidden" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" side="top" className="w-56">
         <DropdownMenuItem onClick={handleViewPlans}>
           <CreditCard className="mr-2 h-4 w-4" />
           <span>Planes y suscripciones</span>
