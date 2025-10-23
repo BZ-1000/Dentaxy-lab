@@ -23,7 +23,7 @@ export const TutorialesSection = ({ collapsed }: TutorialesSectionProps) => {
                 className="w-full flex items-center justify-center p-3 hover:bg-accent/50 transition-colors rounded-lg"
                 onClick={() => setOverlayOpen(true)}
               >
-                <BookOpen className="h-5 w-5" style={{ color: '#10B981', strokeWidth: 1.5 }} />
+                <BookOpen className="h-6 w-6" style={{ color: '#10B981', strokeWidth: 2 }} />
               </motion.button>
             </TooltipTrigger>
             <TooltipContent side="right">
@@ -45,7 +45,7 @@ export const TutorialesSection = ({ collapsed }: TutorialesSectionProps) => {
         className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-accent/50 transition-colors text-left rounded-lg"
         onClick={() => setOverlayOpen(true)}
       >
-        <BookOpen className="h-5 w-5 flex-shrink-0" style={{ color: '#10B981', strokeWidth: 1.5 }} />
+        <BookOpen className="h-6 w-6 flex-shrink-0" style={{ color: '#10B981', strokeWidth: 2 }} />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium">Guía de Uso</p>
           <p className="text-xs text-muted-foreground">Tutoriales y ayuda</p>
