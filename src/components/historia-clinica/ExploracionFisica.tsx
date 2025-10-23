@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Minus, Maximize2, X, ThermometerSun, HeartPulse } from "lucide-react";
+import { Minus, Maximize2, X, ThermometerSun, HeartPulse, Scale, Ruler, Activity, Heart, Copy } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { calculateIMC, getIMCCategory, getBPCategory, vitalSignRanges } from '@/utils/medicalRanges';
 
@@ -101,32 +101,54 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="peso">Peso</Label>
+                    <Label htmlFor="peso" className="flex items-center gap-2">
+                      <Scale className="w-4 h-4" style={{ color: '#3B82F6', strokeWidth: 2 }} />
+                      Peso
+                    </Label>
                     <div className="relative">
                       <Input
                         id="peso"
                         type="number"
                         step="0.1"
+                        inputMode="numeric"
                         value={formData.exploracionFisica?.signosVitales?.peso || ''}
                         onChange={(e) => handleExploracionFisicaChange('signosVitales.peso', e.target.value)}
-                        className="pr-12"
+                        className="pr-20"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">kg</span>
+                      <span className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500">kg</span>
+                      <button
+                        type="button"
+                        onClick={() => navigator.clipboard.writeText(formData.exploracionFisica?.signosVitales?.peso || '')}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-gray-500" />
+                      </button>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="talla">Talla</Label>
+                    <Label htmlFor="talla" className="flex items-center gap-2">
+                      <Ruler className="w-4 h-4" style={{ color: '#10B981', strokeWidth: 2 }} />
+                      Talla
+                    </Label>
                     <div className="relative">
                       <Input
                         id="talla"
                         type="text"
+                        inputMode="numeric"
                         value={formData.exploracionFisica?.signosVitales?.talla || ''}
                         onChange={handleHeightInput}
-                        className="pr-8"
+                        className="pr-16"
                         placeholder="Ej: 170"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">m</span>
+                      <span className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500">m</span>
+                      <button
+                        type="button"
+                        onClick={() => navigator.clipboard.writeText(formData.exploracionFisica?.signosVitales?.talla || '')}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-gray-500" />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -156,7 +178,10 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
 
               {/* Blood Pressure */}
               <div className="space-y-2">
-                <Label htmlFor="ta">Presión arterial</Label>
+                <Label htmlFor="ta" className="flex items-center gap-2">
+                  <Activity className="w-4 h-4" style={{ color: '#EF4444', strokeWidth: 2 }} />
+                  Presión arterial
+                </Label>
                 <div className="relative">
                   <Input
                     id="ta"
@@ -164,9 +189,16 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     value={formData.exploracionFisica?.signosVitales?.ta || ''}
                     onChange={(e) => handleExploracionFisicaChange('signosVitales.ta', e.target.value)}
                     placeholder="120/80"
-                    className="pr-16"
+                    className="pr-24"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">mmHg</span>
+                  <span className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500">mmHg</span>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard.writeText(formData.exploracionFisica?.signosVitales?.ta || '')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                  >
+                    <Copy className="w-3.5 h-3.5 text-gray-500" />
+                  </button>
                 </div>
                 {formData.exploracionFisica?.signosVitales?.ta && (
                   <div className={`text-sm ${getBPCategory(getBloodPressureValues(formData.exploracionFisica.signosVitales.ta).systolic, getBloodPressureValues(formData.exploracionFisica.signosVitales.ta).diastolic).color}`}>
@@ -177,16 +209,26 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
 
               {/* Pulse */}
               <div className="space-y-2">
-                <Label htmlFor="pulso">Pulso</Label>
+                <Label htmlFor="pulso" className="flex items-center gap-2">
+                  <Heart className="w-4 h-4" style={{ color: '#EC4899', strokeWidth: 2 }} />
+                  Pulso
+                </Label>
                 <div className="relative">
                   <Input
                     id="pulso"
                     type="number"
                     value={formData.exploracionFisica?.signosVitales?.pulso || ''}
                     onChange={(e) => handleExploracionFisicaChange('signosVitales.pulso', e.target.value)}
-                    className="pr-16"
+                    className="pr-24"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">ppm</span>
+                  <span className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500">ppm</span>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard.writeText(formData.exploracionFisica?.signosVitales?.pulso || '')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                  >
+                    <Copy className="w-3.5 h-3.5 text-gray-500" />
+                  </button>
                 </div>
                 <div className="text-sm text-gray-500">
                   Rango normal: {vitalSignRanges[ageRange].pulse.min}-{vitalSignRanges[ageRange].pulse.max} ppm
@@ -196,7 +238,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
               {/* Heart Rate */}
               <div className="space-y-2">
                 <Label htmlFor="fc" className="flex items-center gap-2">
-                  <HeartPulse className="w-4 h-4" />
+                  <HeartPulse className="w-4 h-4" style={{ color: '#8B5CF6', strokeWidth: 2 }} />
                   Frecuencia cardíaca
                 </Label>
                 <div className="relative">
@@ -205,9 +247,16 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     type="number"
                     value={formData.exploracionFisica?.signosVitales?.fc || ''}
                     onChange={(e) => handleExploracionFisicaChange('signosVitales.fc', e.target.value)}
-                    className="pr-16"
+                    className="pr-24"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">lpm</span>
+                  <span className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500">lpm</span>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard.writeText(formData.exploracionFisica?.signosVitales?.fc || '')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                  >
+                    <Copy className="w-3.5 h-3.5 text-gray-500" />
+                  </button>
                 </div>
                 <div className="text-sm text-gray-500">
                   Rango normal: {vitalSignRanges[ageRange].heartRate.min}-{vitalSignRanges[ageRange].heartRate.max} lpm
@@ -217,7 +266,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
               {/* Temperature */}
               <div className="space-y-2">
                 <Label htmlFor="temperatura" className="flex items-center gap-2">
-                  <ThermometerSun className="w-4 h-4" />
+                  <ThermometerSun className="w-4 h-4" style={{ color: '#F59E0B', strokeWidth: 2 }} />
                   Temperatura
                 </Label>
                 <div className="relative">
@@ -227,9 +276,16 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     step="0.1"
                     value={formData.exploracionFisica?.signosVitales?.temperatura || ''}
                     onChange={(e) => handleExploracionFisicaChange('signosVitales.temperatura', e.target.value)}
-                    className="pr-12"
+                    className="pr-20"
                   />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">°C</span>
+                  <span className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500">°C</span>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard.writeText(formData.exploracionFisica?.signosVitales?.temperatura || '')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                  >
+                    <Copy className="w-3.5 h-3.5 text-gray-500" />
+                  </button>
                 </div>
                 <div className="text-sm text-gray-500">
                   Rango normal: {vitalSignRanges[ageRange].temperature.min}-{vitalSignRanges[ageRange].temperature.max}°C
