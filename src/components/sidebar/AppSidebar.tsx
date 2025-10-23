@@ -12,40 +12,42 @@ import { ModulosSection } from './sections/ModulosSection';
 import { UserProfileCard } from './footer/UserProfileCard';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
 interface AppSidebarProps {
   className?: string;
 }
-
-export const AppSidebar = ({ className }: AppSidebarProps) => {
+export const AppSidebar = ({
+  className
+}: AppSidebarProps) => {
   const [collapsed, setCollapsed] = useState(() => {
     const stored = localStorage.getItem('sidebar_collapsed');
     return stored === 'true';
   });
   const [mobileOpen, setMobileOpen] = useState(false);
-
   useEffect(() => {
     localStorage.setItem('sidebar_collapsed', collapsed.toString());
-  }, [collapsed]);
 
+    // Dispatch event to notify Index.tsx about sidebar state change
+    window.dispatchEvent(new CustomEvent('sidebar-state-change', {
+      detail: {
+        collapsed
+      }
+    }));
+  }, [collapsed]);
   const toggleCollapsed = () => setCollapsed(!collapsed);
   const toggleMobileOpen = () => setMobileOpen(!mobileOpen);
 
-  // Desktop sidebar
-  const DesktopSidebar = () => (
-    <motion.aside
-      initial={false}
-      animate={{ width: collapsed ? 72 : 280 }}
-      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      className={cn(
-        'hidden lg:flex flex-col h-screen bg-background border-r border-border fixed left-0 top-0 z-50',
-        className
-      )}
-    >
-      <SidebarHeader collapsed={collapsed} onToggle={toggleCollapsed} />
+  // Desktop sidebar - Fixed lateral sidebar (not overlay)
+  const DesktopSidebar = () => <motion.aside initial={false} animate={{
+    width: collapsed ? 72 : 280
+  }} transition={{
+    type: 'spring',
+    stiffness: 300,
+    damping: 30
+  }} className={cn('hidden lg:flex flex-col h-screen bg-background border-r border-border fixed left-0 top-0 z-40', className)}>
+      <SidebarHeader collapsed={collapsed} onToggle={toggleCollapsed} className="bg-slate-50" />
       
       <div className="flex-1 overflow-y-auto custom-scrollbar sidebar-content">
-        <div className="py-2">
+        <div className="py-2 bg-slate-50">
           <HomeSection collapsed={collapsed} />
           <AgendaSection collapsed={collapsed} />
           <HistoriaClinicaNav collapsed={collapsed} />
@@ -56,37 +58,34 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
         </div>
       </div>
       
-      <UserProfileCard collapsed={collapsed} />
-    </motion.aside>
-  );
+      <UserProfileCard collapsed={collapsed} className="bg-slate-50" />
+    </motion.aside>;
 
   // Mobile sidebar (overlay)
-  const MobileSidebar = () => (
-    <AnimatePresence>
-      {mobileOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 lg:hidden"
-            onClick={toggleMobileOpen}
-          />
+  const MobileSidebar = () => <AnimatePresence>
+      {mobileOpen && <>
+          <motion.div initial={{
+        opacity: 0
+      }} animate={{
+        opacity: 1
+      }} exit={{
+        opacity: 0
+      }} className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 lg:hidden" onClick={toggleMobileOpen} />
           
-          <motion.aside
-            initial={{ x: '-100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed left-0 top-0 h-screen w-[280px] bg-background border-r border-border z-50 lg:hidden flex flex-col"
-          >
+          <motion.aside initial={{
+        x: '-100%'
+      }} animate={{
+        x: 0
+      }} exit={{
+        x: '-100%'
+      }} transition={{
+        type: 'spring',
+        stiffness: 300,
+        damping: 30
+      }} className="fixed left-0 top-0 h-screen w-[280px] bg-background border-r border-border z-50 lg:hidden flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-2">
-                <img 
-                  src="/lovable-uploads/47756bd5-fe5d-45cf-bbb4-f61daf4a38cd.png" 
-                  alt="DENTAXY" 
-                  className="w-8 h-8"
-                />
+                <img src="/lovable-uploads/47756bd5-fe5d-45cf-bbb4-f61daf4a38cd.png" alt="DENTAXY" className="w-8 h-8" />
                 <span className="font-semibold">DENTAXY</span>
               </div>
               <Button variant="ghost" size="icon" onClick={toggleMobileOpen}>
@@ -108,30 +107,18 @@ export const AppSidebar = ({ className }: AppSidebarProps) => {
             
             <UserProfileCard collapsed={false} />
           </motion.aside>
-        </>
-      )}
-    </AnimatePresence>
-  );
+        </>}
+    </AnimatePresence>;
 
   // Mobile toggle button (hamburger)
-  const MobileToggle = () => (
-    <Button
-      variant="outline"
-      size="icon"
-      className="fixed top-4 left-4 z-40 lg:hidden"
-      onClick={toggleMobileOpen}
-    >
+  const MobileToggle = () => <Button variant="outline" size="icon" className="fixed top-4 left-4 z-40 lg:hidden" onClick={toggleMobileOpen}>
       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
       </svg>
-    </Button>
-  );
-
-  return (
-    <>
+    </Button>;
+  return <>
       <DesktopSidebar />
       <MobileSidebar />
       <MobileToggle />
-    </>
-  );
+    </>;
 };

@@ -60,7 +60,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full" data-formulario-section="examen-cabeza">
       <CardHeader>
         <CardTitle className="text-xl font-semibold text-gray-800">
           Examen de Cabeza
