@@ -309,15 +309,94 @@ export interface ExamenCuello {
 
 export interface ExamenIntrabucal {
   sinHallazgos?: boolean;
-  lengua?: string;
-  paladarDuro?: string;
-  paladarBlando?: string;
-  mucosaYugal?: string;
-  pisoBoca?: string;
-  encias?: string;
-  dientes?: string;
-  observaciones?: string;
-  [key: string]: boolean | string | undefined;
+  
+  mejillas?: {
+    sinHallazgos?: boolean;
+    color?: string;
+    textura?: string;
+    superficie?: string;
+    lesionesPresentes?: string;
+    ubicacion?: string;
+    simetria?: string;
+    secrecionSalival?: string;
+    observaciones?: string;
+  };
+  
+  lengua?: {
+    sinHallazgos?: boolean;
+    tamanio?: string;
+    color?: string;
+    superficieDorsal?: string;
+    bordesLaterales?: string;
+    caraVentral?: string;
+    movilidad?: string;
+    lesiones?: string;
+    sensacionReferida?: string;
+    simetria?: string;
+    observaciones?: string;
+  };
+  
+  pisoBoca?: {
+    sinHallazgos?: boolean;
+    color?: string;
+    textura?: string;
+    superficie?: string;
+    secrecionSalival?: string;
+    movilidadFrenillo?: string;
+    lesiones?: string;
+    simetria?: string;
+    observaciones?: string;
+  };
+  
+  encias?: {
+    sinHallazgos?: boolean;
+    color?: string;
+    contorno?: string;
+    consistencia?: string;
+    textura?: string;
+    margenGingival?: string;
+    sangrado?: boolean;
+    placaCalculo?: string;
+    lesiones?: string;
+    simetria?: string;
+    observaciones?: string;
+  };
+  
+  paladar?: {
+    sinHallazgos?: boolean;
+    color?: string;
+    textura?: string;
+    superficie?: string;
+    movilidad?: string;
+    lesiones?: string;
+    simetria?: string;
+    observaciones?: string;
+  };
+  
+  orofaringe?: {
+    sinHallazgos?: boolean;
+    color?: string;
+    superficie?: string;
+    amigdalas?: string;
+    arcos?: string;
+    dolor?: boolean;
+    lesiones?: string;
+    simetria?: string;
+    observaciones?: string;
+  };
+  
+  regionRetromolar?: {
+    sinHallazgos?: boolean;
+    color?: string;
+    textura?: string;
+    superficie?: string;
+    lesiones?: string;
+    simetria?: string;
+    dolorPalpacion?: boolean;
+    observaciones?: string;
+  };
+  
+  [key: string]: boolean | string | undefined | any;
 }
 
 export interface GlandulasSalivales {

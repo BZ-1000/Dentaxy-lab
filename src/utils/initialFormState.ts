@@ -257,14 +257,85 @@ export const getInitialFormState = (): FormDataState => ({
   },
   examenIntrabucal: {
     sinHallazgos: false,
-    lengua: "",
-    paladarDuro: "",
-    paladarBlando: "",
-    mucosaYugal: "",
-    pisoBoca: "",
-    encias: "",
-    dientes: "",
-    observaciones: ""
+    mejillas: {
+      sinHallazgos: false,
+      color: "",
+      textura: "",
+      superficie: "",
+      lesionesPresentes: "",
+      ubicacion: "",
+      simetria: "",
+      secrecionSalival: "",
+      observaciones: ""
+    },
+    lengua: {
+      sinHallazgos: false,
+      tamanio: "",
+      color: "",
+      superficieDorsal: "",
+      bordesLaterales: "",
+      caraVentral: "",
+      movilidad: "",
+      lesiones: "",
+      sensacionReferida: "",
+      simetria: "",
+      observaciones: ""
+    },
+    pisoBoca: {
+      sinHallazgos: false,
+      color: "",
+      textura: "",
+      superficie: "",
+      secrecionSalival: "",
+      movilidadFrenillo: "",
+      lesiones: "",
+      simetria: "",
+      observaciones: ""
+    },
+    encias: {
+      sinHallazgos: false,
+      color: "",
+      contorno: "",
+      consistencia: "",
+      textura: "",
+      margenGingival: "",
+      sangrado: false,
+      placaCalculo: "",
+      lesiones: "",
+      simetria: "",
+      observaciones: ""
+    },
+    paladar: {
+      sinHallazgos: false,
+      color: "",
+      textura: "",
+      superficie: "",
+      movilidad: "",
+      lesiones: "",
+      simetria: "",
+      observaciones: ""
+    },
+    orofaringe: {
+      sinHallazgos: false,
+      color: "",
+      superficie: "",
+      amigdalas: "",
+      arcos: "",
+      dolor: false,
+      lesiones: "",
+      simetria: "",
+      observaciones: ""
+    },
+    regionRetromolar: {
+      sinHallazgos: false,
+      color: "",
+      textura: "",
+      superficie: "",
+      lesiones: "",
+      simetria: "",
+      dolorPalpacion: false,
+      observaciones: ""
+    }
   },
   glandulasSalivales: {
     sinHallazgos: false,

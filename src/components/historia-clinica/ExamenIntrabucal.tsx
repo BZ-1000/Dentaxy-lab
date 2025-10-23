@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Minus, Maximize2 } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
+import ExamenIntrabucalForm from './examen-intrabucal/ExamenIntrabucalForm';
+import RedaccionIntrabucalIA from './examen-intrabucal/RedaccionIntrabucalIA';
 
 interface ExamenIntrabucalProps {
   formData: FormDataState;
@@ -71,13 +73,15 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
         {!isMinimized && (
           <div className="p-6">
             {showForm ? (
-              <div className="text-center text-gray-500">
-                {/* Contenido del formulario - Por diseñar */}
-              </div>
+              <ExamenIntrabucalForm 
+                formData={formData}
+                handleExamenIntrabucalChange={handleExamenIntrabucalChange}
+              />
             ) : (
-              <div className="text-center text-gray-500">
-                {/* Contenido de redacción IA - Por diseñar */}
-              </div>
+              <RedaccionIntrabucalIA 
+                formData={formData}
+                onSwitchToForm={() => setShowForm(true)}
+              />
             )}
           </div>
         )}
