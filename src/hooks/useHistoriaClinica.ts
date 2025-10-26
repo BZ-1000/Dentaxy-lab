@@ -3,28 +3,31 @@ import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
 import { FormDataState } from '@/types/historiaClinica';
 import { getInitialFormState } from '@/utils/initialFormState';
+import { useAuth } from '@/contexts/AuthContext';
+import { UserStorage } from '@/utils/userStorage';
 
 export const useHistoriaClinica = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [resumen, setResumen] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState<FormDataState>(() => {
-    const savedData = localStorage.getItem('currentFormData');
-    return savedData ? JSON.parse(savedData) : getInitialFormState();
+    const savedData = UserStorage.getItem(user, 'currentFormData');
+    return savedData || getInitialFormState();
   });
 
   // Persistir cambios en formData
   useEffect(() => {
-    localStorage.setItem('currentFormData', JSON.stringify(formData));
-  }, [formData]);
+    UserStorage.setItem(user, 'currentFormData', formData);
+  }, [formData, user]);
 
   // Restaurar datos al volver a la pestaña
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        const savedData = localStorage.getItem('currentFormData');
+        const savedData = UserStorage.getItem(user, 'currentFormData');
         if (savedData) {
-          setFormData(JSON.parse(savedData));
+          setFormData(savedData);
         }
       }
     };
@@ -33,7 +36,7 @@ export const useHistoriaClinica = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, []);
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -504,16 +507,16 @@ export const useHistoriaClinica = () => {
   const resetFormulario = () => {
     setFormData(getInitialFormState());
     setResumen('');
-    localStorage.removeItem('currentFormData');
+    UserStorage.removeItem(user, 'currentFormData');
     
     // Limpiar también los datos específicos del examen intrabucal
     const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
     areasIntrabucal.forEach(area => {
-      localStorage.removeItem(`examen-intrabucal-${area}`);
+      UserStorage.removeItem(user, `examen-intrabucal-${area}`);
     });
     
     // Limpiar también los datos específicos del interrogatorio de sistemas
-    localStorage.removeItem('interrogatorio-sistemas-formValues');
+    UserStorage.removeItem(user, 'interrogatorio-sistemas-formValues');
   };
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {
@@ -541,22 +544,22 @@ export const useHistoriaClinica = () => {
       }
     };
     
-    // Guardar formulario principal
-    localStorage.setItem(`formulario_${nombre}`, JSON.stringify(formDataToSave));
+    // Guardar formulario principal con prefijo de usuario
+    UserStorage.setItem(user, `formulario_${nombre}`, formDataToSave);
     
     // Guardar también los datos específicos del examen intrabucal
     const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
     areasIntrabucal.forEach(area => {
       const areaData = data.examenIntrabucal?.[area];
       if (areaData && typeof areaData === 'string') {
-        localStorage.setItem(`formulario_${nombre}_examen-intrabucal-${area}`, areaData);
+        UserStorage.setItem(user, `formulario_${nombre}_examen-intrabucal-${area}`, areaData);
       }
     });
     
     // Guardar también los datos específicos del interrogatorio de sistemas
-    const interrogatorioData = localStorage.getItem('interrogatorio-sistemas-formValues');
+    const interrogatorioData = UserStorage.getItem(user, 'interrogatorio-sistemas-formValues');
     if (interrogatorioData) {
-      localStorage.setItem(`formulario_${nombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
+      UserStorage.setItem(user, `formulario_${nombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
     }
     
     // Dispatch custom event for same-window storage updates
@@ -576,7 +579,7 @@ export const useHistoriaClinica = () => {
       areasIntrabucal.forEach(area => {
         const areaData = data.examenIntrabucal?.[area];
         if (areaData && typeof areaData === 'string') {
-          localStorage.setItem(`examen-intrabucal-${area}`, areaData);
+          UserStorage.setItem(user, `examen-intrabucal-${area}`, areaData);
         }
       });
     }

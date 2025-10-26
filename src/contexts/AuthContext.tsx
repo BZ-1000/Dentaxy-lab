@@ -3,6 +3,7 @@ import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { securityLogger } from '@/utils/securityLogger';
+import { UserStorage } from '@/utils/userStorage';
 
 interface SubscriptionData {
   subscribed: boolean;
@@ -86,15 +87,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signOut = async () => {
     const userId = session?.user?.id;
+    const currentUser = session?.user;
+    
     try {
+      // Limpiar solo datos del usuario actual
+      if (currentUser) {
+        UserStorage.clearUserData(currentUser);
+      }
+      
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      // Clear all local storage
+      // Clear global session storage
       localStorage.removeItem('userSession');
-      localStorage.removeItem('dentaxy_username');
-      localStorage.removeItem('currentFormData');
-      localStorage.removeItem('formBackup');
       
       // Reset subscription state
       setSubscription({
@@ -113,8 +118,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (error) {
       securityLogger.logError('Signout failed', 'AuthContext');
       console.error('Error signing out:', error);
+      
       // Force logout even if there's an error
-      localStorage.clear();
+      if (currentUser) {
+        UserStorage.clearUserData(currentUser);
+      }
+      localStorage.removeItem('userSession');
+      
       setSession(null);
       setSubscription({
         subscribed: false,
@@ -189,7 +199,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           }
         } else {
           localStorage.removeItem('userSession');
-          localStorage.removeItem('dentaxy_username');
           setSubscription({
             subscribed: false,
             subscription_tier: null,
