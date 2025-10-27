@@ -73,9 +73,9 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <Label className="text-base font-medium">Tipo de Cráneo</Label>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { value: 'mesocefalo', label: 'Mesocéfalo', image: '/lovable-uploads/mesocefalo.png' },
-              { value: 'dolicocefalo', label: 'Dolicocéfalo', image: '/dolicocefalo.png' },
-              { value: 'braquicefalo', label: 'Braquicéfalo', image: '/braquicefalo.png' }
+              { value: 'mesocefalo', label: 'Mesocéfalo', image: '/mesocefalo.svg' },
+              { value: 'dolicocefalo', label: 'Dolicocéfalo', image: '/dolicocefalo.svg' },
+              { value: 'braquicefalo', label: 'Braquicéfalo', image: '/braquicefalo.svg' }
             ].map((tipo) => (
               <div key={tipo.value} className="flex flex-col items-center space-y-2">
                 <div className="relative">
@@ -102,9 +102,9 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
           <Label className="text-base font-medium">Tipo de Perfil</Label>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
-              { value: 'concavo', label: 'Cóncavo', image: '/concavo.png' },
-              { value: 'recto', label: 'Recto', image: '/recto.png' },
-              { value: 'convexo', label: 'Convexo', image: '/convexo.png' }
+              { value: 'recto', label: 'Recto', image: '/recto.svg' },
+              { value: 'convexo', label: 'Convexo', image: '/convexo.svg' },
+              { value: 'concavo', label: 'Cóncavo', image: '/concavo.svg' }
             ].map((perfil) => (
               <div key={perfil.value} className="flex flex-col items-center space-y-2">
                 <div className="relative">
