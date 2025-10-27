@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Copy, CheckCircle, Loader2 } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { toast } from "sonner";
@@ -10,207 +12,299 @@ interface RedaccionIntrabucalIAProps {
 }
 
 const RedaccionIntrabucalIA: React.FC<RedaccionIntrabucalIAProps> = ({ formData, onSwitchToForm }) => {
-  const [redaccion, setRedaccion] = useState('');
+  const [redacciones, setRedacciones] = useState({
+    mejillas: '',
+    lengua: '',
+    pisoBoca: '',
+    encias: '',
+    paladar: '',
+    orofaringe: '',
+    regionRetromolar: '',
+    istmoFauces: ''
+  });
   const [isGenerating, setIsGenerating] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
   useEffect(() => {
-    generateRedaccion();
+    generateRedacciones();
   }, []);
 
-  const generateRedaccion = async () => {
+  const generateRedacciones = async () => {
     setIsGenerating(true);
-    
-    // Simulate typing effect
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    let text = '';
-    
+    const newRedacciones = { ...redacciones };
+
     if (formData.examenIntrabucal?.sinHallazgos) {
-      // Redacción común sin anomalías
-      text = `EXAMEN INTRABUCAL\n\nA la exploración intrabucal se observan las siguientes características:\n\nMejillas: mucosa de color rosada, textura lisa y aterciopelada, superficie íntegra sin lesiones evidentes. Secreción salival en zona del conducto de Stenon presente y de características normales. Simetría facial preservada.\n\nLengua: de tamaño normal, color rosado, superficie dorsal con papilas presentes de aspecto normal. Bordes laterales íntegros sin improntas dentarias. Cara ventral sin alteraciones. Movilidad libre en todos los planos. Sin lesiones aparentes.\n\nPiso de boca: mucosa de color rosado, textura lisa, superficie íntegra. Secreción salival del conducto de Wharton abundante y clara. Frenillo lingual de movilidad libre.\n\nEncías: color rosa coral, contorno festoneado, consistencia firme, textura punteada característica de tejido sano. Margen gingival definido y adherido. No se observa sangrado al sondeo. Ausencia de placa o cálculo dental significativos.\n\nPaladar duro y blando: color rosado, textura rugosa característica del paladar duro, superficie íntegra. Movilidad del paladar blando libre y simétrica.\n\nOrofaringe: color rosado, superficie lisa. Amígdalas sin aumento de volumen, arcos palatoglosos y palatofaríngeos íntegros. Sin dolor a la palpación.\n\nRegión retromolar: color rosado, textura lisa, superficie íntegra. Sin dolor a la palpación. Simetría bilateral preservada.`;
-    } else {
-      // Generar redacción basada en los datos del formulario
-      text = 'EXAMEN INTRABUCAL\n\nA la exploración intrabucal se observan las siguientes características:\n\n';
+      // Redacción común descriptiva sin la palabra "normal"
+      newRedacciones.mejillas = 'Mucosa yugal de coloración rosada coral, textura lisa y aterciopelada al tacto. Superficie íntegra sin soluciones de continuidad. Secreción salival proveniente del conducto de Stenon presente y de características serosas transparentes. Ausencia de lesiones, placas o alteraciones del color. Simetría facial y mucosa preservada bilateralmente.';
       
+      newRedacciones.lengua = 'Órgano lingual de dimensiones proporcionales al tamaño de la cavidad oral. Coloración rosada característica con presencia de papilas gustativas en superficie dorsal de distribución uniforme. Bordes laterales lisos sin improntas dentarias ni irregularidades. Cara ventral con venas linguales visibles de aspecto fisiológico. Movilidad libre en todos los planos del espacio sin restricciones. Ausencia de lesiones, ulceraciones o áreas de displasia.';
+      
+      newRedacciones.pisoBoca = 'Mucosa del piso de boca de tonalidad rosada, textura lisa y superficie íntegra sin alteraciones. Secreción salival proveniente de los conductos de Wharton abundante, clara y de características serosas. Frenillo lingual con inserción anatómica adecuada permitiendo movilidad completa del órgano lingual. Ausencia de lesiones, nódulos o áreas induradas a la palpación.';
+      
+      newRedacciones.encias = 'Tejido gingival de color rosa coral característico de encía sana. Contorno festoneado siguiendo la arquitectura de los cuellos dentarios. Consistencia firme y resiliente a la presión digital. Textura punteada tipo cáscara de naranja presente. Margen gingival bien definido y firmemente adherido a las superficies dentarias. Ausencia de sangrado al sondeo periodontal. Sin presencia de placa bacteriana o cálculo dental visible.';
+      
+      newRedacciones.paladar = 'Paladar duro de coloración rosada con rugosidades palatinas características bien definidas. Textura rugosa fisiológica. Bóveda palatina de profundidad adecuada. Paladar blando de tonalidad rosada, movilidad libre y simétrica durante la fonación. Rafe palatino central bien definido. Ausencia de petequias, torus palatino prominente o lesiones de cualquier naturaleza.';
+      
+      newRedacciones.orofaringe = 'Mucosa orofaríngea de coloración rosada homogénea. Superficie lisa sin irregularidades. Amígdalas palatinas de tamaño fisiológico, sin hipertrofia ni signos de inflamación aguda o crónica. Arcos palatoglosos y palatofaríngeos simétricos e íntegros. Ausencia de exudados, úlceras o lesiones aparentes. Sin dolor ni molestias referidas a la palpación.';
+      
+      newRedacciones.regionRetromolar = 'Región retromolar de coloración rosada uniforme. Textura lisa y homogénea. Superficie mucosa íntegra sin irregularidades, nódulos o áreas induradas. Triángulo retromolar sin alteraciones visibles. Ausencia de dolor a la palpación digital. Simetría bilateral preservada entre ambos lados.';
+      
+      newRedacciones.istmoFauces = 'Istmo de las fauces de amplitud adecuada permitiendo visualización completa de estructuras posteriores. Mucosa de coloración rosada homogénea. Úvula palatina íntegra, de longitud y grosor característicos, posicionada en la línea media. Pilares anteriores y posteriores del istmo simétricos e íntegros sin hipertrofia. Reflejo nauseoso presente y de intensidad fisiológica. Ausencia de signos inflamatorios o lesiones en la región.';
+    } else {
+      // Generar redacciones individuales basadas en selecciones
       // Mejillas
       if (formData.examenIntrabucal?.mejillas && !formData.examenIntrabucal.mejillas.sinHallazgos) {
         const m = formData.examenIntrabucal.mejillas;
-        text += 'Mejillas: ';
-        if (m.color) text += `mucosa de color ${m.color}, `;
-        if (m.textura) text += `textura ${m.textura}, `;
-        if (m.superficie) text += `superficie ${m.superficie}, `;
-        if (m.lesionesPresentes && m.lesionesPresentes !== 'ninguna') text += `lesiones presentes: ${m.lesionesPresentes}, `;
-        if (m.ubicacion) text += `ubicación: ${m.ubicacion}, `;
-        if (m.simetria) text += `simetría ${m.simetria}, `;
-        if (m.secrecionSalival) text += `secreción salival en zona de Stenon ${m.secrecionSalival}`;
-        if (m.observaciones) text += `. ${m.observaciones}`;
-        text += '.\n\n';
+        let texto = 'Mucosa yugal ';
+        if (m.color) texto += `de coloración ${m.color}, `;
+        if (m.textura) texto += `textura ${m.textura} `;
+        if (m.superficie) texto += `con superficie ${m.superficie}. `;
+        if (m.lesionesPresentes && m.lesionesPresentes !== 'ninguna') {
+          texto += `Se observan lesiones compatibles con ${m.lesionesPresentes}`;
+          if (m.ubicacion) texto += ` localizadas en ${m.ubicacion}`;
+          texto += '. ';
+        }
+        if (m.secrecionSalival) texto += `Secreción salival del conducto de Stenon ${m.secrecionSalival}. `;
+        if (m.simetria) texto += `Simetría ${m.simetria}.`;
+        if (m.observaciones) texto += ` ${m.observaciones}`;
+        newRedacciones.mejillas = texto.trim();
       } else {
-        text += 'Mejillas: sin hallazgos patológicos.\n\n';
+        newRedacciones.mejillas = 'Mucosa yugal de coloración rosada coral, textura lisa y aterciopelada. Superficie íntegra sin lesiones. Secreción salival del conducto de Stenon presente y de características fisiológicas. Simetría preservada.';
       }
-      
+
       // Lengua
       if (formData.examenIntrabucal?.lengua && !formData.examenIntrabucal.lengua.sinHallazgos) {
         const l = formData.examenIntrabucal.lengua;
-        text += 'Lengua: ';
-        if (l.tamanio) text += `tamaño ${l.tamanio}, `;
-        if (l.color) text += `color ${l.color}, `;
-        if (l.superficieDorsal) text += `superficie dorsal ${l.superficieDorsal}, `;
-        if (l.bordesLaterales) text += `bordes laterales ${l.bordesLaterales}, `;
-        if (l.caraVentral) text += `cara ventral ${l.caraVentral}, `;
-        if (l.movilidad) text += `movilidad ${l.movilidad}, `;
-        if (l.lesiones && l.lesiones !== 'ninguna') text += `lesiones: ${l.lesiones}, `;
-        if (l.sensacionReferida) text += `sensación referida: ${l.sensacionReferida}, `;
-        if (l.simetria) text += `simetría ${l.simetria}`;
-        if (l.observaciones) text += `. ${l.observaciones}`;
-        text += '.\n\n';
+        let texto = 'Órgano lingual ';
+        if (l.tamanio) texto += `de tamaño ${l.tamanio}, `;
+        if (l.color) texto += `coloración ${l.color}, `;
+        if (l.superficieDorsal) texto += `superficie dorsal ${l.superficieDorsal}. `;
+        if (l.bordesLaterales) texto += `Bordes laterales ${l.bordesLaterales}. `;
+        if (l.caraVentral) texto += `Cara ventral ${l.caraVentral}. `;
+        if (l.movilidad) texto += `Movilidad ${l.movilidad}. `;
+        if (l.lesiones && l.lesiones !== 'ninguna') texto += `Lesiones presentes: ${l.lesiones}. `;
+        if (l.sensacionReferida) texto += `Sensación referida: ${l.sensacionReferida}. `;
+        if (l.simetria) texto += `Simetría ${l.simetria}.`;
+        if (l.observaciones) texto += ` ${l.observaciones}`;
+        newRedacciones.lengua = texto.trim();
       } else {
-        text += 'Lengua: sin hallazgos patológicos.\n\n';
+        newRedacciones.lengua = 'Órgano lingual de dimensiones proporcionales. Coloración rosada con papilas gustativas presentes. Bordes lisos sin improntas. Movilidad libre en todos los planos. Sin lesiones aparentes.';
       }
-      
+
       // Piso de boca
       if (formData.examenIntrabucal?.pisoBoca && !formData.examenIntrabucal.pisoBoca.sinHallazgos) {
         const p = formData.examenIntrabucal.pisoBoca;
-        text += 'Piso de boca: ';
-        if (p.color) text += `mucosa de color ${p.color}, `;
-        if (p.textura) text += `textura ${p.textura}, `;
-        if (p.superficie) text += `superficie ${p.superficie}, `;
-        if (p.secrecionSalival) text += `secreción salival del conducto de Wharton ${p.secrecionSalival}, `;
-        if (p.movilidadFrenillo) text += `frenillo lingual de movilidad ${p.movilidadFrenillo}, `;
-        if (p.lesiones && p.lesiones !== 'ninguna') text += `lesiones: ${p.lesiones}, `;
-        if (p.simetria) text += `simetría ${p.simetria}`;
-        if (p.observaciones) text += `. ${p.observaciones}`;
-        text += '.\n\n';
+        let texto = 'Mucosa del piso de boca ';
+        if (p.color) texto += `de tonalidad ${p.color}, `;
+        if (p.textura) texto += `textura ${p.textura}, `;
+        if (p.superficie) texto += `superficie ${p.superficie}. `;
+        if (p.secrecionSalival) texto += `Secreción salival de conductos de Wharton ${p.secrecionSalival}. `;
+        if (p.movilidadFrenillo) texto += `Frenillo lingual con movilidad ${p.movilidadFrenillo}. `;
+        if (p.lesiones && p.lesiones !== 'ninguna') texto += `Lesiones: ${p.lesiones}. `;
+        if (p.simetria) texto += `Simetría ${p.simetria}.`;
+        if (p.observaciones) texto += ` ${p.observaciones}`;
+        newRedacciones.pisoBoca = texto.trim();
       } else {
-        text += 'Piso de boca: sin hallazgos patológicos.\n\n';
+        newRedacciones.pisoBoca = 'Mucosa del piso de boca de tonalidad rosada, textura lisa y superficie íntegra. Secreción salival de conductos de Wharton abundante y clara. Frenillo lingual de movilidad libre.';
       }
-      
+
       // Encías
       if (formData.examenIntrabucal?.encias && !formData.examenIntrabucal.encias.sinHallazgos) {
         const e = formData.examenIntrabucal.encias;
-        text += 'Encías: ';
-        if (e.color) text += `color ${e.color}, `;
-        if (e.contorno) text += `contorno ${e.contorno}, `;
-        if (e.consistencia) text += `consistencia ${e.consistencia}, `;
-        if (e.textura) text += `textura ${e.textura}, `;
-        if (e.margenGingival) text += `margen gingival ${e.margenGingival}, `;
-        if (e.sangrado) text += 'se observa sangrado al contacto, ';
-        if (e.placaCalculo) text += `presencia de placa o cálculo: ${e.placaCalculo}, `;
-        if (e.lesiones && e.lesiones !== 'ninguna') text += `lesiones: ${e.lesiones}, `;
-        if (e.simetria) text += `simetría ${e.simetria}`;
-        if (e.observaciones) text += `. ${e.observaciones}`;
-        text += '.\n\n';
+        let texto = 'Tejido gingival ';
+        if (e.color) texto += `de color ${e.color}, `;
+        if (e.contorno) texto += `contorno ${e.contorno}, `;
+        if (e.consistencia) texto += `consistencia ${e.consistencia}, `;
+        if (e.textura) texto += `textura ${e.textura}. `;
+        if (e.margenGingival) texto += `Margen gingival ${e.margenGingival}. `;
+        if (e.sangrado) texto += 'Se observa sangrado al contacto. ';
+        if (e.placaCalculo) texto += `Presencia de placa o cálculo: ${e.placaCalculo}. `;
+        if (e.lesiones && e.lesiones !== 'ninguna') texto += `Lesiones: ${e.lesiones}. `;
+        if (e.simetria) texto += `Simetría ${e.simetria}.`;
+        if (e.observaciones) texto += ` ${e.observaciones}`;
+        newRedacciones.encias = texto.trim();
       } else {
-        text += 'Encías: sin hallazgos patológicos.\n\n';
+        newRedacciones.encias = 'Tejido gingival de color rosa coral. Contorno festoneado, consistencia firme, textura punteada característica. Margen gingival bien definido y adherido. Sin sangrado al sondeo. Ausencia de placa o cálculo significativos.';
       }
-      
+
       // Paladar
       if (formData.examenIntrabucal?.paladar && !formData.examenIntrabucal.paladar.sinHallazgos) {
         const pa = formData.examenIntrabucal.paladar;
-        text += 'Paladar duro y blando: ';
-        if (pa.color) text += `color ${pa.color}, `;
-        if (pa.textura) text += `textura ${pa.textura}, `;
-        if (pa.superficie) text += `superficie ${pa.superficie}, `;
-        if (pa.movilidad) text += `movilidad del paladar blando ${pa.movilidad}, `;
-        if (pa.lesiones && pa.lesiones !== 'ninguna') text += `lesiones: ${pa.lesiones}, `;
-        if (pa.simetria) text += `simetría ${pa.simetria}`;
-        if (pa.observaciones) text += `. ${pa.observaciones}`;
-        text += '.\n\n';
+        let texto = 'Paladar ';
+        if (pa.color) texto += `de coloración ${pa.color}, `;
+        if (pa.textura) texto += `textura ${pa.textura}, `;
+        if (pa.superficie) texto += `superficie ${pa.superficie}. `;
+        if (pa.movilidad) texto += `Movilidad del paladar blando ${pa.movilidad}. `;
+        if (pa.lesiones && pa.lesiones !== 'ninguna') texto += `Lesiones: ${pa.lesiones}. `;
+        if (pa.simetria) texto += `Simetría ${pa.simetria}.`;
+        if (pa.observaciones) texto += ` ${pa.observaciones}`;
+        newRedacciones.paladar = texto.trim();
       } else {
-        text += 'Paladar duro y blando: sin hallazgos patológicos.\n\n';
+        newRedacciones.paladar = 'Paladar duro de coloración rosada con rugosidades palatinas características. Paladar blando de movilidad libre y simétrica. Ausencia de lesiones o alteraciones.';
       }
-      
+
       // Orofaringe
       if (formData.examenIntrabucal?.orofaringe && !formData.examenIntrabucal.orofaringe.sinHallazgos) {
         const o = formData.examenIntrabucal.orofaringe;
-        text += 'Orofaringe: ';
-        if (o.color) text += `color ${o.color}, `;
-        if (o.superficie) text += `superficie ${o.superficie}, `;
-        if (o.amigdalas) text += `amígdalas ${o.amigdalas}, `;
-        if (o.arcos) text += `arcos palatoglosos/palatofaríngeos ${o.arcos}, `;
-        if (o.dolor) text += 'dolor o molestia presente, ';
-        if (o.lesiones && o.lesiones !== 'ninguna') text += `lesiones: ${o.lesiones}, `;
-        if (o.simetria) text += `simetría ${o.simetria}`;
-        if (o.observaciones) text += `. ${o.observaciones}`;
-        text += '.\n\n';
+        let texto = 'Mucosa orofaríngea ';
+        if (o.color) texto += `de coloración ${o.color}, `;
+        if (o.superficie) texto += `superficie ${o.superficie}. `;
+        if (o.amigdalas) texto += `Amígdalas palatinas ${o.amigdalas}. `;
+        if (o.arcos) texto += `Arcos palatinos ${o.arcos}. `;
+        if (o.dolor) texto += 'Se refiere dolor o molestia a la palpación. ';
+        if (o.lesiones && o.lesiones !== 'ninguna') texto += `Lesiones: ${o.lesiones}. `;
+        if (o.simetria) texto += `Simetría ${o.simetria}.`;
+        if (o.observaciones) texto += ` ${o.observaciones}`;
+        newRedacciones.orofaringe = texto.trim();
       } else {
-        text += 'Orofaringe: sin hallazgos patológicos.\n\n';
+        newRedacciones.orofaringe = 'Mucosa orofaríngea de coloración rosada homogénea. Amígdalas de tamaño fisiológico sin hipertrofia. Arcos palatinos simétricos e íntegros. Sin dolor ni lesiones aparentes.';
       }
-      
+
       // Región retromolar
       if (formData.examenIntrabucal?.regionRetromolar && !formData.examenIntrabucal.regionRetromolar.sinHallazgos) {
         const r = formData.examenIntrabucal.regionRetromolar;
-        text += 'Región retromolar: ';
-        if (r.color) text += `color ${r.color}, `;
-        if (r.textura) text += `textura ${r.textura}, `;
-        if (r.superficie) text += `superficie ${r.superficie}, `;
-        if (r.lesiones && r.lesiones !== 'ninguna') text += `lesiones: ${r.lesiones}, `;
-        if (r.simetria) text += `simetría ${r.simetria}, `;
-        if (r.dolorPalpacion) text += 'dolor a la palpación presente';
-        if (r.observaciones) text += `. ${r.observaciones}`;
-        text += '.';
+        let texto = 'Región retromolar ';
+        if (r.color) texto += `de coloración ${r.color}, `;
+        if (r.textura) texto += `textura ${r.textura}, `;
+        if (r.superficie) texto += `superficie ${r.superficie}. `;
+        if (r.lesiones && r.lesiones !== 'ninguna') texto += `Lesiones: ${r.lesiones}. `;
+        if (r.dolorPalpacion) texto += 'Dolor presente a la palpación. ';
+        if (r.simetria) texto += `Simetría ${r.simetria}.`;
+        if (r.observaciones) texto += ` ${r.observaciones}`;
+        newRedacciones.regionRetromolar = texto.trim();
       } else {
-        text += 'Región retromolar: sin hallazgos patológicos.';
+        newRedacciones.regionRetromolar = 'Región retromolar de coloración rosada uniforme, textura lisa y superficie íntegra. Sin dolor a la palpación. Simetría bilateral preservada.';
+      }
+
+      // Istmo de las fauces
+      if (formData.examenIntrabucal?.istmoFauces && !formData.examenIntrabucal.istmoFauces.sinHallazgos) {
+        const i = formData.examenIntrabucal.istmoFauces;
+        let texto = 'Istmo de las fauces ';
+        if (i.amplitud) texto += `de amplitud ${i.amplitud}, `;
+        if (i.colorMucosa) texto += `mucosa de coloración ${i.colorMucosa}. `;
+        if (i.uvula) texto += `Úvula palatina ${i.uvula}. `;
+        if (i.pilares) texto += `Pilares del istmo ${i.pilares}. `;
+        if (i.reflejoNauseoso) texto += `Reflejo nauseoso ${i.reflejoNauseoso}. `;
+        if (i.inflamacion) texto += 'Se observan signos de inflamación. ';
+        if (i.simetria) texto += `Simetría ${i.simetria}.`;
+        if (i.observaciones) texto += ` ${i.observaciones}`;
+        newRedacciones.istmoFauces = texto.trim();
+      } else {
+        newRedacciones.istmoFauces = 'Istmo de las fauces de amplitud adecuada. Mucosa de coloración rosada. Úvula palatina íntegra y centrada. Pilares simétricos. Reflejo nauseoso presente. Sin signos inflamatorios.';
       }
     }
-    
-    // Simulate typewriter effect
-    for (let i = 0; i <= text.length; i++) {
-      setRedaccion(text.slice(0, i));
-      await new Promise(resolve => setTimeout(resolve, 5));
-    }
-    
+
+    setRedacciones(newRedacciones);
     setIsGenerating(false);
   };
 
-  const handleCopy = async () => {
+  const handleCopySection = async (section: string, text: string) => {
     try {
-      await navigator.clipboard.writeText(redaccion);
-      setCopied(true);
-      toast.success('Redacción copiada al portapapeles');
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.clipboard.writeText(text);
+      setCopiedSection(section);
+      toast.success(`${section} copiado al portapapeles`);
+      setTimeout(() => setCopiedSection(null), 2000);
     } catch (error) {
-      toast.error('Error al copiar la redacción');
+      toast.error('Error al copiar');
     }
   };
 
+  const handleCopyAll = async () => {
+    const fullText = `EXAMEN INTRABUCAL
+
+Mejillas: ${redacciones.mejillas}
+
+Lengua: ${redacciones.lengua}
+
+Piso de boca: ${redacciones.pisoBoca}
+
+Encías: ${redacciones.encias}
+
+Paladar duro y blando: ${redacciones.paladar}
+
+Orofaringe: ${redacciones.orofaringe}
+
+Región retromolar: ${redacciones.regionRetromolar}
+
+Istmo de las fauces: ${redacciones.istmoFauces}`;
+
+    try {
+      await navigator.clipboard.writeText(fullText);
+      toast.success('Redacción completa copiada');
+    } catch (error) {
+      toast.error('Error al copiar');
+    }
+  };
+
+  const sections = [
+    { key: 'mejillas', label: 'Mejillas', color: 'blue' },
+    { key: 'lengua', label: 'Lengua', color: 'pink' },
+    { key: 'pisoBoca', label: 'Piso de Boca', color: 'purple' },
+    { key: 'encias', label: 'Encías', color: 'red' },
+    { key: 'paladar', label: 'Paladar Duro y Blando', color: 'green' },
+    { key: 'orofaringe', label: 'Orofaringe', color: 'yellow' },
+    { key: 'regionRetromolar', label: 'Región Retromolar', color: 'cyan' },
+    { key: 'istmoFauces', label: 'Istmo de las Fauces', color: 'teal' }
+  ];
+
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 p-6 rounded-lg border border-blue-200 dark:border-blue-800 min-h-[400px]">
-          {isGenerating && (
-            <div className="flex items-center gap-2 mb-4 text-blue-600 dark:text-blue-400">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm">Generando redacción...</span>
-            </div>
-          )}
-          <pre className="whitespace-pre-wrap font-sans text-gray-800 dark:text-gray-200 leading-relaxed">
-            {redaccion}
-          </pre>
+      {isGenerating && (
+        <div className="flex items-center gap-2 mb-4 text-blue-600 dark:text-blue-400">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span className="text-sm">Generando redacciones...</span>
         </div>
-        <Button
-          onClick={handleCopy}
-          variant="outline"
-          size="icon"
-          className="absolute top-4 right-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800"
-          disabled={isGenerating}
-        >
-          {copied ? (
-            <CheckCircle className="h-4 w-4 text-green-500 animate-scale-in" />
-          ) : (
-            <Copy className="h-4 w-4" />
-          )}
-        </Button>
+      )}
+
+      <div className="space-y-4">
+        {sections.map(({ key, label, color }) => (
+          <div key={key} className={`bg-${color}-50/30 dark:bg-${color}-950/20 p-4 rounded-lg border border-${color}-200 dark:border-${color}-800`}>
+            <div className="flex items-center justify-between mb-2">
+              <Label className={`text-sm font-semibold text-${color}-900 dark:text-${color}-100`}>
+                {label}
+              </Label>
+              <Button
+                onClick={() => handleCopySection(label, redacciones[key as keyof typeof redacciones])}
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                disabled={isGenerating}
+              >
+                {copiedSection === label ? (
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+            <Textarea
+              value={redacciones[key as keyof typeof redacciones]}
+              readOnly
+              className="min-h-[100px] bg-white dark:bg-gray-900 resize-none"
+            />
+          </div>
+        ))}
       </div>
 
-      <Button
-        onClick={onSwitchToForm}
-        variant="outline"
-        className="w-full"
-      >
-        Volver al formulario
-      </Button>
+      <div className="flex gap-3 pt-4">
+        <Button
+          onClick={handleCopyAll}
+          className="flex-1"
+          disabled={isGenerating}
+        >
+          <Copy className="w-4 h-4 mr-2" />
+          Copiar Todo
+        </Button>
+        <Button
+          onClick={onSwitchToForm}
+          variant="outline"
+          className="flex-1"
+        >
+          Volver al formulario
+        </Button>
+      </div>
     </div>
   );
 };

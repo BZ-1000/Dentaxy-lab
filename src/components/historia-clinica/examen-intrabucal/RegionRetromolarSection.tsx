@@ -19,7 +19,7 @@ const RegionRetromolarSection: React.FC<RegionRetromolarSectionProps> = ({ data,
     <div className="space-y-4 p-4 bg-cyan-50/30 dark:bg-cyan-950/20 rounded-lg border border-cyan-200 dark:border-cyan-800">
       <div className="flex items-center gap-2 mb-4">
         <Triangle className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
-        <h3 className="text-lg font-semibold text-cyan-900 dark:text-cyan-100">Región Retromolar / Fauces / Istmo de las Fauces</h3>
+        <h3 className="text-lg font-semibold text-cyan-900 dark:text-cyan-100">Región Retromolar</h3>
       </div>
 
       <div className="flex items-center gap-2 mb-4">

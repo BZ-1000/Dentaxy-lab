@@ -11,6 +11,7 @@ import EnciasSection from './EnciasSection';
 import PaladarSection from './PaladarSection';
 import OrofaringeSection from './OrofaringeSection';
 import RegionRetromolarSection from './RegionRetromolarSection';
+import IstmoFaucesSection from './IstmoFaucesSection';
 
 interface ExamenIntrabucalFormProps {
   formData: FormDataState;
@@ -24,7 +25,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
   const [redaccionComun, setRedaccionComun] = useState(false);
 
   const handleLimpiarFormulario = () => {
-    const sections = ['mejillas', 'lengua', 'pisoBoca', 'encias', 'paladar', 'orofaringe', 'regionRetromolar'];
+    const sections = ['mejillas', 'lengua', 'pisoBoca', 'encias', 'paladar', 'orofaringe', 'regionRetromolar', 'istmoFauces'];
     sections.forEach(section => {
       handleExamenIntrabucalChange(`${section}.sinHallazgos`, false);
     });
@@ -120,11 +121,23 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
 
           <AccordionItem value="regionRetromolar" className="border rounded-lg overflow-hidden">
             <AccordionTrigger className="px-4 hover:no-underline bg-cyan-50/30 dark:bg-cyan-950/20">
-              <span className="font-semibold">7. Región Retromolar / Fauces / Istmo de las Fauces</span>
+              <span className="font-semibold">7. Región Retromolar</span>
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-4">
               <RegionRetromolarSection 
                 data={formData.examenIntrabucal?.regionRetromolar}
+                onChange={handleExamenIntrabucalChange}
+              />
+            </AccordionContent>
+          </AccordionItem>
+
+          <AccordionItem value="istmoFauces" className="border rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-teal-50/30 dark:bg-teal-950/20">
+              <span className="font-semibold">8. Istmo de las Fauces</span>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pt-4">
+              <IstmoFaucesSection 
+                data={formData.examenIntrabucal?.istmoFauces}
                 onChange={handleExamenIntrabucalChange}
               />
             </AccordionContent>

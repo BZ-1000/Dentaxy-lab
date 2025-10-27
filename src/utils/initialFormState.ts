@@ -335,6 +335,17 @@ export const getInitialFormState = (): FormDataState => ({
       simetria: "",
       dolorPalpacion: false,
       observaciones: ""
+    },
+    istmoFauces: {
+      sinHallazgos: false,
+      amplitud: "",
+      colorMucosa: "",
+      uvula: "",
+      pilares: "",
+      reflejoNauseoso: "",
+      simetria: "",
+      inflamacion: false,
+      observaciones: ""
     }
   },
   glandulasSalivales: {

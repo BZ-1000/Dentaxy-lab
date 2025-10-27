@@ -396,6 +396,18 @@ export interface ExamenIntrabucal {
     observaciones?: string;
   };
   
+  istmoFauces?: {
+    sinHallazgos?: boolean;
+    amplitud?: string;
+    colorMucosa?: string;
+    uvula?: string;
+    pilares?: string;
+    reflejoNauseoso?: string;
+    simetria?: string;
+    inflamacion?: boolean;
+    observaciones?: string;
+  };
+  
   [key: string]: boolean | string | undefined | any;
 }
 

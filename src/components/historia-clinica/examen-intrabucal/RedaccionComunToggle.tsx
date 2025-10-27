@@ -19,7 +19,7 @@ const RedaccionComunToggle: React.FC<RedaccionComunToggleProps> = ({ isActive, o
               Redacción común sin anomalías
             </Label>
             <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-              Si no hay anomalías, se generará una redacción estándar de examen intrabucal normal
+              Se generará una redacción descriptiva profesional de estructuras orales sin alteraciones
             </p>
           </div>
         </div>
