@@ -26,10 +26,16 @@ const IstmoFaucesSection: React.FC<IstmoFaucesSectionProps> = ({ data, onChange 
         <Checkbox
           id="istmoFauces-sinHallazgos"
           checked={data?.sinHallazgos || false}
-          onCheckedChange={(checked) => handleChange('sinHallazgos', checked)}
+          onCheckedChange={(checked) => {
+            if (checked) {
+              onChange('istmoFauces', { sinHallazgos: true });
+            } else {
+              handleChange('sinHallazgos', false);
+            }
+          }}
         />
         <Label htmlFor="istmoFauces-sinHallazgos" className="text-sm font-medium cursor-pointer">
-          Sin hallazgos
+          Sin anomalías (aparentemente sano)
         </Label>
       </div>
 

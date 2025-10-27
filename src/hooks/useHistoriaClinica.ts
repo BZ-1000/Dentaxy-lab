@@ -373,14 +373,37 @@ export const useHistoriaClinica = () => {
     }));
   };
 
-  const handleExamenIntrabucalChange = (part: string, value: string | boolean) => {
-    setFormData(prev => ({
-      ...prev,
-      examenIntrabucal: {
-        ...prev.examenIntrabucal,
-        [part]: value
+  const handleExamenIntrabucalChange = (part: string, value: any) => {
+    setFormData(prev => {
+      const updated = { ...prev.examenIntrabucal } as any;
+      const path = part.split('.');
+
+      if (path.length === 1) {
+        // Replace top-level key inside examenIntrabucal
+        (updated as any)[path[0]] = value;
+      } else {
+        // Nested update, e.g. "mejillas.color"
+        const [section, ...rest] = path;
+        const sectionObj = { ...(updated as any)[section] } as any;
+        if (rest.length === 1) {
+          sectionObj[rest[0]] = value;
+        } else {
+          let current = sectionObj;
+          for (let i = 0; i < rest.length - 1; i++) {
+            const key = rest[i];
+            current[key] = { ...(current[key] || {}) };
+            current = current[key];
+          }
+          current[rest[rest.length - 1]] = value;
+        }
+        (updated as any)[section] = sectionObj;
       }
-    }));
+
+      return {
+        ...prev,
+        examenIntrabucal: updated,
+      };
+    });
   };
 
   const handleGlandulasSalivalesChange = (part: string, value: string | boolean) => {

@@ -26,10 +26,16 @@ const MejillasSection: React.FC<MejillasSectionProps> = ({ data, onChange }) => 
         <Checkbox
           id="mejillas-sinHallazgos"
           checked={data?.sinHallazgos || false}
-          onCheckedChange={(checked) => handleChange('sinHallazgos', checked)}
+          onCheckedChange={(checked) => {
+            if (checked) {
+              onChange('mejillas', { sinHallazgos: true });
+            } else {
+              handleChange('sinHallazgos', false);
+            }
+          }}
         />
         <Label htmlFor="mejillas-sinHallazgos" className="text-sm font-medium cursor-pointer">
-          Sin hallazgos
+          Sin anomalías (aparentemente sano)
         </Label>
       </div>
 

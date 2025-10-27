@@ -26,10 +26,16 @@ const RegionRetromolarSection: React.FC<RegionRetromolarSectionProps> = ({ data,
         <Checkbox
           id="regionRetromolar-sinHallazgos"
           checked={data?.sinHallazgos || false}
-          onCheckedChange={(checked) => handleChange('sinHallazgos', checked)}
+          onCheckedChange={(checked) => {
+            if (checked) {
+              onChange('regionRetromolar', { sinHallazgos: true });
+            } else {
+              handleChange('sinHallazgos', false);
+            }
+          }}
         />
         <Label htmlFor="regionRetromolar-sinHallazgos" className="text-sm font-medium cursor-pointer">
-          Sin hallazgos
+          Sin anomalías (aparentemente sano)
         </Label>
       </div>
 

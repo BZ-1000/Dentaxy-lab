@@ -26,10 +26,16 @@ const OrofaringeSection: React.FC<OrofaringeSectionProps> = ({ data, onChange })
         <Checkbox
           id="orofaringe-sinHallazgos"
           checked={data?.sinHallazgos || false}
-          onCheckedChange={(checked) => handleChange('sinHallazgos', checked)}
+          onCheckedChange={(checked) => {
+            if (checked) {
+              onChange('orofaringe', { sinHallazgos: true });
+            } else {
+              handleChange('sinHallazgos', false);
+            }
+          }}
         />
         <Label htmlFor="orofaringe-sinHallazgos" className="text-sm font-medium cursor-pointer">
-          Sin hallazgos
+          Sin anomalías (aparentemente sano)
         </Label>
       </div>
 

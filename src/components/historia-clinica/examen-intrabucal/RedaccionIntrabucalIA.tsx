@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Copy, CheckCircle, Loader2 } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { toast } from "sonner";
+import { AnimatedTextareaWithTyping } from "@/components/ui/AnimatedTextareaWithTyping";
 
 interface RedaccionIntrabucalIAProps {
   formData: FormDataState;
   onSwitchToForm: () => void;
+  triggerRegenerate?: number;
 }
 
-const RedaccionIntrabucalIA: React.FC<RedaccionIntrabucalIAProps> = ({ formData, onSwitchToForm }) => {
+const RedaccionIntrabucalIA: React.FC<RedaccionIntrabucalIAProps> = ({ formData, onSwitchToForm, triggerRegenerate }) => {
   const [redacciones, setRedacciones] = useState({
     mejillas: '',
     lengua: '',
@@ -25,9 +26,9 @@ const RedaccionIntrabucalIA: React.FC<RedaccionIntrabucalIAProps> = ({ formData,
   const [isGenerating, setIsGenerating] = useState(false);
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
-  useEffect(() => {
+useEffect(() => {
     generateRedacciones();
-  }, []);
+  }, [triggerRegenerate]);
 
   const generateRedacciones = async () => {
     setIsGenerating(true);
@@ -279,10 +280,11 @@ Istmo de las fauces: ${redacciones.istmoFauces}`;
                 )}
               </Button>
             </div>
-            <Textarea
-              value={redacciones[key as keyof typeof redacciones]}
+            <AnimatedTextareaWithTyping
+              content={redacciones[key as keyof typeof redacciones]}
+              className="bg-white dark:bg-gray-900"
+              speed={8}
               readOnly
-              className="min-h-[100px] bg-white dark:bg-gray-900 resize-none"
             />
           </div>
         ))}

@@ -7,7 +7,7 @@ import RedaccionIntrabucalIA from './examen-intrabucal/RedaccionIntrabucalIA';
 
 interface ExamenIntrabucalProps {
   formData: FormDataState;
-  handleExamenIntrabucalChange: (part: string, value: string | boolean) => void;
+  handleExamenIntrabucalChange: (part: string, value: any) => void;
 }
 
 const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
@@ -17,6 +17,7 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showForm, setShowForm] = useState(true);
+  const [redaccionTrigger, setRedaccionTrigger] = useState(0);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -76,11 +77,13 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
               <ExamenIntrabucalForm 
                 formData={formData}
                 handleExamenIntrabucalChange={handleExamenIntrabucalChange}
+                onGenerate={() => { setShowForm(false); setRedaccionTrigger(t => t + 1); }}
               />
             ) : (
               <RedaccionIntrabucalIA 
                 formData={formData}
                 onSwitchToForm={() => setShowForm(true)}
+                triggerRegenerate={redaccionTrigger}
               />
             )}
           </div>

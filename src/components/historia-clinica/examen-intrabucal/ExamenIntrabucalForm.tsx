@@ -15,12 +15,14 @@ import IstmoFaucesSection from './IstmoFaucesSection';
 
 interface ExamenIntrabucalFormProps {
   formData: FormDataState;
-  handleExamenIntrabucalChange: (part: string, value: string | boolean) => void;
+  handleExamenIntrabucalChange: (part: string, value: any) => void;
+  onGenerate: () => void;
 }
 
 const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
   formData,
-  handleExamenIntrabucalChange
+  handleExamenIntrabucalChange,
+  onGenerate,
 }) => {
   const [redaccionComun, setRedaccionComun] = useState(false);
 
@@ -33,9 +35,10 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
   };
 
   const handleGenerarRedaccion = () => {
-    // Store redaccion comun state in formData
+    // Guardar preferencia de redacción común a nivel del módulo
     handleExamenIntrabucalChange('sinHallazgos', redaccionComun);
-    // The parent component will switch to AI view
+    // Notificar al padre para cambiar a la vista IA y disparar la animación
+    onGenerate(redaccionComun);
   };
 
   return (
@@ -152,7 +155,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
         >
           <Sparkles className="w-4 h-4 mr-2" />
           Generar Redacción IA
-        </Button>
+        </Button
         <Button
           onClick={handleLimpiarFormulario}
           variant="outline"

@@ -26,10 +26,16 @@ const PisoBocaSection: React.FC<PisoBocaSectionProps> = ({ data, onChange }) => 
         <Checkbox
           id="pisoBoca-sinHallazgos"
           checked={data?.sinHallazgos || false}
-          onCheckedChange={(checked) => handleChange('sinHallazgos', checked)}
+          onCheckedChange={(checked) => {
+            if (checked) {
+              onChange('pisoBoca', { sinHallazgos: true });
+            } else {
+              handleChange('sinHallazgos', false);
+            }
+          }}
         />
         <Label htmlFor="pisoBoca-sinHallazgos" className="text-sm font-medium cursor-pointer">
-          Sin hallazgos
+          Sin anomalías (aparentemente sano)
         </Label>
       </div>
 
