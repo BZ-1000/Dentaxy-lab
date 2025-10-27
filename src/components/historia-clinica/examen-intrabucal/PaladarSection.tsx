@@ -48,11 +48,11 @@ const PaladarSection: React.FC<PaladarSectionProps> = ({ data, onChange }) => {
                 <SelectValue placeholder="Seleccionar color" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="rosado">Rosado</SelectItem>
-                <SelectItem value="eritematoso">Eritematoso</SelectItem>
-                <SelectItem value="palido">Pálido</SelectItem>
-                <SelectItem value="blanquecino">Blanquecino</SelectItem>
-                <SelectItem value="pigmentado">Pigmentado</SelectItem>
+                <SelectItem value="rosa-palido-rugas">Rosa pálido en el paladar duro con rugas definidas (fisiológico)</SelectItem>
+                <SelectItem value="rosa-salmon">Rosa salmón uniforme (paladar blando)</SelectItem>
+                <SelectItem value="eritematoso-difuso">Eritematoso difuso</SelectItem>
+                <SelectItem value="blanquecino-amarillento">Blanquecino o amarillento (queratosis o candidiasis)</SelectItem>
+                <SelectItem value="pigmentado-marron">Pigmentado marrón claro</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -64,10 +64,9 @@ const PaladarSection: React.FC<PaladarSectionProps> = ({ data, onChange }) => {
                 <SelectValue placeholder="Seleccionar textura" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="rugosa">Rugosa (paladar duro)</SelectItem>
-                <SelectItem value="lisa">Lisa</SelectItem>
-                <SelectItem value="edematosa">Edematosa</SelectItem>
-                <SelectItem value="atrofica">Atrófica</SelectItem>
+                <SelectItem value="lisa-blando-rugosa-duro">Lisa en paladar blando, rugosa en paladar duro</SelectItem>
+                <SelectItem value="engrosada-queratosica">Engrosada o queratósica</SelectItem>
+                <SelectItem value="flacida-edematosa">Flácida o edematosa</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -80,55 +79,48 @@ const PaladarSection: React.FC<PaladarSectionProps> = ({ data, onChange }) => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="integra">Íntegra</SelectItem>
-                <SelectItem value="fisurada">Fisurada</SelectItem>
-                <SelectItem value="ulcerada">Ulcerada</SelectItem>
-                <SelectItem value="petequias">Con petequias</SelectItem>
-                <SelectItem value="placas">Con placas</SelectItem>
+                <SelectItem value="ulcerada-erosionada">Ulcerada o erosionada</SelectItem>
+                <SelectItem value="petequias-hemorragicos">Con petequias o puntos hemorrágicos</SelectItem>
+                <SelectItem value="placas-pseudomembranas">Con placas o pseudomembranas adherentes</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Movilidad (paladar blando)</Label>
-            <Select value={data?.movilidad || ""} onValueChange={(value) => handleChange('movilidad', value)}>
+            <Label className="text-sm">Forma/volumen</Label>
+            <Select value={data?.forma || ""} onValueChange={(value) => handleChange('forma', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar movilidad" />
+                <SelectValue placeholder="Seleccionar forma" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="libre">Libre</SelectItem>
-                <SelectItem value="limitada">Limitada</SelectItem>
-                <SelectItem value="dolorosa">Dolorosa</SelectItem>
+                <SelectItem value="abovedado-regular">Abovedado regular</SelectItem>
+                <SelectItem value="aplanado-deformidad">Aplanado o con deformidad leve</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Lesiones</Label>
-            <Select value={data?.lesiones || ""} onValueChange={(value) => handleChange('lesiones', value)}>
+            <Label className="text-sm">Funcionalidad</Label>
+            <Select value={data?.funcionalidad || ""} onValueChange={(value) => handleChange('funcionalidad', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar lesiones" />
+                <SelectValue placeholder="Seleccionar funcionalidad" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ninguna">Ninguna</SelectItem>
-                <SelectItem value="ulcera">Úlcera</SelectItem>
-                <SelectItem value="papula">Pápula</SelectItem>
-                <SelectItem value="nodulo">Nódulo</SelectItem>
-                <SelectItem value="vesicula">Vesícula</SelectItem>
-                <SelectItem value="placa">Placa</SelectItem>
-                <SelectItem value="eritema">Eritema</SelectItem>
+                <SelectItem value="movilidad-conservada">Movilidad conservada del paladar blando</SelectItem>
+                <SelectItem value="limitada-dolorosa">Limitada o dolorosa</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Simetría</Label>
-            <Select value={data?.simetria || ""} onValueChange={(value) => handleChange('simetria', value)}>
+            <Label className="text-sm">Dolor/Sensibilidad</Label>
+            <Select value={data?.dolor || ""} onValueChange={(value) => handleChange('dolor', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar simetría" />
+                <SelectValue placeholder="Seleccionar dolor" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="simetrica">Simétrica</SelectItem>
-                <SelectItem value="asimetrica">Asimétrica</SelectItem>
+                <SelectItem value="sin-dolor">Sin dolor</SelectItem>
+                <SelectItem value="dolor-palpacion-deglucion">Dolor a la palpación o deglución</SelectItem>
               </SelectContent>
             </Select>
           </div>

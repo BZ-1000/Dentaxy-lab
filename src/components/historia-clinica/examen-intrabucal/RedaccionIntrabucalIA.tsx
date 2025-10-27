@@ -37,22 +37,22 @@ useEffect(() => {
     const newRedacciones = { ...redacciones };
 
     if (formData.examenIntrabucal?.sinHallazgos) {
-      // Redacción común descriptiva sin la palabra "normal"
-      newRedacciones.mejillas = 'Mucosa yugal de coloración rosada coral, textura lisa y aterciopelada al tacto. Superficie íntegra sin soluciones de continuidad. Secreción salival proveniente del conducto de Stenon presente y de características serosas transparentes. Ausencia de lesiones, placas o alteraciones del color. Simetría facial y mucosa preservada bilateralmente.';
+      // Redacciones profesionales sin anomalías
+      newRedacciones.mejillas = 'Mucosa yugal de color rosa coral uniforme, con superficie lisa, húmeda y brillante. No se observan áreas de eritema, ulceraciones, ni lesiones pigmentadas. La textura es blanda a la palpación, sin induraciones ni aumento de volumen. Conducto de Stenon visible, permeable y sin salida de secreción anómala. Sin evidencia de dolor o sensibilidad al tacto.';
       
-      newRedacciones.lengua = 'Órgano lingual de dimensiones proporcionales al tamaño de la cavidad oral. Coloración rosada característica con presencia de papilas gustativas en superficie dorsal de distribución uniforme. Bordes laterales lisos sin improntas dentarias ni irregularidades. Cara ventral con venas linguales visibles de aspecto fisiológico. Movilidad libre en todos los planos del espacio sin restricciones. Ausencia de lesiones, ulceraciones o áreas de displasia.';
+      newRedacciones.lengua = 'Lengua de color rosa pálido con papilas filiformes y fungiformes bien definidas. Superficie húmeda, blanda y simétrica. Bordes sin improntas dentarias y movilidad conservada en todos los ejes. No se aprecian fisuras, placas, saburra adherente ni áreas de depapilación. Sin presencia de lesiones ulceradas ni dolor a la exploración.';
       
-      newRedacciones.pisoBoca = 'Mucosa del piso de boca de tonalidad rosada, textura lisa y superficie íntegra sin alteraciones. Secreción salival proveniente de los conductos de Wharton abundante, clara y de características serosas. Frenillo lingual con inserción anatómica adecuada permitiendo movilidad completa del órgano lingual. Ausencia de lesiones, nódulos o áreas induradas a la palpación.';
+      newRedacciones.pisoBoca = 'Mucosa del piso de boca de color rosa brillante, con leve transparencia vascular característica. Superficie lisa, húmeda y sin evidencia de ulceraciones, masas o elevaciones. Conductos de Wharton visibles, permeables y con salida de saliva clara. Sin induración ni sensibilidad a la palpación.';
       
-      newRedacciones.encias = 'Tejido gingival de color rosa coral característico de encía sana. Contorno festoneado siguiendo la arquitectura de los cuellos dentarios. Consistencia firme y resiliente a la presión digital. Textura punteada tipo cáscara de naranja presente. Margen gingival bien definido y firmemente adherido a las superficies dentarias. Ausencia de sangrado al sondeo periodontal. Sin presencia de placa bacteriana o cálculo dental visible.';
+      newRedacciones.encias = 'Encía marginal, insertada e interdental de color rosa coral pálido, con puntilleo superficial bien definido. Contornos gingivales regulares, firmes y adaptados al cuello dentario. No se observa sangrado, edema ni recesión gingival. Ausencia de placa visible, cálculo o bolsas periodontales detectables. Tejido firme y sin respuesta dolorosa al tacto.';
       
-      newRedacciones.paladar = 'Paladar duro de coloración rosada con rugosidades palatinas características bien definidas. Textura rugosa fisiológica. Bóveda palatina de profundidad adecuada. Paladar blando de tonalidad rosada, movilidad libre y simétrica durante la fonación. Rafe palatino central bien definido. Ausencia de petequias, torus palatino prominente o lesiones de cualquier naturaleza.';
+      newRedacciones.paladar = 'Paladar duro de color rosa pálido con rugas palatinas bien delineadas y mucosa firmemente adherida. Paladar blando de color rosa salmón homogéneo, húmedo y con movilidad conservada. No se aprecian áreas de eritema, ulceraciones, petequias ni lesiones pigmentadas. Tejido sin signos de inflamación ni dolor al tacto.';
       
-      newRedacciones.orofaringe = 'Mucosa orofaríngea de coloración rosada homogénea. Superficie lisa sin irregularidades. Amígdalas palatinas de tamaño fisiológico, sin hipertrofia ni signos de inflamación aguda o crónica. Arcos palatoglosos y palatofaríngeos simétricos e íntegros. Ausencia de exudados, úlceras o lesiones aparentes. Sin dolor ni molestias referidas a la palpación.';
+      newRedacciones.orofaringe = 'Mucosa orofaríngea de color rosa tenue y homogéneo, con superficie íntegra y húmeda. Amígdalas de tamaño proporcional, sin exudado ni hiperemia. Pilares amigdalinos simétricos, sin edema ni eritema. Reflejo nauseoso presente y simétrico. Sin evidencia de dolor, irritación o congestión faríngea.';
       
-      newRedacciones.regionRetromolar = 'Región retromolar de coloración rosada uniforme. Textura lisa y homogénea. Superficie mucosa íntegra sin irregularidades, nódulos o áreas induradas. Triángulo retromolar sin alteraciones visibles. Ausencia de dolor a la palpación digital. Simetría bilateral preservada entre ambos lados.';
+      newRedacciones.regionRetromolar = 'Región retromolar con mucosa de color rosa coral uniforme, superficie lisa y húmeda. No se observan ulceraciones, fibrosis ni abultamientos. Tejido blando, elástico y sin respuesta dolorosa a la palpación. Sin signos de irritación mecánica ni alteraciones inflamatorias.';
       
-      newRedacciones.istmoFauces = 'Istmo de las fauces de amplitud adecuada permitiendo visualización completa de estructuras posteriores. Mucosa de coloración rosada homogénea. Úvula palatina íntegra, de longitud y grosor característicos, posicionada en la línea media. Pilares anteriores y posteriores del istmo simétricos e íntegros sin hipertrofia. Reflejo nauseoso presente y de intensidad fisiológica. Ausencia de signos inflamatorios o lesiones en la región.';
+      newRedacciones.istmoFauces = 'Mucosa del istmo de las fauces de color rosa pálido y homogéneo, con superficie íntegra y brillante. Pilares anteriores y posteriores simétricos, sin aumento de volumen ni eritema. Amígdalas sin exudado, con criptas discretas y sin congestión visible. Movilidad conservada y sin dolor a la exploración ni durante la fonación o deglución.';
     } else {
       // Generar redacciones individuales basadas en selecciones
       // Mejillas
@@ -71,8 +71,10 @@ useEffect(() => {
         if (m.simetria) texto += `Simetría ${m.simetria}.`;
         if (m.observaciones) texto += ` ${m.observaciones}`;
         newRedacciones.mejillas = texto.trim();
+      } else if (formData.examenIntrabucal?.mejillas?.sinHallazgos) {
+        newRedacciones.mejillas = 'Mucosa yugal de color rosa coral uniforme, con superficie lisa, húmeda y brillante. No se observan áreas de eritema, ulceraciones, ni lesiones pigmentadas. La textura es blanda a la palpación, sin induraciones ni aumento de volumen. Conducto de Stenon visible, permeable y sin salida de secreción anómala. Sin evidencia de dolor o sensibilidad al tacto.';
       } else {
-        newRedacciones.mejillas = 'Mucosa yugal de coloración rosada coral, textura lisa y aterciopelada. Superficie íntegra sin lesiones. Secreción salival del conducto de Stenon presente y de características fisiológicas. Simetría preservada.';
+        newRedacciones.mejillas = 'Mucosa yugal sin hallazgos clínicamente relevantes.';
       }
 
       // Lengua
@@ -90,8 +92,10 @@ useEffect(() => {
         if (l.simetria) texto += `Simetría ${l.simetria}.`;
         if (l.observaciones) texto += ` ${l.observaciones}`;
         newRedacciones.lengua = texto.trim();
+      } else if (formData.examenIntrabucal?.lengua?.sinHallazgos) {
+        newRedacciones.lengua = 'Lengua de color rosa pálido con papilas filiformes y fungiformes bien definidas. Superficie húmeda, blanda y simétrica. Bordes sin improntas dentarias y movilidad conservada en todos los ejes. No se aprecian fisuras, placas, saburra adherente ni áreas de depapilación. Sin presencia de lesiones ulceradas ni dolor a la exploración.';
       } else {
-        newRedacciones.lengua = 'Órgano lingual de dimensiones proporcionales. Coloración rosada con papilas gustativas presentes. Bordes lisos sin improntas. Movilidad libre en todos los planos. Sin lesiones aparentes.';
+        newRedacciones.lengua = 'Órgano lingual sin hallazgos clínicamente relevantes.';
       }
 
       // Piso de boca
@@ -107,8 +111,10 @@ useEffect(() => {
         if (p.simetria) texto += `Simetría ${p.simetria}.`;
         if (p.observaciones) texto += ` ${p.observaciones}`;
         newRedacciones.pisoBoca = texto.trim();
+      } else if (formData.examenIntrabucal?.pisoBoca?.sinHallazgos) {
+        newRedacciones.pisoBoca = 'Mucosa del piso de boca de color rosa brillante, con leve transparencia vascular característica. Superficie lisa, húmeda y sin evidencia de ulceraciones, masas o elevaciones. Conductos de Wharton visibles, permeables y con salida de saliva clara. Sin induración ni sensibilidad a la palpación.';
       } else {
-        newRedacciones.pisoBoca = 'Mucosa del piso de boca de tonalidad rosada, textura lisa y superficie íntegra. Secreción salival de conductos de Wharton abundante y clara. Frenillo lingual de movilidad libre.';
+        newRedacciones.pisoBoca = 'Piso de boca sin hallazgos clínicamente relevantes.';
       }
 
       // Encías
@@ -126,8 +132,10 @@ useEffect(() => {
         if (e.simetria) texto += `Simetría ${e.simetria}.`;
         if (e.observaciones) texto += ` ${e.observaciones}`;
         newRedacciones.encias = texto.trim();
+      } else if (formData.examenIntrabucal?.encias?.sinHallazgos) {
+        newRedacciones.encias = 'Encía marginal, insertada e interdental de color rosa coral pálido, con puntilleo superficial bien definido. Contornos gingivales regulares, firmes y adaptados al cuello dentario. No se observa sangrado, edema ni recesión gingival. Ausencia de placa visible, cálculo o bolsas periodontales detectables. Tejido firme y sin respuesta dolorosa al tacto.';
       } else {
-        newRedacciones.encias = 'Tejido gingival de color rosa coral. Contorno festoneado, consistencia firme, textura punteada característica. Margen gingival bien definido y adherido. Sin sangrado al sondeo. Ausencia de placa o cálculo significativos.';
+        newRedacciones.encias = 'Tejido gingival sin hallazgos clínicamente relevantes.';
       }
 
       // Paladar
@@ -142,8 +150,10 @@ useEffect(() => {
         if (pa.simetria) texto += `Simetría ${pa.simetria}.`;
         if (pa.observaciones) texto += ` ${pa.observaciones}`;
         newRedacciones.paladar = texto.trim();
+      } else if (formData.examenIntrabucal?.paladar?.sinHallazgos) {
+        newRedacciones.paladar = 'Paladar duro de color rosa pálido con rugas palatinas bien delineadas y mucosa firmemente adherida. Paladar blando de color rosa salmón homogéneo, húmedo y con movilidad conservada. No se aprecian áreas de eritema, ulceraciones, petequias ni lesiones pigmentadas. Tejido sin signos de inflamación ni dolor al tacto.';
       } else {
-        newRedacciones.paladar = 'Paladar duro de coloración rosada con rugosidades palatinas características. Paladar blando de movilidad libre y simétrica. Ausencia de lesiones o alteraciones.';
+        newRedacciones.paladar = 'Paladar sin hallazgos clínicamente relevantes.';
       }
 
       // Orofaringe
@@ -159,8 +169,10 @@ useEffect(() => {
         if (o.simetria) texto += `Simetría ${o.simetria}.`;
         if (o.observaciones) texto += ` ${o.observaciones}`;
         newRedacciones.orofaringe = texto.trim();
+      } else if (formData.examenIntrabucal?.orofaringe?.sinHallazgos) {
+        newRedacciones.orofaringe = 'Mucosa orofaríngea de color rosa tenue y homogéneo, con superficie íntegra y húmeda. Amígdalas de tamaño proporcional, sin exudado ni hiperemia. Pilares amigdalinos simétricos, sin edema ni eritema. Reflejo nauseoso presente y simétrico. Sin evidencia de dolor, irritación o congestión faríngea.';
       } else {
-        newRedacciones.orofaringe = 'Mucosa orofaríngea de coloración rosada homogénea. Amígdalas de tamaño fisiológico sin hipertrofia. Arcos palatinos simétricos e íntegros. Sin dolor ni lesiones aparentes.';
+        newRedacciones.orofaringe = 'Orofaringe sin hallazgos clínicamente relevantes.';
       }
 
       // Región retromolar
@@ -175,8 +187,10 @@ useEffect(() => {
         if (r.simetria) texto += `Simetría ${r.simetria}.`;
         if (r.observaciones) texto += ` ${r.observaciones}`;
         newRedacciones.regionRetromolar = texto.trim();
+      } else if (formData.examenIntrabucal?.regionRetromolar?.sinHallazgos) {
+        newRedacciones.regionRetromolar = 'Región retromolar con mucosa de color rosa coral uniforme, superficie lisa y húmeda. No se observan ulceraciones, fibrosis ni abultamientos. Tejido blando, elástico y sin respuesta dolorosa a la palpación. Sin signos de irritación mecánica ni alteraciones inflamatorias.';
       } else {
-        newRedacciones.regionRetromolar = 'Región retromolar de coloración rosada uniforme, textura lisa y superficie íntegra. Sin dolor a la palpación. Simetría bilateral preservada.';
+        newRedacciones.regionRetromolar = 'Región retromolar sin hallazgos clínicamente relevantes.';
       }
 
       // Istmo de las fauces
@@ -192,8 +206,10 @@ useEffect(() => {
         if (i.simetria) texto += `Simetría ${i.simetria}.`;
         if (i.observaciones) texto += ` ${i.observaciones}`;
         newRedacciones.istmoFauces = texto.trim();
+      } else if (formData.examenIntrabucal?.istmoFauces?.sinHallazgos) {
+        newRedacciones.istmoFauces = 'Mucosa del istmo de las fauces de color rosa pálido y homogéneo, con superficie íntegra y brillante. Pilares anteriores y posteriores simétricos, sin aumento de volumen ni eritema. Amígdalas sin exudado, con criptas discretas y sin congestión visible. Movilidad conservada y sin dolor a la exploración ni durante la fonación o deglución.';
       } else {
-        newRedacciones.istmoFauces = 'Istmo de las fauces de amplitud adecuada. Mucosa de coloración rosada. Úvula palatina íntegra y centrada. Pilares simétricos. Reflejo nauseoso presente. Sin signos inflamatorios.';
+        newRedacciones.istmoFauces = 'Istmo de las fauces sin hallazgos clínicamente relevantes.';
       }
     }
 

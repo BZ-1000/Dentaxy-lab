@@ -42,15 +42,16 @@ const LenguaSection: React.FC<LenguaSectionProps> = ({ data, onChange }) => {
       {!data?.sinHallazgos && (
         <div className="space-y-3">
           <div>
-            <Label className="text-sm">Tamaño</Label>
-            <Select value={data?.tamanio || ""} onValueChange={(value) => handleChange('tamanio', value)}>
+            <Label className="text-sm">Textura</Label>
+            <Select value={data?.textura || ""} onValueChange={(value) => handleChange('textura', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar tamaño" />
+                <SelectValue placeholder="Seleccionar textura" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="normal">Normal</SelectItem>
-                <SelectItem value="aumentada">Aumentada</SelectItem>
-                <SelectItem value="disminuida">Disminuida</SelectItem>
+                <SelectItem value="humeda-blanda">Superficie húmeda y blanda</SelectItem>
+                <SelectItem value="fisurada">Fisurada con surcos lineales</SelectItem>
+                <SelectItem value="lisa-brillante">Lisa y brillante (glositis atrófica)</SelectItem>
+                <SelectItem value="rugosa-saburra">Rugosa con saburra adherente</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -62,62 +63,39 @@ const LenguaSection: React.FC<LenguaSectionProps> = ({ data, onChange }) => {
                 <SelectValue placeholder="Seleccionar color" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="rosada">Rosada</SelectItem>
-                <SelectItem value="roja-brillante">Roja brillante</SelectItem>
-                <SelectItem value="palida">Pálida</SelectItem>
-                <SelectItem value="blanquecina">Blanquecina</SelectItem>
-                <SelectItem value="violacea">Violácea</SelectItem>
-                <SelectItem value="pigmentada">Pigmentada</SelectItem>
-                <SelectItem value="amarillenta">Amarillenta</SelectItem>
+                <SelectItem value="rosa-palido-papilas">Rosa pálido con papilas filiformes visibles (color fisiológico)</SelectItem>
+                <SelectItem value="blanco-amarillento">Blanco amarillento por saburra ligera</SelectItem>
+                <SelectItem value="eritematoso-brillante">Eritematoso brillante (inflamación o atrofia papilar)</SelectItem>
+                <SelectItem value="marron-negruzco">Marrón oscuro o negruzco (lengua pilosa)</SelectItem>
+                <SelectItem value="rosado-depapilado">Rosado con áreas depapiladas en forma de mapa (glositis migratoria)</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Superficie dorsal</Label>
-            <Select value={data?.superficieDorsal || ""} onValueChange={(value) => handleChange('superficieDorsal', value)}>
+            <Label className="text-sm">Superficie</Label>
+            <Select value={data?.superficie || ""} onValueChange={(value) => handleChange('superficie', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar superficie" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="lisa">Lisa</SelectItem>
-                <SelectItem value="rugosa">Rugosa</SelectItem>
-                <SelectItem value="fisurada">Fisurada</SelectItem>
-                <SelectItem value="depapilada">Depapilada</SelectItem>
-                <SelectItem value="geografica">Geográfica</SelectItem>
-                <SelectItem value="saburral">Saburral</SelectItem>
-                <SelectItem value="vellosa">Vellosa</SelectItem>
-                <SelectItem value="areas-eritematosas">Con áreas eritematosas</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm">Bordes laterales</Label>
-            <Select value={data?.bordesLaterales || ""} onValueChange={(value) => handleChange('bordesLaterales', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar bordes" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="integros">Íntegros</SelectItem>
-                <SelectItem value="dentellados">Dentellados</SelectItem>
-                <SelectItem value="ulcerados">Ulcerados</SelectItem>
-                <SelectItem value="improntas-dentarias">Con improntas dentarias</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm">Cara ventral</Label>
-            <Select value={data?.caraVentral || ""} onValueChange={(value) => handleChange('caraVentral', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar cara ventral" />
-              </SelectTrigger>
-              <SelectContent>
                 <SelectItem value="integra">Íntegra</SelectItem>
-                <SelectItem value="varicosidades">Con varicosidades</SelectItem>
-                <SelectItem value="telangiectasias">Con telangiectasias</SelectItem>
-                <SelectItem value="ulcerada">Ulcerada</SelectItem>
+                <SelectItem value="ulcerada-erosionada">Con lesiones ulceradas o erosiones superficiales</SelectItem>
+                <SelectItem value="placas-delimitadas">Con placas blanquecinas o eritematosas delimitadas</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm">Forma y tamaño</Label>
+            <Select value={data?.forma || ""} onValueChange={(value) => handleChange('forma', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar forma y tamaño" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="simetrica-proporcionada">Simétrica y proporcionada</SelectItem>
+                <SelectItem value="macroglosia">Aumentada de volumen (macroglosia)</SelectItem>
+                <SelectItem value="improntas-laterales">Con improntas dentales laterales</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -129,62 +107,26 @@ const LenguaSection: React.FC<LenguaSectionProps> = ({ data, onChange }) => {
                 <SelectValue placeholder="Seleccionar movilidad" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="libre">Libre</SelectItem>
-                <SelectItem value="limitada">Limitada</SelectItem>
-                <SelectItem value="dolorosa">Dolorosa</SelectItem>
-                <SelectItem value="desviada">Desviada</SelectItem>
+                <SelectItem value="libre-completa">Libre y completa</SelectItem>
+                <SelectItem value="limitada-anquiloglosia">Limitada por anquiloglosia o dolor</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Lesiones</Label>
-            <Select value={data?.lesiones || ""} onValueChange={(value) => handleChange('lesiones', value)}>
+            <Label className="text-sm">Dolor/Sensibilidad</Label>
+            <Select value={data?.dolor || ""} onValueChange={(value) => handleChange('dolor', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar lesiones" />
+                <SelectValue placeholder="Seleccionar dolor" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ninguna">Ninguna</SelectItem>
-                <SelectItem value="ulcera">Úlcera</SelectItem>
-                <SelectItem value="placa">Placa</SelectItem>
-                <SelectItem value="macula">Mácula</SelectItem>
-                <SelectItem value="papula">Pápula</SelectItem>
-                <SelectItem value="fisura">Fisura</SelectItem>
-                <SelectItem value="tumoracion">Tumoración</SelectItem>
-                <SelectItem value="nodulo">Nódulo</SelectItem>
+                <SelectItem value="sin-sensibilidad">Sin sensibilidad alterada</SelectItem>
+                <SelectItem value="dolor-ardor">Dolor o ardor lingual (glosodinia)</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div>
-            <Label className="text-sm">Sensación referida</Label>
-            <Select value={data?.sensacionReferida || ""} onValueChange={(value) => handleChange('sensacionReferida', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar sensación" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sin-alteracion">Sin alteración</SelectItem>
-                <SelectItem value="ardor">Ardor</SelectItem>
-                <SelectItem value="parestesia">Parestesia</SelectItem>
-                <SelectItem value="dolor">Dolor</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm">Simetría</Label>
-            <Select value={data?.simetria || ""} onValueChange={(value) => handleChange('simetria', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar simetría" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="simetrica">Simétrica</SelectItem>
-                <SelectItem value="asimetrica">Asimétrica</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {(data?.tamanio || data?.color || data?.superficieDorsal) && (
+          {(data?.textura || data?.color || data?.superficie) && (
             <div>
               <Label className="text-sm">Observaciones</Label>
               <Textarea

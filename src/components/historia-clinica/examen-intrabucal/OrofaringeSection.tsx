@@ -48,11 +48,9 @@ const OrofaringeSection: React.FC<OrofaringeSectionProps> = ({ data, onChange })
                 <SelectValue placeholder="Seleccionar color" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="rosado">Rosado</SelectItem>
-                <SelectItem value="hipermico">Hiperémico</SelectItem>
-                <SelectItem value="eritematoso">Eritematoso</SelectItem>
-                <SelectItem value="violaceo">Violáceo</SelectItem>
-                <SelectItem value="blanquecino">Blanquecino</SelectItem>
+                <SelectItem value="rosa-tenue-homogeneo">Rosa tenue y homogéneo (fisiológico)</SelectItem>
+                <SelectItem value="eritematoso-brillante">Eritematoso brillante (faringitis o irritación)</SelectItem>
+                <SelectItem value="congestivo-violaceo">Congestivo o violáceo</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -64,11 +62,9 @@ const OrofaringeSection: React.FC<OrofaringeSectionProps> = ({ data, onChange })
                 <SelectValue placeholder="Seleccionar superficie" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="lisa">Lisa</SelectItem>
-                <SelectItem value="granular">Granular</SelectItem>
-                <SelectItem value="exudado">Con exudado</SelectItem>
-                <SelectItem value="pustulas">Con pústulas</SelectItem>
-                <SelectItem value="vesiculas">Con vesículas</SelectItem>
+                <SelectItem value="integra">Íntegra</SelectItem>
+                <SelectItem value="exudado-blanquecino">Con exudado blanquecino o amarillento</SelectItem>
+                <SelectItem value="lesiones-vesiculosas">Con lesiones vesiculosas o ulceradas</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -80,67 +76,35 @@ const OrofaringeSection: React.FC<OrofaringeSectionProps> = ({ data, onChange })
                 <SelectValue placeholder="Seleccionar estado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="sin-aumento">Sin aumento</SelectItem>
-                <SelectItem value="hipertrofiadas">Hipertrofiadas</SelectItem>
-                <SelectItem value="congestivas">Congestivas</SelectItem>
-                <SelectItem value="exudado">Con exudado</SelectItem>
-                <SelectItem value="criptas">Con criptas</SelectItem>
+                <SelectItem value="rosa-palido-sin-exudado">Rosa pálido, sin exudado</SelectItem>
+                <SelectItem value="hipertroficas-congestivas">Hipertróficas o congestivas</SelectItem>
+                <SelectItem value="puntos-purulentos">Con puntos purulentos en criptas</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Arcos palatoglosos/palatofaríngeos</Label>
-            <Select value={data?.arcos || ""} onValueChange={(value) => handleChange('arcos', value)}>
+            <Label className="text-sm">Dolor/Sensibilidad</Label>
+            <Select value={data?.dolor || ""} onValueChange={(value) => handleChange('dolor', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar estado" />
+                <SelectValue placeholder="Seleccionar dolor" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="integros">Íntegros</SelectItem>
-                <SelectItem value="enrojecidos">Enrojecidos</SelectItem>
-                <SelectItem value="edematosos">Edematosos</SelectItem>
-                <SelectItem value="ulcerados">Ulcerados</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="orofaringe-dolor"
-              checked={data?.dolor || false}
-              onCheckedChange={(checked) => handleChange('dolor', checked)}
-            />
-            <Label htmlFor="orofaringe-dolor" className="text-sm cursor-pointer">
-              Dolor o molestia
-            </Label>
-          </div>
-
-          <div>
-            <Label className="text-sm">Lesiones</Label>
-            <Select value={data?.lesiones || ""} onValueChange={(value) => handleChange('lesiones', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar lesiones" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ninguna">Ninguna</SelectItem>
-                <SelectItem value="ulcera">Úlcera</SelectItem>
-                <SelectItem value="placa">Placa</SelectItem>
-                <SelectItem value="absceso">Absceso</SelectItem>
-                <SelectItem value="eritema">Eritema</SelectItem>
-                <SelectItem value="papula">Pápula</SelectItem>
+                <SelectItem value="sin-dolor">Sin respuesta dolorosa</SelectItem>
+                <SelectItem value="dolor-faringeo">Dolor faríngeo o disfagia leve</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Simetría</Label>
-            <Select value={data?.simetria || ""} onValueChange={(value) => handleChange('simetria', value)}>
+            <Label className="text-sm">Funcionalidad</Label>
+            <Select value={data?.funcionalidad || ""} onValueChange={(value) => handleChange('funcionalidad', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar simetría" />
+                <SelectValue placeholder="Seleccionar funcionalidad" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="simetrica">Simétrica</SelectItem>
-                <SelectItem value="asimetrica">Asimétrica</SelectItem>
+                <SelectItem value="reflejo-presente">Reflejo nauseoso presente y simétrico</SelectItem>
+                <SelectItem value="reflejo-disminuido">Reflejo disminuido o ausente</SelectItem>
               </SelectContent>
             </Select>
           </div>

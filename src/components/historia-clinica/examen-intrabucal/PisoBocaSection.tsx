@@ -48,11 +48,9 @@ const PisoBocaSection: React.FC<PisoBocaSectionProps> = ({ data, onChange }) => 
                 <SelectValue placeholder="Seleccionar color" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="rosado">Rosado</SelectItem>
-                <SelectItem value="rojizo">Rojizo</SelectItem>
-                <SelectItem value="palido">Pálido</SelectItem>
-                <SelectItem value="cianotico">Cianótico</SelectItem>
-                <SelectItem value="pigmentado">Pigmentado</SelectItem>
+                <SelectItem value="rosa-brillante-vascular">Rosa brillante con leve transparencia vascular (fisiológico)</SelectItem>
+                <SelectItem value="eritematoso-congestivo">Eritematoso con congestión capilar</SelectItem>
+                <SelectItem value="palido-blanquecino">Pálido o blanquecino local</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -64,10 +62,9 @@ const PisoBocaSection: React.FC<PisoBocaSectionProps> = ({ data, onChange }) => 
                 <SelectValue placeholder="Seleccionar textura" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="lisa">Lisa</SelectItem>
-                <SelectItem value="edematosa">Edematosa</SelectItem>
-                <SelectItem value="brillante">Brillante</SelectItem>
-                <SelectItem value="tensa">Tensa</SelectItem>
+                <SelectItem value="lisa-humeda">Lisa y húmeda</SelectItem>
+                <SelectItem value="edematosa-fluctuante">Edematosa o fluctuante</SelectItem>
+                <SelectItem value="indurada-tensa">Indurada o tensa</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -80,70 +77,49 @@ const PisoBocaSection: React.FC<PisoBocaSectionProps> = ({ data, onChange }) => 
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="integra">Íntegra</SelectItem>
-                <SelectItem value="ulcerada">Ulcerada</SelectItem>
-                <SelectItem value="elevada">Elevada</SelectItem>
-                <SelectItem value="tumoracion">Con tumoración</SelectItem>
-                <SelectItem value="vesiculas">Con vesículas</SelectItem>
+                <SelectItem value="elevacion-nodular">Con elevación nodular (quiste, ránula)</SelectItem>
+                <SelectItem value="ulcerada-erosionada">Ulcerada o erosionada</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Secreción salival (conducto de Wharton)</Label>
-            <Select value={data?.secrecionSalival || ""} onValueChange={(value) => handleChange('secrecionSalival', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar secreción" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="abundante">Abundante</SelectItem>
-                <SelectItem value="escasa">Escasa</SelectItem>
-                <SelectItem value="ausente">Ausente</SelectItem>
-                <SelectItem value="purulenta">Purulenta</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm">Movilidad de frenillo</Label>
-            <Select value={data?.movilidadFrenillo || ""} onValueChange={(value) => handleChange('movilidadFrenillo', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar movilidad" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="libre">Libre</SelectItem>
-                <SelectItem value="corta">Corta</SelectItem>
-                <SelectItem value="fibrosa">Fibrosa</SelectItem>
-                <SelectItem value="adherida">Adherida</SelectItem>
-                <SelectItem value="tensa">Tensa</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm">Lesiones</Label>
+            <Label className="text-sm">Lesiones o alteraciones</Label>
             <Select value={data?.lesiones || ""} onValueChange={(value) => handleChange('lesiones', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar lesiones" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ninguna">Ninguna</SelectItem>
-                <SelectItem value="ranula">Ránula</SelectItem>
-                <SelectItem value="ulcera">Úlcera</SelectItem>
-                <SelectItem value="papula">Pápula</SelectItem>
-                <SelectItem value="nodulo">Nódulo</SelectItem>
+                <SelectItem value="varices-sublinguales">Varices sublinguales</SelectItem>
+                <SelectItem value="masa-palpable">Masa palpable o induración localizada</SelectItem>
+                <SelectItem value="calculo-wharton">Cálculo o secreción por conducto de Wharton</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Simetría</Label>
-            <Select value={data?.simetria || ""} onValueChange={(value) => handleChange('simetria', value)}>
+            <Label className="text-sm">Funcionalidad</Label>
+            <Select value={data?.funcionalidad || ""} onValueChange={(value) => handleChange('funcionalidad', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar simetría" />
+                <SelectValue placeholder="Seleccionar funcionalidad" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="simetrica">Simétrica</SelectItem>
-                <SelectItem value="asimetrica">Asimétrica</SelectItem>
+                <SelectItem value="wharton-permeable">Conducto de Wharton permeable y con salida salival clara</SelectItem>
+                <SelectItem value="obstruccion-turbia">Obstrucción o secreción turbia</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm">Dolor/Sensibilidad</Label>
+            <Select value={data?.dolor || ""} onValueChange={(value) => handleChange('dolor', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar dolor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="sin-dolor">Sin respuesta dolorosa</SelectItem>
+                <SelectItem value="dolor-tension">Dolor o tensión a la palpación</SelectItem>
               </SelectContent>
             </Select>
           </div>

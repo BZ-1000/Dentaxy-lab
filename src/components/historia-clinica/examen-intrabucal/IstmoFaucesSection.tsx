@@ -63,85 +63,66 @@ const IstmoFaucesSection: React.FC<IstmoFaucesSectionProps> = ({ data, onChange 
                 <SelectValue placeholder="Seleccionar color" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="rosado">Rosado</SelectItem>
-                <SelectItem value="palido">Pálido</SelectItem>
-                <SelectItem value="eritematoso">Eritematoso</SelectItem>
-                <SelectItem value="congestivo">Congestivo</SelectItem>
-                <SelectItem value="cianotico">Cianótico</SelectItem>
+                <SelectItem value="rosa-palido-homogeneo">Rosa pálido y homogéneo (fisiológico)</SelectItem>
+                <SelectItem value="eritematoso-difuso">Eritematoso difuso (irritación faríngea)</SelectItem>
+                <SelectItem value="congestivo-vasos">Congestivo con vasos dilatados</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Úvula palatina</Label>
-            <Select value={data?.uvula || ""} onValueChange={(value) => handleChange('uvula', value)}>
+            <Label className="text-sm">Superficie</Label>
+            <Select value={data?.superficie || ""} onValueChange={(value) => handleChange('superficie', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar estado de la úvula" />
+                <SelectValue placeholder="Seleccionar superficie" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="integra-centrada">Íntegra y centrada</SelectItem>
-                <SelectItem value="elongada">Elongada</SelectItem>
-                <SelectItem value="bifida">Bífida</SelectItem>
-                <SelectItem value="desviada">Desviada</SelectItem>
-                <SelectItem value="edematosa">Edematosa</SelectItem>
-                <SelectItem value="ausente">Ausente</SelectItem>
+                <SelectItem value="integra">Íntegra</SelectItem>
+                <SelectItem value="exudado-placa">Con exudado o placa blanca</SelectItem>
+                <SelectItem value="ulcerada-erosionada">Ulcerada o erosionada</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Pilares del istmo</Label>
-            <Select value={data?.pilares || ""} onValueChange={(value) => handleChange('pilares', value)}>
+            <Label className="text-sm">Amígdalas y pilares</Label>
+            <Select value={data?.amigdalas || ""} onValueChange={(value) => handleChange('amigdalas', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar estado de pilares" />
+                <SelectValue placeholder="Seleccionar estado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="simetricos-integros">Simétricos e íntegros</SelectItem>
-                <SelectItem value="hipertroficos">Hipertróficos</SelectItem>
-                <SelectItem value="eritematosos">Eritematosos</SelectItem>
-                <SelectItem value="asimetricos">Asimétricos</SelectItem>
-                <SelectItem value="edematosos">Edematosos</SelectItem>
+                <SelectItem value="rosa-coral-simetricos">Rosa coral pálido, simétricos</SelectItem>
+                <SelectItem value="aumentados-volumen">Aumentados de volumen</SelectItem>
+                <SelectItem value="exudado-purulento">Con exudado purulento</SelectItem>
+                <SelectItem value="asimetricos-hipertroficos">Asimétricos o hipertróficos</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Reflejo nauseoso</Label>
-            <Select value={data?.reflejoNauseoso || ""} onValueChange={(value) => handleChange('reflejoNauseoso', value)}>
+            <Label className="text-sm">Funcionalidad</Label>
+            <Select value={data?.funcionalidad || ""} onValueChange={(value) => handleChange('funcionalidad', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar reflejo nauseoso" />
+                <SelectValue placeholder="Seleccionar funcionalidad" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="presente">Presente</SelectItem>
-                <SelectItem value="ausente">Ausente</SelectItem>
-                <SelectItem value="disminuido">Disminuido</SelectItem>
-                <SelectItem value="exagerado">Exagerado</SelectItem>
+                <SelectItem value="movilidad-reflejo">Movilidad y reflejo conservados</SelectItem>
+                <SelectItem value="dolor-limitacion">Dolor o limitación al hablar o deglutir</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Simetría</Label>
-            <Select value={data?.simetria || ""} onValueChange={(value) => handleChange('simetria', value)}>
+            <Label className="text-sm">Dolor/Sensibilidad</Label>
+            <Select value={data?.dolor || ""} onValueChange={(value) => handleChange('dolor', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar simetría" />
+                <SelectValue placeholder="Seleccionar dolor" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="simetrico">Simétrico</SelectItem>
-                <SelectItem value="asimetrico">Asimétrico</SelectItem>
+                <SelectItem value="sin-dolor">Sin dolor</SelectItem>
+                <SelectItem value="dolor-irradiado">Dolor leve o irradiado a oído</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="istmoFauces-inflamacion"
-              checked={data?.inflamacion || false}
-              onCheckedChange={(checked) => handleChange('inflamacion', checked)}
-            />
-            <Label htmlFor="istmoFauces-inflamacion" className="text-sm font-medium cursor-pointer">
-              Signos de inflamación
-            </Label>
           </div>
 
           {(data?.amplitud || data?.colorMucosa || data?.uvula) && (

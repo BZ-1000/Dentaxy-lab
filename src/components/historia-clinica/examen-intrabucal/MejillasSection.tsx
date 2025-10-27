@@ -48,13 +48,11 @@ const MejillasSection: React.FC<MejillasSectionProps> = ({ data, onChange }) => 
                 <SelectValue placeholder="Seleccionar color" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="rosada">Rosada</SelectItem>
-                <SelectItem value="palida">Pálida</SelectItem>
-                <SelectItem value="eritematosa">Eritematosa</SelectItem>
-                <SelectItem value="blanquecina">Blanquecina</SelectItem>
-                <SelectItem value="grisacea">Grisácea</SelectItem>
-                <SelectItem value="pigmentada">Pigmentada</SelectItem>
-                <SelectItem value="amarillenta">Amarillenta</SelectItem>
+                <SelectItem value="rosa-coral-uniforme">Rosa coral uniforme (mucosa sana)</SelectItem>
+                <SelectItem value="rosa-palido">Rosa pálido (hipovascularización leve)</SelectItem>
+                <SelectItem value="eritematoso-difuso">Eritematoso difuso (hiperemia o inflamación leve)</SelectItem>
+                <SelectItem value="pigmentado-marron-grisaceo">Pigmentado marrón claro a grisáceo (melanosis fisiológica o tatuaje por amalgama)</SelectItem>
+                <SelectItem value="cianotico">Cianótico (congestión venosa o hipoxia local)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -66,11 +64,10 @@ const MejillasSection: React.FC<MejillasSectionProps> = ({ data, onChange }) => 
                 <SelectValue placeholder="Seleccionar textura" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="lisa">Lisa</SelectItem>
-                <SelectItem value="aterciopelada">Aterciopelada</SelectItem>
-                <SelectItem value="rugosa">Rugosa</SelectItem>
-                <SelectItem value="engrosada">Engrosada</SelectItem>
-                <SelectItem value="fibrosa">Fibrosa</SelectItem>
+                <SelectItem value="lisa-humeda-brillante">Lisa, húmeda y brillante</SelectItem>
+                <SelectItem value="seca-descamada">Seca o descamada</SelectItem>
+                <SelectItem value="engrosada-firme">Engrosada o firme al tacto</SelectItem>
+                <SelectItem value="rugosa-queratosica">Rugosa o queratósica</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -82,76 +79,53 @@ const MejillasSection: React.FC<MejillasSectionProps> = ({ data, onChange }) => 
                 <SelectValue placeholder="Seleccionar superficie" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="integra">Íntegra</SelectItem>
-                <SelectItem value="fisurada">Fisurada</SelectItem>
-                <SelectItem value="ulcerada">Ulcerada</SelectItem>
-                <SelectItem value="lineas-friccion">Con líneas de fricción</SelectItem>
-                <SelectItem value="lesiones-blanquecinas">Con lesiones blanquecinas</SelectItem>
-                <SelectItem value="lesiones-rojizas">Con lesiones rojizas</SelectItem>
-                <SelectItem value="puntos-hemorragicos">Con puntos hemorrágicos</SelectItem>
+                <SelectItem value="integra">Íntegra sin interrupciones epiteliales</SelectItem>
+                <SelectItem value="erosiones-ulceraciones">Con erosiones o ulceraciones</SelectItem>
+                <SelectItem value="placas-blanquecinas">Con placas blanquecinas adherentes (queratosis, leucoplasia, candidiasis)</SelectItem>
+                <SelectItem value="vesiculas-ampollas">Con vesículas, ampollas o costras</SelectItem>
+                <SelectItem value="mordisqueo">Con zonas de mordisqueo o fibrillas (morsicatio buccarum)</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Lesiones presentes</Label>
+            <Label className="text-sm">Lesiones o alteraciones</Label>
             <Select value={data?.lesionesPresentes || ""} onValueChange={(value) => handleChange('lesionesPresentes', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar lesiones" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ninguna">Ninguna</SelectItem>
-                <SelectItem value="mordisqueo">Mordisqueo</SelectItem>
-                <SelectItem value="leucoplasia">Leucoplasia</SelectItem>
-                <SelectItem value="afta">Afta</SelectItem>
-                <SelectItem value="vesiculas">Vesículas</SelectItem>
-                <SelectItem value="petequias">Petequias</SelectItem>
-                <SelectItem value="papulas">Pápulas</SelectItem>
-                <SelectItem value="maculas">Máculas</SelectItem>
-                <SelectItem value="placa-blanquecina">Placa blanquecina</SelectItem>
+                <SelectItem value="afta-ulcera">Afta o úlcera traumática</SelectItem>
+                <SelectItem value="hematoma-equimosis">Hematoma o equimosis submucosa</SelectItem>
+                <SelectItem value="nodulo-abultamiento">Nódulo o abultamiento palpable</SelectItem>
+                <SelectItem value="secrecion-purulenta">Secreción purulenta o absceso localizado</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Ubicación</Label>
-            <Select value={data?.ubicacion || ""} onValueChange={(value) => handleChange('ubicacion', value)}>
+            <Label className="text-sm">Funcionalidad</Label>
+            <Select value={data?.funcionalidad || ""} onValueChange={(value) => handleChange('funcionalidad', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar ubicación" />
+                <SelectValue placeholder="Seleccionar funcionalidad" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="tercio-anterior">Tercio anterior</SelectItem>
-                <SelectItem value="tercio-medio">Tercio medio</SelectItem>
-                <SelectItem value="tercio-posterior">Tercio posterior</SelectItem>
-                <SelectItem value="bilateral">Bilateral</SelectItem>
+                <SelectItem value="stenon-permeable">Salida del conducto de Stenon visible, permeable y sin secreción anormal</SelectItem>
+                <SelectItem value="obstruccion-stenon">Obstrucción o secreción anormal del conducto de Stenon</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Simetría</Label>
-            <Select value={data?.simetria || ""} onValueChange={(value) => handleChange('simetria', value)}>
+            <Label className="text-sm">Dolor/Sensibilidad</Label>
+            <Select value={data?.dolor || ""} onValueChange={(value) => handleChange('dolor', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar simetría" />
+                <SelectValue placeholder="Seleccionar dolor" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="simetrica">Simétrica</SelectItem>
-                <SelectItem value="asimetrica">Asimétrica</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm">Secreción salival en zona de Stenon</Label>
-            <Select value={data?.secrecionSalival || ""} onValueChange={(value) => handleChange('secrecionSalival', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar secreción" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="presente">Presente</SelectItem>
-                <SelectItem value="ausente">Ausente</SelectItem>
-                <SelectItem value="disminuida">Disminuida</SelectItem>
-                <SelectItem value="purulenta">Purulenta</SelectItem>
+                <SelectItem value="sin-dolor">Sin respuesta dolorosa al tacto</SelectItem>
+                <SelectItem value="dolor-localizado">Dolor localizado o ardor al contacto</SelectItem>
               </SelectContent>
             </Select>
           </div>

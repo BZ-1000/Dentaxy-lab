@@ -48,41 +48,10 @@ const EnciasSection: React.FC<EnciasSectionProps> = ({ data, onChange }) => {
                 <SelectValue placeholder="Seleccionar color" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="rosa-coral">Rosa coral</SelectItem>
-                <SelectItem value="eritematosa">Eritematosa</SelectItem>
-                <SelectItem value="palida">Pálida</SelectItem>
-                <SelectItem value="cianotica">Cianótica</SelectItem>
-                <SelectItem value="pigmentada">Pigmentada</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm">Contorno</Label>
-            <Select value={data?.contorno || ""} onValueChange={(value) => handleChange('contorno', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar contorno" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="festoneado">Festoneado</SelectItem>
-                <SelectItem value="irregular">Irregular</SelectItem>
-                <SelectItem value="aumentado">Aumentado</SelectItem>
-                <SelectItem value="retraido">Retraído</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm">Consistencia</Label>
-            <Select value={data?.consistencia || ""} onValueChange={(value) => handleChange('consistencia', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar consistencia" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="firme">Firme</SelectItem>
-                <SelectItem value="blanda">Blanda</SelectItem>
-                <SelectItem value="esponjosa">Esponjosa</SelectItem>
-                <SelectItem value="fibrosa">Fibrosa</SelectItem>
+                <SelectItem value="rosa-coral-puntilleo">Rosa coral pálido con puntilleo (aspecto fisiológico)</SelectItem>
+                <SelectItem value="eritematoso-marginal">Eritematoso marginal (inflamación inicial)</SelectItem>
+                <SelectItem value="cianotico-violaceo">Cianótico o violáceo (congestión venosa)</SelectItem>
+                <SelectItem value="palido-blanquecino">Pálido blanquecino (fibrosis o isquemia)</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -94,10 +63,9 @@ const EnciasSection: React.FC<EnciasSectionProps> = ({ data, onChange }) => {
                 <SelectValue placeholder="Seleccionar textura" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="punteada">Punteada</SelectItem>
-                <SelectItem value="lisa">Lisa</SelectItem>
-                <SelectItem value="brillante">Brillante</SelectItem>
-                <SelectItem value="edematosa">Edematosa</SelectItem>
+                <SelectItem value="firme-puntilleo">Firme con puntilleo superficial</SelectItem>
+                <SelectItem value="lisa-edematosa">Lisa y edematosa</SelectItem>
+                <SelectItem value="fibrotica-densa">Fibrótica o densa</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -109,65 +77,49 @@ const EnciasSection: React.FC<EnciasSectionProps> = ({ data, onChange }) => {
                 <SelectValue placeholder="Seleccionar margen" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="definido">Definido</SelectItem>
-                <SelectItem value="engrosado">Engrosado</SelectItem>
-                <SelectItem value="retraido">Retraído</SelectItem>
-                <SelectItem value="ulcerado">Ulcerado</SelectItem>
+                <SelectItem value="delimitado-adherido">Delimitado y adherido al cuello dentario</SelectItem>
+                <SelectItem value="engrosado-hiperplasico">Engrosado o hiperplásico</SelectItem>
+                <SelectItem value="recesion-perdida">Con recesión o pérdida de inserción</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="encias-sangrado"
-              checked={data?.sangrado || false}
-              onCheckedChange={(checked) => handleChange('sangrado', checked)}
-            />
-            <Label htmlFor="encias-sangrado" className="text-sm cursor-pointer">
-              Sangrado al contacto
-            </Label>
+          <div>
+            <Label className="text-sm">Superficie</Label>
+            <Select value={data?.superficie || ""} onValueChange={(value) => handleChange('superficie', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar superficie" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="integra">Íntegra</SelectItem>
+                <SelectItem value="ulcerada-pseudomembrana">Ulcerada o cubierta por pseudomembrana</SelectItem>
+                <SelectItem value="sangrado-sondaje">Con sangrado espontáneo o al sondaje</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Presencia de placa o cálculo</Label>
+            <Label className="text-sm">Placa o cálculo</Label>
             <Select value={data?.placaCalculo || ""} onValueChange={(value) => handleChange('placaCalculo', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Seleccionar presencia" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ausente">Ausente</SelectItem>
-                <SelectItem value="leve">Leve</SelectItem>
-                <SelectItem value="moderado">Moderado</SelectItem>
-                <SelectItem value="severo">Severo</SelectItem>
+                <SelectItem value="ausente">Ausente visualmente</SelectItem>
+                <SelectItem value="leve-moderada-abundante">Presencia leve, moderada o abundante</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Lesiones</Label>
-            <Select value={data?.lesiones || ""} onValueChange={(value) => handleChange('lesiones', value)}>
+            <Label className="text-sm">Dolor/Sensibilidad</Label>
+            <Select value={data?.dolor || ""} onValueChange={(value) => handleChange('dolor', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar lesiones" />
+                <SelectValue placeholder="Seleccionar dolor" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ninguna">Ninguna</SelectItem>
-                <SelectItem value="ulcera">Úlcera</SelectItem>
-                <SelectItem value="absceso">Absceso</SelectItem>
-                <SelectItem value="pigmentacion">Pigmentación</SelectItem>
-                <SelectItem value="agrandamiento">Agrandamiento</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm">Simetría</Label>
-            <Select value={data?.simetria || ""} onValueChange={(value) => handleChange('simetria', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar simetría" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="simetrica">Simétrica</SelectItem>
-                <SelectItem value="asimetrica">Asimétrica</SelectItem>
+                <SelectItem value="sin-molestia">Sin molestia</SelectItem>
+                <SelectItem value="dolorosa-sangrante">Dolorosa o sangrante al tacto</SelectItem>
               </SelectContent>
             </Select>
           </div>

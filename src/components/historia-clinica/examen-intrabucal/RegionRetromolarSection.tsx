@@ -48,26 +48,9 @@ const RegionRetromolarSection: React.FC<RegionRetromolarSectionProps> = ({ data,
                 <SelectValue placeholder="Seleccionar color" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="rosado">Rosado</SelectItem>
-                <SelectItem value="eritematoso">Eritematoso</SelectItem>
-                <SelectItem value="blanquecino">Blanquecino</SelectItem>
-                <SelectItem value="violaceo">Violáceo</SelectItem>
-                <SelectItem value="pigmentado">Pigmentado</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label className="text-sm">Textura</Label>
-            <Select value={data?.textura || ""} onValueChange={(value) => handleChange('textura', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar textura" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="lisa">Lisa</SelectItem>
-                <SelectItem value="rugosa">Rugosa</SelectItem>
-                <SelectItem value="edematosa">Edematosa</SelectItem>
-                <SelectItem value="fibrotica">Fibrótica</SelectItem>
+                <SelectItem value="rosa-coral-uniforme">Rosa coral uniforme (fisiológico)</SelectItem>
+                <SelectItem value="eritematoso-localizado">Eritematoso localizado</SelectItem>
+                <SelectItem value="blanquecino-palido">Blanquecino o pálido</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -80,10 +63,21 @@ const RegionRetromolarSection: React.FC<RegionRetromolarSectionProps> = ({ data,
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="integra">Íntegra</SelectItem>
-                <SelectItem value="ulcerada">Ulcerada</SelectItem>
-                <SelectItem value="placas">Con placas</SelectItem>
-                <SelectItem value="nodulos">Con nódulos</SelectItem>
-                <SelectItem value="exudado">Con exudado</SelectItem>
+                <SelectItem value="ulcerada-erosionada">Ulcerada o erosionada</SelectItem>
+                <SelectItem value="fibrosis-cicatriz">Con fibrosis o cicatriz</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label className="text-sm">Textura</Label>
+            <Select value={data?.textura || ""} onValueChange={(value) => handleChange('textura', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Seleccionar textura" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="lisa-blanda">Lisa y blanda</SelectItem>
+                <SelectItem value="firme-indurada">Firme o indurada</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -96,37 +90,24 @@ const RegionRetromolarSection: React.FC<RegionRetromolarSectionProps> = ({ data,
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ninguna">Ninguna</SelectItem>
-                <SelectItem value="ulcera">Úlcera</SelectItem>
-                <SelectItem value="papula">Pápula</SelectItem>
-                <SelectItem value="vesicula">Vesícula</SelectItem>
-                <SelectItem value="placa">Placa</SelectItem>
-                <SelectItem value="tumoracion">Tumoración</SelectItem>
+                <SelectItem value="ulcera-traumatica">Úlcera traumática</SelectItem>
+                <SelectItem value="nodulo-fibroso">Nódulo fibroso</SelectItem>
+                <SelectItem value="dolor-palpacion">Dolor a la palpación</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <Label className="text-sm">Simetría</Label>
-            <Select value={data?.simetria || ""} onValueChange={(value) => handleChange('simetria', value)}>
+            <Label className="text-sm">Dolor/Sensibilidad</Label>
+            <Select value={data?.dolor || ""} onValueChange={(value) => handleChange('dolor', value)}>
               <SelectTrigger>
-                <SelectValue placeholder="Seleccionar simetría" />
+                <SelectValue placeholder="Seleccionar dolor" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="simetrica">Simétrica</SelectItem>
-                <SelectItem value="asimetrica">Asimétrica</SelectItem>
+                <SelectItem value="sin-molestia">Sin molestia</SelectItem>
+                <SelectItem value="dolorosa-masticar">Dolorosa al masticar o al tacto</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="regionRetromolar-dolorPalpacion"
-              checked={data?.dolorPalpacion || false}
-              onCheckedChange={(checked) => handleChange('dolorPalpacion', checked)}
-            />
-            <Label htmlFor="regionRetromolar-dolorPalpacion" className="text-sm cursor-pointer">
-              Dolor a la palpación
-            </Label>
           </div>
 
           {(data?.color || data?.textura || data?.superficie) && (
