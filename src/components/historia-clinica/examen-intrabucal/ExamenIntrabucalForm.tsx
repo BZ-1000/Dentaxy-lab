@@ -38,7 +38,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
     // Guardar preferencia de redacción común a nivel del módulo
     handleExamenIntrabucalChange('sinHallazgos', redaccionComun);
     // Notificar al padre para cambiar a la vista IA y disparar la animación
-    onGenerate(redaccionComun);
+    onGenerate();
   };
 
   return (
@@ -155,7 +155,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
         >
           <Sparkles className="w-4 h-4 mr-2" />
           Generar Redacción IA
-        </Button
+        </Button>
         <Button
           onClick={handleLimpiarFormulario}
           variant="outline"
