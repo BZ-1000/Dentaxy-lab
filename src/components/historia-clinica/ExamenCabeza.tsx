@@ -6,8 +6,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormDataState } from '@/types/historiaClinica';
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Copy, CheckCircle } from "lucide-react";
+import { Minus, Maximize2, X, Copy, CheckCircle, ChevronDown } from "lucide-react";
 import { AnimatedTextareaWithTyping } from "@/components/ui/AnimatedTextareaWithTyping"; // Asegúrate de tener este componente
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 // Interfaz para características faciales detalladas (reutilizada)
 interface CaracteristicaFacial {
@@ -362,13 +363,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       { value: 'braquicefalo', label: 'Braquicéfalo', image: '/braquicefalo.svg' }
                     ].map((tipo) => (
                       <div key={tipo.value} className="flex flex-col items-center space-y-2">
-                        <div className="relative">
+                         <div className="relative w-32 h-32 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer overflow-hidden"
+                           onClick={() => handleExamenCabezaChange('tipoCraneo', tipo.value)}
+                         >
                           <img 
                             src={tipo.image} 
                             alt={tipo.label}
-                            // Tamaño de imagen aumentado
-                            className="w-32 h-32 object-contain rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer"
-                            onClick={() => handleExamenCabezaChange('tipoCraneo', tipo.value)}
+                            className="w-full h-full object-contain scale-150"
                           />
                           {getFormValue('tipoCraneo') === tipo.value && (
                             <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
@@ -392,13 +393,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       { value: 'concavo', label: 'Cóncavo', image: '/concavo.svg' }
                     ].map((perfil) => (
                       <div key={perfil.value} className="flex flex-col items-center space-y-2">
-                        <div className="relative">
+                         <div className="relative w-32 h-32 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer overflow-hidden"
+                           onClick={() => handleExamenCabezaChange('tipoPerfil', perfil.value)}
+                         >
                           <img 
                             src={perfil.image} 
                             alt={perfil.label}
-                            // Tamaño de imagen aumentado
-                            className="w-32 h-32 object-contain rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer"
-                            onClick={() => handleExamenCabezaChange('tipoPerfil', perfil.value)}
+                            className="w-full h-full object-contain scale-150"
                           />
                           {getFormValue('tipoPerfil') === perfil.value && (
                             <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
@@ -441,22 +442,21 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                     {/* Estado de la Piel */}
                     <div className="space-y-3">
                       <Label className="font-medium text-gray-700 dark:text-gray-300">Estado de la Piel</Label>
-                      <div className="flex flex-wrap gap-4 pt-2">
-                        {['reseca', 'humectada'].map((estado) => (
-                          <div key={estado} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`piel-${estado}`}
-                              checked={getFormValueCara('estadoPiel') === estado}
-                              onCheckedChange={(checked) => {
-                                if (checked) {
-                                  handleCaraChange('estadoPiel', estado);
-                                }
-                              }}
-                            />
-                            <Label htmlFor={`piel-${estado}`} className="capitalize text-gray-700 dark:text-gray-300">
-                              {estado}
-                            </Label>
-                          </div>
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {[
+                          { value: 'reseca', label: 'Reseca' },
+                          { value: 'humectada', label: 'Humectada' }
+                        ].map((estado) => (
+                          <Button
+                            key={estado.value}
+                            type="button"
+                            variant={getFormValueCara('estadoPiel') === estado.value ? 'default' : 'outline'}
+                            size="sm"
+                            className="h-8 px-3 text-xs"
+                            onClick={() => handleCaraChange('estadoPiel', getFormValueCara('estadoPiel') === estado.value ? '' : estado.value)}
+                          >
+                            {estado.label}
+                          </Button>
                         ))}
                       </div>
                     </div>
@@ -466,22 +466,24 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                     {/* Lunares */}
-                    <div className="space-y-4 bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="lunares-presente"
-                          checked={getCheckboxValue('lunares')}
-                          onCheckedChange={(checked) => 
-                            handleDetailedChange('lunares', 'presente', checked as boolean)
-                          }
-                        />
-                        <Label htmlFor="lunares-presente" className="text-base font-medium text-gray-800 dark:text-white">
-                          Lunares
-                        </Label>
-                      </div>
+                    <Collapsible
+                      open={getCheckboxValue('lunares')}
+                      onOpenChange={(open) => handleDetailedChange('lunares', 'presente', open)}
+                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                    >
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="w-full justify-between p-4 hover:bg-accent/50"
+                        >
+                          <span className="text-base font-medium text-gray-800 dark:text-white">Lunares</span>
+                          <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('lunares') ? 'rotate-180' : ''}`} />
+                        </Button>
+                      </CollapsibleTrigger>
                       
-                      {getCheckboxValue('lunares') && (
-                        <div className="ml-6 space-y-4">
+                      <CollapsibleContent className="px-4 pb-4">
+                        <div className="space-y-4 ml-2 pt-2">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
                               <Label className="text-sm">Tamaño</Label>
@@ -523,26 +525,28 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             />
                           </div>
                         </div>
-                      )}
-                    </div>
+                      </CollapsibleContent>
+                    </Collapsible>
 
                     {/* Asimetrías Faciales */}
-                    <div className="space-y-4 bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="asimetrias-presente"
-                          checked={getCheckboxValue('asimetriasFaciales')}
-                          onCheckedChange={(checked) => 
-                            handleDetailedChange('asimetriasFaciales', 'presente', checked as boolean)
-                          }
-                        />
-                        <Label htmlFor="asimetrias-presente" className="text-base font-medium text-gray-800 dark:text-white">
-                          Asimetrías Faciales
-                        </Label>
-                      </div>
+                    <Collapsible
+                      open={getCheckboxValue('asimetriasFaciales')}
+                      onOpenChange={(open) => handleDetailedChange('asimetriasFaciales', 'presente', open)}
+                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                    >
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="w-full justify-between p-4 hover:bg-accent/50"
+                        >
+                          <span className="text-base font-medium text-gray-800 dark:text-white">Asimetrías Faciales</span>
+                          <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('asimetriasFaciales') ? 'rotate-180' : ''}`} />
+                        </Button>
+                      </CollapsibleTrigger>
                       
-                      {getCheckboxValue('asimetriasFaciales') && (
-                        <div className="ml-6 space-y-4">
+                      <CollapsibleContent className="px-4 pb-4">
+                        <div className="space-y-4 ml-2 pt-2">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
                               <Label className="text-sm">Tipo</Label>
@@ -585,26 +589,28 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             />
                           </div>
                         </div>
-                      )}
-                    </div>
+                      </CollapsibleContent>
+                    </Collapsible>
                     
                     {/* Cicatrices */}
-                    <div className="space-y-4 bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="cicatrices-presente"
-                          checked={getCheckboxValue('cicatrices')}
-                          onCheckedChange={(checked) => 
-                            handleDetailedChange('cicatrices', 'presente', checked as boolean)
-                          }
-                        />
-                        <Label htmlFor="cicatrices-presente" className="text-base font-medium text-gray-800 dark:text-white">
-                          Cicatrices
-                        </Label>
-                      </div>
+                    <Collapsible
+                      open={getCheckboxValue('cicatrices')}
+                      onOpenChange={(open) => handleDetailedChange('cicatrices', 'presente', open)}
+                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
+                    >
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="w-full justify-between p-4 hover:bg-accent/50"
+                        >
+                          <span className="text-base font-medium text-gray-800 dark:text-white">Cicatrices</span>
+                          <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('cicatrices') ? 'rotate-180' : ''}`} />
+                        </Button>
+                      </CollapsibleTrigger>
                       
-                      {getCheckboxValue('cicatrices') && (
-                        <div className="ml-6 space-y-4">
+                      <CollapsibleContent className="px-4 pb-4">
+                        <div className="space-y-4 ml-2 pt-2">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
                               <Label className="text-sm">Tamaño</Label>
@@ -661,26 +667,28 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             />
                           </div>
                         </div>
-                      )}
-                    </div>
+                      </CollapsibleContent>
+                    </Collapsible>
 
                     {/* Edema */}
-                    <div className="space-y-4 bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="edema-presente"
-                          checked={getCheckboxValue('edema')}
-                          onCheckedChange={(checked) => 
-                            handleDetailedChange('edema', 'presente', checked as boolean)
-                          }
-                        />
-                        <Label htmlFor="edema-presente" className="text-base font-medium text-gray-800 dark:text-white">
-                          Edema
-                        </Label>
-                      </div>
+                    <Collapsible
+                      open={getCheckboxValue('edema')}
+                      onOpenChange={(open) => handleDetailedChange('edema', 'presente', open)}
+                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
+                    >
+                      <CollapsibleTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="w-full justify-between p-4 hover:bg-accent/50"
+                        >
+                          <span className="text-base font-medium text-gray-800 dark:text-white">Edema</span>
+                          <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('edema') ? 'rotate-180' : ''}`} />
+                        </Button>
+                      </CollapsibleTrigger>
                       
-                      {getCheckboxValue('edema') && (
-                        <div className="ml-6 space-y-4">
+                      <CollapsibleContent className="px-4 pb-4">
+                        <div className="space-y-4 ml-2 pt-2">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
                               <Label className="text-sm">Grado</Label>
@@ -729,15 +737,15 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                           <div>
                             <Label className="text-sm">Descripción</Label>
                             <Textarea
-                              placeholder="Describe el edema..."
+                              placeholder="Describe características del edema..."
                               value={getSelectValue('edema', 'descripcion')}
                               onChange={(e) => handleDetailedChange('edema', 'descripcion', e.target.value)}
                               className="mt-1"
                             />
                           </div>
                         </div>
-                      )}
-                    </div>
+                      </CollapsibleContent>
+                    </Collapsible>
                   </div>
 
                   {/* Observaciones Generales (de la Cara) */}
