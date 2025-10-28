@@ -1,13 +1,19 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useRef } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormDataState } from '@/types/historiaClinica';
+import { Button } from "@/components/ui/button";
+import { Minus, Maximize2, X, Copy, CheckCircle } from "lucide-react";
+import { AnimatedTextareaWithTyping } from "@/components/ui/AnimatedTextareaWithTyping"; // Asegúrate de tener este componente
 
+// Interfaz para características faciales detalladas (reutilizada)
 interface CaracteristicaFacial {
   presente?: boolean;
   detalles?: string;
+  descripcion?: string; // Añadido para Asimetrías y Edema
   tamanio?: string;
   color?: string;
   bordes?: string;
@@ -16,474 +22,801 @@ interface CaracteristicaFacial {
   consistencia?: string;
   tipo?: string;
   zonaAfectada?: string;
-  descripcion?: string;
+}
+
+// Interfaz para el estado 'cara' dentro de 'examenCabeza'
+interface CaraState {
+  tez?: string;
+  estadoPiel?: string;
+  lunares?: CaracteristicaFacial;
+  cicatrices?: CaracteristicaFacial;
+  asimetriasFaciales?: CaracteristicaFacial;
+  edema?: CaracteristicaFacial;
+  observaciones?: string;
+}
+
+// Actualizamos FormDataState para reflejar la nueva estructura anidada
+// (Esto es una suposición de cómo se ve tu tipo FormDataState)
+declare module '@/types/historiaClinica' {
+  interface ExamenCabezaState {
+    tipoCraneo?: string;
+    tipoPerfil?: string;
+    cara?: CaraState;
+    // ... otros campos de examenCabeza si los hubiera
+  }
 }
 
 interface ExamenCabezaProps {
   formData: FormDataState;
-  handleExamenCabezaChange: (part: string, value: string | boolean | object) => void;
+  handleExamenCabezaChange: (part: string, value: any) => void;
 }
 
 const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps) => {
-  const handleDetailedChange = (category: string, field: string, value: string | boolean) => {
-    const currentData = (formData.examenCabeza[category as keyof typeof formData.examenCabeza] as CaracteristicaFacial) || {};
+  // Estados para la UI de la tarjeta y la redacción
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [showForm, setShowForm] = useState(true);
+  const [redaccionCara, setRedaccionCara] = useState("");
+  const [copied, setCopied] = useState(false);
+  const redaccionRef = useRef<HTMLDivElement>(null);
+
+  // --- Manejadores de la UI de la Tarjeta ---
+  const handleMinimize = () => {
+    setIsMinimized(!isMinimized);
+    setIsMaximized(false);
+  };
+
+  const handleMaximize = () => {
+    setIsMaximized(!isMaximized);
+    setIsMinimized(false);
+  };
+
+  const handleClose = () => {
+    setIsMinimized(false);
+    setIsMaximized(false);
+  };
+
+  // --- Manejadores de Datos del Formulario ---
+
+  // Manejador para campos simples dentro de 'cara'
+  const handleCaraChange = (field: keyof CaraState, value: string | boolean) => {
+    const updatedCara = {
+      ...(formData.examenCabeza.cara || {}),
+      [field]: value
+    };
+    handleExamenCabezaChange('cara', updatedCara);
+  };
+
+  // Manejador para campos detallados (lunares, cicatrices, etc.) dentro de 'cara'
+  const handleDetailedChange = (category: keyof CaraState, field: string, value: string | boolean) => {
+    const currentCara = formData.examenCabeza.cara || {};
+    const currentData = (currentCara[category] as CaracteristicaFacial) || {};
+    
     const updatedData = {
       ...currentData,
       [field]: value
     };
-    handleExamenCabezaChange(category, updatedData);
+
+    const updatedCara = {
+      ...currentCara,
+      [category]: updatedData
+    };
+    
+    handleExamenCabezaChange('cara', updatedCara);
   };
 
-  const getSelectValue = (category: string, field: string): string => {
-    const data = formData.examenCabeza[category as keyof typeof formData.examenCabeza] as CaracteristicaFacial;
-    const value = data?.[field as keyof CaracteristicaFacial];
+  // --- Funciones 'Get' para obtener valores del formulario ---
+
+  // Obtiene valor de campos de primer nivel (tipoCraneo, tipoPerfil)
+  const getFormValue = (field: 'tipoCraneo' | 'tipoPerfil'): string => {
+    const value = formData.examenCabeza[field];
     return typeof value === 'string' ? value : '';
   };
 
-  const getBooleanValue = (category: string, field: string): boolean => {
-    const data = formData.examenCabeza[category as keyof typeof formData.examenCabeza] as CaracteristicaFacial;
-    const value = data?.[field as keyof CaracteristicaFacial];
-    return typeof value === 'boolean' ? value : false;
+  // Obtiene valor de campos simples dentro de 'cara'
+  const getFormValueCara = (field: keyof CaraState): string => {
+    const value = formData.examenCabeza.cara?.[field];
+    return typeof value === 'string' ? value : '';
   };
 
-  const getCheckboxValue = (category: string): boolean => {
-    const data = formData.examenCabeza[category as keyof typeof formData.examenCabeza];
+  // Obtiene valor de un campo 'select' dentro de una categoría detallada
+  const getSelectValue = (category: keyof CaraState, field: string): string => {
+    const data = formData.examenCabeza.cara?.[category] as CaracteristicaFacial;
+    const value = data?.[field as keyof CaracteristicaFacial];
+    return typeof value === 'string' ? value : '';
+  };
+  
+  // Obtiene valor booleano 'presente' de una categoría detallada
+  const getCheckboxValue = (category: keyof CaraState): boolean => {
+    const data = formData.examenCabeza.cara?.[category];
     if (typeof data === 'object' && data !== null && 'presente' in data) {
       return (data as CaracteristicaFacial).presente || false;
     }
     return false;
   };
 
-  const getFormValue = (field: string): string => {
-    const value = formData.examenCabeza[field as keyof typeof formData.examenCabeza];
-    return typeof value === 'string' ? value : '';
+  // --- Lógica de Redacción IA y Limpieza ---
+
+  const limpiarFormulario = () => {
+    // Limpia campos de primer nivel
+    handleExamenCabezaChange('tipoCraneo', '');
+    handleExamenCabezaChange('tipoPerfil', '');
+    
+    // Limpia el objeto 'cara'
+    const caraLimpia: CaraState = {
+      tez: '',
+      estadoPiel: '',
+      lunares: { presente: false, detalles: '', tamanio: '', color: '' },
+      cicatrices: { presente: false, detalles: '', tamanio: '', bordes: '', localizacion: '' },
+      asimetriasFaciales: { presente: false, descripcion: '', tipo: '', zonaAfectada: '' },
+      edema: { presente: false, descripcion: '', grado: '', localizacion: '', consistencia: '' },
+      observaciones: ''
+    };
+    handleExamenCabezaChange('cara', caraLimpia);
+
+    // Resetea la vista
+    setRedaccionCara("");
+    setShowForm(true);
   };
 
-  return (
-    <Card className="w-full" data-formulario-section="examen-cabeza">
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold text-gray-800">
-          Examen de Cabeza
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+  const generarRedaccionIA = () => {
+    const { tipoCraneo, tipoPerfil, cara } = formData.examenCabeza;
+    let redaccion = "Al examen de cabeza, ";
+
+    // 1. Cráneo y Perfil
+    if (tipoCraneo) {
+      const craneoLabel = {
+        mesocefalo: "mesocéfalo",
+        dolicocefalo: "dolicocéfalo",
+        braquicefalo: "braquicéfalo"
+      }[tipoCraneo] || tipoCraneo;
+      redaccion += `se observa un cráneo de tipo ${craneoLabel}`;
+    } else {
+      redaccion += "no se especifica el tipo de cráneo";
+    }
+
+    if (tipoPerfil) {
+      const perfilLabel = {
+        recto: "recto",
+        convexo: "convexo",
+        concavo: "cóncavo"
+      }[tipoPerfil] || tipoPerfil;
+      redaccion += `, con un perfil facial ${perfilLabel}. `;
+    } else {
+      redaccion += ". ";
+    }
+
+    // 2. Detalles de la Cara
+    if (cara) {
+      redaccion += "En la inspección facial, ";
+      const detallesCara: string[] = [];
+
+      if (cara.tez) {
+        detallesCara.push(`la tez del paciente es ${cara.tez}`);
+      }
+      if (cara.estadoPiel) {
+        const pielLabel = cara.estadoPiel === 'reseca' ? 'reseca' : 'adecuadamente humectada';
+        detallesCara.push(`la piel se encuentra ${pielLabel}`);
+      }
+
+      // Lunares
+      if (cara.lunares?.presente) {
+        let descLunares = "se observan lunares";
+        const detallesLunares = [];
+        if (cara.lunares.tamanio) detallesLunares.push(`de tamaño ${cara.lunares.tamanio}`);
+        if (cara.lunares.color) detallesLunares.push(`de color ${cara.lunares.color}`);
+        if (cara.lunares.detalles) detallesLunares.push(`descritos como: "${cara.lunares.detalles}"`);
         
-        {/* Tipo de Cráneo */}
-        <div className="space-y-4">
-          <Label className="text-base font-medium">Tipo de Cráneo</Label>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              { value: 'mesocefalo', label: 'Mesocéfalo', image: '/mesocefalo.svg' },
-              { value: 'dolicocefalo', label: 'Dolicocéfalo', image: '/dolicocefalo.svg' },
-              { value: 'braquicefalo', label: 'Braquicéfalo', image: '/braquicefalo.svg' }
-            ].map((tipo) => (
-              <div key={tipo.value} className="flex flex-col items-center space-y-2">
-                <div className="relative">
-                  <img 
-                    src={tipo.image} 
-                    alt={tipo.label}
-                    className="w-24 h-24 object-contain rounded-lg border-2 hover:border-blue-300 transition-colors cursor-pointer"
-                    onClick={() => handleExamenCabezaChange('tipoCraneo', tipo.value)}
-                  />
-                  {getFormValue('tipoCraneo') === tipo.value && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs">✓</span>
+        if (detallesLunares.length > 0) {
+          descLunares += ` ${detallesLunares.join(', ')}`;
+        }
+        detallesCara.push(descLunares);
+      } else {
+        detallesCara.push("no se observan lunares de relevancia");
+      }
+
+      // Cicatrices
+      if (cara.cicatrices?.presente) {
+        let descCicatrices = "presenta cicatrices";
+        const detallesCicatrices = [];
+        if (cara.cicatrices.localizacion) detallesCicatrices.push(`localizadas en ${cara.cicatrices.localizacion}`);
+        if (cara.cicatrices.tamanio) detallesCicatrices.push(`de tamaño ${cara.cicatrices.tamanio}`);
+        if (cara.cicatrices.bordes) detallesCicatrices.push(`con bordes ${cara.cicatrices.bordes}`);
+        if (cara.cicatrices.detalles) detallesCicatrices.push(`descritas como: "${cara.cicatrices.detalles}"`);
+        
+        if (detallesCicatrices.length > 0) {
+          descCicatrices += ` ${detallesCicatrices.join(' ')}`;
+        }
+        detallesCara.push(descCicatrices);
+      } else {
+        detallesCara.push("sin cicatrices visibles");
+      }
+
+      // Asimetrías
+      if (cara.asimetriasFaciales?.presente) {
+        let descAsimetrias = "se detecta asimetría facial";
+        const detallesAsimetrias = [];
+        if (cara.asimetriasFaciales.tipo) detallesAsimetrias.push(`de tipo ${cara.asimetriasFaciales.tipo}`);
+        if (cara.asimetriasFaciales.zonaAfectada) detallesAsimetrias.push(`en el ${cara.asimetriasFaciales.zonaAfectada}`);
+        if (cara.asimetriasFaciales.descripcion) detallesAsimetrias.push(`descrita como: "${cara.asimetriasFaciales.descripcion}"`);
+
+        if (detallesAsimetrias.length > 0) {
+          descAsimetrias += ` ${detallesAsimetrias.join(', ')}`;
+        }
+        detallesCara.push(descAsimetrias);
+      } else {
+        detallesCara.push("la cara se observa simétrica");
+      }
+
+      // Edema
+      if (cara.edema?.presente) {
+        let descEdema = "se evidencia edema";
+        const detallesEdema = [];
+        if (cara.edema.grado) detallesEdema.push(`de grado ${cara.edema.grado}`);
+        if (cara.edema.localizacion) detallesEdema.push(`con localización en ${cara.edema.localizacion}`);
+        if (cara.edema.consistencia) detallesEdema.push(`de consistencia ${cara.edema.consistencia}`);
+        if (cara.edema.descripcion) detallesEdema.push(`descrito como: "${cara.edema.descripcion}"`);
+        
+        if (detallesEdema.length > 0) {
+          descEdema += ` ${detallesEdema.join(', ')}`;
+        }
+        detallesCara.push(descEdema);
+      } else {
+        detallesCara.push("sin presencia de edema facial");
+      }
+
+      // Unir detalles de la cara
+      if (detallesCara.length > 0) {
+        redaccion += detallesCara.join(', ') + ".";
+      } else {
+        redaccion += "sin hallazgos patológicos aparentes. ";
+      }
+
+      // Observaciones de la Cara
+      if (cara.observaciones) {
+        redaccion += ` Observaciones adicionales de la cara: ${cara.observaciones}`;
+      }
+    } else {
+      redaccion += " No se realizó un examen detallado de la cara.";
+    }
+
+    setRedaccionCara(redaccion.trim());
+    setShowForm(false);
+    redaccionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleCopy = async () => {
+    // Lógica de seguimiento (opcional, traída del ejemplo)
+    try {
+      const { trackCopyClick } = await import('@/utils/trackCopyClick');
+      trackCopyClick();
+    } catch (error) {
+      console.error('Error tracking copy:', error);
+    }
+    
+    if (redaccionCara) {
+      navigator.clipboard.writeText(redaccionCara);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  // --- Renderizado del Componente ---
+  return (
+    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="examen-cabeza">
+      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
+        
+        {/* --- Barra Superior (Controles) --- */}
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex justify-center w-full">
+            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
+              <button
+                onClick={() => setShowForm(true)}
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+              >
+                Formulario
+              </button>
+              <button
+                onClick={() => setShowForm(false)}
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
+              >
+                Redacción IA
+              </button>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
+              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
+            </button>
+            <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
+              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
+            </button>
+            <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
+              <X className="w-3 h-3 sm:w-4 sm:h-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* --- Título de la Sección --- */}
+        <div className="flex justify-start px-6 py-2">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+            Examen de Cabeza
+          </h2>
+        </div>
+
+        {!isMinimized && (
+          <CardContent className="p-6">
+            {showForm ? (
+              // --- VISTA DE FORMULARIO ---
+              <div className="space-y-8">
+                
+                {/* Tipo de Cráneo */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium text-gray-800 dark:text-white">Tipo de Cráneo</Label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {[
+                      { value: 'mesocefalo', label: 'Mesocéfalo', image: '/mesocefalo.svg' },
+                      { value: 'dolicocefalo', label: 'Dolicocéfalo', image: '/dolicocefalo.svg' },
+                      { value: 'braquicefalo', label: 'Braquicéfalo', image: '/braquicefalo.svg' }
+                    ].map((tipo) => (
+                      <div key={tipo.value} className="flex flex-col items-center space-y-2">
+                        <div className="relative">
+                          <img 
+                            src={tipo.image} 
+                            alt={tipo.label}
+                            // Tamaño de imagen aumentado
+                            className="w-32 h-32 object-contain rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer"
+                            onClick={() => handleExamenCabezaChange('tipoCraneo', tipo.value)}
+                          />
+                          {getFormValue('tipoCraneo') === tipo.value && (
+                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
+                              <span className="text-white text-xs font-bold">✓</span>
+                            </div>
+                          )}
+                        </div>
+                        <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{tipo.label}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Tipo de Perfil */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium text-gray-800 dark:text-white">Tipo de Perfil</Label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {[
+                      { value: 'recto', label: 'Recto', image: '/recto.svg' },
+                      { value: 'convexo', label: 'Convexo', image: '/convexo.svg' },
+                      { value: 'concavo', label: 'Cóncavo', image: '/concavo.svg' }
+                    ].map((perfil) => (
+                      <div key={perfil.value} className="flex flex-col items-center space-y-2">
+                        <div className="relative">
+                          <img 
+                            src={perfil.image} 
+                            alt={perfil.label}
+                            // Tamaño de imagen aumentado
+                            className="w-32 h-32 object-contain rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer"
+                            onClick={() => handleExamenCabezaChange('tipoPerfil', perfil.value)}
+                          />
+                          {getFormValue('tipoPerfil') === perfil.value && (
+                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
+                              <span className="text-white text-xs font-bold">✓</span>
+                            </div>
+                          )}
+                        </div>
+                        <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{perfil.label}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* --- NUEVA SECCIÓN: CARA --- */}
+                <div className="space-y-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                    Inspección Facial (Cara)
+                  </h3>
+                  
+                  {/* Grid para Tez y Estado de Piel */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Tez */}
+                    <div className="space-y-3">
+                      <Label className="font-medium text-gray-700 dark:text-gray-300">Tez</Label>
+                      <Select 
+                        value={getFormValueCara('tez')} 
+                        onValueChange={(value) => handleCaraChange('tez', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Seleccionar tipo de tez" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="clara">Clara</SelectItem>
+                          <SelectItem value="morena">Morena</SelectItem>
+                          <SelectItem value="oscura">Oscura</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                  )}
-                </div>
-                <Label className="text-sm text-center">{tipo.label}</Label>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Tipo de Perfil */}
-        <div className="space-y-4">
-          <Label className="text-base font-medium">Tipo de Perfil</Label>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[
-              { value: 'recto', label: 'Recto', image: '/recto.svg' },
-              { value: 'convexo', label: 'Convexo', image: '/convexo.svg' },
-              { value: 'concavo', label: 'Cóncavo', image: '/concavo.svg' }
-            ].map((perfil) => (
-              <div key={perfil.value} className="flex flex-col items-center space-y-2">
-                <div className="relative">
-                  <img 
-                    src={perfil.image} 
-                    alt={perfil.label}
-                    className="w-24 h-24 object-contain rounded-lg border-2 hover:border-blue-300 transition-colors cursor-pointer"
-                    onClick={() => handleExamenCabezaChange('tipoPerfil', perfil.value)}
-                  />
-                  {getFormValue('tipoPerfil') === perfil.value && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                      <span className="text-white text-xs">✓</span>
+                    {/* Estado de la Piel */}
+                    <div className="space-y-3">
+                      <Label className="font-medium text-gray-700 dark:text-gray-300">Estado de la Piel</Label>
+                      <div className="flex flex-wrap gap-4 pt-2">
+                        {['reseca', 'humectada'].map((estado) => (
+                          <div key={estado} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`piel-${estado}`}
+                              checked={getFormValueCara('estadoPiel') === estado}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  handleCaraChange('estadoPiel', estado);
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`piel-${estado}`} className="capitalize text-gray-700 dark:text-gray-300">
+                              {estado}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  )}
-                </div>
-                <Label className="text-sm text-center">{perfil.label}</Label>
-              </div>
-            ))}
-          </div>
-        </div>
+                  </div>
 
-        {/* Tez */}
-        <div className="space-y-3">
-          <Label className="text-base font-medium">Tez</Label>
-          <Select 
-            value={getFormValue('tez')} 
-            onValueChange={(value) => handleExamenCabezaChange('tez', value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccionar tipo de tez" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="clara">Clara</SelectItem>
-              <SelectItem value="morena">Morena</SelectItem>
-              <SelectItem value="oscura">Oscura</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+                  {/* Grid para Hallazgos Detallados */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        {/* Estado de la Piel */}
-        <div className="space-y-3">
-          <Label className="text-base font-medium">Estado de la Piel</Label>
-          <div className="flex flex-wrap gap-4">
-            {['reseca', 'humectada'].map((estado) => (
-              <div key={estado} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`piel-${estado}`}
-                  checked={getFormValue('estadoPiel') === estado}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      handleExamenCabezaChange('estadoPiel', estado);
-                    }
-                  }}
-                />
-                <Label htmlFor={`piel-${estado}`} className="capitalize">
-                  {estado}
-                </Label>
-              </div>
-            ))}
-          </div>
-        </div>
+                    {/* Lunares */}
+                    <div className="space-y-4 bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="lunares-presente"
+                          checked={getCheckboxValue('lunares')}
+                          onCheckedChange={(checked) => 
+                            handleDetailedChange('lunares', 'presente', checked as boolean)
+                          }
+                        />
+                        <Label htmlFor="lunares-presente" className="text-base font-medium text-gray-800 dark:text-white">
+                          Lunares
+                        </Label>
+                      </div>
+                      
+                      {getCheckboxValue('lunares') && (
+                        <div className="ml-6 space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-sm">Tamaño</Label>
+                              <Select 
+                                value={getSelectValue('lunares', 'tamanio')} 
+                                onValueChange={(value) => handleDetailedChange('lunares', 'tamanio', value)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Tamaño" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pequeno">Pequeño (&lt;5mm)</SelectItem>
+                                  <SelectItem value="mediano">Mediano (5-10mm)</SelectItem>
+                                  <SelectItem value="grande">Grande (&gt;10mm)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-sm">Color</Label>
+                              <Select 
+                                value={getSelectValue('lunares', 'color')} 
+                                onValueChange={(value) => handleDetailedChange('lunares', 'color', value)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Color" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="marron-claro">Marrón claro</SelectItem>
+                                  <SelectItem value="marron-oscuro">Marrón oscuro</SelectItem>
+                                  <SelectItem value="negro">Negro</SelectItem>
+                                  <SelectItem value="rojizo">Rojizo</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-sm">Detalles</Label>
+                            <Textarea
+                              placeholder="Describe características, ubicación, etc."
+                              value={getSelectValue('lunares', 'detalles')}
+                              onChange={(e) => handleDetailedChange('lunares', 'detalles', e.target.value)}
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
 
-        {/* Lunares */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="lunares-presente"
-              checked={getBooleanValue('lunares', 'presente')}
-              onCheckedChange={(checked) => 
-                handleDetailedChange('lunares', 'presente', checked as boolean)
-              }
-            />
-            <Label htmlFor="lunares-presente" className="text-base font-medium">
-              Lunares
-            </Label>
-          </div>
-          
-          {getBooleanValue('lunares', 'presente') && (
-            <div className="ml-6 space-y-3">
-              <div>
-                <Label>Detalles</Label>
-                <Textarea
-                  placeholder="Describe características, ubicación, etc."
-                  value={getSelectValue('lunares', 'detalles')}
-                  onChange={(e) => handleDetailedChange('lunares', 'detalles', e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <Label>Tamaño</Label>
-                  <Select 
-                    value={getSelectValue('lunares', 'tamanio')} 
-                    onValueChange={(value) => handleDetailedChange('lunares', 'tamanio', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar tamaño" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pequeno">Pequeño (&lt;5mm)</SelectItem>
-                      <SelectItem value="mediano">Mediano (5-10mm)</SelectItem>
-                      <SelectItem value="grande">Grande (&gt;10mm)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label>Color</Label>
-                  <Select 
-                    value={getSelectValue('lunares', 'color')} 
-                    onValueChange={(value) => handleDetailedChange('lunares', 'color', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Seleccionar color" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="marron-claro">Marrón claro</SelectItem>
-                      <SelectItem value="marron-oscuro">Marrón oscuro</SelectItem>
-                      <SelectItem value="negro">Negro</SelectItem>
-                      <SelectItem value="rojizo">Rojizo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+                    {/* Asimetrías Faciales */}
+                    <div className="space-y-4 bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="asimetrias-presente"
+                          checked={getCheckboxValue('asimetriasFaciales')}
+                          onCheckedChange={(checked) => 
+                            handleDetailedChange('asimetriasFaciales', 'presente', checked as boolean)
+                          }
+                        />
+                        <Label htmlFor="asimetrias-presente" className="text-base font-medium text-gray-800 dark:text-white">
+                          Asimetrías Faciales
+                        </Label>
+                      </div>
+                      
+                      {getCheckboxValue('asimetriasFaciales') && (
+                        <div className="ml-6 space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <Label className="text-sm">Tipo</Label>
+                              <Select 
+                                value={getSelectValue('asimetriasFaciales', 'tipo')} 
+                                onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'tipo', value)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Tipo" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="leve">Leve</SelectItem>
+                                  <SelectItem value="moderada">Moderada</SelectItem>
+                                  <SelectItem value="severa">Severa</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-sm">Zona Afectada</Label>
+                              <Select 
+                                value={getSelectValue('asimetriasFaciales', 'zonaAfectada')} 
+                                onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'zonaAfectada', value)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Zona" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="tercio-superior">Tercio superior</SelectItem>
+                                  <SelectItem value="tercio-medio">Tercio medio</SelectItem>
+                                  <SelectItem value="tercio-inferior">Tercio inferior</SelectItem>
+                                  <SelectItem value="lado-derecho">Lado derecho</SelectItem>
+                                  <SelectItem value="lado-izquierdo">Lado izquierdo</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-sm">Descripción</Label>
+                            <Textarea
+                              placeholder="Describe la asimetría observada..."
+                              value={getSelectValue('asimetriasFaciales', 'descripcion')}
+                              onChange={(e) => handleDetailedChange('asimetriasFaciales', 'descripcion', e.target.value)}
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Cicatrices */}
+                    <div className="space-y-4 bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="cicatrices-presente"
+                          checked={getCheckboxValue('cicatrices')}
+                          onCheckedChange={(checked) => 
+                            handleDetailedChange('cicatrices', 'presente', checked as boolean)
+                          }
+                        />
+                        <Label htmlFor="cicatrices-presente" className="text-base font-medium text-gray-800 dark:text-white">
+                          Cicatrices
+                        </Label>
+                      </div>
+                      
+                      {getCheckboxValue('cicatrices') && (
+                        <div className="ml-6 space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                              <Label className="text-sm">Tamaño</Label>
+                              <Select 
+                                value={getSelectValue('cicatrices', 'tamanio')} 
+                                onValueChange={(value) => handleDetailedChange('cicatrices', 'tamanio', value)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Tamaño" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pequena">Pequeña</SelectItem>
+                                  <SelectItem value="mediana">Mediana</SelectItem>
+                                  <SelectItem value="grande">Grande</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-sm">Bordes</Label>
+                              <Select 
+                                value={getSelectValue('cicatrices', 'bordes')} 
+                                onValueChange={(value) => handleDetailedChange('cicatrices', 'bordes', value)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Bordes" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="regulares">Regulares</SelectItem>
+                                  <SelectItem value="irregulares">Irregulares</SelectItem>
+                                  <SelectItem value="elevados">Elevados</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-sm">Localización</Label>
+                              <Select 
+                                value={getSelectValue('cicatrices', 'localizacion')} 
+                                onValueChange={(value) => handleDetailedChange('cicatrices', 'localizacion', value)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Ubicación" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="frente">Frente</SelectItem>
+                                  <SelectItem value="mejilla-derecha">Mejilla derecha</SelectItem>
+                                  <SelectItem value="mejilla-izquierda">Mejilla izquierda</SelectItem>
+                                  <SelectItem value="menton">Mentón</SelectItem>
+                                  <SelectItem value="otra">Otra</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-sm">Detalles</Label>
+                            <Textarea
+                              placeholder="Describe ubicación, causa, características..."
+                              value={getSelectValue('cicatrices', 'detalles')}
+                              onChange={(e) => handleDetailedChange('cicatrices', 'detalles', e.target.value)}
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
 
-        {/* Cicatrices */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="cicatrices-presente"
-              checked={getCheckboxValue('cicatrices')}
-              onCheckedChange={(checked) => 
-                handleDetailedChange('cicatrices', 'presente', checked as boolean)
-              }
-            />
-            <Label htmlFor="cicatrices-presente" className="text-base font-medium">
-              Cicatrices
-            </Label>
-          </div>
-          
-          {getCheckboxValue('cicatrices') && (
-            <div className="ml-6 space-y-3">
-              <div>
-                <Label>Detalles</Label>
-                <Textarea
-                  placeholder="Describe ubicación, causa, características..."
-                  value={getSelectValue('cicatrices', 'detalles')}
-                  onChange={(e) => handleDetailedChange('cicatrices', 'detalles', e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
-                  <Label>Tamaño</Label>
-                  <Select 
-                    value={getSelectValue('cicatrices', 'tamanio')} 
-                    onValueChange={(value) => handleDetailedChange('cicatrices', 'tamanio', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Tamaño" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pequena">Pequeña</SelectItem>
-                      <SelectItem value="mediana">Mediana</SelectItem>
-                      <SelectItem value="grande">Grande</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label>Bordes</Label>
-                  <Select 
-                    value={getSelectValue('cicatrices', 'bordes')} 
-                    onValueChange={(value) => handleDetailedChange('cicatrices', 'bordes', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Tipo de bordes" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="regulares">Regulares</SelectItem>
-                      <SelectItem value="irregulares">Irregulares</SelectItem>
-                      <SelectItem value="elevados">Elevados</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label>Localización</Label>
-                  <Select 
-                    value={getSelectValue('cicatrices', 'localizacion')} 
-                    onValueChange={(value) => handleDetailedChange('cicatrices', 'localizacion', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Ubicación" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="frente">Frente</SelectItem>
-                      <SelectItem value="mejilla-derecha">Mejilla derecha</SelectItem>
-                      <SelectItem value="mejilla-izquierda">Mejilla izquierda</SelectItem>
-                      <SelectItem value="menton">Mentón</SelectItem>
-                      <SelectItem value="cuero-cabelludo">Cuero cabelludo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+                    {/* Edema */}
+                    <div className="space-y-4 bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="edema-presente"
+                          checked={getCheckboxValue('edema')}
+                          onCheckedChange={(checked) => 
+                            handleDetailedChange('edema', 'presente', checked as boolean)
+                          }
+                        />
+                        <Label htmlFor="edema-presente" className="text-base font-medium text-gray-800 dark:text-white">
+                          Edema
+                        </Label>
+                      </div>
+                      
+                      {getCheckboxValue('edema') && (
+                        <div className="ml-6 space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                              <Label className="text-sm">Grado</Label>
+                              <Select 
+                                value={getSelectValue('edema', 'grado')} 
+                                onValueChange={(value) => handleDetailedChange('edema', 'grado', value)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Grado" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="leve (+)">Leve (+)</SelectItem>
+                                  <SelectItem value="moderado (++)">Moderado (++)</SelectItem>
+                                  <SelectItem value="severo (+++)">Severo (+++)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-sm">Localización</Label>
+                              <Select 
+                                value={getSelectValue('edema', 'localizacion')} 
+                                onValueChange={(value) => handleDetailedChange('edema', 'localizacion', value)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Ubicación" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="parpados">Párpados</Dsl-ar-selectItem>
+                                  <SelectItem value="mejillas">Mejillas</SelectItem>
+                                  <SelectItem value="labios">Labios</SelectItem>
+                                  <SelectItem value="generalizado">Generalizado</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div>
+                              <Label className="text-sm">Consistencia</Label>
+                              <Select 
+                                value={getSelectValue('edema', 'consistencia')} 
+                                onValueChange={(value) => handleDetailedChange('edema', 'consistencia', value)}
+                              >
+                                <SelectTrigger><SelectValue placeholder="Consistencia" /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="blando">Blando</SelectItem>
+                                  <SelectItem value="firme">Firme</SelectItem>
+                                  <SelectItem value="duro">Duro</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-sm">Descripción</Label>
+                            <Textarea
+                              placeholder="Describe el edema..."
+                              value={getSelectValue('edema', 'descripcion')}
+                              onChange={(e) => handleDetailedChange('edema', 'descripcion', e.target.value)}
+                              className="mt-1"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-        {/* Asimetrías Faciales */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="asimetrias-presente"
-              checked={getCheckboxValue('asimetriasFaciales')}
-              onCheckedChange={(checked) => 
-                handleDetailedChange('asimetriasFaciales', 'presente', checked as boolean)
-              }
-            />
-            <Label htmlFor="asimetrias-presente" className="text-base font-medium">
-              Asimetrías Faciales
-            </Label>
-          </div>
-          
-          {getCheckboxValue('asimetriasFaciales') && (
-            <div className="ml-6 space-y-3">
-              <div>
-                <Label>Descripción</Label>
-                <Textarea
-                  placeholder="Describe la asimetría observada..."
-                  value={getSelectValue('asimetriasFaciales', 'descripcion')}
-                  onChange={(e) => handleDetailedChange('asimetriasFaciales', 'descripcion', e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <Label>Tipo</Label>
-                  <Select 
-                    value={getSelectValue('asimetriasFaciales', 'tipo')} 
-                    onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'tipo', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Tipo de asimetría" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="leve">Leve</SelectItem>
-                      <SelectItem value="moderada">Moderada</SelectItem>
-                      <SelectItem value="severa">Severa</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {/* Observaciones Generales (de la Cara) */}
+                  <div className="space-y-3">
+                    <Label className="text-base font-medium text-gray-800 dark:text-white">
+                      Otras Observaciones (Cara)
+                    </Label>
+                    <Textarea
+                      placeholder="Anota cualquier observación adicional sobre la cara..."
+                      value={getFormValueCara('observaciones')}
+                      onChange={(e) => handleCaraChange('observaciones', e.target.value)}
+                      rows={3}
+                    />
+                  </div>
                 </div>
-                
-                <div>
-                  <Label>Zona Afectada</Label>
-                  <Select 
-                    value={getSelectValue('asimetriasFaciales', 'zonaAfectada')} 
-                    onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'zonaAfectada', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Zona" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="tercio-superior">Tercio superior</SelectItem>
-                      <SelectItem value="tercio-medio">Tercio medio</SelectItem>
-                      <SelectItem value="tercio-inferior">Tercio inferior</SelectItem>
-                      <SelectItem value="lado-derecho">Lado derecho</SelectItem>
-                      <SelectItem value="lado-izquierdo">Lado izquierdo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* Edema */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="edema-presente"
-              checked={getCheckboxValue('edema')}
-              onCheckedChange={(checked) => 
-                handleDetailedChange('edema', 'presente', checked as boolean)
-              }
-            />
-            <Label htmlFor="edema-presente" className="text-base font-medium">
-              Edema
-            </Label>
-          </div>
-          
-          {getCheckboxValue('edema') && (
-            <div className="ml-6 space-y-3">
-              <div>
-                <Label>Descripción</Label>
-                <Textarea
-                  placeholder="Describe el edema..."
-                  value={getSelectValue('edema', 'descripcion')}
-                  onChange={(e) => handleDetailedChange('edema', 'descripcion', e.target.value)}
-                  className="mt-1"
-                />
+                {/* --- Botones de Acción --- */}
+                <div className="flex justify-center gap-4 mt-6">
+                  <Button
+                    onClick={generarRedaccionIA}
+                    className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
+                  >
+                    Generar Redacción IA
+                  </Button>
+                  <Button
+                    onClick={limpiarFormulario}
+                    variant="outline"
+                    className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    Limpiar Formulario
+                  </Button>
+                </div>
+
               </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div>
-                  <Label>Grado</Label>
-                  <Select 
-                    value={getSelectValue('edema', 'grado')} 
-                    onValueChange={(value) => handleDetailedChange('edema', 'grado', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Grado" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="leve">Leve (+)</SelectItem>
-                      <SelectItem value="moderado">Moderado (++)</SelectItem>
-                      <SelectItem value="severo">Severo (+++)</SelectItem>
-                    </SelectContent>
-                  </Select>
+            ) : (
+              // --- VISTA DE REDACCIÓN IA ---
+              <div className="space-y-6">
+                <div ref={redaccionRef} className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Redacción General</h4>
+                    <button
+                      onClick={handleCopy}
+                      className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 transition-colors"
+                    >
+                      {copied ? (
+                        <>
+                          <CheckCircle className="w-4 h-4" />
+                          <span>Copiado</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-4 h-4" />
+                          <span>Copiar</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <div>
+                    <AnimatedTextareaWithTyping
+                      content={redaccionCara}
+                      className="w-full bg-white/50 dark:bg-gray-800/50 p-2 rounded-md text-sm text-gray-700 dark:text-gray-300"
+                      textAlign="justify"
+                      readOnly
+                    />
+                  </div>
                 </div>
-                
-                <div>
-                  <Label>Localización</Label>
-                  <Select 
-                    value={getSelectValue('edema', 'localizacion')} 
-                    onValueChange={(value) => handleDetailedChange('edema', 'localizacion', value)}
+                <div className="flex justify-center">
+                  <Button
+                    onClick={() => setShowForm(true)}
+                    variant="outline"
+                    className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Ubicación" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="parpados">Párpados</SelectItem>
-                      <SelectItem value="mejillas">Mejillas</SelectItem>
-                      <SelectItem value="labios">Labios</SelectItem>
-                      <SelectItem value="generalizado">Generalizado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <Label>Consistencia</Label>
-                  <Select 
-                    value={getSelectValue('edema', 'consistencia')} 
-                    onValueChange={(value) => handleDetailedChange('edema', 'consistencia', value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Consistencia" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="blando">Blando</SelectItem>
-                      <SelectItem value="firme">Firme</SelectItem>
-                      <SelectItem value="duro">Duro</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    Volver al Formulario
+                  </Button>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-
-        {/* Observaciones Generales */}
-        <div className="space-y-3">
-          <Label className="text-base font-medium">Observaciones Generales</Label>
-          <Textarea
-            placeholder="Anota cualquier observación adicional sobre el examen de cabeza..."
-            value={getFormValue('observaciones')}
-            onChange={(e) => handleExamenCabezaChange('observaciones', e.target.value)}
-            rows={3}
-          />
-        </div>
-
-      </CardContent>
-    </Card>
+            )}
+          </CardContent>
+        )}
+      </Card>
+    </div>
   );
 };
 
