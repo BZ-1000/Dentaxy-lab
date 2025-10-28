@@ -367,17 +367,20 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                          <div 
                            className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${
                              getFormValue('tipoCraneo') === tipo.value
-                               ? 'border-blue-500 ring-2 ring-blue-500/50 ring-offset-2 scale-105 shadow-xl'
+                               ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
                                : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
                            }`}
-                           onClick={() => handleExamenCabezaChange('tipoCraneo', tipo.value)}
+                           onClick={() => {
+                             // MODIFICADO: Lógica para deseleccionar
+                             const currentValue = getFormValue('tipoCraneo');
+                             handleExamenCabezaChange('tipoCraneo', currentValue === tipo.value ? '' : tipo.value);
+                           }}
                          >
                           <img 
                             src={tipo.image} 
                             alt={tipo.label}
                             className="w-full h-full object-cover"
                           />
-                          {/* El checkmark que estaba aquí fue eliminado */}
                         </div>
                         {/* --- FIN DE LA MODIFICACIÓN --- */}
                         <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{tipo.label}</Label>
@@ -400,17 +403,20 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                         <div 
                           className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${
                             getFormValue('tipoPerfil') === perfil.value
-                              ? 'border-blue-500 ring-2 ring-blue-500/50 ring-offset-2 scale-105 shadow-xl'
+                              ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
                               : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
                           }`}
-                          onClick={() => handleExamenCabezaChange('tipoPerfil', perfil.value)}
+                          onClick={() => {
+                            // MODIFICADO: Lógica para deseleccionar
+                            const currentValue = getFormValue('tipoPerfil');
+                            handleExamenCabezaChange('tipoPerfil', currentValue === perfil.value ? '' : perfil.value);
+                          }}
                         >
                           <img 
                             src={perfil.image} 
                             alt={perfil.label}
                             className="w-full h-full object-cover"
                           />
-                          {/* El checkmark que estaba aquí fue eliminado */}
                         </div>
                         {/* --- FIN DE LA MODIFICACIÓN --- */}
                         <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{perfil.label}</Label>
