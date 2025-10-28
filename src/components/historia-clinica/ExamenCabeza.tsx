@@ -80,8 +80,9 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
 
   // Manejador para campos simples dentro de 'cara'
   const handleCaraChange = (field: keyof CaraState, value: string | boolean) => {
+    const currentCara = formData.examenCabeza.cara as CaraState || {};
     const updatedCara = {
-      ...(formData.examenCabeza.cara || {}),
+      ...currentCara,
       [field]: value
     };
     handleExamenCabezaChange('cara', updatedCara);
@@ -89,7 +90,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
 
   // Manejador para campos detallados (lunares, cicatrices, etc.) dentro de 'cara'
   const handleDetailedChange = (category: keyof CaraState, field: string, value: string | boolean) => {
-    const currentCara = formData.examenCabeza.cara || {};
+    const currentCara = formData.examenCabeza.cara as CaraState || {};
     const currentData = (currentCara[category] as CaracteristicaFacial) || {};
     
     const updatedData = {
@@ -160,7 +161,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
   };
 
   const generarRedaccionIA = () => {
-    const { tipoCraneo, tipoPerfil, cara } = formData.examenCabeza;
+    const { tipoCraneo, tipoPerfil, cara: caraData } = formData.examenCabeza;
+    const cara = caraData as CaraState;
     let redaccion = "Al examen de cabeza, ";
 
     // 1. Cráneo y Perfil
@@ -702,7 +704,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                               >
                                 <SelectTrigger><SelectValue placeholder="Ubicación" /></SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="parpados">Párpados</Dsl-ar-selectItem>
+                                  <SelectItem value="parpados">Párpados</SelectItem>
                                   <SelectItem value="mejillas">Mejillas</SelectItem>
                                   <SelectItem value="labios">Labios</SelectItem>
                                   <SelectItem value="generalizado">Generalizado</SelectItem>
