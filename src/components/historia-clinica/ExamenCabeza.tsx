@@ -363,15 +363,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       { value: 'braquicefalo', label: 'Braquicéfalo', image: '/braquicefalo.svg' }
                     ].map((tipo) => (
                       <div key={tipo.value} className="flex flex-col items-center space-y-2">
-                         {/* --- INICIO DE LA MODIFICACIÓN --- */}
                          <div 
                            className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${
                              getFormValue('tipoCraneo') === tipo.value
-                               ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
+                               ? 'border-blue-500 scale-105 shadow-lg'
                                : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
                            }`}
                            onClick={() => {
-                             // MODIFICADO: Lógica para deseleccionar
                              const currentValue = getFormValue('tipoCraneo');
                              handleExamenCabezaChange('tipoCraneo', currentValue === tipo.value ? '' : tipo.value);
                            }}
@@ -382,7 +380,6 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        {/* --- FIN DE LA MODIFICACIÓN --- */}
                         <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{tipo.label}</Label>
                       </div>
                     ))}
@@ -399,15 +396,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       { value: 'concavo', label: 'Cóncavo', image: '/concavo.svg' }
                     ].map((perfil) => (
                       <div key={perfil.value} className="flex flex-col items-center space-y-2">
-                        {/* --- INICIO DE LA MODIFICACIÓN --- */}
                         <div 
                           className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${
                             getFormValue('tipoPerfil') === perfil.value
-                              ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
+                              ? 'border-blue-500 scale-105 shadow-lg'
                               : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
                           }`}
                           onClick={() => {
-                            // MODIFICADO: Lógica para deseleccionar
                             const currentValue = getFormValue('tipoPerfil');
                             handleExamenCabezaChange('tipoPerfil', currentValue === perfil.value ? '' : perfil.value);
                           }}
@@ -418,7 +413,6 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             className="w-full h-full object-cover"
                           />
                         </div>
-                        {/* --- FIN DE LA MODIFICACIÓN --- */}
                         <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{perfil.label}</Label>
                       </div>
                     ))}
@@ -477,22 +471,24 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                   {/* Grid para Hallazgos Detallados */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
+                    {/* --- INICIO MODIFICACIÓN DE COLOR --- */}
                     {/* Lunares */}
                     <Collapsible
                       open={getCheckboxValue('lunares')}
                       onOpenChange={(open) => handleDetailedChange('lunares', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
                           type="button"
                           variant="ghost"
-                          className="w-full justify-between p-4 hover:bg-accent/50"
+                          className="w-full justify-between p-4 hover:no-underline bg-blue-50/30 dark:bg-blue-950/20"
                         >
                           <span className="text-base font-medium text-gray-800 dark:text-white">Lunares</span>
                           <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('lunares') ? 'rotate-180' : ''}`} />
                         </Button>
                       </CollapsibleTrigger>
+                      {/* --- FIN MODIFICACIÓN DE COLOR --- */}
                       
                       <CollapsibleContent className="px-4 pb-4">
                         <div className="space-y-4 ml-2 pt-2">
@@ -540,22 +536,24 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       </CollapsibleContent>
                     </Collapsible>
 
+                    {/* --- INICIO MODIFICACIÓN DE COLOR --- */}
                     {/* Asimetrías Faciales */}
                     <Collapsible
                       open={getCheckboxValue('asimetriasFaciales')}
                       onOpenChange={(open) => handleDetailedChange('asimetriasFaciales', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
                           type="button"
                           variant="ghost"
-                          className="w-full justify-between p-4 hover:bg-accent/50"
+                          className="w-full justify-between p-4 hover:no-underline bg-purple-50/30 dark:bg-purple-950/20"
                         >
                           <span className="text-base font-medium text-gray-800 dark:text-white">Asimetrías Faciales</span>
                           <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('asimetriasFaciales') ? 'rotate-180' : ''}`} />
                         </Button>
                       </CollapsibleTrigger>
+                      {/* --- FIN MODIFICACIÓN DE COLOR --- */}
                       
                       <CollapsibleContent className="px-4 pb-4">
                         <div className="space-y-4 ml-2 pt-2">
@@ -604,22 +602,24 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       </CollapsibleContent>
                     </Collapsible>
                     
+                    {/* --- INICIO MODIFICACIÓN DE COLOR --- */}
                     {/* Cicatrices */}
                     <Collapsible
                       open={getCheckboxValue('cicatrices')}
                       onOpenChange={(open) => handleDetailedChange('cicatrices', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
+                      className="rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2 overflow-hidden"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
                           type="button"
                           variant="ghost"
-                          className="w-full justify-between p-4 hover:bg-accent/50"
+                          className="w-full justify-between p-4 hover:no-underline bg-green-50/30 dark:bg-green-950/20"
                         >
                           <span className="text-base font-medium text-gray-800 dark:text-white">Cicatrices</span>
                           <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('cicatrices') ? 'rotate-180' : ''}`} />
                         </Button>
                       </CollapsibleTrigger>
+                      {/* --- FIN MODIFICACIÓN DE COLOR --- */}
                       
                       <CollapsibleContent className="px-4 pb-4">
                         <div className="space-y-4 ml-2 pt-2">
@@ -682,22 +682,24 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       </CollapsibleContent>
                     </Collapsible>
 
+                    {/* --- INICIO MODIFICACIÓN DE COLOR --- */}
                     {/* Edema */}
                     <Collapsible
                       open={getCheckboxValue('edema')}
                       onOpenChange={(open) => handleDetailedChange('edema', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
+                      className="rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2 overflow-hidden"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
                           type="button"
                           variant="ghost"
-                          className="w-full justify-between p-4 hover:bg-accent/50"
+                          className="w-full justify-between p-4 hover:no-underline bg-yellow-50/30 dark:bg-yellow-950/20"
                         >
                           <span className="text-base font-medium text-gray-800 dark:text-white">Edema</span>
                           <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('edema') ? 'rotate-180' : ''}`} />
                         </Button>
                       </CollapsibleTrigger>
+                      {/* --- FIN MODIFICACIÓN DE COLOR --- */}
                       
                       <CollapsibleContent className="px-4 pb-4">
                         <div className="space-y-4 ml-2 pt-2">
@@ -795,7 +797,11 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             ) : (
               // --- VISTA DE REDACCIÓN IA ---
               <div className="space-y-6">
-                <div ref={redaccionRef} className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                
+                {/* --- INICIO MODIFICACIÓN DE COLOR --- */}
+                <div ref={redaccionRef} className="bg-teal-50/30 dark:bg-teal-950/20 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                {/* --- FIN MODIFICACIÓN DE COLOR --- */}
+
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Redacción General</h4>
                     <button

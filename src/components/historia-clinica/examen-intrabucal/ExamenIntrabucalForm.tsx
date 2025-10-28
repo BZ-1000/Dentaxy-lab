@@ -1,851 +1,172 @@
-import React, { useState, useRef } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FormDataState } from '@/types/historiaClinica';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Copy, CheckCircle, ChevronDown } from "lucide-react";
-import { AnimatedTextareaWithTyping } from "@/components/ui/AnimatedTextareaWithTyping"; // Asegúrate de tener este componente
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Sparkles, Eraser } from "lucide-react";
+import { FormDataState } from '@/types/historiaClinica';
+import RedaccionComunToggle from './RedaccionComunToggle';
+import MejillasSection from './MejillasSection';
+import LenguaSection from './LenguaSection';
+import PisoBocaSection from './PisoBocaSection';
+import EnciasSection from './EnciasSection';
+import PaladarSection from './PaladarSection';
+import OrofaringeSection from './OrofaringeSection';
+import RegionRetromolarSection from './RegionRetromolarSection';
+import IstmoFaucesSection from './IstmoFaucesSection';
 
-// Interfaz para características faciales detalladas (reutilizada)
-interface CaracteristicaFacial {
-  presente?: boolean;
-  detalles?: string;
-  descripcion?: string; // Añadido para Asimetrías y Edema
-  tamanio?: string;
-  color?: string;
-  bordes?: string;
-  localizacion?: string;
-  grado?: string;
-  consistencia?: string;
-  tipo?: string;
-  zonaAfectada?: string;
-}
-
-// Interfaz para el estado 'cara' dentro de 'examenCabeza'
-interface CaraState {
-  tez?: string;
-  estadoPiel?: string;
-  lunares?: CaracteristicaFacial;
-  cicatrices?: CaracteristicaFacial;
-  asimetriasFaciales?: CaracteristicaFacial;
-  edema?: CaracteristicaFacial;
-  observaciones?: string;
-}
-
-// Actualizamos FormDataState para reflejar la nueva estructura anidada
-// (Esto es una suposición de cómo se ve tu tipo FormDataState)
-declare module '@/types/historiaClinica' {
-  interface ExamenCabezaState {
-    tipoCraneo?: string;
-    tipoPerfil?: string;
-    cara?: CaraState;
-    // ... otros campos de examenCabeza si los hubiera
-  }
-}
-
-interface ExamenCabezaProps {
+interface ExamenIntrabucalFormProps {
   formData: FormDataState;
-  handleExamenCabezaChange: (part: string, value: any) => void;
+  handleExamenIntrabucalChange: (part: string, value: any) => void;
+  onGenerate: () => void;
 }
 
-const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps) => {
-  // Estados para la UI de la tarjeta y la redacción
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [showForm, setShowForm] = useState(true);
-  const [redaccionCara, setRedaccionCara] = useState("");
-  const [copied, setCopied] = useState(false);
-  const redaccionRef = useRef<HTMLDivElement>(null);
+const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
+  formData,
+  handleExamenIntrabucalChange,
+  onGenerate,
+}) => {
+  const [redaccionComun, setRedaccionComun] = useState(false);
 
-  // --- Manejadores de la UI de la Tarjeta ---
-  const handleMinimize = () => {
-    setIsMinimized(!isMinimized);
-    setIsMaximized(false);
+  const handleLimpiarFormulario = () => {
+    const sections = ['mejillas', 'lengua', 'pisoBoca', 'encias', 'paladar', 'orofaringe', 'regionRetromolar', 'istmoFauces'];
+    sections.forEach(section => {
+      handleExamenIntrabucalChange(`${section}.sinHallazgos`, false);
+    });
+    setRedaccionComun(false);
   };
 
-  const handleMaximize = () => {
-    setIsMaximized(!isMaximized);
-    setIsMinimized(false);
+  const handleGenerarRedaccion = () => {
+    // Guardar preferencia de redacción común a nivel del módulo
+    handleExamenIntrabucalChange('sinHallazgos', redaccionComun);
+    // Notificar al padre para cambiar a la vista IA y disparar la animación
+    onGenerate();
   };
 
-  const handleClose = () => {
-    setIsMinimized(false);
-    setIsMaximized(false);
-  };
-
-  // --- Manejadores de Datos del Formulario ---
-
-  // Manejador para campos simples dentro de 'cara'
-  const handleCaraChange = (field: keyof CaraState, value: string | boolean) => {
-    const currentCara = formData.examenCabeza.cara as CaraState || {};
-    const updatedCara = {
-      ...currentCara,
-      [field]: value
-    };
-    handleExamenCabezaChange('cara', updatedCara);
-  };
-
-  // Manejador para campos detallados (lunares, cicatrices, etc.) dentro de 'cara'
-  const handleDetailedChange = (category: keyof CaraState, field: string, value: string | boolean) => {
-    const currentCara = formData.examenCabeza.cara as CaraState || {};
-    const currentData = (currentCara[category] as CaracteristicaFacial) || {};
-    
-    const updatedData = {
-      ...currentData,
-      [field]: value
-    };
-
-    const updatedCara = {
-      ...currentCara,
-      [category]: updatedData
-    };
-    
-    handleExamenCabezaChange('cara', updatedCara);
-  };
-
-  // --- Funciones 'Get' para obtener valores del formulario ---
-
-  // Obtiene valor de campos de primer nivel (tipoCraneo, tipoPerfil)
-  const getFormValue = (field: 'tipoCraneo' | 'tipoPerfil'): string => {
-    const value = formData.examenCabeza[field];
-    return typeof value === 'string' ? value : '';
-  };
-
-  // Obtiene valor de campos simples dentro de 'cara'
-  const getFormValueCara = (field: keyof CaraState): string => {
-    const value = formData.examenCabeza.cara?.[field];
-    return typeof value === 'string' ? value : '';
-  };
-
-  // Obtiene valor de un campo 'select' dentro de una categoría detallada
-  const getSelectValue = (category: keyof CaraState, field: string): string => {
-    const data = formData.examenCabeza.cara?.[category] as CaracteristicaFacial;
-    const value = data?.[field as keyof CaracteristicaFacial];
-    return typeof value === 'string' ? value : '';
-  };
-  
-  // Obtiene valor booleano 'presente' de una categoría detallada
-  const getCheckboxValue = (category: keyof CaraState): boolean => {
-    const data = formData.examenCabeza.cara?.[category];
-    if (typeof data === 'object' && data !== null && 'presente' in data) {
-      return (data as CaracteristicaFacial).presente || false;
-    }
-    return false;
-  };
-
-  // --- Lógica de Redacción IA y Limpieza ---
-
-  const limpiarFormulario = () => {
-    // Limpia campos de primer nivel
-    handleExamenCabezaChange('tipoCraneo', '');
-    handleExamenCabezaChange('tipoPerfil', '');
-    
-    // Limpia el objeto 'cara'
-    const caraLimpia: CaraState = {
-      tez: '',
-      estadoPiel: '',
-      lunares: { presente: false, detalles: '', tamanio: '', color: '' },
-      cicatrices: { presente: false, detalles: '', tamanio: '', bordes: '', localizacion: '' },
-      asimetriasFaciales: { presente: false, descripcion: '', tipo: '', zonaAfectada: '' },
-      edema: { presente: false, descripcion: '', grado: '', localizacion: '', consistencia: '' },
-      observaciones: ''
-    };
-    handleExamenCabezaChange('cara', caraLimpia);
-
-    // Resetea la vista
-    setRedaccionCara("");
-    setShowForm(true);
-  };
-
-  const generarRedaccionIA = () => {
-    const { tipoCraneo, tipoPerfil, cara: caraData } = formData.examenCabeza;
-    const cara = caraData as CaraState;
-    let redaccion = "Al examen de cabeza, ";
-
-    // 1. Cráneo y Perfil
-    if (tipoCraneo) {
-      const craneoLabel = {
-        mesocefalo: "mesocéfalo",
-        dolicocefalo: "dolicocéfalo",
-        braquicefalo: "braquicéfalo"
-      }[tipoCraneo] || tipoCraneo;
-      redaccion += `se observa un cráneo de tipo ${craneoLabel}`;
-    } else {
-      redaccion += "no se especifica el tipo de cráneo";
-    }
-
-    if (tipoPerfil) {
-      const perfilLabel = {
-        recto: "recto",
-        convexo: "convexo",
-        concavo: "cóncavo"
-      }[tipoPerfil] || tipoPerfil;
-      redaccion += `, con un perfil facial ${perfilLabel}. `;
-    } else {
-      redaccion += ". ";
-    }
-
-    // 2. Detalles de la Cara
-    if (cara) {
-      redaccion += "En la inspección facial, ";
-      const detallesCara: string[] = [];
-
-      if (cara.tez) {
-        detallesCara.push(`la tez del paciente es ${cara.tez}`);
-      }
-      if (cara.estadoPiel) {
-        const pielLabel = cara.estadoPiel === 'reseca' ? 'reseca' : 'adecuadamente humectada';
-        detallesCara.push(`la piel se encuentra ${pielLabel}`);
-      }
-
-      // Lunares
-      if (cara.lunares?.presente) {
-        let descLunares = "se observan lunares";
-        const detallesLunares = [];
-        if (cara.lunares.tamanio) detallesLunares.push(`de tamaño ${cara.lunares.tamanio}`);
-        if (cara.lunares.color) detallesLunares.push(`de color ${cara.lunares.color}`);
-        if (cara.lunares.detalles) detallesLunares.push(`descritos como: "${cara.lunares.detalles}"`);
-        
-        if (detallesLunares.length > 0) {
-          descLunares += ` ${detallesLunares.join(', ')}`;
-        }
-        detallesCara.push(descLunares);
-      } else {
-        detallesCara.push("no se observan lunares de relevancia");
-      }
-
-      // Cicatrices
-      if (cara.cicatrices?.presente) {
-        let descCicatrices = "presenta cicatrices";
-        const detallesCicatrices = [];
-        if (cara.cicatrices.localizacion) detallesCicatrices.push(`localizadas en ${cara.cicatrices.localizacion}`);
-        if (cara.cicatrices.tamanio) detallesCicatrices.push(`de tamaño ${cara.cicatrices.tamanio}`);
-        if (cara.cicatrices.bordes) detallesCicatrices.push(`con bordes ${cara.cicatrices.bordes}`);
-        if (cara.cicatrices.detalles) detallesCicatrices.push(`descritas como: "${cara.cicatrices.detalles}"`);
-        
-        if (detallesCicatrices.length > 0) {
-          descCicatrices += ` ${detallesCicatrices.join(' ')}`;
-        }
-        detallesCara.push(descCicatrices);
-      } else {
-        detallesCara.push("sin cicatrices visibles");
-      }
-
-      // Asimetrías
-      if (cara.asimetriasFaciales?.presente) {
-        let descAsimetrias = "se detecta asimetría facial";
-        const detallesAsimetrias = [];
-        if (cara.asimetriasFaciales.tipo) detallesAsimetrias.push(`de tipo ${cara.asimetriasFaciales.tipo}`);
-        if (cara.asimetriasFaciales.zonaAfectada) detallesAsimetrias.push(`en el ${cara.asimetriasFaciales.zonaAfectada}`);
-        if (cara.asimetriasFaciales.descripcion) detallesAsimetrias.push(`descrita como: "${cara.asimetriasFaciales.descripcion}"`);
-
-        if (detallesAsimetrias.length > 0) {
-          descAsimetrias += ` ${detallesAsimetrias.join(', ')}`;
-        }
-        detallesCara.push(descAsimetrias);
-      } else {
-        detallesCara.push("la cara se observa simétrica");
-      }
-
-      // Edema
-      if (cara.edema?.presente) {
-        let descEdema = "se evidencia edema";
-        const detallesEdema = [];
-        if (cara.edema.grado) detallesEdema.push(`de grado ${cara.edema.grado}`);
-        if (cara.edema.localizacion) detallesEdema.push(`con localización en ${cara.edema.localizacion}`);
-        if (cara.edema.consistencia) detallesEdema.push(`de consistencia ${cara.edema.consistencia}`);
-        if (cara.edema.descripcion) detallesEdema.push(`descrito como: "${cara.edema.descripcion}"`);
-        
-        if (detallesEdema.length > 0) {
-          descEdema += ` ${detallesEdema.join(', ')}`;
-        }
-        detallesCara.push(descEdema);
-      } else {
-        detallesCara.push("sin presencia de edema facial");
-      }
-
-      // Unir detalles de la cara
-      if (detallesCara.length > 0) {
-        redaccion += detallesCara.join(', ') + ".";
-      } else {
-        redaccion += "sin hallazgos patológicos aparentes. ";
-      }
-
-      // Observaciones de la Cara
-      if (cara.observaciones) {
-        redaccion += ` Observaciones adicionales de la cara: ${cara.observaciones}`;
-      }
-    } else {
-      redaccion += " No se realizó un examen detallado de la cara.";
-    }
-
-    setRedaccionCara(redaccion.trim());
-    setShowForm(false);
-    redaccionRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleCopy = async () => {
-    // Lógica de seguimiento (opcional, traída del ejemplo)
-    try {
-      const { trackCopyClick } = await import('@/utils/trackCopyClick');
-      trackCopyClick();
-    } catch (error) {
-      console.error('Error tracking copy:', error);
-    }
-    
-    if (redaccionCara) {
-      navigator.clipboard.writeText(redaccionCara);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
-
-  // --- Renderizado del Componente ---
   return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="examen-cabeza">
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-        
-        {/* --- Barra Superior (Controles) --- */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-              <button
-                onClick={() => setShowForm(true)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Formulario
-              </button>
-              <button
-                onClick={() => setShowForm(false)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-          </div>
-        </div>
+    <div className="space-y-6">
+      <RedaccionComunToggle 
+        isActive={redaccionComun}
+        onChange={setRedaccionComun}
+      />
 
-        {/* --- Título de la Sección --- */}
-        <div className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-            Examen de Cabeza
-          </h2>
-        </div>
+      {!redaccionComun && (
+        <Accordion type="multiple" className="w-full space-y-3">
+          <AccordionItem value="mejillas" className="border rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-blue-50/30 dark:bg-blue-950/20">
+              <span className="font-semibold">1. Mejillas</span>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pt-4">
+              <MejillasSection 
+                data={formData.examenIntrabucal?.mejillas}
+                onChange={handleExamenIntrabucalChange}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-        {!isMinimized && (
-          <CardContent className="p-6">
-            {showForm ? (
-              // --- VISTA DE FORMULARIO ---
-              <div className="space-y-8">
-                
-                {/* Tipo de Cráneo */}
-                <div className="space-y-4">
-                  <Label className="text-base font-medium text-gray-800 dark:text-white">Tipo de Cráneo</Label>
-                  <div className="grid grid-cols-3 gap-4">
-                    {[
-                      { value: 'mesocefalo', label: 'Mesocéfalo', image: '/mesocefalo.svg' },
-                      { value: 'dolicocefalo', label: 'Dolicocéfalo', image: '/dolicocefalo.svg' },
-                      { value: 'braquicefalo', label: 'Braquicéfalo', image: '/braquicefalo.svg' }
-                    ].map((tipo) => (
-                      <div key={tipo.value} className="flex flex-col items-center space-y-2">
-                         <div 
-                           className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${
-                             getFormValue('tipoCraneo') === tipo.value
-                               ? 'border-blue-500 scale-105 shadow-lg'
-                               : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
-                           }`}
-                           onClick={() => {
-                             const currentValue = getFormValue('tipoCraneo');
-                             handleExamenCabezaChange('tipoCraneo', currentValue === tipo.value ? '' : tipo.value);
-                           }}
-                         >
-                          <img 
-                            src={tipo.image} 
-                            alt={tipo.label}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{tipo.label}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+          <AccordionItem value="lengua" className="border rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-pink-50/30 dark:bg-pink-950/20">
+              <span className="font-semibold">2. Lengua</span>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pt-4">
+              <LenguaSection 
+                data={formData.examenIntrabucal?.lengua}
+                onChange={handleExamenIntrabucalChange}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-                {/* Tipo de Perfil */}
-                <div className="space-y-4">
-                  <Label className="text-base font-medium text-gray-800 dark:text-white">Tipo de Perfil</Label>
-                  <div className="grid grid-cols-3 gap-4">
-                    {[
-                      { value: 'recto', label: 'Recto', image: '/recto.svg' },
-                      { value: 'convexo', label: 'Convexo', image: '/convexo.svg' },
-                      { value: 'concavo', label: 'Cóncavo', image: '/concavo.svg' }
-                    ].map((perfil) => (
-                      <div key={perfil.value} className="flex flex-col items-center space-y-2">
-                        <div 
-                          className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${
-                            getFormValue('tipoPerfil') === perfil.value
-                              ? 'border-blue-500 scale-105 shadow-lg'
-                              : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
-                          }`}
-                          onClick={() => {
-                            const currentValue = getFormValue('tipoPerfil');
-                            handleExamenCabezaChange('tipoPerfil', currentValue === perfil.value ? '' : perfil.value);
-                          }}
-                        >
-                          <img 
-                            src={perfil.image} 
-                            alt={perfil.label}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{perfil.label}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+          <AccordionItem value="pisoBoca" className="border rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-purple-50/30 dark:bg-purple-950/20">
+              <span className="font-semibold">3. Piso de Boca</span>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pt-4">
+              <PisoBocaSection 
+                data={formData.examenIntrabucal?.pisoBoca}
+                onChange={handleExamenIntrabucalChange}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-                {/* --- NUEVA SECCIÓN: CARA --- */}
-                <div className="space-y-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-                    Inspección Facial (Cara)
-                  </h3>
-                  
-                  {/* Grid para Tez y Estado de Piel */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Tez */}
-                    <div className="space-y-3">
-                      <Label className="font-medium text-gray-700 dark:text-gray-300">Tez</Label>
-                      <Select 
-                        value={getFormValueCara('tez')} 
-                        onValueChange={(value) => handleCaraChange('tez', value)}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Seleccionar tipo de tez" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="clara">Clara</SelectItem>
-                          <SelectItem value="morena">Morena</SelectItem>
-                          <SelectItem value="oscura">Oscura</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+          <AccordionItem value="encias" className="border rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-red-50/30 dark:bg-red-950/20">
+              <span className="font-semibold">4. Encías</span>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pt-4">
+              <EnciasSection 
+                data={formData.examenIntrabucal?.encias}
+                onChange={handleExamenIntrabucalChange}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-                    {/* Estado de la Piel */}
-                    <div className="space-y-3">
-                      <Label className="font-medium text-gray-700 dark:text-gray-300">Estado de la Piel</Label>
-                      <div className="flex flex-wrap gap-2 pt-2">
-                        {[
-                          { value: 'reseca', label: 'Reseca' },
-                          { value: 'humectada', label: 'Humectada' }
-                        ].map((estado) => (
-                          <Button
-                            key={estado.value}
-                            type="button"
-                            variant={getFormValueCara('estadoPiel') === estado.value ? 'default' : 'outline'}
-                            size="sm"
-                            className="h-8 px-3 text-xs"
-                            onClick={() => handleCaraChange('estadoPiel', getFormValueCara('estadoPiel') === estado.value ? '' : estado.value)}
-                          >
-                            {estado.label}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+          <AccordionItem value="paladar" className="border rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-green-50/30 dark:bg-green-950/20">
+              <span className="font-semibold">5. Paladar Duro y Blando</span>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pt-4">
+              <PaladarSection 
+                data={formData.examenIntrabucal?.paladar}
+                onChange={handleExamenIntrabucalChange}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-                  {/* Grid para Hallazgos Detallados */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AccordionItem value="orofaringe" className="border rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-yellow-50/30 dark:bg-yellow-950/20">
+              <span className="font-semibold">6. Orofaringe</span>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pt-4">
+              <OrofaringeSection 
+                data={formData.examenIntrabucal?.orofaringe}
+                onChange={handleExamenIntrabucalChange}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-                    {/* --- INICIO MODIFICACIÓN DE COLOR --- */}
-                    {/* Lunares */}
-                    <Collapsible
-                      open={getCheckboxValue('lunares')}
-                      onOpenChange={(open) => handleDetailedChange('lunares', 'presente', open)}
-                      className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
-                    >
-                      <CollapsibleTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="w-full justify-between p-4 hover:no-underline bg-blue-50/30 dark:bg-blue-950/20"
-                        >
-                          <span className="text-base font-medium text-gray-800 dark:text-white">Lunares</span>
-                          <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('lunares') ? 'rotate-180' : ''}`} />
-                        </Button>
-                      </CollapsibleTrigger>
-                      {/* --- FIN MODIFICACIÓN DE COLOR --- */}
-                      
-                      <CollapsibleContent className="px-4 pb-4">
-                        <div className="space-y-4 ml-2 pt-2">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <Label className="text-sm">Tamaño</Label>
-                              <Select 
-                                value={getSelectValue('lunares', 'tamanio')} 
-                                onValueChange={(value) => handleDetailedChange('lunares', 'tamanio', value)}
-                              >
-                                <SelectTrigger><SelectValue placeholder="Tamaño" /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="pequeno">Pequeño (&lt;5mm)</SelectItem>
-                                  <SelectItem value="mediano">Mediano (5-10mm)</SelectItem>
-                                  <SelectItem value="grande">Grande (&gt;10mm)</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <Label className="text-sm">Color</Label>
-                              <Select 
-                                value={getSelectValue('lunares', 'color')} 
-                                onValueChange={(value) => handleDetailedChange('lunares', 'color', value)}
-                              >
-                                <SelectTrigger><SelectValue placeholder="Color" /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="marron-claro">Marrón claro</SelectItem>
-                                  <SelectItem value="marron-oscuro">Marrón oscuro</SelectItem>
-                                  <SelectItem value="negro">Negro</SelectItem>
-                                  <SelectItem value="rojizo">Rojizo</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                          <div>
-                            <Label className="text-sm">Detalles</Label>
-                            <Textarea
-                              placeholder="Describe características, ubicación, etc."
-                              value={getSelectValue('lunares', 'detalles')}
-                              onChange={(e) => handleDetailedChange('lunares', 'detalles', e.target.value)}
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
+          <AccordionItem value="regionRetromolar" className="border rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-cyan-50/30 dark:bg-cyan-950/20">
+              <span className="font-semibold">7. Región Retromolar</span>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pt-4">
+              <RegionRetromolarSection 
+                data={formData.examenIntrabucal?.regionRetromolar}
+                onChange={handleExamenIntrabucalChange}
+              />
+            </AccordionContent>
+          </AccordionItem>
 
-                    {/* --- INICIO MODIFICACIÓN DE COLOR --- */}
-                    {/* Asimetrías Faciales */}
-                    <Collapsible
-                      open={getCheckboxValue('asimetriasFaciales')}
-                      onOpenChange={(open) => handleDetailedChange('asimetriasFaciales', 'presente', open)}
-                      className="rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden"
-                    >
-                      <CollapsibleTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="w-full justify-between p-4 hover:no-underline bg-purple-50/30 dark:bg-purple-950/20"
-                        >
-                          <span className="text-base font-medium text-gray-800 dark:text-white">Asimetrías Faciales</span>
-                          <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('asimetriasFaciales') ? 'rotate-180' : ''}`} />
-                        </Button>
-                      </CollapsibleTrigger>
-                      {/* --- FIN MODIFICACIÓN DE COLOR --- */}
-                      
-                      <CollapsibleContent className="px-4 pb-4">
-                        <div className="space-y-4 ml-2 pt-2">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <Label className="text-sm">Tipo</Label>
-                              <Select 
-                                value={getSelectValue('asimetriasFaciales', 'tipo')} 
-                                onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'tipo', value)}
-                              >
-                                <SelectTrigger><SelectValue placeholder="Tipo" /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="leve">Leve</SelectItem>
-                                  <SelectItem value="moderada">Moderada</SelectItem>
-                                  <SelectItem value="severa">Severa</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <Label className="text-sm">Zona Afectada</Label>
-                              <Select 
-                                value={getSelectValue('asimetriasFaciales', 'zonaAfectada')} 
-                                onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'zonaAfectada', value)}
-                              >
-                                <SelectTrigger><SelectValue placeholder="Zona" /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="tercio-superior">Tercio superior</SelectItem>
-                                  <SelectItem value="tercio-medio">Tercio medio</SelectItem>
-                                  <SelectItem value="tercio-inferior">Tercio inferior</SelectItem>
-                                  <SelectItem value="lado-derecho">Lado derecho</SelectItem>
-                                  <SelectItem value="lado-izquierdo">Lado izquierdo</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                          <div>
-                            <Label className="text-sm">Descripción</Label>
-                            <Textarea
-                              placeholder="Describe la asimetría observada..."
-                              value={getSelectValue('asimetriasFaciales', 'descripcion')}
-                              onChange={(e) => handleDetailedChange('asimetriasFaciales', 'descripcion', e.target.value)}
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-                    
-                    {/* --- INICIO MODIFICACIÓN DE COLOR --- */}
-                    {/* Cicatrices */}
-                    <Collapsible
-                      open={getCheckboxValue('cicatrices')}
-                      onOpenChange={(open) => handleDetailedChange('cicatrices', 'presente', open)}
-                      className="rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2 overflow-hidden"
-                    >
-                      <CollapsibleTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="w-full justify-between p-4 hover:no-underline bg-green-50/30 dark:bg-green-950/20"
-                        >
-                          <span className="text-base font-medium text-gray-800 dark:text-white">Cicatrices</span>
-                          <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('cicatrices') ? 'rotate-180' : ''}`} />
-                        </Button>
-                      </CollapsibleTrigger>
-                      {/* --- FIN MODIFICACIÓN DE COLOR --- */}
-                      
-                      <CollapsibleContent className="px-4 pb-4">
-                        <div className="space-y-4 ml-2 pt-2">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div>
-                              <Label className="text-sm">Tamaño</Label>
-                              <Select 
-                                value={getSelectValue('cicatrices', 'tamanio')} 
-                                onValueChange={(value) => handleDetailedChange('cicatrices', 'tamanio', value)}
-                              >
-                                <SelectTrigger><SelectValue placeholder="Tamaño" /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="pequena">Pequeña</SelectItem>
-                                  <SelectItem value="mediana">Mediana</SelectItem>
-                                  <SelectItem value="grande">Grande</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <Label className="text-sm">Bordes</Label>
-                              <Select 
-                                value={getSelectValue('cicatrices', 'bordes')} 
-                                onValueChange={(value) => handleDetailedChange('cicatrices', 'bordes', value)}
-                              >
-                                <SelectTrigger><SelectValue placeholder="Bordes" /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="regulares">Regulares</SelectItem>
-                                  <SelectItem value="irregulares">Irregulares</SelectItem>
-                                  <SelectItem value="elevados">Elevados</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <Label className="text-sm">Localización</Label>
-                              <Select 
-                                value={getSelectValue('cicatrices', 'localizacion')} 
-                                onValueChange={(value) => handleDetailedChange('cicatrices', 'localizacion', value)}
-                              >
-                                <SelectTrigger><SelectValue placeholder="Ubicación" /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="frente">Frente</SelectItem>
-                                  <SelectItem value="mejilla-derecha">Mejilla derecha</SelectItem>
-                                  <SelectItem value="mejilla-izquierda">Mejilla izquierda</SelectItem>
-                                  <SelectItem value="menton">Mentón</SelectItem>
-                                  <SelectItem value="otra">Otra</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                          <div>
-                            <Label className="text-sm">Detalles</Label>
-                            <Textarea
-                              placeholder="Describe ubicación, causa, características..."
-                              value={getSelectValue('cicatrices', 'detalles')}
-                              onChange={(e) => handleDetailedChange('cicatrices', 'detalles', e.target.value)}
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
+          <AccordionItem value="istmoFauces" className="border rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-teal-50/30 dark:bg-teal-950/20">
+              <span className="font-semibold">8. Istmo de las Fauces</span>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pt-4">
+              <IstmoFaucesSection 
+                data={formData.examenIntrabucal?.istmoFauces}
+                onChange={handleExamenIntrabucalChange}
+              />
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
 
-                    {/* --- INICIO MODIFICACIÓN DE COLOR --- */}
-                    {/* Edema */}
-                    <Collapsible
-                      open={getCheckboxValue('edema')}
-                      onOpenChange={(open) => handleDetailedChange('edema', 'presente', open)}
-                      className="rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2 overflow-hidden"
-                    >
-                      <CollapsibleTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="w-full justify-between p-4 hover:no-underline bg-yellow-50/30 dark:bg-yellow-950/20"
-                        >
-                          <span className="text-base font-medium text-gray-800 dark:text-white">Edema</span>
-                          <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('edema') ? 'rotate-180' : ''}`} />
-                        </Button>
-                      </CollapsibleTrigger>
-                      {/* --- FIN MODIFICACIÓN DE COLOR --- */}
-                      
-                      <CollapsibleContent className="px-4 pb-4">
-                        <div className="space-y-4 ml-2 pt-2">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div>
-                              <Label className="text-sm">Grado</Label>
-                              <Select 
-                                value={getSelectValue('edema', 'grado')} 
-                                onValueChange={(value) => handleDetailedChange('edema', 'grado', value)}
-                              >
-                                <SelectTrigger><SelectValue placeholder="Grado" /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="leve (+)">Leve (+)</SelectItem>
-                                  <SelectItem value="moderado (++)">Moderado (++)</SelectItem>
-                                  <SelectItem value="severo (+++)">Severo (+++)</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <Label className="text-sm">Localización</Label>
-                              <Select 
-                                value={getSelectValue('edema', 'localizacion')} 
-                                onValueChange={(value) => handleDetailedChange('edema', 'localizacion', value)}
-                              >
-                                <SelectTrigger><SelectValue placeholder="Ubicación" /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="parpados">Párpados</SelectItem>
-                                  <SelectItem value="mejillas">Mejillas</SelectItem>
-                                  <SelectItem value="labios">Labios</SelectItem>
-                                  <SelectItem value="generalizado">Generalizado</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            <div>
-                              <Label className="text-sm">Consistencia</Label>
-                              <Select 
-                                value={getSelectValue('edema', 'consistencia')} 
-                                onValueChange={(value) => handleDetailedChange('edema', 'consistencia', value)}
-                              >
-                                <SelectTrigger><SelectValue placeholder="Consistencia" /></SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="blando">Blando</SelectItem>
-                                  <SelectItem value="firme">Firme</SelectItem>
-                                  <SelectItem value="duro">Duro</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
-                          </div>
-                          <div>
-                            <Label className="text-sm">Descripción</Label>
-                            <Textarea
-                              placeholder="Describe características del edema..."
-                              value={getSelectValue('edema', 'descripcion')}
-                              onChange={(e) => handleDetailedChange('edema', 'descripcion', e.target.value)}
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  </div>
-
-                  {/* Observaciones Generales (de la Cara) */}
-                  <div className="space-y-3">
-                    <Label className="text-base font-medium text-gray-800 dark:text-white">
-                      Otras Observaciones (Cara)
-                    </Label>
-                    <Textarea
-                      placeholder="Anota cualquier observación adicional sobre la cara..."
-                      value={getFormValueCara('observaciones')}
-                      onChange={(e) => handleCaraChange('observaciones', e.target.value)}
-                      rows={3}
-                    />
-                  </div>
-                </div>
-
-                {/* --- Botones de Acción --- */}
-                <div className="flex justify-center gap-4 mt-6">
-                  <Button
-                    onClick={generarRedaccionIA}
-                    className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
-                  >
-                    Generar Redacción IA
-                  </Button>
-                  <Button
-                    onClick={limpiarFormulario}
-                    variant="outline"
-                    className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Limpiar Formulario
-                  </Button>
-                </div>
-
-              </div>
-            ) : (
-              // --- VISTA DE REDACCIÓN IA ---
-              <div className="space-y-6">
-                
-                {/* --- INICIO MODIFICACIÓN DE COLOR --- */}
-                <div ref={redaccionRef} className="bg-teal-50/30 dark:bg-teal-950/20 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                {/* --- FIN MODIFICACIÓN DE COLOR --- */}
-
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Redacción General</h4>
-                    <button
-                      onClick={handleCopy}
-                      className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 transition-colors"
-                    >
-                      {copied ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span>Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span>Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <div>
-                    <AnimatedTextareaWithTyping
-                      content={redaccionCara}
-                      className="w-full bg-white/50 dark:bg-gray-800/50 p-2 rounded-md text-sm text-gray-700 dark:text-gray-300"
-                      textAlign="justify"
-                      readOnly
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-center">
-                  <Button
-                    onClick={() => setShowForm(true)}
-                    variant="outline"
-                    className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
-                    Volver al Formulario
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        )}
-      </Card>
+      <div className="flex gap-3 pt-4">
+        <Button
+          onClick={handleGenerarRedaccion}
+          className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+        >
+          <Sparkles className="w-4 h-4 mr-2" />
+          Generar Redacción IA
+        </Button>
+        <Button
+          onClick={handleLimpiarFormulario}
+          variant="outline"
+          className="flex-1"
+        >
+          <Eraser className="w-4 h-4 mr-2" />
+          Limpiar Formulario
+        </Button>
+      </div>
     </div>
   );
 };
 
-export default ExamenCabeza;
+export default ExamenIntrabucalForm;
