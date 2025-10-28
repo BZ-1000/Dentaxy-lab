@@ -363,7 +363,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       { value: 'braquicefalo', label: 'Braquicéfalo', image: '/braquicefalo.svg' }
                     ].map((tipo) => (
                       <div key={tipo.value} className="flex flex-col items-center space-y-2">
-                         <div className="relative w-32 h-32 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer overflow-hidden"
+                         {/* --- INICIO DE LA MODIFICACIÓN --- */}
+                         <div 
+                           className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${
+                             getFormValue('tipoCraneo') === tipo.value
+                               ? 'border-blue-500 ring-2 ring-blue-500/50 ring-offset-2 scale-105 shadow-xl'
+                               : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
+                           }`}
                            onClick={() => handleExamenCabezaChange('tipoCraneo', tipo.value)}
                          >
                           <img 
@@ -371,12 +377,9 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             alt={tipo.label}
                             className="w-full h-full object-cover"
                           />
-                          {getFormValue('tipoCraneo') === tipo.value && (
-                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
-                              <span className="text-white text-xs font-bold">✓</span>
-                            </div>
-                          )}
+                          {/* El checkmark que estaba aquí fue eliminado */}
                         </div>
+                        {/* --- FIN DE LA MODIFICACIÓN --- */}
                         <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{tipo.label}</Label>
                       </div>
                     ))}
@@ -393,20 +396,23 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       { value: 'concavo', label: 'Cóncavo', image: '/concavo.svg' }
                     ].map((perfil) => (
                       <div key={perfil.value} className="flex flex-col items-center space-y-2">
-                         <div className="relative w-32 h-32 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer overflow-hidden"
-                           onClick={() => handleExamenCabezaChange('tipoPerfil', perfil.value)}
-                         >
+                        {/* --- INICIO DE LA MODIFICACIÓN --- */}
+                        <div 
+                          className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${
+                            getFormValue('tipoPerfil') === perfil.value
+                              ? 'border-blue-500 ring-2 ring-blue-500/50 ring-offset-2 scale-105 shadow-xl'
+                              : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
+                          }`}
+                          onClick={() => handleExamenCabezaChange('tipoPerfil', perfil.value)}
+                        >
                           <img 
                             src={perfil.image} 
                             alt={perfil.label}
                             className="w-full h-full object-cover"
                           />
-                          {getFormValue('tipoPerfil') === perfil.value && (
-                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
-                              <span className="text-white text-xs font-bold">✓</span>
-                            </div>
-                          )}
+                          {/* El checkmark que estaba aquí fue eliminado */}
                         </div>
+                        {/* --- FIN DE LA MODIFICACIÓN --- */}
                         <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{perfil.label}</Label>
                       </div>
                     ))}
