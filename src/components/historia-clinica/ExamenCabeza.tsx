@@ -369,7 +369,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                           <img 
                             src={tipo.image} 
                             alt={tipo.label}
-                            className="w-full h-full object-contain scale-300"
+                            className="w-full h-full object-contain scale-150"
                           />
                           {getFormValue('tipoCraneo') === tipo.value && (
                             <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
@@ -399,7 +399,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                           <img 
                             src={perfil.image} 
                             alt={perfil.label}
-                            className="w-full h-full object-contain scale-300"
+                            className="w-full h-full object-contain scale-150"
                           />
                           {getFormValue('tipoPerfil') === perfil.value && (
                             <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
