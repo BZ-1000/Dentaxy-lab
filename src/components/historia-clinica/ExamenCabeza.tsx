@@ -371,11 +371,6 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             alt={tipo.label}
                             className="w-full h-full object-cover"
                           />
-                          {getFormValue('tipoCraneo') === tipo.value && (
-                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
-                              <span className="text-white text-xs font-bold">✓</span>
-                            </div>
-                          )}
                         </div>
                         <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{tipo.label}</Label>
                       </div>
@@ -401,11 +396,6 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             alt={perfil.label}
                             className="w-full h-full object-cover"
                           />
-                          {getFormValue('tipoPerfil') === perfil.value && (
-                            <div className="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white dark:border-gray-800">
-                              <span className="text-white text-xs font-bold">✓</span>
-                            </div>
-                          )}
                         </div>
                         <Label className="text-sm text-center text-gray-700 dark:text-gray-300">{perfil.label}</Label>
                       </div>
@@ -469,7 +459,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                     <Collapsible
                       open={getCheckboxValue('lunares')}
                       onOpenChange={(open) => handleDetailedChange('lunares', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="bg-blue-50/30 dark:bg-blue-950/20 rounded-lg border border-gray-200 dark:border-gray-700"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
@@ -532,7 +522,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                     <Collapsible
                       open={getCheckboxValue('asimetriasFaciales')}
                       onOpenChange={(open) => handleDetailedChange('asimetriasFaciales', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="bg-pink-50/30 dark:bg-pink-950/20 rounded-lg border border-gray-200 dark:border-gray-700"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
@@ -596,7 +586,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                     <Collapsible
                       open={getCheckboxValue('cicatrices')}
                       onOpenChange={(open) => handleDetailedChange('cicatrices', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
+                      className="bg-purple-50/30 dark:bg-purple-950/20 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
@@ -674,7 +664,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                     <Collapsible
                       open={getCheckboxValue('edema')}
                       onOpenChange={(open) => handleDetailedChange('edema', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
+                      className="bg-green-50/30 dark:bg-green-950/20 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
