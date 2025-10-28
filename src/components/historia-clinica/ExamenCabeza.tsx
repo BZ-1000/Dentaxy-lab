@@ -363,7 +363,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       { value: 'braquicefalo', label: 'Braquicéfalo', image: '/braquicefalo.svg' }
                     ].map((tipo) => (
                       <div key={tipo.value} className="flex flex-col items-center space-y-2">
-                         <div className="relative w-48 h-48 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer overflow-hidden"
+                         <div className="relative w-32 h-32 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer overflow-hidden"
                            onClick={() => handleExamenCabezaChange('tipoCraneo', tipo.value)}
                          >
                           <img 
@@ -393,7 +393,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       { value: 'concavo', label: 'Cóncavo', image: '/concavo.svg' }
                     ].map((perfil) => (
                       <div key={perfil.value} className="flex flex-col items-center space-y-2">
-                         <div className="relative w-48 h-48 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer overflow-hidden"
+                         <div className="relative w-32 h-32 rounded-lg border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 transition-colors cursor-pointer overflow-hidden"
                            onClick={() => handleExamenCabezaChange('tipoPerfil', perfil.value)}
                          >
                           <img 
