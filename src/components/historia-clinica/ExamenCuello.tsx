@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Copy, CheckCircle } from "lucide-react";
+import { Minus, Maximize2, X, Copy, CheckCircle, Loader2 } from "lucide-react";
 import { FormDataState, GanglioLinfatico } from '@/types/historiaClinica';
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-// Se eliminó la importación de AnimatedTextareaWithTyping que causaba el error
+import { AnimatedTextareaWithTyping } from "@/components/ui/AnimatedTextareaWithTyping";
 
 interface ExamenCuelloProps {
   formData: FormDataState;
@@ -83,7 +83,9 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
   });
   const [copied, setCopied] = useState<CopiedState>({});
   const [copiedAll, setCopiedAll] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const redaccionesRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -243,7 +245,13 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
     return "";
   };
 
-  const generarRedaccionIA = () => {
+  const generarRedaccionIA = async () => {
+    setIsGenerating(true);
+    setShowForm(false);
+    
+    // Simular delay para mostrar la animación
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
     const nuevasRedacciones = {
       cervicales: generarRedaccionPorTipo('cervicales'),
       submaxilares: generarRedaccionPorTipo('submaxilares'),
@@ -254,8 +262,12 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
     };
 
     setRedacciones(nuevasRedacciones);
-    setShowForm(false);
-    redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
+    setIsGenerating(false);
+    
+    // Scroll hacia la parte superior del contenedor después de generar
+    setTimeout(() => {
+      containerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleCopy = async (section: keyof CopiedState) => {
@@ -451,7 +463,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
   };
 
   return (
-    <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="examen-cuello">
+    <div ref={containerRef} className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="examen-cuello">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
@@ -530,6 +542,12 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
               </div>
             ) : (
               <div className="p-6 space-y-4" ref={redaccionesRef}>
+                {isGenerating && (
+                  <div className="flex items-center gap-2 mb-4 text-blue-600 dark:text-blue-400">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Generando redacciones...</span>
+                  </div>
+                )}
                 
                 {sections.map(({ key, label, color }) => {
                   const redactionLabel = label.split('. ')[1];
@@ -545,6 +563,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
+                          disabled={isGenerating}
                         >
                           {copied[key as keyof CopiedState] ? (
                             <CheckCircle className="h-4 w-4 text-green-500" />
@@ -553,11 +572,18 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                           )}
                         </Button>
                       </div>
-                      <Textarea
-                        value={redacciones[key as keyof typeof redacciones]}
-                        className="bg-white dark:bg-gray-900 min-h-[90px]"
-                        readOnly
-                      />
+                      {isGenerating ? (
+                        <Textarea
+                          value=""
+                          className="bg-white dark:bg-gray-900 min-h-[90px]"
+                          readOnly
+                        />
+                      ) : (
+                        <AnimatedTextareaWithTyping
+                          content={redacciones[key as keyof typeof redacciones]}
+                          className="bg-white dark:bg-gray-900 min-h-[90px]"
+                        />
+                      )}
                     </div>
                   );
                 })}
