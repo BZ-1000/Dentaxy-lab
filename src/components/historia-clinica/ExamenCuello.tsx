@@ -1,12 +1,25 @@
-
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X } from "lucide-react";
-import { FormDataState } from '@/types/historiaClinica';
+import { Minus, Maximize2, X, Copy, CheckCircle } from "lucide-react";
+import { FormDataState, GanglioLinfatico } from '@/types/historiaClinica';
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { AnimatedTextareaWithTyping } from "@/components/ui/AnimatedTextareaWithTyping";
 
 interface ExamenCuelloProps {
   formData: FormDataState;
-  handleExamenCuelloChange: (part: string, value: string | boolean) => void;
+  handleExamenCuelloChange: (part: string, value: string | boolean | GanglioLinfatico) => void;
+}
+
+interface CopiedState {
+  cervicales?: boolean;
+  submaxilares?: boolean;
+  submentonianos?: boolean;
+  parotideos?: boolean;
+  preauriculares?: boolean;
+  auricularesPosteriores?: boolean;
 }
 
 const ExamenCuello: React.FC<ExamenCuelloProps> = ({
@@ -15,6 +28,17 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
+  const [showForm, setShowForm] = useState(true);
+  const [redacciones, setRedacciones] = useState({
+    cervicales: "",
+    submaxilares: "",
+    submentonianos: "",
+    parotideos: "",
+    preauriculares: "",
+    auricularesPosteriores: ""
+  });
+  const [copied, setCopied] = useState<CopiedState>({});
+  const redaccionesRef = useRef<HTMLDivElement>(null);
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -31,16 +55,362 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
     setIsMaximized(false);
   };
 
+  const handleGanglioChange = (tipo: string, field: string, value: string) => {
+    const ganglioActual = formData.examenCuello?.[tipo] as GanglioLinfatico || {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    };
+
+    const ganglioActualizado = { ...ganglioActual, [field]: value };
+    
+    // Si se selecciona "no_palpan", limpiar los demás campos
+    if (field === 'palpacion' && value === 'no_palpan') {
+      ganglioActualizado.consistencia = '';
+      ganglioActualizado.dolor = '';
+      ganglioActualizado.movilidad = '';
+      ganglioActualizado.localizacion = '';
+      ganglioActualizado.tamano = '';
+      ganglioActualizado.observaciones = '';
+    }
+
+    handleExamenCuelloChange(tipo, ganglioActualizado);
+  };
+
+  const getRedaccionNoPalpan = (tipo: string) => {
+    const redaccionesNoPalpan = {
+      cervicales: [
+        "No se palpan ganglios cervicales, el cuello se aprecia simétrico y sin aumento de volumen palpable.",
+        "A la exploración no se detectan adenomegalias cervicales; la palpación es indolora y sin irregularidades.",
+        "No se identifican ganglios cervicales aumentados de tamaño ni dolor a la palpación.",
+        "Los ganglios cervicales no son palpables, conservando la integridad anatómica y sin signos inflamatorios."
+      ],
+      submaxilares: [
+        "No se palpan ganglios submaxilares, la región se observa sin aumento de volumen ni dolor a la palpación.",
+        "No se detectan adenomegalias submaxilares, la superficie es lisa y sin alteraciones.",
+        "La exploración submaxilar no revela ganglios palpables ni sensibilidad dolorosa.",
+        "No se identifican ganglios submaxilares, manteniendo la morfología normal y sin induración."
+      ],
+      submentonianos: [
+        "No se palpan ganglios submentonianos, la región se encuentra sin aumento de volumen ni sensibilidad.",
+        "No se aprecian adenomegalias submentonianas a la palpación; la zona presenta consistencia blanda y homogénea.",
+        "Los ganglios submentonianos no son palpables ni presentan dolor.",
+        "No se observan alteraciones palpables en la región submentoniana."
+      ],
+      parotideos: [
+        "No se palpan ganglios parotídeos, las glándulas se perciben de consistencia y volumen normales.",
+        "No se detectan adenomegalias parotídeas ni dolor a la palpación.",
+        "Los ganglios parotídeos no son palpables y no se evidencian signos inflamatorios.",
+        "A la exploración no se encuentran ganglios parotídeos aumentados ni sensibles."
+      ],
+      preauriculares: [
+        "No se palpan ganglios preauriculares, sin evidencia de aumento de volumen ni sensibilidad.",
+        "La región preauricular se encuentra libre de adenomegalias o dolor a la palpación.",
+        "No se identifican ganglios preauriculares palpables, manteniendo simetría y textura normal.",
+        "Sin hallazgos palpables en la zona preauricular."
+      ],
+      auricularesPosteriores: [
+        "No se palpan ganglios auriculares posteriores, la región se encuentra sin induración ni aumento de volumen.",
+        "A la exploración no se detectan adenomegalias retroauriculares ni dolor a la palpación.",
+        "No se evidencian ganglios auriculares posteriores palpables.",
+        "La zona auricular posterior se encuentra sin alteraciones detectables."
+      ]
+    };
+
+    const opciones = redaccionesNoPalpan[tipo] || ["No se palpan ganglios."];
+    return opciones[Math.floor(Math.random() * opciones.length)];
+  };
+
+  const getNombreGanglio = (tipo: string) => {
+    const nombres = {
+      cervicales: "cervicales",
+      submaxilares: "submaxilares",
+      submentonianos: "submentonianos",
+      parotideos: "parotídeos",
+      preauriculares: "preauriculares",
+      auricularesPosteriores: "auriculares posteriores"
+    };
+    return nombres[tipo] || tipo;
+  };
+
+  const generarRedaccionSePalpan = (tipo: string, ganglio: GanglioLinfatico) => {
+    const nombre = getNombreGanglio(tipo);
+    let redaccion = `Se palpan ganglios ${nombre}`;
+
+    // Agregar localización
+    if (ganglio.localizacion === 'bilaterales') {
+      redaccion += " bilaterales";
+    } else if (ganglio.localizacion === 'unilaterales') {
+      redaccion += " unilaterales";
+    }
+
+    // Agregar consistencia
+    if (ganglio.consistencia === 'firme') {
+      redaccion += ", de consistencia firme";
+    } else if (ganglio.consistencia === 'blanda') {
+      redaccion += ", de consistencia blanda";
+    }
+
+    // Agregar dolor
+    if (ganglio.dolor === 'no_dolorosos') {
+      redaccion += ", no dolorosos a la palpación";
+    } else if (ganglio.dolor === 'dolorosos') {
+      redaccion += ", dolorosos a la palpación";
+    }
+
+    // Agregar movilidad
+    if (ganglio.movilidad === 'moviles') {
+      redaccion += ", móviles";
+    } else if (ganglio.movilidad === 'fijos') {
+      redaccion += ", fijos";
+    }
+
+    // Agregar tamaño
+    if (ganglio.tamano && ganglio.tamano.trim() !== '') {
+      redaccion += `, con tamaño aproximado de ${ganglio.tamano}`;
+    }
+
+    redaccion += ".";
+
+    // Agregar observaciones si existen
+    if (ganglio.observaciones && ganglio.observaciones.trim() !== '') {
+      redaccion += ` ${ganglio.observaciones}`;
+    }
+
+    return redaccion;
+  };
+
+  const generarRedaccionPorTipo = (tipo: string) => {
+    const ganglio = formData.examenCuello?.[tipo] as GanglioLinfatico;
+    
+    if (!ganglio || ganglio.palpacion === '' || ganglio.palpacion === 'no_palpan') {
+      return getRedaccionNoPalpan(tipo);
+    }
+
+    if (ganglio.palpacion === 'se_palpan') {
+      return generarRedaccionSePalpan(tipo, ganglio);
+    }
+
+    return "";
+  };
+
+  const generarRedaccionIA = () => {
+    const nuevasRedacciones = {
+      cervicales: generarRedaccionPorTipo('cervicales'),
+      submaxilares: generarRedaccionPorTipo('submaxilares'),
+      submentonianos: generarRedaccionPorTipo('submentonianos'),
+      parotideos: generarRedaccionPorTipo('parotideos'),
+      preauriculares: generarRedaccionPorTipo('preauriculares'),
+      auricularesPosteriores: generarRedaccionPorTipo('auricularesPosteriores')
+    };
+
+    setRedacciones(nuevasRedacciones);
+    setShowForm(false);
+    redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleCopy = async (section: keyof CopiedState) => {
+    try {
+      const { trackCopyClick } = await import('@/utils/trackCopyClick');
+      trackCopyClick();
+    } catch (error) {
+      console.error('Error tracking copy:', error);
+    }
+    if (redacciones[section]) {
+      navigator.clipboard.writeText(redacciones[section]);
+      setCopied(prev => ({
+        ...prev,
+        [section]: true
+      }));
+      setTimeout(() => setCopied(prev => ({
+        ...prev,
+        [section]: false
+      })), 2000);
+    }
+  };
+
+  const limpiarFormulario = () => {
+    const ganglioLimpio: GanglioLinfatico = {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    };
+
+    handleExamenCuelloChange('cervicales', ganglioLimpio);
+    handleExamenCuelloChange('submaxilares', ganglioLimpio);
+    handleExamenCuelloChange('submentonianos', ganglioLimpio);
+    handleExamenCuelloChange('parotideos', ganglioLimpio);
+    handleExamenCuelloChange('preauriculares', ganglioLimpio);
+    handleExamenCuelloChange('auricularesPosteriores', ganglioLimpio);
+
+    setShowForm(true);
+    setRedacciones({
+      cervicales: "",
+      submaxilares: "",
+      submentonianos: "",
+      parotideos: "",
+      preauriculares: "",
+      auricularesPosteriores: ""
+    });
+  };
+
+  const OpcionBoton = ({
+    tipo,
+    campo,
+    valor,
+    etiqueta
+  }: {
+    tipo: string;
+    campo: string;
+    valor: string;
+    etiqueta: string;
+  }) => {
+    const ganglio = formData.examenCuello?.[tipo] as GanglioLinfatico;
+    const isSelected = ganglio?.[campo] === valor;
+
+    return (
+      <button
+        type="button"
+        onClick={() => handleGanglioChange(tipo, campo, valor)}
+        className={`px-3 py-1.5 rounded-md text-xs transition-all ${
+          isSelected
+            ? "bg-blue-500 text-white shadow-md"
+            : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+        }`}
+      >
+        {etiqueta}
+      </button>
+    );
+  };
+
+  const SeccionGanglio = ({
+    tipo,
+    titulo,
+    emoji
+  }: {
+    tipo: string;
+    titulo: string;
+    emoji: string;
+  }) => {
+    const ganglio = formData.examenCuello?.[tipo] as GanglioLinfatico;
+    const sePalpan = ganglio?.palpacion === 'se_palpan';
+
+    return (
+      <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/30 p-4 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
+        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <span>{emoji}</span> {titulo}
+        </h4>
+
+        <div className="space-y-3">
+          {/* Palpación */}
+          <div>
+            <Label className="text-xs font-medium mb-1.5 block">Palpación</Label>
+            <div className="flex gap-2">
+              <OpcionBoton tipo={tipo} campo="palpacion" valor="no_palpan" etiqueta="No se palpan" />
+              <OpcionBoton tipo={tipo} campo="palpacion" valor="se_palpan" etiqueta="Se palpan" />
+            </div>
+          </div>
+
+          {/* Características - solo mostrar si se palpan */}
+          {sePalpan && (
+            <div className="space-y-3 pl-3 border-l-2 border-blue-300 dark:border-blue-700">
+              {/* Consistencia */}
+              <div>
+                <Label className="text-xs font-medium mb-1.5 block">Consistencia</Label>
+                <div className="flex gap-2">
+                  <OpcionBoton tipo={tipo} campo="consistencia" valor="firme" etiqueta="Firme" />
+                  <OpcionBoton tipo={tipo} campo="consistencia" valor="blanda" etiqueta="Blanda" />
+                </div>
+              </div>
+
+              {/* Dolor */}
+              <div>
+                <Label className="text-xs font-medium mb-1.5 block">Dolor</Label>
+                <div className="flex gap-2">
+                  <OpcionBoton tipo={tipo} campo="dolor" valor="dolorosos" etiqueta="Dolorosos" />
+                  <OpcionBoton tipo={tipo} campo="dolor" valor="no_dolorosos" etiqueta="No dolorosos" />
+                </div>
+              </div>
+
+              {/* Movilidad */}
+              <div>
+                <Label className="text-xs font-medium mb-1.5 block">Movilidad</Label>
+                <div className="flex gap-2">
+                  <OpcionBoton tipo={tipo} campo="movilidad" valor="moviles" etiqueta="Móviles" />
+                  <OpcionBoton tipo={tipo} campo="movilidad" valor="fijos" etiqueta="Fijos" />
+                </div>
+              </div>
+
+              {/* Localización */}
+              <div>
+                <Label className="text-xs font-medium mb-1.5 block">Localización</Label>
+                <div className="flex gap-2">
+                  <OpcionBoton tipo={tipo} campo="localizacion" valor="unilaterales" etiqueta="Unilaterales" />
+                  <OpcionBoton tipo={tipo} campo="localizacion" valor="bilaterales" etiqueta="Bilaterales" />
+                </div>
+              </div>
+
+              {/* Tamaño */}
+              <div>
+                <Label className="text-xs font-medium mb-1.5 block">Tamaño aproximado (mm/cm)</Label>
+                <Input
+                  type="text"
+                  value={ganglio?.tamano || ''}
+                  onChange={(e) => handleGanglioChange(tipo, 'tamano', e.target.value)}
+                  placeholder="Ej: 8 mm, 1 cm"
+                  className="text-sm"
+                />
+              </div>
+
+              {/* Observaciones */}
+              <div>
+                <Label className="text-xs font-medium mb-1.5 block">Observaciones</Label>
+                <Textarea
+                  value={ganglio?.observaciones || ''}
+                  onChange={(e) => handleGanglioChange(tipo, 'observaciones', e.target.value)}
+                  placeholder="Observaciones adicionales..."
+                  className="text-sm min-h-[60px]"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="examen-cuello">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-              <button className="px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm bg-blue-500 text-white shadow-md">
+              <button 
+                onClick={() => setShowForm(true)}
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
+                  showForm 
+                    ? "bg-blue-500 text-white shadow-md" 
+                    : "text-gray-700 dark:text-gray-300"
+                }`}
+              >
                 Formulario
               </button>
-              <button className="px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+              <button 
+                onClick={() => setShowForm(false)}
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
+                  !showForm 
+                    ? "bg-blue-500 text-white shadow-md" 
+                    : "text-gray-700 dark:text-gray-300"
+                }`}
+              >
                 Redacción IA
               </button>
             </div>
@@ -66,9 +436,199 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
         </div>
 
         {!isMinimized && (
-          <div className="p-6 flex items-center justify-center">
-            <h1 className="text-4xl font-bold text-gray-400 dark:text-gray-500">Próximamente</h1>
-          </div>
+          <>
+            {showForm ? (
+              <div className="p-6 space-y-4">
+                <SeccionGanglio tipo="cervicales" titulo="1. Cervicales" emoji="🧩" />
+                <SeccionGanglio tipo="submaxilares" titulo="2. Submaxilares" emoji="🧩" />
+                <SeccionGanglio tipo="submentonianos" titulo="3. Submentonianos" emoji="🧩" />
+                <SeccionGanglio tipo="parotideos" titulo="4. Parotídeos" emoji="🧩" />
+                <SeccionGanglio tipo="preauriculares" titulo="5. Preauriculares" emoji="🧩" />
+                <SeccionGanglio tipo="auricularesPosteriores" titulo="6. Auriculares posteriores" emoji="🧩" />
+
+                {/* Botones de acción */}
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={generarRedaccionIA}
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                  >
+                    Generar Redacción IA
+                  </Button>
+                  <Button
+                    onClick={limpiarFormulario}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Limpiar Formulario
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 space-y-4" ref={redaccionesRef}>
+                {/* Redacción Cervicales */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">🧩 Cervicales</Label>
+                    <Button
+                      onClick={() => handleCopy('cervicales')}
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2"
+                    >
+                      {copied.cervicales ? (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.cervicales}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
+                </div>
+
+                {/* Redacción Submaxilares */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">🧩 Submaxilares</Label>
+                    <Button
+                      onClick={() => handleCopy('submaxilares')}
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2"
+                    >
+                      {copied.submaxilares ? (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.submaxilares}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
+                </div>
+
+                {/* Redacción Submentonianos */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">🧩 Submentonianos</Label>
+                    <Button
+                      onClick={() => handleCopy('submentonianos')}
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2"
+                    >
+                      {copied.submentonianos ? (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.submentonianos}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
+                </div>
+
+                {/* Redacción Parotídeos */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">🧩 Parotídeos</Label>
+                    <Button
+                      onClick={() => handleCopy('parotideos')}
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2"
+                    >
+                      {copied.parotideos ? (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.parotideos}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
+                </div>
+
+                {/* Redacción Preauriculares */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">🧩 Preauriculares</Label>
+                    <Button
+                      onClick={() => handleCopy('preauriculares')}
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2"
+                    >
+                      {copied.preauriculares ? (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.preauriculares}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
+                </div>
+
+                {/* Redacción Auriculares Posteriores */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold">🧩 Auriculares posteriores</Label>
+                    <Button
+                      onClick={() => handleCopy('auricularesPosteriores')}
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2"
+                    >
+                      {copied.auricularesPosteriores ? (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Copy className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.auricularesPosteriores}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
+                </div>
+
+                {/* Botones de acción */}
+                <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={() => setShowForm(true)}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Volver al Formulario
+                  </Button>
+                  <Button
+                    onClick={limpiarFormulario}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Limpiar Formulario
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </Card>
     </div>

@@ -249,11 +249,60 @@ export const getInitialFormState = (): FormDataState => ({
   },
   examenCuello: {
     sinHallazgos: false,
-    gangliosLinfaticos: "",
-    musculatura: "",
-    tiroides: "",
-    movilidad: "",
-    observaciones: ""
+    cervicales: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    },
+    submaxilares: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    },
+    submentonianos: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    },
+    parotideos: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    },
+    preauriculares: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    },
+    auricularesPosteriores: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    }
   },
   examenIntrabucal: {
     sinHallazgos: false,

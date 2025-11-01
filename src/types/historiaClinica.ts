@@ -297,14 +297,25 @@ export interface ArticulacionCraneomandibular {
   };
 }
 
+export interface GanglioLinfatico {
+  palpacion: 'no_palpan' | 'se_palpan' | '';
+  consistencia?: 'firme' | 'blanda' | '';
+  dolor?: 'dolorosos' | 'no_dolorosos' | '';
+  movilidad?: 'moviles' | 'fijos' | '';
+  localizacion?: 'unilaterales' | 'bilaterales' | '';
+  tamano?: string;
+  observaciones?: string;
+}
+
 export interface ExamenCuello {
   sinHallazgos?: boolean;
-  gangliosLinfaticos?: string;
-  musculatura?: string;
-  tiroides?: string;
-  movilidad?: string;
-  observaciones?: string;
-  [key: string]: boolean | string | undefined;
+  cervicales?: GanglioLinfatico;
+  submaxilares?: GanglioLinfatico;
+  submentonianos?: GanglioLinfatico;
+  parotideos?: GanglioLinfatico;
+  preauriculares?: GanglioLinfatico;
+  auricularesPosteriores?: GanglioLinfatico;
+  [key: string]: boolean | string | GanglioLinfatico | undefined;
 }
 
 export interface ExamenIntrabucal {
