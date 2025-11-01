@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { AnimatedTextareaWithTyping } from "@/components/ui/AnimatedTextareaWithTyping";
+// Se eliminó la importación de AnimatedTextareaWithTyping que causaba el error
 
 interface ExamenCuelloProps {
   formData: FormDataState;
@@ -21,6 +21,50 @@ interface CopiedState {
   preauriculares?: boolean;
   auricularesPosteriores?: boolean;
 }
+
+// Mapa de estilos para evitar la purga de clases dinámicas de Tailwind
+const colorStyles: { [key: string]: { bg: string; border: string; text: string; } } = {
+  blue: {
+    bg: 'bg-blue-50/30 dark:bg-blue-950/20',
+    border: 'border-blue-200 dark:border-blue-800',
+    text: 'text-blue-900 dark:text-blue-100',
+  },
+  pink: {
+    bg: 'bg-pink-50/30 dark:bg-pink-950/20',
+    border: 'border-pink-200 dark:border-pink-800',
+    text: 'text-pink-900 dark:text-pink-100',
+  },
+  purple: {
+    bg: 'bg-purple-50/30 dark:bg-purple-950/20',
+    border: 'border-purple-200 dark:border-purple-800',
+    text: 'text-purple-900 dark:text-purple-100',
+  },
+  red: {
+    bg: 'bg-red-50/30 dark:bg-red-950/20',
+    border: 'border-red-200 dark:border-red-800',
+    text: 'text-red-900 dark:text-red-100',
+  },
+  green: {
+    bg: 'bg-green-50/30 dark:bg-green-950/20',
+    border: 'border-green-200 dark:border-green-800',
+    text: 'text-green-900 dark:text-green-100',
+  },
+  yellow: {
+    bg: 'bg-yellow-50/30 dark:bg-yellow-950/20',
+    border: 'border-yellow-200 dark:border-yellow-800',
+    text: 'text-yellow-900 dark:text-yellow-100',
+  },
+};
+
+// Definición de las secciones para mapeo
+const sections = [
+  { key: 'cervicales', label: '1. Cervicales', color: 'blue' },
+  { key: 'submaxilares', label: '2. Submaxilares', color: 'pink' },
+  { key: 'submentonianos', label: '3. Submentonianos', color: 'purple' },
+  { key: 'parotideos', label: '4. Parotídeos', color: 'red' },
+  { key: 'preauriculares', label: '5. Preauriculares', color: 'green' },
+  { key: 'auricularesPosteriores', label: '6. Auriculares posteriores', color: 'yellow' }
+];
 
 const ExamenCuello: React.FC<ExamenCuelloProps> = ({
   formData,
@@ -38,6 +82,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
     auricularesPosteriores: ""
   });
   const [copied, setCopied] = useState<CopiedState>({});
+  const [copiedAll, setCopiedAll] = useState(false);
   const redaccionesRef = useRef<HTMLDivElement>(null);
 
   const handleMinimize = () => {
@@ -56,7 +101,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
   };
 
   const handleGanglioChange = (tipo: string, field: string, value: string) => {
-    const ganglioActual = formData.examenCuello?.[tipo] as GanglioLinfatico || {
+    const ganglioActual = formData?.examenCuello?.[tipo] as GanglioLinfatico || {
       palpacion: '',
       consistencia: '',
       dolor: '',
@@ -82,7 +127,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
   };
 
   const getRedaccionNoPalpan = (tipo: string) => {
-    const redaccionesNoPalpan = {
+    const redaccionesNoPalpan: { [key: string]: string[] } = {
       cervicales: [
         "No se palpan ganglios cervicales, el cuello se aprecia simétrico y sin aumento de volumen palpable.",
         "A la exploración no se detectan adenomegalias cervicales; la palpación es indolora y sin irregularidades.",
@@ -126,7 +171,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
   };
 
   const getNombreGanglio = (tipo: string) => {
-    const nombres = {
+    const nombres: { [key: string]: string } = {
       cervicales: "cervicales",
       submaxilares: "submaxilares",
       submentonianos: "submentonianos",
@@ -185,7 +230,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
   };
 
   const generarRedaccionPorTipo = (tipo: string) => {
-    const ganglio = formData.examenCuello?.[tipo] as GanglioLinfatico;
+    const ganglio = formData?.examenCuello?.[tipo] as GanglioLinfatico;
     
     if (!ganglio || ganglio.palpacion === '' || ganglio.palpacion === 'no_palpan') {
       return getRedaccionNoPalpan(tipo);
@@ -233,6 +278,23 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
     }
   };
 
+  const handleCopyAll = async () => {
+    const fullText = sections.map(section => {
+      // Tomar "Cervicales" de "1. Cervicales"
+      const redactionLabel = section.label.split('. ')[1];
+      return `${redactionLabel}: ${redacciones[section.key as keyof typeof redacciones]}`;
+    }).join('\n\n');
+
+    try {
+      await navigator.clipboard.writeText(fullText);
+      setCopiedAll(true);
+      setTimeout(() => setCopiedAll(false), 2000);
+    } catch (error) {
+      console.error('Error al copiar todo:', error);
+    }
+  };
+
+
   const limpiarFormulario = () => {
     const ganglioLimpio: GanglioLinfatico = {
       palpacion: '',
@@ -273,7 +335,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
     valor: string;
     etiqueta: string;
   }) => {
-    const ganglio = formData.examenCuello?.[tipo] as GanglioLinfatico;
+    const ganglio = formData?.examenCuello?.[tipo] as GanglioLinfatico;
     const isSelected = ganglio?.[campo] === valor;
 
     return (
@@ -294,19 +356,20 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
   const SeccionGanglio = ({
     tipo,
     titulo,
-    emoji
+    colorName
   }: {
     tipo: string;
     titulo: string;
-    emoji: string;
+    colorName: string;
   }) => {
-    const ganglio = formData.examenCuello?.[tipo] as GanglioLinfatico;
+    const ganglio = formData?.examenCuello?.[tipo] as GanglioLinfatico;
     const sePalpan = ganglio?.palpacion === 'se_palpan';
+    const styles = colorStyles[colorName] || colorStyles.blue;
 
     return (
-      <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/30 p-4 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
-        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <span>{emoji}</span> {titulo}
+      <div className={`p-4 rounded-lg border ${styles.bg} ${styles.border}`}>
+        <h4 className={`text-base font-semibold mb-3 flex items-center gap-2 ${styles.text}`}>
+          {titulo}
         </h4>
 
         <div className="space-y-3">
@@ -404,7 +467,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                 Formulario
               </button>
               <button 
-                onClick={() => setShowForm(false)}
+                onClick={generarRedaccionIA}
                 className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
                   !showForm 
                     ? "bg-blue-500 text-white shadow-md" 
@@ -439,12 +502,14 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
           <>
             {showForm ? (
               <div className="p-6 space-y-4">
-                <SeccionGanglio tipo="cervicales" titulo="1. Cervicales" emoji="🧩" />
-                <SeccionGanglio tipo="submaxilares" titulo="2. Submaxilares" emoji="🧩" />
-                <SeccionGanglio tipo="submentonianos" titulo="3. Submentonianos" emoji="🧩" />
-                <SeccionGanglio tipo="parotideos" titulo="4. Parotídeos" emoji="🧩" />
-                <SeccionGanglio tipo="preauriculares" titulo="5. Preauriculares" emoji="🧩" />
-                <SeccionGanglio tipo="auricularesPosteriores" titulo="6. Auriculares posteriores" emoji="🧩" />
+                {sections.map(({ key, label, color }) => (
+                  <SeccionGanglio
+                    key={key}
+                    tipo={key}
+                    titulo={label}
+                    colorName={color}
+                  />
+                ))}
 
                 {/* Botones de acción */}
                 <div className="flex gap-3 pt-4">
@@ -465,165 +530,57 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
               </div>
             ) : (
               <div className="p-6 space-y-4" ref={redaccionesRef}>
-                {/* Redacción Cervicales */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-semibold">🧩 Cervicales</Label>
-                    <Button
-                      onClick={() => handleCopy('cervicales')}
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 px-2"
-                    >
-                      {copied.cervicales ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <AnimatedTextareaWithTyping
-                    content={redacciones.cervicales}
-                    className="min-h-[80px] text-sm"
-                    readOnly
-                  />
-                </div>
-
-                {/* Redacción Submaxilares */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-semibold">🧩 Submaxilares</Label>
-                    <Button
-                      onClick={() => handleCopy('submaxilares')}
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 px-2"
-                    >
-                      {copied.submaxilares ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <AnimatedTextareaWithTyping
-                    content={redacciones.submaxilares}
-                    className="min-h-[80px] text-sm"
-                    readOnly
-                  />
-                </div>
-
-                {/* Redacción Submentonianos */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-semibold">🧩 Submentonianos</Label>
-                    <Button
-                      onClick={() => handleCopy('submentonianos')}
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 px-2"
-                    >
-                      {copied.submentonianos ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <AnimatedTextareaWithTyping
-                    content={redacciones.submentonianos}
-                    className="min-h-[80px] text-sm"
-                    readOnly
-                  />
-                </div>
-
-                {/* Redacción Parotídeos */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-semibold">🧩 Parotídeos</Label>
-                    <Button
-                      onClick={() => handleCopy('parotideos')}
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 px-2"
-                    >
-                      {copied.parotideos ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <AnimatedTextareaWithTyping
-                    content={redacciones.parotideos}
-                    className="min-h-[80px] text-sm"
-                    readOnly
-                  />
-                </div>
-
-                {/* Redacción Preauriculares */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-semibold">🧩 Preauriculares</Label>
-                    <Button
-                      onClick={() => handleCopy('preauriculares')}
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 px-2"
-                    >
-                      {copied.preauriculares ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <AnimatedTextareaWithTyping
-                    content={redacciones.preauriculares}
-                    className="min-h-[80px] text-sm"
-                    readOnly
-                  />
-                </div>
-
-                {/* Redacción Auriculares Posteriores */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label className="text-sm font-semibold">🧩 Auriculares posteriores</Label>
-                    <Button
-                      onClick={() => handleCopy('auricularesPosteriores')}
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 px-2"
-                    >
-                      {copied.auricularesPosteriores ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <AnimatedTextareaWithTyping
-                    content={redacciones.auricularesPosteriores}
-                    className="min-h-[80px] text-sm"
-                    readOnly
-                  />
-                </div>
+                
+                {sections.map(({ key, label, color }) => {
+                  const redactionLabel = label.split('. ')[1];
+                  const styles = colorStyles[color] || colorStyles.blue;
+                  return (
+                    <div key={key} className={`p-4 rounded-lg border ${styles.bg} ${styles.border}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className={`text-base font-semibold ${styles.text}`}>
+                          {redactionLabel}
+                        </Label>
+                        <Button
+                          onClick={() => handleCopy(key as keyof CopiedState)}
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          {copied[key as keyof CopiedState] ? (
+                            <CheckCircle className="h-4 w-4 text-green-500" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                      <Textarea
+                        value={redacciones[key as keyof typeof redacciones]}
+                        className="bg-white dark:bg-gray-900 min-h-[90px]"
+                        readOnly
+                      />
+                    </div>
+                  );
+                })}
 
                 {/* Botones de acción */}
                 <div className="flex gap-3 pt-4">
+                  <Button
+                    onClick={handleCopyAll}
+                    className="flex-1"
+                  >
+                    {copiedAll ? (
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                    ) : (
+                      <Copy className="w-4 h-4 mr-2" />
+                    )}
+                    Copiar Todo
+                  </Button>
                   <Button
                     onClick={() => setShowForm(true)}
                     variant="outline"
                     className="flex-1"
                   >
                     Volver al Formulario
-                  </Button>
-                  <Button
-                    onClick={limpiarFormulario}
-                    variant="outline"
-                    className="flex-1"
-                  >
-                    Limpiar Formulario
                   </Button>
                 </div>
               </div>
@@ -636,3 +593,4 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
 };
 
 export default ExamenCuello;
+
