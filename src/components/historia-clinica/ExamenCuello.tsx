@@ -210,12 +210,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
 
     setRedacciones(nuevasRedacciones);
     setShowForm(false);
-    
-    // Scroll solo al generar redacción IA
-    setTimeout(() => {
-      const cuelloContainer = document.querySelector('[data-formulario-section="examen-cuello"]');
-      cuelloContainer?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
+    redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleCopy = async (section: keyof CopiedState) => {
@@ -271,14 +266,12 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
     tipo,
     campo,
     valor,
-    etiqueta,
-    colorClass
+    etiqueta
   }: {
     tipo: string;
     campo: string;
     valor: string;
     etiqueta: string;
-    colorClass?: string;
   }) => {
     const ganglio = formData.examenCuello?.[tipo] as GanglioLinfatico;
     const isSelected = ganglio?.[campo] === valor;
@@ -287,10 +280,10 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
       <button
         type="button"
         onClick={() => handleGanglioChange(tipo, campo, valor)}
-        className={`px-4 py-2 rounded-md text-base transition-all ${
+        className={`px-3 py-1.5 rounded-md text-xs transition-all ${
           isSelected
-            ? colorClass || "bg-primary text-primary-foreground shadow-md"
-            : "bg-muted text-muted-foreground hover:bg-muted/80"
+            ? "bg-blue-500 text-white shadow-md"
+            : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
         }`}
       >
         {etiqueta}
@@ -298,131 +291,94 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
     );
   };
 
-  const getColorConfig = (tipo: string) => {
-    const configs = {
-      cervicales: {
-        bg: "bg-primary/10 border-primary/30",
-        button: "bg-primary text-primary-foreground",
-        textareaBorder: "border-primary/40"
-      },
-      submaxilares: {
-        bg: "bg-secondary/10 border-secondary/30",
-        button: "bg-secondary text-secondary-foreground",
-        textareaBorder: "border-secondary/40"
-      },
-      submentonianos: {
-        bg: "bg-accent/10 border-accent/30",
-        button: "bg-accent text-accent-foreground",
-        textareaBorder: "border-accent/40"
-      },
-      parotideos: {
-        bg: "bg-muted/30 border-muted-foreground/20",
-        button: "bg-muted text-muted-foreground",
-        textareaBorder: "border-muted-foreground/30"
-      },
-      preauriculares: {
-        bg: "bg-primary/5 border-primary/20",
-        button: "bg-primary/80 text-primary-foreground",
-        textareaBorder: "border-primary/30"
-      },
-      auricularesPosteriores: {
-        bg: "bg-secondary/5 border-secondary/20",
-        button: "bg-secondary/80 text-secondary-foreground",
-        textareaBorder: "border-secondary/30"
-      }
-    };
-    return configs[tipo] || configs.cervicales;
-  };
-
   const SeccionGanglio = ({
     tipo,
-    titulo
+    titulo,
+    emoji
   }: {
     tipo: string;
     titulo: string;
+    emoji: string;
   }) => {
     const ganglio = formData.examenCuello?.[tipo] as GanglioLinfatico;
     const sePalpan = ganglio?.palpacion === 'se_palpan';
-    const colors = getColorConfig(tipo);
 
     return (
-      <div className={`p-5 rounded-lg border-2 ${colors.bg}`}>
-        <h4 className="text-base font-semibold mb-4">
-          {titulo}
+      <div className="bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/30 dark:to-indigo-950/30 p-4 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
+        <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <span>{emoji}</span> {titulo}
         </h4>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Palpación */}
           <div>
-            <Label className="text-base font-medium mb-2 block">Palpación</Label>
+            <Label className="text-xs font-medium mb-1.5 block">Palpación</Label>
             <div className="flex gap-2">
-              <OpcionBoton tipo={tipo} campo="palpacion" valor="no_palpan" etiqueta="No se palpan" colorClass={colors.button} />
-              <OpcionBoton tipo={tipo} campo="palpacion" valor="se_palpan" etiqueta="Se palpan" colorClass={colors.button} />
+              <OpcionBoton tipo={tipo} campo="palpacion" valor="no_palpan" etiqueta="No se palpan" />
+              <OpcionBoton tipo={tipo} campo="palpacion" valor="se_palpan" etiqueta="Se palpan" />
             </div>
           </div>
 
           {/* Características - solo mostrar si se palpan */}
           {sePalpan && (
-            <div className="space-y-4">
+            <div className="space-y-3 pl-3 border-l-2 border-blue-300 dark:border-blue-700">
               {/* Consistencia */}
               <div>
-                <Label className="text-base font-medium mb-2 block">Consistencia</Label>
+                <Label className="text-xs font-medium mb-1.5 block">Consistencia</Label>
                 <div className="flex gap-2">
-                  <OpcionBoton tipo={tipo} campo="consistencia" valor="firme" etiqueta="Firme" colorClass={colors.button} />
-                  <OpcionBoton tipo={tipo} campo="consistencia" valor="blanda" etiqueta="Blanda" colorClass={colors.button} />
+                  <OpcionBoton tipo={tipo} campo="consistencia" valor="firme" etiqueta="Firme" />
+                  <OpcionBoton tipo={tipo} campo="consistencia" valor="blanda" etiqueta="Blanda" />
                 </div>
               </div>
 
               {/* Dolor */}
               <div>
-                <Label className="text-base font-medium mb-2 block">Dolor</Label>
+                <Label className="text-xs font-medium mb-1.5 block">Dolor</Label>
                 <div className="flex gap-2">
-                  <OpcionBoton tipo={tipo} campo="dolor" valor="dolorosos" etiqueta="Dolorosos" colorClass={colors.button} />
-                  <OpcionBoton tipo={tipo} campo="dolor" valor="no_dolorosos" etiqueta="No dolorosos" colorClass={colors.button} />
+                  <OpcionBoton tipo={tipo} campo="dolor" valor="dolorosos" etiqueta="Dolorosos" />
+                  <OpcionBoton tipo={tipo} campo="dolor" valor="no_dolorosos" etiqueta="No dolorosos" />
                 </div>
               </div>
 
               {/* Movilidad */}
               <div>
-                <Label className="text-base font-medium mb-2 block">Movilidad</Label>
+                <Label className="text-xs font-medium mb-1.5 block">Movilidad</Label>
                 <div className="flex gap-2">
-                  <OpcionBoton tipo={tipo} campo="movilidad" valor="moviles" etiqueta="Móviles" colorClass={colors.button} />
-                  <OpcionBoton tipo={tipo} campo="movilidad" valor="fijos" etiqueta="Fijos" colorClass={colors.button} />
+                  <OpcionBoton tipo={tipo} campo="movilidad" valor="moviles" etiqueta="Móviles" />
+                  <OpcionBoton tipo={tipo} campo="movilidad" valor="fijos" etiqueta="Fijos" />
                 </div>
               </div>
 
               {/* Localización */}
               <div>
-                <Label className="text-base font-medium mb-2 block">Localización</Label>
+                <Label className="text-xs font-medium mb-1.5 block">Localización</Label>
                 <div className="flex gap-2">
-                  <OpcionBoton tipo={tipo} campo="localizacion" valor="unilaterales" etiqueta="Unilaterales" colorClass={colors.button} />
-                  <OpcionBoton tipo={tipo} campo="localizacion" valor="bilaterales" etiqueta="Bilaterales" colorClass={colors.button} />
+                  <OpcionBoton tipo={tipo} campo="localizacion" valor="unilaterales" etiqueta="Unilaterales" />
+                  <OpcionBoton tipo={tipo} campo="localizacion" valor="bilaterales" etiqueta="Bilaterales" />
                 </div>
               </div>
 
               {/* Tamaño */}
               <div>
-                <Label className="text-base font-medium mb-2 block">Tamaño aproximado (mm/cm)</Label>
+                <Label className="text-xs font-medium mb-1.5 block">Tamaño aproximado (mm/cm)</Label>
                 <Input
                   type="text"
                   value={ganglio?.tamano || ''}
                   onChange={(e) => handleGanglioChange(tipo, 'tamano', e.target.value)}
                   placeholder="Ej: 8 mm, 1 cm"
-                  className="text-base"
+                  className="text-sm"
                 />
               </div>
 
               {/* Observaciones */}
               <div>
-                <Label className="text-base font-medium mb-2 block">Observaciones</Label>
-                <div className={`p-3 rounded-md border-2 ${colors.textareaBorder} ${colors.bg}`}>
-                  <Textarea
-                    value={ganglio?.observaciones || ''}
-                    onChange={(e) => handleGanglioChange(tipo, 'observaciones', e.target.value)}
-                    placeholder="Observaciones adicionales..."
-                    className="text-base min-h-[70px] border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
-                </div>
+                <Label className="text-xs font-medium mb-1.5 block">Observaciones</Label>
+                <Textarea
+                  value={ganglio?.observaciones || ''}
+                  onChange={(e) => handleGanglioChange(tipo, 'observaciones', e.target.value)}
+                  placeholder="Observaciones adicionales..."
+                  className="text-sm min-h-[60px]"
+                />
               </div>
             </div>
           )}
@@ -475,49 +431,49 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
 
         <div className="flex justify-start px-6 py-2">
           <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-muted-foreground">XII.</span> CUELLO
+            <span className="text-gray-400">XII.</span> CUELLO
           </h2>
         </div>
 
         {!isMinimized && (
           <>
             {showForm ? (
-              <div className="p-6 space-y-5">
-                <SeccionGanglio tipo="cervicales" titulo="1. Cervicales" />
-                <SeccionGanglio tipo="submaxilares" titulo="2. Submaxilares" />
-                <SeccionGanglio tipo="submentonianos" titulo="3. Submentonianos" />
-                <SeccionGanglio tipo="parotideos" titulo="4. Parotídeos" />
-                <SeccionGanglio tipo="preauriculares" titulo="5. Preauriculares" />
-                <SeccionGanglio tipo="auricularesPosteriores" titulo="6. Auriculares posteriores" />
+              <div className="p-6 space-y-4">
+                <SeccionGanglio tipo="cervicales" titulo="1. Cervicales" emoji="🧩" />
+                <SeccionGanglio tipo="submaxilares" titulo="2. Submaxilares" emoji="🧩" />
+                <SeccionGanglio tipo="submentonianos" titulo="3. Submentonianos" emoji="🧩" />
+                <SeccionGanglio tipo="parotideos" titulo="4. Parotídeos" emoji="🧩" />
+                <SeccionGanglio tipo="preauriculares" titulo="5. Preauriculares" emoji="🧩" />
+                <SeccionGanglio tipo="auricularesPosteriores" titulo="6. Auriculares posteriores" emoji="🧩" />
 
                 {/* Botones de acción */}
                 <div className="flex gap-3 pt-4">
                   <Button
                     onClick={generarRedaccionIA}
-                    className="flex-1 text-base py-6"
+                    className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
                   >
                     Generar Redacción IA
                   </Button>
                   <Button
                     onClick={limpiarFormulario}
                     variant="outline"
-                    className="flex-1 text-base py-6"
+                    className="flex-1"
                   >
                     Limpiar Formulario
                   </Button>
                 </div>
               </div>
             ) : (
-              <div className="p-6 space-y-5" ref={redaccionesRef}>
+              <div className="p-6 space-y-4" ref={redaccionesRef}>
                 {/* Redacción Cervicales */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold">Cervicales</Label>
+                    <Label className="text-sm font-semibold">🧩 Cervicales</Label>
                     <Button
                       onClick={() => handleCopy('cervicales')}
                       variant="ghost"
                       size="sm"
-                      className="h-9 px-3 text-base"
+                      className="h-8 px-2"
                     >
                       {copied.cervicales ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
@@ -526,24 +482,22 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                       )}
                     </Button>
                   </div>
-                  <div className="p-3 rounded-md border-2 bg-primary/10 border-primary/40">
-                    <AnimatedTextareaWithTyping
-                      content={redacciones.cervicales}
-                      className="min-h-[70px] text-base border-0 bg-transparent"
-                      readOnly
-                    />
-                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.cervicales}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
                 </div>
 
                 {/* Redacción Submaxilares */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold">Submaxilares</Label>
+                    <Label className="text-sm font-semibold">🧩 Submaxilares</Label>
                     <Button
                       onClick={() => handleCopy('submaxilares')}
                       variant="ghost"
                       size="sm"
-                      className="h-9 px-3 text-base"
+                      className="h-8 px-2"
                     >
                       {copied.submaxilares ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
@@ -552,24 +506,22 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                       )}
                     </Button>
                   </div>
-                  <div className="p-3 rounded-md border-2 bg-secondary/10 border-secondary/40">
-                    <AnimatedTextareaWithTyping
-                      content={redacciones.submaxilares}
-                      className="min-h-[70px] text-base border-0 bg-transparent"
-                      readOnly
-                    />
-                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.submaxilares}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
                 </div>
 
                 {/* Redacción Submentonianos */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold">Submentonianos</Label>
+                    <Label className="text-sm font-semibold">🧩 Submentonianos</Label>
                     <Button
                       onClick={() => handleCopy('submentonianos')}
                       variant="ghost"
                       size="sm"
-                      className="h-9 px-3 text-base"
+                      className="h-8 px-2"
                     >
                       {copied.submentonianos ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
@@ -578,24 +530,22 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                       )}
                     </Button>
                   </div>
-                  <div className="p-3 rounded-md border-2 bg-accent/10 border-accent/40">
-                    <AnimatedTextareaWithTyping
-                      content={redacciones.submentonianos}
-                      className="min-h-[70px] text-base border-0 bg-transparent"
-                      readOnly
-                    />
-                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.submentonianos}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
                 </div>
 
                 {/* Redacción Parotídeos */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold">Parotídeos</Label>
+                    <Label className="text-sm font-semibold">🧩 Parotídeos</Label>
                     <Button
                       onClick={() => handleCopy('parotideos')}
                       variant="ghost"
                       size="sm"
-                      className="h-9 px-3 text-base"
+                      className="h-8 px-2"
                     >
                       {copied.parotideos ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
@@ -604,24 +554,22 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                       )}
                     </Button>
                   </div>
-                  <div className="p-3 rounded-md border-2 bg-muted/30 border-muted-foreground/30">
-                    <AnimatedTextareaWithTyping
-                      content={redacciones.parotideos}
-                      className="min-h-[70px] text-base border-0 bg-transparent"
-                      readOnly
-                    />
-                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.parotideos}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
                 </div>
 
                 {/* Redacción Preauriculares */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold">Preauriculares</Label>
+                    <Label className="text-sm font-semibold">🧩 Preauriculares</Label>
                     <Button
                       onClick={() => handleCopy('preauriculares')}
                       variant="ghost"
                       size="sm"
-                      className="h-9 px-3 text-base"
+                      className="h-8 px-2"
                     >
                       {copied.preauriculares ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
@@ -630,24 +578,22 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                       )}
                     </Button>
                   </div>
-                  <div className="p-3 rounded-md border-2 bg-primary/5 border-primary/30">
-                    <AnimatedTextareaWithTyping
-                      content={redacciones.preauriculares}
-                      className="min-h-[70px] text-base border-0 bg-transparent"
-                      readOnly
-                    />
-                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.preauriculares}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
                 </div>
 
                 {/* Redacción Auriculares Posteriores */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label className="text-base font-semibold">Auriculares posteriores</Label>
+                    <Label className="text-sm font-semibold">🧩 Auriculares posteriores</Label>
                     <Button
                       onClick={() => handleCopy('auricularesPosteriores')}
                       variant="ghost"
                       size="sm"
-                      className="h-9 px-3 text-base"
+                      className="h-8 px-2"
                     >
                       {copied.auricularesPosteriores ? (
                         <CheckCircle className="w-4 h-4 text-green-500" />
@@ -656,13 +602,11 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                       )}
                     </Button>
                   </div>
-                  <div className="p-3 rounded-md border-2 bg-secondary/5 border-secondary/30">
-                    <AnimatedTextareaWithTyping
-                      content={redacciones.auricularesPosteriores}
-                      className="min-h-[70px] text-base border-0 bg-transparent"
-                      readOnly
-                    />
-                  </div>
+                  <AnimatedTextareaWithTyping
+                    content={redacciones.auricularesPosteriores}
+                    className="min-h-[80px] text-sm"
+                    readOnly
+                  />
                 </div>
 
                 {/* Botones de acción */}
@@ -670,14 +614,14 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                   <Button
                     onClick={() => setShowForm(true)}
                     variant="outline"
-                    className="flex-1 text-base py-6"
+                    className="flex-1"
                   >
                     Volver al Formulario
                   </Button>
                   <Button
                     onClick={limpiarFormulario}
                     variant="outline"
-                    className="flex-1 text-base py-6"
+                    className="flex-1"
                   >
                     Limpiar Formulario
                   </Button>
