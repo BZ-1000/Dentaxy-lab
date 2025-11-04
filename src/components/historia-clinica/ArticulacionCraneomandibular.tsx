@@ -299,12 +299,26 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
 
   // --- Handlers de Actualización de Estado ---
   const handleOptionChange = useCallback((fieldPath: string, value: string) => {
-    handleArticulacionCraneomandibularChange(fieldPath, value);
-  }, [handleArticulacionCraneomandibularChange]);
+    // Manejar rutas anidadas como "labios.simetria"
+    if (fieldPath.includes('.')) {
+      const [parent, child] = fieldPath.split('.');
+      const currentData = (formData.articulacionCraneomandibular?.[parent as keyof ArticulacionCraneomandibularState] || {}) as Record<string, any>;
+      handleArticulacionCraneomandibularChange(parent, { ...currentData, [child]: value });
+    } else {
+      handleArticulacionCraneomandibularChange(fieldPath, value);
+    }
+  }, [handleArticulacionCraneomandibularChange, formData.articulacionCraneomandibular]);
   
   const handleTextChange = useCallback((fieldPath: string, e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    handleArticulacionCraneomandibularChange(fieldPath, e.target.value);
-  }, [handleArticulacionCraneomandibularChange]);
+    // Manejar rutas anidadas como "labios.otrasObservaciones"
+    if (fieldPath.includes('.')) {
+      const [parent, child] = fieldPath.split('.');
+      const currentData = (formData.articulacionCraneomandibular?.[parent as keyof ArticulacionCraneomandibularState] || {}) as Record<string, any>;
+      handleArticulacionCraneomandibularChange(parent, { ...currentData, [child]: e.target.value });
+    } else {
+      handleArticulacionCraneomandibularChange(fieldPath, e.target.value);
+    }
+  }, [handleArticulacionCraneomandibularChange, formData.articulacionCraneomandibular]);
   
   const handleBooleanChange = useCallback((fieldPath: string, value: boolean) => {
     handleArticulacionCraneomandibularChange(fieldPath, value);
@@ -556,38 +570,8 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
 
                 {/* --- Labios Formulario / Narrativa --- */}
                 <section>
-                  <div className="flex justify-between items-center mb-4 border-t border-gray-300 dark:border-gray-600 pt-6">
+                  <div className="mb-4 border-t border-gray-300 dark:border-gray-600 pt-6">
                     <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Labios</h3>
-                    {/* Botón Cambiar Vista / Generar */}
-                    {lipsViewMode === 'form' ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={generateLipsNarrative}
-                        disabled={isGeneratingLipsNarrative}
-                        className={`flex items-center gap-1.5 ${isGeneratingLipsNarrative ? 'text-gray-500 cursor-not-allowed' : 'text-blue-600 dark:text-blue-400 border-blue-500/50 dark:border-blue-400/50 hover:bg-blue-50 dark:hover:bg-blue-900/30'}`}
-                      >
-                        {isGeneratingLipsNarrative ? (
-                          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-blue-600 dark:text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                        ) : (
-                          <FileText className="w-4 h-4" />
-                        )}
-                        {isGeneratingLipsNarrative ? 'Generando...' : 'Redacción Labios'}
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setLipsViewMode('form')}
-                        disabled={isGeneratingLipsNarrative}
-                        className="flex items-center gap-1.5 text-gray-600 dark:text-gray-400 border-gray-400/50 dark:border-gray-500/50 hover:bg-gray-100 dark:hover:bg-gray-700/50 disabled:opacity-50"
-                      >
-                        <Edit className="w-4 h-4" /> Editar
-                      </Button>
-                    )}
                   </div>
 
                   {/* Contenido Labios */}
@@ -610,16 +594,50 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                           className="min-h-[70px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm"
                         />
                       </div>
+                      
+                      {/* Botón Generar Redacción IA al final */}
+                      <div className="flex justify-end pt-4">
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={generateLipsNarrative}
+                          disabled={isGeneratingLipsNarrative}
+                          className="flex items-center gap-2"
+                        >
+                          {isGeneratingLipsNarrative ? (
+                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          ) : (
+                            <FileText className="w-4 h-4" />
+                          )}
+                          {isGeneratingLipsNarrative ? 'Generando...' : 'Generar Redacción IA'}
+                        </Button>
+                      </div>
                     </div>
                   ) : (
-                    <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 min-h-[120px] shadow-inner">
-                      <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
-                        {displayedLipsNarrative}
-                        {/* Cursor solo si está animando */}
-                        {isGeneratingLipsNarrative && lipsIntervalRef.current && (
-                          <span className="inline-block w-1 h-4 bg-gray-800 dark:bg-gray-200 animate-pulse ml-px"></span>
-                        )}
-                      </p>
+                    <div>
+                      <div className="flex justify-end mb-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setLipsViewMode('form')}
+                          disabled={isGeneratingLipsNarrative}
+                          className="flex items-center gap-1.5"
+                        >
+                          <Edit className="w-4 h-4" /> Editar
+                        </Button>
+                      </div>
+                      <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 min-h-[120px] shadow-inner">
+                        <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
+                          {displayedLipsNarrative}
+                          {/* Cursor solo si está animando */}
+                          {isGeneratingLipsNarrative && lipsIntervalRef.current && (
+                            <span className="inline-block w-1 h-4 bg-gray-800 dark:bg-gray-200 animate-pulse ml-px"></span>
+                          )}
+                        </p>
+                      </div>
                     </div>
                   )}
                 </section>
