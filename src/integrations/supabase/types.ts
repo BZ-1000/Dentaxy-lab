@@ -44,7 +44,7 @@ export type Database = {
           created_at: string | null
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           resource_id: string | null
           resource_type: string
           user_agent: string | null
@@ -55,7 +55,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type: string
           user_agent?: string | null
@@ -66,7 +66,7 @@ export type Database = {
           created_at?: string | null
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           resource_id?: string | null
           resource_type?: string
           user_agent?: string | null
@@ -568,18 +568,9 @@ export type Database = {
         }
         Returns: boolean
       }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_user_role: {
-        Args: { user_uuid: string }
-        Returns: string
-      }
-      increment_copy_clicks: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      get_current_user_role: { Args: never; Returns: string }
+      get_user_role: { Args: { user_uuid: string }; Returns: string }
+      increment_copy_clicks: { Args: never; Returns: undefined }
       increment_user_daily_activity: {
         Args: { p_at?: string; p_seconds: number }
         Returns: undefined
@@ -596,10 +587,7 @@ export type Database = {
         }
         Returns: undefined
       }
-      system_manage_rate_limit: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      system_manage_rate_limit: { Args: never; Returns: boolean }
       update_active_users_count: {
         Args: { new_count: number }
         Returns: undefined
