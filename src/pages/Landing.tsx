@@ -68,7 +68,6 @@ const Landing = () => {
   // Add new state for terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptPrivacy, setAcceptPrivacy] = useState(false);
-
   const handleBetaAccess = () => {
     if (!session) {
       toast.error('Debes iniciar sesión para acceder a la versión beta');
@@ -82,10 +81,10 @@ const Landing = () => {
     // Clear all form data from localStorage
     localStorage.removeItem('currentFormData');
     localStorage.removeItem('formBackup');
-    
+
     // Set flag to skip splash screen
     sessionStorage.setItem('skipSplash', 'true');
-    
+
     // Navigate directly to the app for beta access
     navigate('/app');
   };
@@ -100,11 +99,10 @@ const Landing = () => {
       });
       return;
     }
-    
+
     // If user is logged in, redirect to app
     navigate('/app');
   };
-
   const dockItems = [{
     id: 'estadisticas',
     icon: BarChart3,
@@ -444,7 +442,7 @@ const Landing = () => {
       <div className="sticky top-0 bg-white z-50 flex items-center justify-between px-6 py-4 border-b border-gray-100 shadow-sm">
         <div className="flex items-center gap-2">
           <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-8 w-8" />
-          <span className="text-xs font-bold text-gray-700">Dental Basics Academy</span>
+          <span className="text-xs font-bold text-gray-700">Dentaxy Technologies </span>
         </div>
 
         {/* Main horizontal navigation */}
