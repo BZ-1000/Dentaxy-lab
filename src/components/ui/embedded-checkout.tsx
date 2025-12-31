@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, CreditCard, Shield, Zap } from "lucide-react";
 import { Button } from "./button";
 import { Card } from "./card";
 import { Badge } from "./badge";
-import { useSubscription } from "@/hooks/useSubscription";
-import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 interface EmbeddedCheckoutProps {
@@ -28,28 +26,9 @@ export function EmbeddedCheckout({
   planFeatures
 }: EmbeddedCheckoutProps) {
   const [isProcessing, setIsProcessing] = useState(false);
-  const { createCheckoutSession } = useSubscription();
-  const { session } = useAuth();
 
   const handlePayment = async () => {
-    if (!session) {
-      toast.error("Debes iniciar sesión para continuar");
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      const url = await createCheckoutSession(planId);
-      if (url) {
-        // Instead of opening in new tab, redirect in same window
-        window.location.href = url;
-      }
-    } catch (error) {
-      console.error('Error processing payment:', error);
-      toast.error("Error al procesar el pago. Intenta de nuevo.");
-    } finally {
-      setIsProcessing(false);
-    }
+    toast.info("Esta función no está disponible en el modo demo.");
   };
 
   return (
@@ -90,11 +69,11 @@ export function EmbeddedCheckout({
                   className="space-y-2"
                 >
                   <Badge className="bg-white/20 text-white">
-                    Pago Seguro
+                    Demo
                   </Badge>
-                  <h2 className="text-xl font-bold">Confirmar Suscripción</h2>
+                  <h2 className="text-xl font-bold">Vista Previa del Plan</h2>
                   <p className="text-white/90 text-sm">
-                    Procesa tu pago de forma segura con Stripe
+                    Esta es una demostración del proceso de suscripción
                   </p>
                 </motion.div>
                 
@@ -167,20 +146,12 @@ export function EmbeddedCheckout({
                     className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-white font-semibold py-3 shadow-lg"
                     size="lg"
                   >
-                    {isProcessing ? (
-                      <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                        className="w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"
-                      />
-                    ) : (
-                      <CreditCard className="h-5 w-5 mr-2" />
-                    )}
-                    {isProcessing ? "Procesando..." : `Pagar ${planPrice}`}
+                    <CreditCard className="h-5 w-5 mr-2" />
+                    Demo - No disponible
                   </Button>
                   
                   <p className="text-xs text-center text-gray-500">
-                    Al continuar, aceptas nuestros términos de servicio y política de privacidad.
+                    Contacta con nosotros para más información sobre planes empresariales.
                   </p>
                 </motion.div>
               </div>

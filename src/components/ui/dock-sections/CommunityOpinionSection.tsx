@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, Users, Lock } from "lucide-react";
+import { Star, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 export const CommunityOpinionSection = () => {
@@ -12,32 +11,11 @@ export const CommunityOpinionSection = () => {
   const [averageRating, setAverageRating] = useState(0);
   const [totalRatings, setTotalRatings] = useState(0);
   const [ratingDistribution, setRatingDistribution] = useState<Record<number, number>>({});
-  const [hasActivePlan, setHasActivePlan] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { user } = useAuth();
 
   useEffect(() => {
     const fetchRatings = async () => {
       setIsLoading(true);
-      
-      // Check user subscription status
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: subscription } = await supabase
-          .from("subscribers")
-          .select("subscribed")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        
-        setHasActivePlan(subscription?.subscribed || false);
-        
-        const { data: userRatingData } = await supabase
-          .from("user_ratings")
-          .select("rating")
-          .eq("user_id", user.id)
-          .maybeSingle();
-        if (userRatingData) setUserRating(userRatingData.rating);
-      }
 
       // Fetch all ratings for statistics
       const { data: ratings } = await supabase.from("user_ratings").select("rating");
@@ -64,36 +42,8 @@ export const CommunityOpinionSection = () => {
   }, []);
 
   const handleRating = async (rating: number) => {
-    if (!user) {
-      toast.error("Inicia sesión para valorar");
-      return;
-    }
-    
-    if (!hasActivePlan) {
-      toast.error("Necesitas un plan activo para valorar", {
-        description: "Activa tu suscripción para participar"
-      });
-      return;
-    }
-    
-    try {
-      const { error } = await supabase
-        .from("user_ratings")
-        .upsert({ user_id: user.id, rating }, { onConflict: 'user_id' });
-      
-      if (error) throw error;
-      
-      setUserRating(rating);
-      toast.success(`¡Gracias! Calificaste con ${rating} estrella${rating > 1 ? "s" : ""}`);
-      
-      // Refresh ratings after submitting
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } catch (error) {
-      console.error("Error saving rating:", error);
-      toast.error("No se pudo guardar tu calificación");
-    }
+    setUserRating(rating);
+    toast.success(`¡Gracias por tu opinión! ${rating} estrella${rating > 1 ? "s" : ""}`);
   };
 
   return (
@@ -146,7 +96,7 @@ export const CommunityOpinionSection = () => {
             {/* Interactive rating buttons */}
             <div className="flex flex-col gap-2">
               <p className="text-xs font-medium text-muted-foreground">
-                {hasActivePlan && user ? "Tu calificación:" : "¿Qué te parece?"}
+                ¿Qué te parece?
               </p>
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -157,7 +107,7 @@ export const CommunityOpinionSection = () => {
                     onMouseLeave={() => setHoveredStar(0)}
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    disabled={isLoading || (!user || !hasActivePlan)}
+                    disabled={isLoading}
                     className="transition-all duration-200 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed relative group"
                   >
                     <Star
@@ -167,23 +117,9 @@ export const CommunityOpinionSection = () => {
                           : 'text-muted-foreground/40'
                       }`}
                     />
-                    {(!user || !hasActivePlan) && star === 3 && (
-                      <Lock className="w-3 h-3 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-muted-foreground/60" />
-                    )}
                   </motion.button>
                 ))}
               </div>
-              {!user && (
-                <p className="text-xs text-muted-foreground/70">
-                  Inicia sesión para valorar
-                </p>
-              )}
-              {user && !hasActivePlan && (
-                <p className="text-xs text-muted-foreground/70 flex items-center gap-1">
-                  <Lock className="w-3 h-3" />
-                  Requiere plan activo
-                </p>
-              )}
             </div>
           </div>
 

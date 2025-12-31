@@ -9,8 +9,8 @@ import { Sidebar, SidebarBody, SidebarLink, Logo, LogoIcon, useSidebar } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
-import { useAuth } from '@/contexts/AuthContext';
 import { UserStorage } from '@/utils/userStorage';
+
 interface FormulariosSidebarProps {
   onCargarFormulario: (data: FormDataState, nombre: string) => void;
   onGuardarFormulario: (nombre: string) => void;
@@ -18,6 +18,7 @@ interface FormulariosSidebarProps {
   onResetFormulario: () => void;
   pacienteActual: string;
 }
+
 const FormulariosSidebar = ({
   onCargarFormulario,
   onGuardarFormulario,
@@ -25,7 +26,6 @@ const FormulariosSidebar = ({
   onResetFormulario,
   pacienteActual
 }: FormulariosSidebarProps) => {
-  const { user } = useAuth();
   const [nombrePaciente, setNombrePaciente] = useState('');
   const [formularios, setFormularios] = useState<{
     nombre: string;
@@ -47,12 +47,12 @@ const FormulariosSidebar = ({
       data: FormDataState;
     }[] = [];
     
-    const userKeys = UserStorage.getAllUserKeys(user);
+    const userKeys = UserStorage.getAllUserKeys(null);
     
     userKeys.forEach(key => {
       if (key.startsWith('formulario_') && !key.includes('_examen-intrabucal-') && !key.includes('_interrogatorio-sistemas-')) {
         const nombre = key.replace('formulario_', '');
-        const data = UserStorage.getItem(user, key);
+        const data = UserStorage.getItem(null, key);
         if (data) {
           savedForms.push({
             nombre,
@@ -66,7 +66,7 @@ const FormulariosSidebar = ({
   };
   useEffect(() => {
     loadSavedForms();
-  }, [user]);
+  }, []);
   const handleGuardarFormulario = () => {
     if (!nombrePaciente.trim()) {
       return;
@@ -82,17 +82,14 @@ const FormulariosSidebar = ({
   const handleEliminarFormulario = () => {
     if (!formularioSeleccionado) return;
     
-    // Eliminar formulario principal
-    UserStorage.removeItem(user, `formulario_${formularioSeleccionado}`);
+    UserStorage.removeItem(null, `formulario_${formularioSeleccionado}`);
     
-    // Eliminar también datos asociados del examen intrabucal
     const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
     areasIntrabucal.forEach(area => {
-      UserStorage.removeItem(user, `formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
+      UserStorage.removeItem(null, `formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
     });
     
-    // Eliminar datos del interrogatorio de sistemas
-    UserStorage.removeItem(user, `formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
+    UserStorage.removeItem(null, `formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
     
     loadSavedForms();
     setAlertDialogOpen(false);
@@ -107,27 +104,24 @@ const FormulariosSidebar = ({
   const handleRenombrarFormulario = () => {
     if (!formularioSeleccionado || !nuevoNombre.trim()) return;
     
-    const oldData = UserStorage.getItem(user, `formulario_${formularioSeleccionado}`);
+    const oldData = UserStorage.getItem(null, `formulario_${formularioSeleccionado}`);
     if (oldData) {
-      // Renombrar formulario principal
-      UserStorage.setItem(user, `formulario_${nuevoNombre}`, oldData);
-      UserStorage.removeItem(user, `formulario_${formularioSeleccionado}`);
+      UserStorage.setItem(null, `formulario_${nuevoNombre}`, oldData);
+      UserStorage.removeItem(null, `formulario_${formularioSeleccionado}`);
       
-      // Renombrar también datos asociados del examen intrabucal
       const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
       areasIntrabucal.forEach(area => {
-        const areaData = UserStorage.getItem(user, `formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
+        const areaData = UserStorage.getItem(null, `formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
         if (areaData) {
-          UserStorage.setItem(user, `formulario_${nuevoNombre}_examen-intrabucal-${area}`, areaData);
-          UserStorage.removeItem(user, `formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
+          UserStorage.setItem(null, `formulario_${nuevoNombre}_examen-intrabucal-${area}`, areaData);
+          UserStorage.removeItem(null, `formulario_${formularioSeleccionado}_examen-intrabucal-${area}`);
         }
       });
       
-      // Renombrar datos del interrogatorio de sistemas
-      const interrogatorioData = UserStorage.getItem(user, `formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
+      const interrogatorioData = UserStorage.getItem(null, `formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
       if (interrogatorioData) {
-        UserStorage.setItem(user, `formulario_${nuevoNombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
-        UserStorage.removeItem(user, `formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
+        UserStorage.setItem(null, `formulario_${nuevoNombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
+        UserStorage.removeItem(null, `formulario_${formularioSeleccionado}_interrogatorio-sistemas-formValues`);
       }
       
       if (formularioSeleccionado === pacienteActual) {

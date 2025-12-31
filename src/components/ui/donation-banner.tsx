@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Coffee, X, Heart } from "lucide-react";
 import { Button } from "./button";
 import { Card } from "./card";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
 const dailyPhrases = ["Menos papeles, más sonrisas.", "Tu tiempo vale más que el papeleo.", "Recupera el 70% de tu día.", "Más pacientes. Menos administración.", "Tu día, con más horas. Úsalas.", "Manos a la obra, no al papeleo.", "Dedícate a crear, no a documentar.", "Menos rutina, más vocación.", "Tu talento no está en teclear.", "Reenamórate de la odontología.", "Optimiza tu tiempo, maximiza tu éxito.", "La clínica del futuro es eficiente.", "Menos clics, más ganancias.", "El éxito es trabajar inteligente.", "Automatiza lo repetitivo. Domina lo excepcional."];
+
 export function DonationBanner() {
   const [isVisible, setIsVisible] = useState(true);
   const [isMinimized, setIsMinimized] = useState(true);
@@ -16,9 +16,7 @@ export function DonationBanner() {
   const [displayedText, setDisplayedText] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const {
-    session
-  } = useAuth();
+
   useEffect(() => {
     // Show full banner on page load after 3 seconds
     const timer = setTimeout(() => {
@@ -36,6 +34,7 @@ export function DonationBanner() {
       clearTimeout(autoMinimizeTimer);
     };
   }, []);
+
   useEffect(() => {
     if (!isTyping) return;
     const currentPhrase = dailyPhrases[currentPhraseIndex];
@@ -58,35 +57,15 @@ export function DonationBanner() {
     }, 80);
     return () => clearInterval(typeInterval);
   }, [isTyping, currentPhraseIndex]);
+
   const handleDonate = async () => {
-    if (!session) {
-      toast.error("Debes iniciar sesión para donar");
-      return;
-    }
-    setIsProcessing(true);
-    try {
-      const {
-        data,
-        error
-      } = await supabase.functions.invoke('create-donation', {
-        body: {
-          amount: 2000
-        } // $20 MXN in cents
-      });
-      if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error('Error processing donation:', error);
-      toast.error("Error al procesar la donación. Intenta de nuevo.");
-    } finally {
-      setIsProcessing(false);
-    }
+    toast.info("Gracias por tu interés en apoyarnos. Próximamente habilitaremos donaciones.");
   };
+
   const handleClose = () => {
     setIsMinimized(true);
   };
+
   const handleExpand = () => {
     setIsMinimized(false);
   };
