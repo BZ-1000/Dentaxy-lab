@@ -442,7 +442,7 @@ const Landing = () => {
       <div className="sticky top-0 bg-white z-50 flex items-center justify-between px-6 py-4 border-b border-gray-100 shadow-sm">
         <div className="flex items-center gap-2">
           <img alt="Logo" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-8 w-8" />
-          <span className="text-xs font-bold text-gray-700">Dentaxy Technologies </span>
+          <span className="text-xs font-bold text-gray-700">DENTAXY Technologies</span>
         </div>
 
         {/* Main horizontal navigation */}
