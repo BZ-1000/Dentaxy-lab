@@ -1,4 +1,4 @@
-import { Home, Info, HelpCircle, Award, DollarSign, Mail, Settings, User } from "lucide-react";
+import { Home, Info, HelpCircle, Award, Mail } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 const BottomMenu = () => {
@@ -28,16 +28,12 @@ const BottomMenu = () => {
     icon: Info
   }, {
     path: '/como-funciona',
-    label: 'Funciones',
+    label: 'Tecnologías',
     icon: HelpCircle
   }, {
     path: '/beneficios',
     label: 'Beneficios',
     icon: Award
-  }, {
-    path: '/planes',
-    label: 'Planes',
-    icon: DollarSign
   }, {
     path: '/contacto',
     label: 'Contacto',
