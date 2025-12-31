@@ -53,8 +53,8 @@ function IndexContent() {
                 <img src="/lovable-uploads/fde8b90b-dc35-4ac3-baf8-f54862d6becb.png" alt="Dental tooth icon" className="w-full h-full object-contain" />
               </div>
               <div className="text-slate-700 font-mplus">
-                <div className="text-sm sm:text-lg font-semibold leading-tight">DENTAL BASICS</div>
-                <div className="text-sm sm:text-lg font-semibold leading-tight">ACADEMY</div>
+                <div className="text-sm sm:text-lg font-semibold leading-tight">DENTAXY</div>
+                <div className="text-sm sm:text-lg font-semibold leading-tight">Technologies</div>
               </div>
             </div>
 
