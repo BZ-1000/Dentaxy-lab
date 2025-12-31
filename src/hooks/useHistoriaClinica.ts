@@ -3,29 +3,27 @@ import { useToast } from "@/components/ui/use-toast";
 import { generateMedicalReport } from '@/services/geminiService';
 import { FormDataState } from '@/types/historiaClinica';
 import { getInitialFormState } from '@/utils/initialFormState';
-import { useAuth } from '@/contexts/AuthContext';
 import { UserStorage } from '@/utils/userStorage';
 
 export const useHistoriaClinica = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
   const [resumen, setResumen] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState<FormDataState>(() => {
-    const savedData = UserStorage.getItem(user, 'currentFormData');
+    const savedData = UserStorage.getItem(null, 'currentFormData');
     return savedData || getInitialFormState();
   });
 
   // Persistir cambios en formData
   useEffect(() => {
-    UserStorage.setItem(user, 'currentFormData', formData);
-  }, [formData, user]);
+    UserStorage.setItem(null, 'currentFormData', formData);
+  }, [formData]);
 
   // Restaurar datos al volver a la pestaña
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        const savedData = UserStorage.getItem(user, 'currentFormData');
+        const savedData = UserStorage.getItem(null, 'currentFormData');
         if (savedData) {
           setFormData(savedData);
         }
@@ -36,7 +34,7 @@ export const useHistoriaClinica = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [user]);
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

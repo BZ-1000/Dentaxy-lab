@@ -3,7 +3,6 @@ import { BaseOverlay } from './BaseOverlay';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAppointments } from '@/hooks/useAppointments';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface HomeOverlayProps {
   open: boolean;
@@ -11,11 +10,10 @@ interface HomeOverlayProps {
 }
 
 export const HomeOverlay = ({ open, onClose }: HomeOverlayProps) => {
-  const { user } = useAuth();
   const { getTodayAppointments } = useAppointments();
   const todayAppointments = getTodayAppointments();
 
-  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Doctor';
+  const userName = 'Usuario';
   const currentDate = new Date().toLocaleDateString('es-MX', { 
     weekday: 'long', 
     year: 'numeric', 

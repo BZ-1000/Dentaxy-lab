@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, Area, AreaChart } from 'recharts';
-import { TrendingUp, Activity, ArrowRight, Clock, Zap, Target, Award, ChevronUp } from 'lucide-react';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
+import { TrendingUp, Activity, Clock, Zap, Target, Award, ChevronUp } from 'lucide-react';
 import { useTimeTracker } from '@/hooks/useTimeTracker';
-import { useAuth } from '@/contexts/AuthContext';
 
 interface ProductividadSectionProps {
   onStartTracking?: () => void;
@@ -14,8 +12,7 @@ interface ProductividadSectionProps {
 export const ProductividadSection = ({ onStartTracking }: ProductividadSectionProps = {}) => {
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
   
-  // Real data from hooks
-  const { user } = useAuth();
+  // Real data from hooks - demo mode always active
   const { weeklyData, currentSessionMinutes, totalTodayMinutes, isTracking } = useTimeTracker();
 
   // Enhanced color system with gradients and depth
@@ -120,7 +117,7 @@ export const ProductividadSection = ({ onStartTracking }: ProductividadSectionPr
                 <span className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent font-black">
                   Mi Productividad
                 </span>
-                {user && isTracking && (
+                {isTracking && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -145,14 +142,13 @@ export const ProductividadSection = ({ onStartTracking }: ProductividadSectionPr
               </div>
             </CardTitle>
             <p className="text-xs text-slate-600 font-medium mt-2">
-              {user ? "Análisis de productividad • Últimos 7 días" : "Inicia sesión para desbloquear tu panel de productividad"}
+              Análisis de productividad • Últimos 7 días
             </p>
           </motion.div>
         </CardHeader>
 
         <CardContent className="relative pt-0 p-4 sm:p-6">
-          {user ? (
-            <motion.div variants={itemVariants}>
+          <motion.div variants={itemVariants}>
               {/* Enhanced Stats Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <motion.div 
@@ -341,71 +337,6 @@ export const ProductividadSection = ({ onStartTracking }: ProductividadSectionPr
 
               </div>
             </motion.div>
-          ) : (
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-col items-center justify-center py-8 text-center space-y-6"
-            >
-              <motion.div 
-                className="relative w-20 h-20 mx-auto bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 rounded-3xl flex items-center justify-center shadow-2xl shadow-blue-500/25"
-                animate={{ 
-                  boxShadow: [
-                    "0 20px 40px rgba(59, 130, 246, 0.25)",
-                    "0 25px 50px rgba(99, 102, 241, 0.3)",
-                    "0 20px 40px rgba(59, 130, 246, 0.25)"
-                  ]
-                }}
-                transition={{ 
-                  boxShadow: { duration: 3, repeat: Infinity }
-                }}
-                whileHover={{ scale: 1.1, rotate: 10 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Activity className="w-10 h-10 text-white" />
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-3xl"
-                  animate={{ opacity: [0.2, 0.4, 0.2] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-              </motion.div>
-              
-              <div className="space-y-4 max-w-xs">
-                <motion.h4 
-                  className="text-lg font-black bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 bg-clip-text text-transparent"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                >
-                  Rastrea tu productividad en tiempo real
-                </motion.h4>
-                <motion.p 
-                  className="text-sm text-slate-600 leading-relaxed font-medium"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  Visualiza los minutos que dedicas a crear historias clínicas con análisis avanzados y métricas en tiempo real
-                </motion.p>
-              </div>
-              
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Button 
-                  className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 text-white text-sm px-8 py-3 h-auto shadow-2xl shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-500 group rounded-2xl font-bold border-0"
-                  onClick={onStartTracking || (() => {})}
-                >
-                  <Clock className="w-4 h-4 mr-3" />
-                  Comenzar a Rastrear
-                  <ArrowRight className="w-4 h-4 ml-3 group-hover:translate-x-1 transition-transform duration-300" />
-                </Button>
-              </motion.div>
-            </motion.div>
-          )}
         </CardContent>
       </Card>
     </motion.div>
