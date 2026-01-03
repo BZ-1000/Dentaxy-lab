@@ -528,16 +528,16 @@ export const useHistoriaClinica = () => {
   const resetFormulario = () => {
     setFormData(getInitialFormState());
     setResumen('');
-    UserStorage.removeItem(user, 'currentFormData');
+    UserStorage.removeItem(null, 'currentFormData');
     
     // Limpiar también los datos específicos del examen intrabucal
     const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
     areasIntrabucal.forEach(area => {
-      UserStorage.removeItem(user, `examen-intrabucal-${area}`);
+      UserStorage.removeItem(null, `examen-intrabucal-${area}`);
     });
     
     // Limpiar también los datos específicos del interrogatorio de sistemas
-    UserStorage.removeItem(user, 'interrogatorio-sistemas-formValues');
+    UserStorage.removeItem(null, 'interrogatorio-sistemas-formValues');
   };
 
   const guardarFormulario = (data: FormDataState, nombre: string) => {
@@ -566,21 +566,21 @@ export const useHistoriaClinica = () => {
     };
     
     // Guardar formulario principal con prefijo de usuario
-    UserStorage.setItem(user, `formulario_${nombre}`, formDataToSave);
+    UserStorage.setItem(null, `formulario_${nombre}`, formDataToSave);
     
     // Guardar también los datos específicos del examen intrabucal
     const areasIntrabucal = ['encias', 'paladar', 'orofaringe', 'mejillas', 'retromolar', 'lengua', 'pisoBoca'];
     areasIntrabucal.forEach(area => {
       const areaData = data.examenIntrabucal?.[area];
       if (areaData && typeof areaData === 'string') {
-        UserStorage.setItem(user, `formulario_${nombre}_examen-intrabucal-${area}`, areaData);
+        UserStorage.setItem(null, `formulario_${nombre}_examen-intrabucal-${area}`, areaData);
       }
     });
     
     // Guardar también los datos específicos del interrogatorio de sistemas
-    const interrogatorioData = UserStorage.getItem(user, 'interrogatorio-sistemas-formValues');
+    const interrogatorioData = UserStorage.getItem(null, 'interrogatorio-sistemas-formValues');
     if (interrogatorioData) {
-      UserStorage.setItem(user, `formulario_${nombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
+      UserStorage.setItem(null, `formulario_${nombre}_interrogatorio-sistemas-formValues`, interrogatorioData);
     }
     
     // Dispatch custom event for same-window storage updates
@@ -600,7 +600,7 @@ export const useHistoriaClinica = () => {
       areasIntrabucal.forEach(area => {
         const areaData = data.examenIntrabucal?.[area];
         if (areaData && typeof areaData === 'string') {
-          UserStorage.setItem(user, `examen-intrabucal-${area}`, areaData);
+          UserStorage.setItem(null, `examen-intrabucal-${area}`, areaData);
         }
       });
     }

@@ -3,10 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Check, Eye, Sparkles, TrendingUp, Star, Crown, Clock, Calendar, GraduationCap, Zap } from "lucide-react";
 import { Button } from "./button";
 import { cn } from "@/lib/utils";
-import NumberFlow from "@number-flow/react";
 import { usePlanPeriod } from "@/contexts/PlanPeriodContext";
-import { useSubscription } from "@/hooks/useSubscription";
-import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { EmbeddedCheckout } from "./embedded-checkout";
 
@@ -46,8 +43,6 @@ export function AnimatedPlanCard({
   const [isExpanded, setIsExpanded] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
   const { period } = usePlanPeriod();
-  const { createCheckoutSession, loading } = useSubscription();
-  const { session } = useAuth();
 
   // Determine active pricing and features based on period
   const currentPrice = period === 'monthly' ? monthlyPrice : semesterPrice;
@@ -55,14 +50,9 @@ export function AnimatedPlanCard({
   const currentFeatures = period === 'monthly' ? monthlyFeatures : semesterFeatures;
   const currentName = period === 'monthly' ? name : `${name} Semestral`;
 
-  // Handle plan selection with embedded checkout
+  // Handle plan selection - demo mode
   const handleSelectPlan = async () => {
-    if (!session) {
-      toast.error("Debes iniciar sesión para suscribirte");
-      return;
-    }
-
-    // Show embedded checkout instead of redirecting
+    toast.info("Modo Demo - La suscripción no está disponible");
     setShowCheckout(true);
   };
 
@@ -297,7 +287,6 @@ export function AnimatedPlanCard({
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button 
                 onClick={handleSelectPlan} 
-                disabled={loading}
                 size="sm" 
                 className={cn(
                   "w-full font-semibold transition-all duration-300 h-8 text-xs", 
@@ -305,7 +294,7 @@ export function AnimatedPlanCard({
                 )}
               >
                 {isCenter && <Sparkles className="h-3 w-3 mr-1" />}
-                {loading ? "Procesando..." : "Seleccionar Plan"}
+                Seleccionar Plan
               </Button>
             </motion.div>
           </div>
