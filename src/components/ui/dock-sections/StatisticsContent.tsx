@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Zap, FileText, Clock, Code, Brain, Activity, TrendingUp, Star, BarChart3 } from 'lucide-react'
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts'
-import { supabase } from '@/integrations/supabase/client'
-import { useAuth } from '@/contexts/AuthContext'
 import { toast } from '@/hooks/use-toast'
 
 const programmingLanguagesData = [
@@ -22,103 +20,28 @@ const performanceData = [
   { month: 'Abr', accuracy: 99, speed: 97 }
 ]
 
+// Demo rating stats
+const demoRatingStats = [
+  { star: 1, count: 2 },
+  { star: 2, count: 5 },
+  { star: 3, count: 12 },
+  { star: 4, count: 45 },
+  { star: 5, count: 89 }
+]
+
 export const StatisticsContent: React.FC = () => {
-  const { user } = useAuth()
   const [userRating, setUserRating] = useState(0)
   const [hoveredStar, setHoveredStar] = useState(0)
-  const [ratingStats, setRatingStats] = useState<any[]>([])
-  const [averageRating, setAverageRating] = useState(0)
-  const [totalRatings, setTotalRatings] = useState(0)
+  const [ratingStats] = useState(demoRatingStats)
+  const averageRating = 4.4
+  const totalRatings = 153
 
-  // Fetch rating statistics
-  useEffect(() => {
-    const fetchRatingStats = async () => {
-      try {
-        const { data: ratings } = await supabase
-          .from('user_ratings')
-          .select('rating')
-
-        if (ratings) {
-          const stats = [1, 2, 3, 4, 5].map(star => ({
-            star,
-            count: ratings.filter(r => r.rating === star).length
-          }))
-          
-          setRatingStats(stats)
-          setTotalRatings(ratings.length)
-          
-          if (ratings.length > 0) {
-            const avg = ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length
-            setAverageRating(avg)
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching rating stats:', error)
-      }
-    }
-
-    fetchRatingStats()
-  }, [])
-
-  // Fetch user's existing rating
-  useEffect(() => {
-    const fetchUserRating = async () => {
-      if (!user) return
-
-      try {
-        const { data } = await supabase
-          .from('user_ratings')
-          .select('rating')
-          .eq('user_id', user.id)
-          .single()
-
-        if (data) {
-          setUserRating(data.rating)
-        }
-      } catch (error) {
-        // User hasn't rated yet
-      }
-    }
-
-    fetchUserRating()
-  }, [user])
-
-  const handleRating = async (rating: number) => {
-    if (!user) {
-      toast({
-        title: "Inicia sesión",
-        description: "Debes iniciar sesión para calificar la app",
-        variant: "destructive"
-      })
-      return
-    }
-
-    try {
-      const { error } = await supabase
-        .from('user_ratings')
-        .upsert({
-          user_id: user.id,
-          rating
-        })
-
-      if (error) throw error
-
-      setUserRating(rating)
-      toast({
-        title: "¡Gracias por tu calificación!",
-        description: `Has calificado Dentaxy con ${rating} estrella${rating > 1 ? 's' : ''}`,
-      })
-
-      // Refresh stats
-      setTimeout(() => window.location.reload(), 1000)
-    } catch (error) {
-      console.error('Error saving rating:', error)
-      toast({
-        title: "Error",
-        description: "No se pudo guardar tu calificación",
-        variant: "destructive"
-      })
-    }
+  const handleRating = (rating: number) => {
+    setUserRating(rating)
+    toast({
+      title: "¡Gracias por tu calificación!",
+      description: `Has calificado Dentaxy con ${rating} estrella${rating > 1 ? 's' : ''} (Demo)`,
+    })
   }
 
   return (
