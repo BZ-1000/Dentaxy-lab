@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Analytics } from '@vercel/analytics/react';
 import Index from './pages/Index';
 import Landing from './pages/Landing';
+import ModulesHub from './pages/ModulesHub';
 import NotFound from './pages/NotFound';
 import { Toaster } from './components/ui/sonner';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -39,6 +40,9 @@ function App() {
           <Routes>
             {/* Página de inicio */}
             <Route path="/" element={<Landing />} />
+            
+            {/* Hub de módulos */}
+            <Route path="/hub" element={<ModulesHub />} />
             
             {/* Páginas del menú principal */}
             <Route path="/about" element={<About />} />

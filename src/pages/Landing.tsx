@@ -31,15 +31,8 @@ const Landing = () => {
   const isMobile = useIsMobile();
 
   const handleBetaAccess = () => {
-    // Clear all form data from localStorage
-    localStorage.removeItem('currentFormData');
-    localStorage.removeItem('formBackup');
-
-    // Set flag to skip splash screen
-    sessionStorage.setItem('skipSplash', 'true');
-
-    // Navigate directly to the app
-    navigate('/app');
+    // Navigate to modules hub with splash screen
+    navigate('/hub');
   };
 
   const handleStartTracking = () => {
