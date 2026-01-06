@@ -168,16 +168,16 @@ export function ShaderSplash({ onComplete }: ShaderSplashProps) {
             className="absolute inset-0 flex items-center justify-center pointer-events-none"
           >
             <div className="text-center relative">
-              {/* Glowing backdrop */}
+                {/* Glowing backdrop */}
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
                 className="absolute inset-0 -z-10"
                 style={{
-                  background: "radial-gradient(ellipse at center, rgba(0, 255, 255, 0.15) 0%, transparent 70%)",
-                  filter: "blur(40px)",
-                  transform: "scale(2)",
+                  background: "radial-gradient(ellipse at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%)",
+                  filter: "blur(60px)",
+                  transform: "scale(2.5)",
                 }}
               />
               
@@ -195,51 +195,50 @@ export function ShaderSplash({ onComplete }: ShaderSplashProps) {
                   transition={{ duration: 0.8, delay: 0.3 }}
                   className="flex items-center justify-center gap-4 mb-4"
                 >
-                  <div className="h-[1px] w-16 md:w-24 bg-gradient-to-r from-transparent via-cyan-400 to-cyan-400" />
-                  <div className="w-2 h-2 rotate-45 border border-cyan-400 bg-cyan-400/20" />
-                  <div className="h-[1px] w-16 md:w-24 bg-gradient-to-l from-transparent via-cyan-400 to-cyan-400" />
+                  <div className="h-[1px] w-16 md:w-24 bg-gradient-to-r from-transparent via-white/80 to-white" style={{ boxShadow: "0 0 10px rgba(255,255,255,0.5)" }} />
+                  <div className="w-2 h-2 rotate-45 border border-white bg-white/30" style={{ boxShadow: "0 0 8px rgba(255,255,255,0.8)" }} />
+                  <div className="h-[1px] w-16 md:w-24 bg-gradient-to-l from-transparent via-white/80 to-white" style={{ boxShadow: "0 0 10px rgba(255,255,255,0.5)" }} />
                 </motion.div>
 
-                {/* DENTAXY text */}
+                {/* DENTAXY text - LED white glow */}
                 <h1 
                   className="text-5xl md:text-7xl lg:text-8xl font-black tracking-[0.2em] md:tracking-[0.3em] relative"
                   style={{
                     fontFamily: "'Orbitron', 'Rajdhani', 'Share Tech Mono', monospace",
-                    background: "linear-gradient(180deg, #ffffff 0%, #00d4ff 50%, #0099cc 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    textShadow: "0 0 40px rgba(0, 212, 255, 0.5)",
-                    filter: "drop-shadow(0 0 20px rgba(0, 212, 255, 0.3))",
+                    color: "#ffffff",
+                    textShadow: `
+                      0 0 10px rgba(255, 255, 255, 1),
+                      0 0 20px rgba(255, 255, 255, 0.9),
+                      0 0 40px rgba(255, 255, 255, 0.7),
+                      0 0 80px rgba(255, 255, 255, 0.5),
+                      0 0 120px rgba(255, 255, 255, 0.3)
+                    `,
                   }}
                 >
                   {displayedText.split("").map((char, i) => (
                     <motion.span
                       key={i}
-                      initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.1 }}
+                      initial={{ opacity: 0, scale: 1.5 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.15 }}
                       className="inline-block"
-                      style={{
-                        textShadow: "0 0 30px rgba(0, 212, 255, 0.8), 0 0 60px rgba(0, 212, 255, 0.4)",
-                      }}
                     >
                       {char}
                     </motion.span>
                   ))}
                   {showCursor && (
                     <motion.span
-                      animate={{ opacity: [1, 0] }}
-                      transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-                      className="inline-block w-[3px] md:w-[4px] h-[0.8em] ml-2 align-middle"
+                      animate={{ opacity: [1, 0.3] }}
+                      transition={{ duration: 0.4, repeat: Infinity, repeatType: "reverse" }}
+                      className="inline-block w-[4px] md:w-[5px] h-[0.8em] ml-2 align-middle bg-white"
                       style={{
-                        background: "linear-gradient(180deg, #00ffff 0%, #0099cc 100%)",
-                        boxShadow: "0 0 10px #00ffff, 0 0 20px #00ffff",
+                        boxShadow: "0 0 15px #fff, 0 0 30px #fff, 0 0 45px rgba(255,255,255,0.5)",
                       }}
                     />
                   )}
                 </h1>
 
-                {/* TECHNOLOGIES subtitle */}
+                {/* TECHNOLOGIES subtitle - softer white */}
                 <motion.div
                   initial={{ opacity: 0, letterSpacing: "0.5em" }}
                   animate={{ opacity: 1, letterSpacing: "0.4em" }}
@@ -250,8 +249,8 @@ export function ShaderSplash({ onComplete }: ShaderSplashProps) {
                     className="text-xs md:text-sm lg:text-base font-medium tracking-[0.4em]"
                     style={{
                       fontFamily: "'Share Tech Mono', 'Rajdhani', monospace",
-                      color: "rgba(0, 212, 255, 0.8)",
-                      textShadow: "0 0 10px rgba(0, 212, 255, 0.5)",
+                      color: "rgba(255, 255, 255, 0.9)",
+                      textShadow: "0 0 10px rgba(255, 255, 255, 0.6), 0 0 20px rgba(255, 255, 255, 0.3)",
                     }}
                   >
                     {subText}
@@ -265,7 +264,7 @@ export function ShaderSplash({ onComplete }: ShaderSplashProps) {
                   transition={{ duration: 0.8, delay: 0.5 }}
                   className="flex items-center justify-center gap-2 mt-6"
                 >
-                  <div className="h-[1px] w-8 md:w-12 bg-gradient-to-r from-transparent to-cyan-400/50" />
+                  <div className="h-[1px] w-8 md:w-12 bg-gradient-to-r from-transparent to-white/60" />
                   <div className="flex gap-1">
                     {[...Array(3)].map((_, i) => (
                       <motion.div
@@ -273,23 +272,23 @@ export function ShaderSplash({ onComplete }: ShaderSplashProps) {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ delay: 0.6 + i * 0.1 }}
-                        className="w-1 h-1 bg-cyan-400 rounded-full"
-                        style={{ boxShadow: "0 0 6px #00ffff" }}
+                        className="w-1.5 h-1.5 bg-white rounded-full"
+                        style={{ boxShadow: "0 0 8px #fff, 0 0 16px rgba(255,255,255,0.5)" }}
                       />
                     ))}
                   </div>
-                  <div className="h-[1px] w-8 md:w-12 bg-gradient-to-l from-transparent to-cyan-400/50" />
+                  <div className="h-[1px] w-8 md:w-12 bg-gradient-to-l from-transparent to-white/60" />
                 </motion.div>
 
-                {/* Scanning line effect */}
+                {/* Scanning line effect - white */}
                 <motion.div
                   initial={{ top: "0%" }}
                   animate={{ top: "100%" }}
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                   className="absolute left-0 right-0 h-[2px] pointer-events-none"
                   style={{
-                    background: "linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.6), transparent)",
-                    boxShadow: "0 0 10px rgba(0, 255, 255, 0.8)",
+                    background: "linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent)",
+                    boxShadow: "0 0 15px rgba(255, 255, 255, 0.9)",
                   }}
                 />
               </motion.div>
