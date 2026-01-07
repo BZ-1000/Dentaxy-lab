@@ -195,22 +195,9 @@ export function ShaderSplash({ onComplete }: ShaderSplashProps) {
                   transition={{ duration: 0.8, delay: 0.3 }}
                   className="flex items-center justify-center gap-4 mb-4"
                 >
-                  <div className="h-[1px] w-16 md:w-24 bg-gradient-to-r from-transparent via-cyan-400/80 to-cyan-300" style={{ boxShadow: "0 0 10px rgba(0,255,255,0.5)" }} />
-                  <motion.div 
-                    animate={{ 
-                      boxShadow: [
-                        "0 0 8px rgba(0,200,255,0.8), 0 0 16px rgba(0,150,255,0.5)",
-                        "0 0 15px rgba(0,200,255,1), 0 0 25px rgba(0,150,255,0.7)",
-                        "0 0 8px rgba(0,200,255,0.8), 0 0 16px rgba(0,150,255,0.5)"
-                      ]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="w-2 h-2 rotate-45 border border-cyan-300"
-                    style={{ 
-                      background: "linear-gradient(135deg, rgba(0,200,255,0.6), rgba(0,100,200,0.8))",
-                    }} 
-                  />
-                  <div className="h-[1px] w-16 md:w-24 bg-gradient-to-l from-transparent via-cyan-400/80 to-cyan-300" style={{ boxShadow: "0 0 10px rgba(0,255,255,0.5)" }} />
+                  <div className="h-[1px] w-16 md:w-24 bg-gradient-to-r from-transparent via-white/80 to-white" style={{ boxShadow: "0 0 10px rgba(255,255,255,0.5)" }} />
+                  <div className="w-2 h-2 rotate-45 border border-white bg-white/30" style={{ boxShadow: "0 0 8px rgba(255,255,255,0.8)" }} />
+                  <div className="h-[1px] w-16 md:w-24 bg-gradient-to-l from-transparent via-white/80 to-white" style={{ boxShadow: "0 0 10px rgba(255,255,255,0.5)" }} />
                 </motion.div>
 
                 {/* DENTAXY text - LED white glow */}
@@ -277,32 +264,20 @@ export function ShaderSplash({ onComplete }: ShaderSplashProps) {
                   transition={{ duration: 0.8, delay: 0.5 }}
                   className="flex items-center justify-center gap-2 mt-6"
                 >
-                  <div className="h-[1px] w-8 md:w-12 bg-gradient-to-r from-transparent to-amber-400/60" style={{ boxShadow: "0 0 6px rgba(255,180,0,0.4)" }} />
-                  <div className="flex gap-1.5">
+                  <div className="h-[1px] w-8 md:w-12 bg-gradient-to-r from-transparent to-white/60" />
+                  <div className="flex gap-1">
                     {[...Array(3)].map((_, i) => (
                       <motion.div
                         key={i}
                         initial={{ scale: 0 }}
-                        animate={{ 
-                          scale: 1,
-                          boxShadow: [
-                            "0 0 8px rgba(255,200,0,0.8), 0 0 16px rgba(255,150,0,0.5)",
-                            "0 0 12px rgba(255,200,0,1), 0 0 24px rgba(255,150,0,0.7)",
-                            "0 0 8px rgba(255,200,0,0.8), 0 0 16px rgba(255,150,0,0.5)"
-                          ]
-                        }}
-                        transition={{ 
-                          scale: { delay: 0.6 + i * 0.1 },
-                          boxShadow: { duration: 1.5, repeat: Infinity, delay: i * 0.2 }
-                        }}
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ 
-                          background: "linear-gradient(135deg, #ffd700, #ff9500)",
-                        }}
+                        animate={{ scale: 1 }}
+                        transition={{ delay: 0.6 + i * 0.1 }}
+                        className="w-1.5 h-1.5 bg-white rounded-full"
+                        style={{ boxShadow: "0 0 8px #fff, 0 0 16px rgba(255,255,255,0.5)" }}
                       />
                     ))}
                   </div>
-                  <div className="h-[1px] w-8 md:w-12 bg-gradient-to-l from-transparent to-amber-400/60" style={{ boxShadow: "0 0 6px rgba(255,180,0,0.4)" }} />
+                  <div className="h-[1px] w-8 md:w-12 bg-gradient-to-l from-transparent to-white/60" />
                 </motion.div>
 
                 {/* Scanning line effect - white */}
