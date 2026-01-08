@@ -3,15 +3,21 @@ import { Button } from "@/components/ui/button";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import { ChevronDown } from "lucide-react";
 import { BackgroundBeams } from "@/components/ui/background-beams";
+import { MatrixCounter } from "./MatrixCounter";
+
 interface HeroSectionProps {
   onExplore?: () => void;
 }
+
 export const HeroSection = ({
   onExplore
 }: HeroSectionProps) => {
   return <section className="relative h-screen flex flex-col items-center justify-center bg-background px-6 snap-start overflow-hidden">
       {/* Animated Background */}
       <BackgroundBeams className="z-0" />
+      
+      {/* Matrix Counter */}
+      <MatrixCounter />
       
       <motion.div initial={{
       opacity: 0,
