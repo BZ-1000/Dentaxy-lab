@@ -122,7 +122,7 @@ export const ModulosSection = () => {
   };
 
   return (
-    <section ref={ref} className="min-h-screen flex flex-col items-center justify-center bg-background px-6 py-20">
+    <section ref={ref} className="h-screen flex flex-col items-center justify-center bg-background px-6 snap-start overflow-hidden">
       <motion.h2
         initial={{ opacity: 0, y: 20 }}
         animate={isInView ? { opacity: 1, y: 0 } : {}}

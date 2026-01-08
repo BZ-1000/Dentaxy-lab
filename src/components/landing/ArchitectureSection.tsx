@@ -6,7 +6,7 @@ export const ArchitectureSection = () => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section ref={ref} className="min-h-screen flex items-center bg-background px-6 py-20">
+    <section ref={ref} className="h-screen flex items-center bg-background px-6 snap-start">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
         {/* Text Left */}
         <motion.div
