@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 export const BackgroundBeams = React.memo(
   ({ className }: { className?: string }) => {
     const ref = React.useRef<HTMLDivElement>(null)
-    const isInView = useInView(ref, { once: false, margin: "-10%" })
+    const isInView = useInView(ref, { once: false, margin: "100%" })
 
     const paths = [
       "M-380 -189C-380 -189 -312 216 152 343C616 470 684 875 684 875",
@@ -89,8 +89,8 @@ export const BackgroundBeams = React.memo(
               key={`path-${index}`}
               d={path}
               stroke={`url(#linearGradient-${index})`}
-              strokeOpacity="0.4"
-              strokeWidth="0.5"
+              strokeOpacity="0.6"
+              strokeWidth="0.8"
             />
           ))}
           <defs>
@@ -104,16 +104,11 @@ export const BackgroundBeams = React.memo(
                   y1: "0%",
                   y2: "0%",
                 }}
-                animate={isInView ? {
+                animate={{
                   x1: ["0%", "100%"],
                   x2: ["0%", "95%"],
                   y1: ["0%", "100%"],
                   y2: ["0%", `${93 + Math.random() * 8}%`],
-                } : {
-                  x1: "0%",
-                  x2: "0%",
-                  y1: "0%",
-                  y2: "0%",
                 }}
                 transition={{
                   duration: Math.random() * 10 + 10,
@@ -122,10 +117,10 @@ export const BackgroundBeams = React.memo(
                   delay: Math.random() * 10,
                 }}
               >
-                <stop stopColor="#18CCFC" stopOpacity="0" />
-                <stop stopColor="#18CCFC" />
-                <stop offset="0.325" stopColor="#6344F5" />
-                <stop offset="1" stopColor="#AE48FF" stopOpacity="0" />
+                <stop stopColor="#22D3EE" stopOpacity="0" />
+                <stop stopColor="#22D3EE" />
+                <stop offset="0.4" stopColor="#8B5CF6" />
+                <stop offset="1" stopColor="#D946EF" stopOpacity="0" />
               </motion.linearGradient>
             ))}
 
