@@ -65,20 +65,22 @@ export const BackgroundBeams = React.memo(
       <div
         ref={ref}
         className={cn(
-          "absolute inset-0 overflow-hidden [mask-repeat:no-repeat] [mask-size:40px] pointer-events-none",
+          "absolute h-full w-full inset-0 [mask-repeat:no-repeat] [mask-size:40px] pointer-events-none",
           className
         )}
       >
         <svg
-          className="absolute h-full w-full z-0"
+          className="z-0 h-full w-full pointer-events-none absolute"
+          width="100%"
+          height="100%"
           viewBox="0 0 696 316"
           fill="none"
-          preserveAspectRatio="xMidYMid slice"
+          xmlns="http://www.w3.org/2000/svg"
         >
           <path
             d="M-380 -189C-380 -189 -312 216 152 343C616 470 684 875 684 875"
             stroke="url(#paint0_radial_242_278)"
-            strokeOpacity="0.05"
+            strokeOpacity="0.15"
             strokeWidth="0.5"
           />
 
@@ -87,7 +89,7 @@ export const BackgroundBeams = React.memo(
               key={`path-${index}`}
               d={path}
               stroke={`url(#linearGradient-${index})`}
-              strokeOpacity="0.1"
+              strokeOpacity="0.4"
               strokeWidth="0.5"
             />
           ))}
@@ -135,9 +137,9 @@ export const BackgroundBeams = React.memo(
               gradientUnits="userSpaceOnUse"
               gradientTransform="translate(352 34) rotate(90) scale(555 1560.62)"
             >
-              <stop offset="0.0666667" stopColor="hsl(var(--foreground))" />
-              <stop offset="0.243243" stopColor="hsl(var(--foreground))" />
-              <stop offset="0.43594" stopColor="hsl(var(--muted-foreground))" stopOpacity="0" />
+              <stop offset="0.0666667" stopColor="var(--neutral-300)" />
+              <stop offset="0.243243" stopColor="var(--neutral-300)" />
+              <stop offset="0.43594" stopColor="var(--neutral-500)" stopOpacity="0" />
             </radialGradient>
           </defs>
         </svg>
