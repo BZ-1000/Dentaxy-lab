@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Typewriter } from "@/components/ui/typewriter-text";
 import { ChevronDown } from "lucide-react";
+import { BackgroundBeams } from "@/components/ui/background-beams";
 
 interface HeroSectionProps {
   onExplore?: () => void;
@@ -9,12 +10,15 @@ interface HeroSectionProps {
 
 export const HeroSection = ({ onExplore }: HeroSectionProps) => {
   return (
-    <section className="relative h-screen flex flex-col items-center justify-center bg-background px-6 snap-start">
+    <section className="relative h-screen flex flex-col items-center justify-center bg-background px-6 snap-start overflow-hidden">
+      {/* Animated Background */}
+      <BackgroundBeams className="z-0" />
+      
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8 }}
-        className="text-center max-w-3xl"
+        className="text-center max-w-3xl relative z-10"
       >
         <h1 className="text-6xl md:text-8xl font-black tracking-tight text-foreground mb-4">
           DENTAXY
@@ -48,7 +52,7 @@ export const HeroSection = ({ onExplore }: HeroSectionProps) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.5 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2"
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10"
       >
         <motion.div
           animate={{ y: [0, 8, 0] }}
