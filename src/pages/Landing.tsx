@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useGlobalMetrics } from "@/hooks/useGlobalMetrics";
 import { toast } from "sonner";
+import { TypewriterSyncProvider } from "@/contexts/TypewriterSyncContext";
 
 // Landing sections
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -47,6 +48,7 @@ const Landing = () => {
   };
 
   return (
+    <TypewriterSyncProvider>
     <div className="h-screen w-full bg-background flex flex-col overflow-hidden">
       {/* Header */}
       <header className="sticky top-0 bg-background/95 backdrop-blur-sm z-50 flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
@@ -181,6 +183,7 @@ const Landing = () => {
         </footer>
       </main>
     </div>
+    </TypewriterSyncProvider>
   );
 };
 

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Typewriter } from "@/components/ui/typewriter-text";
+import { SyncedTypewriter } from "@/components/ui/synced-typewriter";
 import { ChevronDown } from "lucide-react";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 import { MatrixCounter } from "./MatrixCounter";
@@ -30,7 +30,7 @@ export const HeroSection = ({
     }} className="text-center max-w-3xl relative z-10">
         <h1 className="text-6xl md:text-8xl font-black tracking-tight text-foreground mb-4">
           DENTAXY
-          <Typewriter text={[".ai", ".com"]} speed={100} deleteSpeed={80} delay={12000} loop={true} className="text-blue-500" />
+          <SyncedTypewriter className="text-blue-500" />
         </h1>
         <p className="text-xl md:text-2xl text-muted-foreground font-light mb-6">De datos clínicos a decisiones inteligentes</p>
         <p className="text-sm md:text-base text-muted-foreground/70 max-w-xl mx-auto mb-10 leading-relaxed">Automatización clínica, redacción médica con IA y visualización avanzada integradas en una arquitectura odontológica inteligente.</p>
