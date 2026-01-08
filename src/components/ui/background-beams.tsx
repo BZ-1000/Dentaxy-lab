@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 export const BackgroundBeams = React.memo(
   ({ className }: { className?: string }) => {
     const ref = React.useRef<HTMLDivElement>(null)
-    const isInView = useInView(ref, { once: false, margin: "100%" })
+    const isInView = useInView(ref, { once: false, margin: "-10%" })
 
     const paths = [
       "M-380 -189C-380 -189 -312 216 152 343C616 470 684 875 684 875",
