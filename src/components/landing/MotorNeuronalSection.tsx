@@ -8,6 +8,7 @@ const DemoFormFragment = ({ isInView }: { isInView: boolean }) => {
   const [values, setValues] = useState<Record<string, string>>({});
   const [isTyping, setIsTyping] = useState(false);
   const [typedText, setTypedText] = useState("");
+  const [animationKey, setAnimationKey] = useState(0);
 
   const selects = [
     { key: "caracter", label: "Carácter", value: "Pulsátil" },
@@ -18,36 +19,60 @@ const DemoFormFragment = ({ isInView }: { isInView: boolean }) => {
 
   const finalText = "Dolor pulsátil de intensidad moderada, de presentación intermitente, localizado en región molar inferior derecha...";
 
+  // Reset animation when out of view
+  useEffect(() => {
+    if (!isInView) {
+      setAnimationStep(0);
+      setValues({});
+      setIsTyping(false);
+      setTypedText("");
+      setAnimationKey(prev => prev + 1);
+    }
+  }, [isInView]);
+
   useEffect(() => {
     if (!isInView) return;
+
+    let isCancelled = false;
 
     const runAnimation = async () => {
       // Click each select one by one
       for (let i = 0; i < selects.length; i++) {
+        if (isCancelled) return;
         await new Promise(r => setTimeout(r, 800));
+        if (isCancelled) return;
         setAnimationStep(i + 1);
         await new Promise(r => setTimeout(r, 400));
+        if (isCancelled) return;
         setValues(prev => ({ ...prev, [selects[i].key]: selects[i].value }));
       }
 
+      if (isCancelled) return;
       // Click "Generate" button
       await new Promise(r => setTimeout(r, 600));
-      setAnimationStep(5); // button click state
+      if (isCancelled) return;
+      setAnimationStep(5);
 
       // Start typing animation
       await new Promise(r => setTimeout(r, 400));
+      if (isCancelled) return;
       setIsTyping(true);
 
       // Type text letter by letter
       for (let i = 0; i <= finalText.length; i++) {
+        if (isCancelled) return;
         await new Promise(r => setTimeout(r, 30));
+        if (isCancelled) return;
         setTypedText(finalText.slice(0, i));
       }
     };
 
     const timeout = setTimeout(runAnimation, 1000);
-    return () => clearTimeout(timeout);
-  }, [isInView]);
+    return () => {
+      isCancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [isInView, animationKey]);
 
   return (
     <div className="bg-card border border-border rounded-xl p-6 shadow-lg max-w-md">
@@ -118,7 +143,7 @@ const DemoFormFragment = ({ isInView }: { isInView: boolean }) => {
       {/* Generated text with typing effect */}
       <motion.div
         initial={{ opacity: 0, height: 0 }}
-        animate={isTyping ? { opacity: 1, height: "auto" } : {}}
+        animate={isTyping ? { opacity: 1, height: "auto" } : { opacity: 0, height: 0 }}
         transition={{ duration: 0.3 }}
         className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20 overflow-hidden"
       >
@@ -140,7 +165,7 @@ const DemoFormFragment = ({ isInView }: { isInView: boolean }) => {
 
 export const MotorNeuronalSection = () => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-20%" });
+  const isInView = useInView(ref, { once: false, margin: "-20%" });
 
   const bullets = [
     "Redacción clínica automatizada",
@@ -149,12 +174,12 @@ export const MotorNeuronalSection = () => {
   ];
 
   return (
-    <section ref={ref} className="h-screen flex items-center bg-muted/30 px-6 snap-start">
+    <section ref={ref} className="min-h-screen flex items-center bg-muted/30 px-6 py-12 snap-start">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
         {/* Visual Left */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
-          animate={isInView ? { opacity: 1, x: 0 } : {}}
+          animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
           transition={{ duration: 0.8 }}
           className="lg:col-span-3 flex justify-center"
         >
@@ -164,7 +189,7 @@ export const MotorNeuronalSection = () => {
         {/* Text Right */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
-          animate={isInView ? { opacity: 1, x: 0 } : {}}
+          animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="lg:col-span-2 space-y-6"
         >
@@ -180,7 +205,7 @@ export const MotorNeuronalSection = () => {
               <motion.li
                 key={i}
                 initial={{ opacity: 0, x: 20 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
+                animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 20 }}
                 transition={{ delay: 0.5 + i * 0.1 }}
                 className="flex items-center gap-3 text-muted-foreground"
               >

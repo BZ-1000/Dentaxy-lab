@@ -19,6 +19,7 @@ const DemoTogglesFragment = ({ isInView }: { isInView: boolean }) => {
   const [typedText, setTypedText] = useState("");
   const [showCondicionInput, setShowCondicionInput] = useState(false);
   const [condicionText, setCondicionText] = useState("");
+  const [animationKey, setAnimationKey] = useState(0);
 
   const finalText = "El Padre está vivo y aparentemente sano. La Madre está viva con diagnóstico de Diabetes mellitus tipo 2 bajo tratamiento médico. El Abuelo Paterno finado, causa desconocida.";
 
@@ -28,54 +29,90 @@ const DemoTogglesFragment = ({ isInView }: { isInView: boolean }) => {
     { key: "abuelo", label: "Abuelo Paterno" },
   ];
 
+  // Reset animation when out of view
+  useEffect(() => {
+    if (!isInView) {
+      setAnimationStep(0);
+      setStates({
+        padre: { status: "" },
+        madre: { status: "" },
+        abuelo: { status: "" },
+      });
+      setIsTyping(false);
+      setTypedText("");
+      setShowCondicionInput(false);
+      setCondicionText("");
+      setAnimationKey(prev => prev + 1);
+    }
+  }, [isInView]);
+
   useEffect(() => {
     if (!isInView) return;
+
+    let isCancelled = false;
 
     const runAnimation = async () => {
       // Step 1: Click "Vivo y Sano" for Padre
       await new Promise(r => setTimeout(r, 1000));
+      if (isCancelled) return;
       setAnimationStep(1);
       await new Promise(r => setTimeout(r, 300));
+      if (isCancelled) return;
       setStates(prev => ({ ...prev, padre: { status: "vivoSano" } }));
 
       // Step 2: Click "Condición" for Madre
       await new Promise(r => setTimeout(r, 800));
+      if (isCancelled) return;
       setAnimationStep(2);
       await new Promise(r => setTimeout(r, 300));
+      if (isCancelled) return;
       setStates(prev => ({ ...prev, madre: { status: "condicion" } }));
       
       // Show condition input and type "Diabetes"
       await new Promise(r => setTimeout(r, 400));
+      if (isCancelled) return;
       setShowCondicionInput(true);
       const condition = "Diabetes mellitus tipo 2";
       for (let i = 0; i <= condition.length; i++) {
+        if (isCancelled) return;
         await new Promise(r => setTimeout(r, 50));
+        if (isCancelled) return;
         setCondicionText(condition.slice(0, i));
       }
+      if (isCancelled) return;
       setStates(prev => ({ ...prev, madre: { status: "condicion", condicion: condition } }));
 
       // Step 3: Click "Finado" for Abuelo
       await new Promise(r => setTimeout(r, 800));
+      if (isCancelled) return;
       setAnimationStep(3);
       await new Promise(r => setTimeout(r, 300));
+      if (isCancelled) return;
       setStates(prev => ({ ...prev, abuelo: { status: "finado" } }));
 
       // Step 4: Click Generate button
       await new Promise(r => setTimeout(r, 600));
+      if (isCancelled) return;
       setAnimationStep(4);
 
       // Start typing final text
       await new Promise(r => setTimeout(r, 400));
+      if (isCancelled) return;
       setIsTyping(true);
       for (let i = 0; i <= finalText.length; i++) {
+        if (isCancelled) return;
         await new Promise(r => setTimeout(r, 25));
+        if (isCancelled) return;
         setTypedText(finalText.slice(0, i));
       }
     };
 
     const timeout = setTimeout(runAnimation, 800);
-    return () => clearTimeout(timeout);
-  }, [isInView]);
+    return () => {
+      isCancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [isInView, animationKey]);
 
   return (
     <div className="bg-card border border-border rounded-xl p-6 shadow-lg max-w-md">
@@ -188,7 +225,7 @@ const DemoTogglesFragment = ({ isInView }: { isInView: boolean }) => {
       {/* Generated text with typing effect */}
       <motion.div
         initial={{ opacity: 0, height: 0 }}
-        animate={isTyping ? { opacity: 1, height: "auto" } : {}}
+        animate={isTyping ? { opacity: 1, height: "auto" } : { opacity: 0, height: 0 }}
         transition={{ duration: 0.3 }}
         className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20 overflow-hidden"
       >
@@ -210,15 +247,15 @@ const DemoTogglesFragment = ({ isInView }: { isInView: boolean }) => {
 
 export const FormulariosSection = () => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-20%" });
+  const isInView = useInView(ref, { once: false, margin: "-20%" });
 
   return (
-    <section ref={ref} className="h-screen flex items-center bg-background px-6 snap-start">
+    <section ref={ref} className="min-h-screen flex items-center bg-background px-6 py-12 snap-start">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
         {/* Text Left */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
-          animate={isInView ? { opacity: 1, x: 0 } : {}}
+          animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
           transition={{ duration: 0.8 }}
           className="lg:col-span-2 space-y-6"
         >
@@ -238,7 +275,7 @@ export const FormulariosSection = () => {
         {/* Visual Right */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
-          animate={isInView ? { opacity: 1, x: 0 } : {}}
+          animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="lg:col-span-3 flex justify-center"
         >
