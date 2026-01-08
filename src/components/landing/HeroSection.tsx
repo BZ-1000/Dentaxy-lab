@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ScrollIndicator } from "./ScrollIndicator";
+import { Typewriter } from "@/components/ui/typewriter-text";
 
 interface HeroSectionProps {
   onExplore?: () => void;
@@ -15,8 +16,16 @@ export const HeroSection = ({ onExplore }: HeroSectionProps) => {
         transition={{ duration: 0.8 }}
         className="text-center max-w-3xl"
       >
-        <h1 className="text-6xl md:text-8xl font-bold tracking-tight text-foreground mb-4">
-          Dentaxy
+        <h1 className="text-6xl md:text-8xl font-black tracking-tight text-foreground mb-4">
+          DENTAXY
+          <Typewriter 
+            text={[".ai", ".com"]} 
+            speed={100} 
+            deleteSpeed={80} 
+            delay={12000} 
+            loop={true} 
+            className="text-blue-500" 
+          />
         </h1>
         <p className="text-xl md:text-2xl text-muted-foreground font-light mb-6">
           Inteligencia artificial aplicada a la odontología
