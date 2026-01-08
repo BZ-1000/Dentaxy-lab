@@ -1,17 +1,25 @@
 import { motion, useInView } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 export const ArchitectureSection = () => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const isInView = useInView(ref, { once: false, margin: "-20%" });
+  const [animationKey, setAnimationKey] = useState(0);
+
+  // Reset animation when out of view
+  useEffect(() => {
+    if (!isInView) {
+      setAnimationKey(prev => prev + 1);
+    }
+  }, [isInView]);
 
   return (
-    <section ref={ref} className="h-screen flex items-center bg-background px-6 snap-start">
+    <section ref={ref} className="min-h-screen flex items-center bg-background px-6 py-12 snap-start">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
         {/* Text Left */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
-          animate={isInView ? { opacity: 1, x: 0 } : {}}
+          animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
           transition={{ duration: 0.8 }}
           className="lg:col-span-2 space-y-6"
         >
@@ -27,8 +35,9 @@ export const ArchitectureSection = () => {
 
         {/* Visual Right - Abstract Nodes */}
         <motion.div
+          key={animationKey}
           initial={{ opacity: 0, x: 50 }}
-          animate={isInView ? { opacity: 1, x: 0 } : {}}
+          animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="lg:col-span-3 relative h-80 md:h-96"
         >
@@ -41,7 +50,7 @@ export const ArchitectureSection = () => {
               fill="none"
               strokeDasharray="4,4"
               initial={{ pathLength: 0 }}
-              animate={isInView ? { pathLength: 1 } : {}}
+              animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
               transition={{ duration: 2, delay: 0.5 }}
             />
             <motion.path
@@ -51,7 +60,7 @@ export const ArchitectureSection = () => {
               fill="none"
               strokeOpacity="0.5"
               initial={{ pathLength: 0 }}
-              animate={isInView ? { pathLength: 1 } : {}}
+              animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
               transition={{ duration: 1.5, delay: 0.8 }}
             />
             <motion.path
@@ -61,7 +70,7 @@ export const ArchitectureSection = () => {
               fill="none"
               strokeOpacity="0.5"
               initial={{ pathLength: 0 }}
-              animate={isInView ? { pathLength: 1 } : {}}
+              animate={isInView ? { pathLength: 1 } : { pathLength: 0 }}
               transition={{ duration: 1.5, delay: 1 }}
             />
             
@@ -85,7 +94,7 @@ export const ArchitectureSection = () => {
                   stroke="hsl(var(--primary))"
                   strokeWidth="2"
                   initial={{ scale: 0 }}
-                  animate={isInView ? { scale: 1 } : {}}
+                  animate={isInView ? { scale: 1 } : { scale: 0 }}
                   transition={{ duration: 0.5, delay: node.delay }}
                 />
                 <motion.circle
@@ -94,7 +103,7 @@ export const ArchitectureSection = () => {
                   r="6"
                   fill="hsl(var(--primary))"
                   initial={{ scale: 0 }}
-                  animate={isInView ? { scale: 1 } : {}}
+                  animate={isInView ? { scale: 1 } : { scale: 0 }}
                   transition={{ duration: 0.3, delay: node.delay + 0.2 }}
                 />
                 <motion.text
@@ -103,7 +112,7 @@ export const ArchitectureSection = () => {
                   textAnchor="middle"
                   className="text-[10px] fill-muted-foreground"
                   initial={{ opacity: 0 }}
-                  animate={isInView ? { opacity: 1 } : {}}
+                  animate={isInView ? { opacity: 1 } : { opacity: 0 }}
                   transition={{ duration: 0.5, delay: node.delay + 0.3 }}
                 >
                   {node.label}

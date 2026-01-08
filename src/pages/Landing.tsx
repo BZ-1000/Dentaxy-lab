@@ -12,6 +12,7 @@ import { MotorNeuronalSection } from "@/components/landing/MotorNeuronalSection"
 import { FormulariosSection } from "@/components/landing/FormulariosSection";
 import { ModulosSection } from "@/components/landing/ModulosSection";
 import { TecnologiasPreviewSection } from "@/components/landing/TecnologiasPreviewSection";
+import { CalculatorSection } from "@/components/landing/CalculatorSection";
 import { CTASection } from "@/components/landing/CTASection";
 
 const menuItems = [
@@ -108,6 +109,7 @@ const Landing = () => {
         <FormulariosSection />
         <ModulosSection />
         <TecnologiasPreviewSection />
+        <CalculatorSection />
         <CTASection onRequestDemo={handleRequestDemo} />
 
         {/* Footer */}
