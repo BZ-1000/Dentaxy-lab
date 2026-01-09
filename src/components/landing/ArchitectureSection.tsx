@@ -14,32 +14,35 @@ export const ArchitectureSection = () => {
   }, [isInView]);
 
   return (
-    <section ref={ref} className="min-h-screen flex items-center bg-background px-6 py-12 snap-start">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
-        {/* Text Left */}
+    <section 
+      ref={ref} 
+      className="min-h-screen w-full max-w-full flex items-center justify-center bg-background px-4 sm:px-6 py-12 sm:py-16 snap-start overflow-hidden"
+    >
+      <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
+        {/* Text - On top for mobile */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
           transition={{ duration: 0.8 }}
-          className="lg:col-span-2 space-y-6"
+          className="w-full lg:w-2/5 space-y-4 sm:space-y-6 text-center lg:text-left order-1"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">
             Diseñada como infraestructura, no como una app más
           </h2>
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
             Dentaxy está construida como una arquitectura modular que permite integrar 
             inteligencia artificial, flujos clínicos, academia y visualización avanzada 
             sin fricción.
           </p>
         </motion.div>
 
-        {/* Visual Right - Abstract Nodes */}
+        {/* Visual - Below for mobile */}
         <motion.div
           key={animationKey}
           initial={{ opacity: 0, x: 50 }}
           animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="lg:col-span-3 relative h-80 md:h-96"
+          className="w-full lg:w-3/5 h-64 sm:h-80 md:h-96 order-2"
         >
           <svg viewBox="0 0 400 300" className="w-full h-full">
             {/* Connection Lines */}

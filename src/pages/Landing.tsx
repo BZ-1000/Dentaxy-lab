@@ -49,7 +49,7 @@ const Landing = () => {
 
   return (
     <TypewriterSyncProvider>
-    <div className="h-screen w-full bg-background flex flex-col overflow-hidden">
+    <div className="h-screen w-screen max-w-full bg-background flex flex-col overflow-hidden">
       {/* Header */}
       <header className="sticky top-0 bg-background/95 backdrop-blur-sm z-50 flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2">
@@ -115,8 +115,8 @@ const Landing = () => {
         <CTASection onRequestDemo={handleRequestDemo} />
 
         {/* Footer */}
-        <footer className="min-h-[50vh] bg-background py-12 border-t border-border snap-start flex items-center">
-          <div className="container mx-auto px-6 max-w-6xl">
+        <footer className="min-h-[50vh] bg-background py-12 border-t border-border snap-start flex items-center w-full">
+          <div className="w-full mx-auto px-6 max-w-6xl">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               {/* Company Info */}
               <div className="flex flex-col space-y-3">

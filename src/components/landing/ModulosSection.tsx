@@ -128,12 +128,15 @@ export const ModulosSection = () => {
   };
 
   return (
-    <section ref={ref} className="min-h-screen flex flex-col items-center justify-center bg-background px-6 py-12 snap-start">
+    <section 
+      ref={ref} 
+      className="min-h-screen w-full max-w-full flex flex-col items-center justify-center bg-background px-4 sm:px-6 py-12 sm:py-16 snap-start overflow-hidden"
+    >
       <motion.h2
         initial={{ opacity: 0, y: 20 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ duration: 0.6 }}
-        className="text-3xl md:text-4xl font-bold text-foreground text-center mb-4"
+        className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground text-center mb-3 sm:mb-4"
       >
         Explora nuestros módulos
       </motion.h2>
@@ -141,14 +144,14 @@ export const ModulosSection = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
         transition={{ duration: 0.6, delay: 0.1 }}
-        className="text-muted-foreground text-center mb-10 max-w-lg"
+        className="text-muted-foreground text-center mb-8 sm:mb-10 max-w-lg text-sm sm:text-base px-4"
       >
         Cada módulo está diseñado para potenciar una dimensión de tu práctica odontológica.
       </motion.p>
 
       <motion.div 
         layout
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 max-w-7xl mx-auto w-full"
+        className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 w-full max-w-7xl mx-auto"
       >
         {modules.map((mod, i) => {
           const isExpanded = expandedModule === mod.title;
@@ -165,46 +168,46 @@ export const ModulosSection = () => {
                 layout: { type: "spring", stiffness: 300, damping: 30 }
               }}
               onClick={() => handleModuleClick(mod)}
-              className={`cursor-pointer ${isExpanded ? "col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-5" : ""}`}
+              className={`cursor-pointer ${isExpanded ? "col-span-2 sm:col-span-2 lg:col-span-3 xl:col-span-5" : ""}`}
             >
               <motion.div
                 layout
                 whileHover={!isExpanded ? { scale: 1.02, y: -4 } : {}}
-                className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${
+                className={`relative rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-300 ${
                   mod.isSecret ? "animate-pulse" : ""
                 }`}
                 style={getGlowStyle(mod.glowColor, isExpanded)}
               >
                 {/* Glassmorphism Card */}
-                <div className={`relative backdrop-blur-xl bg-white/5 dark:bg-black/10 border border-white/20 dark:border-white/10 rounded-2xl ${
-                  isExpanded ? "p-6" : "p-5"
+                <div className={`relative backdrop-blur-xl bg-white/5 dark:bg-black/10 border border-white/20 dark:border-white/10 rounded-xl sm:rounded-2xl ${
+                  isExpanded ? "p-4 sm:p-6" : "p-3 sm:p-5"
                 }`}>
                   {/* Background gradient */}
-                  <div className={`absolute inset-0 opacity-10 bg-gradient-to-br ${mod.gradient} rounded-2xl`} />
+                  <div className={`absolute inset-0 opacity-10 bg-gradient-to-br ${mod.gradient} rounded-xl sm:rounded-2xl`} />
                   
                   {/* Scanlines for secret */}
                   {mod.isSecret && (
-                    <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,0,0,0.03)_2px,rgba(255,0,0,0.03)_4px)] pointer-events-none rounded-2xl" />
+                    <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,0,0,0.03)_2px,rgba(255,0,0,0.03)_4px)] pointer-events-none rounded-xl sm:rounded-2xl" />
                   )}
 
                   <motion.div layout="position" className="relative z-10">
                     {/* Header row */}
-                    <div className={`flex items-start gap-4 ${isExpanded ? "mb-6" : ""}`}>
+                    <div className={`flex items-start gap-2 sm:gap-4 ${isExpanded ? "mb-4 sm:mb-6" : ""}`}>
                       {/* Icon */}
                       <motion.div 
                         layout="position"
-                        className={`rounded-xl flex items-center justify-center bg-gradient-to-br ${mod.gradient} ${
-                          isExpanded ? "w-14 h-14" : "w-10 h-10"
+                        className={`rounded-lg sm:rounded-xl flex items-center justify-center bg-gradient-to-br ${mod.gradient} ${
+                          isExpanded ? "w-10 h-10 sm:w-14 sm:h-14" : "w-8 h-8 sm:w-10 sm:h-10"
                         }`}
                       >
-                        <mod.icon className={`text-white ${isExpanded ? "w-7 h-7" : "w-5 h-5"}`} />
+                        <mod.icon className={`text-white ${isExpanded ? "w-5 h-5 sm:w-7 sm:h-7" : "w-4 h-4 sm:w-5 sm:h-5"}`} />
                       </motion.div>
 
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         {/* Badge */}
                         <motion.span
                           layout="position"
-                          className={`inline-block text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full border uppercase mb-2 ${
+                          className={`inline-block text-[8px] sm:text-[9px] font-bold tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full border uppercase mb-1 sm:mb-2 ${
                             mod.isActive
                               ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-500"
                               : mod.isSecret
@@ -218,13 +221,13 @@ export const ModulosSection = () => {
                         {/* Title */}
                         <motion.h3 
                           layout="position"
-                          className={`font-semibold text-foreground ${isExpanded ? "text-xl" : "text-base"}`}
+                          className={`font-semibold text-foreground truncate ${isExpanded ? "text-base sm:text-xl" : "text-xs sm:text-base"}`}
                         >
                           {mod.title}
                         </motion.h3>
                         <motion.p 
                           layout="position"
-                          className="text-xs text-muted-foreground"
+                          className="text-[10px] sm:text-xs text-muted-foreground truncate"
                         >
                           {mod.subtitle}
                         </motion.p>
@@ -241,10 +244,10 @@ export const ModulosSection = () => {
                           transition={{ duration: 0.3 }}
                           className="overflow-hidden"
                         >
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                             {/* Description */}
                             <div>
-                              <p className="text-muted-foreground leading-relaxed mb-4">
+                              <p className="text-muted-foreground leading-relaxed mb-3 sm:mb-4 text-xs sm:text-base">
                                 {mod.description}
                               </p>
                               
@@ -256,10 +259,10 @@ export const ModulosSection = () => {
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ delay: idx * 0.1 }}
-                                    className="flex items-center gap-2 text-sm text-muted-foreground"
+                                    className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground"
                                   >
-                                    <div className={`w-5 h-5 rounded-full flex items-center justify-center bg-gradient-to-br ${mod.gradient}`}>
-                                      <Check className="w-3 h-3 text-white" />
+                                    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center bg-gradient-to-br ${mod.gradient} flex-shrink-0`}>
+                                      <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
                                     </div>
                                     {feature}
                                   </motion.li>
@@ -271,12 +274,12 @@ export const ModulosSection = () => {
                             <div className="flex flex-col justify-end">
                               <Button
                                 onClick={(e) => handleCTAClick(mod, e)}
-                                className={`w-full bg-gradient-to-r ${mod.gradient} hover:opacity-90 text-white rounded-xl py-6 text-base font-medium shadow-lg`}
+                                className={`w-full bg-gradient-to-r ${mod.gradient} hover:opacity-90 text-white rounded-lg sm:rounded-xl py-4 sm:py-6 text-sm sm:text-base font-medium shadow-lg`}
                               >
                                 {mod.isActive ? "Probar Demo" : "Notificarme"}
-                                <ArrowRight className="w-5 h-5 ml-2" />
+                                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
                               </Button>
-                              <p className="text-xs text-muted-foreground text-center mt-2">
+                              <p className="text-[10px] sm:text-xs text-muted-foreground text-center mt-2">
                                 {mod.isActive ? "Acceso inmediato" : "Te avisaremos cuando esté listo"}
                               </p>
                             </div>
