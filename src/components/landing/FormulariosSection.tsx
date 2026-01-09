@@ -115,15 +115,15 @@ const DemoTogglesFragment = ({ isInView }: { isInView: boolean }) => {
   }, [isInView, animationKey]);
 
   return (
-    <div className="bg-card border border-border rounded-xl p-6 shadow-lg max-w-md">
+    <div className="bg-card border border-border rounded-xl p-4 sm:p-6 shadow-lg w-full max-w-md">
       <div className="flex items-center gap-2 mb-4">
-        <div className="w-3 h-3 rounded-full bg-red-500" />
-        <div className="w-3 h-3 rounded-full bg-yellow-500" />
-        <div className="w-3 h-3 rounded-full bg-green-500" />
-        <span className="ml-2 text-xs text-muted-foreground">Antecedentes Heredo-Familiares</span>
+        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-red-500" />
+        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-yellow-500" />
+        <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-green-500" />
+        <span className="ml-2 text-[10px] sm:text-xs text-muted-foreground truncate">Antecedentes Heredo-Familiares</span>
       </div>
       
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {familiares.map((fam, i) => {
           const state = states[fam.key as keyof typeof states];
           const isCurrentStep = animationStep === i + 1;
@@ -131,63 +131,65 @@ const DemoTogglesFragment = ({ isInView }: { isInView: boolean }) => {
           return (
             <motion.div
               key={fam.key}
-              className="flex items-center gap-3 flex-wrap"
+              className="flex flex-wrap items-center gap-2"
             >
-              <span className="text-sm font-medium text-foreground w-28">{fam.label}</span>
+              <span className="text-xs sm:text-sm font-medium text-foreground w-full sm:w-24">{fam.label}</span>
               
-              <motion.button
-                animate={
-                  isCurrentStep && fam.key === "padre"
-                    ? { scale: [1, 0.95, 1], boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.3)" }
-                    : {}
-                }
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                  state.status === "vivoSano"
-                    ? "bg-emerald-500 text-white border-emerald-500"
-                    : "bg-background text-muted-foreground border-border hover:border-emerald-300"
-                }`}
-              >
-                Vivo y Sano
-              </motion.button>
-              
-              <motion.button
-                animate={
-                  isCurrentStep && fam.key === "madre"
-                    ? { scale: [1, 0.95, 1], boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.3)" }
-                    : {}
-                }
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                  state.status === "condicion"
-                    ? "bg-blue-500 text-white border-blue-500"
-                    : "bg-background text-muted-foreground border-border hover:border-blue-300"
-                }`}
-              >
-                Condición
-              </motion.button>
-              
-              <motion.button
-                animate={
-                  isCurrentStep && fam.key === "abuelo"
-                    ? { scale: [1, 0.95, 1], boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.3)" }
-                    : {}
-                }
-                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                  state.status === "finado"
-                    ? "bg-red-500 text-white border-red-500"
-                    : "bg-background text-muted-foreground border-border hover:border-red-300"
-                }`}
-              >
-                Finado
-              </motion.button>
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                <motion.button
+                  animate={
+                    isCurrentStep && fam.key === "padre"
+                      ? { scale: [1, 0.95, 1], boxShadow: "0 0 0 3px rgba(16, 185, 129, 0.3)" }
+                      : {}
+                  }
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium border transition-all ${
+                    state.status === "vivoSano"
+                      ? "bg-emerald-500 text-white border-emerald-500"
+                      : "bg-background text-muted-foreground border-border hover:border-emerald-300"
+                  }`}
+                >
+                  Vivo y Sano
+                </motion.button>
+                
+                <motion.button
+                  animate={
+                    isCurrentStep && fam.key === "madre"
+                      ? { scale: [1, 0.95, 1], boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.3)" }
+                      : {}
+                  }
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium border transition-all ${
+                    state.status === "condicion"
+                      ? "bg-blue-500 text-white border-blue-500"
+                      : "bg-background text-muted-foreground border-border hover:border-blue-300"
+                  }`}
+                >
+                  Condición
+                </motion.button>
+                
+                <motion.button
+                  animate={
+                    isCurrentStep && fam.key === "abuelo"
+                      ? { scale: [1, 0.95, 1], boxShadow: "0 0 0 3px rgba(239, 68, 68, 0.3)" }
+                      : {}
+                  }
+                  className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-medium border transition-all ${
+                    state.status === "finado"
+                      ? "bg-red-500 text-white border-red-500"
+                      : "bg-background text-muted-foreground border-border hover:border-red-300"
+                  }`}
+                >
+                  Finado
+                </motion.button>
+              </div>
 
               {/* Condition input for Madre */}
               {fam.key === "madre" && showCondicionInput && (
                 <motion.div
                   initial={{ opacity: 0, width: 0 }}
                   animate={{ opacity: 1, width: "auto" }}
-                  className="flex-1 min-w-[120px]"
+                  className="w-full sm:flex-1 sm:min-w-[120px] mt-1 sm:mt-0"
                 >
-                  <div className="px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-xs text-blue-700 dark:text-blue-300">
+                  <div className="px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-[10px] sm:text-xs text-blue-700 dark:text-blue-300">
                     {condicionText}
                     {condicionText.length < "Diabetes mellitus tipo 2".length && (
                       <motion.span
@@ -212,13 +214,13 @@ const DemoTogglesFragment = ({ isInView }: { isInView: boolean }) => {
             : {}
         }
         transition={{ duration: 0.2 }}
-        className={`w-full mt-4 py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition-all ${
+        className={`w-full mt-4 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-all ${
           animationStep >= 4
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-muted-foreground"
         }`}
       >
-        <Sparkles className="w-4 h-4" />
+        <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
         Generar Redacción IA
       </motion.button>
 
@@ -227,9 +229,9 @@ const DemoTogglesFragment = ({ isInView }: { isInView: boolean }) => {
         initial={{ opacity: 0, height: 0 }}
         animate={isTyping ? { opacity: 1, height: "auto" } : { opacity: 0, height: 0 }}
         transition={{ duration: 0.3 }}
-        className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20 overflow-hidden"
+        className="mt-3 sm:mt-4 p-2 sm:p-3 bg-primary/5 rounded-lg border border-primary/20 overflow-hidden"
       >
-        <p className="text-xs text-muted-foreground italic min-h-[50px]">
+        <p className="text-[10px] sm:text-xs text-muted-foreground italic min-h-[50px]">
           "{typedText}
           {isTyping && typedText.length < finalText.length && (
             <motion.span
@@ -250,34 +252,37 @@ export const FormulariosSection = () => {
   const isInView = useInView(ref, { once: false, margin: "-20%" });
 
   return (
-    <section ref={ref} className="min-h-screen flex items-center bg-background px-6 py-12 snap-start">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12 items-center">
-        {/* Text Left */}
+    <section 
+      ref={ref} 
+      className="min-h-screen w-full max-w-full flex items-center justify-center bg-background px-4 sm:px-6 py-12 sm:py-16 snap-start overflow-hidden"
+    >
+      <div className="w-full max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
+        {/* Text - On top for mobile */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
           transition={{ duration: 0.8 }}
-          className="lg:col-span-2 space-y-6"
+          className="w-full lg:w-2/5 space-y-4 sm:space-y-6 text-center lg:text-left order-1"
         >
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground leading-tight">
             Formularios que piensan contigo
           </h2>
-          <p className="text-muted-foreground leading-relaxed">
+          <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
             Dentaxy no solo recopila información. La interpreta, la estructura 
             y la convierte en conocimiento clínico profesional.
           </p>
-          <p className="text-sm text-muted-foreground/70">
+          <p className="text-xs sm:text-sm text-muted-foreground/70">
             Observa cómo los campos se seleccionan y la IA genera automáticamente 
             la redacción clínica apropiada.
           </p>
         </motion.div>
 
-        {/* Visual Right */}
+        {/* Visual - Below for mobile */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 50 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="lg:col-span-3 flex justify-center"
+          className="w-full lg:w-3/5 flex justify-center order-2"
         >
           <DemoTogglesFragment isInView={isInView} />
         </motion.div>
