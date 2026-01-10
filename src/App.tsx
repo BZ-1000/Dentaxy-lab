@@ -85,8 +85,8 @@ function App() {
                 <Route path="settings" element={<Settings />} />
               </Route>
               
-              {/* Redirecciones de auth a app */}
-              <Route path="/auth/*" element={<Navigate to="/app" replace />} />
+              {/* Redireccion legacy de auth */}
+              <Route path="/auth/*" element={<Navigate to="/hub" replace />} />
               
               {/* App - Acceso libre */}
               <Route path="/app" element={<Index />} />

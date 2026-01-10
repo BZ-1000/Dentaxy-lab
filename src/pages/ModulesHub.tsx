@@ -1,14 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { GraduationCap, Building2, Brain, Box, Hand, MapPin, Shield, Lock, ArrowLeft } from "lucide-react";
+import { GraduationCap, Building2, Brain, Box, Hand, MapPin, Shield, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import { ShaderSplash } from "@/components/ShaderSplash";
 import { ModuleCard } from "@/components/modules/ModuleCard";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-const modules = [
+// Configuración base de módulos (visual)
+const modulesConfig = [
   {
-    id: "academico",
+    name: "academico",
     title: "Dentaxy Académico",
     subtitle: "UAZ Sync",
     description: "Complemento estratégico para la educación clínica. Estandariza la recolección de datos para alumnos, módulo CLIJANIS para brigadas y extensión CLIMUZAC.",
@@ -18,12 +20,10 @@ const modules = [
     accentColor: "#0066CC",
     glowColor: "bg-blue-500/30",
     borderGradient: "linear-gradient(135deg, rgba(0,102,204,0.5), rgba(0,102,204,0.1), transparent)",
-    isActive: false,
-    isSecret: false,
     route: "/academico",
   },
   {
-    id: "enterprise",
+    name: "enterprise",
     title: "Soluciones Enterprise",
     subtitle: "Clínicas Premium",
     description: "Unificación total de flujos clínicos, administrativos y de laboratorio. Gestión de especialidades con formularios inteligentes y seguridad Zero-Trust.",
@@ -33,12 +33,10 @@ const modules = [
     accentColor: "#D4AF37",
     glowColor: "bg-amber-500/30",
     borderGradient: "linear-gradient(135deg, rgba(212,175,55,0.5), rgba(212,175,55,0.1), transparent)",
-    isActive: false,
-    isSecret: false,
     route: "/enterprise",
   },
   {
-    id: "motor-neuronal",
+    name: "motor-neuronal",
     title: "Motor Neuronal",
     subtitle: "Prosa Clínica AI",
     description: "Transformación de datos crudos en narrativa clínica profesional y legalmente sólida. Generación instantánea de historias clínicas con IA.",
@@ -48,12 +46,10 @@ const modules = [
     accentColor: "#10B981",
     glowColor: "bg-emerald-500/30",
     borderGradient: "linear-gradient(135deg, rgba(16,185,129,0.5), rgba(16,185,129,0.1), transparent)",
-    isActive: true,
-    isSecret: false,
     route: "/app",
   },
   {
-    id: "visor-3d",
+    name: "visor-3d",
     title: "Visualización 3D",
     subtitle: "DICOM Viewer",
     description: "Sustitución del envío ineficiente de radiografías. Visores nativos WebGL para archivos STL y DICOM con manipulación total en cualquier dispositivo.",
@@ -63,12 +59,10 @@ const modules = [
     accentColor: "#8B5CF6",
     glowColor: "bg-purple-500/30",
     borderGradient: "linear-gradient(135deg, rgba(139,92,246,0.5), rgba(139,92,246,0.1), transparent)",
-    isActive: false,
-    isSecret: false,
     route: "/visor-3d",
   },
   {
-    id: "stark",
+    name: "stark",
     title: "Proyecto Stark",
     subtitle: "TOP SECRET",
     description: "Computación espacial y control gestual. Interacción quirúrgica del futuro con algoritmos de Hand Tracking para explorar escaneos sin tocar la pantalla.",
@@ -78,16 +72,72 @@ const modules = [
     accentColor: "#EF4444",
     glowColor: "bg-red-500/30",
     borderGradient: "linear-gradient(135deg, rgba(239,68,68,0.5), rgba(239,68,68,0.1), transparent)",
-    isActive: false,
-    isSecret: true,
     route: "/stark",
   },
 ];
+
+interface ModuleState {
+  is_enabled: boolean;
+  status: string;
+}
 
 export default function ModulesHub() {
   const navigate = useNavigate();
   const [showSplash, setShowSplash] = useState(true);
   const [showHub, setShowHub] = useState(false);
+  const [modulesState, setModulesState] = useState<Record<string, ModuleState>>({});
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch module states from database
+  useEffect(() => {
+    const fetchModuleStates = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('dentaxy_modules')
+          .select('name, is_enabled, status');
+
+        if (error) throw error;
+
+        const stateMap: Record<string, ModuleState> = {};
+        data?.forEach((m) => {
+          stateMap[m.name] = {
+            is_enabled: m.is_enabled ?? false,
+            status: m.status ?? 'blocked',
+          };
+        });
+        setModulesState(stateMap);
+      } catch (error) {
+        console.error('Error fetching module states:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchModuleStates();
+
+    // Real-time subscription for instant updates
+    const channel = supabase
+      .channel('modules-realtime')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'dentaxy_modules' },
+        (payload) => {
+          const updated = payload.new as { name: string; is_enabled: boolean; status: string };
+          setModulesState((prev) => ({
+            ...prev,
+            [updated.name]: {
+              is_enabled: updated.is_enabled,
+              status: updated.status,
+            },
+          }));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   // Check if we should skip splash (coming back from a module)
   useEffect(() => {
@@ -104,17 +154,45 @@ export default function ModulesHub() {
     setTimeout(() => setShowHub(true), 100);
   };
 
-  const handleModuleClick = (module: typeof modules[0]) => {
-    if (module.isActive) {
+  // Determine module access based on DB state
+  const getModuleAccess = (moduleName: string) => {
+    const state = modulesState[moduleName];
+    if (!state) {
+      return { isActive: false, isSecret: false, isBlocked: true };
+    }
+
+    const isSecret = state.status === 'classified';
+    const isBlocked = state.status === 'blocked' || !state.is_enabled;
+    const isActive = state.is_enabled && state.status === 'active';
+
+    return { isActive, isSecret, isBlocked };
+  };
+
+  const getStatusLabel = (moduleName: string) => {
+    const state = modulesState[moduleName];
+    if (!state) return "Cargando...";
+
+    if (state.status === 'classified') return "Clasificado";
+    if (state.status === 'blocked') return "Bloqueado";
+    if (!state.is_enabled) return "Deshabilitado";
+    if (state.status === 'beta') return "Beta";
+    if (state.status === 'active' && state.is_enabled) return "Acceder";
+    return "Próximamente";
+  };
+
+  const handleModuleClick = (module: typeof modulesConfig[0]) => {
+    const access = getModuleAccess(module.name);
+
+    if (access.isActive) {
       sessionStorage.setItem("skipHubSplash", "true");
       navigate(module.route);
-    } else if (module.isSecret) {
+    } else if (access.isSecret) {
       toast.error("🔒 Acceso Denegado", {
         description: "Nivel de autorización insuficiente. Proyecto clasificado.",
       });
     } else {
-      toast.info("🚧 En Desarrollo", {
-        description: `${module.title} estará disponible próximamente.`,
+      toast.info("🚧 Módulo No Disponible", {
+        description: `${module.title} no está habilitado actualmente.`,
       });
     }
   };
@@ -184,29 +262,41 @@ export default function ModulesHub() {
                 </p>
               </motion.header>
 
-              {/* Modules Grid */}
-              <div className="flex-1 flex items-center justify-center">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full">
-                  {modules.map((module, index) => (
-                    <ModuleCard
-                      key={module.id}
-                      title={module.title}
-                      subtitle={module.subtitle}
-                      description={module.description}
-                      icon={module.icon}
-                      badge={module.badge}
-                      gradient={module.gradient}
-                      accentColor={module.accentColor}
-                      glowColor={module.glowColor}
-                      borderGradient={module.borderGradient}
-                      isActive={module.isActive}
-                      isSecret={module.isSecret}
-                      onClick={() => handleModuleClick(module)}
-                      delay={0.4 + index * 0.1}
-                    />
-                  ))}
+              {/* Loading state */}
+              {isLoading ? (
+                <div className="flex-1 flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-white/40" />
                 </div>
-              </div>
+              ) : (
+                /* Modules Grid */
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full">
+                    {modulesConfig.map((module, index) => {
+                      const access = getModuleAccess(module.name);
+                      return (
+                        <ModuleCard
+                          key={module.name}
+                          title={module.title}
+                          subtitle={module.subtitle}
+                          description={module.description}
+                          icon={module.icon}
+                          badge={module.badge}
+                          gradient={module.gradient}
+                          accentColor={module.accentColor}
+                          glowColor={module.glowColor}
+                          borderGradient={module.borderGradient}
+                          isActive={access.isActive}
+                          isSecret={access.isSecret}
+                          isBlocked={access.isBlocked}
+                          statusLabel={getStatusLabel(module.name)}
+                          onClick={() => handleModuleClick(module)}
+                          delay={0.4 + index * 0.1}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Security Footer */}
               <motion.footer

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { LucideIcon, Lock } from "lucide-react";
+import { LucideIcon, Lock, Ban } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ModuleCardProps {
@@ -14,6 +14,8 @@ interface ModuleCardProps {
   borderGradient: string;
   isActive?: boolean;
   isSecret?: boolean;
+  isBlocked?: boolean;
+  statusLabel?: string;
   onClick: () => void;
   delay?: number;
 }
@@ -30,31 +32,57 @@ export function ModuleCard({
   borderGradient,
   isActive = false,
   isSecret = false,
+  isBlocked = false,
+  statusLabel,
   onClick,
   delay = 0,
 }: ModuleCardProps) {
+  const getStatusLabel = () => {
+    if (statusLabel) return statusLabel;
+    if (isActive) return "Acceder";
+    if (isSecret) return "Clasificado";
+    if (isBlocked) return "Bloqueado";
+    return "Próximamente";
+  };
+
+  const getBadgeStyles = () => {
+    if (isActive) {
+      return "bg-emerald-500/20 border-emerald-500/50 text-emerald-400";
+    }
+    if (isSecret) {
+      return "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse";
+    }
+    if (isBlocked) {
+      return "bg-zinc-500/20 border-zinc-500/50 text-zinc-400";
+    }
+    return "bg-white/10 border-white/20 text-white/70";
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay }}
-      whileHover={{ scale: 1.02, y: -5 }}
+      whileHover={{ scale: isActive ? 1.02 : 1, y: isActive ? -5 : 0 }}
       onClick={onClick}
       className={cn(
         "relative group cursor-pointer rounded-2xl p-[1px] overflow-hidden",
-        "transition-all duration-300"
+        "transition-all duration-300",
+        isBlocked && !isSecret && "opacity-60"
       )}
       style={{
         background: borderGradient,
       }}
     >
-      {/* Glow effect on hover */}
-      <div
-        className={cn(
-          "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl",
-          glowColor
-        )}
-      />
+      {/* Glow effect on hover - only for active modules */}
+      {isActive && (
+        <div
+          className={cn(
+            "absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl",
+            glowColor
+          )}
+        />
+      )}
 
       {/* Card content */}
       <div
@@ -68,7 +96,8 @@ export function ModuleCard({
         {/* Background gradient */}
         <div
           className={cn(
-            "absolute inset-0 opacity-30 group-hover:opacity-50 transition-opacity duration-300",
+            "absolute inset-0 transition-opacity duration-300",
+            isActive ? "opacity-30 group-hover:opacity-50" : "opacity-20",
             gradient
           )}
         />
@@ -91,6 +120,16 @@ export function ModuleCard({
           </div>
         )}
 
+        {/* Blocked overlay */}
+        {isBlocked && !isSecret && (
+          <div className="absolute inset-0 bg-black/40 z-20 flex items-center justify-center">
+            <div className="text-center">
+              <Ban className="h-8 w-8 text-zinc-500 mx-auto mb-2" />
+              <span className="text-xs text-zinc-500 font-medium">No disponible</span>
+            </div>
+          </div>
+        )}
+
         {/* Top section */}
         <div className="relative z-10">
           {/* Badge */}
@@ -99,16 +138,12 @@ export function ModuleCard({
               className={cn(
                 "text-[10px] font-bold tracking-wider px-3 py-1 rounded-full",
                 "border uppercase",
-                isActive
-                  ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-400"
-                  : isSecret
-                  ? "bg-red-500/20 border-red-500/50 text-red-400 animate-pulse"
-                  : "bg-white/10 border-white/20 text-white/70"
+                getBadgeStyles()
               )}
             >
               {badge}
             </span>
-            {!isActive && !isSecret && (
+            {(isBlocked || isSecret) && !isActive && (
               <Lock className="h-4 w-4 text-white/30" />
             )}
           </div>
@@ -120,7 +155,7 @@ export function ModuleCard({
               "bg-gradient-to-br",
               gradient
             )}
-            style={{ boxShadow: `0 0 30px ${accentColor}40` }}
+            style={{ boxShadow: isActive ? `0 0 30px ${accentColor}40` : undefined }}
           >
             <Icon className="h-7 w-7 text-white" strokeWidth={1.5} />
           </div>
@@ -147,7 +182,7 @@ export function ModuleCard({
               }}
             />
             <span className="text-[10px] text-white/40 uppercase tracking-wider">
-              {isActive ? "Acceder" : isSecret ? "Clasificado" : "Próximamente"}
+              {getStatusLabel()}
             </span>
           </div>
         </div>
