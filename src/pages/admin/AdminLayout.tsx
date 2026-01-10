@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
+import { AdminSecurityProvider } from '@/contexts/AdminSecurityContext';
 import { AdminSidebar } from '@/components/admin/layout/AdminSidebar';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
@@ -22,12 +23,14 @@ const AdminLayout: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <AdminSidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
-      <main className={cn('min-h-screen transition-all duration-300', sidebarCollapsed ? 'ml-[72px]' : 'ml-[240px]')}>
-        <Outlet />
-      </main>
-    </div>
+    <AdminSecurityProvider>
+      <div className="min-h-screen bg-zinc-950">
+        <AdminSidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+        <main className={cn('min-h-screen transition-all duration-300', sidebarCollapsed ? 'ml-[72px]' : 'ml-[240px]')}>
+          <Outlet />
+        </main>
+      </div>
+    </AdminSecurityProvider>
   );
 };
 
