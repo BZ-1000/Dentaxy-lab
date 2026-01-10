@@ -1,6 +1,7 @@
 import React from 'react';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
 import { useAdminSecurity } from '@/contexts/AdminSecurityContext';
+import { PasskeyManager } from '@/components/admin/security/PasskeyManager';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
@@ -26,6 +27,13 @@ const Settings: React.FC = () => {
     <div className="min-h-screen">
       <AdminHeader title="Configuración Avanzada" description="Políticas de seguridad y restricciones globales" />
       <div className="p-6 space-y-6">
+        {/* Passkey / WebAuthn Manager */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <PasskeyManager />
+        </motion.div>
         {/* Session Policies */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
