@@ -1,27 +1,13 @@
 import React from 'react';
 import { AdminHeader } from '@/components/admin/layout/AdminHeader';
-import { useAdminSecurity } from '@/contexts/AdminSecurityContext';
 import { PasskeyManager } from '@/components/admin/security/PasskeyManager';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
-import { Shield, Clock, Globe, AlertTriangle } from 'lucide-react';
+import { Clock, Globe, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Settings: React.FC = () => {
-  const { isSuperAdmin } = useAdminSecurity();
-
-  if (!isSuperAdmin) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="text-center">
-          <Shield className="mx-auto h-12 w-12 text-zinc-600" />
-          <h2 className="mt-4 text-xl font-semibold text-zinc-300">Acceso Restringido</h2>
-          <p className="mt-2 text-sm text-zinc-500">Solo Super Admin puede acceder a esta sección</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen">
