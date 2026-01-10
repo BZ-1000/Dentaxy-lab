@@ -22,11 +22,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { useWebAuthn } from '@/hooks/useWebAuthn';
+import { useAdminPasskey } from '@/hooks/useAdminPasskey';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export const PasskeyManager: React.FC = () => {
+  const { adminId } = useAdminAuthContext();
   const {
     isSupported,
     isRegistering,
@@ -34,15 +36,17 @@ export const PasskeyManager: React.FC = () => {
     fetchCredentials,
     registerPasskey,
     deleteCredential,
-  } = useWebAuthn();
+  } = useAdminPasskey(adminId);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [deviceName, setDeviceName] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchCredentials();
-  }, [fetchCredentials]);
+    if (adminId) {
+      fetchCredentials();
+    }
+  }, [adminId, fetchCredentials]);
 
   const handleRegister = async () => {
     const success = await registerPasskey(deviceName || undefined);
