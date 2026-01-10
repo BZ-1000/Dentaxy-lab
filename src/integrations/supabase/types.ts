@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_credentials: {
+        Row: {
+          created_at: string | null
+          display_name: string | null
+          failed_attempts: number | null
+          id: string
+          last_login_at: string | null
+          locked_until: string | null
+          password_hash: string
+          updated_at: string | null
+          user_id: string | null
+          username: string
+        }
+        Insert: {
+          created_at?: string | null
+          display_name?: string | null
+          failed_attempts?: number | null
+          id?: string
+          last_login_at?: string | null
+          locked_until?: string | null
+          password_hash: string
+          updated_at?: string | null
+          user_id?: string | null
+          username: string
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string | null
+          failed_attempts?: number | null
+          id?: string
+          last_login_at?: string | null
+          locked_until?: string | null
+          password_hash?: string
+          updated_at?: string | null
+          user_id?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
       admin_roles: {
         Row: {
           created_at: string | null
@@ -942,6 +981,7 @@ export type Database = {
         Args: { admin_user_id: string }
         Returns: undefined
       }
+      get_admin_by_username: { Args: { p_username: string }; Returns: string }
       get_admin_role: { Args: { user_uuid: string }; Returns: string }
       get_current_user_role: { Args: never; Returns: string }
       get_user_role: { Args: { user_uuid: string }; Returns: string }
@@ -968,6 +1008,15 @@ export type Database = {
       update_active_users_count: {
         Args: { new_count: number }
         Returns: undefined
+      }
+      verify_admin_login: {
+        Args: { p_password: string; p_username: string }
+        Returns: {
+          admin_id: string
+          display_name: string
+          error_message: string
+          success: boolean
+        }[]
       }
     }
     Enums: {

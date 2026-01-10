@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Outlet, Navigate } from 'react-router-dom';
-import { AdminSecurityProvider, useAdminSecurity } from '@/contexts/AdminSecurityContext';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { AdminSidebar } from '@/components/admin/layout/AdminSidebar';
 import { cn } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
-const AdminLayoutContent: React.FC = () => {
-  const { isAdmin, isLoading } = useAdminSecurity();
+const AdminLayout: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAdminAuthContext();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   if (isLoading) {
@@ -17,8 +17,8 @@ const AdminLayoutContent: React.FC = () => {
     );
   }
 
-  if (!isAdmin) {
-    return <Navigate to="/" replace />;
+  if (!isAuthenticated) {
+    return <Navigate to="/admin" replace />;
   }
 
   return (
@@ -28,14 +28,6 @@ const AdminLayoutContent: React.FC = () => {
         <Outlet />
       </main>
     </div>
-  );
-};
-
-export const AdminLayout: React.FC = () => {
-  return (
-    <AdminSecurityProvider>
-      <AdminLayoutContent />
-    </AdminSecurityProvider>
   );
 };
 
