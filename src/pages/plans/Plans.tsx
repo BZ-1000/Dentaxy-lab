@@ -7,8 +7,6 @@ import { PlanPeriodProvider } from '@/contexts/PlanPeriodContext';
 import { Crown, Star, Check } from 'lucide-react';
 import BottomMenu from '@/components/BottomMenu';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useAuth } from '@/contexts/AuthContext';
-import { SubscriptionStatus } from '@/components/subscription/SubscriptionStatus';
 
 const PlanCard = ({ 
   title, 
@@ -131,7 +129,6 @@ const PlanCard = ({
 );
 
 const Plans = () => {
-  const { user } = useAuth();
   const { loading, createCheckoutSession } = useSubscription();
 
   const handleSelectPlan = async (planType: string) => {
@@ -173,12 +170,6 @@ const Plans = () => {
           tu práctica odontológica con DENTAXY.ai
         </p>
 
-        {/* Show subscription status if user is logged in */}
-        {user && (
-          <div className="mb-8 max-w-md mx-auto">
-            <SubscriptionStatus />
-          </div>
-        )}
         
         {/* Modern Pricing Component */}
         <PlanPeriodProvider>
