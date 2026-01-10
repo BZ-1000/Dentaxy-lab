@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["admin_role"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["admin_role"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["admin_role"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      admin_sessions: {
+        Row: {
+          created_at: string | null
+          device_fingerprint: string
+          expires_at: string
+          id: string
+          ip_address: unknown
+          is_active: boolean | null
+          last_activity: string | null
+          location: Json | null
+          requires_reauth: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          device_fingerprint: string
+          expires_at: string
+          id?: string
+          ip_address?: unknown
+          is_active?: boolean | null
+          last_activity?: string | null
+          location?: Json | null
+          requires_reauth?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          device_fingerprint?: string
+          expires_at?: string
+          id?: string
+          ip_address?: unknown
+          is_active?: boolean | null
+          last_activity?: string | null
+          location?: Json | null
+          requires_reauth?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_button_usage: {
         Row: {
           clicked_at: string
@@ -74,6 +137,92 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_accesses: {
+        Row: {
+          accessed_at: string | null
+          demo_link_id: string | null
+          device_fingerprint: string | null
+          id: string
+          ip_address: unknown
+          location: Json | null
+          modules_accessed: string[] | null
+          user_agent: string | null
+        }
+        Insert: {
+          accessed_at?: string | null
+          demo_link_id?: string | null
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: unknown
+          location?: Json | null
+          modules_accessed?: string[] | null
+          user_agent?: string | null
+        }
+        Update: {
+          accessed_at?: string | null
+          demo_link_id?: string | null
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: unknown
+          location?: Json | null
+          modules_accessed?: string[] | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_accesses_demo_link_id_fkey"
+            columns: ["demo_link_id"]
+            isOneToOne: false
+            referencedRelation: "demo_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demo_links: {
+        Row: {
+          allowed_modules: string[] | null
+          created_at: string | null
+          created_by: string | null
+          current_uses: number | null
+          device_restrictions: Json | null
+          expires_at: string
+          geo_restrictions: Json | null
+          id: string
+          is_revoked: boolean | null
+          max_uses: number | null
+          metadata: Json | null
+          token: string
+        }
+        Insert: {
+          allowed_modules?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          current_uses?: number | null
+          device_restrictions?: Json | null
+          expires_at: string
+          geo_restrictions?: Json | null
+          id?: string
+          is_revoked?: boolean | null
+          max_uses?: number | null
+          metadata?: Json | null
+          token: string
+        }
+        Update: {
+          allowed_modules?: string[] | null
+          created_at?: string | null
+          created_by?: string | null
+          current_uses?: number | null
+          device_restrictions?: Json | null
+          expires_at?: string
+          geo_restrictions?: Json | null
+          id?: string
+          is_revoked?: boolean | null
+          max_uses?: number | null
+          metadata?: Json | null
+          token?: string
+        }
+        Relationships: []
+      }
       dental_terms: {
         Row: {
           categoria: string
@@ -110,6 +259,45 @@ export type Database = {
           subcategoria?: string | null
           termino?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      dentaxy_modules: {
+        Row: {
+          classification_level: string | null
+          created_at: string | null
+          description: string | null
+          display_name: string
+          icon: string | null
+          id: string
+          is_enabled: boolean | null
+          name: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          classification_level?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_name: string
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          name: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          classification_level?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_name?: string
+          icon?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          name?: string
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -353,6 +541,124 @@ export type Database = {
         }
         Relationships: []
       }
+      student_access_zones: {
+        Row: {
+          access_window_end: string | null
+          access_window_start: string | null
+          created_at: string | null
+          geo_polygon: Json
+          id: string
+          institution: string | null
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          access_window_end?: string | null
+          access_window_start?: string | null
+          created_at?: string | null
+          geo_polygon: Json
+          id?: string
+          institution?: string | null
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          access_window_end?: string | null
+          access_window_start?: string | null
+          created_at?: string | null
+          geo_polygon?: Json
+          id?: string
+          institution?: string | null
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      student_chat_blocks: {
+        Row: {
+          blocked_at: string | null
+          blocked_by: string | null
+          expires_at: string | null
+          id: string
+          is_permanent: boolean | null
+          reason: string | null
+          user_id: string
+          zone_id: string | null
+        }
+        Insert: {
+          blocked_at?: string | null
+          blocked_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_permanent?: boolean | null
+          reason?: string | null
+          user_id: string
+          zone_id?: string | null
+        }
+        Update: {
+          blocked_at?: string | null
+          blocked_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_permanent?: boolean | null
+          reason?: string | null
+          user_id?: string
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_chat_blocks_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "student_access_zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      student_chat_messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean | null
+          user_id: string | null
+          zone_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          user_id?: string | null
+          zone_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          user_id?: string | null
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_chat_messages_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "student_access_zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscribers: {
         Row: {
           created_at: string
@@ -389,6 +695,30 @@ export type Database = {
           subscription_tier?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      system_state: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string | null
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value?: Json
         }
         Relationships: []
       }
@@ -554,11 +884,51 @@ export type Database = {
         }
         Relationships: []
       }
+      webauthn_credentials: {
+        Row: {
+          counter: number | null
+          created_at: string | null
+          credential_id: string
+          device_name: string | null
+          id: string
+          last_used_at: string | null
+          public_key: string
+          transports: string[] | null
+          user_id: string
+        }
+        Insert: {
+          counter?: number | null
+          created_at?: string | null
+          credential_id: string
+          device_name?: string | null
+          id?: string
+          last_used_at?: string | null
+          public_key: string
+          transports?: string[] | null
+          user_id: string
+        }
+        Update: {
+          counter?: number | null
+          created_at?: string | null
+          credential_id?: string
+          device_name?: string | null
+          id?: string
+          last_used_at?: string | null
+          public_key?: string
+          transports?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      activate_kill_switch: {
+        Args: { admin_user_id: string }
+        Returns: undefined
+      }
       check_rate_limit: {
         Args: {
           p_action: string
@@ -568,6 +938,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      deactivate_kill_switch: {
+        Args: { admin_user_id: string }
+        Returns: undefined
+      }
+      get_admin_role: { Args: { user_uuid: string }; Returns: string }
       get_current_user_role: { Args: never; Returns: string }
       get_user_role: { Args: { user_uuid: string }; Returns: string }
       increment_copy_clicks: { Args: never; Returns: undefined }
@@ -575,6 +950,8 @@ export type Database = {
         Args: { p_at?: string; p_seconds: number }
         Returns: undefined
       }
+      is_admin: { Args: { user_uuid: string }; Returns: boolean }
+      is_super_admin: { Args: { user_uuid: string }; Returns: boolean }
       log_audit_event: {
         Args: {
           p_action: string
@@ -594,7 +971,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      admin_role: "super_admin" | "admin" | "observer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -721,6 +1098,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      admin_role: ["super_admin", "admin", "observer"],
+    },
   },
 } as const
