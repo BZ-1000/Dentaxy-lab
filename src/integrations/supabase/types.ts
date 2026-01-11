@@ -262,6 +262,62 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_sessions: {
+        Row: {
+          created_at: string | null
+          demo_link_id: string
+          expires_at: string
+          full_name: string
+          id: string
+          ip_address: unknown
+          last_activity_at: string | null
+          location: Json
+          module_accessed: string
+          session_token: string
+          started_at: string | null
+          status: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          demo_link_id: string
+          expires_at: string
+          full_name: string
+          id?: string
+          ip_address?: unknown
+          last_activity_at?: string | null
+          location: Json
+          module_accessed: string
+          session_token: string
+          started_at?: string | null
+          status?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          demo_link_id?: string
+          expires_at?: string
+          full_name?: string
+          id?: string
+          ip_address?: unknown
+          last_activity_at?: string | null
+          location?: Json
+          module_accessed?: string
+          session_token?: string
+          started_at?: string | null
+          status?: string | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_sessions_demo_link_id_fkey"
+            columns: ["demo_link_id"]
+            isOneToOne: false
+            referencedRelation: "demo_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dental_terms: {
         Row: {
           categoria: string
@@ -977,9 +1033,29 @@ export type Database = {
         }
         Returns: boolean
       }
+      create_demo_session: {
+        Args: {
+          p_full_name: string
+          p_ip_address?: unknown
+          p_location: Json
+          p_module: string
+          p_token: string
+          p_user_agent?: string
+        }
+        Returns: {
+          error_message: string
+          expires_at: string
+          session_token: string
+          success: boolean
+        }[]
+      }
       deactivate_kill_switch: {
         Args: { admin_user_id: string }
         Returns: undefined
+      }
+      expire_demo_session: {
+        Args: { p_admin_id: string; p_session_id: string }
+        Returns: boolean
       }
       get_admin_by_username: { Args: { p_username: string }; Returns: string }
       get_admin_role: { Args: { user_uuid: string }; Returns: string }
@@ -1004,10 +1080,27 @@ export type Database = {
         }
         Returns: undefined
       }
+      revoke_all_sessions_for_link: {
+        Args: { p_admin_id: string; p_link_id: string }
+        Returns: number
+      }
+      revoke_demo_session: {
+        Args: { p_admin_id: string; p_session_id: string }
+        Returns: boolean
+      }
       system_manage_rate_limit: { Args: never; Returns: boolean }
       update_active_users_count: {
         Args: { new_count: number }
         Returns: undefined
+      }
+      validate_demo_link: {
+        Args: { p_module: string; p_token: string }
+        Returns: {
+          demo_link_id: string
+          error_message: string
+          expires_at: string
+          success: boolean
+        }[]
       }
       verify_admin_login: {
         Args: { p_password: string; p_username: string }
@@ -1016,6 +1109,16 @@ export type Database = {
           display_name: string
           error_message: string
           success: boolean
+        }[]
+      }
+      verify_demo_session: {
+        Args: { p_session_token: string }
+        Returns: {
+          error_message: string
+          expires_at: string
+          full_name: string
+          is_valid: boolean
+          module_accessed: string
         }[]
       }
     }
