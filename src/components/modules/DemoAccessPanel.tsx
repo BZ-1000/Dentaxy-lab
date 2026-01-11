@@ -33,20 +33,31 @@ export function DemoAccessPanel({
 
   // Extract token from full URL or use as-is
   const extractToken = (input: string): string => {
+    const trimmed = input.trim();
+    
     // If it's a full URL, extract the token parameter
     try {
-      const url = new URL(input);
-      const token = url.searchParams.get('token');
-      if (token) return token;
+      const url = new URL(trimmed);
+      // Check for 'demo' parameter first (our format)
+      const demoParam = url.searchParams.get('demo');
+      if (demoParam) return demoParam;
+      // Fallback to 'token' parameter
+      const tokenParam = url.searchParams.get('token');
+      if (tokenParam) return tokenParam;
     } catch {
-      // Not a URL, use as-is
+      // Not a URL, continue checking other patterns
     }
+    
     // If it contains /demo/ path, extract the token
-    const demoMatch = input.match(/\/demo\/([a-zA-Z0-9]+)/);
+    const demoMatch = trimmed.match(/\/demo\/([a-zA-Z0-9]+)/);
     if (demoMatch) return demoMatch[1];
     
-    // Return trimmed input as token
-    return input.trim();
+    // If it contains ?demo= in partial URL format
+    const queryMatch = trimmed.match(/[?&]demo=([a-zA-Z0-9]+)/);
+    if (queryMatch) return queryMatch[1];
+    
+    // Return as-is (raw token)
+    return trimmed;
   };
 
   const handleValidate = async () => {
