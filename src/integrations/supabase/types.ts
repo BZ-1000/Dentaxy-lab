@@ -1033,6 +1033,20 @@ export type Database = {
         }
         Returns: boolean
       }
+      create_demo_link: {
+        Args: {
+          p_admin_id: string
+          p_allowed_modules?: string[]
+          p_expires_at: string
+          p_max_uses?: number
+          p_token: string
+        }
+        Returns: {
+          error_message: string
+          link_id: string
+          success: boolean
+        }[]
+      }
       create_demo_session: {
         Args: {
           p_full_name: string
