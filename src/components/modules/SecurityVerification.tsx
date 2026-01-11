@@ -19,11 +19,11 @@ interface SecurityVerificationProps {
 }
 
 const moduleRoutes: Record<string, string> = {
-  'academico': '/academico',
-  'enterprise': '/enterprise',
-  'motor-neuronal': '/app',
-  'visor-3d': '/visor-3d',
-  'stark': '/stark',
+  academico: '/academico',
+  enterprise: '/enterprise',
+  motor_neuronal: '/app',
+  visualizacion_3d: '/visor-3d',
+  proyecto_stark: '/stark',
 };
 
 export function SecurityVerification({

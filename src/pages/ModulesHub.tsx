@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { GraduationCap, Building2, Brain, Box, Hand, MapPin, Shield, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import { ShaderSplash } from "@/components/ShaderSplash";
@@ -49,7 +49,7 @@ const modulesConfig = [
     },
   },
   {
-    name: "motor-neuronal",
+    name: "motor_neuronal",
     title: "Motor Neuronal",
     subtitle: "Prosa Clínica AI",
     description: "Transformación de datos crudos en narrativa clínica profesional y legalmente sólida. Generación instantánea de historias clínicas con IA.",
@@ -69,7 +69,7 @@ const modulesConfig = [
     },
   },
   {
-    name: "visor-3d",
+    name: "visualizacion_3d",
     title: "Visualización 3D",
     subtitle: "DICOM Viewer",
     description: "Sustitución del envío ineficiente de radiografías. Visores nativos WebGL para archivos STL y DICOM con manipulación total en cualquier dispositivo.",
@@ -89,7 +89,7 @@ const modulesConfig = [
     },
   },
   {
-    name: "stark",
+    name: "proyecto_stark",
     title: "Proyecto Stark",
     subtitle: "TOP SECRET",
     description: "Computación espacial y control gestual. Interacción quirúrgica del futuro con algoritmos de Hand Tracking para explorar escaneos sin tocar la pantalla.",
@@ -117,6 +117,9 @@ interface ModuleState {
 
 export default function ModulesHub() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const demoToken = searchParams.get('demo');
+  
   const [showSplash, setShowSplash] = useState(true);
   const [showHub, setShowHub] = useState(false);
   const [modulesState, setModulesState] = useState<Record<string, ModuleState>>({});
@@ -279,6 +282,7 @@ export default function ModulesHub() {
                         borderGradient={module.borderGradient}
                         moduleInfo={module.moduleInfo}
                         delay={0.4 + index * 0.1}
+                        prefilledToken={demoToken || undefined}
                       />
                     ))}
                   </div>

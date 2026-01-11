@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -12,7 +12,6 @@ import {
   Copy,
   Check,
   Loader2,
-  AlertCircle,
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -30,8 +29,16 @@ interface DemoLink {
   created_at: string;
 }
 
+const MODULE_LABELS: Record<string, string> = {
+  motor_neuronal: 'Motor Neuronal',
+  proyecto_stark: 'Proyecto Stark',
+  academico: 'Académico',
+  enterprise: 'Enterprise',
+  visualizacion_3d: '3D',
+};
+
 export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
-  const { user } = useAuth();
+  const { adminId } = useAdminAuthContext();
   const [demos, setDemos] = useState<DemoLink[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -58,7 +65,7 @@ export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTri
   }, [refreshTrigger]);
 
   const handleCopy = async (token: string, id: string) => {
-    const link = `${window.location.origin}/demo/${token}`;
+    const link = `${window.location.origin}/modules?demo=${token}`;
     await navigator.clipboard.writeText(link);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -66,30 +73,22 @@ export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTri
   };
 
   const handleRevoke = async (demo: DemoLink) => {
-    if (!user) return;
+    if (!adminId) return;
 
     setRevokingId(demo.id);
     try {
-      const { error } = await supabase
-        .from('demo_links')
-        .update({ is_revoked: true })
-        .eq('id', demo.id);
+      // Use the revoke function to also revoke sessions
+      const { data, error } = await supabase.rpc('revoke_all_sessions_for_link', {
+        p_link_id: demo.id,
+        p_admin_id: adminId,
+      });
 
       if (error) throw error;
-
-      // Log the revocation
-      await supabase.from('audit_logs').insert({
-        action: 'DEMO_REVOKED',
-        resource_type: 'demo_link',
-        resource_id: demo.token,
-        user_id: user.id,
-        details: { reason: 'Manual revocation' },
-      });
 
       setDemos((prev) =>
         prev.map((d) => (d.id === demo.id ? { ...d, is_revoked: true } : d))
       );
-      toast.success('Demo revocado');
+      toast.success(`Demo revocado (${data || 0} sesiones terminadas)`);
     } catch (error) {
       console.error('Error revoking demo:', error);
       toast.error('Error al revocar el demo');
@@ -177,7 +176,7 @@ export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTri
                           key={module}
                           className="rounded bg-zinc-800/50 px-1.5 py-0.5 text-xs text-zinc-400"
                         >
-                          {module}
+                          {MODULE_LABELS[module] || module}
                         </span>
                       ))}
                     </div>

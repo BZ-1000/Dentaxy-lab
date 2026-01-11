@@ -26,6 +26,7 @@ interface ExpandableModuleCardProps {
   borderGradient: string;
   moduleInfo: ModuleInfo;
   delay?: number;
+  prefilledToken?: string;
 }
 
 export function ExpandableModuleCard({
@@ -41,6 +42,7 @@ export function ExpandableModuleCard({
   borderGradient,
   moduleInfo,
   delay = 0,
+  prefilledToken,
 }: ExpandableModuleCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAccessPanel, setShowAccessPanel] = useState(false);
@@ -255,6 +257,7 @@ export function ExpandableModuleCard({
                 moduleTitle={title}
                 accentColor={accentColor}
                 onClose={handleCloseAccessPanel}
+                prefilledToken={prefilledToken}
               />
             </motion.div>
           )}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,13 +35,14 @@ const DURATION_OPTIONS = [
 
 const MODULES = [
   { id: 'motor_neuronal', name: 'Motor Neuronal' },
+  { id: 'proyecto_stark', name: 'Proyecto Stark' },
   { id: 'academico', name: 'Módulo Académico' },
   { id: 'enterprise', name: 'Enterprise Suite' },
   { id: 'visualizacion_3d', name: 'Visualización 3D' },
 ];
 
 export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated }) => {
-  const { user } = useAuth();
+  const { adminId, isAuthenticated } = useAdminAuthContext();
   const [isOpen, setIsOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [createdLink, setCreatedLink] = useState<string | null>(null);
@@ -61,7 +62,10 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
   };
 
   const handleCreate = async () => {
-    if (!user) return;
+    if (!isAuthenticated || !adminId) {
+      toast.error('Debes estar autenticado como admin');
+      return;
+    }
 
     setIsCreating(true);
     try {
@@ -70,7 +74,7 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
 
       const { error } = await supabase.from('demo_links').insert({
         token,
-        created_by: user.id,
+        created_by: adminId,
         expires_at: expiresAt,
         max_uses: parseInt(maxUses),
         allowed_modules: selectedModules,
@@ -78,15 +82,15 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
 
       if (error) throw error;
 
-      const link = `${window.location.origin}/demo/${token}`;
+      const link = `${window.location.origin}/modules?demo=${token}`;
       setCreatedLink(link);
 
       // Log the creation
       await supabase.from('audit_logs').insert({
-        action: 'DEMO_CREATED',
+        action: 'DEMO_LINK_CREATED',
         resource_type: 'demo_link',
         resource_id: token,
-        user_id: user.id,
+        user_id: adminId,
         details: { duration, max_uses: maxUses, modules: selectedModules },
       });
 
