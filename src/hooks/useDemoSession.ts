@@ -112,13 +112,23 @@ export function useDemoSession() {
       }
 
       return result as CreateSessionResult;
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error creating session:', error);
+      // Provide more specific error messages
+      let errorMsg = 'Error de conexión. Intenta de nuevo.';
+      if (error && typeof error === 'object' && 'message' in error) {
+        const msg = (error as { message: string }).message;
+        if (msg.includes('gen_random_bytes')) {
+          errorMsg = 'Error interno del servidor. Por favor intenta de nuevo.';
+        } else if (msg.includes('network') || msg.includes('fetch')) {
+          errorMsg = 'Error de red. Verifica tu conexión a internet.';
+        }
+      }
       return {
         success: false,
         session_token: null,
         expires_at: null,
-        error_message: 'Error de conexión. Intenta de nuevo.',
+        error_message: errorMsg,
       };
     } finally {
       setIsLoading(false);

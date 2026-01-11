@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 interface GeolocationState {
   latitude: number | null;
@@ -9,6 +9,7 @@ interface GeolocationState {
   error: string | null;
   isLoading: boolean;
   hasPermission: boolean | null;
+  permissionState: PermissionState | null;
 }
 
 export function useGeolocation() {
@@ -21,7 +22,37 @@ export function useGeolocation() {
     error: null,
     isLoading: false,
     hasPermission: null,
+    permissionState: null,
   });
+
+  // Check permission state on mount and when it changes
+  useEffect(() => {
+    const checkPermission = async () => {
+      if (!navigator.permissions) return;
+      
+      try {
+        const result = await navigator.permissions.query({ name: 'geolocation' });
+        setState((prev) => ({ 
+          ...prev, 
+          permissionState: result.state,
+          hasPermission: result.state === 'granted' ? true : result.state === 'denied' ? false : null
+        }));
+        
+        // Listen for permission changes
+        result.addEventListener('change', () => {
+          setState((prev) => ({ 
+            ...prev, 
+            permissionState: result.state,
+            hasPermission: result.state === 'granted' ? true : result.state === 'denied' ? false : null
+          }));
+        });
+      } catch (e) {
+        console.warn('Permission API not available:', e);
+      }
+    };
+
+    checkPermission();
+  }, []);
 
   // Request geolocation permission and get coordinates
   const requestLocation = useCallback(async (): Promise<{
@@ -42,6 +73,7 @@ export function useGeolocation() {
     }
 
     return new Promise((resolve) => {
+      // Use shorter timeout and no cache to force fresh permission prompt
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude, accuracy } = position.coords;
@@ -52,10 +84,16 @@ export function useGeolocation() {
           
           try {
             const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`
+              `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`,
+              { 
+                headers: { 
+                  'Accept-Language': 'es',
+                  'User-Agent': 'Dentaxy/1.0 (https://dentaxy.com)'
+                }
+              }
             );
             const data = await response.json();
-            city = data.address?.city || data.address?.town || data.address?.municipality;
+            city = data.address?.city || data.address?.town || data.address?.municipality || data.address?.village;
             country = data.address?.country;
           } catch (e) {
             console.warn('Reverse geocoding failed:', e);
@@ -70,6 +108,7 @@ export function useGeolocation() {
             error: null,
             isLoading: false,
             hasPermission: true,
+            permissionState: 'granted',
           });
 
           resolve({
@@ -82,16 +121,18 @@ export function useGeolocation() {
         },
         (error) => {
           let errorMessage = 'Error al obtener ubicación';
+          let permissionDenied = false;
           
           switch (error.code) {
             case error.PERMISSION_DENIED:
-              errorMessage = 'Permiso de ubicación denegado';
+              errorMessage = 'Permiso de ubicación denegado. Habilita el permiso en la configuración de tu navegador y recarga la página.';
+              permissionDenied = true;
               break;
             case error.POSITION_UNAVAILABLE:
-              errorMessage = 'Información de ubicación no disponible';
+              errorMessage = 'Información de ubicación no disponible. Verifica que tu GPS esté activo.';
               break;
             case error.TIMEOUT:
-              errorMessage = 'Tiempo de espera agotado';
+              errorMessage = 'Tiempo de espera agotado. Intenta de nuevo.';
               break;
           }
 
@@ -103,15 +144,16 @@ export function useGeolocation() {
             accuracy: null,
             error: errorMessage,
             isLoading: false,
-            hasPermission: error.code === error.PERMISSION_DENIED ? false : null,
+            hasPermission: permissionDenied ? false : null,
+            permissionState: permissionDenied ? 'denied' : null,
           });
 
           resolve({ success: false, error: errorMessage });
         },
         {
           enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000,
+          timeout: 15000,
+          maximumAge: 0, // Force fresh location, no cache
         }
       );
     });

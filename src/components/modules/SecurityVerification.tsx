@@ -173,8 +173,13 @@ export function SecurityVerification({
                 <div>
                   <p className="font-medium">Permiso de ubicación denegado</p>
                   <p className="text-red-400/70 text-xs mt-1">
-                    Para continuar, habilita el permiso de ubicación en la configuración de tu navegador.
+                    Para continuar:
                   </p>
+                  <ol className="text-red-400/70 text-xs mt-1 list-decimal list-inside space-y-0.5">
+                    <li>Haz clic en el icono de candado 🔒 en la barra de direcciones</li>
+                    <li>Busca "Ubicación" y cámbialo a "Permitir"</li>
+                    <li>Recarga la página y vuelve a intentar</li>
+                  </ol>
                 </div>
               </motion.div>
             )}
