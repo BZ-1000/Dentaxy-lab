@@ -36,6 +36,11 @@ import ModulesManager from './pages/admin/ModulesManager';
 import AuditLogs from './pages/admin/AuditLogs';
 import Settings from './pages/admin/Settings';
 
+// Shop (Tienda privada)
+import ShopLogin from './pages/shop/ShopLogin';
+import Shop from './pages/shop/Shop';
+import { ShopAuthProvider } from './contexts/ShopAuthContext';
+
 // Component to initialize global tracking
 const GlobalTracker = () => {
   useGlobalMetrics(); // Initialize all metrics tracking globally
@@ -87,6 +92,14 @@ function App() {
                   <Route path="audit" element={<AuditLogs />} />
                   <Route path="settings" element={<Settings />} />
                 </Route>
+                
+                {/* Shop - Tienda privada */}
+                <Route path="/shop" element={<ShopLogin />} />
+                <Route path="/shop/tienda" element={
+                  <ShopAuthProvider>
+                    <Shop />
+                  </ShopAuthProvider>
+                } />
                 
                 {/* Redireccion legacy de auth */}
                 <Route path="/auth/*" element={<Navigate to="/hub" replace />} />
