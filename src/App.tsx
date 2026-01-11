@@ -57,6 +57,7 @@ function App() {
                 
                 {/* Hub de módulos */}
                 <Route path="/hub" element={<ModulesHub />} />
+                <Route path="/modules" element={<ModulesHub />} />
                 
                 {/* Páginas del menú principal */}
                 <Route path="/about" element={<About />} />

@@ -12,6 +12,7 @@ interface DemoAccessPanelProps {
   moduleTitle: string;
   accentColor: string;
   onClose: () => void;
+  prefilledToken?: string;
 }
 
 type PanelStep = 'link' | 'security' | 'success';
@@ -21,9 +22,10 @@ export function DemoAccessPanel({
   moduleTitle,
   accentColor,
   onClose,
+  prefilledToken,
 }: DemoAccessPanelProps) {
   const [step, setStep] = useState<PanelStep>('link');
-  const [linkToken, setLinkToken] = useState('');
+  const [linkToken, setLinkToken] = useState(prefilledToken || '');
   const [error, setError] = useState<string | null>(null);
   const [validatedLinkToken, setValidatedLinkToken] = useState<string>('');
   

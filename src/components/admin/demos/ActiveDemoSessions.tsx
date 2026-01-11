@@ -16,7 +16,7 @@ import {
   Loader2,
   Activity,
 } from 'lucide-react';
-import { useAdminAuth } from '@/hooks/useAdminAuth';
+import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -38,15 +38,15 @@ interface DemoSession {
 }
 
 const moduleLabels: Record<string, string> = {
-  'academico': 'Dentaxy Académico',
-  'enterprise': 'Enterprise',
-  'motor-neuronal': 'Motor Neuronal',
-  'visor-3d': 'Visualización 3D',
-  'stark': 'Proyecto Stark',
+  motor_neuronal: 'Motor Neuronal',
+  proyecto_stark: 'Proyecto Stark',
+  academico: 'Dentaxy Académico',
+  enterprise: 'Enterprise',
+  visualizacion_3d: 'Visualización 3D',
 };
 
 export const ActiveDemoSessions: React.FC = () => {
-  const { adminId } = useAdminAuth();
+  const { adminId } = useAdminAuthContext();
   const [sessions, setSessions] = useState<DemoSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
