@@ -72,33 +72,30 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
       const token = generateToken();
       const expiresAt = new Date(Date.now() + parseInt(duration) * 60 * 1000).toISOString();
 
-      const { error } = await supabase.from('demo_links').insert({
-        token,
-        created_by: adminId,
-        expires_at: expiresAt,
-        max_uses: parseInt(maxUses),
-        allowed_modules: selectedModules,
+      // Use SECURITY DEFINER function to bypass RLS
+      const { data, error } = await supabase.rpc('create_demo_link', {
+        p_token: token,
+        p_admin_id: adminId,
+        p_expires_at: expiresAt,
+        p_max_uses: parseInt(maxUses),
+        p_allowed_modules: selectedModules,
       });
 
       if (error) throw error;
 
+      const result = data?.[0];
+      if (!result?.success) {
+        throw new Error(result?.error_message || 'Error desconocido');
+      }
+
       const link = `${window.location.origin}/modules?demo=${token}`;
       setCreatedLink(link);
-
-      // Log the creation
-      await supabase.from('audit_logs').insert({
-        action: 'DEMO_LINK_CREATED',
-        resource_type: 'demo_link',
-        resource_id: token,
-        user_id: adminId,
-        details: { duration, max_uses: maxUses, modules: selectedModules },
-      });
 
       toast.success('Demo creado exitosamente');
       onCreated();
     } catch (error) {
       console.error('Error creating demo:', error);
-      toast.error('Error al crear el demo');
+      toast.error(error instanceof Error ? error.message : 'Error al crear el demo');
     } finally {
       setIsCreating(false);
     }
