@@ -9,10 +9,10 @@ interface MetricCardProps {
   value: number | string;
   subtitle?: string;
   icon: React.ReactNode;
-  trend?: 'up' | 'down' | 'neutral';
-  trendValue?: string;
   isLive?: boolean;
   variant?: 'default' | 'success' | 'warning' | 'danger';
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
 }
 
 const MetricCard: React.FC<MetricCardProps> = ({
@@ -22,6 +22,8 @@ const MetricCard: React.FC<MetricCardProps> = ({
   icon,
   isLive,
   variant = 'default',
+  onRefresh,
+  isRefreshing,
 }) => {
   const variantStyles = {
     default: 'border-zinc-800/50 bg-zinc-900/50',
@@ -59,8 +61,21 @@ const MetricCard: React.FC<MetricCardProps> = ({
           <p className="mt-2 text-3xl font-bold text-zinc-100">{value}</p>
           {subtitle && <p className="mt-1 text-xs text-zinc-500">{subtitle}</p>}
         </div>
-        <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg', iconStyles[variant])}>
-          {icon}
+        <div className="flex flex-col items-end gap-2">
+          <div className={cn('flex h-10 w-10 items-center justify-center rounded-lg', iconStyles[variant])}>
+            {icon}
+          </div>
+          {onRefresh && (
+            <button
+              onClick={onRefresh}
+              disabled={isRefreshing}
+              className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1"
+            >
+              <svg className={cn("h-3 w-3", isRefreshing && "animate-spin")} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
     </motion.div>

@@ -3,11 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { GraduationCap, Building2, Brain, Box, Hand, MapPin, Shield, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import { ShaderSplash } from "@/components/ShaderSplash";
-import { ModuleCard } from "@/components/modules/ModuleCard";
-import { toast } from "sonner";
+import { ExpandableModuleCard } from "@/components/modules/ExpandableModuleCard";
 import { supabase } from "@/integrations/supabase/client";
 
-// Configuración base de módulos (visual)
+// Configuración completa de módulos con información expandida
 const modulesConfig = [
   {
     name: "academico",
@@ -20,7 +19,14 @@ const modulesConfig = [
     accentColor: "#0066CC",
     glowColor: "bg-blue-500/30",
     borderGradient: "linear-gradient(135deg, rgba(0,102,204,0.5), rgba(0,102,204,0.1), transparent)",
-    route: "/academico",
+    moduleInfo: {
+      whatItDemonstrates: "Sincronización de datos clínicos entre alumnos y profesores en tiempo real. Formularios estandarizados para brigadas de salud.",
+      problemItSolves: "Elimina la fragmentación de datos entre múltiples formatos de papel y sistemas desconectados en entornos académicos.",
+      contextOfUse: "Facultades de Odontología, brigadas de salud comunitaria, prácticas clínicas supervisadas.",
+      publicTarget: "Estudiantes de odontología, profesores clínicos, coordinadores de brigadas.",
+      whatIncluded: ["Formularios CLIJANIS", "Sincronización en tiempo real", "Exportación PDF", "Panel de supervisión"],
+      whatNotIncluded: ["Almacenamiento permanente", "Integración con sistemas universitarios externos", "Acceso sin supervisión"],
+    },
   },
   {
     name: "enterprise",
@@ -33,7 +39,14 @@ const modulesConfig = [
     accentColor: "#D4AF37",
     glowColor: "bg-amber-500/30",
     borderGradient: "linear-gradient(135deg, rgba(212,175,55,0.5), rgba(212,175,55,0.1), transparent)",
-    route: "/enterprise",
+    moduleInfo: {
+      whatItDemonstrates: "Flujo completo de gestión clínica: desde agendamiento hasta facturación. Multi-sucursal y multi-especialidad.",
+      problemItSolves: "Fragmentación operativa en clínicas con múltiples especialidades. Pérdida de información entre departamentos.",
+      contextOfUse: "Clínicas odontológicas privadas, consultorios con múltiples especialistas, franquicias dentales.",
+      publicTarget: "Directores de clínica, administradores, odontólogos titulares.",
+      whatIncluded: ["Gestión multi-sucursal", "Formularios por especialidad", "Dashboard administrativo", "Reportes financieros"],
+      whatNotIncluded: ["Migración de datos existentes", "Soporte 24/7", "Integraciones personalizadas"],
+    },
   },
   {
     name: "motor-neuronal",
@@ -46,7 +59,14 @@ const modulesConfig = [
     accentColor: "#10B981",
     glowColor: "bg-emerald-500/30",
     borderGradient: "linear-gradient(135deg, rgba(16,185,129,0.5), rgba(16,185,129,0.1), transparent)",
-    route: "/app",
+    moduleInfo: {
+      whatItDemonstrates: "Generación automática de redacción clínica a partir de datos estructurados. Narrativas profesionales en segundos.",
+      problemItSolves: "El tiempo excesivo dedicado a redactar historias clínicas manualmente y la inconsistencia en la documentación.",
+      contextOfUse: "Consulta diaria, documentación legal, expedientes clínicos electrónicos.",
+      publicTarget: "Odontólogos en práctica activa, residentes, asistentes clínicos.",
+      whatIncluded: ["Generación de texto AI", "Múltiples estilos de redacción", "Edición asistida", "Exportación profesional"],
+      whatNotIncluded: ["Diagnóstico automatizado", "Recomendaciones de tratamiento", "Almacenamiento de expedientes"],
+    },
   },
   {
     name: "visor-3d",
@@ -59,7 +79,14 @@ const modulesConfig = [
     accentColor: "#8B5CF6",
     glowColor: "bg-purple-500/30",
     borderGradient: "linear-gradient(135deg, rgba(139,92,246,0.5), rgba(139,92,246,0.1), transparent)",
-    route: "/visor-3d",
+    moduleInfo: {
+      whatItDemonstrates: "Visualización interactiva de modelos 3D dentales y radiografías DICOM directamente en el navegador.",
+      problemItSolves: "La dependencia de software costoso y el envío inseguro de imágenes diagnósticas por WhatsApp o email.",
+      contextOfUse: "Planificación de implantes, ortodoncia digital, comunicación con laboratorios.",
+      publicTarget: "Imagenólogos, ortodoncistas, prostodoncistas, técnicos de laboratorio.",
+      whatIncluded: ["Visor STL interactivo", "Visor DICOM básico", "Mediciones en 3D", "Compartir vía link seguro"],
+      whatNotIncluded: ["Almacenamiento PACS", "Procesamiento de tomografías completas", "Integración con equipos de imagenología"],
+    },
   },
   {
     name: "stark",
@@ -72,7 +99,14 @@ const modulesConfig = [
     accentColor: "#EF4444",
     glowColor: "bg-red-500/30",
     borderGradient: "linear-gradient(135deg, rgba(239,68,68,0.5), rgba(239,68,68,0.1), transparent)",
-    route: "/stark",
+    moduleInfo: {
+      whatItDemonstrates: "Control de interfaces médicas mediante gestos de mano. Navegación sin contacto en entornos estériles.",
+      problemItSolves: "La necesidad de tocar pantallas contaminadas durante procedimientos quirúrgicos o consultas.",
+      contextOfUse: "Quirófanos, áreas de esterilización, presentaciones clínicas, docencia interactiva.",
+      publicTarget: "Cirujanos maxilofaciales, investigadores en HCI, innovadores en salud digital.",
+      whatIncluded: ["Hand Tracking en tiempo real", "Gestos básicos de navegación", "Integración con visor 3D"],
+      whatNotIncluded: ["Hardware especializado", "Tracking de precisión quirúrgica", "Certificación médica"],
+    },
   },
 ];
 
@@ -154,48 +188,7 @@ export default function ModulesHub() {
     setTimeout(() => setShowHub(true), 100);
   };
 
-  // Determine module access based on DB state
-  const getModuleAccess = (moduleName: string) => {
-    const state = modulesState[moduleName];
-    if (!state) {
-      return { isActive: false, isSecret: false, isBlocked: true };
-    }
-
-    const isSecret = state.status === 'classified';
-    const isBlocked = state.status === 'blocked' || !state.is_enabled;
-    const isActive = state.is_enabled && state.status === 'active';
-
-    return { isActive, isSecret, isBlocked };
-  };
-
-  const getStatusLabel = (moduleName: string) => {
-    const state = modulesState[moduleName];
-    if (!state) return "Cargando...";
-
-    if (state.status === 'classified') return "Clasificado";
-    if (state.status === 'blocked') return "Bloqueado";
-    if (!state.is_enabled) return "Deshabilitado";
-    if (state.status === 'beta') return "Beta";
-    if (state.status === 'active' && state.is_enabled) return "Acceder";
-    return "Próximamente";
-  };
-
-  const handleModuleClick = (module: typeof modulesConfig[0]) => {
-    const access = getModuleAccess(module.name);
-
-    if (access.isActive) {
-      sessionStorage.setItem("skipHubSplash", "true");
-      navigate(module.route);
-    } else if (access.isSecret) {
-      toast.error("🔒 Acceso Denegado", {
-        description: "Nivel de autorización insuficiente. Proyecto clasificado.",
-      });
-    } else {
-      toast.info("🚧 Módulo No Disponible", {
-        description: `${module.title} no está habilitado actualmente.`,
-      });
-    }
-  };
+  // No longer needed - access is controlled via demo links only
 
   return (
     <div className="min-h-screen bg-black">
@@ -268,32 +261,26 @@ export default function ModulesHub() {
                   <Loader2 className="h-8 w-8 animate-spin text-white/40" />
                 </div>
               ) : (
-                /* Modules Grid */
-                <div className="flex-1 flex items-center justify-center">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full">
-                    {modulesConfig.map((module, index) => {
-                      const access = getModuleAccess(module.name);
-                      return (
-                        <ModuleCard
-                          key={module.name}
-                          title={module.title}
-                          subtitle={module.subtitle}
-                          description={module.description}
-                          icon={module.icon}
-                          badge={module.badge}
-                          gradient={module.gradient}
-                          accentColor={module.accentColor}
-                          glowColor={module.glowColor}
-                          borderGradient={module.borderGradient}
-                          isActive={access.isActive}
-                          isSecret={access.isSecret}
-                          isBlocked={access.isBlocked}
-                          statusLabel={getStatusLabel(module.name)}
-                          onClick={() => handleModuleClick(module)}
-                          delay={0.4 + index * 0.1}
-                        />
-                      );
-                    })}
+                /* Modules Grid - Expandable Cards */
+                <div className="flex-1 flex items-start justify-center py-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl w-full items-start">
+                    {modulesConfig.map((module, index) => (
+                      <ExpandableModuleCard
+                        key={module.name}
+                        name={module.name}
+                        title={module.title}
+                        subtitle={module.subtitle}
+                        description={module.description}
+                        icon={module.icon}
+                        badge={module.badge}
+                        gradient={module.gradient}
+                        accentColor={module.accentColor}
+                        glowColor={module.glowColor}
+                        borderGradient={module.borderGradient}
+                        moduleInfo={module.moduleInfo}
+                        delay={0.4 + index * 0.1}
+                      />
+                    ))}
                   </div>
                 </div>
               )}
