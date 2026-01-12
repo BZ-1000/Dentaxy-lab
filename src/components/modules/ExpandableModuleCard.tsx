@@ -27,6 +27,7 @@ interface ExpandableModuleCardProps {
   moduleInfo: ModuleInfo;
   delay?: number;
   prefilledToken?: string;
+  isClassified?: boolean;
 }
 
 export function ExpandableModuleCard({
@@ -43,11 +44,14 @@ export function ExpandableModuleCard({
   moduleInfo,
   delay = 0,
   prefilledToken,
+  isClassified = false,
 }: ExpandableModuleCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAccessPanel, setShowAccessPanel] = useState(false);
 
   const handleCardClick = () => {
+    // Proyecto Stark no es expandible
+    if (isClassified) return;
     if (!showAccessPanel) {
       setIsExpanded(!isExpanded);
     }
@@ -70,8 +74,9 @@ export function ExpandableModuleCard({
       transition={{ duration: 0.5, delay }}
       onClick={handleCardClick}
       className={cn(
-        'relative group cursor-pointer rounded-2xl p-[1px] overflow-hidden',
-        'transition-all duration-300'
+        'relative group rounded-2xl p-[1px] overflow-hidden',
+        'transition-all duration-300',
+        isClassified ? 'cursor-default' : 'cursor-pointer'
       )}
       style={{
         background: borderGradient,
@@ -109,17 +114,20 @@ export function ExpandableModuleCard({
             <span
               className={cn(
                 'text-[10px] font-bold tracking-wider px-3 py-1 rounded-full',
-                'border uppercase bg-white/10 border-white/20 text-white/70'
+                'border uppercase bg-white/10 border-white/20 text-white/70',
+                isClassified && 'bg-red-500/20 border-red-500/30 text-red-400'
               )}
             >
               {badge}
             </span>
-            <motion.div
-              animate={{ rotate: isExpanded ? 180 : 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ChevronDown className="h-4 w-4 text-white/40" />
-            </motion.div>
+            {!isClassified && (
+              <motion.div
+                animate={{ rotate: isExpanded ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ChevronDown className="h-4 w-4 text-white/40" />
+              </motion.div>
+            )}
           </div>
 
           {/* Icon */}
@@ -141,16 +149,18 @@ export function ExpandableModuleCard({
           <p className="text-sm font-medium text-white/60 mb-3">{subtitle}</p>
         </div>
 
-        {/* Description - always visible */}
-        <div className="relative z-10">
-          <p className="text-sm text-white/50 leading-relaxed line-clamp-3">
-            {description}
-          </p>
-        </div>
+        {/* Description - always visible (except for classified) */}
+        {!isClassified && (
+          <div className="relative z-10">
+            <p className="text-sm text-white/50 leading-relaxed whitespace-pre-line">
+              {description}
+            </p>
+          </div>
+        )}
 
         {/* Expanded content */}
         <AnimatePresence>
-          {isExpanded && !showAccessPanel && (
+          {isExpanded && !showAccessPanel && !isClassified && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
@@ -167,59 +177,24 @@ export function ExpandableModuleCard({
                   }}
                 />
 
-                {/* What it demonstrates */}
-                <div>
-                  <h4 className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-2">
-                    ✔ Qué demuestra este demo
-                  </h4>
-                  <p className="text-sm text-white/60">{moduleInfo.whatItDemonstrates}</p>
+                {/* Micro-section points */}
+                <div className="space-y-2">
+                  {moduleInfo.whatIncluded.map((item, i) => (
+                    <p key={i} className="text-sm text-white/60 flex items-start gap-2">
+                      <span style={{ color: accentColor }}>•</span>
+                      {item}
+                    </p>
+                  ))}
                 </div>
 
-                {/* Problem it solves */}
-                <div>
-                  <h4 className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-2">
-                    ✔ Qué problema resuelve
-                  </h4>
-                  <p className="text-sm text-white/60">{moduleInfo.problemItSolves}</p>
-                </div>
-
-                {/* Context */}
-                <div>
-                  <h4 className="text-xs font-semibold text-white/80 uppercase tracking-wider mb-2">
-                    ✔ En qué contexto se usa
-                  </h4>
-                  <p className="text-sm text-white/60">{moduleInfo.contextOfUse}</p>
-                </div>
-
-                {/* What's included */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <h4 className="text-xs font-semibold text-emerald-400/80 uppercase tracking-wider mb-2">
-                      Incluye
-                    </h4>
-                    <ul className="space-y-1">
-                      {moduleInfo.whatIncluded.map((item, i) => (
-                        <li key={i} className="text-xs text-white/50 flex items-start gap-1">
-                          <span className="text-emerald-500">•</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
+                {/* Closing statement */}
+                {moduleInfo.whatItDemonstrates && (
+                  <div className="pt-2">
+                    <p className="text-sm text-white/70 italic">
+                      {moduleInfo.whatItDemonstrates}
+                    </p>
                   </div>
-                  <div>
-                    <h4 className="text-xs font-semibold text-red-400/80 uppercase tracking-wider mb-2">
-                      No incluye
-                    </h4>
-                    <ul className="space-y-1">
-                      {moduleInfo.whatNotIncluded.map((item, i) => (
-                        <li key={i} className="text-xs text-white/50 flex items-start gap-1">
-                          <span className="text-red-500">•</span>
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+                )}
 
                 {/* CTA Button */}
                 <button
