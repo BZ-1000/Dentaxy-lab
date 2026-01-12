@@ -41,6 +41,9 @@ import ShopLogin from './pages/shop/ShopLogin';
 import Shop from './pages/shop/Shop';
 import { ShopAuthProvider } from './contexts/ShopAuthContext';
 
+// Demo Académico UAO
+import { AcademicoDemo, ClinicaView } from './pages/academico';
+
 // Component to initialize global tracking
 const GlobalTracker = () => {
   useGlobalMetrics(); // Initialize all metrics tracking globally
@@ -103,6 +106,10 @@ function App() {
                 
                 {/* Redireccion legacy de auth */}
                 <Route path="/auth/*" element={<Navigate to="/hub" replace />} />
+                
+                {/* Demo Académico UAO */}
+                <Route path="/academico" element={<AcademicoDemo />} />
+                <Route path="/academico/:clinicaId" element={<ClinicaView />} />
                 
                 {/* App - Acceso libre */}
                 <Route path="/app" element={<Index />} />
