@@ -29,23 +29,16 @@ export const AcademicoProvider: React.FC<AcademicoProviderProps> = ({ children }
   const [sesionUsuario, setSesionUsuario] = useState<SesionUsuario | null>(null);
   const [tiempoRestante, setTiempoRestante] = useState<number>(0);
 
-  // Cargar sesión desde sessionStorage
-  useEffect(() => {
-    const storedSession = sessionStorage.getItem('demo_user_info');
-    if (storedSession) {
-      try {
-        const parsed = JSON.parse(storedSession);
-        setSesionUsuario({
-          nombre: parsed.fullName || 'Usuario Demo',
-          ubicacion: parsed.location || { lat: 0, lng: 0 },
-          inicioSesion: new Date(parsed.createdAt || Date.now()),
-          expiracion: new Date(parsed.expiresAt || Date.now() + 3600000)
-        });
-      } catch (e) {
-        console.error('Error parsing session:', e);
-      }
-    }
-  }, []);
+  // Cargar sesión desde useDemoSession hook (se sincroniza automáticamente)
+  // La sesión se puede establecer externamente
+  const initializeSesion = (nombre: string, expiresAt: Date) => {
+    setSesionUsuario({
+      nombre,
+      ubicacion: { lat: 0, lng: 0 },
+      inicioSesion: new Date(),
+      expiracion: expiresAt
+    });
+  };
 
   // Actualizar tiempo restante
   useEffect(() => {
@@ -72,7 +65,7 @@ export const AcademicoProvider: React.FC<AcademicoProviderProps> = ({ children }
 
   const salirDemo = () => {
     sessionStorage.removeItem('demo_session_token');
-    sessionStorage.removeItem('demo_user_info');
+    sessionStorage.removeItem('demo_module');
     setClinicaActual(null);
     setSesionUsuario(null);
     window.location.href = '/hub';
