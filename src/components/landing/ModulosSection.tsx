@@ -7,8 +7,8 @@ import { Button } from "@/components/ui/button";
 
 const modules = [
   {
-    title: "Motor Neuronal",
-    subtitle: "IA Clínica",
+    title: "AI ACTIVO",
+    subtitle: "Motor Neuronal",
     icon: Brain,
     badge: "Activo",
     gradient: "from-emerald-500 to-teal-500",
@@ -16,68 +16,68 @@ const modules = [
     isActive: true,
     route: "/app",
     features: [
-      "Redacción clínica automatizada",
-      "Lenguaje médico estandarizado",
-      "Exportación PDF profesional",
+      "Narrativa clínica profesional",
+      "Coherencia documental",
+      "Documentación con peso legal",
     ],
-    description: "Transforma datos crudos en narrativa profesional. Analiza padecimientos, antecedentes y exploraciones para generar historias clínicas completas en segundos.",
+    description: "El clínico piensa. El sistema redacta. La historia clínica ya no se escribe. Se construye.",
   },
   {
-    title: "Académico",
-    subtitle: "Educación",
+    title: "UAZ SYNC",
+    subtitle: "Académico",
     icon: GraduationCap,
-    badge: "Próximamente",
+    badge: "Infraestructura",
     gradient: "from-blue-500 to-cyan-500",
     glowColor: "blue",
     isActive: false,
     features: [
-      "Integración universitaria",
-      "Seguimiento de casos",
-      "Evaluación automática",
+      "Clínicas universitarias conectadas",
+      "Operación geolocalizada",
+      "Supervisión institucional silenciosa",
     ],
-    description: "Módulo diseñado para instituciones educativas y estudiantes de odontología con herramientas de seguimiento y evaluación.",
+    description: "Donde la formación clínica deja de ser teoría. Cada dato capturado tiene un propósito.",
   },
   {
-    title: "Enterprise",
-    subtitle: "Clínicas",
+    title: "ENTERPRISE",
+    subtitle: "Clínicas Premium",
     icon: Building2,
-    badge: "Próximamente",
+    badge: "Arquitectura",
     gradient: "from-purple-500 to-pink-500",
     glowColor: "purple",
     isActive: false,
     features: [
-      "Gestión multi-usuario",
-      "Dashboard administrativo",
-      "Reportes avanzados",
+      "Arquitectura multi-entorno",
+      "Control administrativo central",
+      "Seguridad por diseño",
     ],
-    description: "Solución empresarial para clínicas y consultorios dentales con múltiples profesionales y control granular.",
+    description: "La operación clínica como sistema. Aquí no se improvisa. Se gobierna.",
   },
   {
-    title: "Visualización 3D",
-    subtitle: "Modelos",
+    title: "DICOM",
+    subtitle: "Visualización 3D",
     icon: Box,
-    badge: "Próximamente",
+    badge: "Interactivo",
     gradient: "from-orange-500 to-amber-500",
     glowColor: "orange",
     isActive: false,
     features: [
-      "Modelos STL, PLY, OBJ",
-      "Manipulación en tiempo real",
-      "Herramientas de anotación",
+      "Modelos 3D interactivos",
+      "Comunicación visual precisa",
+      "Contexto clínico real",
     ],
-    description: "Visualización interactiva de modelos dentales en 3D para diagnóstico, presentación y planificación de tratamientos.",
+    description: "Ver no es suficiente. Hay que interactuar. La imagen también decide.",
   },
   {
-    title: "Proyecto Stark",
+    title: "PROYECTO STARK",
     subtitle: "Clasificado",
     icon: Shield,
-    badge: "Bloqueado",
+    badge: "Clasificado",
     gradient: "from-red-500 to-rose-500",
     glowColor: "red",
     isActive: false,
     isSecret: true,
-    features: ["Información clasificada"],
-    description: "Este proyecto requiere autorización especial para acceder a su información.",
+    features: [],
+    description: "",
   },
 ];
 
@@ -138,7 +138,7 @@ export const ModulosSection = () => {
         transition={{ duration: 0.6 }}
         className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground text-center mb-3 sm:mb-4"
       >
-        Explora nuestros módulos
+        Infraestructura modular
       </motion.h2>
       <motion.p
         initial={{ opacity: 0, y: 20 }}
@@ -146,7 +146,7 @@ export const ModulosSection = () => {
         transition={{ duration: 0.6, delay: 0.1 }}
         className="text-muted-foreground text-center mb-8 sm:mb-10 max-w-lg text-sm sm:text-base px-4"
       >
-        Cada módulo está diseñado para potenciar una dimensión de tu práctica odontológica.
+        No ofrecemos herramientas. Construimos dependencias estratégicas.
       </motion.p>
 
       <motion.div 
@@ -234,9 +234,9 @@ export const ModulosSection = () => {
                       </div>
                     </div>
 
-                    {/* Expanded Content */}
+                    {/* Expanded Content - Not for secret modules */}
                     <AnimatePresence>
-                      {isExpanded && (
+                      {isExpanded && !mod.isSecret && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
@@ -252,22 +252,24 @@ export const ModulosSection = () => {
                               </p>
                               
                               {/* Features */}
-                              <ul className="space-y-2">
-                                {mod.features.map((feature, idx) => (
-                                  <motion.li
-                                    key={idx}
-                                    initial={{ opacity: 0, x: -20 }}
-                                    animate={{ opacity: 1, x: 0 }}
-                                    transition={{ delay: idx * 0.1 }}
-                                    className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground"
-                                  >
-                                    <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center bg-gradient-to-br ${mod.gradient} flex-shrink-0`}>
-                                      <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
-                                    </div>
-                                    {feature}
-                                  </motion.li>
-                                ))}
-                              </ul>
+                              {mod.features.length > 0 && (
+                                <ul className="space-y-2">
+                                  {mod.features.map((feature, idx) => (
+                                    <motion.li
+                                      key={idx}
+                                      initial={{ opacity: 0, x: -20 }}
+                                      animate={{ opacity: 1, x: 0 }}
+                                      transition={{ delay: idx * 0.1 }}
+                                      className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground"
+                                    >
+                                      <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center bg-gradient-to-br ${mod.gradient} flex-shrink-0`}>
+                                        <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
+                                      </div>
+                                      {feature}
+                                    </motion.li>
+                                  ))}
+                                </ul>
+                              )}
                             </div>
 
                             {/* CTA */}
