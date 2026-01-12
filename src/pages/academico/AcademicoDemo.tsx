@@ -8,45 +8,42 @@ import { AdminPanelSimulado } from '@/components/academico/AdminPanelSimulado';
 import { ClinicasGrid } from '@/components/academico/ClinicasGrid';
 import { SesionActivaBar } from '@/components/academico/SesionActivaBar';
 import { Button } from '@/components/ui/button';
+import { useDemoSession } from '@/hooks/useDemoSession';
 
 const AcademicoDemoContent: React.FC = () => {
   const navigate = useNavigate();
   const [sesionValida, setSesionValida] = useState<boolean | null>(null);
+  const { verifySession, moduleAccessed, isValid, fullName, expiresAt } = useDemoSession();
 
   useEffect(() => {
     // Verificar sesión Zero-Trust
-    const verificarSesion = () => {
+    const verificarSesion = async () => {
       const token = sessionStorage.getItem('demo_session_token');
-      const userInfo = sessionStorage.getItem('demo_user_info');
+      const module = sessionStorage.getItem('demo_module');
 
-      if (!token || !userInfo) {
+      if (!token) {
         setSesionValida(false);
         return;
       }
 
-      try {
-        const parsed = JSON.parse(userInfo);
-        const expiracion = new Date(parsed.expiresAt);
-        
-        if (expiracion < new Date()) {
-          setSesionValida(false);
-          return;
-        }
+      // Verificar que el módulo sea académico
+      if (module !== 'academico') {
+        setSesionValida(false);
+        return;
+      }
 
-        // Verificar que el módulo sea académico
-        if (parsed.module !== 'academico') {
-          setSesionValida(false);
-          return;
-        }
-
+      // Verificar sesión con el servidor
+      const isSessionValid = await verifySession(token);
+      
+      if (isSessionValid) {
         setSesionValida(true);
-      } catch (e) {
+      } else {
         setSesionValida(false);
       }
     };
 
     verificarSesion();
-  }, []);
+  }, [verifySession]);
 
   // Loading
   if (sesionValida === null) {

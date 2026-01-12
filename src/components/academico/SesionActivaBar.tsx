@@ -1,11 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, MapPin, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAcademico } from '@/contexts/AcademicoContext';
+import { useDemoSession } from '@/hooks/useDemoSession';
 
 export const SesionActivaBar: React.FC = () => {
-  const { sesionUsuario, tiempoRestante, clinicaActual, salirDemo } = useAcademico();
+  const { clinicaActual, salirDemo } = useAcademico();
+  const { fullName, expiresAt, isValid } = useDemoSession();
+  const [tiempoRestante, setTiempoRestante] = useState<number>(0);
+
+  // Calcular tiempo restante
+  useEffect(() => {
+    if (!expiresAt) return;
+
+    const updateTime = () => {
+      const now = new Date();
+      const diff = Math.max(0, Math.floor((expiresAt.getTime() - now.getTime()) / 1000));
+      setTiempoRestante(diff);
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+
+    return () => clearInterval(interval);
+  }, [expiresAt]);
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -13,7 +32,7 @@ export const SesionActivaBar: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (!sesionUsuario) return null;
+  if (!isValid || !fullName) return null;
 
   const isLowTime = tiempoRestante < 300; // menos de 5 minutos
 
@@ -28,7 +47,7 @@ export const SesionActivaBar: React.FC = () => {
           {/* Usuario */}
           <div className="flex items-center gap-2 text-sm">
             <User className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">{sesionUsuario.nombre}</span>
+            <span className="font-medium">{fullName}</span>
           </div>
 
           {/* Clínica actual */}
