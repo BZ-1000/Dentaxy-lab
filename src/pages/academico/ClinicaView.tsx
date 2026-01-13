@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Sparkles, FileText, ArrowLeft, Zap, Send } from 'lucide-react';
+import { Sparkles, FileText, ArrowLeft } from 'lucide-react';
 import { getClinicaById, ClinicaUAO } from '@/data/clinicasUAO';
-import { SmileSimulacion } from '@/components/academico/SmileSimulacion';
 import { VistaDocumento } from '@/components/academico/VistaDocumento';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { SesionActivaBar } from '@/components/academico/SesionActivaBar';
 import { useDemoSession } from '@/hooks/useDemoSession';
+import { ClimuzacView } from '@/pages/academico/ClimuzacView';
 
 const seccionesDemo = [
   { id: 'motivo', titulo: 'Motivo de Consulta', placeholder: 'El paciente refiere...' },
@@ -21,13 +21,12 @@ const seccionesDemo = [
 export const ClinicaView: React.FC = () => {
   const { clinicaId } = useParams<{ clinicaId: string }>();
   const navigate = useNavigate();
-  const { verifySession, isValid } = useDemoSession();
+  const { verifySession } = useDemoSession();
   
   const [clinica, setClinica] = useState<ClinicaUAO | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [generandoIA, setGenerandoIA] = useState<string | null>(null);
   const [mostrarDocumento, setMostrarDocumento] = useState(false);
-  const [datosSmile, setDatosSmile] = useState<Record<string, string>>({});
   const [sesionValida, setSesionValida] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -72,36 +71,14 @@ export const ClinicaView: React.FC = () => {
     
     const textoGenerado = respuestasDemo[seccionId] || '';
     setFormData(prev => ({ ...prev, [seccionId]: textoGenerado }));
-    
-    // If CLIMUZAC, send to Smile
-    if (clinica?.tipo === 'integracion') {
-      const seccion = seccionesDemo.find(s => s.id === seccionId);
-      if (seccion) {
-        setTimeout(() => {
-          setDatosSmile(prev => ({ ...prev, [seccion.titulo]: textoGenerado }));
-        }, 500);
-      }
-    }
-    
     setGenerandoIA(null);
   };
 
   const handleGenerarHistoria = () => {
-    // Map form data to Smile sections
-    const mappedData: Record<string, string> = {
-      'Motivo de Consulta': formData.motivo || '',
-      'Antecedentes Patológicos': formData.antecedentes || '',
-      'Exploración Física': formData.exploracion || '',
-      'Diagnóstico': formData.diagnostico || '',
-      'Plan de Tratamiento': formData.tratamiento || '',
-      'Observaciones': 'Historia clínica generada con asistencia de Dentaxy IA.',
-    };
-    
-    setDatosSmile(mappedData);
     setMostrarDocumento(true);
   };
 
-  // Loading or invalid session states
+  // Loading state
   if (sesionValida === null) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -113,11 +90,13 @@ export const ClinicaView: React.FC = () => {
     );
   }
 
+  // Invalid session
   if (!sesionValida) {
     navigate('/academico');
     return null;
   }
 
+  // Clinic not found
   if (!clinica) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -129,141 +108,9 @@ export const ClinicaView: React.FC = () => {
     );
   }
 
-  // CLIMUZAC - Split view integration
+  // CLIMUZAC - Use specialized view for integration type
   if (clinica.tipo === 'integracion') {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        {/* Header */}
-        <header className="sticky top-0 z-50 backdrop-blur-xl bg-background/80 border-b border-border/50">
-          <div className="container flex items-center justify-between h-16 px-4">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => navigate('/academico')}
-                className="rounded-full"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div>
-                <h1 className="text-lg font-black">{clinica.nombre}</h1>
-                <p className="text-xs text-muted-foreground">{clinica.subtitulo}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <Zap className="h-3.5 w-3.5 text-emerald-500" />
-              <span className="text-xs font-medium text-emerald-600">Integración Activa</span>
-            </div>
-          </div>
-        </header>
-
-        {/* Split Content */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 min-h-[calc(100vh-64px-56px)]">
-          {/* Left: Smile System (Legacy) */}
-          <div className="border-r border-border overflow-hidden">
-            <SmileSimulacion datosRecibidos={datosSmile} />
-          </div>
-
-          {/* Right: Dentaxy IA */}
-          <div className="flex flex-col bg-gradient-to-br from-background to-emerald-500/5 overflow-hidden">
-            {/* Dentaxy Header */}
-            <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4 flex-shrink-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Sparkles className="h-6 w-6 text-white" />
-                  <div>
-                    <h2 className="text-lg font-black text-white">DENTAXY IA</h2>
-                    <p className="text-xs text-white/80">Motor de Redacción Clínica</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Form Sections */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {seccionesDemo.map((seccion, index) => (
-                <motion.div
-                  key={seccion.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-foreground">
-                      {seccion.titulo}
-                    </label>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleGenerarIA(seccion.id)}
-                      disabled={generandoIA === seccion.id}
-                      className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10"
-                    >
-                      {generandoIA === seccion.id ? (
-                        <div className="h-4 w-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <>
-                          <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                          Generar con IA
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <Textarea
-                    value={formData[seccion.id] || ''}
-                    onChange={(e) => setFormData(prev => ({ ...prev, [seccion.id]: e.target.value }))}
-                    placeholder={seccion.placeholder}
-                    className="min-h-[100px] resize-none border-border/50 focus:border-emerald-500/50"
-                  />
-                  {datosSmile[seccion.titulo] && (
-                    <div className="flex items-center gap-1 text-xs text-emerald-600">
-                      <Send className="h-3 w-3" />
-                      <span>Enviado a Smile</span>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Action Footer */}
-            <div className="p-6 border-t border-border/50 bg-background/50 flex-shrink-0">
-              <Button
-                onClick={handleGenerarHistoria}
-                className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold"
-              >
-                <Send className="h-4 w-4 mr-2" />
-                Enviar a Sistema Smile
-              </Button>
-              <p className="text-xs text-center text-muted-foreground mt-3">
-                Los datos se transferirán automáticamente al sistema institucional
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <SesionActivaBar />
-
-        {/* Document Modal */}
-        {mostrarDocumento && (
-          <VistaDocumento 
-            clinica={clinica}
-            datos={{
-              paciente: 'Paciente Demo',
-              contenido: {
-                'Motivo de Consulta': formData.motivo || '',
-                'Antecedentes': formData.antecedentes || '',
-                'Exploración Física': formData.exploracion || '',
-                'Diagnóstico': formData.diagnostico || '',
-                'Plan de Tratamiento': formData.tratamiento || '',
-              }
-            }}
-            visible={mostrarDocumento}
-            onClose={() => setMostrarDocumento(false)}
-          />
-        )}
-      </div>
-    );
+    return <ClimuzacView />;
   }
 
   // Other clinics - Standard view
