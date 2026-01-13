@@ -2,21 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Shield, AlertCircle } from 'lucide-react';
-import { AcademicoProvider } from '@/contexts/AcademicoContext';
 import { DemoHeader } from '@/components/academico/DemoHeader';
+import { HeroAcademico } from '@/components/academico/HeroAcademico';
 import { AdminPanelSimulado } from '@/components/academico/AdminPanelSimulado';
 import { ClinicasGrid } from '@/components/academico/ClinicasGrid';
 import { SesionActivaBar } from '@/components/academico/SesionActivaBar';
 import { Button } from '@/components/ui/button';
 import { useDemoSession } from '@/hooks/useDemoSession';
 
-const AcademicoDemoContent: React.FC = () => {
+export const AcademicoDemoContent: React.FC = () => {
   const navigate = useNavigate();
   const [sesionValida, setSesionValida] = useState<boolean | null>(null);
-  const { verifySession, moduleAccessed, isValid, fullName, expiresAt } = useDemoSession();
+  const { verifySession } = useDemoSession();
 
   useEffect(() => {
-    // Verificar sesión Zero-Trust
     const verificarSesion = async () => {
       const token = sessionStorage.getItem('demo_session_token');
       const module = sessionStorage.getItem('demo_module');
@@ -26,20 +25,13 @@ const AcademicoDemoContent: React.FC = () => {
         return;
       }
 
-      // Verificar que el módulo sea académico
       if (module !== 'academico') {
         setSesionValida(false);
         return;
       }
 
-      // Verificar sesión con el servidor
       const isSessionValid = await verifySession(token);
-      
-      if (isSessionValid) {
-        setSesionValida(true);
-      } else {
-        setSesionValida(false);
-      }
+      setSesionValida(isSessionValid);
     };
 
     verificarSesion();
@@ -54,38 +46,41 @@ const AcademicoDemoContent: React.FC = () => {
           animate={{ opacity: 1 }}
           className="flex flex-col items-center gap-4"
         >
-          <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground">Verificando sesión...</p>
+          <div className="h-10 w-10 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground">Verificando sesión Zero-Trust...</p>
         </motion.div>
       </div>
     );
   }
 
-  // Sesión inválida
+  // Invalid session
   if (!sesionValida) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full bg-card border border-border rounded-2xl p-8 text-center"
+          className="max-w-md w-full bg-card border border-border rounded-3xl p-10 text-center shadow-2xl"
         >
-          <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-            <AlertCircle className="h-8 w-8 text-destructive" />
+          <div className="mx-auto w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mb-6">
+            <AlertCircle className="h-10 w-10 text-destructive" />
           </div>
           
-          <h2 className="text-xl font-bold mb-2">Acceso No Autorizado</h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            Para acceder al demo UAO Sync necesitas un enlace de acceso válido 
+          <h2 className="text-2xl font-black mb-3">Acceso No Autorizado</h2>
+          <p className="text-muted-foreground mb-8 leading-relaxed">
+            Para acceder al demo UAO SYNC necesitas un enlace de acceso válido 
             generado desde el panel de administración.
           </p>
           
-          <div className="flex flex-col gap-3">
-            <Button onClick={() => navigate('/hub')} className="w-full">
+          <div className="flex flex-col gap-4">
+            <Button 
+              onClick={() => navigate('/hub')} 
+              className="w-full h-12 text-base font-semibold"
+            >
               Volver al Hub
             </Button>
-            <p className="text-xs text-muted-foreground">
-              <Shield className="inline h-3 w-3 mr-1" />
+            <p className="text-xs text-muted-foreground flex items-center justify-center gap-2">
+              <Shield className="h-3.5 w-3.5" />
               Sistema Zero-Trust activado
             </p>
           </div>
@@ -94,14 +89,18 @@ const AcademicoDemoContent: React.FC = () => {
     );
   }
 
-  // Demo activo
+  // Demo activo - Main view
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <DemoHeader />
+      <DemoHeader showBack={true} onBack={() => navigate('/hub')} />
       <AdminPanelSimulado />
       
-      <main className="flex-1 container py-8 px-4 pb-20">
-        <ClinicasGrid />
+      <main className="flex-1">
+        <HeroAcademico />
+        
+        <div className="container px-4 pb-24">
+          <ClinicasGrid />
+        </div>
       </main>
 
       <SesionActivaBar />
@@ -110,11 +109,7 @@ const AcademicoDemoContent: React.FC = () => {
 };
 
 export const AcademicoDemo: React.FC = () => {
-  return (
-    <AcademicoProvider>
-      <AcademicoDemoContent />
-    </AcademicoProvider>
-  );
+  return <AcademicoDemoContent />;
 };
 
 export default AcademicoDemo;

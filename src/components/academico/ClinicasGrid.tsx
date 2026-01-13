@@ -1,59 +1,57 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { clinicasUAO } from '@/data/clinicasUAO';
+import { motion } from 'framer-motion';
 import { ClinicaCard } from './ClinicaCard';
-import { useAcademico } from '@/contexts/AcademicoContext';
+import { clinicasUAO } from '@/data/clinicasUAO';
 
 export const ClinicasGrid: React.FC = () => {
   const navigate = useNavigate();
-  const { navegarAClinica } = useAcademico();
 
   const handleClinicaClick = (clinicaId: string) => {
-    navegarAClinica(clinicaId);
     navigate(`/academico/${clinicaId}`);
   };
 
   return (
-    <div className="w-full">
-      {/* Header */}
+    <section className="py-8">
+      {/* Section Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-8"
+        transition={{ duration: 0.6 }}
+        className="text-center mb-12"
       >
-        <h2 className="text-2xl font-bold text-foreground mb-2">
-          Selecciona una Clínica
+        <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-widest mb-3">
+          Red de Nodos Clínicos
         </h2>
-        <p className="text-muted-foreground max-w-lg mx-auto">
-          Cada clínica representa un nodo del ecosistema UAO. 
-          Todas conectadas, todas estandarizadas.
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          Selecciona un nodo para acceder a su infraestructura clínica
         </p>
       </motion.div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
         {clinicasUAO.map((clinica, index) => (
           <ClinicaCard
             key={clinica.id}
             clinica={clinica}
-            index={index}
             onClick={() => handleClinicaClick(clinica.id)}
+            index={index}
           />
         ))}
       </div>
 
-      {/* Mensaje implícito */}
+      {/* Bottom note */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-8 text-center"
+        transition={{ delay: 1 }}
+        className="mt-12 text-center"
       >
-        <p className="text-xs text-muted-foreground/60 italic">
-          Los datos clínicos generados pueden agruparse por clínica, programa o zona geográfica.
+        <p className="text-xs text-muted-foreground/60 italic max-w-lg mx-auto">
+          Los datos clínicos generados se agrupan por clínica, programa o zona geográfica. 
+          Trazabilidad completa desde el primer click.
         </p>
       </motion.div>
-    </div>
+    </section>
   );
 };

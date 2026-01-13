@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { AcademicoProvider } from '@/contexts/AcademicoContext';
 import { Analytics } from '@vercel/analytics/react';
 import Index from './pages/Index';
 import Landing from './pages/Landing';
