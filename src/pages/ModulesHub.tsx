@@ -7,6 +7,7 @@ import { ExpandableModuleCard } from "@/components/modules/ExpandableModuleCard"
 import { supabase } from "@/integrations/supabase/client";
 
 // Configuración completa de módulos con información expandida - Copy Premium
+// Configuración de módulos con colores vibrantes estilo shader (magenta/cyan)
 const modulesConfig = [
   {
     name: "academico",
@@ -15,10 +16,10 @@ const modulesConfig = [
     description: "Donde la formación clínica deja de ser teoría.\n\nCada dato capturado tiene un propósito.\nCada práctica deja rastro.\nCada alumno opera dentro de un sistema mayor.\n\nEsto no es un formulario.\nEs el inicio de una red.",
     icon: GraduationCap,
     badge: "UAZ SYNC",
-    gradient: "from-blue-500/20 via-cyan-500/10 to-transparent",
-    accentColor: "#0066CC",
-    glowColor: "bg-blue-500/30",
-    borderGradient: "linear-gradient(135deg, rgba(0,102,204,0.5), rgba(0,102,204,0.1), transparent)",
+    gradient: "from-cyan-500/30 via-blue-500/20 to-transparent",
+    accentColor: "#00D4FF",
+    glowColor: "bg-cyan-500/40",
+    borderGradient: "linear-gradient(135deg, rgba(0,212,255,0.6), rgba(0,212,255,0.2), transparent)",
     moduleInfo: {
       whatItDemonstrates: "Lo que aquí se genera, no se pierde. Se transforma.",
       problemItSolves: "Clínicas universitarias conectadas. Operación geolocalizada. Datos clínicos estandarizados.",
@@ -35,10 +36,10 @@ const modulesConfig = [
     description: "La operación clínica como sistema.\n\nNo importa cuántas unidades, cuántos doctores o cuántos pacientes.\nLa información fluye.\nEl control permanece.\n\nEsto no escala clínicas.\nEstandariza decisiones.",
     icon: Building2,
     badge: "ENTERPRISE",
-    gradient: "from-amber-500/20 via-orange-500/10 to-transparent",
-    accentColor: "#D4AF37",
-    glowColor: "bg-amber-500/30",
-    borderGradient: "linear-gradient(135deg, rgba(212,175,55,0.5), rgba(212,175,55,0.1), transparent)",
+    gradient: "from-fuchsia-500/30 via-pink-500/20 to-transparent",
+    accentColor: "#FF64C8",
+    glowColor: "bg-fuchsia-500/40",
+    borderGradient: "linear-gradient(135deg, rgba(255,100,200,0.6), rgba(255,100,200,0.2), transparent)",
     moduleInfo: {
       whatItDemonstrates: "Aquí no se improvisa. Se gobierna.",
       problemItSolves: "Arquitectura multi-entorno. Flujos clínicos continuos. Control administrativo central.",
@@ -55,10 +56,10 @@ const modulesConfig = [
     description: "El clínico piensa.\nEl sistema redacta.\n\nLa narrativa se vuelve consistente, clara y reutilizable.\n\nNo es automatización.\nEs asistencia cognitiva.",
     icon: Brain,
     badge: "AI ACTIVO",
-    gradient: "from-emerald-500/20 via-teal-500/10 to-transparent",
-    accentColor: "#10B981",
-    glowColor: "bg-emerald-500/30",
-    borderGradient: "linear-gradient(135deg, rgba(16,185,129,0.5), rgba(16,185,129,0.1), transparent)",
+    gradient: "from-violet-500/30 via-purple-500/20 to-transparent",
+    accentColor: "#A855F7",
+    glowColor: "bg-violet-500/40",
+    borderGradient: "linear-gradient(135deg, rgba(168,85,247,0.6), rgba(168,85,247,0.2), transparent)",
     moduleInfo: {
       whatItDemonstrates: "La historia clínica ya no se escribe. Se construye.",
       problemItSolves: "Narrativa clínica profesional. Coherencia documental. Menos escritura, más criterio.",
@@ -75,10 +76,10 @@ const modulesConfig = [
     description: "La imagen clínica deja de ser un archivo.\nSe convierte en un espacio manipulable.\n\nDirecto. Seguro. Sin fricción.\n\nAquí la imagen no se envía.\nSe explora.",
     icon: Box,
     badge: "DICOM",
-    gradient: "from-purple-500/20 via-violet-500/10 to-transparent",
-    accentColor: "#8B5CF6",
-    glowColor: "bg-purple-500/30",
-    borderGradient: "linear-gradient(135deg, rgba(139,92,246,0.5), rgba(139,92,246,0.1), transparent)",
+    gradient: "from-teal-500/30 via-emerald-500/20 to-transparent",
+    accentColor: "#14B8A6",
+    glowColor: "bg-teal-500/40",
+    borderGradient: "linear-gradient(135deg, rgba(20,184,166,0.6), rgba(20,184,166,0.2), transparent)",
     moduleInfo: {
       whatItDemonstrates: "La imagen también decide.",
       problemItSolves: "Modelos 3D interactivos. Estudios accesibles desde cualquier dispositivo. Comunicación visual precisa.",
@@ -95,10 +96,10 @@ const modulesConfig = [
     description: "",
     icon: Hand,
     badge: "CLASIFICADO",
-    gradient: "from-red-500/20 via-rose-500/10 to-transparent",
-    accentColor: "#EF4444",
-    glowColor: "bg-red-500/30",
-    borderGradient: "linear-gradient(135deg, rgba(239,68,68,0.5), rgba(239,68,68,0.1), transparent)",
+    gradient: "from-rose-500/30 via-red-500/20 to-transparent",
+    accentColor: "#F43F5E",
+    glowColor: "bg-rose-500/40",
+    borderGradient: "linear-gradient(135deg, rgba(244,63,94,0.6), rgba(244,63,94,0.2), transparent)",
     isClassified: true,
     moduleInfo: {
       whatItDemonstrates: "",
@@ -328,10 +329,16 @@ export default function ModulesHub() {
                           initial={{ width: 0 }}
                           animate={{ width: "100%" }}
                           transition={{ duration: 2, delay: 1.2 }}
-                          className="h-full bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500"
+                          className="h-full"
+                          style={{
+                            background: "linear-gradient(90deg, #FF64C8, #64C8FF, #A855F7)",
+                          }}
                         />
                       </div>
-                      <span className="text-[10px] text-emerald-500 font-mono">
+                      <span 
+                        className="text-[10px] font-mono font-bold"
+                        style={{ color: "#FF64C8" }}
+                      >
                         SECURE CONNECTION
                       </span>
                     </div>
