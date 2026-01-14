@@ -1,430 +1,207 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import dienteLogo from "@/assets/diente-logo.png";
 
 interface ShaderSplashProps {
   onComplete: () => void;
 }
 
-const SHADER_SRC = `#version 300 es
-precision highp float;
-
-out vec4 fragColor;
-in vec2 v_uv;
-
-uniform vec3  iResolution;
-uniform float iTime;
-uniform int   iFrame;
-uniform vec4  iMouse;
-
-void mainImage(out vec4 fragColor, in vec2 fragCoord)
-{
-    vec2  r  = iResolution.xy;
-    float t  = iTime;
-    vec3  FC = vec3(fragCoord, t);
-    vec4  o  = vec4(0.0);
-    vec2 p = FC.xy - r * 0.5;
-
-    for (float i, a; i++ < 9.0; )
-    {
-        a = (i * i) / 80.0 - length(p) / r.y;
-        float denom = max(a, -a * 3.0) + 2.0 / r.y;
-        a = cos(i - t);
-        float edge0 = a;
-        float edge1 = 2.0;
-        a = atan(p.y, p.x) + a + i * i;
-        float sm = smoothstep(edge0, edge1, cos(a));
-        o += 0.03 / denom * sm * (1.2 + sin(a + i + vec4(0.0, 2.0, 4.0, 0.0)));
-    }
-
-    o = tanh(o);
-    fragColor = vec4(o.rgb, 1.0);
-}
-
-void main(){
-  mainImage(fragColor, gl_FragCoord.xy);
-}
-`;
-
-const VERT_SRC = `#version 300 es
-precision highp float;
-layout(location=0) in vec2 a_pos;
-out vec2 v_uv;
-void main(){
-  v_uv = a_pos * 0.5 + 0.5;
-  gl_Position = vec4(a_pos, 0.0, 1.0);
-}
-`;
-
-function safeCompile(gl: WebGL2RenderingContext, type: number, src: string) {
-  const sh = gl.createShader(type)!;
-  gl.shaderSource(sh, src);
-  gl.compileShader(sh);
-  const ok = gl.getShaderParameter(sh, gl.COMPILE_STATUS);
-  const log = gl.getShaderInfoLog(sh) || "";
-  return { shader: ok ? sh : null, log };
-}
-
-function safeLink(gl: WebGL2RenderingContext, vs: WebGLShader, fs: WebGLShader) {
-  const prog = gl.createProgram()!;
-  gl.attachShader(prog, vs);
-  gl.attachShader(prog, fs);
-  gl.linkProgram(prog);
-  const ok = gl.getProgramParameter(prog, gl.LINK_STATUS);
-  const log = gl.getProgramInfoLog(prog) || "";
-  return { program: ok ? prog : null, log };
-}
-
-function drawError(gl: WebGL2RenderingContext, msg: string) {
-  console.error(msg);
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  gl.clearColor(0.05, 0.0, 0.1, 1);
-  gl.clear(gl.COLOR_BUFFER_BIT);
-}
-
 export function ShaderSplash({ onComplete }: ShaderSplashProps) {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const startRef = useRef<number>(0);
-  const frameRef = useRef<number>(0);
-  const mouseRef = useRef({ x: 0, y: 0, l: 0, r: 0 });
-  
-  const [showText, setShowText] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState(0); // 0: tooth appears, 1: text emerges, 2: switch .ai/.com, 3: fade out
+  const [showDotCom, setShowDotCom] = useState(false);
 
-  // Initialize WebGL2 shader
   useEffect(() => {
-    const canvas = canvasRef.current!;
-    const gl = canvas.getContext("webgl2", { premultipliedAlpha: false });
-    if (!gl) return;
+    // Phase 0: Tooth appears (instant)
+    const timer1 = setTimeout(() => setPhase(1), 400); // Text emerges
+    const timer2 = setTimeout(() => setPhase(2), 1200); // .ai glows
+    const timer3 = setTimeout(() => setShowDotCom(true), 2000); // Switch to .com
+    const timer4 = setTimeout(() => setPhase(3), 2800); // Start fade
+    const timer5 = setTimeout(() => onComplete(), 3200); // Complete
 
-    let disposed = false;
-
-    const vao = gl.createVertexArray()!;
-    gl.bindVertexArray(vao);
-
-    const vbo = gl.createBuffer()!;
-    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    gl.enableVertexAttribArray(0);
-    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
-
-    const { shader: vs, log: vsLog } = safeCompile(gl, gl.VERTEX_SHADER, VERT_SRC);
-    if (!vs) { drawError(gl, `Vertex compile error:\n${vsLog}`); return cleanup; }
-
-    const { shader: fs, log: fsLog } = safeCompile(gl, gl.FRAGMENT_SHADER, SHADER_SRC);
-    if (!fs) { drawError(gl, `Fragment compile error:\n${fsLog}`); gl.deleteShader(vs); return cleanup; }
-
-    const { program, log: linkLog } = safeLink(gl, vs, fs);
-    gl.deleteShader(vs);
-    gl.deleteShader(fs);
-    if (!program) { drawError(gl, `Program link error:\n${linkLog}`); return cleanup; }
-
-    const uResolution = gl.getUniformLocation(program, "iResolution");
-    const uTime = gl.getUniformLocation(program, "iTime");
-    const uFrame = gl.getUniformLocation(program, "iFrame");
-    const uMouse = gl.getUniformLocation(program, "iMouse");
-
-    const getDpr = () => {
-      const sys = window.devicePixelRatio || 1;
-      return Math.max(1, Math.min(2, sys));
-    };
-
-    let resizeScheduled = false;
-    function applySize() {
-      resizeScheduled = false;
-      if (disposed) return;
-      const dpr = getDpr();
-      const cssW = Math.max(1, canvas.clientWidth | 0);
-      const cssH = Math.max(1, canvas.clientHeight | 0);
-      const w = Math.max(1, Math.floor(cssW * dpr));
-      const h = Math.max(1, Math.floor(cssH * dpr));
-      if (canvas.width !== w || canvas.height !== h) {
-        canvas.width = w;
-        canvas.height = h;
-        gl.viewport(0, 0, w, h);
-      }
-    }
-
-    function scheduleSize() {
-      if (resizeScheduled) return;
-      resizeScheduled = true;
-      requestAnimationFrame(applySize);
-    }
-
-    const ro = new ResizeObserver(scheduleSize);
-    ro.observe(canvas);
-    scheduleSize();
-
-    function onMove(e: MouseEvent) {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      mouseRef.current.x = Math.max(0, Math.min(x, rect.width));
-      mouseRef.current.y = Math.max(0, Math.min(rect.height - y, rect.height));
-    }
-
-    function onDown(e: MouseEvent) {
-      if (e.button === 0) mouseRef.current.l = 1;
-      if (e.button === 2) mouseRef.current.r = 1;
-    }
-
-    function onUp(e: MouseEvent) {
-      if (e.button === 0) mouseRef.current.l = 0;
-      if (e.button === 2) mouseRef.current.r = 0;
-    }
-
-    canvas.addEventListener("mousemove", onMove);
-    canvas.addEventListener("mousedown", onDown);
-    canvas.addEventListener("mouseup", onUp);
-    canvas.addEventListener("contextmenu", (e) => e.preventDefault());
-
-    function onContextLost(ev: Event) {
-      ev.preventDefault();
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = null;
-    }
-
-    function onContextRestored() {
-      scheduleSize();
-      startRef.current = performance.now();
-      frameRef.current = 0;
-      if (!rafRef.current) rafRef.current = requestAnimationFrame(tick);
-    }
-
-    canvas.addEventListener("webglcontextlost", onContextLost);
-    canvas.addEventListener("webglcontextrestored", onContextRestored);
-
-    startRef.current = performance.now();
-    frameRef.current = 0;
-
-    function tick(now: number) {
-      if (disposed) return;
-      if (gl.isContextLost()) {
-        rafRef.current = requestAnimationFrame(tick);
-        return;
-      }
-
-      const t = (now - startRef.current) / 1000;
-      frameRef.current += 1;
-
-      try {
-        gl.useProgram(program);
-        if (resizeScheduled) applySize();
-        const dpr = getDpr();
-        const w = canvas.width, h = canvas.height;
-        uResolution && gl.uniform3f(uResolution, w, h, dpr);
-        uTime && gl.uniform1f(uTime, t);
-        uFrame && gl.uniform1i(uFrame, frameRef.current);
-        if (uMouse) {
-          const m = mouseRef.current;
-          gl.uniform4f(uMouse, m.x * dpr, m.y * dpr, m.l, m.r);
-        }
-        gl.bindVertexArray(vao);
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
-      } catch (err) {
-        drawError(gl, (err as Error)?.message ?? String(err));
-      }
-
-      rafRef.current = requestAnimationFrame(tick);
-    }
-
-    rafRef.current = requestAnimationFrame(tick);
-
-    function cleanup() {
-      disposed = true;
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      canvas.removeEventListener("mousemove", onMove);
-      canvas.removeEventListener("mousedown", onDown);
-      canvas.removeEventListener("mouseup", onUp);
-      canvas.removeEventListener("webglcontextlost", onContextLost);
-      canvas.removeEventListener("webglcontextrestored", onContextRestored);
-      ro.disconnect();
-      try { gl.deleteBuffer(vbo); } catch {}
-      try { gl.deleteVertexArray(vao); } catch {}
-    }
-
-    return cleanup;
-  }, []);
-
-  // Show text and progress animation
-  useEffect(() => {
-    const textTimer = setTimeout(() => setShowText(true), 200);
-    
-    // Progress animation
-    const progressInterval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(progressInterval);
-          setTimeout(() => onComplete(), 400);
-          return 100;
-        }
-        return prev + Math.random() * 15 + 5;
-      });
-    }, 200);
-    
     return () => {
-      clearTimeout(textTimer);
-      clearInterval(progressInterval);
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
+      clearTimeout(timer5);
     };
   }, [onComplete]);
 
   return (
-    <motion.div
-      initial={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-[100000]"
-      style={{ background: "black" }}
-    >
-      {/* Shader Canvas */}
-      <canvas
-        ref={canvasRef}
-        style={{ width: "100%", height: "100%", display: "block" }}
-      />
-
-      {/* Content Overlay */}
-      <AnimatePresence>
-        {showText && (
+    <AnimatePresence>
+      {phase < 3 && (
+        <motion.div
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
+          className="fixed inset-0 z-[100000] bg-black flex items-center justify-center"
+        >
+          {/* Subtle radial glow behind tooth */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
-          >
-            {/* Central content container */}
-            <div className="relative text-center px-8">
-              {/* Glowing backdrop to ensure text readability */}
-              <div
-                className="absolute inset-0 -z-10"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 0.15, scale: 1 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="absolute w-[300px] h-[300px] md:w-[400px] md:h-[400px]"
+            style={{
+              background: "radial-gradient(circle, rgba(100,200,255,0.3) 0%, transparent 70%)",
+            }}
+          />
+
+          {/* Central container */}
+          <div className="relative flex flex-col items-center">
+            {/* Tooth Icon */}
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ 
+                scale: 1, 
+                opacity: 1,
+              }}
+              transition={{ 
+                duration: 0.5, 
+                ease: [0.34, 1.56, 0.64, 1], // Spring-like
+              }}
+              className="relative"
+            >
+              {/* Glow ring around tooth */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ 
+                  opacity: phase >= 1 ? [0.3, 0.6, 0.3] : 0,
+                  scale: phase >= 1 ? [1, 1.1, 1] : 0.8,
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute inset-0 -m-4"
                 style={{
-                  background: "radial-gradient(ellipse at center, rgba(0,0,0,0.7) 0%, transparent 70%)",
-                  transform: "scale(3)",
+                  background: "radial-gradient(circle, rgba(59,130,246,0.4) 0%, transparent 70%)",
+                  filter: "blur(8px)",
                 }}
               />
+              
+              <img
+                src={dienteLogo}
+                alt="Dentaxy"
+                className="w-12 h-12 md:w-16 md:h-16 relative z-10"
+                style={{
+                  filter: phase >= 1 
+                    ? "drop-shadow(0 0 20px rgba(59,130,246,0.6)) drop-shadow(0 0 40px rgba(59,130,246,0.3))" 
+                    : "none",
+                  transition: "filter 0.5s ease",
+                }}
+              />
+            </motion.div>
 
-              {/* DENTAXY Logo */}
-              <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.6, ease: "easeOut" }}
-                className="flex items-center justify-center gap-4 mb-6"
+            {/* Text container - emerges from below the tooth */}
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ 
+                opacity: phase >= 1 ? 1 : 0, 
+                y: phase >= 1 ? 0 : -10,
+              }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+              className="mt-4 flex items-baseline"
+            >
+              {/* DENTAXY text */}
+              <motion.span
+                className="text-2xl md:text-3xl font-black tracking-tight text-white"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                }}
               >
-                <img
-                  src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png"
-                  alt="DENTAXY"
-                  className="h-12 w-12 md:h-16 md:w-16"
-                  style={{
-                    filter: "drop-shadow(0 0 20px rgba(255,255,255,0.5))",
-                  }}
-                />
-              </motion.div>
+                DENTAXY
+              </motion.span>
 
-              {/* CARGANDO DEMOS text */}
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <h1
-                  className="text-3xl md:text-5xl lg:text-6xl font-black tracking-[0.15em] mb-2"
-                  style={{
-                    fontFamily: "'M PLUS 1p', 'Inter', sans-serif",
-                    color: "#ffffff",
-                    textShadow: `
-                      0 0 10px rgba(255, 100, 200, 0.8),
-                      0 0 30px rgba(255, 100, 200, 0.5),
-                      0 0 60px rgba(100, 200, 255, 0.4),
-                      0 0 100px rgba(255, 100, 200, 0.3)
-                    `,
-                  }}
-                >
-                  CARGANDO DEMOS
-                </h1>
-                
-                {/* Subtitle */}
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-sm md:text-base text-white/60 tracking-widest uppercase"
-                  style={{
-                    textShadow: "0 0 20px rgba(0,0,0,0.8)",
-                  }}
-                >
-                  DENTAXY Technologies
-                </motion.p>
-              </motion.div>
-
-              {/* Progress bar */}
-              <motion.div
-                initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: "100%" }}
-                transition={{ delay: 0.3 }}
-                className="mt-8 max-w-xs mx-auto"
-              >
-                <div className="relative h-1 bg-white/10 rounded-full overflow-hidden backdrop-blur-sm">
-                  <motion.div
-                    className="absolute inset-y-0 left-0 rounded-full"
-                    style={{
-                      width: `${Math.min(progress, 100)}%`,
-                      background: "linear-gradient(90deg, #ff64c8, #64c8ff, #ff64c8)",
-                      boxShadow: "0 0 20px rgba(255,100,200,0.6), 0 0 40px rgba(100,200,255,0.4)",
+              {/* .ai / .com suffix */}
+              <AnimatePresence mode="wait">
+                {!showDotCom ? (
+                  <motion.span
+                    key="ai"
+                    initial={{ opacity: 0, x: -5 }}
+                    animate={{ 
+                      opacity: 1, 
+                      x: 0,
                     }}
-                    transition={{ duration: 0.2 }}
-                  />
-                </div>
-                
-                {/* Progress percentage */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="flex items-center justify-between mt-3 text-xs font-mono"
-                >
-                  <span className="text-white/40">INICIALIZANDO</span>
-                  <span
-                    className="font-bold"
+                    exit={{ opacity: 0, x: 5, filter: "blur(4px)" }}
+                    transition={{ duration: 0.3 }}
+                    className="text-2xl md:text-3xl font-black tracking-tight"
                     style={{
-                      color: "#ff64c8",
-                      textShadow: "0 0 10px rgba(255,100,200,0.6)",
+                      fontFamily: "'Inter', sans-serif",
+                      color: "#3b82f6",
+                      textShadow: phase >= 2 
+                        ? "0 0 10px rgba(59,130,246,0.8), 0 0 30px rgba(59,130,246,0.5), 0 0 50px rgba(59,130,246,0.3)"
+                        : "none",
+                      transition: "text-shadow 0.4s ease",
                     }}
                   >
-                    {Math.min(Math.round(progress), 100)}%
-                  </span>
-                </motion.div>
-              </motion.div>
-
-              {/* Animated dots */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                className="flex items-center justify-center gap-2 mt-6"
-              >
-                {[0, 1, 2].map((i) => (
-                  <motion.div
-                    key={i}
-                    animate={{
-                      scale: [1, 1.3, 1],
-                      opacity: [0.4, 1, 0.4],
-                    }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      delay: i * 0.2,
-                    }}
-                    className="w-2 h-2 rounded-full"
+                    .ai
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="com"
+                    initial={{ opacity: 0, x: -5, filter: "blur(4px)" }}
+                    animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                    transition={{ duration: 0.3 }}
+                    className="text-2xl md:text-3xl font-black tracking-tight"
                     style={{
-                      background: "linear-gradient(135deg, #ff64c8, #64c8ff)",
-                      boxShadow: "0 0 10px rgba(255,100,200,0.6)",
+                      fontFamily: "'Inter', sans-serif",
+                      color: "#3b82f6",
+                      textShadow: "0 0 10px rgba(59,130,246,0.8), 0 0 30px rgba(59,130,246,0.5), 0 0 50px rgba(59,130,246,0.3)",
                     }}
-                  />
-                ))}
-              </motion.div>
-            </div>
+                  >
+                    .com
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </motion.div>
+
+            {/* Minimal loading indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: phase >= 1 ? 0.6 : 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="mt-6 flex items-center gap-1.5"
+            >
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  animate={{
+                    opacity: [0.3, 1, 0.3],
+                  }}
+                  transition={{
+                    duration: 1.2,
+                    repeat: Infinity,
+                    delay: i * 0.15,
+                    ease: "easeInOut",
+                  }}
+                  className="w-1 h-1 rounded-full bg-blue-500"
+                />
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Corner tech detail - subtle */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: phase >= 1 ? 0.3 : 0 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="absolute bottom-6 left-6 text-[10px] font-mono text-white/30 tracking-widest"
+          >
+            LOADING DEMOS
           </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: phase >= 1 ? 0.3 : 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="absolute bottom-6 right-6 text-[10px] font-mono text-white/30 tracking-widest"
+          >
+            v2.0
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
