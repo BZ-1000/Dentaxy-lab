@@ -6,10 +6,8 @@ import { getClinicaById, ClinicaUAO } from '@/data/clinicasUAO';
 import { VistaDocumento } from '@/components/academico/VistaDocumento';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { SesionActivaBar } from '@/components/academico/SesionActivaBar';
 import { useDemoSession } from '@/hooks/useDemoSession';
 import { ClimuzacView } from '@/pages/academico/ClimuzacView';
-
 const seccionesDemo = [
   { id: 'motivo', titulo: 'Motivo de Consulta', placeholder: 'El paciente refiere...' },
   { id: 'antecedentes', titulo: 'Antecedentes', placeholder: 'Antecedentes relevantes...' },
@@ -196,8 +194,6 @@ export const ClinicaView: React.FC = () => {
           </div>
         </div>
       </main>
-
-      <SesionActivaBar />
 
       {mostrarDocumento && (
         <VistaDocumento 

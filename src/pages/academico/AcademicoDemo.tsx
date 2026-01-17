@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Shield, AlertCircle } from 'lucide-react';
+import { Shield, AlertCircle, Clock, Zap } from 'lucide-react';
 import { DemoHeader } from '@/components/academico/DemoHeader';
 import { HeroAcademico } from '@/components/academico/HeroAcademico';
 import { AdminPanelSimulado } from '@/components/academico/AdminPanelSimulado';
 import { ClinicasGrid } from '@/components/academico/ClinicasGrid';
-import { SesionActivaBar } from '@/components/academico/SesionActivaBar';
 import { Button } from '@/components/ui/button';
 import { useDemoSession } from '@/hooks/useDemoSession';
-
 export const AcademicoDemoContent: React.FC = () => {
   const navigate = useNavigate();
   const [sesionValida, setSesionValida] = useState<boolean | null>(null);
@@ -102,8 +100,6 @@ export const AcademicoDemoContent: React.FC = () => {
           <ClinicasGrid />
         </div>
       </main>
-
-      <SesionActivaBar />
     </div>
   );
 };
