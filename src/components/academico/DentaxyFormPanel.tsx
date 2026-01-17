@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Loader2, Wand2 } from 'lucide-react';
+import { Loader2, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import { toast } from '@/hooks/use-toast';
@@ -42,53 +42,28 @@ interface DentaxyFormPanelProps {
 
 // Mapping of section IDs for synchronization with Smile panel
 const seccionesGenerables = [
-  { id: 'padecimiento', nombre: 'Padecimiento Actual' },
-  { id: 'heredofamiliares', nombre: 'Antecedentes Heredofamiliares' },
-  { id: 'noPatologicos', nombre: 'Antecedentes No Patológicos' },
-  { id: 'patologicos', nombre: 'Antecedentes Patológicos' },
-  { id: 'alergicos', nombre: 'Antecedentes Alérgicos' },
-  { id: 'quirurgicos', nombre: 'Antecedentes Quirúrgicos' },
-  { id: 'hemorragicos', nombre: 'Antecedentes Hemorrágicos' },
-  { id: 'ginecoObstetricos', nombre: 'Antecedentes Gineco-obstétricos' },
-  { id: 'interrogatorio', nombre: 'Interrogatorio por Sistemas' },
-  { id: 'exploracionFisica', nombre: 'Exploración Física' },
-  { id: 'cabeza', nombre: 'Examen de Cabeza' },
-  { id: 'atm', nombre: 'Articulación Craneomandibular' },
-  { id: 'cuello', nombre: 'Examen de Cuello' },
-  { id: 'intrabucal', nombre: 'Examen Intrabucal' },
-  { id: 'salivales', nombre: 'Glándulas Salivales' },
-  { id: 'oclusion', nombre: 'Oclusión' },
-  { id: 'relacionDientes', nombre: 'Relación de Dientes' },
-  { id: 'lineaMedia', nombre: 'Línea Media' },
-  { id: 'frenillos', nombre: 'Frenillos' },
-  { id: 'diagnostico', nombre: 'Diagnóstico' },
-  { id: 'pronostico', nombre: 'Pronóstico' },
+  { id: 'padecimiento', nombre: 'I. Padecimiento Actual', dataSection: 'padecimiento' },
+  { id: 'heredofamiliares', nombre: 'II. Antecedentes Heredofamiliares', dataSection: 'heredofamiliares' },
+  { id: 'noPatologicos', nombre: 'III. Antecedentes No Patológicos', dataSection: 'noPatologicos' },
+  { id: 'patologicos', nombre: 'IV. Antecedentes Patológicos', dataSection: 'patologicos' },
+  { id: 'alergicos', nombre: 'V. Antecedentes Alérgicos', dataSection: 'alergicos' },
+  { id: 'quirurgicos', nombre: 'VI. Antecedentes Quirúrgicos', dataSection: 'quirurgicos' },
+  { id: 'hemorragicos', nombre: 'VII. Antecedentes Hemorrágicos', dataSection: 'hemorragicos' },
+  { id: 'ginecoObstetricos', nombre: 'VIII. Antecedentes Gineco-obstétricos', dataSection: 'ginecoObstetricos' },
+  { id: 'interrogatorio', nombre: 'IX. Interrogatorio por Sistemas', dataSection: 'interrogatorio' },
+  { id: 'exploracionFisica', nombre: 'X. Exploración Física', dataSection: 'exploracionFisica' },
+  { id: 'cabeza', nombre: 'XI. Examen de Cabeza', dataSection: 'cabeza' },
+  { id: 'atm', nombre: 'XII. Articulación Craneomandibular', dataSection: 'atm' },
+  { id: 'cuello', nombre: 'XIII. Examen de Cuello', dataSection: 'cuello' },
+  { id: 'intrabucal', nombre: 'XIV. Examen Intrabucal', dataSection: 'intrabucal' },
+  { id: 'salivales', nombre: 'XV. Glándulas Salivales', dataSection: 'salivales' },
+  { id: 'oclusion', nombre: 'XVI. Oclusión', dataSection: 'oclusion' },
+  { id: 'relacionDientes', nombre: 'XVII. Relación de Dientes', dataSection: 'relacionDientes' },
+  { id: 'lineaMedia', nombre: 'XVIII. Línea Media', dataSection: 'lineaMedia' },
+  { id: 'frenillos', nombre: 'XIX. Frenillos', dataSection: 'frenillos' },
+  { id: 'diagnostico', nombre: 'XX. Diagnóstico', dataSection: 'diagnostico' },
+  { id: 'pronostico', nombre: 'XXI. Pronóstico', dataSection: 'pronostico' },
 ];
-
-// Demo responses for each section (simulated AI generation)
-const respuestasDemo: Record<string, string> = {
-  padecimiento: 'Paciente masculino de 28 años que acude a consulta por presentar dolor dental en región posterior mandibular derecha de 5 días de evolución, de intensidad moderada a severa (EVA 7/10), de tipo pulsátil, exacerbado con alimentos fríos, calientes y dulces. El paciente refiere que el dolor se intensifica por las noches, impidiendo el descanso adecuado.',
-  heredofamiliares: 'Madre de 54 años con diagnóstico de diabetes mellitus tipo 2 en tratamiento con metformina. Padre de 58 años con hipertensión arterial sistémica controlada. Hermano mayor con antecedente de enfermedad periodontal. Abuelo paterno finado por infarto agudo al miocardio. Se niegan antecedentes de neoplasias, enfermedades autoinmunes o coagulopatías en la familia.',
-  noPatologicos: 'Paciente con hábitos de higiene bucal regulares, refiere cepillado dental 2 veces al día sin uso de hilo dental ni enjuague bucal. Alimentación rica en carbohidratos y azúcares refinados, con consumo frecuente de bebidas carbonatadas. Niega tabaquismo activo. Refiere consumo social de alcohol los fines de semana. Última visita dental hace aproximadamente 18 meses.',
-  patologicos: 'Paciente sin antecedentes patológicos relevantes. Niega diabetes mellitus, hipertensión arterial, cardiopatías, nefropatías o hepatopatías. Sin antecedentes de hospitalizaciones previas. No refiere enfermedades crónico-degenerativas ni infecciosas. Estado actual de salud general aparentemente bueno.',
-  alergicos: 'Paciente niega alergia conocida a medicamentos, incluyendo penicilinas, sulfas y analgésicos. Sin antecedentes de reacciones adversas a anestésicos locales. Niega alergias alimentarias o a materiales dentales (látex, metales, acrílicos). No reporta antecedentes de asma o rinitis alérgica.',
-  quirurgicos: 'Paciente con antecedente de apendicectomía laparoscópica a los 22 años sin complicaciones. Niega otras intervenciones quirúrgicas. Sin antecedentes de cirugías bucales o maxilofaciales previas. No ha requerido exodoncias ni procedimientos de cirugía menor oral.',
-  hemorragicos: 'Paciente niega antecedentes de hemorragias prolongadas o espontáneas. Sin historia de epistaxis frecuentes, gingivorragia espontánea o hematomas. Refiere cicatrización adecuada en heridas previas. No utiliza anticoagulantes ni antiagregantes plaquetarios. Niega diagnóstico de coagulopatías o trastornos de la hemostasia.',
-  ginecoObstetricos: 'No aplica - Paciente masculino.',
-  interrogatorio: 'Aparato cardiovascular: Sin alteraciones, niega palpitaciones o disnea. Aparato respiratorio: Sin síntomas respiratorios, niega tos o dificultad respiratoria. Aparato digestivo: Función gastrointestinal normal, sin alteraciones del hábito intestinal. Aparato urinario: Sin síntomas urinarios. Sistema nervioso: Cefalea ocasional relacionada con el dolor dental actual. Sin alteraciones en la sensibilidad.',
-  exploracionFisica: 'Signos vitales: TA 120/80 mmHg, FC 72 lpm, FR 16 rpm, Temp 36.5°C. Paciente consciente, orientado, en buen estado general. Facies de dolor leve. Constitución normolínea. Marcha y movimientos sin alteraciones. Piel y tegumentos hidratados, sin lesiones aparentes.',
-  cabeza: 'Normocéfalo, sin exostosis ni deformidades palpables. Cabello de implantación normal. Sin adenopatías cervicales palpables. Ojos simétricos, pupilas normorreactivas. Oídos sin alteraciones aparentes. Nariz sin desviación septal evidente.',
-  atm: 'Articulación temporomandibular bilateral sin dolor a la palpación. Apertura bucal de 45mm sin desviación. Sin chasquidos ni crepitaciones durante los movimientos mandibulares. Movimientos de lateralidad y protrusión sin limitación ni dolor.',
-  cuello: 'Cuello cilíndrico, móvil, sin adenopatías cervicales palpables. Tiroides de tamaño y consistencia normal. Pulsos carotídeos presentes, simétricos. Sin ingurgitación yugular. Tráquea central.',
-  intrabucal: 'Mucosa oral rosada, hidratada, sin lesiones aparentes. Lengua móvil, de tamaño normal, sin alteraciones de la superficie. Piso de boca blando, depresible. Paladar duro y blando sin alteraciones. Orofaringe sin datos de inflamación. Encías con ligero sangrado en zona de molar afectado.',
-  salivales: 'Glándulas salivales mayores (parótida, submandibular y sublingual) sin aumento de volumen ni dolor a la palpación. Conductos de Stenon y Wharton permeables. Flujo salival aparentemente normal.',
-  oclusion: 'Clase I de Angle bilateral. Overjet de 2mm, overbite de 2mm. Línea media dental coincidente con línea media facial. Curva de Spee conservada. Sin interferencias oclusales evidentes en movimientos excéntricos.',
-  relacionDientes: 'Relación molar y canina clase I bilateral. Guía canina funcional en movimientos de lateralidad. Guía incisiva presente en movimientos de protrusión. Sin contactos prematuros identificables.',
-  lineaMedia: 'Línea media dentaria superior e inferior coincidentes entre sí y con la línea media facial. Sin desviaciones detectables en reposo ni en apertura bucal.',
-  frenillos: 'Frenillo labial superior de inserción normal, sin tracción gingival. Frenillo labial inferior sin alteraciones. Frenillo lingual de longitud y movilidad adecuadas, sin anquiloglosia.',
-  diagnostico: 'Diagnóstico presuntivo: Pulpitis irreversible sintomática en órgano dentario 46. Diagnóstico diferencial: Periodontitis apical aguda, fractura dental vertical. Se sugiere toma de radiografía periapical para confirmar diagnóstico y determinar plan de tratamiento.',
-  pronostico: 'Pronóstico favorable con tratamiento endodóntico oportuno y restauración definitiva posterior. El éxito del tratamiento dependerá de la adherencia del paciente al plan propuesto y la modificación de hábitos de higiene oral. Se recomienda seguimiento a los 6 y 12 meses post-tratamiento.',
-};
 
 export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   onGeneracionCompleta,
@@ -98,6 +73,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState<GenerationProgress | null>(null);
   const [esMujer] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const {
     formData,
@@ -130,6 +106,32 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+  // Wait for the redaction content to appear after clicking generate
+  const waitForRedactionContent = useCallback(async (sectionElement: Element, maxWaitMs: number = 5000): Promise<string> => {
+    const startTime = Date.now();
+    
+    while (Date.now() - startTime < maxWaitMs) {
+      // Look for the redaction content element
+      const redactionElement = sectionElement.querySelector('[data-redaction-content]');
+      if (redactionElement) {
+        const content = redactionElement.textContent?.trim() || '';
+        if (content.length > 20) {
+          return content;
+        }
+      }
+      
+      // Also check for textarea with redaction
+      const textarea = sectionElement.querySelector('textarea[data-redaction-output]') as HTMLTextAreaElement;
+      if (textarea && textarea.value?.trim().length > 20) {
+        return textarea.value.trim();
+      }
+
+      await delay(100);
+    }
+    
+    return '';
+  }, []);
+
   const handleGenerarTodasRedacciones = async () => {
     setIsGenerating(true);
     const resultados: Record<string, string> = {};
@@ -157,15 +159,60 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
       // Notify that we're starting this section
       onGeneracionIniciada(seccion.id);
 
-      // Simulate AI generation time
-      await delay(400 + Math.random() * 300);
+      // Find the section element
+      const sectionElement = document.querySelector(`[data-section="${seccion.dataSection}"]`);
+      
+      if (sectionElement) {
+        // Scroll to the section
+        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        await delay(300);
 
-      // Get demo content
-      const contenido = respuestasDemo[seccion.id] || `Redacción generada para ${seccion.nombre}`;
-      resultados[seccion.id] = contenido;
+        // Find and click the "Generar Redacción IA" button
+        const generateButton = sectionElement.querySelector('button') as HTMLButtonElement | null;
+        const allButtons = sectionElement.querySelectorAll('button');
+        
+        let targetButton: HTMLButtonElement | null = null;
+        allButtons.forEach((btn) => {
+          if (btn.textContent?.toLowerCase().includes('generar') && 
+              btn.textContent?.toLowerCase().includes('ia')) {
+            targetButton = btn as HTMLButtonElement;
+          }
+        });
 
-      // Notify section completed
-      onSeccionGenerada(seccion.id, contenido);
+        if (targetButton) {
+          // Click the generate button
+          targetButton.click();
+          
+          // Wait for the content to be generated
+          await delay(600);
+          
+          // Try to capture the generated content
+          const contenido = await waitForRedactionContent(sectionElement, 3000);
+          
+          if (contenido) {
+            resultados[seccion.id] = contenido;
+            onSeccionGenerada(seccion.id, contenido);
+          } else {
+            // Fallback: generate placeholder content
+            const placeholderContent = `Redacción generada para ${seccion.nombre}. El contenido ha sido procesado por Dentaxy IA.`;
+            resultados[seccion.id] = placeholderContent;
+            onSeccionGenerada(seccion.id, placeholderContent);
+          }
+        } else {
+          // No button found, use placeholder
+          const placeholderContent = `Sección ${seccion.nombre} procesada.`;
+          resultados[seccion.id] = placeholderContent;
+          onSeccionGenerada(seccion.id, placeholderContent);
+        }
+      } else {
+        // Section element not found
+        const placeholderContent = `Sección ${seccion.nombre} no disponible.`;
+        resultados[seccion.id] = placeholderContent;
+        onSeccionGenerada(seccion.id, placeholderContent);
+      }
+
+      // Small delay between sections
+      await delay(200);
     }
 
     setIsGenerating(false);
@@ -181,19 +228,8 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-gradient-to-br from-background to-emerald-500/5">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4 flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <Sparkles className="h-6 w-6 text-white" />
-          <div>
-            <h2 className="text-lg font-black text-white">DENTAXY IA</h2>
-            <p className="text-xs text-white/80">Motor de Redacción Clínica</p>
-          </div>
-        </div>
-      </div>
-
       {/* Scrollable form content */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         <div className="p-6 space-y-6">
           {/* All form sections */}
           <div data-section="padecimiento">

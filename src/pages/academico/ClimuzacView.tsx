@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AnalysisModeProvider } from '@/contexts/AnalysisModeContext';
 import { ClimuzacHeader } from '@/components/academico/ClimuzacHeader';
 import { DentaxyFormPanel } from '@/components/academico/DentaxyFormPanel';
-import { SmileEspejoPanel } from '@/components/academico/SmileEspejoPanel';
-import { SesionActivaBar } from '@/components/academico/SesionActivaBar';
+import { SmileEspejoPanel, seccionesSmile } from '@/components/academico/SmileEspejoPanel';
 import { useDemoSession } from '@/hooks/useDemoSession';
 import { Loader2 } from 'lucide-react';
 
@@ -46,6 +45,11 @@ export const ClimuzacView: React.FC = () => {
     setSeccionActual(undefined);
   };
 
+  // Check if all sections are complete
+  const todasCompletas = seccionesSmile.every(
+    (s) => smileData[s.id]?.trim()
+  );
+
   // Loading state
   if (sesionValida === null) {
     return (
@@ -86,12 +90,10 @@ export const ClimuzacView: React.FC = () => {
             <SmileEspejoPanel
               contenidoRecibido={smileData}
               seccionActual={seccionActual}
+              todasCompletas={todasCompletas}
             />
           </div>
         </div>
-
-        {/* Session bar */}
-        <SesionActivaBar />
       </div>
     </AnalysisModeProvider>
   );

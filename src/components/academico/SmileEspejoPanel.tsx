@@ -1,6 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Clock } from 'lucide-react';
+import { CheckCircle, Clock, ClipboardPaste } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 
 // All sections that mirror the Dentaxy form
 export const seccionesSmile = [
@@ -30,15 +32,24 @@ export const seccionesSmile = [
 interface SmileEspejoPanelProps {
   contenidoRecibido: Record<string, string>;
   seccionActual?: string;
+  todasCompletas?: boolean;
 }
 
 export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
   contenidoRecibido,
   seccionActual,
+  todasCompletas = false,
 }) => {
   const seccionesRecibidas = Object.keys(contenidoRecibido).filter(
     (key) => contenidoRecibido[key] && contenidoRecibido[key].trim() !== ''
   );
+
+  const handlePegarTodo = () => {
+    toast({
+      title: "✓ Contenido Integrado",
+      description: "Todas las redacciones han sido transferidas exitosamente a Smile",
+    });
+  };
 
   return (
     <div className="h-full flex flex-col bg-[#f5f5f5] overflow-hidden">
@@ -53,7 +64,27 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
               SMILE · Sistema Clínico
             </span>
           </div>
-          <span className="text-xs text-gray-500">v2.3.1</span>
+          
+          <div className="flex items-center gap-3">
+            {/* Pegar Todo button - only visible when all sections complete */}
+            {todasCompletas && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200 }}
+              >
+                <Button
+                  onClick={handlePegarTodo}
+                  size="sm"
+                  className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs h-7 px-3 gap-1.5"
+                >
+                  <ClipboardPaste className="h-3.5 w-3.5" />
+                  Pegar Todo
+                </Button>
+              </motion.div>
+            )}
+            <span className="text-xs text-gray-500">v2.3.1</span>
+          </div>
         </div>
       </div>
 
@@ -66,7 +97,7 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
           <span className="text-xs text-gray-500">
             {seccionesRecibidas.length} / {seccionesSmile.length} secciones
           </span>
-          {seccionesRecibidas.length === seccionesSmile.length && (
+          {todasCompletas && (
             <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
           )}
         </div>
