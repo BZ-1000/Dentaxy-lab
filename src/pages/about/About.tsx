@@ -2,30 +2,16 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import BottomMenu from '@/components/BottomMenu';
-import { 
-  FileText, 
-  Shield, 
-  Server, 
-  Key, 
-  MapPin, 
-  Box, 
-  Hand, 
-  ScanLine, 
-  FileOutput, 
-  Layers,
-  GraduationCap,
-  Building2,
-  Stethoscope,
-  Users,
-  BookOpen,
-  Target,
-  Eye,
-  Sparkles,
-  User
-} from 'lucide-react';
-
-const FeatureCard = ({ icon: Icon, title, features }: { icon: any; title: string; features: string[] }) => (
-  <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+import { FileText, Shield, Server, Key, MapPin, Box, Hand, ScanLine, FileOutput, Layers, GraduationCap, Building2, Stethoscope, Users, BookOpen, Target, Eye, Sparkles, User } from 'lucide-react';
+const FeatureCard = ({
+  icon: Icon,
+  title,
+  features
+}: {
+  icon: any;
+  title: string;
+  features: string[];
+}) => <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
     <div className="flex items-center gap-3 mb-4">
       <div className="bg-blue-100 p-3 rounded-lg">
         <Icon className="h-6 w-6 text-blue-600" />
@@ -33,128 +19,81 @@ const FeatureCard = ({ icon: Icon, title, features }: { icon: any; title: string
       <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
     </div>
     <ul className="space-y-2">
-      {features.map((feature, idx) => (
-        <li key={idx} className="text-gray-600 text-sm flex items-start gap-2">
+      {features.map((feature, idx) => <li key={idx} className="text-gray-600 text-sm flex items-start gap-2">
           <span className="text-blue-500 mt-1">•</span>
           {feature}
-        </li>
-      ))}
+        </li>)}
     </ul>
-  </div>
-);
-
-const AudienceCard = ({ icon: Icon, title }: { icon: any; title: string }) => (
-  <div className="flex items-center gap-3 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+  </div>;
+const AudienceCard = ({
+  icon: Icon,
+  title
+}: {
+  icon: any;
+  title: string;
+}) => <div className="flex items-center gap-3 bg-white p-4 rounded-lg shadow-sm border border-gray-100">
     <Icon className="h-5 w-5 text-blue-600" />
     <span className="text-gray-700 font-medium">{title}</span>
-  </div>
-);
-
+  </div>;
 const About = () => {
-  const capabilities = [
-    {
-      icon: FileText,
-      title: "1. Formularios interactivos personalizados",
-      features: [
-        "Formularios clínicos inteligentes que se adaptan al paciente",
-        "Integración de IA para autocompletar campos y analizar riesgos",
-        "Opciones multirol para estudiantes, docentes y especialistas",
-        "Optimización para investigación académica y seguimiento longitudinal"
-      ]
-    },
-    {
-      icon: Users,
-      title: "2. Plataforma con roles y control granular",
-      features: [
-        "Roles diferenciados para doctores, especialistas, pasantes, docentes y administrativos",
-        "Registro de auditoría digital",
-        "Acceso basado en necesidad y nivel de responsabilidad"
-      ]
-    },
-    {
-      icon: Server,
-      title: "3. Servidores privados y arquitectura empresarial",
-      features: [
-        "Infraestructura escalable para universidades y clínicas con alto tráfico",
-        "Back-end redundante, rápido y con protocolos avanzados de seguridad"
-      ]
-    },
-    {
-      icon: Key,
-      title: "4. Cifrado empresarial con YubiKey",
-      features: [
-        "Integración con llaves de hardware (YubiKey)",
-        "Autenticación multifactor biométrica",
-        "Autorizaciones por proximidad o presencia física",
-        "Perfecto para clínicas con información sensible o pacientes VIP"
-      ]
-    },
-    {
-      icon: MapPin,
-      title: "5. Acceso geolocalizado (Access by Location)",
-      features: [
-        "La aplicación solo se desbloquea dentro de zonas autorizadas",
-        "Ideal para proteger historiales, estudios radiográficos y documentos oficiales"
-      ]
-    },
-    {
-      icon: Box,
-      title: "6. Visualizador avanzado de escaneos 3D",
-      features: [
-        "Lectura de archivos dentales STL, PLY y OBJ",
-        "Manipulación en tiempo real",
-        "Compatibilidad con escáneres de distintas marcas"
-      ]
-    },
-    {
-      icon: Hand,
-      title: "7. Visualizador por gestos (Top Secret)",
-      features: [
-        "Control del modelo 3D sin tocar teclado o mouse",
-        "Reconocimiento de gestos de la mano para rotar, acercar, cortar",
-        "Ideal para docentes, cirujanos y exposiciones académicas"
-      ]
-    },
-    {
-      icon: ScanLine,
-      title: "8. Visualizador de tomografías (CBCT/DICOM)",
-      features: [
-        "Lectura y renderizado de archivos DICOM",
-        "Herramientas clínicas: cortes axiales, coronales y sagitales",
-        "Ajustes de densidad (HU), zoom, contraste y mediciones precisas"
-      ]
-    },
-    {
-      icon: FileOutput,
-      title: "9. Generador automático de reportes PDF",
-      features: [
-        "Redacción profesional automatizada",
-        "Plantillas para clínicas, universidades y casos académicos",
-        "Integración de imágenes, tomas radiográficas y datos clínicos"
-      ]
-    },
-    {
-      icon: Layers,
-      title: "10. Ecosistema completo y escalable",
-      features: [
-        "Integración con apps móviles",
-        "Panel administrativo para instituciones grandes",
-        "APIs para conectar con sistemas universitarios existentes",
-        "Seguridad y auditorías para información clasificada"
-      ]
-    }
-  ];
-
-  const audience = [
-    { icon: GraduationCap, title: "Universidades y facultades de odontología" },
-    { icon: Building2, title: "Clínicas privadas y corporativos de salud" },
-    { icon: Stethoscope, title: "Centros de especialidades" },
-    { icon: BookOpen, title: "Docentes, investigadores y especialistas" },
-    { icon: Shield, title: "Instituciones que requieren seguridad avanzada" }
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white" itemScope itemType="https://schema.org/Organization">
+  const capabilities = [{
+    icon: FileText,
+    title: "1. Formularios interactivos personalizados",
+    features: ["Formularios clínicos inteligentes que se adaptan al paciente", "Integración de IA para autocompletar campos y analizar riesgos", "Opciones multirol para estudiantes, docentes y especialistas", "Optimización para investigación académica y seguimiento longitudinal"]
+  }, {
+    icon: Users,
+    title: "2. Plataforma con roles y control granular",
+    features: ["Roles diferenciados para doctores, especialistas, pasantes, docentes y administrativos", "Registro de auditoría digital", "Acceso basado en necesidad y nivel de responsabilidad"]
+  }, {
+    icon: Server,
+    title: "3. Servidores privados y arquitectura empresarial",
+    features: ["Infraestructura escalable para universidades y clínicas con alto tráfico", "Back-end redundante, rápido y con protocolos avanzados de seguridad"]
+  }, {
+    icon: Key,
+    title: "4. Cifrado empresarial con YubiKey",
+    features: ["Integración con llaves de hardware (YubiKey)", "Autenticación multifactor biométrica", "Autorizaciones por proximidad o presencia física", "Perfecto para clínicas con información sensible o pacientes VIP"]
+  }, {
+    icon: MapPin,
+    title: "5. Acceso geolocalizado (Access by Location)",
+    features: ["La aplicación solo se desbloquea dentro de zonas autorizadas", "Ideal para proteger historiales, estudios radiográficos y documentos oficiales"]
+  }, {
+    icon: Box,
+    title: "6. Visualizador avanzado de escaneos 3D",
+    features: ["Lectura de archivos dentales STL, PLY y OBJ", "Manipulación en tiempo real", "Compatibilidad con escáneres de distintas marcas"]
+  }, {
+    icon: Hand,
+    title: "7. Visualizador por gestos (Top Secret)",
+    features: ["Control del modelo 3D sin tocar teclado o mouse", "Reconocimiento de gestos de la mano para rotar, acercar, cortar", "Ideal para docentes, cirujanos y exposiciones académicas"]
+  }, {
+    icon: ScanLine,
+    title: "8. Visualizador de tomografías (CBCT/DICOM)",
+    features: ["Lectura y renderizado de archivos DICOM", "Herramientas clínicas: cortes axiales, coronales y sagitales", "Ajustes de densidad (HU), zoom, contraste y mediciones precisas"]
+  }, {
+    icon: FileOutput,
+    title: "9. Generador automático de reportes PDF",
+    features: ["Redacción profesional automatizada", "Plantillas para clínicas, universidades y casos académicos", "Integración de imágenes, tomas radiográficas y datos clínicos"]
+  }, {
+    icon: Layers,
+    title: "10. Ecosistema completo y escalable",
+    features: ["Integración con apps móviles", "Panel administrativo para instituciones grandes", "APIs para conectar con sistemas universitarios existentes", "Seguridad y auditorías para información clasificada"]
+  }];
+  const audience = [{
+    icon: GraduationCap,
+    title: "Universidades y facultades de odontología"
+  }, {
+    icon: Building2,
+    title: "Clínicas privadas y corporativos de salud"
+  }, {
+    icon: Stethoscope,
+    title: "Centros de especialidades"
+  }, {
+    icon: BookOpen,
+    title: "Docentes, investigadores y especialistas"
+  }, {
+    icon: Shield,
+    title: "Instituciones que requieren seguridad avanzada"
+  }];
+  return <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white" itemScope itemType="https://schema.org/Organization">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-2">
@@ -231,9 +170,7 @@ const About = () => {
           </p>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {capabilities.map((cap, idx) => (
-              <FeatureCard key={idx} icon={cap.icon} title={cap.title} features={cap.features} />
-            ))}
+            {capabilities.map((cap, idx) => <FeatureCard key={idx} icon={cap.icon} title={cap.title} features={cap.features} />)}
           </div>
         </section>
 
@@ -243,9 +180,7 @@ const About = () => {
             ¿Para quién está hecha nuestra tecnología?
           </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {audience.map((item, idx) => (
-              <AudienceCard key={idx} icon={item.icon} title={item.title} />
-            ))}
+            {audience.map((item, idx) => <AudienceCard key={idx} icon={item.icon} title={item.title} />)}
           </div>
         </section>
 
@@ -277,17 +212,16 @@ const About = () => {
 
         {/* Footer info */}
         <div className="text-center bg-gray-100 rounded-xl p-6">
-          <p className="text-sm text-gray-600 font-medium">
-            © 2025 Dentaxy.com - Todos los derechos reservados<br/>
-            © 2025 Dentaxy.ai - Todos los derechos reservados<br/>
+          <p className="text-sm text-gray-600 font-medium">© 2025 Dentaxy.com - Todos los derechos reservados
+
+DENTAXY Technologies<br />
+            © 2025 Dentaxy.ai - Todos los derechos reservados<br />
             <span className="font-semibold">DENTAXY Technologies</span>
           </p>
         </div>
       </section>
       
       <BottomMenu />
-    </div>
-  );
+    </div>;
 };
-
 export default About;
