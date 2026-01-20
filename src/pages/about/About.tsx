@@ -154,7 +154,7 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white" itemScope itemType="https://schema.org/Organization">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white/80 backdrop-blur-sm sticky top-0 z-50">
         <Link to="/" className="flex items-center gap-2">
@@ -169,11 +169,14 @@ const About = () => {
       
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16 max-w-6xl">
+        <meta itemProp="name" content="Dentaxy Technologies" />
+        <meta itemProp="url" content="https://dentaxy.com" />
+        <meta itemProp="logo" content="https://dentaxy.com/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" />
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6" itemProp="legalName">
             DENTAXY Technologies
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto" itemProp="slogan">
             Innovación odontológica mexicana especializada en soluciones digitales avanzadas
           </p>
         </div>
@@ -255,17 +258,21 @@ const About = () => {
         </article>
 
         {/* Dirección y liderazgo */}
-        <article className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100 mb-12">
+        <article className="bg-white rounded-2xl shadow-sm p-8 border border-gray-100 mb-12" itemScope itemType="https://schema.org/Person">
           <div className="flex items-center gap-3 mb-4">
             <User className="h-8 w-8 text-blue-600" />
             <h2 className="text-2xl font-bold text-gray-800">Dirección y Liderazgo</h2>
           </div>
           <p className="text-gray-700 leading-relaxed mb-4">
-            Dentaxy Technologies es dirigida por <strong>Braulio Zavala Uribe</strong>, un desarrollador autodidacta y estudiante de MCD con una visión futurista sobre la odontología digital. Su enfoque está en diseñar tecnologías que anticipen las necesidades del sector dental en los próximos 10 a 15 años: sistemas de visualización tridimensional avanzada, infraestructura biométrica de seguridad, accesos basados en ubicación, interacción por gestos y herramientas de IA clínicamente útiles.
+            Dentaxy Technologies es dirigida por <strong itemProp="name">Braulio Zavala Uribe</strong>, <span itemProp="jobTitle">Founder</span> de la empresa. Es un desarrollador autodidacta y estudiante de MCD con una visión futurista sobre la odontología digital. Su enfoque está en diseñar tecnologías que anticipen las necesidades del sector dental en los próximos 10 a 15 años: sistemas de visualización tridimensional avanzada, infraestructura biométrica de seguridad, accesos basados en ubicación, interacción por gestos y herramientas de IA clínicamente útiles.
           </p>
-          <p className="text-gray-600 italic">
+          <p className="text-gray-600 italic" itemProp="description">
             Su liderazgo combina creatividad, pensamiento sistémico y profundo entendimiento de la evolución tecnológica, lo que impulsa a Dentaxy Technologies hacia la vanguardia del desarrollo en salud digital.
           </p>
+          <a href="https://www.linkedin.com/in/braulio-zavala-6332393a7" target="_blank" rel="noopener noreferrer" itemProp="sameAs" className="inline-flex items-center gap-2 mt-4 text-blue-600 hover:text-blue-800 text-sm font-medium">
+            Ver perfil en LinkedIn →
+          </a>
+          <meta itemProp="worksFor" content="Dentaxy Technologies" />
         </article>
 
         {/* Footer info */}
