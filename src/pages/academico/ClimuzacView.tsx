@@ -6,6 +6,11 @@ import { DentaxyFormPanel } from '@/components/academico/DentaxyFormPanel';
 import { SmileEspejoPanel, seccionesSmile } from '@/components/academico/SmileEspejoPanel';
 import { useDemoSession } from '@/hooks/useDemoSession';
 import { Loader2 } from 'lucide-react';
+import { 
+  ResizablePanelGroup, 
+  ResizablePanel, 
+  ResizableHandle 
+} from '@/components/ui/resizable';
 
 export const ClimuzacView: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +19,7 @@ export const ClimuzacView: React.FC = () => {
   const [sesionValida, setSesionValida] = useState<boolean | null>(null);
   const [smileData, setSmileData] = useState<Record<string, string>>({});
   const [seccionActual, setSeccionActual] = useState<string | undefined>(undefined);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const verificar = async () => {
@@ -45,6 +51,10 @@ export const ClimuzacView: React.FC = () => {
     setSeccionActual(undefined);
   };
 
+  const handleGeneratingChange = (generating: boolean) => {
+    setIsGenerating(generating);
+  };
+
   // Check if all sections are complete
   const todasCompletas = seccionesSmile.every(
     (s) => smileData[s.id]?.trim()
@@ -74,26 +84,48 @@ export const ClimuzacView: React.FC = () => {
         {/* Header */}
         <ClimuzacHeader />
 
-        {/* Split View - Two panels */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 overflow-hidden">
+        {/* Resizable Split View */}
+        <ResizablePanelGroup 
+          direction="horizontal" 
+          className="flex-1 overflow-hidden"
+        >
           {/* Left Panel: Dentaxy IA Form */}
-          <div className="border-r border-border overflow-hidden order-2 lg:order-1">
+          <ResizablePanel 
+            defaultSize={50} 
+            minSize={30} 
+            maxSize={70}
+            className="overflow-hidden"
+          >
             <DentaxyFormPanel
               onGeneracionCompleta={handleGeneracionCompleta}
               onSeccionGenerada={handleSeccionGenerada}
               onGeneracionIniciada={handleGeneracionIniciada}
+              onGeneratingChange={handleGeneratingChange}
             />
-          </div>
+          </ResizablePanel>
+
+          {/* Minimalist Resize Handle */}
+          <ResizableHandle 
+            withHandle 
+            className="w-1 bg-border/50 hover:bg-emerald-500/50 transition-colors duration-200 data-[resize-handle-active]:bg-emerald-500"
+          />
 
           {/* Right Panel: Smile Mirror */}
-          <div className="overflow-hidden order-1 lg:order-2">
+          <ResizablePanel 
+            defaultSize={50} 
+            minSize={30} 
+            maxSize={70}
+            className="overflow-hidden"
+          >
             <SmileEspejoPanel
               contenidoRecibido={smileData}
               seccionActual={seccionActual}
               todasCompletas={todasCompletas}
+              isGenerating={isGenerating}
+              copiedContent={smileData}
             />
-          </div>
-        </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       </div>
     </AnalysisModeProvider>
   );
