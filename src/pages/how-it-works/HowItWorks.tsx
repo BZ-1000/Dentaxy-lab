@@ -80,8 +80,8 @@ const HowItWorks = () => {
     {
       icon: Hand,
       number: "7",
-      title: "Visualizador por gestos (Top Secret)",
-      description: "Control del modelo 3D sin tocar teclado o mouse. Reconocimiento de gestos de la mano para rotar, acercar y cortar por secciones. Ideal para cirujanos y exposiciones académicas."
+      title: "Visualizador (Top Secret)",
+      description: "????"
     },
     {
       icon: ScanLine,
