@@ -1,9 +1,10 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Wand2 } from 'lucide-react';
+import { Loader2, Wand2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 import { toast } from '@/hooks/use-toast';
+import { demoRedacciones } from '@/data/demoRedacciones';
 
 // Import all form sections
 import PadecimientoActual from '@/components/historia-clinica/PadecimientoActual';
@@ -38,40 +39,45 @@ interface DentaxyFormPanelProps {
   onGeneracionCompleta: (datos: Record<string, string>) => void;
   onSeccionGenerada: (seccionId: string, contenido: string) => void;
   onGeneracionIniciada: (seccionId: string) => void;
+  onGeneratingChange?: (isGenerating: boolean) => void;
 }
 
 // Mapping of section IDs for synchronization with Smile panel
 const seccionesGenerables = [
-  { id: 'padecimiento', nombre: 'I. Padecimiento Actual', dataSection: 'padecimiento' },
-  { id: 'heredofamiliares', nombre: 'II. Antecedentes Heredofamiliares', dataSection: 'heredofamiliares' },
-  { id: 'noPatologicos', nombre: 'III. Antecedentes No Patológicos', dataSection: 'noPatologicos' },
-  { id: 'patologicos', nombre: 'IV. Antecedentes Patológicos', dataSection: 'patologicos' },
-  { id: 'alergicos', nombre: 'V. Antecedentes Alérgicos', dataSection: 'alergicos' },
-  { id: 'quirurgicos', nombre: 'VI. Antecedentes Quirúrgicos', dataSection: 'quirurgicos' },
-  { id: 'hemorragicos', nombre: 'VII. Antecedentes Hemorrágicos', dataSection: 'hemorragicos' },
-  { id: 'ginecoObstetricos', nombre: 'VIII. Antecedentes Gineco-obstétricos', dataSection: 'ginecoObstetricos' },
-  { id: 'interrogatorio', nombre: 'IX. Interrogatorio por Sistemas', dataSection: 'interrogatorio' },
-  { id: 'exploracionFisica', nombre: 'X. Exploración Física', dataSection: 'exploracionFisica' },
-  { id: 'cabeza', nombre: 'XI. Examen de Cabeza', dataSection: 'cabeza' },
-  { id: 'atm', nombre: 'XII. Articulación Craneomandibular', dataSection: 'atm' },
-  { id: 'cuello', nombre: 'XIII. Examen de Cuello', dataSection: 'cuello' },
-  { id: 'intrabucal', nombre: 'XIV. Examen Intrabucal', dataSection: 'intrabucal' },
-  { id: 'salivales', nombre: 'XV. Glándulas Salivales', dataSection: 'salivales' },
-  { id: 'oclusion', nombre: 'XVI. Oclusión', dataSection: 'oclusion' },
-  { id: 'relacionDientes', nombre: 'XVII. Relación de Dientes', dataSection: 'relacionDientes' },
-  { id: 'lineaMedia', nombre: 'XVIII. Línea Media', dataSection: 'lineaMedia' },
-  { id: 'frenillos', nombre: 'XIX. Frenillos', dataSection: 'frenillos' },
-  { id: 'diagnostico', nombre: 'XX. Diagnóstico', dataSection: 'diagnostico' },
-  { id: 'pronostico', nombre: 'XXI. Pronóstico', dataSection: 'pronostico' },
+  { id: 'padecimiento', nombre: 'I. Padecimiento Actual' },
+  { id: 'heredofamiliares', nombre: 'II. Antecedentes Heredofamiliares' },
+  { id: 'noPatologicos', nombre: 'III. Antecedentes No Patológicos' },
+  { id: 'patologicos', nombre: 'IV. Antecedentes Patológicos' },
+  { id: 'alergicos', nombre: 'V. Antecedentes Alérgicos' },
+  { id: 'quirurgicos', nombre: 'VI. Antecedentes Quirúrgicos' },
+  { id: 'hemorragicos', nombre: 'VII. Antecedentes Hemorrágicos' },
+  { id: 'ginecoObstetricos', nombre: 'VIII. Antecedentes Gineco-obstétricos' },
+  { id: 'interrogatorio', nombre: 'IX. Interrogatorio por Sistemas' },
+  { id: 'exploracionFisica', nombre: 'X. Exploración Física' },
+  { id: 'cabeza', nombre: 'XI. Examen de Cabeza' },
+  { id: 'atm', nombre: 'XII. Articulación Craneomandibular' },
+  { id: 'cuello', nombre: 'XIII. Examen de Cuello' },
+  { id: 'intrabucal', nombre: 'XIV. Examen Intrabucal' },
+  { id: 'salivales', nombre: 'XV. Glándulas Salivales' },
+  { id: 'oclusion', nombre: 'XVI. Oclusión' },
+  { id: 'relacionDientes', nombre: 'XVII. Relación de Dientes' },
+  { id: 'lineaMedia', nombre: 'XVIII. Línea Media' },
+  { id: 'frenillos', nombre: 'XIX. Frenillos' },
+  { id: 'diagnostico', nombre: 'XX. Diagnóstico' },
+  { id: 'pronostico', nombre: 'XXI. Pronóstico' },
 ];
 
 export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   onGeneracionCompleta,
   onSeccionGenerada,
   onGeneracionIniciada,
+  onGeneratingChange,
 }) => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationComplete, setGenerationComplete] = useState(false);
   const [progress, setProgress] = useState<GenerationProgress | null>(null);
+  const [copiedAll, setCopiedAll] = useState(false);
+  const [generatedData, setGeneratedData] = useState<Record<string, string>>({});
   const [esMujer] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -106,49 +112,28 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
 
   const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-  // Wait for the redaction content to appear after clicking generate
-  const waitForRedactionContent = useCallback(async (sectionElement: Element, maxWaitMs: number = 5000): Promise<string> => {
-    const startTime = Date.now();
-    
-    while (Date.now() - startTime < maxWaitMs) {
-      // Look for the redaction content element
-      const redactionElement = sectionElement.querySelector('[data-redaction-content]');
-      if (redactionElement) {
-        const content = redactionElement.textContent?.trim() || '';
-        if (content.length > 20) {
-          return content;
-        }
-      }
-      
-      // Also check for textarea with redaction
-      const textarea = sectionElement.querySelector('textarea[data-redaction-output]') as HTMLTextAreaElement;
-      if (textarea && textarea.value?.trim().length > 20) {
-        return textarea.value.trim();
-      }
-
-      await delay(100);
-    }
-    
-    return '';
-  }, []);
-
   const handleGenerarTodasRedacciones = async () => {
     setIsGenerating(true);
+    setGenerationComplete(false);
+    setCopiedAll(false);
+    onGeneratingChange?.(true);
+    
     const resultados: Record<string, string> = {};
-    const totalSecciones = seccionesGenerables.length;
+    
+    // Filter sections based on gender
+    const seccionesActivas = seccionesGenerables.filter(s => 
+      s.id !== 'ginecoObstetricos' || esMujer
+    );
+    
+    const totalSecciones = seccionesActivas.length;
 
     toast({
       title: "Iniciando generación",
-      description: "Dentaxy IA procesará todas las secciones automáticamente",
+      description: "Dentaxy procesará todas las secciones automáticamente",
     });
 
     for (let i = 0; i < totalSecciones; i++) {
-      const seccion = seccionesGenerables[i];
-      
-      // Skip gineco if not female
-      if (seccion.id === 'ginecoObstetricos' && !esMujer) {
-        continue;
-      }
+      const seccion = seccionesActivas[i];
 
       setProgress({
         current: i + 1,
@@ -159,71 +144,60 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
       // Notify that we're starting this section
       onGeneracionIniciada(seccion.id);
 
-      // Find the section element
-      const sectionElement = document.querySelector(`[data-section="${seccion.dataSection}"]`);
+      // Simulate processing time with typewriter effect delay
+      await delay(150 + Math.random() * 100);
+
+      // Get demo content for this section
+      const contenido = demoRedacciones[seccion.id] || `Redacción para ${seccion.nombre} generada exitosamente.`;
       
-      if (sectionElement) {
-        // Scroll to the section
-        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        await delay(300);
+      resultados[seccion.id] = contenido;
+      setGeneratedData(prev => ({ ...prev, [seccion.id]: contenido }));
+      onSeccionGenerada(seccion.id, contenido);
 
-        // Find and click the "Generar Redacción IA" button
-        const generateButton = sectionElement.querySelector('button') as HTMLButtonElement | null;
-        const allButtons = sectionElement.querySelectorAll('button');
-        
-        let targetButton: HTMLButtonElement | null = null;
-        allButtons.forEach((btn) => {
-          if (btn.textContent?.toLowerCase().includes('generar') && 
-              btn.textContent?.toLowerCase().includes('ia')) {
-            targetButton = btn as HTMLButtonElement;
-          }
-        });
-
-        if (targetButton) {
-          // Click the generate button
-          targetButton.click();
-          
-          // Wait for the content to be generated
-          await delay(600);
-          
-          // Try to capture the generated content
-          const contenido = await waitForRedactionContent(sectionElement, 3000);
-          
-          if (contenido) {
-            resultados[seccion.id] = contenido;
-            onSeccionGenerada(seccion.id, contenido);
-          } else {
-            // Fallback: generate placeholder content
-            const placeholderContent = `Redacción generada para ${seccion.nombre}. El contenido ha sido procesado por Dentaxy IA.`;
-            resultados[seccion.id] = placeholderContent;
-            onSeccionGenerada(seccion.id, placeholderContent);
-          }
-        } else {
-          // No button found, use placeholder
-          const placeholderContent = `Sección ${seccion.nombre} procesada.`;
-          resultados[seccion.id] = placeholderContent;
-          onSeccionGenerada(seccion.id, placeholderContent);
-        }
-      } else {
-        // Section element not found
-        const placeholderContent = `Sección ${seccion.nombre} no disponible.`;
-        resultados[seccion.id] = placeholderContent;
-        onSeccionGenerada(seccion.id, placeholderContent);
-      }
-
-      // Small delay between sections
-      await delay(200);
+      // Small delay between sections for visual feedback
+      await delay(80);
     }
 
     setIsGenerating(false);
+    setGenerationComplete(true);
     setProgress(null);
+    onGeneratingChange?.(false);
 
     toast({
-      title: "Historia Clínica Generada",
-      description: "Todas las secciones han sido redactadas y transferidas a Smile",
+      title: "✓ Historia Clínica Generada",
+      description: "Todas las secciones están listas. Puede copiar y pegar en SMILE.",
     });
 
     onGeneracionCompleta(resultados);
+  };
+
+  const handleCopiarTodasRedacciones = async () => {
+    // Build formatted text with all sections
+    const textoPorCopiar = seccionesGenerables
+      .filter(s => s.id !== 'ginecoObstetricos' || esMujer)
+      .map(seccion => {
+        const contenido = generatedData[seccion.id] || '';
+        return `═══════════════════════════════════════\n${seccion.nombre}\n═══════════════════════════════════════\n\n${contenido}\n`;
+      })
+      .join('\n\n');
+
+    try {
+      await navigator.clipboard.writeText(textoPorCopiar);
+      setCopiedAll(true);
+      
+      toast({
+        title: "✓ Redacciones Copiadas",
+        description: "Todas las secciones han sido copiadas al portapapeles",
+      });
+
+      setTimeout(() => setCopiedAll(false), 3000);
+    } catch (err) {
+      toast({
+        title: "Error al copiar",
+        description: "No se pudo copiar al portapapeles",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -387,27 +361,53 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
         </div>
       </div>
 
-      {/* Master generation button */}
+      {/* Master generation/copy button */}
       <div className="p-6 border-t border-border/50 bg-background/80 backdrop-blur flex-shrink-0">
-        <Button
-          onClick={handleGenerarTodasRedacciones}
-          disabled={isGenerating}
-          className="w-full h-14 bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white font-bold text-lg shadow-xl transition-all duration-300 hover:shadow-2xl"
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="mr-3 h-5 w-5 animate-spin" />
-              Generando {progress?.current} de {progress?.total}...
-            </>
-          ) : (
-            <>
-              <Wand2 className="mr-3 h-5 w-5" />
-              Generar Todas las Redacciones
-            </>
-          )}
-        </Button>
+        {!generationComplete ? (
+          <Button
+            onClick={handleGenerarTodasRedacciones}
+            disabled={isGenerating}
+            className="w-full h-14 bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white font-bold text-lg shadow-xl transition-all duration-300 hover:shadow-2xl"
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                Generando {progress?.current} de {progress?.total}...
+              </>
+            ) : (
+              <>
+                <Wand2 className="mr-3 h-5 w-5" />
+                Generar Todas las Redacciones
+              </>
+            )}
+          </Button>
+        ) : (
+          <Button
+            onClick={handleCopiarTodasRedacciones}
+            className={`w-full h-14 font-bold text-lg shadow-xl transition-all duration-300 hover:shadow-2xl ${
+              copiedAll 
+                ? 'bg-emerald-600 hover:bg-emerald-700' 
+                : 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700'
+            } text-white`}
+          >
+            {copiedAll ? (
+              <>
+                <Check className="mr-3 h-5 w-5" />
+                ✓ Copiadas al Portapapeles
+              </>
+            ) : (
+              <>
+                <Copy className="mr-3 h-5 w-5" />
+                Copiar Todas las Redacciones
+              </>
+            )}
+          </Button>
+        )}
         <p className="text-xs text-center text-muted-foreground mt-3">
-          Dentaxy procesará automáticamente todas las secciones y las transferirá a Smile
+          {generationComplete 
+            ? "Use el botón 'Pegar Redacciones' en SMILE para transferir el contenido"
+            : "Dentaxy procesará automáticamente todas las secciones"
+          }
         </p>
       </div>
 
@@ -416,13 +416,14 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="fixed bottom-24 left-1/2 -translate-x-1/2 z-50 bg-black/90 text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-2xl"
+          exit={{ opacity: 0, y: 20 }}
+          className="fixed bottom-24 left-1/4 -translate-x-1/2 z-50 bg-black/90 text-white px-6 py-3 rounded-full flex items-center gap-3 shadow-2xl"
         >
           <Loader2 className="h-4 w-4 animate-spin text-emerald-400" />
-          <span className="text-sm font-medium">
+          <span className="text-sm font-medium truncate max-w-[180px]">
             {progress.currentSection}
           </span>
-          <div className="w-32 h-2 bg-white/20 rounded-full overflow-hidden">
+          <div className="w-24 h-2 bg-white/20 rounded-full overflow-hidden">
             <motion.div
               className="h-full bg-emerald-500"
               initial={{ width: 0 }}

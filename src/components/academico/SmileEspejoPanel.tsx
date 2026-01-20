@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Clock, ClipboardPaste } from 'lucide-react';
+import { CheckCircle, Clock, ClipboardPaste, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 
@@ -33,23 +33,57 @@ interface SmileEspejoPanelProps {
   contenidoRecibido: Record<string, string>;
   seccionActual?: string;
   todasCompletas?: boolean;
+  isGenerating?: boolean;
+  copiedContent?: Record<string, string>;
 }
 
 export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
   contenidoRecibido,
   seccionActual,
   todasCompletas = false,
+  isGenerating = false,
+  copiedContent,
 }) => {
+  const [pastedData, setPastedData] = useState<Record<string, string>>({});
+  const [isPasted, setIsPasted] = useState(false);
+
   const seccionesRecibidas = Object.keys(contenidoRecibido).filter(
     (key) => contenidoRecibido[key] && contenidoRecibido[key].trim() !== ''
   );
 
-  const handlePegarTodo = () => {
+  const canPaste = todasCompletas && !isGenerating;
+
+  const handlePegarRedacciones = async () => {
+    // Use the content passed from parent or try to read from clipboard
+    const dataToUse = copiedContent || contenidoRecibido;
+    
+    if (Object.keys(dataToUse).length === 0) {
+      toast({
+        title: "Sin contenido",
+        description: "Primero debe copiar las redacciones desde Dentaxy",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Simulate paste animation - paste each section with a small delay
+    for (const seccion of seccionesSmile) {
+      if (dataToUse[seccion.id]) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+        setPastedData(prev => ({ ...prev, [seccion.id]: dataToUse[seccion.id] }));
+      }
+    }
+
+    setIsPasted(true);
+    
     toast({
       title: "✓ Contenido Integrado",
-      description: "Todas las redacciones han sido transferidas exitosamente a Smile",
+      description: "Todas las redacciones han sido transferidas exitosamente a SMILE",
     });
   };
+
+  // Display either pasted data or received data
+  const displayData = isPasted ? pastedData : contenidoRecibido;
 
   return (
     <div className="h-full flex flex-col bg-[#f5f5f5] overflow-hidden">
@@ -66,23 +100,36 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
           </div>
           
           <div className="flex items-center gap-3">
-            {/* Pegar Todo button - only visible when all sections complete */}
-            {todasCompletas && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: 'spring', stiffness: 200 }}
+            {/* Pegar Redacciones button */}
+            <motion.div
+              initial={{ opacity: 0.5 }}
+              animate={{ opacity: canPaste ? 1 : 0.5 }}
+            >
+              <Button
+                onClick={handlePegarRedacciones}
+                disabled={!canPaste || isPasted}
+                size="sm"
+                className={`text-xs h-8 px-4 gap-1.5 transition-all duration-300 ${
+                  isPasted 
+                    ? 'bg-emerald-500 hover:bg-emerald-600 text-white' 
+                    : canPaste
+                      ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                      : 'bg-gray-400 text-gray-200 cursor-not-allowed'
+                }`}
               >
-                <Button
-                  onClick={handlePegarTodo}
-                  size="sm"
-                  className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs h-7 px-3 gap-1.5"
-                >
-                  <ClipboardPaste className="h-3.5 w-3.5" />
-                  Pegar Todo
-                </Button>
-              </motion.div>
-            )}
+                {isPasted ? (
+                  <>
+                    <Check className="h-3.5 w-3.5" />
+                    Pegado
+                  </>
+                ) : (
+                  <>
+                    <ClipboardPaste className="h-3.5 w-3.5" />
+                    Pegar Redacciones
+                  </>
+                )}
+              </Button>
+            </motion.div>
             <span className="text-xs text-gray-500">v2.3.1</span>
           </div>
         </div>
@@ -94,6 +141,11 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
           Historia Clínica — Recepción de Datos
         </span>
         <div className="flex items-center gap-2">
+          {isGenerating && (
+            <span className="text-xs text-amber-600 animate-pulse">
+              Recibiendo datos...
+            </span>
+          )}
           <span className="text-xs text-gray-500">
             {seccionesRecibidas.length} / {seccionesSmile.length} secciones
           </span>
@@ -106,7 +158,7 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
       {/* Content - Simple textareas */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {seccionesSmile.map((seccion, index) => {
-          const tieneContenido = contenidoRecibido[seccion.id]?.trim();
+          const tieneContenido = displayData[seccion.id]?.trim();
           const esSeccionActual = seccionActual === seccion.id;
 
           return (
@@ -134,7 +186,7 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
                 )}
               </label>
               <textarea
-                value={contenidoRecibido[seccion.id] || ''}
+                value={displayData[seccion.id] || ''}
                 readOnly
                 placeholder="Esperando datos de Dentaxy..."
                 className={`
@@ -150,7 +202,7 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
               {tieneContenido && (
                 <span className="text-[10px] text-emerald-600 flex items-center gap-1">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  Recibido desde Dentaxy
+                  {isPasted ? 'Pegado desde portapapeles' : 'Recibido desde Dentaxy'}
                 </span>
               )}
             </motion.div>
@@ -162,7 +214,7 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
       <div className="bg-[#e0e0e0] border-t border-gray-400 px-4 py-2 flex-shrink-0">
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>Sistema Tradicional</span>
-          <span>Sin asistencia IA</span>
+          <span>{isPasted ? '✓ Datos integrados desde Dentaxy' : 'Sin asistencia IA'}</span>
         </div>
       </div>
     </div>
