@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { Mail, Phone, MapPin, Send, Instagram } from 'lucide-react';
 import BottomMenu from '@/components/BottomMenu';
-
 const Contact = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -16,19 +14,20 @@ const Contact = () => {
     message: ''
   });
   const [loading, setLoading] = useState(false);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
+    const {
+      name,
+      value
+    } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     // Simulamos el envío del formulario
     setTimeout(() => {
       setLoading(false);
@@ -41,30 +40,23 @@ const Contact = () => {
       });
     }, 1500);
   };
-
-  const contactInfo = [
-    {
-      icon: Mail,
-      title: "Email",
-      details: "dentalbasicsacademy@dentaxy.com",
-      link: "mailto:dentalbasicsacademy@dentaxy.com"
-    },
-    {
-      icon: Instagram,
-      title: "Instagram",
-      details: "@dentalbasicsacademy",
-      link: "https://instagram.com/dentalbasicsacademy"
-    },
-    {
-      icon: MapPin,
-      title: "Oficinas",
-      details: "Guadalupe, Zacatecas",
-      link: "https://maps.google.com"
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-white">
+  const contactInfo = [{
+    icon: Mail,
+    title: "Email",
+    details: "dentalbasicsacademy@dentaxy.com",
+    link: "mailto:dentalbasicsacademy@dentaxy.com"
+  }, {
+    icon: Instagram,
+    title: "Instagram",
+    details: "@dentalbasicsacademy",
+    link: "https://instagram.com/dentalbasicsacademy"
+  }, {
+    icon: MapPin,
+    title: "Oficinas",
+    details: "Guadalupe, Zacatecas",
+    link: "https://maps.google.com"
+  }];
+  return <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-slate-50">
         <Link to="/" className="flex items-center gap-2">
@@ -100,30 +92,13 @@ const Contact = () => {
                     <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-700">
                       Nombre completo
                     </label>
-                    <Input 
-                      id="name"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      required
-                      placeholder="Tu nombre"
-                      className="bg-gray-50 border-gray-300"
-                    />
+                    <Input id="name" name="name" value={formData.name} onChange={handleChange} required placeholder="Tu nombre" className="bg-gray-50 border-gray-300" />
                   </div>
                   <div>
                     <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-700">
                       Correo electrónico
                     </label>
-                    <Input 
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      placeholder="correo@ejemplo.com"
-                      className="bg-gray-50 border-gray-300"
-                    />
+                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required placeholder="correo@ejemplo.com" className="bg-gray-50 border-gray-300" />
                   </div>
                 </div>
                 
@@ -131,52 +106,27 @@ const Contact = () => {
                   <label htmlFor="subject" className="block mb-2 text-sm font-medium text-gray-700">
                     Asunto
                   </label>
-                  <Input 
-                    id="subject"
-                    name="subject"
-                    value={formData.subject}
-                    onChange={handleChange}
-                    required
-                    placeholder="¿Sobre qué quieres hablar?"
-                    className="bg-gray-50 border-gray-300"
-                  />
+                  <Input id="subject" name="subject" value={formData.subject} onChange={handleChange} required placeholder="¿Sobre qué quieres hablar?" className="bg-gray-50 border-gray-300" />
                 </div>
                 
                 <div>
                   <label htmlFor="message" className="block mb-2 text-sm font-medium text-gray-700">
                     Mensaje
                   </label>
-                  <Textarea 
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    placeholder="Escribe tu mensaje aquí..."
-                    rows={6}
-                    className="bg-gray-50 border-gray-300"
-                  />
+                  <Textarea id="message" name="message" value={formData.message} onChange={handleChange} required placeholder="Escribe tu mensaje aquí..." rows={6} className="bg-gray-50 border-gray-300" />
                 </div>
                 
-                <Button 
-                  type="submit" 
-                  disabled={loading}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  {loading ? (
-                    <span className="flex items-center">
+                <Button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  {loading ? <span className="flex items-center">
                       <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
                       Enviando...
-                    </span>
-                  ) : (
-                    <span className="flex items-center">
+                    </span> : <span className="flex items-center">
                       <Send className="mr-2 h-4 w-4" />
                       Enviar mensaje
-                    </span>
-                  )}
+                    </span>}
                 </Button>
               </form>
             </div>
@@ -187,19 +137,15 @@ const Contact = () => {
               <h2 className="text-2xl font-semibold mb-8 text-gray-800">Información de contacto</h2>
               
               <div className="space-y-8">
-                {contactInfo.map((item, index) => (
-                  <div key={index} className="flex items-start">
+                {contactInfo.map((item, index) => <div key={index} className="flex items-start">
                     <div className="bg-white p-3 rounded-full mr-4 shadow-sm">
                       <item.icon className="h-6 w-6 text-blue-600" />
                     </div>
                     <div>
                       <h3 className="font-medium text-gray-800">{item.title}</h3>
-                      <a href={item.link} className="text-blue-600 hover:underline">
-                        {item.details}
-                      </a>
+                      
                     </div>
-                  </div>
-                ))}
+                  </div>)}
               </div>
               
               <div className="mt-10 pt-8 border-t border-blue-200">
@@ -216,8 +162,6 @@ const Contact = () => {
       </div>
       
       <BottomMenu />
-    </div>
-  );
+    </div>;
 };
-
 export default Contact;
