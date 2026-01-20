@@ -62,8 +62,8 @@ const About = () => {
     features: ["Lectura de archivos dentales STL, PLY y OBJ", "Manipulación en tiempo real", "Compatibilidad con escáneres de distintas marcas"]
   }, {
     icon: Hand,
-    title: "7. Visualizador por gestos (Top Secret)",
-    features: ["Control del modelo 3D sin tocar teclado o mouse", "Reconocimiento de gestos de la mano para rotar, acercar, cortar", "Ideal para docentes, cirujanos y exposiciones académicas"]
+    title: "7. Visualizador (Top Secret)",
+    features: ["?????"]
   }, {
     icon: ScanLine,
     title: "8. Visualizador de tomografías (CBCT/DICOM)",
