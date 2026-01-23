@@ -11,8 +11,9 @@ import { AnimatedTextarea } from "@/components/ui/animated-textarea";
 
 interface AntecedentesPersonalesNoPatologicosProps {
   formData: FormDataState;
-  handleAntecedenteChange: (field: string, value: any) => void;
+  handleAntecedenteNoPatologicoChange: (field: string, value: any) => void;
   toggleService: (service: string) => void;
+  onRedaccionGenerada?: (redacciones: any) => void;
 }
 
 // Word button component for replacing checkboxes
@@ -26,8 +27,8 @@ const WordButton = ({
   onClick: () => void;
 }) => {
   return <button onClick={onClick} className={`px-2 py-1 text-xs rounded-md transition-colors mb-1 mr-1 ${isSelected ? "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200" : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"}`}>
-      {label}
-    </button>;
+    {label}
+  </button>;
 };
 
 const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPatologicosProps> = ({
@@ -84,13 +85,16 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
       higieneBucal: higieneBucalRedaccion,
       alimentacion: alimentacionRedaccion
     });
+
+    setRedacciones(nuevasRedacciones);
+    if (onRedaccionGenerada) {
+      onRedaccionGenerada(nuevasRedacciones);
+    }
     setShowForm(false);
     setProgress(100);
 
     // Scroll to the title "Servicios Domiciliarios"
-    if (redaccionesRef.current) {
-      redaccionesRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const generateServiciosDomiciliariosText = () => {
