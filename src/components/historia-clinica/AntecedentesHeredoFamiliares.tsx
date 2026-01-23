@@ -11,6 +11,7 @@ interface AntecedentesHeredoFamiliaresProps {
   formData: FormDataState;
   handleFamiliarChange: (familiar: string, field: string, value: string | boolean) => void;
   handleCondicionChange: (familiar: string, condicion: string, value: string | boolean) => void;
+  onRedaccionGenerada?: (texto: string) => void;
 }
 
 const familiares = [
@@ -66,7 +67,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
   };
 
   const familiarKey = getFamiliarKey(familiar);
-  
+
   // Inicializar familiarData si no existe
   const defaultFamiliarData: Familiar = {
     finado: false,
@@ -139,9 +140,8 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
         </div>
         {!familiarData.vivoSano && (
           <button
-            className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium col-span-1 ${
-              familiarData.finado ? "bg-red-600 text-white" : "bg-white text-gray-700 border-gray-300"
-            }`}
+            className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium col-span-1 ${familiarData.finado ? "bg-red-600 text-white" : "bg-white text-gray-700 border-gray-300"
+              }`}
             onClick={handleFinado}
           >
             Finado
@@ -149,11 +149,10 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
         )}
         {!familiarData.finado && (
           <button
-            className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium ${
-              familiarData.vivoSano 
-                ? "bg-green-600 text-white col-span-4 md:col-span-7" 
-                : "bg-white text-gray-700 border-gray-300 col-span-1"
-            }`}
+            className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium ${familiarData.vivoSano
+              ? "bg-green-600 text-white col-span-4 md:col-span-7"
+              : "bg-white text-gray-700 border-gray-300 col-span-1"
+              }`}
             onClick={handleVivoSano}
           >
             Vivo y Sano
@@ -165,9 +164,8 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
             return (
               <button
                 key={cond}
-                className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium col-span-1 ${
-                  familiarData.condiciones[condKey] ? "bg-blue-600 text-white" : "bg-white text-gray-700 border-gray-300"
-                }`}
+                className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium col-span-1 ${familiarData.condiciones[condKey] ? "bg-blue-600 text-white" : "bg-white text-gray-700 border-gray-300"
+                  }`}
                 onClick={() => handleCondicionChange(familiarKey, condKey, !familiarData.condiciones[condKey])}
               >
                 {cond}
@@ -195,7 +193,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
   );
 };
 
-const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCondicionChange }: AntecedentesHeredoFamiliaresProps) => {
+const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCondicionChange, onRedaccionGenerada }: AntecedentesHeredoFamiliaresProps) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showRedaccion, setShowRedaccion] = useState(false);
@@ -242,13 +240,13 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       handleFamiliarChange(familiarKey, 'finado', false);
       handleFamiliarChange(familiarKey, 'vivoSano', false);
       handleFamiliarChange(familiarKey, 'causaMuerte', '');
-      
+
       // Inicializar todas las condiciones
       condiciones.forEach(cond => {
         const condKey = getCondicionKey(cond);
         handleCondicionChange(familiarKey, condKey, false);
       });
-      
+
       setFamiliaresAdicionalsList([...familiaresAdicionalsList, selectedFamiliar]);
       setSelectedFamiliar("");
     }
@@ -301,7 +299,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       } else if (condicionesText.length === 2) {
         const [primera, segunda] = condicionesText;
         if ((primera === "Diabetes mellitus" && segunda === "Hipertensión arterial") ||
-            (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
+          (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
           condicionesConectadas = `${primera} e ${segunda}`;
         } else {
           condicionesConectadas = `${primera} y ${segunda}`;
@@ -361,7 +359,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       } else if (enfermedadesRepetidas.length === 2) {
         const [primera, segunda] = enfermedadesRepetidas;
         if ((primera === "Diabetes mellitus" && segunda === "Hipertensión arterial") ||
-            (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
+          (segunda === "Diabetes mellitus" && primera === "Hipertensión arterial")) {
           enfermedadesConectadas = `${primera} e ${segunda}`;
         } else {
           enfermedadesConectadas = `${primera} y ${segunda}`;
@@ -375,6 +373,9 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
     }
 
     setRedaccionIA(redaccionFinal);
+    if (onRedaccionGenerada) {
+      onRedaccionGenerada(redaccionFinal);
+    }
     setDisplayedText("");
     setShowRedaccion(true);
 
@@ -474,7 +475,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
               </button>
             </div>
           </div>
-  
+
           <div className="flex items-center gap-1 md:gap-2">
             <button onClick={handleMinimize} className="p-0.5 md:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" aria-label={isMinimized ? "Expandir" : "Minimizar"}>
               <Minus className="w-3 h-3 md:w-4 md:h-4" />
@@ -487,20 +488,40 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
             </button>
           </div>
         </div>
-  
+
         <div className="flex justify-start px-3 md:px-6 py-1 md:py-2">
           <h2 className="text-base md:text-xl font-semibold flex items-center gap-2">
             <span className="text-gray-400">II.</span> Antecedentes Heredo Familiares
           </h2>
         </div>
-  
+
         {!isMinimized && (
           <>
             {showRedaccion ? (
               <div ref={redaccionRef} className="p-3 md:p-6">
-                <label className="font-mono text-xs md:text-sm font-medium text-gray-800">
-                  Redacción IA...
-                </label>
+                <div className="flex justify-between items-center mb-2">
+                  <label className="font-mono text-xs md:text-sm font-medium text-gray-800">
+                    Redacción IA...
+                  </label>
+                  <Button
+                    onClick={handleCopy}
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    {copied ? (
+                      <>
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        Copiado
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4 mr-1" />
+                        Copiar
+                      </>
+                    )}
+                  </Button>
+                </div>
                 <div
                   className="progress-bar-container"
                   style={{
@@ -529,20 +550,6 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
                 >
                   {displayedText}
                 </div>
-  
-                <Button
-                  onClick={handleCopy}
-                  className="mt-2 bg-blue-500 text-white px-2 md:px-4 py-1 md:py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 md:gap-2 relative text-xs md:text-sm"
-                >
-                  <Copy className="w-3 h-3 md:w-4 md:h-4" />
-                  <span>Copiar Redacción</span>
-                  {copied && (
-                    <div className="absolute -top-6 md:-top-8 left-0 bg-green-500 text-white text-xs md:text-sm rounded-lg px-2 md:px-3 py-0.5 md:py-1 flex items-center gap-0.5 md:gap-1">
-                      <CheckCircle className="w-3 h-3 md:w-4 md:h-4" />
-                      <span>Copiado</span>
-                    </div>
-                  )}
-                </Button>
               </div>
             ) : (
               <div className="p-3 md:p-6 space-y-3 md:space-y-6">
@@ -597,7 +604,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
                 </div>
               </div>
             )}
-  
+
             {!showRedaccion && (
               <div className="p-3 md:p-6 flex justify-center gap-2 md:gap-4">
                 <Button onClick={generarRedaccionIA} className="bg-blue-500 text-white px-2 md:px-4 py-1 md:py-2 rounded-lg hover:bg-blue-600 flex items-center gap-1 md:gap-2 text-xs md:text-sm">
@@ -612,7 +619,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
           </>
         )}
       </Card>
-  
+
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
@@ -630,7 +637,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         </div>
       )}
     </div>
-  );  
+  );
 };
 
 export default AntecedentesHeredoFamiliares;

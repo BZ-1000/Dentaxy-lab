@@ -6,18 +6,19 @@ import { DentaxyFormPanel } from '@/components/academico/DentaxyFormPanel';
 import { SmileEspejoPanel, seccionesSmile } from '@/components/academico/SmileEspejoPanel';
 import { useDemoSession } from '@/hooks/useDemoSession';
 import { Loader2 } from 'lucide-react';
-import { 
-  ResizablePanelGroup, 
-  ResizablePanel, 
-  ResizableHandle 
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle
 } from '@/components/ui/resizable';
 
 export const ClimuzacView: React.FC = () => {
   const navigate = useNavigate();
   const { verifySession } = useDemoSession();
-  
+
   const [sesionValida, setSesionValida] = useState<boolean | null>(null);
   const [smileData, setSmileData] = useState<Record<string, string>>({});
+  const [smileFormData, setSmileFormData] = useState<any>(null); // New state for structured data
   const [seccionActual, setSeccionActual] = useState<string | undefined>(undefined);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -25,12 +26,12 @@ export const ClimuzacView: React.FC = () => {
     const verificar = async () => {
       const token = sessionStorage.getItem('demo_session_token');
       const module = sessionStorage.getItem('demo_module');
-      
+
       if (!token || module !== 'academico') {
         setSesionValida(false);
         return;
       }
-      
+
       const valid = await verifySession(token);
       setSesionValida(valid);
     };
@@ -46,8 +47,14 @@ export const ClimuzacView: React.FC = () => {
     setSeccionActual(seccionId);
   };
 
-  const handleGeneracionCompleta = (datos: Record<string, string>) => {
-    setSmileData(datos);
+  const handleGeneracionCompleta = (datos: Record<string, string>, formData?: any) => {
+    // Merge data if empty is passed (workaround for DentaxyFormPanel)
+    if (Object.keys(datos).length > 0) {
+      setSmileData(datos);
+    }
+    if (formData) {
+      setSmileFormData(formData);
+    }
     setSeccionActual(undefined);
   };
 
@@ -85,14 +92,14 @@ export const ClimuzacView: React.FC = () => {
         <ClimuzacHeader />
 
         {/* Resizable Split View */}
-        <ResizablePanelGroup 
-          direction="horizontal" 
+        <ResizablePanelGroup
+          direction="horizontal"
           className="flex-1 overflow-hidden"
         >
           {/* Left Panel: Dentaxy IA Form */}
-          <ResizablePanel 
-            defaultSize={50} 
-            minSize={30} 
+          <ResizablePanel
+            defaultSize={50}
+            minSize={30}
             maxSize={70}
             className="overflow-hidden"
           >
@@ -105,20 +112,21 @@ export const ClimuzacView: React.FC = () => {
           </ResizablePanel>
 
           {/* Minimalist Resize Handle */}
-          <ResizableHandle 
-            withHandle 
+          <ResizableHandle
+            withHandle
             className="w-1 bg-border/50 hover:bg-emerald-500/50 transition-colors duration-200 data-[resize-handle-active]:bg-emerald-500"
           />
 
           {/* Right Panel: Smile Mirror */}
-          <ResizablePanel 
-            defaultSize={50} 
-            minSize={30} 
+          <ResizablePanel
+            defaultSize={50}
+            minSize={30}
             maxSize={70}
             className="overflow-hidden"
           >
             <SmileEspejoPanel
               contenidoRecibido={smileData}
+              formData={smileFormData}
               seccionActual={seccionActual}
               todasCompletas={todasCompletas}
               isGenerating={isGenerating}

@@ -25,7 +25,8 @@ interface CopiedState {
 const AntecedentesPersonalesPatologicos: React.FC<{
   formData: FormDataState;
   handleAntecedentePatologicoChange: (field: string, value: any) => void;
-}> = ({ formData, handleAntecedentePatologicoChange }) => {
+  onRedaccionGenerada?: (redacciones: any) => void;
+}> = ({ formData, handleAntecedentePatologicoChange, onRedaccionGenerada }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [showForm, setShowForm] = useState(true);
@@ -84,7 +85,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     }
   };
 
-  const inputRefs = useRef<{[key: string]: React.RefObject<HTMLTextAreaElement>}>({
+  const inputRefs = useRef<{ [key: string]: React.RefObject<HTMLTextAreaElement> }>({
     nutricionales: React.createRef<HTMLTextAreaElement>(),
     cardiacos: React.createRef<HTMLTextAreaElement>(),
     hepaticos: React.createRef<HTMLTextAreaElement>(),
@@ -169,6 +170,9 @@ const AntecedentesPersonalesPatologicos: React.FC<{
     };
 
     setRedacciones(nuevasRedacciones);
+    if (onRedaccionGenerada) {
+      onRedaccionGenerada(nuevasRedacciones);
+    }
     setShowForm(false);
     setProgress(100);
 
@@ -333,7 +337,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
 
   const limpiarFormulario = () => {
     const categoriasIniciales = ['nutricionales', 'cardiacos', 'hepaticos', 'enfermedadesTransmisionSexual',
-                              'enfermedadesEruptivas', 'pulmonares', 'infecciosasParasitarias', 'otrosPadecimientos'];
+      'enfermedadesEruptivas', 'pulmonares', 'infecciosasParasitarias', 'otrosPadecimientos'];
 
     categoriasIniciales.forEach(categoria => {
       const categoriasLimpias = {
@@ -415,11 +419,10 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       <button
         type="button"
         onClick={() => seleccionarOpcion(categoria, valor, !isChecked)}
-        className={`px-3 py-1.5 rounded-md text-xs transition-all ${
-          isChecked
-            ? "bg-blue-500 text-white shadow-md"
-            : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
-        }`}
+        className={`px-3 py-1.5 rounded-md text-xs transition-all ${isChecked
+          ? "bg-blue-500 text-white shadow-md"
+          : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+          }`}
       >
         {etiqueta}
       </button>
@@ -469,7 +472,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
                 value={formData.antecedentesPersonalesPatologicos[categoria]?.otraDescripcion || ''}
                 onChange={(e) => handleOtraDescripcionChange(categoria, e.target.value)}
                 className="w-full h-[30px]"
-                onBlur={() => {}}
+                onBlur={() => { }}
               />
             </div>
           )}
