@@ -10,6 +10,7 @@ import { FormDataState } from '@/types/historiaClinica';
 interface ArticulacionCraneomandibularProps {
   formData: FormDataState;
   handleArticulacionCraneomandibularChange: (part: string, value: string | boolean | object) => void;
+  onRedaccionGenerada?: (text: string) => void;
 }
 
 // 1. Interface para el estado interno del componente
@@ -232,9 +233,10 @@ const lipNarrativePhrases: {
 };
 
 // --- Componente Principal ---
-const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> = ({ 
-  formData, 
-  handleArticulacionCraneomandibularChange 
+const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> = ({
+  formData,
+  handleArticulacionCraneomandibularChange,
+  onRedaccionGenerada
 }) => {
   // Estados UI
   const [isMinimized, setIsMinimized] = useState(false);
@@ -308,7 +310,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
       handleArticulacionCraneomandibularChange(fieldPath, value);
     }
   }, [handleArticulacionCraneomandibularChange, formData.articulacionCraneomandibular]);
-  
+
   const handleTextChange = useCallback((fieldPath: string, e: React.ChangeEvent<HTMLTextAreaElement>) => {
     // Manejar rutas anidadas como "labios.otrasObservaciones"
     if (fieldPath.includes('.')) {
@@ -319,7 +321,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
       handleArticulacionCraneomandibularChange(fieldPath, e.target.value);
     }
   }, [handleArticulacionCraneomandibularChange, formData.articulacionCraneomandibular]);
-  
+
   const handleBooleanChange = useCallback((fieldPath: string, value: boolean) => {
     handleArticulacionCraneomandibularChange(fieldPath, value);
   }, [handleArticulacionCraneomandibularChange]);
@@ -391,6 +393,9 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
     }
 
     setTargetLipsNarrative(fullText); // Establece el texto final, disparando el useEffect
+    if (onRedaccionGenerada) {
+      onRedaccionGenerada(fullText);
+    }
     setLipsViewMode('narrative');
     // setIsGeneratingLipsNarrative(false) se establece en el useEffect al terminar
   }, [formData.articulacionCraneomandibular?.labios, clearLipsInterval]);
@@ -407,7 +412,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
             className={`px-3 py-1 text-sm rounded-full transition-colors ${currentValue === item.value
               ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-md ring-2 ring-emerald-300 dark:ring-emerald-700' // Añadido anillo para mejor visibilidad
               : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600' // Añadido borde sutil
-            }`}
+              }`}
             onClick={() => handleOptionChange(fieldPath, item.value)}
           >
             {item.label}
@@ -594,7 +599,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                           className="min-h-[70px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm"
                         />
                       </div>
-                      
+
                       {/* Botón Generar Redacción IA al final */}
                       <div className="flex justify-end pt-4">
                         <Button

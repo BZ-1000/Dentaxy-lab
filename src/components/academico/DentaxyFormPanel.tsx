@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Loader2, Wand2 } from 'lucide-react';
+import { Loader2, Wand2, MousePointer, X, Check, Copy, ClipboardPaste } from 'lucide-react';
+import { FormDataState } from '@/types/historiaClinica';
 
 import { Button } from '@/components/ui/button';
 import { useGenerarTodasRedacciones } from '@/hooks/useGenerarTodasRedacciones';
@@ -233,8 +234,7 @@ const DentaxyExtensionPromoModal = ({ open, onClose }: { open: boolean; onClose:
     </div>
   );
 };
-import { MousePointer, X, Check, Copy, ClipboardPaste } from 'lucide-react';
-import { FormDataState } from '@/types/historiaClinica';
+
 
 interface DentaxyFormPanelProps {
   onGeneracionCompleta?: (datos: Record<string, string>, formData?: FormDataState) => void;
@@ -400,6 +400,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
                 handlePadecimientoChange={handlePadecimientoChange}
                 handleDolorChange={handleDolorChange}
                 handleSinSintomasChange={handleSinSintomasChange}
+                onRedaccionGenerada={(content) => onSeccionGenerada('padecimiento', content)}
               />
             </div>
 
@@ -477,6 +478,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
               <ExamenCabeza
                 formData={formData}
                 handleExamenCabezaChange={handleExamenCabezaChange}
+                onRedaccionGenerada={(content) => onSeccionGenerada('cabeza', content)}
               />
             </div>
 
@@ -484,6 +486,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
               <ArticulacionCraneomandibular
                 formData={formData}
                 handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange}
+                onRedaccionGenerada={(content) => onSeccionGenerada('atm', content)}
               />
             </div>
 
@@ -498,6 +501,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
               <ExamenIntrabucal
                 formData={formData}
                 handleExamenIntrabucalChange={handleExamenIntrabucalChange}
+                onRedaccionGenerada={(content) => onSeccionGenerada('intrabucal', content)}
               />
             </div>
 

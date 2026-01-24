@@ -10,9 +10,10 @@ interface RedaccionIntrabucalIAProps {
   formData: FormDataState;
   onSwitchToForm: () => void;
   triggerRegenerate?: number;
+  onRedaccionGenerada?: (text: string) => void;
 }
 
-const RedaccionIntrabucalIA: React.FC<RedaccionIntrabucalIAProps> = ({ formData, onSwitchToForm, triggerRegenerate }) => {
+const RedaccionIntrabucalIA: React.FC<RedaccionIntrabucalIAProps> = ({ formData, onSwitchToForm, triggerRegenerate, onRedaccionGenerada }) => {
   const [redacciones, setRedacciones] = useState({
     mejillas: '',
     lengua: '',
@@ -26,32 +27,32 @@ const RedaccionIntrabucalIA: React.FC<RedaccionIntrabucalIAProps> = ({ formData,
   const [isGenerating, setIsGenerating] = useState(false);
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
-useEffect(() => {
+  useEffect(() => {
     generateRedacciones();
   }, [triggerRegenerate]);
 
   const generateRedacciones = async () => {
     setIsGenerating(true);
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     const newRedacciones = { ...redacciones };
 
     if (formData.examenIntrabucal?.sinHallazgos) {
       // Redacciones profesionales sin anomalías
       newRedacciones.mejillas = 'Mucosa yugal de color rosa coral uniforme, con superficie lisa, húmeda y brillante. No se observan áreas de eritema, ulceraciones, ni lesiones pigmentadas. La textura es blanda a la palpación, sin induraciones ni aumento de volumen. Conducto de Stenon visible, permeable y sin salida de secreción anómala. Sin evidencia de dolor o sensibilidad al tacto.';
-      
+
       newRedacciones.lengua = 'Lengua de color rosa pálido con papilas filiformes y fungiformes bien definidas. Superficie húmeda, blanda y simétrica. Bordes sin improntas dentarias y movilidad conservada en todos los ejes. No se aprecian fisuras, placas, saburra adherente ni áreas de depapilación. Sin presencia de lesiones ulceradas ni dolor a la exploración.';
-      
+
       newRedacciones.pisoBoca = 'Mucosa del piso de boca de color rosa brillante, con leve transparencia vascular característica. Superficie lisa, húmeda y sin evidencia de ulceraciones, masas o elevaciones. Conductos de Wharton visibles, permeables y con salida de saliva clara. Sin induración ni sensibilidad a la palpación.';
-      
+
       newRedacciones.encias = 'Encía marginal, insertada e interdental de color rosa coral pálido, con puntilleo superficial bien definido. Contornos gingivales regulares, firmes y adaptados al cuello dentario. No se observa sangrado, edema ni recesión gingival. Ausencia de placa visible, cálculo o bolsas periodontales detectables. Tejido firme y sin respuesta dolorosa al tacto.';
-      
+
       newRedacciones.paladar = 'Paladar duro de color rosa pálido con rugas palatinas bien delineadas y mucosa firmemente adherida. Paladar blando de color rosa salmón homogéneo, húmedo y con movilidad conservada. No se aprecian áreas de eritema, ulceraciones, petequias ni lesiones pigmentadas. Tejido sin signos de inflamación ni dolor al tacto.';
-      
+
       newRedacciones.orofaringe = 'Mucosa orofaríngea de color rosa tenue y homogéneo, con superficie íntegra y húmeda. Amígdalas de tamaño proporcional, sin exudado ni hiperemia. Pilares amigdalinos simétricos, sin edema ni eritema. Reflejo nauseoso presente y simétrico. Sin evidencia de dolor, irritación o congestión faríngea.';
-      
+
       newRedacciones.regionRetromolar = 'Región retromolar con mucosa de color rosa coral uniforme, superficie lisa y húmeda. No se observan ulceraciones, fibrosis ni abultamientos. Tejido blando, elástico y sin respuesta dolorosa a la palpación. Sin signos de irritación mecánica ni alteraciones inflamatorias.';
-      
+
       newRedacciones.istmoFauces = 'Mucosa del istmo de las fauces de color rosa pálido y homogéneo, con superficie íntegra y brillante. Pilares anteriores y posteriores simétricos, sin aumento de volumen ni eritema. Amígdalas sin exudado, con criptas discretas y sin congestión visible. Movilidad conservada y sin dolor a la exploración ni durante la fonación o deglución.';
     } else {
       // Generar redacciones individuales basadas en selecciones
@@ -215,6 +216,27 @@ useEffect(() => {
 
     setRedacciones(newRedacciones);
     setIsGenerating(false);
+
+    if (onRedaccionGenerada) {
+      const fullText = `EXAMEN INTRABUCAL
+
+Mejillas: ${newRedacciones.mejillas}
+
+Lengua: ${newRedacciones.lengua}
+
+Piso de boca: ${newRedacciones.pisoBoca}
+
+Encías: ${newRedacciones.encias}
+
+Paladar duro y blando: ${newRedacciones.paladar}
+
+Orofaringe: ${newRedacciones.orofaringe}
+
+Región retromolar: ${newRedacciones.regionRetromolar}
+
+Istmo de las fauces: ${newRedacciones.istmoFauces}`;
+      onRedaccionGenerada(fullText);
+    }
   };
 
   const handleCopySection = async (section: string, text: string) => {

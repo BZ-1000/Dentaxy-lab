@@ -50,9 +50,10 @@ declare module '@/types/historiaClinica' {
 interface ExamenCabezaProps {
   formData: FormDataState;
   handleExamenCabezaChange: (part: string, value: any) => void;
+  onRedaccionGenerada?: (redaccion: string) => void;
 }
 
-const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps) => {
+const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada }: ExamenCabezaProps) => {
   // Estados para la UI de la tarjeta y la redacción
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -93,7 +94,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
   const handleDetailedChange = (category: keyof CaraState, field: string, value: string | boolean) => {
     const currentCara = formData.examenCabeza.cara as CaraState || {};
     const currentData = (currentCara[category] as CaracteristicaFacial) || {};
-    
+
     const updatedData = {
       ...currentData,
       [field]: value
@@ -103,7 +104,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
       ...currentCara,
       [category]: updatedData
     };
-    
+
     handleExamenCabezaChange('cara', updatedCara);
   };
 
@@ -127,7 +128,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
     const value = data?.[field as keyof CaracteristicaFacial];
     return typeof value === 'string' ? value : '';
   };
-  
+
   // Obtiene valor booleano 'presente' de una categoría detallada
   const getCheckboxValue = (category: keyof CaraState): boolean => {
     const data = formData.examenCabeza.cara?.[category];
@@ -143,7 +144,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
     // Limpia campos de primer nivel
     handleExamenCabezaChange('tipoCraneo', '');
     handleExamenCabezaChange('tipoPerfil', '');
-    
+
     // Limpia el objeto 'cara'
     const caraLimpia: CaraState = {
       tez: '',
@@ -209,7 +210,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
         if (cara.lunares.tamanio) detallesLunares.push(`de tamaño ${cara.lunares.tamanio}`);
         if (cara.lunares.color) detallesLunares.push(`de color ${cara.lunares.color}`);
         if (cara.lunares.detalles) detallesLunares.push(`descritos como: "${cara.lunares.detalles}"`);
-        
+
         if (detallesLunares.length > 0) {
           descLunares += ` ${detallesLunares.join(', ')}`;
         }
@@ -226,7 +227,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
         if (cara.cicatrices.tamanio) detallesCicatrices.push(`de tamaño ${cara.cicatrices.tamanio}`);
         if (cara.cicatrices.bordes) detallesCicatrices.push(`con bordes ${cara.cicatrices.bordes}`);
         if (cara.cicatrices.detalles) detallesCicatrices.push(`descritas como: "${cara.cicatrices.detalles}"`);
-        
+
         if (detallesCicatrices.length > 0) {
           descCicatrices += ` ${detallesCicatrices.join(' ')}`;
         }
@@ -259,7 +260,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
         if (cara.edema.localizacion) detallesEdema.push(`con localización en ${cara.edema.localizacion}`);
         if (cara.edema.consistencia) detallesEdema.push(`de consistencia ${cara.edema.consistencia}`);
         if (cara.edema.descripcion) detallesEdema.push(`descrito como: "${cara.edema.descripcion}"`);
-        
+
         if (detallesEdema.length > 0) {
           descEdema += ` ${detallesEdema.join(', ')}`;
         }
@@ -284,6 +285,9 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
     }
 
     setRedaccionCara(redaccion.trim());
+    if (onRedaccionGenerada) {
+      onRedaccionGenerada(redaccion.trim());
+    }
     setShowForm(false);
     redaccionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -296,7 +300,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
     } catch (error) {
       console.error('Error tracking copy:', error);
     }
-    
+
     if (redaccionCara) {
       navigator.clipboard.writeText(redaccionCara);
       setCopied(true);
@@ -308,7 +312,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="examen-cabeza">
       <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-        
+
         {/* --- Barra Superior (Controles) --- */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
@@ -352,7 +356,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
             {showForm ? (
               // --- VISTA DE FORMULARIO ---
               <div className="space-y-8">
-                
+
                 {/* Tipo de Cráneo */}
                 <div className="space-y-4">
                   <Label className="text-base font-medium text-gray-800 dark:text-white">Tipo de Cráneo</Label>
@@ -363,21 +367,20 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                       { value: 'braquicefalo', label: 'Braquicéfalo', image: '/braquicefalo.svg' }
                     ].map((tipo) => (
                       <div key={tipo.value} className="flex flex-col items-center space-y-2">
-                         {/* --- INICIO DE LA MODIFICACIÓN --- */}
-                         <div 
-                           className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${
-                             getFormValue('tipoCraneo') === tipo.value
-                               ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
-                               : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
-                           }`}
-                           onClick={() => {
-                             // MODIFICADO: Lógica para deseleccionar
-                             const currentValue = getFormValue('tipoCraneo');
-                             handleExamenCabezaChange('tipoCraneo', currentValue === tipo.value ? '' : tipo.value);
-                           }}
-                         >
-                          <img 
-                            src={tipo.image} 
+                        {/* --- INICIO DE LA MODIFICACIÓN --- */}
+                        <div
+                          className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${getFormValue('tipoCraneo') === tipo.value
+                            ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
+                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
+                            }`}
+                          onClick={() => {
+                            // MODIFICADO: Lógica para deseleccionar
+                            const currentValue = getFormValue('tipoCraneo');
+                            handleExamenCabezaChange('tipoCraneo', currentValue === tipo.value ? '' : tipo.value);
+                          }}
+                        >
+                          <img
+                            src={tipo.image}
                             alt={tipo.label}
                             className="w-full h-full object-cover"
                           />
@@ -400,20 +403,19 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                     ].map((perfil) => (
                       <div key={perfil.value} className="flex flex-col items-center space-y-2">
                         {/* --- INICIO DE LA MODIFICACIÓN --- */}
-                        <div 
-                          className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${
-                            getFormValue('tipoPerfil') === perfil.value
-                              ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
-                              : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
-                          }`}
+                        <div
+                          className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${getFormValue('tipoPerfil') === perfil.value
+                            ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
+                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
+                            }`}
                           onClick={() => {
                             // MODIFICADO: Lógica para deseleccionar
                             const currentValue = getFormValue('tipoPerfil');
                             handleExamenCabezaChange('tipoPerfil', currentValue === perfil.value ? '' : perfil.value);
                           }}
                         >
-                          <img 
-                            src={perfil.image} 
+                          <img
+                            src={perfil.image}
                             alt={perfil.label}
                             className="w-full h-full object-cover"
                           />
@@ -430,14 +432,14 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                   <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
                     Inspección Facial (Cara)
                   </h3>
-                  
+
                   {/* Grid para Tez y Estado de Piel */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Tez */}
                     <div className="space-y-3">
                       <Label className="font-medium text-gray-700 dark:text-gray-300">Tez</Label>
-                      <Select 
-                        value={getFormValueCara('tez')} 
+                      <Select
+                        value={getFormValueCara('tez')}
                         onValueChange={(value) => handleCaraChange('tez', value)}
                       >
                         <SelectTrigger>
@@ -493,14 +495,14 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                           <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('lunares') ? 'rotate-180' : ''}`} />
                         </Button>
                       </CollapsibleTrigger>
-                      
+
                       <CollapsibleContent className="px-4 pb-4">
                         <div className="space-y-4 ml-2 pt-2">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
                               <Label className="text-sm">Tamaño</Label>
-                              <Select 
-                                value={getSelectValue('lunares', 'tamanio')} 
+                              <Select
+                                value={getSelectValue('lunares', 'tamanio')}
                                 onValueChange={(value) => handleDetailedChange('lunares', 'tamanio', value)}
                               >
                                 <SelectTrigger><SelectValue placeholder="Tamaño" /></SelectTrigger>
@@ -513,8 +515,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             </div>
                             <div>
                               <Label className="text-sm">Color</Label>
-                              <Select 
-                                value={getSelectValue('lunares', 'color')} 
+                              <Select
+                                value={getSelectValue('lunares', 'color')}
                                 onValueChange={(value) => handleDetailedChange('lunares', 'color', value)}
                               >
                                 <SelectTrigger><SelectValue placeholder="Color" /></SelectTrigger>
@@ -556,14 +558,14 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                           <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('asimetriasFaciales') ? 'rotate-180' : ''}`} />
                         </Button>
                       </CollapsibleTrigger>
-                      
+
                       <CollapsibleContent className="px-4 pb-4">
                         <div className="space-y-4 ml-2 pt-2">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div>
                               <Label className="text-sm">Tipo</Label>
-                              <Select 
-                                value={getSelectValue('asimetriasFaciales', 'tipo')} 
+                              <Select
+                                value={getSelectValue('asimetriasFaciales', 'tipo')}
                                 onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'tipo', value)}
                               >
                                 <SelectTrigger><SelectValue placeholder="Tipo" /></SelectTrigger>
@@ -576,8 +578,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             </div>
                             <div>
                               <Label className="text-sm">Zona Afectada</Label>
-                              <Select 
-                                value={getSelectValue('asimetriasFaciales', 'zonaAfectada')} 
+                              <Select
+                                value={getSelectValue('asimetriasFaciales', 'zonaAfectada')}
                                 onValueChange={(value) => handleDetailedChange('asimetriasFaciales', 'zonaAfectada', value)}
                               >
                                 <SelectTrigger><SelectValue placeholder="Zona" /></SelectTrigger>
@@ -603,7 +605,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                         </div>
                       </CollapsibleContent>
                     </Collapsible>
-                    
+
                     {/* Cicatrices */}
                     <Collapsible
                       open={getCheckboxValue('cicatrices')}
@@ -620,14 +622,14 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                           <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('cicatrices') ? 'rotate-180' : ''}`} />
                         </Button>
                       </CollapsibleTrigger>
-                      
+
                       <CollapsibleContent className="px-4 pb-4">
                         <div className="space-y-4 ml-2 pt-2">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
                               <Label className="text-sm">Tamaño</Label>
-                              <Select 
-                                value={getSelectValue('cicatrices', 'tamanio')} 
+                              <Select
+                                value={getSelectValue('cicatrices', 'tamanio')}
                                 onValueChange={(value) => handleDetailedChange('cicatrices', 'tamanio', value)}
                               >
                                 <SelectTrigger><SelectValue placeholder="Tamaño" /></SelectTrigger>
@@ -640,8 +642,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             </div>
                             <div>
                               <Label className="text-sm">Bordes</Label>
-                              <Select 
-                                value={getSelectValue('cicatrices', 'bordes')} 
+                              <Select
+                                value={getSelectValue('cicatrices', 'bordes')}
                                 onValueChange={(value) => handleDetailedChange('cicatrices', 'bordes', value)}
                               >
                                 <SelectTrigger><SelectValue placeholder="Bordes" /></SelectTrigger>
@@ -654,8 +656,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             </div>
                             <div>
                               <Label className="text-sm">Localización</Label>
-                              <Select 
-                                value={getSelectValue('cicatrices', 'localizacion')} 
+                              <Select
+                                value={getSelectValue('cicatrices', 'localizacion')}
                                 onValueChange={(value) => handleDetailedChange('cicatrices', 'localizacion', value)}
                               >
                                 <SelectTrigger><SelectValue placeholder="Ubicación" /></SelectTrigger>
@@ -698,14 +700,14 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                           <ChevronDown className={`h-4 w-4 transition-transform ${getCheckboxValue('edema') ? 'rotate-180' : ''}`} />
                         </Button>
                       </CollapsibleTrigger>
-                      
+
                       <CollapsibleContent className="px-4 pb-4">
                         <div className="space-y-4 ml-2 pt-2">
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
                               <Label className="text-sm">Grado</Label>
-                              <Select 
-                                value={getSelectValue('edema', 'grado')} 
+                              <Select
+                                value={getSelectValue('edema', 'grado')}
                                 onValueChange={(value) => handleDetailedChange('edema', 'grado', value)}
                               >
                                 <SelectTrigger><SelectValue placeholder="Grado" /></SelectTrigger>
@@ -718,8 +720,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             </div>
                             <div>
                               <Label className="text-sm">Localización</Label>
-                              <Select 
-                                value={getSelectValue('edema', 'localizacion')} 
+                              <Select
+                                value={getSelectValue('edema', 'localizacion')}
                                 onValueChange={(value) => handleDetailedChange('edema', 'localizacion', value)}
                               >
                                 <SelectTrigger><SelectValue placeholder="Ubicación" /></SelectTrigger>
@@ -733,8 +735,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange }: ExamenCabezaProps)
                             </div>
                             <div>
                               <Label className="text-sm">Consistencia</Label>
-                              <Select 
-                                value={getSelectValue('edema', 'consistencia')} 
+                              <Select
+                                value={getSelectValue('edema', 'consistencia')}
                                 onValueChange={(value) => handleDetailedChange('edema', 'consistencia', value)}
                               >
                                 <SelectTrigger><SelectValue placeholder="Consistencia" /></SelectTrigger>

@@ -112,7 +112,8 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
   }, [contenidoRecibido, formData]);
 
   // Derived variables for render
-  const atm = pastedData?.articulacionCraneomandibular;
+  const displayData = pastedData || formData;
+  const atm = displayData?.articulacionCraneomandibular;
 
 
   return (
@@ -721,7 +722,7 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
                         readOnly
                         rows={2}
                         placeholder=""
-                        value={pastedData?.examenIntrabucal?.labios || ''}
+                        value={displayData?.examenIntrabucal?.labios || ''}
                         className="w-full resize-none text-[12px] p-2 border border-gray-300 rounded-sm bg-white text-gray-600 focus:outline-none focus:border-blue-400"
                         style={{ boxShadow: 'inset 1px 1px 2px rgba(0,0,0,0.03)' }}
                       />
@@ -734,7 +735,7 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
           }
 
           if (seccion.id === 'cuello') {
-            const cuello = pastedData?.examenCuello;
+            const cuello = displayData?.examenCuello;
             return (
               <div key={seccion.id} className="flex flex-col gap-3 pb-2 border-b border-gray-200/50 last:border-0">
                 <div className="flex items-center justify-between">
@@ -784,7 +785,7 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
           }
 
           if (seccion.id === 'intrabucal') {
-            const intrabucal = pastedData?.examenIntrabucal;
+            const intrabucal = displayData?.examenIntrabucal;
             return (
               <div key={seccion.id} className="flex flex-col gap-3 pb-2 border-b border-gray-200/50 last:border-0">
                 <div className="flex items-center justify-between">

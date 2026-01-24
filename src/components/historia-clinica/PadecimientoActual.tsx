@@ -35,6 +35,7 @@ interface PadecimientoActualProps {
   handlePadecimientoChange: (field: string, value: string) => void;
   handleDolorChange: (field: string, value: any) => void;
   handleSinSintomasChange: (checked: boolean) => void;
+  onRedaccionGenerada?: (text: string) => void;
 }
 function revisarRedaccion(text: string): string {
   let textoCorregido = text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
@@ -91,7 +92,8 @@ const PadecimientoActual = ({
   formData,
   handlePadecimientoChange,
   handleDolorChange,
-  handleSinSintomasChange
+  handleSinSintomasChange,
+  onRedaccionGenerada
 }: PadecimientoActualProps) => {
   const isMobile = useIsMobile();
   const [isMinimized, setIsMinimized] = useState(false);
@@ -172,6 +174,9 @@ El paciente refiere la presencia de dolor ${ubicacion || ''} en ${ubicacion === 
     const textoRevisado = revisarRedaccion(textoGenerado);
     const textoFinal = formatearTexto(textoRevisado);
     setRedaccionIA(textoFinal);
+    if (onRedaccionGenerada) {
+      onRedaccionGenerada(textoFinal);
+    }
     setShowRedaccion(true);
     setTimeout(() => {
       redaccionRef.current?.scrollIntoView({
@@ -441,6 +446,7 @@ El paciente refiere la presencia de dolor ${ubicacion || ''} en ${ubicacion === 
           </div>
         </div>
       )}
-    </div>;
+    </div>
+  </div>;
 };
-    export default PadecimientoActual;
+export default PadecimientoActual;

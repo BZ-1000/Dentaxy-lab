@@ -8,11 +8,13 @@ import RedaccionIntrabucalIA from './examen-intrabucal/RedaccionIntrabucalIA';
 interface ExamenIntrabucalProps {
   formData: FormDataState;
   handleExamenIntrabucalChange: (part: string, value: any) => void;
+  onRedaccionGenerada?: (text: string) => void;
 }
 
 const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
   formData,
-  handleExamenIntrabucalChange
+  handleExamenIntrabucalChange,
+  onRedaccionGenerada
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -35,23 +37,21 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center flex-1">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-              <button 
+              <button
                 onClick={() => setShowForm(true)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                  showForm 
-                    ? "bg-blue-500 text-white shadow-md" 
-                    : "text-gray-700 dark:text-gray-300"
-                }`}
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${showForm
+                  ? "bg-blue-500 text-white shadow-md"
+                  : "text-gray-700 dark:text-gray-300"
+                  }`}
               >
                 Formulario
               </button>
-              <button 
+              <button
                 onClick={() => setShowForm(false)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                  !showForm 
-                    ? "bg-blue-500 text-white shadow-md" 
-                    : "text-gray-700 dark:text-gray-300"
-                }`}
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${!showForm
+                  ? "bg-blue-500 text-white shadow-md"
+                  : "text-gray-700 dark:text-gray-300"
+                  }`}
               >
                 Redacción IA
               </button>
@@ -74,16 +74,17 @@ const ExamenIntrabucal: React.FC<ExamenIntrabucalProps> = ({
         {!isMinimized && (
           <div className="p-6">
             {showForm ? (
-              <ExamenIntrabucalForm 
+              <ExamenIntrabucalForm
                 formData={formData}
                 handleExamenIntrabucalChange={handleExamenIntrabucalChange}
                 onGenerate={() => { setShowForm(false); setRedaccionTrigger(t => t + 1); }}
               />
             ) : (
-              <RedaccionIntrabucalIA 
+              <RedaccionIntrabucalIA
                 formData={formData}
                 onSwitchToForm={() => setShowForm(true)}
                 triggerRegenerate={redaccionTrigger}
+                onRedaccionGenerada={onRedaccionGenerada}
               />
             )}
           </div>
