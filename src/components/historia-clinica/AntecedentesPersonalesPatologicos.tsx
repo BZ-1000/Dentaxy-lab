@@ -25,7 +25,7 @@ interface CopiedState {
 const AntecedentesPersonalesPatologicos: React.FC<{
   formData: FormDataState;
   handleAntecedentePatologicoChange: (field: string, value: any) => void;
-  onRedaccionGenerada?: (redacciones: any) => void;
+  onRedaccionGenerada?: (content: string) => void;
 }> = ({ formData, handleAntecedentePatologicoChange, onRedaccionGenerada }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -169,9 +169,11 @@ const AntecedentesPersonalesPatologicos: React.FC<{
       otrosPadecimientos: generarRedaccionPorCategoria('otrosPadecimientos')
     };
 
+    const redaccionFinal = Object.values(nuevasRedacciones).join('\n\n');
+
     setRedacciones(nuevasRedacciones);
     if (onRedaccionGenerada) {
-      onRedaccionGenerada(nuevasRedacciones);
+      onRedaccionGenerada(redaccionFinal);
     }
     setShowForm(false);
     setProgress(100);

@@ -9,11 +9,13 @@ import { VoiceInput } from "@/components/ui/voice-input";
 interface AntecedentesQuirurgicosProps {
   formData: FormDataState;
   handleAntecedenteQuirurgicoChange: (field: string, value: any) => void;
+  onRedaccionGenerada?: (text: string) => void;
 }
 
 const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
   formData,
-  handleAntecedenteQuirurgicoChange
+  handleAntecedenteQuirurgicoChange,
+  onRedaccionGenerada
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -87,6 +89,9 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
         content += "\n\nNo refiere antecedentes quirúrgicos.";
       }
       setRedaccionContent(content);
+      if (onRedaccionGenerada) {
+        onRedaccionGenerada(content);
+      }
       setIsGeneratingRedaccion(false);
       setActiveTab('redaccion');
     }, 1000);

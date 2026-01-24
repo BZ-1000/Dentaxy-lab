@@ -441,6 +441,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
               <AntecedentesQuirurgicos
                 formData={formData}
                 handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange}
+                onRedaccionGenerada={(content) => onSeccionGenerada('quirurgicos', content)}
               />
             </div>
 

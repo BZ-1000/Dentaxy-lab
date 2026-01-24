@@ -13,7 +13,7 @@ interface AntecedentesPersonalesNoPatologicosProps {
   formData: FormDataState;
   handleAntecedenteNoPatologicoChange: (field: string, value: any) => void;
   toggleService: (service: string) => void;
-  onRedaccionGenerada?: (redacciones: any) => void;
+  onRedaccionGenerada?: (content: string) => void;
 }
 
 // Word button component for replacing checkboxes
@@ -33,8 +33,9 @@ const WordButton = ({
 
 const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPatologicosProps> = ({
   formData,
-  handleAntecedenteChange,
-  toggleService
+  handleAntecedenteNoPatologicoChange,
+  toggleService,
+  onRedaccionGenerada
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -86,9 +87,33 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
       alimentacion: alimentacionRedaccion
     });
 
-    setRedacciones(nuevasRedacciones);
+    const fullText = `ANTECEDENTES PERSONALES NO PATOLÓGICOS
+
+SERVICIOS DOMICILIARIOS:
+${serviciosRedaccion}
+
+HIGIENE DE LA VIVIENDA:
+${higieneViviendaRedaccion}
+
+HIGIENE PERSONAL:
+${higienePersonalRedaccion}
+
+HIGIENE BUCAL:
+${higieneBucalRedaccion}
+
+ALIMENTACIÓN:
+${alimentacionRedaccion}`;
+
+    setRedacciones({
+      serviciosDomiciliarios: serviciosRedaccion,
+      higieneVivienda: higieneViviendaRedaccion,
+      higienePersonal: higienePersonalRedaccion,
+      higieneBucal: higieneBucalRedaccion,
+      alimentacion: alimentacionRedaccion
+    });
+
     if (onRedaccionGenerada) {
-      onRedaccionGenerada(nuevasRedacciones);
+      onRedaccionGenerada(fullText);
     }
     setShowForm(false);
     setProgress(100);
@@ -238,7 +263,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     }));
 
     // Also update parent state
-    handleAntecedenteChange(field, value);
+    handleAntecedenteNoPatologicoChange(field, value);
   };
 
   const handleWordButtonClick = (field: string, value: string) => {
