@@ -1,0 +1,16 @@
+En la rama main
+Tu rama está actualizada con 'origin/main'.
+
+Cambios a ser confirmados:
+  (usa "git restore --staged <archivo>..." para sacar del área de stage)
+	nuevos archivos: git_status.txt
+
+Archivos sin seguimiento:
+  (usa "git add <archivo>..." para incluirlo a lo que será confirmado)
+	status_check.txt
+
+commit 3b4e997242cb3bc9800a008b6e56042fac3a066d
+Author: Antigravity AI <antigravity@dentaxy.ai>
+Date:   Sun Jan 25 20:28:22 2026 -0600
+
+    feat: enhance redaction reveal with apple-style inline word-stream animation

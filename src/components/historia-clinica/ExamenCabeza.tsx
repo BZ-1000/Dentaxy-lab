@@ -383,6 +383,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
                             src={tipo.image}
                             alt={tipo.label}
                             className="w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
                           />
                         </div>
                         {/* --- FIN DE LA MODIFICACIÓN --- */}
@@ -418,6 +420,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
                             src={perfil.image}
                             alt={perfil.label}
                             className="w-full h-full object-cover"
+                            loading="lazy"
+                            decoding="async"
                           />
                         </div>
                         {/* --- FIN DE LA MODIFICACIÓN --- */}

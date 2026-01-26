@@ -27,10 +27,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, index = 0 }) => 
       {/* Product Image */}
       <div className="aspect-square bg-muted/30 flex items-center justify-center p-8 relative overflow-hidden">
         {image ? (
-          <img 
-            src={image} 
-            alt={name} 
+          <img
+            src={image}
+            alt={name}
             className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+            decoding="async"
           />
         ) : (
           <Package className="w-16 h-16 text-muted-foreground/30 group-hover:text-emerald-500/30 transition-colors duration-300" />
@@ -44,7 +46,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ name, image, index = 0 }) => 
         <h3 className="font-medium text-foreground text-center line-clamp-2 min-h-[3rem]">
           {name}
         </h3>
-        
+
         <p className="text-xs text-muted-foreground text-center">
           Precios disponibles por volumen
         </p>

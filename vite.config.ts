@@ -4,6 +4,8 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
 
+import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
@@ -14,6 +16,23 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === 'development' &&
     componentTagger(),
+    ViteImageOptimizer({
+      png: { quality: 80 },
+      jpeg: { quality: 75 },
+      webp: { quality: 80 },
+      svg: {
+        plugins: [
+          {
+            name: 'removeViewBox',
+            active: false,
+          },
+          {
+            name: 'sortAttrs',
+            active: true,
+          },
+        ],
+      },
+    }),
   ].filter(Boolean),
   resolve: {
     alias: {
