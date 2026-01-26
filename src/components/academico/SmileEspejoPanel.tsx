@@ -28,7 +28,7 @@ export const seccionesSmile = [
 ];
 
 interface SmileEspejoPanelProps {
-  contenidoRecibido: Record<string, string>;
+  contenidoRecibido: Record<string, string | React.ReactNode>;
   formData?: any;
   seccionActual?: string;
   todasCompletas?: boolean;
@@ -60,7 +60,9 @@ export const SmileEspejoPanel: React.FC<SmileEspejoPanelProps> = ({
           })
           .map(([key, value]) => {
             const title = sectionTitles[key] || key.toUpperCase();
-            return `${title}\n${value}`;
+            // Handle React Node content (Animation) gracefully
+            const textContent = typeof value === 'string' ? value : "[Contenido Animado - Visualización Solamente]";
+            return `${title}\n${textContent}`;
           })
           .join('\n\n');
 

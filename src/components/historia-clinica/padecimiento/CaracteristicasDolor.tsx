@@ -1,14 +1,11 @@
-
-import React, { useState, useRef, useEffect } from "react";
+import React from "react";
+import { AIInputWithLoading } from "@/components/ui/ai-input-with-loading";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { VoiceInput } from "@/components/ui/voice-input";
-import { BookOpen, Lightbulb } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Typewriter } from "@/components/ui/typewriter-text";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
+import { Sparkles, Calendar, Zap, Activity, AlertCircle, MapPin, ShieldCheck, HelpCircle } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface CaracteristicasDolorProps {
   dolor: {
@@ -23,324 +20,242 @@ interface CaracteristicasDolorProps {
     };
     atenuacion: string;
     causaProvocado?: string;
-    ubicacion?: string;  // Added ubicacion field
+    ubicacion?: string;
   };
   onDolorChange: (field: string, value: string | any) => void;
 }
 
-const definicionesDolor = [
-  {
-    titulo: "Dolor Sordo",
-    descripcion: "Constante y moderado, sin punzadas. Puede indicar inflamaciones crónicas como pulpitis o periodontitis."
-  }, 
-  {
-    titulo: "Dolor Pulsátil",
-    descripcion: "En forma de latidos intensos. Suele deberse a pulpitis aguda o abscesos."
-  }, 
-  {
-    titulo: "Dolor Quemante",
-    descripcion: "Sensación de ardor. Relacionado con neuropatías, boca ardiente o infecciones virales."
-  }, 
-  {
-    titulo: "Dolor Opresivo",
-    descripcion: "Sensación de presión. Se asocia con problemas de ATM, bruxismo o sinusitis."
-  }
-];
+// --- Micro-Components ---
 
-const defaultLocalizacion = "Localizado en ";
-const localizacionesEjemplo = [
-  "la región molar inferior izquierda...", 
-  "la articulación temporomandibular izquierda...", 
-  "el piso de boca, irradiado hacia la lengua...", 
-  "la papila interdentaria entre los incisivos inferiores..."
-];
+const ChatLabel = ({ children, icon: Icon }: { children: React.ReactNode, icon?: any }) => (
+  <div className="flex items-start gap-3 mb-4 animate-in fade-in slide-in-from-left-2 duration-500">
+    <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center -ml-1 -mt-2">
+      {Icon ? (
+        <div className="w-full h-full flex items-center justify-center text-zinc-800 dark:text-zinc-200">
+          <Icon className="w-5 h-5" />
+        </div>
+      ) : (
+        <img src="/dentaxy-ai-avatar.png" alt="Dentaxy AI" className="w-full h-full object-contain" />
+      )}
+    </div>
+    <div className="bg-gray-100 dark:bg-zinc-800 px-5 py-3 rounded-2xl rounded-tl-sm text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm border border-gray-200/50 dark:border-white/5 leading-relaxed max-w-lg">
+      {children}
+    </div>
+  </div>
+);
 
-const defaultCausaProvocado = "Provocado con ";
-const causasProvocadoEjemplo = [
-  "alimentos fríos o helados en contacto con el diente...", 
-  "la presión durante la masticación de alimentos duros...", 
-  "bebidas calientes que generan dolor inmediato...", 
-  "el cepillado en la zona vestibular de los premolares...", 
-  "dulces y alimentos azucarados que desencadenan molestias..."
-];
+const ChipSelector = ({ options, value, onChange, className }: { options: { label: string, value: string }[], value: string, onChange: (val: string) => void, className?: string }) => (
+  <div className={cn("flex flex-wrap gap-2", className)}>
+    {options.map((opt) => (
+      <button
+        key={opt.value}
+        onClick={() => onChange(opt.value)}
+        className={cn(
+          "px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200",
+          value === opt.value
+            ? "bg-zinc-50 border-2 border-zinc-900 text-zinc-900 shadow-sm transform scale-105" // Active: Thick Border + Black Text (No Bold)
+            : "bg-white border border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-zinc-700 hover:bg-zinc-50" // Inactive
+        )}
+      >
+        {opt.label}
+      </button>
+    ))}
+  </div>
+);
+
+const GoogleInput = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+  <div className={cn("relative bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm focus-within:ring-2 focus-within:ring-zinc-500/20 focus-within:border-zinc-500 transition-all overflow-hidden", className)}>
+    {children}
+  </div>
+);
+
+// --- Component ---
 
 const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProps) => {
-  const isMobile = useIsMobile();
-  const [showIcon, setShowIcon] = useState(false);
-  const [localizacionText, setLocalizacionText] = useState(dolor.localizacion?.descripcion || defaultLocalizacion);
-  const [causaProvocadoText, setCausaProvocadoText] = useState(dolor.causaProvocado || defaultCausaProvocado);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setShowIcon(true);
-      setTimeout(() => setShowIcon(false), 2000);
-    }, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleLocalizacionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    let newValue = event.target.value;
-
-    // Ensure the default text is preserved
-    if (!newValue.startsWith(defaultLocalizacion)) {
-      newValue = defaultLocalizacion + newValue.substring(newValue.indexOf(defaultLocalizacion) + defaultLocalizacion.length);
-    }
-    setLocalizacionText(newValue);
-
-    // Only update the description part in the dolor object
-    const descripcion = newValue;
-    onDolorChange("localizacion", {
-      tipo: dolor.localizacion?.tipo || "",
-      descripcion
-    });
-  };
-
-  const handleCausaProvocadoChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    let newValue = event.target.value;
-
-    // Ensure the default text is preserved
-    if (!newValue.startsWith(defaultCausaProvocado)) {
-      newValue = defaultCausaProvocado + newValue.substring(newValue.indexOf(defaultCausaProvocado) + defaultCausaProvocado.length);
-    }
-    setCausaProvocadoText(newValue);
-    onDolorChange('causaProvocado', newValue);
-  };
-
-  // Prevent deleting the prefix by handling keydown events
-  const handleKeyDown = (prefix: string, event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    const target = event.currentTarget;
-    const selectionStart = target.selectionStart;
-    const selectionEnd = target.selectionEnd;
-
-    // Prevent backspace at the beginning or when trying to delete the prefix
-    if (event.key === 'Backspace' && (selectionStart <= prefix.length || selectionStart === selectionEnd && selectionStart <= prefix.length)) {
-      event.preventDefault();
-    }
-
-    // Prevent delete key when selection includes the prefix
-    if (event.key === 'Delete' && selectionStart < prefix.length) {
-      event.preventDefault();
-    }
-
-    // Prevent cut when selection includes the prefix
-    if ((event.ctrlKey || event.metaKey) && event.key === 'x' && selectionStart < prefix.length) {
-      event.preventDefault();
-    }
-  };
+  const defaultLocalizacion = "Localizado en ";
+  const defaultCausaProvocado = "Provocado con ";
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 flex-row-reverse justify-end">
-        <h4 className="text-lg font-normal">Características del Dolor</h4>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="icon" className="relative h-10 w-10 rounded-full border-2 border-primary/20 transition-all duration-100 shadow-md hover:shadow-lg font-normal text-neutral-50 bg-sky-500 hover:bg-sky-400">
-              <div className="relative">
-                <BookOpen className="h-5 w-5 transition-transform duration-300 hover:scale-110" />
-                {showIcon && (
-                  <div className="absolute -bottom-3 -right-3 animate-bounce">
-                    <Lightbulb className="h-4 w-4 text-yellow-400" />
-                  </div>
-                )}
+    <div className="space-y-12">
+
+      {/* 1. Timeline & Aparición */}
+      <section className="space-y-6">
+        <div>
+          <ChatLabel>¿Desde <strong>cuándo</strong> siente este dolor y cómo aparece?</ChatLabel>
+          <div className="pl-11 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-1">Fecha de Inicio</label>
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-zinc-800 transition-colors">
+                  <Calendar className="w-5 h-5 opacity-80" strokeWidth={1.5} />
+                </div>
+                <input
+                  type="date"
+                  value={dolor.fechaInicio}
+                  onChange={(e) => onDolorChange("fechaInicio", e.target.value)}
+                  className="w-full pl-12 pr-4 py-3.5 bg-zinc-50 border-2 border-transparent hover:bg-zinc-100 focus:bg-white focus:border-zinc-900/10 rounded-2xl outline-none transition-all duration-300 font-medium text-zinc-900 shadow-sm cursor-pointer appearance-none dark:bg-zinc-900/50 dark:text-zinc-100"
+                />
               </div>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 p-4 bg-white/95 backdrop-blur-sm shadow-xl border border-primary/10 rounded-lg">
-            <div className="space-y-4">
-              {definicionesDolor.map((def, index) => (
-                <div key={index} className="space-y-2 p-3 rounded-lg hover:bg-accent/10 transition-colors duration-200">
-                  <h5 className="font-medium text-sm text-primary">{def.titulo}</h5>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{def.descripcion}</p>
-                </div>
-              ))}
             </div>
-          </PopoverContent>
-        </Popover>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label>Fecha de inicio del dolor</Label>
-          <input 
-            type="date" 
-            value={dolor.fechaInicio} 
-            onChange={e => onDolorChange('fechaInicio', e.target.value)} 
-            className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-200 bg-white/50 backdrop-blur-sm shadow-sm hover:shadow-md" 
-          />
-        </div>
-
-        <div>
-          <Label>Condición de aparición</Label>
-          <Select value={dolor.condicionAparicion} onValueChange={value => onDolorChange('condicionAparicion', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccione condición" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="provocado">Provocado</SelectItem>
-              <SelectItem value="espontaneo">Espontáneo</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label>Frecuencia</Label>
-          <Select value={dolor.frecuencia} onValueChange={value => onDolorChange('frecuencia', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccione frecuencia" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="intermitente">Intermitente</SelectItem>
-              <SelectItem value="continua">Continua</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label>Carácter</Label>
-          <Select value={dolor.caracter} onValueChange={value => onDolorChange('caracter', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccione carácter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pulsatil">Pulsátil</SelectItem>
-              <SelectItem value="sordo">Sordo</SelectItem>
-              <SelectItem value="quemante">Quemante</SelectItem>
-              <SelectItem value="opresivo">Opresivo</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label>Intensidad</Label>
-          <Select value={dolor.intensidad} onValueChange={value => onDolorChange('intensidad', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccione intensidad" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="leve">Leve</SelectItem>
-              <SelectItem value="moderada">Moderada</SelectItem>
-              <SelectItem value="severa">Severa</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label>Ubicación</Label>
-          <Select value={dolor.ubicacion} onValueChange={value => onDolorChange('ubicacion', value)}>
-            <SelectTrigger>
-              <SelectValue placeholder="Seleccione ubicación" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="localizado">Localizado</SelectItem>
-              <SelectItem value="irradiado">Irradiado</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {dolor.ubicacion === 'localizado' && (
-        <div>
-          <Label className="text-gray-700 dark:text-gray-300">Localización</Label>
-          <div className="flex items-start gap-4">
-            <div className="relative w-full">
-              <Textarea 
-                value={localizacionText} 
-                onChange={handleLocalizacionChange} 
-                onKeyDown={e => handleKeyDown(defaultLocalizacion, e)} 
-                placeholder={defaultLocalizacion} 
-                className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify" 
-              />
-              {localizacionText === defaultLocalizacion && !isMobile && (
-                <div className="absolute top-2 left-[105px] pointer-events-none">
-                  <Typewriter 
-                    text={localizacionesEjemplo} 
-                    speed={50} 
-                    deleteSpeed={30} 
-                    delay={2000} 
-                    loop={true} 
-                    className="text-gray-500 italic text-base" 
-                  />
-                </div>
-              )}
-            </div>
-            <div className="mt-2">
-              <VoiceInput
-                onTranscriptionComplete={text => {
-                  const newValue = text;
-                  let finalText = newValue;
-                  if (!finalText.startsWith(defaultLocalizacion)) {
-                    finalText = `${defaultLocalizacion} ${finalText}`;
-                  }
-                  setLocalizacionText(finalText);
-                  onDolorChange("localizacion", {
-                    tipo: dolor.localizacion?.tipo || "",
-                    descripcion: finalText
-                  });
-                }}
-              />
+            <div className="space-y-2">
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-1">Modo de Aparición</label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => onDolorChange("condicionAparicion", "espontaneo")}
+                  className={cn(
+                    "p-4 rounded-2xl border text-left transition-all duration-200", // Increased padding/radius
+                    dolor.condicionAparicion === "espontaneo"
+                      ? "bg-indigo-50 border-2 border-indigo-600 text-indigo-900 shadow-sm ring-0" // Hollow Colored Active
+                      : "bg-white border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:bg-zinc-50"
+                  )}
+                >
+                  <div className={cn("font-bold text-sm", dolor.condicionAparicion === "espontaneo" ? "text-indigo-700" : "text-zinc-700")}>Espontáneo</div>
+                  <div className="text-[10px] opacity-70">Aparece solo</div>
+                </button>
+                <button
+                  onClick={() => onDolorChange("condicionAparicion", "provocado")}
+                  className={cn(
+                    "p-4 rounded-2xl border text-left transition-all duration-200",
+                    dolor.condicionAparicion === "provocado"
+                      ? "bg-amber-50 border-2 border-amber-600 text-amber-900 shadow-sm ring-0" // Hollow Colored Active
+                      : "bg-white border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:bg-zinc-50"
+                  )}
+                >
+                  <div className={cn("font-bold text-sm", dolor.condicionAparicion === "provocado" ? "text-amber-700" : "text-zinc-700")}>Provocado</div>
+                  <div className="text-[10px] opacity-70">Requiere estímulo</div>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      )}
 
-      <div>
-        <Label>Atenuación</Label>
-        <div className="flex items-start gap-4">
-          <Textarea 
-            value={dolor.atenuacion} 
-            onChange={e => onDolorChange('atenuacion', e.target.value)} 
-            placeholder="Describe que empeora el dolor (frío, caliente,) o que lo disminuye (analgésicos)" 
-            className="min-h-[100px] max-h-[200px] w-full resize-y text-justify" 
-          />
-          <div className="mt-2">
-            <VoiceInput 
-              onTranscriptionComplete={text => onDolorChange('atenuacion', text)} 
+        {/* Causa del Provocado (Conditional) */}
+        {dolor.condicionAparicion === "provocado" && (
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}>
+            <ChatLabel>¿Qué <strong>estímulo</strong> provoca el dolor?</ChatLabel>
+            <div className="pl-11 relative">
+              <AIInputWithLoading
+                value={dolor.causaProvocado || defaultCausaProvocado}
+                onChange={(val) => {
+                  onDolorChange("causaProvocado", val.startsWith(defaultCausaProvocado) ? val : defaultCausaProvocado + val);
+                }}
+                className="bg-transparent"
+              />
+            </div>
+          </motion.div>
+        )}
+      </section>
+
+
+
+      {/* 2. Cualidades del Dolor */}
+      <section>
+        <ChatLabel>Descríbeme las <strong>cualidades</strong> del dolor:</ChatLabel>
+        <div className="pl-11 space-y-6">
+
+          {/* Frecuencia */}
+          <div className="space-y-2">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Frecuencia</span>
+            <ChipSelector
+              value={dolor.frecuencia}
+              onChange={(val) => onDolorChange("frecuencia", val)}
+              options={[
+                { label: "Intermitente (Va y viene)", value: "intermitente" },
+                { label: "Continua (Todo el tiempo)", value: "continua" }
+              ]}
             />
           </div>
-        </div>
-      </div>
 
-      {dolor.condicionAparicion === 'provocado' && (
-        <div className="mt-4">
-          <Label className="text-gray-700 dark:text-gray-300">Causa del dolor provocado:</Label>
-          <div className="flex items-start gap-4">
-            <div className="relative w-full">
-              <Textarea 
-                value={causaProvocadoText} 
-                onChange={handleCausaProvocadoChange} 
-                onKeyDown={e => handleKeyDown(defaultCausaProvocado, e)} 
-                placeholder={defaultCausaProvocado} 
-                className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify" 
-              />
-              {causaProvocadoText === defaultCausaProvocado && !isMobile && (
-                <div className="absolute top-2 left-[110px] pointer-events-none">
-                  <Typewriter 
-                    text={causasProvocadoEjemplo} 
-                    speed={50} 
-                    deleteSpeed={30} 
-                    delay={2000} 
-                    loop={true} 
-                    className="text-gray-500 italic text-base" 
-                  />
-                </div>
-              )}
-            </div>
-            <div className="mt-2">
-              <VoiceInput
-                onTranscriptionComplete={text => {
-                  const newValue = text;
-                  let finalText = newValue;
-                  if (!finalText.startsWith(defaultCausaProvocado)) {
-                    finalText = `${defaultCausaProvocado} ${finalText}`;
-                  }
-                  setCausaProvocadoText(finalText);
-                  onDolorChange('causaProvocado', finalText);
-                }}
-              />
+          {/* Carácter */}
+          <div className="space-y-2">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Tipo de Dolor (Carácter)</span>
+            <ChipSelector
+              value={dolor.caracter}
+              onChange={(val) => onDolorChange("caracter", val)}
+              options={[
+                { label: "Pulsátil (Latido)", value: "pulsatil" },
+                { label: "Sordo (Molestia)", value: "sordo" },
+                { label: "Quemante (Ardor)", value: "quemante" },
+                { label: "Opresivo (Presión)", value: "opresivo" }
+              ]}
+            />
+          </div>
+
+          {/* Intensidad (Slider Visual) */}
+          <div className="space-y-2">
+            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Intensidad</span>
+            <div className="flex gap-2">
+              {['leve', 'moderada', 'severa'].map((level, idx) => (
+                <button
+                  key={level}
+                  onClick={() => onDolorChange("intensidad", level)}
+                  className={cn(
+                    "flex-1 py-3 rounded-xl border transition-all relative overflow-hidden",
+                    dolor.intensidad === level
+                      ? level === 'leve' ? "bg-green-100 border-green-300 text-green-700" :
+                        level === 'moderada' ? "bg-yellow-100 border-yellow-300 text-yellow-700" :
+                          "bg-red-100 border-red-300 text-red-700"
+                      : "bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-400"
+                  )}
+                >
+                  <span className="relative z-10 font-bold capitalize">{level}</span>
+                </button>
+              ))}
             </div>
           </div>
+
         </div>
-      )}
+      </section>
+
+      <hr className="border-dashed border-gray-200 dark:border-zinc-800" />
+
+      {/* 3. Localización */}
+      <section>
+        <ChatLabel>¿Dónde se <strong>localiza</strong> exactamente?</ChatLabel>
+        <div className="pl-11 space-y-4">
+          <ChipSelector
+            value={dolor.ubicacion || ''}
+            onChange={(val) => {
+              onDolorChange("ubicacion", val);
+              // Sync with Redaction Logic (Capitalized)
+              onDolorChange("localizacion", {
+                ...dolor.localizacion,
+                tipo: val === 'localizado' ? 'Localizado' : val === 'irradiado' ? 'Irradiado' : ''
+              });
+            }}
+            options={[
+              { label: "Localizado (Punto exacto)", value: "localizado" },
+              { label: "Irradiado (Se expande)", value: "irradiado" }
+            ]}
+          />
+
+          {dolor.ubicacion === 'localizado' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative">
+              <AIInputWithLoading
+                value={dolor.localizacion?.descripcion || defaultLocalizacion}
+                onChange={(val) => {
+                  const finalVal = val.startsWith(defaultLocalizacion) ? val : defaultLocalizacion + val;
+                  onDolorChange("localizacion", { ...dolor.localizacion, descripcion: finalVal });
+                }}
+              />
+            </motion.div>
+          )}
+        </div>
+      </section>
+
+      {/* 4. Atenuación */}
+      <section>
+        <ChatLabel>¿Hay algo que lo <strong>alivie</strong>?</ChatLabel>
+        <div className="pl-11 relative">
+          <AIInputWithLoading
+            value={dolor.atenuacion}
+            onChange={(val) => onDolorChange("atenuacion", val)}
+            placeholder="Ej. analgésicos, compresas frías..."
+          />
+        </div>
+      </section>
+
     </div>
   );
 };

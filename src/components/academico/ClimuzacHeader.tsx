@@ -174,25 +174,24 @@ export const ClimuzacHeader: React.FC = () => {
   return (
     <header className="sticky top-0 z-50 bg-background border-b border-border/50">
       <div className="flex items-center justify-between h-14 px-4 lg:px-6">
-        {/* Left: Back button */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate('/academico')}
-          className="flex items-center gap-2 text-muted-foreground hover:text-foreground -ml-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span className="hidden sm:inline text-sm">Volver</span>
-        </Button>
+        {/* Left: Back button & Brand */}
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/academico')}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground -ml-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline text-sm">Volver</span>
+          </Button>
 
-        {/* Center: Dentaxy Logo */}
-        <div className="flex items-center gap-2">
-          <img
-            src="/lovable-uploads/7898fc25-0e62-40e1-a139-6582324afb27.png"
-            alt="Dentaxy"
-            className="h-6 w-6 rounded-full bg-black p-0.5"
-          />
-          <span className="text-sm font-semibold tracking-tight">DENTAXY</span>
+          {/* Dentaxy Brand (Text Only) */}
+          <div className="flex items-center border-l border-gray-200 dark:border-white/10 pl-4 h-6">
+            <span className="text-xs font-semibold tracking-tight text-gray-900 dark:text-gray-100 uppercase">
+              Dentaxy Technologies
+            </span>
+          </div>
         </div>
 
         {/* Right: Session info */}

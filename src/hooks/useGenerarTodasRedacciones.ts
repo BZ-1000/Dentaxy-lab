@@ -13,7 +13,11 @@ interface GenerationProgress {
     percentage: number;
 }
 
-export const useGenerarTodasRedacciones = (sections: SectionTarget[], onComplete?: () => void) => {
+export const useGenerarTodasRedacciones = (
+    sections: SectionTarget[],
+    onComplete?: () => void,
+    onSectionActive?: (sectionId: string) => void
+) => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [progress, setProgress] = useState<GenerationProgress | null>(null);
 
@@ -39,6 +43,13 @@ export const useGenerarTodasRedacciones = (sections: SectionTarget[], onComplete
                     currentSection: section.nombre,
                     percentage: Math.round(((processedCount) / total) * 100)
                 });
+
+                // 0. Activate the section (navigate to step)
+                if (onSectionActive) {
+                    onSectionActive(section.id);
+                    // Wait for render cycle (Step transition animation)
+                    await delay(600);
+                }
 
                 // 1. Find the section container
                 // We look for div[data-section="{id}"] as defined in DentaxyFormPanel
@@ -106,7 +117,7 @@ export const useGenerarTodasRedacciones = (sections: SectionTarget[], onComplete
             setIsGenerating(false);
             setProgress(null);
         }
-    }, [sections, onComplete]);
+    }, [sections, onComplete, onSectionActive]);
 
     return {
         isGenerating,

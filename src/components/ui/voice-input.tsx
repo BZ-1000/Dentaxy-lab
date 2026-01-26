@@ -5,9 +5,10 @@ import { useState } from "react";
 
 interface VoiceInputProps {
   onTranscriptionComplete?: (text: string) => void;
+  className?: string;
 }
 
-export const VoiceInput = ({ onTranscriptionComplete }: VoiceInputProps) => {
+export const VoiceInput = ({ onTranscriptionComplete, className }: VoiceInputProps) => {
   const { toast } = useToast();
   const [isRecording, setIsRecording] = useState(false);
 
@@ -38,12 +39,12 @@ export const VoiceInput = ({ onTranscriptionComplete }: VoiceInputProps) => {
   };
 
   return (
-    <div className="h-full flex items-center justify-center">
+    <div className={`h-full flex items-center justify-center ${className ? 'inline-flex' : ''}`}>
       <AIVoiceInput
         onStart={handleStart}
         onStop={handleStop}
         onTranscriptionComplete={handleTranscriptionComplete}
-        className="p-0"
+        className={className || "p-0"}
       />
     </div>
   );

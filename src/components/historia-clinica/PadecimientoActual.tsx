@@ -1,15 +1,16 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { VoiceInput } from "@/components/ui/voice-input";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser, Copy, CheckCircle } from "lucide-react";
-import { Typewriter } from "@/components/ui/typewriter-text";
+import { Eraser, Mic, ChevronRight, Sparkles, Activity, HeartPulse, Copy, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
-import SintomasToggle from "./padecimiento/SintomasToggle";
 import { useIsMobile } from "@/hooks/use-mobile";
-import DOMPurify from "dompurify";
+import { AIInputWithLoading } from "@/components/ui/ai-input-with-loading";
+import { AppleTypewriter } from "@/components/ui/AppleTypewriter";
+
 interface PadecimientoActualProps {
   formData: {
     padecimientoActual: {
@@ -35,418 +36,408 @@ interface PadecimientoActualProps {
   handlePadecimientoChange: (field: string, value: string) => void;
   handleDolorChange: (field: string, value: any) => void;
   handleSinSintomasChange: (checked: boolean) => void;
-  onRedaccionGenerada?: (text: string) => void;
+  onRedaccionGenerada?: (text: string | React.ReactNode, plainText?: string) => void;
+  onToggleViewMode?: () => void;
 }
-function revisarRedaccion(text: string): string {
-  let textoCorregido = text.replace(/(\b\w+\b)(?:\s+\1\b)+/gi, '$1');
-  const frasesRedundantes = [{
-    patron: /Motivo de consulta: El paciente acude a consulta por Motivo de consulta/gi,
-    reemplazo: 'Motivo de consulta: El paciente acude a consulta por'
-  }, {
-    patron: /El paciente acude a consulta por El paciente acude a consulta por/gi,
-    reemplazo: 'El paciente acude a consulta por'
-  }, {
-    patron: /El paciente acude a consulta por por/gi,
-    reemplazo: 'El paciente acude a consulta por'
-  }, {
-    patron: /El paciente acude a consulta por debido a/gi,
-    reemplazo: 'El paciente acude a consulta por'
-  }, {
-    patron: /El paciente refiere la presencia de dolor localizado en localizado en/gi,
-    reemplazo: 'El paciente refiere la presencia de dolor localizado en'
-  }, {
-    patron: /El paciente refiere que refiere/gi,
-    reemplazo: 'El paciente refiere'
-  }, {
-    patron: /refiere que refiere/gi,
-    reemplazo: 'refiere'
-  }, {
-    patron: /presenta dolor con doloroso/gi,
-    reemplazo: 'presenta dolor'
-  }, {
-    patron: /aparece provocado, siendo provocado específicamente por/gi,
-    reemplazo: 'aparece provocado, siendo provocado por'
-  }];
-  frasesRedundantes.forEach(({
-    patron,
-    reemplazo
-  }) => {
-    textoCorregido = textoCorregido.replace(patron, reemplazo);
-  });
-  textoCorregido = textoCorregido.replace(/\. ([a-z])/g, (_, letra) => `. ${letra.toUpperCase()}`);
-  textoCorregido = textoCorregido.replace(/provocado por/gi, 'provocada por').replace(/aparece en/gi, 'aparece cuando').replace(/se ha observado que/gi, 'se observa que').replace(/presenta un dolor/gi, 'manifiesta dolor').replace(/tiene dolor/gi, 'presenta dolor').replace(/el dolor es/gi, 'el dolor se caracteriza por ser');
-  return textoCorregido;
-}
-function formatearTexto(text: string): string {
-  let textoFormateado = text.replace(/Motivo de consulta:/g, '<strong>Motivo de consulta:</strong>').replace(/Historia del padecimiento:/g, '<strong>Historia del padecimiento:</strong>');
-  const sections = textoFormateado.split('<strong>Historia del padecimiento:</strong>');
-  if (sections.length > 1) {
-    textoFormateado = `${sections[0]}<strong>Historia del padecimiento:</strong><div style="text-align: justify;">${sections[1].trim()}</div>`;
-  }
-  textoFormateado = textoFormateado.replace(/\.$/, '');
-  textoFormateado = textoFormateado.replace(/<strong>Historia del padecimiento:<\/strong>\s*\n\s*/g, '<strong>Historia del padecimiento:</strong>\n');
-  textoFormateado = textoFormateado.replace(/\n\s*\n\s*\n/g, '\n\n');
-  return textoFormateado;
-}
+
+// --- Micro-Components ---
+
+const ChatBubbleLabel = ({ children, icon: Icon }: { children: React.ReactNode, icon?: any }) => (
+  <div className="flex items-start gap-3 mb-3 animate-in fade-in slide-in-from-left-4 duration-500">
+    <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center -ml-1 -mt-1">
+      {Icon ? (
+        <div className="w-full h-full flex items-center justify-center text-blue-500 dark:text-blue-400">
+          <Icon className="w-5 h-5" />
+        </div>
+      ) : (
+        <img src="/dentaxy-ai-avatar.png" alt="Dentaxy AI" className="w-full h-full object-contain" />
+      )}
+    </div>
+    <div className="bg-gray-100 dark:bg-zinc-800 px-4 py-2 rounded-2xl rounded-tl-sm text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm border border-gray-200/50 dark:border-white/5">
+      {children}
+    </div>
+  </div>
+);
+
+// --- Scroll Focus Wrapper ---
+// Only fades out when leaving the TOP 15% of the screen.
+// Bottom margin is massively extended (2000px) so content entering from the bottom is "In View" instantly.
+const ScrollFocusSection = ({
+  children,
+  className
+}: {
+  children: React.ReactNode,
+  className?: string
+}) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0.3, filter: "grayscale(100%)", scale: 0.98 }}
+      whileInView={{ opacity: 1, filter: "grayscale(0%)", scale: 1 }}
+      // Top: -100px (approx header height + padding). Start fading when it hits the visual ceiling.
+      // Bottom: 200% (Everything below is visible).
+      viewport={{ margin: "-100px 0px 2000px 0px", amount: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className={cn(
+        "transition-all duration-300 will-change-[opacity,filter]",
+        className
+      )}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+// --- SELF-CONTAINED COPY BUTTON (Fixes Stale State Bug) ---
+const CopyButton = ({ textToCopy }: { textToCopy: string }) => {
+  const { toast } = useToast();
+  const [isCopied, setIsCopied] = useState(false);
+
+  return (
+    <Button
+      variant="ghost"
+      size="sm"
+      className={cn(
+        "h-9 px-3 transition-all duration-300",
+        isCopied
+          ? "text-green-600 bg-green-50 hover:text-green-600 hover:bg-green-50 dark:bg-green-900/30 dark:hover:bg-green-900/30" // Success: Forced Green (including hover)
+          : "text-zinc-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/20" // Hover: Blue as requested
+      )}
+      onClick={() => {
+        navigator.clipboard.writeText(textToCopy);
+        setIsCopied(true);
+        toast({
+          title: "Redacción copiada",
+          description: "Texto copiado al portapapeles",
+          duration: 1500,
+        });
+        setTimeout(() => setIsCopied(false), 1000);
+      }}
+    >
+      <AnimatePresence mode="wait">
+        {isCopied ? (
+          <motion.div
+            key="copied"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            className="flex items-center justify-center"
+          >
+            <Check className="w-4 h-4" />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="copy"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            className="flex items-center gap-2"
+          >
+            <Copy className="w-4 h-4" />
+            <span className="hidden group-hover:inline">Copiar</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Button>
+  );
+};
+
+// --- Component ---
+
 const PadecimientoActual = ({
   formData,
   handlePadecimientoChange,
   handleDolorChange,
   handleSinSintomasChange,
-  onRedaccionGenerada
+  onToggleViewMode,
+  onRedaccionGenerada,
 }: PadecimientoActualProps) => {
-  const isMobile = useIsMobile();
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [showRedaccion, setShowRedaccion] = useState(false);
-  const [redaccionIA, setRedaccionIA] = useState("");
-  const [displayedText, setDisplayedText] = useState("");
-  const [progress, setProgress] = useState(0);
-  const [copied, setCopied] = useState(false);
-  const [showCausasProvocado, setShowCausasProvocado] = useState(formData.padecimientoActual.dolor.condicionAparicion === 'provocado');
-  const redaccionRef = useRef(null);
+  const { toast } = useToast();
   const defaultMotivoConsulta = "El paciente acude a consulta por ";
-  const motivosEjemplo = ["dolor dental intenso en molar superior derecho...", "sangrado de encías al cepillarse...", "revisión y limpieza dental de rutina...", "sensibilidad al frío y calor en dientes anteriores...", "inflamación y dolor en zona de muelas del juicio...", "aplicación de resina en diente fracturado...", "evaluación para tratamiento de ortodoncia...", "manchas oscuras en los dientes frontales...", "mal aliento persistente...", "dolor al masticar alimentos..."];
-  const defaultCausaProvocado = "Provocado con ";
-  const causasProvocadoEjemplo = ["alimentos fríos o helados en contacto con el diente...", "la presión durante la masticación de alimentos duros...", "bebidas calientes que generan dolor inmediato...", "el cepillado en la zona vestibular de los premolares...", "dulces y alimentos azucarados que desencadenan molestias..."];
+  const motivoValue = formData.padecimientoActual.motivoConsulta;
+  const hasMotivoStarted = motivoValue && motivoValue !== defaultMotivoConsulta && motivoValue.length > defaultMotivoConsulta.length + 5;
+
+  // Initialize default value if empty
   useEffect(() => {
-    if (!formData.padecimientoActual.motivoConsulta) {
+    if (!motivoValue) {
       handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
     }
-    if (formData.padecimientoActual.dolor.condicionAparicion === 'provocado' && (!formData.padecimientoActual.dolor.causaProvocado || formData.padecimientoActual.dolor.causaProvocado === '')) {
-      handleDolorChange("causaProvocado", defaultCausaProvocado);
-    }
   }, []);
-  const handleMinimize = () => {
-    setIsMinimized(!isMinimized);
-    setIsMaximized(false);
-  };
-  const handleMaximize = () => {
-    setIsMaximized(!isMaximized);
-    setIsMinimized(false);
-  };
-  const handleClose = () => {
-    setIsMinimized(false);
-    setIsMaximized(false);
-  };
-  const generarRedaccionIA = () => {
-    const motivoConsulta = formData.padecimientoActual.motivoConsulta.trim();
-    const sinSintomas = formData.padecimientoActual.sinSintomas;
-    let textoGenerado = "";
-    if (sinSintomas) {
-      textoGenerado = `Motivo de consulta:
-${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
 
-
-Actualmente no refiere sintomatología`;
-    } else {
-      const {
-        fechaInicio,
-        condicionAparicion,
-        frecuencia,
-        caracter,
-        intensidad,
-        localizacion,
-        ubicacion,
-        atenuacion,
-        causaProvocado
-      } = formData.padecimientoActual.dolor;
-
-      textoGenerado = `Motivo de consulta:
-${defaultMotivoConsulta} ${motivoConsulta.replace(defaultMotivoConsulta, '').trim()}.
-
-
-Historia del padecimiento:
-El paciente refiere la presencia de dolor ${ubicacion || ''} en ${ubicacion === 'localizado' ? (localizacion.descripcion || 'una localización no especificada') : 'varias zonas con irradiación'}. El síntoma inició el ${fechaInicio || 'una fecha no especificada'} y se presenta de manera ${frecuencia || 'no especificada'}. Se describe como un dolor ${caracter || 'no especificado'} con una intensidad ${intensidad || 'no especificada'}. Se ha identificado que el dolor aparece ${condicionAparicion || 'en una condición no especificada'}`;
-
-      if (condicionAparicion === 'provocado' && causaProvocado) {
-        let causaTexto = causaProvocado;
-        if (causaTexto.startsWith("Provocado con ")) {
-          causaTexto = causaTexto.replace("Provocado con ", "");
-        }
-        textoGenerado += `, siendo provocado con ${causaTexto}`;
-      }
-      if (atenuacion) {
-        textoGenerado += `. Se ha observado que ${atenuacion}`;
-      }
-    }
-
-    const textoRevisado = revisarRedaccion(textoGenerado);
-    const textoFinal = formatearTexto(textoRevisado);
-    setRedaccionIA(textoFinal);
-    if (onRedaccionGenerada) {
-      onRedaccionGenerada(textoFinal);
-    }
-    setShowRedaccion(true);
-    setTimeout(() => {
-      redaccionRef.current?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
-      setTimeout(() => {
-        window.scrollBy(0, -200);
-      }, 300);
-    }, 100);
-  };
-  const limpiarFormulario = () => {
+  const clearForm = () => {
     handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
-    handlePadecimientoChange("historiaPadecimiento", "");
-    handleDolorChange("fechaInicio", "");
-    handleDolorChange("condicionAparicion", "");
-    handleDolorChange("frecuencia", "");
-    handleDolorChange("caracter", "");
-    handleDolorChange("intensidad", "");
-    handleDolorChange("ubicacion", "");
-    handleDolorChange("localizacion", {
-      tipo: "",
-      descripcion: ""
-    });
-    handleDolorChange("atenuacion", "");
-    handleDolorChange("causaProvocado", defaultCausaProvocado);
     handleSinSintomasChange(false);
-    setRedaccionIA("");
-    setShowRedaccion(false);
-    setShowCausasProvocado(false);
-  };
-  const handleCopy = async () => {
-    // Track copy click
-    try {
-      const { trackCopyClick } = await import('@/utils/trackCopyClick');
-      trackCopyClick();
-    } catch (error) {
-      console.error('Error tracking copy:', error);
+
+    // Auto-scroll to top on reset
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-    await navigator.clipboard.writeText(redaccionIA);
-    setCopied(true);
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
   };
-  useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      if (index < redaccionIA.length) {
-        setDisplayedText(redaccionIA.substring(0, index + 1));
-        setProgress(index / redaccionIA.length * 100);
-        index++;
-      } else {
-        clearInterval(interval);
-      }
-    }, 15);
-    return () => clearInterval(interval);
-  }, [redaccionIA]);
-  return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="padecimientoActual" data-formulario-section="padecimiento-actual">
-    <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex justify-center w-full">
-          <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-            <button
-              onClick={() => setShowRedaccion(false)}
-              className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${!showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"
-                }`}
-            >
-              Formulario
-            </button>
-            <button
-              onClick={() => setShowRedaccion(true)}
-              className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${showRedaccion ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"
-                }`}
-            >
-              Redacción IA
-            </button>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-1 sm:gap-2">
-          <button
-            onClick={handleMinimize}
-            className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-            aria-label={isMinimized ? "Expandir" : "Minimizar"}
-          >
-            <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <button
-            onClick={handleMaximize}
-            className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors"
-            aria-label={isMaximized ? "Restaurar" : "Maximizar"}
-          >
-            <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <button
-            onClick={handleClose}
-            className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-            aria-label="Cerrar"
-          >
-            <X className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-        </div>
-      </div>
+  return (
+    // Removed mb-40 to fix "dead space" issue. reduced to pb-8
+    <div className="space-y-12 max-w-3xl mx-auto py-8">
 
-      <div className="flex justify-start px-6 py-2">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <span className="text-gray-400">I.</span> PADECIMIENTO ACTUAL
-        </h2>
-      </div>
+      {/* 1. Motivo de Consulta Block */}
+      <ScrollFocusSection className="relative z-20">
+        <ChatBubbleLabel>Cuéntame, ¿cuál es el motivo de la consulta hoy?</ChatBubbleLabel>
 
-      {/* Redaction View */}
-      {showRedaccion && (
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-2">
-            <Label className="text-gray-700 dark:text-gray-300">Redacción IA:</Label>
-            <Button
-              onClick={handleCopy}
-              size="sm"
-              variant="ghost"
-              className="h-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-            >
-              {copied ? (
-                <>
-                  <CheckCircle className="w-4 h-4 mr-1" />
-                  Copiado
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4 mr-1" />
-                  Copiar
-                </>
-              )}
-            </Button>
-          </div>
-          <div
-            className="progress-bar-container"
-            style={{
-              width: "100%",
-              backgroundColor: "#d3d3d3",
-              borderRadius: "12px",
-              overflow: "hidden",
-              marginBottom: "1rem",
-              boxShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.1)",
+        <div className="relative">
+          <AIInputWithLoading
+            value={motivoValue}
+            onChange={(val) => {
+              if (!val.startsWith(defaultMotivoConsulta)) {
+                handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta + val.replace(defaultMotivoConsulta, ''));
+              } else {
+                handlePadecimientoChange("motivoConsulta", val);
+              }
             }}
-          >
-            <div
-              className="progress-bar"
-              style={{
-                height: "8px",
-                backgroundColor: "#34c759",
-                transition: "width 0.015s ease-in-out",
-                width: `${progress}%`,
-                borderRadius: "12px",
-              }}
-            ></div>
-          </div>
-          <div
-            className="min-h-[150px] max-h-[250px] w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md p-3 overflow-y-auto whitespace-pre-wrap"
-            style={{
-              whiteSpace: "pre-wrap",
-            }}
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(displayedText, {
-                ALLOWED_TAGS: ["strong", "div", "br", "p", "span"],
-                ALLOWED_ATTR: [],
-              }),
-            }}
-            data-redaction-content
+            placeholder="Ej. dolor intenso en la muela..."
           />
         </div>
-      )}
+      </ScrollFocusSection>
 
-      {/* Form View */}
-      {!showRedaccion && (
-        <div>
-          <div className="p-6">
-            <Label className="text-gray-700 dark:text-gray-300">1. Motivo de consulta:</Label>
-            <div className="flex items-start gap-4">
-              <div className="relative w-full">
-                <Textarea
-                  value={formData.padecimientoActual.motivoConsulta}
-                  onChange={(e) => {
-                    const newValue = e.target.value;
-                    if (!newValue.startsWith(defaultMotivoConsulta)) {
-                      handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
-                    } else {
-                      handlePadecimientoChange("motivoConsulta", newValue);
-                    }
-                  }}
-                  placeholder={defaultMotivoConsulta}
-                  className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md"
-                />
-                {formData.padecimientoActual.motivoConsulta === defaultMotivoConsulta && !isMobile && (
-                  <div className="absolute top-2 left-[215px] pointer-events-none">
-                    <Typewriter
-                      text={motivosEjemplo}
-                      speed={50}
-                      deleteSpeed={30}
-                      delay={2000}
-                      loop={true}
-                      className="text-gray-500 italic text-base"
-                    />
+      {/* 2. Dolor Presence Toggle (Progressive Disclosure) */}
+      <AnimatePresence>
+        {hasMotivoStarted && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+          >
+            <ScrollFocusSection className="space-y-6">
+              <ChatBubbleLabel>
+                ¿El paciente refiere <strong>dolor</strong> o sintomatología activa?
+              </ChatBubbleLabel>
+
+              <div className="flex justify-start gap-4 pl-4 flex-wrap">
+                {/* BUTTON 1: SI HAY DOLOR (RED) */}
+                <button
+                  onClick={() => handleSinSintomasChange(false)}
+                  className={cn(
+                    "flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 w-full sm:w-auto",
+                    !formData.padecimientoActual.sinSintomas
+                      ? "border-red-500 bg-red-50/50 dark:bg-red-900/10 shadow-md ring-1 ring-red-500 scale-105"
+                      : "border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-red-200 grayscale opacity-80 hover:opacity-100"
+                  )}
+                >
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center text-lg transition-colors",
+                    !formData.padecimientoActual.sinSintomas ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-400"
+                  )}>
+                    😫
                   </div>
-                )}
-              </div>
-              <div className="mt-2">
-                <VoiceInput
-                  onTranscriptionComplete={(text) => {
-                    const newValue = text;
-                    if (!newValue.startsWith(defaultMotivoConsulta)) {
-                      handlePadecimientoChange("motivoConsulta", `${defaultMotivoConsulta} ${newValue}`);
-                    } else {
-                      handlePadecimientoChange("motivoConsulta", newValue);
-                    }
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+                  <div className="text-left">
+                    <div className="font-bold text-gray-900 dark:text-white text-sm">Sí, hay dolor</div>
+                    <div className="text-xs text-gray-500">Sintomatología presente</div>
+                  </div>
+                </button>
 
-          {!isMinimized && (
-            <div className="p-6 space-y-8">
-              <SintomasToggle
-                checked={formData.padecimientoActual.sinSintomas}
-                onChange={(checked) => {
-                  handleSinSintomasChange(checked);
-                  setShowCausasProvocado(false);
-                }}
-              />
-              {!formData.padecimientoActual.sinSintomas && (
-                <div className="space-y-6">
-                  <div className="bg-gray-50 dark:bg-gray-900 p-6 rounded-lg">
-                    <h3 className="mb-6 text-xl text-gray-800 font-medium">EN CASO DE DOLOR</h3>
-                    <CaracteristicasDolor
-                      dolor={formData.padecimientoActual.dolor}
-                      onDolorChange={(field, value) => {
-                        handleDolorChange(field, value);
-                        if (field === "condicionAparicion" && value === "provocado") {
-                          setShowCausasProvocado(true);
-                        } else if (field === "condicionAparicion" && value !== "provocado") {
-                          setShowCausasProvocado(false);
-                        }
-                      }}
-                    />
+                {/* BUTTON 2: SIN SINTOMAS (GREEN) */}
+                <button
+                  onClick={() => handleSinSintomasChange(true)}
+                  className={cn(
+                    "flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 w-full sm:w-auto",
+                    formData.padecimientoActual.sinSintomas
+                      ? "border-green-500 bg-green-50/50 dark:bg-green-900/10 shadow-md ring-1 ring-green-500 scale-105"
+                      : "border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-green-200 grayscale opacity-80 hover:opacity-100"
+                  )}
+                >
+                  <div className={cn(
+                    "w-10 h-10 rounded-full flex items-center justify-center text-lg transition-colors",
+                    formData.padecimientoActual.sinSintomas ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"
+                  )}>
+                    😌
+                  </div>
+                  <div className="text-left">
+                    <div className="font-bold text-gray-900 dark:text-white text-sm">Sin síntomas</div>
+                    <div className="text-xs text-gray-500">Asintomático</div>
+                  </div>
+                </button>
+              </div>
+            </ScrollFocusSection>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 3. Caracteristicas del Dolor (Deep Dive) */}
+      <AnimatePresence>
+        {hasMotivoStarted && !formData.padecimientoActual.sinSintomas && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+          >
+            <ScrollFocusSection>
+              {/* Deep Dive Container */}
+              <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+
+                {/* Subtitle Bar - Obsidian Style */}
+                <div className="mb-6 inline-flex">
+                  <div className="px-5 py-2 rounded-full bg-zinc-900/90 dark:bg-black/80 backdrop-blur-md border border-white/10 shadow-lg flex items-center">
+                    <span className="text-sm font-medium text-zinc-100">
+                      Características del dolor
+                    </span>
                   </div>
                 </div>
-              )}
-            </div>
-          )}
 
-          <div className="p-6 flex justify-center gap-4">
-            <Button
-              onClick={generarRedaccionIA}
-              className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 flex items-center gap-2"
-            >
-              <span>Generar Redacción IA</span>
-            </Button>
-            <Button
-              onClick={limpiarFormulario}
-              className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 flex items-center gap-2"
-            >
-              <Eraser className="w-4 h-4" />
-              <span>Limpiar Formulario</span>
-            </Button>
-          </div>
-        </div>
-      )}
+                <div className="mt-2">
+                  <CaracteristicasDolor
+                    dolor={formData.padecimientoActual.dolor}
+                    onDolorChange={handleDolorChange}
+                  />
+                </div>
+              </div>
+            </ScrollFocusSection>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Footer Controls */}
+      <div className="flex justify-end items-center gap-4 pt-10 opacity-90 transition-opacity">
+        {onToggleViewMode && (
+          <Button
+            variant="outline"
+            onClick={() => {
+              // LOGIC: GENERATE REDACTION ON CLICK (HTML FORMATTED)
+              const motivo = formData.padecimientoActual.motivoConsulta || "No especificado";
+              const d = formData.padecimientoActual.dolor;
+
+              // Construct HTML Output matching user's requested format
+              let historyText = "";
+
+              if (formData.padecimientoActual.sinSintomas) {
+                historyText = "El paciente refiere encontrarse asintomático al momento de la consulta, negando dolor o molestia alguna.";
+              } else {
+                // MASTER REDACTION ENGINE (V4)
+                let sentences = [];
+
+                // 1. Dynamic Start (Regla de Inicio Dinámico: Limpieza de Motivo)
+                const motivoRaw = formData.padecimientoActual.motivoConsulta || "No especificado";
+                // Regex to strip redundant "El paciente acude..." prefixes
+                const motivoClean = motivoRaw.replace(/^(el paciente (acude|viene|se presenta) (a|a la) consulta (por|manifestando)|acude a consulta por|motivo de consulta:)\s*/gi, "").trim();
+                // Capitalize first letter
+                const motivoFinal = motivoClean.charAt(0).toUpperCase() + motivoClean.slice(1);
+
+                sentences.push(`El paciente acude a consulta manifestando: "${motivoFinal}".`);
+
+                // 2. Origin (Regla de Origen / Modo de Aparición)
+                const cond = d.condicionAparicion?.toLowerCase() || "";
+                if (cond.includes("espont")) {
+                  let feat = "Refiere un cuadro de dolor de aparición espontánea";
+                  if (d.fechaInicio) feat += ` con una evolución constante desde el ${d.fechaInicio}`;
+                  sentences.push(feat + ".");
+                } else if (cond.includes("provoc")) {
+                  const causaRaw = d.causaProvocado || "";
+                  const causaClean = causaRaw.replace(/^(provocado con|provocado por|se provoca con|al|con|por) /gi, "").trim();
+                  // V4 Correction: "de manera provocada" instead of "carácter provocado"
+                  sentences.push(`Presenta sintomatología de manera provocada, exacerbada específicamente ante ${causaClean}.`);
+                }
+
+                // 3. Characterization (Regla de Caracterización: Frec + Carac + Inten)
+                const freq = d.frecuencia?.toLowerCase() || "no especificada";
+                const carac = d.caracter?.toLowerCase() || "no especificado";
+                const intens = d.intensidad?.toLowerCase() || "moderada";
+
+                sentences.push(`El dolor se manifiesta con una frecuencia ${freq} de carácter ${carac} e intensidad ${intens}.`);
+
+                // 4. Location Exclusion (Regla de Exclusión por Localización)
+                if (d.localizacion?.descripcion) {
+                  const tipo = d.localizacion.tipo;
+                  const descRaw = d.localizacion.descripcion;
+                  const descClean = descRaw.replace(/^(localizado en|localizado|en la zona de|en) /gi, "").trim();
+
+                  if (tipo === "Irradiado") {
+                    sentences.push(`La sintomatología es de naturaleza difusa y se irradia hacia zonas adyacentes, sin presentar un punto de origen localizado.`);
+                    // Optional: We could add the specific description if needed, currently adhering to "no localizado" rule.
+                  } else if (tipo === "Localizado") {
+                    // V4 Correction: Explicit template without fallback
+                    sentences.push(`El foco doloroso se percibe estrictamente localizado en un punto clínico específico (${descClean}).`);
+                  }
+                  // V4 Correction: REMOVED FALLBACK "Refiere dolor en..." to prevent confusion with Intermitente.
+                  // If type is neither Localizado nor Irradiado, no location text is output.
+                }
+
+                // 5. Closing (Alivio / Atenuación)
+                if (d.atenuacion) {
+                  const aten = d.atenuacion.replace(/^(cede con|disminuye con|con|por|al) /gi, "").trim();
+                  sentences.push(`El paciente reporta mejoría ante ${aten}.`);
+                }
+
+                historyText = sentences.join(" ");
+              }
+
+              // 1. Visual Component (Animated Phrase by Phrase)
+              const fullTextRaw = `Motivo de consulta:\n${motivo}\n\nHistoria del padecimiento:\n${historyText}`;
+
+              const redaccionVisual = (
+                <>
+                  <div className="prose dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed font-mplus mb-6 relative group">
+                    <div className="absolute right-0 top-0 z-10">
+                      <CopyButton textToCopy={fullTextRaw} />
+                    </div>
+                    {/* Motivo - Starts Immediately */}
+                    <strong>Motivo de consulta:</strong><br />
+                    <AppleTypewriter as="span" speed={0.4} delay={0}>
+                      {motivo}
+                    </AppleTypewriter>
+                    <br /><br />
+
+                    {/* Historia - Sequential Sentence Reveal */}
+                    <strong>Historia del padecimiento:</strong>
+                    <div className="text-justify inline block">
+                      <AppleTypewriter speed={0.8} delay={0.5}>
+                        {historyText}
+                      </AppleTypewriter>
+                    </div>
+                  </div>
+
+                  {/* Back to Form Button */}
+                  <div className="flex justify-center pt-8">
+                    <Button
+                      variant="ghost"
+                      onClick={() => onToggleViewMode && onToggleViewMode()}
+                      className="rounded-full px-8 py-6 text-zinc-500 hover:text-indigo-600 hover:bg-indigo-50 dark:text-zinc-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/20 transition-all duration-300 group"
+                    >
+                      <ChevronRight className="w-5 h-5 mr-2 rotate-180 group-hover:-translate-x-1 transition-transform" />
+                      <span className="font-medium">Volver a editar</span>
+                    </Button>
+                  </div>
+                </>
+              );
+
+              // 2. Plain Text (For Clipboard/Smile Panel)
+              const redaccionTexto = `
+<strong>Motivo de consulta:</strong><br/>
+${motivo}<br/><br/>
+<strong>Historia del padecimiento:</strong><div style="text-align: justify;">${historyText}</div>
+              `.trim();
+
+              if (onRedaccionGenerada) {
+                onRedaccionGenerada(redaccionVisual, redaccionTexto);
+              }
+              if (onToggleViewMode) {
+                onToggleViewMode();
+              }
+            }}
+            className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+          >
+            <Sparkles className="w-4 h-4 mr-2" />
+            Ver Redacción IA
+          </Button>
+        )}
+
+        <Button
+          variant="ghost"
+          onClick={clearForm}
+          className="text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
+        >
+          <Eraser className="w-3 h-3 mr-2" />
+          Reiniciar Sección
+        </Button>
+      </div>
+
     </div>
-  </div>;
+  );
 };
+
 export default PadecimientoActual;

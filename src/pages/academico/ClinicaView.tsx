@@ -20,7 +20,7 @@ export const ClinicaView: React.FC = () => {
   const { clinicaId } = useParams<{ clinicaId: string }>();
   const navigate = useNavigate();
   const { verifySession } = useDemoSession();
-  
+
   const [clinica, setClinica] = useState<ClinicaUAO | null>(null);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [generandoIA, setGenerandoIA] = useState<string | null>(null);
@@ -32,12 +32,12 @@ export const ClinicaView: React.FC = () => {
     const verificar = async () => {
       const token = sessionStorage.getItem('demo_session_token');
       const module = sessionStorage.getItem('demo_module');
-      
+
       if (!token || module !== 'academico') {
         setSesionValida(false);
         return;
       }
-      
+
       const valid = await verifySession(token);
       setSesionValida(valid);
     };
@@ -55,10 +55,10 @@ export const ClinicaView: React.FC = () => {
 
   const handleGenerarIA = async (seccionId: string) => {
     setGenerandoIA(seccionId);
-    
+
     // Simulate AI generation
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     const respuestasDemo: Record<string, string> = {
       motivo: 'Paciente masculino de 24 años que acude a consulta por presentar dolor dental en región posterior mandibular izquierda de 3 días de evolución, exacerbado con alimentos fríos y dulces.',
       antecedentes: 'Sin antecedentes patológicos de importancia. Niega alergias conocidas. Última visita dental hace aproximadamente 2 años.',
@@ -66,7 +66,7 @@ export const ClinicaView: React.FC = () => {
       diagnostico: 'Caries dental profunda en OD 36. Pulpitis reversible.',
       tratamiento: 'Se propone tratamiento restaurador con resina compuesta previa anestesia local. Se indica control en 2 semanas para evaluación.',
     };
-    
+
     const textoGenerado = respuestasDemo[seccionId] || '';
     setFormData(prev => ({ ...prev, [seccionId]: textoGenerado }));
     setGenerandoIA(null);
@@ -126,9 +126,18 @@ export const ClinicaView: React.FC = () => {
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div>
-              <h1 className="text-lg font-black">{clinica.nombre}</h1>
-              <p className="text-xs text-muted-foreground">{clinica.subtitulo}</p>
+            <div className="flex items-center gap-2">
+              <img
+                src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png"
+                alt="Dentaxy"
+                className="h-6 w-6"
+              />
+              <div className="flex flex-col">
+                <span className="text-sm font-bold leading-none">DENTAXY</span>
+                {clinica.nombre !== 'DENTAXY' && (
+                  <span className="text-[10px] text-muted-foreground">{clinica.nombre}</span>
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -196,7 +205,7 @@ export const ClinicaView: React.FC = () => {
       </main>
 
       {mostrarDocumento && (
-        <VistaDocumento 
+        <VistaDocumento
           clinica={clinica}
           datos={{
             paciente: 'Paciente Demo',
