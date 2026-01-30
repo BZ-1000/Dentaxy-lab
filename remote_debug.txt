@@ -1,0 +1,26 @@
+origin	https://github.com/DentalBasicsAcademy1/Dentaxy-lab.git (fetch)
+origin	https://github.com/DentalBasicsAcademy1/Dentaxy-lab.git (push)
+6976958 chore: force trigger vercel build
+19777c7 feat: optimize image loading and caching
+9c9bc96 feat: optimize images with caching, lazy loading and compression
+3b4e997 feat: enhance redaction reveal with apple-style inline word-stream animation
+2176791 assss
+  antigravity
+  develop
+* main
+  remotes/origin/HEAD -> origin/main
+  remotes/origin/antigravity
+  remotes/origin/develop
+  remotes/origin/main
+  remotes/origin/preview
+6976958a14886d67f60eb380a1455662fa9ee7a3 refs/remotes/origin/main
+En la rama main
+Tu rama está actualizada con 'origin/main'.
+
+Archivos sin seguimiento:
+  (usa "git add <archivo>..." para incluirlo a lo que será confirmado)
+	diff_check.txt
+	remote_debug.txt
+	status_confirmed.txt
+
+no hay nada agregado al commit pero hay archivos sin seguimiento presentes (usa "git add" para hacerles seguimiento)
