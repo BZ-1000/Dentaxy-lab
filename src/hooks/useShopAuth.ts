@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const SHOP_CREDENTIALS = {
-  username: 'dentaxy_admin',
-  password: 'DxShop_2026!Privado'
+  username: 'admin',
+  password: 'dentaxy123.-'
 };
 
 const SESSION_KEY = 'dentaxy_shop_session';

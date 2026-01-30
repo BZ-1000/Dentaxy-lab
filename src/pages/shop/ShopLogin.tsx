@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Lock, User, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Sparkles, Lock, User, AlertCircle, ArrowLeft, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,11 +26,11 @@ const ShopLogin = () => {
     setError('');
     setIsSubmitting(true);
 
-    // Small delay for UX
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // UX Delay
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     const success = login(username, password);
-    
+
     if (success) {
       navigate('/shop/tienda', { replace: true });
     } else {
@@ -41,128 +41,146 @@ const ShopLogin = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-emerald-950/20 p-4">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-600/5 rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen w-full flex bg-white font-sans selection:bg-emerald-100 selection:text-emerald-900">
 
-      {/* Back to home */}
-      <Button
-        variant="ghost"
-        onClick={() => navigate('/')}
-        className="absolute top-4 left-4 text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Volver al inicio
-      </Button>
+      {/* Left Column - Login Area */}
+      <div className="w-full lg:w-[45%] xl:w-[40%] flex flex-col justify-center items-center px-8 sm:px-12 lg:px-16 xl:px-24 relative bg-white">
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md"
-      >
-        <div className="backdrop-blur-xl bg-card/80 border border-border rounded-2xl p-8 shadow-2xl">
-          {/* Logo and Title */}
-          <div className="text-center mb-8">
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', delay: 0.2 }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 mb-4 shadow-lg shadow-emerald-500/25"
-            >
-              <ShoppingBag className="w-8 h-8 text-white" />
-            </motion.div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">
-              Dentaxy Shop
+        {/* Back Button */}
+        <Button
+          variant="ghost"
+          onClick={() => navigate('/')}
+          className="absolute top-8 left-8 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50 rounded-full px-4 py-2 transition-all duration-300"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          <span className="font-medium text-sm">Volver</span>
+        </Button>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full max-w-md space-y-10"
+        >
+          {/* Header */}
+          <div className="space-y-4 text-center lg:text-left">
+            <div className="inline-flex items-center justify-center lg:justify-start w-full lg:w-auto">
+              <span className="text-2xl font-bold tracking-tight text-neutral-900">Dentaxy Shop</span>
+            </div>
+
+            <h1 className="text-3xl md:text-4xl font-semibold text-neutral-900 tracking-tight leading-tight">
+              Bienvenido de nuevo
             </h1>
-            <p className="text-muted-foreground text-sm">
-              Acceso exclusivo para distribuidores autorizados
+            <p className="text-neutral-500 text-lg leading-relaxed">
+              Ingresa tus credenciales para acceder al portal de compras exclusivo.
             </p>
           </div>
 
-          {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-foreground">
-                Usuario
-              </Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div className="group">
+                <label className="block text-sm font-medium text-neutral-700 mb-2 ml-1">Usuario</label>
                 <Input
-                  id="username"
                   type="text"
-                  placeholder="Ingresa tu usuario"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="pl-10 bg-background/50 border-border focus:border-emerald-500 focus:ring-emerald-500/20"
+                  className="h-14 px-5 bg-neutral-50 border border-transparent focus:bg-white focus:border-neutral-200 focus:ring-4 focus:ring-neutral-100 text-neutral-900 text-base rounded-2xl transition-all duration-200"
                   required
-                  disabled={isSubmitting}
                 />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-foreground">
-                Contraseña
-              </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <div className="group">
+                <label className="block text-sm font-medium text-neutral-700 mb-2 ml-1">Contraseña</label>
                 <Input
-                  id="password"
                   type="password"
-                  placeholder="Ingresa tu contraseña"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 bg-background/50 border-border focus:border-emerald-500 focus:ring-emerald-500/20"
+                  className="h-14 px-5 bg-neutral-50 border border-transparent focus:bg-white focus:border-neutral-200 focus:ring-4 focus:ring-neutral-100 text-neutral-900 text-base rounded-2xl transition-all duration-200"
                   required
-                  disabled={isSubmitting}
                 />
               </div>
             </div>
 
             {error && (
               <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="flex items-center gap-2 text-red-600 text-sm font-medium pt-2"
               >
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <AlertCircle className="w-4 h-4" />
                 {error}
               </motion.div>
             )}
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium py-5 rounded-xl transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40"
-            >
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  Verificando...
-                </span>
-              ) : (
-                'Ingresar'
-              )}
-            </Button>
+            <div className="pt-2">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full h-14 bg-neutral-900 hover:bg-black text-white font-medium text-base rounded-2xl transition-all duration-300 shadow-xl shadow-neutral-900/10 active:scale-[0.98]"
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white" />
+                    <span>Procesando...</span>
+                  </div>
+                ) : (
+                  'Iniciar Sesión'
+                )}
+              </Button>
+            </div>
           </form>
 
-          {/* Footer note */}
-          <p className="text-center text-xs text-muted-foreground mt-6">
-            Acceso restringido. Solo personal autorizado.
+          <p className="text-center lg:text-left text-xs text-neutral-400 mt-8">
+            © 2026 Dentaxy Technologies. Acceso privado.
           </p>
+        </motion.div>
+      </div>
+
+      {/* Right Column - Visual Teaser */}
+      <div className="hidden lg:flex lg:w-[55%] xl:w-[60%] relative bg-neutral-100 overflow-hidden">
+        <motion.div
+          initial={{ scale: 1.1, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute inset-0"
+        >
+          <img
+            src="/home/bz1000/.gemini/antigravity/brain/f18b4913-f7f3-41be-98ed-a40fa9e1d004/dentaxy_light_premium_supplies_1769752919665.png"
+            alt="Dentaxy Premium"
+            className="w-full h-full object-cover"
+          />
+          {/* Subtle Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
+        </motion.div>
+
+        <div className="absolute bottom-0 left-0 right-0 p-16 z-10 text-white">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="max-w-xl"
+          >
+            <div className="inline-block px-3 py-1 mb-6 border border-white/30 rounded-full backdrop-blur-md bg-white/10">
+              <span className="text-xs font-semibold tracking-wider uppercase">Próximamente</span>
+            </div>
+            <h2 className="text-4xl xl:text-5xl font-semibold leading-tight mb-6 tracking-tight">
+              Preparando la excelencia para tu consulta.
+            </h2>
+            <p className="text-lg text-white/90 font-light leading-relaxed max-w-lg">
+              Estamos curando meticulosamente una selección de insumos dentales de la más alta calidad y estándares globales.
+            </p>
+          </motion.div>
         </div>
-      </motion.div>
+      </div>
+
     </div>
   );
 };

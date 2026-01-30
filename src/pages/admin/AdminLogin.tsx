@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 const AdminLogin: React.FC = () => {
   const { isAuthenticated, isLoading: authLoading, login } = useAdminAuthContext();
   const { isSupported, isAuthenticating, authenticateWithPasskey } = useWebAuthn();
-  
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -33,7 +33,7 @@ const AdminLogin: React.FC = () => {
 
   const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!username.trim() || !password.trim()) {
       toast.error('Ingresa usuario y contraseña');
       return;
@@ -86,11 +86,10 @@ const AdminLogin: React.FC = () => {
             <button
               type="button"
               onClick={() => setLoginMethod('password')}
-              className={`flex-1 rounded-md py-2 text-sm font-medium transition-all ${
-                loginMethod === 'password'
-                  ? 'bg-blue-500/20 text-blue-400'
-                  : 'text-zinc-400 hover:text-zinc-300'
-              }`}
+              className={`flex-1 rounded-md py-2 text-sm font-medium transition-all ${loginMethod === 'password'
+                ? 'bg-blue-500/20 text-blue-400'
+                : 'text-zinc-400 hover:text-zinc-300'
+                }`}
             >
               <Lock className="mr-2 inline-block h-4 w-4" />
               Contraseña
@@ -99,11 +98,10 @@ const AdminLogin: React.FC = () => {
               type="button"
               onClick={() => setLoginMethod('biometric')}
               disabled={!isSupported}
-              className={`flex-1 rounded-md py-2 text-sm font-medium transition-all ${
-                loginMethod === 'biometric'
-                  ? 'bg-purple-500/20 text-purple-400'
-                  : 'text-zinc-400 hover:text-zinc-300'
-              } disabled:cursor-not-allowed disabled:opacity-50`}
+              className={`flex-1 rounded-md py-2 text-sm font-medium transition-all ${loginMethod === 'biometric'
+                ? 'bg-purple-500/20 text-purple-400'
+                : 'text-zinc-400 hover:text-zinc-300'
+                } disabled:cursor-not-allowed disabled:opacity-50`}
             >
               <Fingerprint className="mr-2 inline-block h-4 w-4" />
               Biométrico
@@ -132,7 +130,7 @@ const AdminLogin: React.FC = () => {
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
                       placeholder="BZ.1000"
-                      className="border-zinc-700 bg-zinc-800/50 pl-10 text-zinc-100 placeholder:text-zinc-600 focus:border-blue-500 focus:ring-blue-500/20"
+                      className="border-zinc-700 bg-zinc-800/50 pl-10 text-zinc-100 placeholder:text-zinc-600 focus:bg-zinc-800/80 focus:border-blue-500 focus:ring-blue-500/20"
                       autoComplete="username"
                     />
                   </div>
@@ -150,7 +148,7 @@ const AdminLogin: React.FC = () => {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••••••"
-                      className="border-zinc-700 bg-zinc-800/50 pl-10 pr-10 text-zinc-100 placeholder:text-zinc-600 focus:border-blue-500 focus:ring-blue-500/20"
+                      className="border-zinc-700 bg-zinc-800/50 pl-10 pr-10 text-zinc-100 placeholder:text-zinc-600 focus:bg-zinc-800/80 focus:border-blue-500 focus:ring-blue-500/20"
                       autoComplete="current-password"
                     />
                     <button

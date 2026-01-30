@@ -5,6 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useGlobalMetrics } from "@/hooks/useGlobalMetrics";
 import { toast } from "sonner";
 import { TypewriterSyncProvider } from "@/contexts/TypewriterSyncContext";
+import { Sparkles } from "lucide-react";
 
 // Landing sections
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -16,6 +17,10 @@ import { TecnologiasPreviewSection } from "@/components/landing/TecnologiasPrevi
 import { CalculatorSection } from "@/components/landing/CalculatorSection";
 import { CTASection } from "@/components/landing/CTASection";
 const menuItems = [{
+  label: "Shop",
+  href: "/shop",
+  isSpecial: true
+}, {
   label: "Nosotros",
   href: "/about"
 }, {
@@ -62,9 +67,19 @@ const Landing = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          {menuItems.map(item => <Link key={item.label} to={item.href} className="text-muted-foreground hover:text-foreground transition-colors text-sm">
+          {menuItems.map(item => (
+            <Link
+              key={item.label}
+              to={item.href}
+              className={`flex items-center gap-1 transition-colors text-sm ${item.isSpecial
+                ? "text-emerald-500 hover:text-emerald-400 font-medium"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              {item.isSpecial && <Sparkles className="w-3.5 h-3.5" />}
               {item.label}
-            </Link>)}
+            </Link>
+          ))}
         </nav>
 
         {/* CTA Button */}
@@ -75,12 +90,22 @@ const Landing = () => {
 
       {/* Mobile Menu */}
       {isMobile && <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border p-4">
-          <div className="flex justify-around">
-            {menuItems.map(item => <Link key={item.label} to={item.href} className="flex flex-col items-center text-xs text-muted-foreground hover:text-foreground">
-                {item.label}
-              </Link>)}
-          </div>
-        </nav>}
+        <div className="flex justify-around">
+          {menuItems.map(item => (
+            <Link
+              key={item.label}
+              to={item.href}
+              className={`flex flex-col items-center text-xs transition-colors ${item.isSpecial
+                ? "text-emerald-500 font-medium"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
+            >
+              {item.isSpecial && <Sparkles className="w-5 h-5 mb-1" />}
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </nav>}
 
       {/* Main Content - Snap Scroll */}
       <main ref={mainRef} className="flex-1 overflow-y-auto snap-y snap-mandatory scroll-smooth">
@@ -113,10 +138,16 @@ const Landing = () => {
                 <h3 className="text-sm font-medium text-foreground mb-4">Enlaces</h3>
                 <ul className="space-y-2">
                   {menuItems.map(item => <li key={item.label}>
-                      <Link to={item.href} className="text-muted-foreground hover:text-foreground transition-colors text-sm">
-                        {item.label}
-                      </Link>
-                    </li>)}
+                    <Link
+                      to={item.href}
+                      className={`transition-colors text-sm ${item.isSpecial
+                        ? "text-emerald-500 hover:text-emerald-400 font-medium"
+                        : "text-muted-foreground hover:text-foreground"
+                        }`}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>)}
                 </ul>
               </nav>
 
@@ -147,6 +178,6 @@ const Landing = () => {
         </footer>
       </main>
     </div>
-    </TypewriterSyncProvider>;
+  </TypewriterSyncProvider>;
 };
 export default Landing;

@@ -68,7 +68,7 @@
 
     input:focus,
     textarea:focus {
-        @apply bg-background shadow-lg ring-2 ring-primary/5 scale-[1.01];
+        @apply shadow-lg ring-2 ring-primary/5 scale-[1.01];
         outline: none;
     }
 
