@@ -45,6 +45,10 @@ import { ShopAuthProvider } from './contexts/ShopAuthContext';
 // Demo Académico UAO
 import { AcademicoDemo, ClinicaView } from './pages/academico';
 
+// Dentaxy Core
+import CoreLogin from './pages/core/CoreLogin';
+import CoreDashboard from './pages/core/CoreDashboard';
+
 // Component to initialize global tracking
 const GlobalTracker = () => {
   useGlobalMetrics(); // Initialize all metrics tracking globally
@@ -63,11 +67,11 @@ function App() {
               <Routes>
                 {/* Página de inicio */}
                 <Route path="/" element={<Landing />} />
-                
+
                 {/* Hub de módulos */}
                 <Route path="/hub" element={<ModulesHub />} />
                 <Route path="/modules" element={<ModulesHub />} />
-                
+
                 {/* Páginas del menú principal */}
                 <Route path="/about" element={<About />} />
                 <Route path="/nosotros" element={<About />} />
@@ -75,17 +79,17 @@ function App() {
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/benefits" element={<Benefits />} />
                 <Route path="/beneficios" element={<Benefits />} />
-                
+
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/contacto" element={<Contact />} />
-                
+
                 {/* Páginas de políticas */}
                 <Route path="/terms" element={<TermsAndConditions />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
-                
+
                 {/* Donación */}
                 <Route path="/donation-success" element={<DonationSuccess />} />
-                
+
                 {/* Admin Panel */}
                 <Route path="/admin" element={<AdminLogin />} />
                 <Route path="/admin/*" element={<AdminLayout />}>
@@ -96,7 +100,7 @@ function App() {
                   <Route path="audit" element={<AuditLogs />} />
                   <Route path="settings" element={<Settings />} />
                 </Route>
-                
+
                 {/* Shop - Tienda privada */}
                 <Route path="/shop" element={<ShopLogin />} />
                 <Route path="/shop/tienda" element={
@@ -104,17 +108,21 @@ function App() {
                     <Shop />
                   </ShopAuthProvider>
                 } />
-                
+
                 {/* Redireccion legacy de auth */}
                 <Route path="/auth/*" element={<Navigate to="/hub" replace />} />
-                
+
                 {/* Demo Académico UAO */}
                 <Route path="/academico" element={<AcademicoDemo />} />
                 <Route path="/academico/:clinicaId" element={<ClinicaView />} />
-                
+
+                {/* Dentaxy Core */}
+                <Route path="/core/login" element={<CoreLogin />} />
+                <Route path="/core" element={<CoreDashboard />} />
+
                 {/* App - Acceso libre */}
                 <Route path="/app" element={<Index />} />
-                
+
                 {/* 404 - No encontrado */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

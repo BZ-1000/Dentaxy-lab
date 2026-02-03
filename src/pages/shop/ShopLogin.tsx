@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, X, User, Mail, ShieldCheck } from 'lucide-react';
+import { ArrowRight, X, User, ShieldCheck, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useShopAuth } from '@/hooks/useShopAuth';
@@ -9,7 +9,7 @@ import OrganicShopFrame from '@/components/shop/OrganicShopFrame';
 
 type ModalState = 'none' | 'admin' | 'presale' | 'waitlist';
 
-const ShopLogin = () => {
+export default function ShopLogin() {
   const [openModal, setOpenModal] = useState<ModalState>('none');
   const navigate = useNavigate();
   const { login, isAuthenticated, isLoading } = useShopAuth();
@@ -17,20 +17,20 @@ const ShopLogin = () => {
   // Login State (Admin)
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [authError, setAuthError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Presale Login State
+  // Presale State
   const [presaleCode, setPresaleCode] = useState('');
   const [presaleError, setPresaleError] = useState('');
   const [presaleSubmitting, setPresaleSubmitting] = useState(false);
 
   // Waitlist State
-  const [notifyEmail, setNotifyEmail] = useState('');
-  const [notifySubmitting, setNotifySubmitting] = useState(false);
-  const [notifySuccess, setNotifySuccess] = useState(false);
+  const [email, setEmail] = useState('');
+  const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
+  const [waitlistSuccess, setWaitlistSuccess] = useState(false);
 
-  // Contador de inscritos (simulado - en producción vendría del backend)
+  // Simulated count
   const [waitlistCount] = useState(127);
 
   useEffect(() => {
@@ -41,14 +41,16 @@ const ShopLogin = () => {
 
   const handleAdminSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setAuthError('');
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Simulate network delay
+    await new Promise(resolve => setTimeout(resolve, 600));
+
     const success = login(username, password);
     if (success) {
       navigate('/shop/tienda', { replace: true });
     } else {
-      setError('Credenciales incorrectas');
+      setAuthError('Credenciales no reconocidas.');
       setIsSubmitting(false);
     }
   };
@@ -58,378 +60,244 @@ const ShopLogin = () => {
     setPresaleError('');
     setPresaleSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    // TODO: Implementar lógica de validación de código de preventa
-    setPresaleError('Código de preventa no válido');
+    setPresaleError('Código inválido o expirado.');
     setPresaleSubmitting(false);
   };
 
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setNotifySubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setNotifySubmitting(false);
-    setNotifySuccess(true);
+    setWaitlistSubmitting(true);
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    setWaitlistSubmitting(false);
+    setWaitlistSuccess(true);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-400 via-emerald-500 to-green-600">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-white/30 border-t-white"></div>
-      </div>
-    );
-  }
+  if (isLoading) return null;
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden font-sans selection:bg-white/20 selection:text-white flex flex-col bg-gradient-to-br from-teal-400 via-emerald-500 to-green-600">
+    <div className="min-h-screen w-full relative bg-[#F5F5F7] overflow-hidden font-sans selection:bg-emerald-500/20 selection:text-emerald-900">
 
-      {/* Componente de Marco Orgánico Global */}
+      {/* Background Ambience */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-10%] right-[-5%] w-[40vw] h-[40vw] bg-emerald-100/40 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[35vw] h-[35vw] bg-blue-100/40 rounded-full blur-[100px]" />
+      </div>
+
       <OrganicShopFrame
         onHomeClick={() => navigate('/')}
         onAdminClick={() => setOpenModal('admin')}
         waitlistCount={waitlistCount}
       />
 
-      {/* Animated Background Blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            x: [0, 50, 0],
-            y: [0, 30, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute top-0 -left-48 w-96 h-96 bg-teal-300/30 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            x: [0, -30, 0],
-            y: [0, 50, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          className="absolute bottom-0 -right-48 w-[30rem] h-[30rem] bg-emerald-300/30 rounded-full blur-3xl"
-        />
-        <motion.div
-          animate={{
-            scale: [1, 1.1, 1],
-            rotate: [0, 180, 360],
-          }}
-          transition={{
-            duration: 30,
-            repeat: Infinity,
-            ease: "linear"
-          }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] bg-gradient-to-br from-teal-200/20 to-emerald-200/20 rounded-full blur-3xl"
-        />
-      </div>
+      {/* Main Content */}
+      <main className="relative z-10 h-screen w-full flex flex-col items-center justify-center p-6">
 
-      {/* Giant Background Typography - REDUCED SIZE */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 select-none overflow-hidden">
-        <motion.h1
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 0.1, scale: 1 }}
-          transition={{ duration: 1.5 }}
-          className="text-[18vw] font-black text-white tracking-tighter leading-none whitespace-nowrap blur-sm"
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex flex-col items-center text-center space-y-12 max-w-2xl"
         >
-          DENTAXY
-        </motion.h1>
-      </div>
-
-      {/* Main Content Area - Full Screen Centered Lower */}
-      <div className="relative z-10 w-full h-screen flex flex-col items-center justify-center px-6 pt-20">
-
-        {/* Title Group - Reorganized */}
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="text-center mb-12 space-y-2"
-        >
-          <div className="flex items-center justify-center gap-4 opacity-100 mb-2">
-            <span className="bg-white/20 backdrop-blur-md px-4 py-1 rounded-full text-white text-sm font-bold tracking-widest uppercase border border-white/20">
-              Official Store
-            </span>
+          {/* Brand Logo / Icon */}
+          <div className="w-24 h-24 bg-white rounded-[2rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] flex items-center justify-center mb-4">
+            <img
+              src="/brand/dentaxy-icon-solid.webp"
+              alt="Dentaxy"
+              className="w-12 h-12 object-contain"
+            />
           </div>
 
-          <h2 className="text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter text-white drop-shadow-2xl">
-            Shop
-          </h2>
+          <div className="space-y-4">
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-neutral-900">
+              Dentaxy<span className="text-neutral-400">.Shop</span>
+            </h1>
+            <p className="text-lg md:text-xl text-neutral-500 font-light max-w-md mx-auto leading-relaxed">
+              La plataforma exclusiva de suministros para la nueva generación de odontólogos.
+            </p>
+          </div>
 
-          <p className="text-white/90 text-lg md:text-xl font-light tracking-wide max-w-xl mx-auto mt-6 leading-relaxed">
-            Sistema de Suministro Inteligente<br />
-            <span className="font-semibold text-white">para Profesionales</span>
-          </p>
+          {/* Action Cards */}
+          <div className="flex flex-col sm:flex-row gap-6 w-full max-w-lg mt-8">
+            <button
+              onClick={() => setOpenModal('presale')}
+              className="flex-1 group bg-white hover:bg-neutral-50 border border-neutral-200 p-6 rounded-3xl text-left shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <div className="bg-emerald-50 w-12 h-12 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-emerald-100 transition-colors">
+                <ShieldCheck className="w-6 h-6 text-emerald-600" />
+              </div>
+              <h3 className="font-semibold text-neutral-900 text-lg">Preventa</h3>
+              <p className="text-sm text-neutral-500 mt-1">Acceso anticipado con código</p>
+            </button>
+
+            <button
+              onClick={() => setOpenModal('waitlist')}
+              className="flex-1 group bg-white hover:bg-neutral-50 border border-neutral-200 p-6 rounded-3xl text-left shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <div className="bg-blue-50 w-12 h-12 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
+                <Mail className="w-6 h-6 text-blue-600" />
+              </div>
+              <h3 className="font-semibold text-neutral-900 text-lg">Lista de Espera</h3>
+              <p className="text-sm text-neutral-500 mt-1">Notifícame el lanzamiento</p>
+            </button>
+          </div>
+
         </motion.div>
+      </main>
 
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="flex flex-col gap-4 w-full max-w-sm items-center"
-        >
-          {/* Preventa - Primary Action */}
-          <Button
-            onClick={() => setOpenModal('presale')}
-            className="w-full h-16 bg-white text-emerald-700 hover:bg-neutral-50 rounded-[2rem] text-lg font-bold tracking-wide shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group"
-          >
-            <ShieldCheck className="mr-3 w-6 h-6" />
-            Acceso a Preventa
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
-
-          {/* Waitlist - Secondary Action */}
-          <Button
-            onClick={() => setOpenModal('waitlist')}
-            className="w-full h-14 bg-emerald-900/30 backdrop-blur-md text-white hover:bg-emerald-900/50 border border-white/20 hover:border-white/40 rounded-[2rem] text-sm font-medium transition-all duration-300"
-          >
-            <Mail className="mr-2 w-4 h-4" />
-            Notificarme Disponibilidad
-          </Button>
-        </motion.div>
-      </div>
-
-      {/* MODAL OVERLAYS */}
-      <AnimatePresence mode="wait">
-
-        {/* ADMIN LOGIN MODAL */}
-        {openModal === 'admin' && (
+      {/* MODALS */}
+      <AnimatePresence>
+        {openModal !== 'none' && (
           <motion.div
-            key="admin-modal"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] bg-neutral-900/20 backdrop-blur-md flex items-center justify-center p-4"
             onClick={() => setOpenModal('none')}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-white/95 backdrop-blur-2xl border border-white/40 p-10 md:p-12 rounded-3xl shadow-2xl shadow-black/10 relative"
+              className="bg-white/80 backdrop-blur-xl w-full max-w-[400px] p-8 rounded-[2.5rem] shadow-2xl border border-white/50 relative overflow-hidden"
             >
               <button
                 onClick={() => setOpenModal('none')}
-                className="absolute top-6 right-6 p-2 text-neutral-400 hover:text-neutral-900 transition-colors rounded-full hover:bg-neutral-50"
+                className="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-neutral-100 hover:bg-neutral-200 transition-colors"
               >
-                <X className="w-6 h-6" />
+                <X className="w-4 h-4 text-neutral-600" />
               </button>
 
-              <div className="mb-8 text-center">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 mb-4">
-                  <User className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-neutral-900 mb-2">Acceso Administrativo</h3>
-                <p className="text-neutral-500 text-sm">Credenciales autorizadas únicamente</p>
-              </div>
-
-              <form onSubmit={handleAdminSubmit} className="space-y-5">
-                <div className="space-y-4">
-                  <Input
-                    type="text"
-                    placeholder="Usuario"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="h-14 px-6 bg-neutral-50 border-neutral-200 focus:bg-white focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 rounded-2xl text-base transition-all"
-                    required
-                  />
-                  <Input
-                    type="password"
-                    placeholder="Contraseña"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-14 px-6 bg-neutral-50 border-neutral-200 focus:bg-white focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 rounded-2xl text-base transition-all"
-                    required
-                  />
-                </div>
-
-                {error && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl">
-                    <p className="text-red-600 text-sm text-center font-medium">{error}</p>
-                  </div>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-2xl text-base font-semibold shadow-lg hover:shadow-xl transition-all"
-                >
-                  {isSubmitting ? 'Verificando...' : 'Iniciar Sesión'}
-                </Button>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* PRESALE MODAL */}
-        {openModal === 'presale' && (
-          <motion.div
-            key="presale-modal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-            onClick={() => setOpenModal('none')}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-white/95 backdrop-blur-2xl border border-white/40 p-10 md:p-12 rounded-3xl shadow-2xl shadow-black/10 relative"
-            >
-              <button
-                onClick={() => {
-                  setOpenModal('none');
-                  setPresaleCode('');
-                  setPresaleError('');
-                }}
-                className="absolute top-6 right-6 p-2 text-neutral-400 hover:text-neutral-900 transition-colors rounded-full hover:bg-neutral-50"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              <div className="mb-8 text-center">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 mb-4">
-                  <ShieldCheck className="w-7 h-7 text-white" />
-                </div>
-                <h3 className="text-2xl font-bold text-neutral-900 mb-2">Acceso a Preventa</h3>
-                <p className="text-neutral-500 text-sm">Ingresa tu código de acceso exclusivo</p>
-              </div>
-
-              <form onSubmit={handlePresaleSubmit} className="space-y-6">
-                <Input
-                  type="text"
-                  placeholder="CÓDIGO-PREVENTA-XXXX"
-                  value={presaleCode}
-                  onChange={(e) => setPresaleCode(e.target.value.toUpperCase())}
-                  className="h-14 px-6 bg-neutral-50 border-neutral-200 focus:bg-white focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 rounded-2xl text-base font-mono tracking-wider text-center transition-all"
-                  required
-                />
-
-                {presaleError && (
-                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl">
-                    <p className="text-amber-700 text-sm text-center font-medium">{presaleError}</p>
-                  </div>
-                )}
-
-                <Button
-                  type="submit"
-                  disabled={presaleSubmitting}
-                  className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-2xl text-base font-semibold shadow-lg hover:shadow-xl transition-all"
-                >
-                  {presaleSubmitting ? 'Validando...' : 'Validar Código'}
-                </Button>
-              </form>
-
-              <div className="mt-6 pt-6 border-t border-neutral-200">
-                <p className="text-xs text-neutral-400 text-center">
-                  ¿No tienes código? Contacta a tu representante Dentaxy o regístrate en la lista de espera.
-                </p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* WAITLIST MODAL */}
-        {openModal === 'waitlist' && (
-          <motion.div
-            key="waitlist-modal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-            onClick={() => setOpenModal('none')}
-          >
-            <motion.div
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-white/95 backdrop-blur-2xl border border-white/40 p-10 md:p-12 rounded-3xl shadow-2xl shadow-black/10 relative"
-            >
-              <button
-                onClick={() => {
-                  setOpenModal('none');
-                  setNotifySuccess(false);
-                  setNotifyEmail('');
-                }}
-                className="absolute top-6 right-6 p-2 text-neutral-400 hover:text-neutral-900 transition-colors rounded-full hover:bg-neutral-50"
-              >
-                <X className="w-6 h-6" />
-              </button>
-
-              {!notifySuccess ? (
-                <>
-                  <div className="mb-8 text-center">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 mb-4">
-                      <Mail className="w-7 h-7 text-white" />
+              {/* Modal Content Switcher */}
+              {openModal === 'admin' && (
+                <div className="space-y-6">
+                  <div className="text-center space-y-2">
+                    <div className="w-14 h-14 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Lock className="w-6 h-6 text-neutral-900" />
                     </div>
-                    <h3 className="text-2xl font-bold text-neutral-900 mb-2">Lista de Espera</h3>
-                    <p className="text-neutral-500 text-sm">Sé el primero en saber cuando lancemos oficialmente</p>
+                    <h2 className="text-2xl font-bold text-neutral-900">Admin</h2>
+                    <p className="text-neutral-500 text-sm">Acceso reservado para administración</p>
                   </div>
 
-                  <form onSubmit={handleWaitlistSubmit} className="space-y-6">
-                    <Input
-                      type="email"
-                      placeholder="tu@correo.com"
-                      value={notifyEmail}
-                      onChange={(e) => setNotifyEmail(e.target.value)}
-                      className="h-14 px-6 bg-neutral-50 border-neutral-200 focus:bg-white focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/20 rounded-2xl text-base transition-all"
-                      required
-                    />
+                  <form onSubmit={handleAdminSubmit} className="space-y-4">
+                    <div className="space-y-3">
+                      <Input
+                        placeholder="ID de Usuario"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="h-12 rounded-xl bg-white/50 border-neutral-200 focus:ring-emerald-500/20"
+                      />
+                      <Input
+                        type="password"
+                        placeholder="Contraseña"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="h-12 rounded-xl bg-white/50 border-neutral-200 focus:ring-emerald-500/20"
+                      />
+                    </div>
+
+                    {authError && (
+                      <p className="text-xs text-red-500 text-center font-medium bg-red-50 py-2 rounded-lg">
+                        {authError}
+                      </p>
+                    )}
 
                     <Button
                       type="submit"
-                      disabled={notifySubmitting}
-                      className="w-full h-14 bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white rounded-2xl text-base font-semibold shadow-lg hover:shadow-xl transition-all"
+                      disabled={isSubmitting}
+                      className="w-full h-12 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-white font-medium"
                     >
-                      {notifySubmitting ? 'Registrando...' : 'Unirme a la Lista'}
+                      {isSubmitting ? 'Verificando...' : 'Acceder'}
                     </Button>
                   </form>
-                </>
-              ) : (
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  className="text-center py-8"
-                >
-                  <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-white text-4xl shadow-lg">
-                    ✓
-                  </div>
-                  <h3 className="text-2xl font-bold text-neutral-900 mb-3">¡Listo!</h3>
-                  <p className="text-neutral-600 mb-8 text-sm leading-relaxed">
-                    Te hemos agregado a la lista de espera.<br />
-                    Te notificaremos cuando Dentaxy Shop esté disponible.
-                  </p>
-                  <Button
-                    onClick={() => setOpenModal('none')}
-                    variant="ghost"
-                    className="text-neutral-700 hover:bg-neutral-100 rounded-xl px-6"
-                  >
-                    Cerrar
-                  </Button>
-                </motion.div>
+                </div>
               )}
+
+              {openModal === 'presale' && (
+                <div className="space-y-6">
+                  <div className="text-center space-y-2">
+                    <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <ShieldCheck className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-neutral-900">Preventa</h2>
+                    <p className="text-neutral-500 text-sm">Introduce tu código de invitación</p>
+                  </div>
+
+                  <form onSubmit={handlePresaleSubmit} className="space-y-4">
+                    <Input
+                      placeholder="XXXX-XXXX-XXXX"
+                      className="h-14 text-center text-lg font-mono tracking-widest uppercase rounded-xl bg-white/50 border-neutral-200"
+                      value={presaleCode}
+                      onChange={(e) => setPresaleCode(e.target.value)}
+                    />
+
+                    {presaleError && (
+                      <p className="text-xs text-amber-600 text-center bg-amber-50 py-2 rounded-lg font-medium">
+                        {presaleError}
+                      </p>
+                    )}
+
+                    <Button
+                      type="submit"
+                      disabled={presaleSubmitting}
+                      className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-lg shadow-emerald-200"
+                    >
+                      {presaleSubmitting ? 'Validando...' : 'Canjear Código'}
+                    </Button>
+                  </form>
+                </div>
+              )}
+
+              {openModal === 'waitlist' && (
+                <div className="space-y-6">
+                  {!waitlistSuccess ? (
+                    <>
+                      <div className="text-center space-y-2">
+                        <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                          <Mail className="w-6 h-6 text-blue-600" />
+                        </div>
+                        <h2 className="text-2xl font-bold text-neutral-900">Lista de Espera</h2>
+                        <p className="text-neutral-500 text-sm">Recibe noticias exclusivas</p>
+                      </div>
+
+                      <form onSubmit={handleWaitlistSubmit} className="space-y-4">
+                        <Input
+                          type="email"
+                          placeholder="tu@email.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="h-12 rounded-xl bg-white/50 border-neutral-200"
+                          required
+                        />
+
+                        <Button
+                          type="submit"
+                          disabled={waitlistSubmitting}
+                          className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg shadow-blue-200"
+                        >
+                          {waitlistSubmitting ? 'Registrando...' : 'Unirme'}
+                        </Button>
+                      </form>
+                    </>
+                  ) : (
+                    <div className="text-center py-8">
+                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <ArrowRight className="w-8 h-8 text-green-600" />
+                      </div>
+                      <h3 className="text-xl font-bold text-neutral-900">¡Suscrito!</h3>
+                      <p className="text-neutral-500 mt-2 text-sm">Te mantendremos informado.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
             </motion.div>
           </motion.div>
         )}
-
       </AnimatePresence>
+
     </div>
   );
-};
+}
 
-export default ShopLogin;
+
