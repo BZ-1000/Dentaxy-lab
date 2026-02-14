@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Minus, Maximize2, X, Sparkles } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
@@ -10,18 +11,21 @@ interface AntecedentesQuirurgicosProps {
   formData: FormDataState;
   handleAntecedenteQuirurgicoChange: (field: string, value: any) => void;
   onRedaccionGenerada?: (text: string) => void;
+  onToggleViewMode?: () => void;
 }
 
 const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
   formData,
   handleAntecedenteQuirurgicoChange,
-  onRedaccionGenerada
+  onRedaccionGenerada,
+  onToggleViewMode
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [activeTab, setActiveTab] = useState('formulario');
   const [redaccionContent, setRedaccionContent] = useState('');
   const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
+  // ... existing functions (handleMinimize, etc) ... keeping them via loose replacement if possible, but safer to keeping structure
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -47,60 +51,65 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
   };
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
-    setTimeout(() => {
-      let content = "ANTECEDENTES MÉDICOS Y QUIRÚRGICOS:\n\n";
+    // Remove timeout for snappy UX or keep it small
+    let content = "ANTECEDENTES MÉDICOS Y QUIRÚRGICOS:\n\n";
 
-      if (formData.antecedentesQuirurgicos.tratamientoReciente) {
-        content += "El paciente ha estado sometido a tratamiento médico en los últimos dos meses. ";
-        if (formData.antecedentesQuirurgicos.motivoTratamiento) {
-          content += `Motivo: ${formData.antecedentesQuirurgicos.motivoTratamiento}. `;
-        }
-      } else {
-        content += "El paciente no ha estado sometido a tratamiento médico en los últimos dos meses. ";
+    if (formData.antecedentesQuirurgicos.tratamientoReciente) {
+      content += "El paciente ha estado sometido a tratamiento médico en los últimos dos meses. ";
+      if (formData.antecedentesQuirurgicos.motivoTratamiento) {
+        content += `Motivo: ${formData.antecedentesQuirurgicos.motivoTratamiento}. `;
       }
+    } else {
+      content += "El paciente no ha estado sometido a tratamiento médico en los últimos dos meses. ";
+    }
 
-      if (formData.antecedentesQuirurgicos.hospitalizacionReciente) {
-        content += "\nHa sido hospitalizado en los últimos dos meses. ";
-        if (formData.antecedentesQuirurgicos.motivoHospitalizacion) {
-          content += `Motivo: ${formData.antecedentesQuirurgicos.motivoHospitalizacion}. `;
-        }
-      } else {
-        content += "\nNo ha sido hospitalizado en los últimos dos meses. ";
+    if (formData.antecedentesQuirurgicos.hospitalizacionReciente) {
+      content += "\nHa sido hospitalizado en los últimos dos meses. ";
+      if (formData.antecedentesQuirurgicos.motivoHospitalizacion) {
+        content += `Motivo: ${formData.antecedentesQuirurgicos.motivoHospitalizacion}. `;
       }
+    } else {
+      content += "\nNo ha sido hospitalizado en los últimos dos meses. ";
+    }
 
-      if (formData.antecedentesQuirurgicos.tomaMedicamentos) {
-        content += "\nActualmente está tomando medicamentos. ";
-        if (formData.antecedentesQuirurgicos.cualesMedicamentos) {
-          content += `Medicamentos: ${formData.antecedentesQuirurgicos.cualesMedicamentos}. `;
-        }
-        if (formData.antecedentesQuirurgicos.motivoMedicamentos) {
-          content += `Motivo: ${formData.antecedentesQuirurgicos.motivoMedicamentos}. `;
-        }
-      } else {
-        content += "\nNo está tomando medicamentos actualmente. ";
+    if (formData.antecedentesQuirurgicos.tomaMedicamentos) {
+      content += "\nActualmente está tomando medicamentos. ";
+      if (formData.antecedentesQuirurgicos.cualesMedicamentos) {
+        content += `Medicamentos: ${formData.antecedentesQuirurgicos.cualesMedicamentos}. `;
       }
+      if (formData.antecedentesQuirurgicos.motivoMedicamentos) {
+        content += `Motivo: ${formData.antecedentesQuirurgicos.motivoMedicamentos}. `;
+      }
+    } else {
+      content += "\nNo está tomando medicamentos actualmente. ";
+    }
 
-      if (formData.antecedentesQuirurgicos.sinQuirurgicos === false && formData.antecedentesQuirurgicos.cirugiasRealizadas?.length > 0) {
-        content += "\n\nANTECEDENTES QUIRÚRGICOS:\n";
-        formData.antecedentesQuirurgicos.cirugiasRealizadas.forEach((cirugia, index) => {
-          content += `\n${index + 1}. Tipo: ${cirugia.tipo || 'No especificado'}, Fecha: ${cirugia.fecha || 'No especificada'}, Motivo: ${cirugia.motivo || 'No especificado'}`;
-        });
-      } else {
-        content += "\n\nNo refiere antecedentes quirúrgicos.";
-      }
-      setRedaccionContent(content);
-      if (onRedaccionGenerada) {
-        onRedaccionGenerada(content);
-      }
-      setIsGeneratingRedaccion(false);
-      setActiveTab('redaccion');
-    }, 1000);
+    if (formData.antecedentesQuirurgicos.sinQuirurgicos === false && formData.antecedentesQuirurgicos.cirugiasRealizadas?.length > 0) {
+      content += "\n\nANTECEDENTES QUIRÚRGICOS:\n";
+      formData.antecedentesQuirurgicos.cirugiasRealizadas.forEach((cirugia, index) => {
+        content += `\n${index + 1}. Tipo: ${cirugia.tipo || 'No especificado'}, Fecha: ${cirugia.fecha || 'No especificada'}, Motivo: ${cirugia.motivo || 'No especificado'}`;
+      });
+    } else {
+      content += "\n\nNo refiere antecedentes quirúrgicos.";
+    }
+    setRedaccionContent(content);
+    if (onRedaccionGenerada) {
+      onRedaccionGenerada(content);
+    }
+    setIsGeneratingRedaccion(false);
+    // activeTab override not needed if onToggleViewMode is used, but keeping for compatibility
+    setActiveTab('redaccion');
+
+    if (onToggleViewMode) {
+      onToggleViewMode();
+    }
   };
 
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="antecedentesQuirurgicos" data-formulario-section="antecedentes-quirurgicos">
     <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex justify-center w-full">
+          {/* Header / Tabs - Keeping existing structure */}
           <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
             <button className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`} onClick={() => setActiveTab('formulario')}>
               Formulario
@@ -217,7 +226,18 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
               </>
             )}
 
-            <div className="flex justify-center mt-6"></div>
+            <div className="flex justify-center mt-6">
+              {onToggleViewMode && (
+                <Button
+                  variant="outline"
+                  onClick={generateRedaccion}
+                  className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Ver Redacción IA
+                </Button>
+              )}
+            </div>
           </div>
         </div> : <div className="p-6">
           <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" style={{

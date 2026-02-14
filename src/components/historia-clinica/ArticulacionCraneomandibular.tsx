@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Edit, FileText } from "lucide-react";
+import { Minus, Maximize2, X, Edit, FileText, Sparkles } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FormDataState } from '@/types/historiaClinica';
@@ -11,6 +11,7 @@ interface ArticulacionCraneomandibularProps {
   formData: FormDataState;
   handleArticulacionCraneomandibularChange: (part: string, value: string | boolean | object) => void;
   onRedaccionGenerada?: (text: string) => void;
+  onToggleViewMode?: () => void;
 }
 
 // 1. Interface para el estado interno del componente
@@ -236,13 +237,16 @@ const lipNarrativePhrases: {
 const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> = ({
   formData,
   handleArticulacionCraneomandibularChange,
-  onRedaccionGenerada
+
+  onRedaccionGenerada,
+  onToggleViewMode
 }) => {
   // Estados UI
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [activeTab, setActiveTab] = useState('formulario');
   const [lipsViewMode, setLipsViewMode] = useState<'form' | 'narrative'>('form');
+  const [fullRedaccion, setFullRedaccion] = useState('');
 
   // Estados y Refs para Typewriter y Carga
   const [isGeneratingLipsNarrative, setIsGeneratingLipsNarrative] = useState(false);
@@ -431,10 +435,16 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm bg-blue-500 text-white shadow-md">
+              <button
+                onClick={() => setActiveTab('formulario')}
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
+              >
                 Formulario
               </button>
-              <button className="px-5 py-1.5 rounded-full transition-all duration-300 text-sm text-gray-700 dark:text-gray-300">
+              <button
+                onClick={() => setActiveTab('redaccion')}
+                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'redaccion' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
+              >
                 Redacción IA
               </button>
             </div>
@@ -646,17 +656,74 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                     </div>
                   )}
                 </section>
+
+                <div className="flex justify-center mt-6 pb-6">
+                  {onToggleViewMode && (
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        // Generar Redacción Completa Logic
+                        const atm = formData.articulacionCraneomandibular || {};
+                        let text = "ARTICULACIÓN CRANEOMANDIBULAR:\n";
+                        if (atm.dolorMasticarHablar) {
+                          text += `Presenta dolor al masticar o hablar, descrito como ${atm.tipoDolor || 'no especificado'} de duración ${atm.duracionDolor || 'no especificada'}.\n`;
+                        } else {
+                          text += "Sin dolor al masticar o hablar.\n";
+                        }
+                        if (atm.dolorEspecifico) {
+                          text += `Refiere dificultad específica al hablar/masticar por ${atm.motivoDolor || 'motivo no especificado'}.\n`;
+                        }
+                        if (atm.ruidoArticular) text += `Ruido articular presente: ${atm.ruidoArticular === 'abertura' ? 'a la apertura' : atm.ruidoArticular === 'cierre' ? 'al cierre' : 'ninguno'}.\n`;
+                        if (atm.patronAbertura) text += `Patrón de apertura: ${atm.patronAbertura === 'otro' ? (atm.otroPatronAbertura || 'otro') : atm.patronAbertura}.\n`;
+                        if (atm.otrasObservaciones) text += `Observaciones ATM: ${atm.otrasObservaciones}\n`;
+
+                        text += "\nLABIOS:\n";
+                        // Reuse logic or simplify for full redaction
+                        const labios = atm.labios || {};
+                        let labText = "";
+                        if (labios.simetria) labText += `${lipNarrativePhrases.simetria[labios.simetria] || ''} `;
+                        if (labios.volumen) labText += `${lipNarrativePhrases.volumen[labios.volumen] || ''} `;
+                        if (labios.coloracion) labText += `${lipNarrativePhrases.coloracion[labios.coloracion] || ''} `;
+                        if (labios.hidratacion) labText += `${lipNarrativePhrases.hidratacion[labios.hidratacion] || ''} `;
+                        if (labios.integridad) labText += `${lipNarrativePhrases.integridad[labios.integridad] || ''} `;
+                        if (labios.comisuras) labText += `${lipNarrativePhrases.comisuras[labios.comisuras] || ''} `;
+                        if (labios.movimiento) labText += `${lipNarrativePhrases.movimiento[labios.movimiento] || ''} `;
+                        if (labios.otrasObservaciones) labText += `Observaciones Labios: ${labios.otrasObservaciones}`;
+
+                        text += labText || "Sin hallazgos significativos en labios.";
+
+                        setFullRedaccion(text);
+                        if (onRedaccionGenerada) onRedaccionGenerada(text);
+                        setActiveTab('redaccion');
+                        onToggleViewMode();
+                      }}
+                      className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Ver Redacción IA
+                    </Button>
+                  )}
+                </div>
+
               </div>
             ) : (
-              // Aquí podrías poner el contenido de otras pestañas si las hubiera
-              <div className="text-center py-10">
-                <p className="text-gray-500 dark:text-gray-400">Contenido de otra pestaña (si aplica).</p>
+              <div className="p-6">
+                <div
+                  className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap"
+                  style={{
+                    whiteSpace: "pre-wrap",
+                  }}
+                  data-redaction-content
+                >
+                  {fullRedaccion ||
+                    "No se ha generado redacción aún. Utilice el botón 'Ver Redacción IA' en la pestaña de Formulario."}
+                </div>
               </div>
             )}
           </div>
         </div> {/* Fin Contenedor Scrollable */}
-      </Card>
-    </div>
+      </Card >
+    </div >
   );
 };
 

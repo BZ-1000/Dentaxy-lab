@@ -71,14 +71,14 @@ const ScrollFocusSection = ({
 }) => {
   return (
     <motion.div
-      initial={{ opacity: 0.3, filter: "grayscale(100%)", scale: 0.98 }}
-      whileInView={{ opacity: 1, filter: "grayscale(0%)", scale: 1 }}
+      initial={{ opacity: 0.3, scale: 0.98 }}
+      whileInView={{ opacity: 1, scale: 1 }}
       // Top: -100px (approx header height + padding). Start fading when it hits the visual ceiling.
       // Bottom: 200% (Everything below is visible).
       viewport={{ margin: "-100px 0px 2000px 0px", amount: 0 }}
       transition={{ duration: 0.3, ease: "easeOut" }}
       className={cn(
-        "transition-all duration-300 will-change-[opacity,filter]",
+        "transition-all duration-300 will-change-[opacity]",
         className
       )}
     >

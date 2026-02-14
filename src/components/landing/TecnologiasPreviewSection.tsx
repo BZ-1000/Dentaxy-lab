@@ -1,9 +1,9 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  FileText, Shield, Box, Hand, ArrowRight, Scan, 
-  FileOutput, MapPin, Fingerprint, Server 
+import {
+  FileText, Shield, Box, Hand, ArrowRight, Scan,
+  FileOutput, MapPin, Fingerprint, Server
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -72,9 +72,9 @@ export const TecnologiasPreviewSection = () => {
   const navigate = useNavigate();
 
   return (
-    <section 
-      ref={ref} 
-      className="min-h-screen w-full max-w-full flex flex-col items-center justify-center bg-muted/30 px-4 sm:px-6 py-12 sm:py-16 snap-start overflow-hidden"
+    <section
+      ref={ref}
+      className="min-h-screen w-full max-w-full flex flex-col items-center justify-center bg-muted/30 px-4 sm:px-6 py-12 sm:py-16 overflow-hidden"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}

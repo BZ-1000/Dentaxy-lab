@@ -7,6 +7,7 @@ interface NoPatologicosCardProps {
     handleAntecedenteNoPatologicoChange: any;
     toggleService: any;
     onSeccionGenerada: (seccionId: string, contenido: string) => void;
+    onToggleViewMode?: () => void;
 }
 
 export const NoPatologicosCard: React.FC<NoPatologicosCardProps> = ({
@@ -14,6 +15,7 @@ export const NoPatologicosCard: React.FC<NoPatologicosCardProps> = ({
     handleAntecedenteNoPatologicoChange,
     toggleService,
     onSeccionGenerada,
+    onToggleViewMode,
 }) => {
     return (
         <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
@@ -24,6 +26,7 @@ export const NoPatologicosCard: React.FC<NoPatologicosCardProps> = ({
                         handleAntecedenteNoPatologicoChange={handleAntecedenteNoPatologicoChange}
                         toggleService={toggleService}
                         onRedaccionGenerada={(content: string) => onSeccionGenerada('noPatologicos', content)}
+                        onToggleViewMode={onToggleViewMode}
                     />
                 </div>
             </CardContent>

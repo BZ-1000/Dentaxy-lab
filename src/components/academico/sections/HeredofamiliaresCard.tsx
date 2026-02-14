@@ -7,6 +7,7 @@ interface HeredofamiliaresCardProps {
     handleFamiliarChange: any;
     handleCondicionChange: any;
     onSeccionGenerada: (seccionId: string, contenido: string) => void;
+    onToggleViewMode?: () => void;
 }
 
 export const HeredofamiliaresCard: React.FC<HeredofamiliaresCardProps> = ({
@@ -14,6 +15,7 @@ export const HeredofamiliaresCard: React.FC<HeredofamiliaresCardProps> = ({
     handleFamiliarChange,
     handleCondicionChange,
     onSeccionGenerada,
+    onToggleViewMode,
 }) => {
     return (
         <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
@@ -24,6 +26,7 @@ export const HeredofamiliaresCard: React.FC<HeredofamiliaresCardProps> = ({
                         handleFamiliarChange={handleFamiliarChange}
                         handleCondicionChange={handleCondicionChange}
                         onRedaccionGenerada={(content: string) => onSeccionGenerada('heredofamiliares', content)}
+                        onToggleViewMode={onToggleViewMode}
                     />
                 </div>
             </CardContent>

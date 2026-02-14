@@ -128,9 +128,9 @@ export const ModulosSection = () => {
   };
 
   return (
-    <section 
-      ref={ref} 
-      className="min-h-screen w-full max-w-full flex flex-col items-center justify-center bg-background px-4 sm:px-6 py-12 sm:py-16 snap-start overflow-hidden"
+    <section
+      ref={ref}
+      className="min-h-screen w-full max-w-full flex flex-col items-center justify-center bg-background px-4 sm:px-6 py-12 sm:py-16 overflow-hidden"
     >
       <motion.h2
         initial={{ opacity: 0, y: 20 }}
@@ -149,7 +149,7 @@ export const ModulosSection = () => {
         No ofrecemos herramientas. Construimos dependencias estratégicas.
       </motion.p>
 
-      <motion.div 
+      <motion.div
         layout
         className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 w-full max-w-7xl mx-auto"
       >
@@ -162,8 +162,8 @@ export const ModulosSection = () => {
               layout
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-              transition={{ 
-                duration: 0.5, 
+              transition={{
+                duration: 0.5,
                 delay: i * 0.08,
                 layout: { type: "spring", stiffness: 300, damping: 30 }
               }}
@@ -173,18 +173,16 @@ export const ModulosSection = () => {
               <motion.div
                 layout
                 whileHover={!isExpanded ? { scale: 1.02, y: -4 } : {}}
-                className={`relative rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-300 ${
-                  mod.isSecret ? "animate-pulse" : ""
-                }`}
+                className={`relative rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-300 ${mod.isSecret ? "animate-pulse" : ""
+                  }`}
                 style={getGlowStyle(mod.glowColor, isExpanded)}
               >
                 {/* Glassmorphism Card */}
-                <div className={`relative backdrop-blur-xl bg-white/5 dark:bg-black/10 border border-white/20 dark:border-white/10 rounded-xl sm:rounded-2xl ${
-                  isExpanded ? "p-4 sm:p-6" : "p-3 sm:p-5"
-                }`}>
+                <div className={`relative backdrop-blur-xl bg-white/5 dark:bg-black/10 border border-white/20 dark:border-white/10 rounded-xl sm:rounded-2xl ${isExpanded ? "p-4 sm:p-6" : "p-3 sm:p-5"
+                  }`}>
                   {/* Background gradient */}
                   <div className={`absolute inset-0 opacity-10 bg-gradient-to-br ${mod.gradient} rounded-xl sm:rounded-2xl`} />
-                  
+
                   {/* Scanlines for secret */}
                   {mod.isSecret && (
                     <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,0,0,0.03)_2px,rgba(255,0,0,0.03)_4px)] pointer-events-none rounded-xl sm:rounded-2xl" />
@@ -194,11 +192,10 @@ export const ModulosSection = () => {
                     {/* Header row */}
                     <div className={`flex items-start gap-2 sm:gap-4 ${isExpanded ? "mb-4 sm:mb-6" : ""}`}>
                       {/* Icon */}
-                      <motion.div 
+                      <motion.div
                         layout="position"
-                        className={`rounded-lg sm:rounded-xl flex items-center justify-center bg-gradient-to-br ${mod.gradient} ${
-                          isExpanded ? "w-10 h-10 sm:w-14 sm:h-14" : "w-8 h-8 sm:w-10 sm:h-10"
-                        }`}
+                        className={`rounded-lg sm:rounded-xl flex items-center justify-center bg-gradient-to-br ${mod.gradient} ${isExpanded ? "w-10 h-10 sm:w-14 sm:h-14" : "w-8 h-8 sm:w-10 sm:h-10"
+                          }`}
                       >
                         <mod.icon className={`text-white ${isExpanded ? "w-5 h-5 sm:w-7 sm:h-7" : "w-4 h-4 sm:w-5 sm:h-5"}`} />
                       </motion.div>
@@ -207,25 +204,24 @@ export const ModulosSection = () => {
                         {/* Badge */}
                         <motion.span
                           layout="position"
-                          className={`inline-block text-[8px] sm:text-[9px] font-bold tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full border uppercase mb-1 sm:mb-2 ${
-                            mod.isActive
+                          className={`inline-block text-[8px] sm:text-[9px] font-bold tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full border uppercase mb-1 sm:mb-2 ${mod.isActive
                               ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-500"
                               : mod.isSecret
-                              ? "bg-red-500/20 border-red-500/50 text-red-400"
-                              : "bg-muted/50 border-border text-muted-foreground"
-                          }`}
+                                ? "bg-red-500/20 border-red-500/50 text-red-400"
+                                : "bg-muted/50 border-border text-muted-foreground"
+                            }`}
                         >
                           {mod.badge}
                         </motion.span>
-                        
+
                         {/* Title */}
-                        <motion.h3 
+                        <motion.h3
                           layout="position"
                           className={`font-semibold text-foreground truncate ${isExpanded ? "text-base sm:text-xl" : "text-xs sm:text-base"}`}
                         >
                           {mod.title}
                         </motion.h3>
-                        <motion.p 
+                        <motion.p
                           layout="position"
                           className="text-[10px] sm:text-xs text-muted-foreground truncate"
                         >
@@ -250,7 +246,7 @@ export const ModulosSection = () => {
                               <p className="text-muted-foreground leading-relaxed mb-3 sm:mb-4 text-xs sm:text-base">
                                 {mod.description}
                               </p>
-                              
+
                               {/* Features */}
                               {mod.features.length > 0 && (
                                 <ul className="space-y-2">

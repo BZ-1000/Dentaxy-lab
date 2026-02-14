@@ -5,11 +5,15 @@ import LineaMedia from '@/components/historia-clinica/LineaMedia';
 interface LineaMediaCardProps {
     formData: any;
     handleLineaMediaChange: any;
+    onSeccionGenerada: (seccionId: string, contenido: string) => void;
+    onToggleViewMode?: () => void;
 }
 
 export const LineaMediaCard: React.FC<LineaMediaCardProps> = ({
     formData,
     handleLineaMediaChange,
+    onSeccionGenerada,
+    onToggleViewMode,
 }) => {
     return (
         <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
@@ -18,6 +22,8 @@ export const LineaMediaCard: React.FC<LineaMediaCardProps> = ({
                     <LineaMedia
                         formData={formData}
                         handleLineaMediaChange={handleLineaMediaChange}
+                        onRedaccionGenerada={(content: string) => onSeccionGenerada('lineaMedia', content)}
+                        onToggleViewMode={onToggleViewMode}
                     />
                 </div>
             </CardContent>

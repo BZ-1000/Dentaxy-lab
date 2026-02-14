@@ -38,11 +38,11 @@ interface DemoSession {
 }
 
 const moduleLabels: Record<string, string> = {
-  motor_neuronal: 'Motor Neuronal',
-  proyecto_stark: 'Proyecto Stark',
-  academico: 'Dentaxy Académico',
-  enterprise: 'Enterprise',
-  visualizacion_3d: 'Visualización 3D',
+  motor_neuronal: 'DENTAXY AI',
+  dicom: 'DICOM',
+  academico: 'UNIVERSIDADES',
+  enterprise: 'ENTERPRISE',
+  proyecto_stark: 'STARK',
 };
 
 export const ActiveDemoSessions: React.FC = () => {
@@ -130,8 +130,14 @@ export const ActiveDemoSessions: React.FC = () => {
   };
 
   const handleRevokeLink = async (linkId: string) => {
-    if (!adminId) return;
+    if (!adminId) {
+      toast.error('No se pudo obtener ID de administrador');
+      console.error('adminId is missing');
+      return;
+    }
+
     setActionLoading(linkId);
+    console.log('Attempting to revoke link:', { linkId, adminId });
 
     try {
       const { data, error } = await supabase.rpc('revoke_all_sessions_for_link', {
@@ -139,15 +145,20 @@ export const ActiveDemoSessions: React.FC = () => {
         p_admin_id: adminId,
       });
 
-      if (error) throw error;
+      console.log('RPC response:', { data, error });
+
+      if (error) {
+        console.error('RPC error details:', error);
+        throw error;
+      }
 
       toast.success(`Link revocado`, {
-        description: `${data} sesiones fueron terminadas.`,
+        description: `${data || 0} sesiones fueron terminadas.`,
       });
       fetchSessions();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error revoking link:', error);
-      toast.error('Error al revocar el link');
+      toast.error(`Error al revocar el link: ${error?.message || 'Error desconocido'}`);
     } finally {
       setActionLoading(null);
     }
@@ -175,16 +186,16 @@ export const ActiveDemoSessions: React.FC = () => {
   );
 
   return (
-    <div className="rounded-xl border border-zinc-800/50 bg-zinc-900/50 p-6">
+    <div className="h-full">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-500/10">
-            <Activity className="h-5 w-5 text-cyan-500" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+            <Activity className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-zinc-100">Sesiones de Demo</h3>
-            <p className="text-sm text-zinc-500">
+            <h3 className="text-lg font-bold text-gray-900">Sesiones de Demo</h3>
+            <p className="text-sm text-gray-500">
               {activeSessions.length} activa{activeSessions.length !== 1 ? 's' : ''} de {sessions.length} total
             </p>
           </div>
@@ -195,7 +206,7 @@ export const ActiveDemoSessions: React.FC = () => {
           size="sm"
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800"
+          className="border-gray-200 bg-white hover:bg-gray-50 text-gray-700 hover:text-gray-900"
         >
           <RefreshCw className={cn('h-4 w-4 mr-2', isRefreshing && 'animate-spin')} />
           Actualizar
@@ -205,13 +216,13 @@ export const ActiveDemoSessions: React.FC = () => {
       {/* Sessions list */}
       {isLoading ? (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
         </div>
       ) : sessions.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12 text-center">
-          <Activity className="h-12 w-12 text-zinc-700 mb-4" />
-          <p className="text-zinc-500">No hay sesiones registradas</p>
-          <p className="text-sm text-zinc-600">Las sesiones aparecerán aquí cuando los usuarios accedan a demos.</p>
+          <Activity className="h-12 w-12 text-gray-300 mb-4" />
+          <p className="text-gray-500">No hay sesiones activas</p>
+          <p className="text-sm text-gray-400">Las sesiones aparecerán aquí cuando los usuarios accedan a demos.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -228,23 +239,23 @@ export const ActiveDemoSessions: React.FC = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   className={cn(
-                    'rounded-lg border p-4 transition-all',
+                    'rounded-xl border p-4 transition-all duration-300',
                     isActive
                       ? isExpiringSoon
-                        ? 'border-amber-500/30 bg-amber-500/5'
-                        : 'border-emerald-500/30 bg-emerald-500/5'
-                      : 'border-zinc-800/50 bg-zinc-950/50 opacity-60'
+                        ? 'border-amber-200 bg-amber-50'
+                        : 'border-emerald-200 bg-emerald-50 hover:bg-emerald-100/50'
+                      : 'border-gray-200 bg-gray-50 opacity-60 grayscale'
                   )}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       {/* User info */}
                       <div className="flex items-center gap-2 mb-2">
-                        <User className="h-4 w-4 text-zinc-500" />
-                        <span className="font-medium text-zinc-100 truncate">{session.full_name}</span>
+                        <User className="h-4 w-4 text-gray-400" />
+                        <span className="font-bold text-gray-900 truncate">{session.full_name}</span>
                         {getStatusBadge(session.status, session.expires_at)}
                         {isExpiringSoon && (
-                          <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse">
+                          <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200 animate-pulse">
                             <AlertTriangle className="h-3 w-3 mr-1" />
                             Expira pronto
                           </Badge>
@@ -252,7 +263,7 @@ export const ActiveDemoSessions: React.FC = () => {
                       </div>
 
                       {/* Details */}
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-500">
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
                           <MapPin className="h-3.5 w-3.5" />
                           <span>
@@ -267,7 +278,7 @@ export const ActiveDemoSessions: React.FC = () => {
                             Inició {formatDistanceToNow(new Date(session.started_at), { addSuffix: true, locale: es })}
                           </span>
                         </div>
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 border-none">
                           {moduleLabels[session.module_accessed] || session.module_accessed}
                         </Badge>
                       </div>
@@ -281,7 +292,7 @@ export const ActiveDemoSessions: React.FC = () => {
                           size="sm"
                           onClick={() => handleExpireSession(session.id)}
                           disabled={actionLoading === session.id}
-                          className="border-zinc-700 bg-zinc-800/50 hover:bg-zinc-800 text-xs"
+                          className="border-gray-200 bg-white hover:bg-gray-50 text-gray-600 hover:text-gray-900 text-xs h-8"
                         >
                           {actionLoading === session.id ? (
                             <Loader2 className="h-3 w-3 animate-spin" />
@@ -297,20 +308,10 @@ export const ActiveDemoSessions: React.FC = () => {
                           size="sm"
                           onClick={() => handleRevokeSession(session.id)}
                           disabled={actionLoading === session.id}
-                          className="border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs"
+                          className="border-red-200 bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 text-xs h-8"
                         >
                           <XCircle className="h-3 w-3 mr-1" />
                           Revocar
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleRevokeLink(session.demo_link_id)}
-                          disabled={actionLoading === session.demo_link_id}
-                          className="border-red-500/50 bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs"
-                        >
-                          <Ban className="h-3 w-3 mr-1" />
-                          Bloquear Link
                         </Button>
                       </div>
                     )}

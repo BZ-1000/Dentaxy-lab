@@ -25,6 +25,7 @@ export class UserStorage {
    * @param value - Valor a almacenar (se convertirá a JSON)
    */
   static setItem(user: User | null, key: string, value: any): void {
+    if (typeof window === 'undefined') return;
     const prefixedKey = this.getUserPrefix(user) + key;
     localStorage.setItem(prefixedKey, JSON.stringify(value));
   }
@@ -36,10 +37,11 @@ export class UserStorage {
    * @returns Valor parseado o null si no existe
    */
   static getItem(user: User | null, key: string): any {
+    if (typeof window === 'undefined') return null;
     const prefixedKey = this.getUserPrefix(user) + key;
     const item = localStorage.getItem(prefixedKey);
     if (!item) return null;
-    
+
     try {
       return JSON.parse(item);
     } catch (e) {
@@ -54,6 +56,7 @@ export class UserStorage {
    * @param key - Clave de almacenamiento
    */
   static removeItem(user: User | null, key: string): void {
+    if (typeof window === 'undefined') return;
     const prefixedKey = this.getUserPrefix(user) + key;
     localStorage.removeItem(prefixedKey);
   }
@@ -64,16 +67,17 @@ export class UserStorage {
    * @returns Array de claves (sin el prefijo de usuario)
    */
   static getAllUserKeys(user: User | null): string[] {
+    if (typeof window === 'undefined') return [];
     const prefix = this.getUserPrefix(user);
     const keys: string[] = [];
-    
+
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key?.startsWith(prefix)) {
         keys.push(key.replace(prefix, ''));
       }
     }
-    
+
     return keys;
   }
 
@@ -82,16 +86,17 @@ export class UserStorage {
    * @param user - Usuario actual
    */
   static clearUserData(user: User | null): void {
+    if (typeof window === 'undefined') return;
     const prefix = this.getUserPrefix(user);
     const keysToRemove: string[] = [];
-    
+
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key?.startsWith(prefix)) {
         keysToRemove.push(key);
       }
     }
-    
+
     keysToRemove.forEach(key => localStorage.removeItem(key));
   }
 
@@ -101,10 +106,11 @@ export class UserStorage {
    * @param oldKey - Clave antigua sin prefijo
    */
   static migrateOldData(user: User | null, oldKey: string): void {
+    if (typeof window === 'undefined') return;
     // Solo migrar si el dato antiguo existe y el nuevo no
     const oldData = localStorage.getItem(oldKey);
     const newKey = this.getUserPrefix(user) + oldKey;
-    
+
     if (oldData && !localStorage.getItem(newKey)) {
       localStorage.setItem(newKey, oldData);
       console.log(`Migrated ${oldKey} to ${newKey}`);

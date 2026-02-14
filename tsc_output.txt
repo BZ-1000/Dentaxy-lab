@@ -1,0 +1,35 @@
+node_modules/@dnd-kit/core/dist/components/DndContext/DndContext.d.ts(1,8): error TS1259: Module '"/home/bz1000/Dentaxy-lab/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+node_modules/@dnd-kit/core/dist/components/DragOverlay/DragOverlay.d.ts(1,8): error TS1259: Module '"/home/bz1000/Dentaxy-lab/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+node_modules/@dnd-kit/core/dist/components/DragOverlay/components/AnimationManager/AnimationManager.d.ts(1,8): error TS1259: Module '"/home/bz1000/Dentaxy-lab/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+node_modules/@dnd-kit/core/dist/components/DragOverlay/components/NullifiedContextProvider/NullifiedContextProvider.d.ts(1,8): error TS1259: Module '"/home/bz1000/Dentaxy-lab/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+node_modules/@dnd-kit/core/dist/components/DragOverlay/components/PositionedOverlay/PositionedOverlay.d.ts(1,8): error TS1259: Module '"/home/bz1000/Dentaxy-lab/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+node_modules/@dnd-kit/sortable/dist/components/SortableContext.d.ts(1,8): error TS1259: Module '"/home/bz1000/Dentaxy-lab/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+src/core/packages/studio/ComponentStudio.tsx(1,8): error TS1259: Module '"/home/bz1000/Dentaxy-lab/node_modules/@types/react/index"' can only be default-imported using the 'esModuleInterop' flag
+src/core/packages/studio/ComponentStudio.tsx(14,25): error TS6142: Module './ui/Sidebar' was resolved to '/home/bz1000/Dentaxy-lab/src/core/packages/studio/ui/Sidebar.tsx', but '--jsx' is not set.
+src/core/packages/studio/ComponentStudio.tsx(15,24): error TS6142: Module './ui/Canvas' was resolved to '/home/bz1000/Dentaxy-lab/src/core/packages/studio/ui/Canvas.tsx', but '--jsx' is not set.
+src/core/packages/studio/ComponentStudio.tsx(16,33): error TS6142: Module './ui/PropertiesPanel' was resolved to '/home/bz1000/Dentaxy-lab/src/core/packages/studio/ui/PropertiesPanel.tsx', but '--jsx' is not set.
+src/core/packages/studio/ComponentStudio.tsx(17,29): error TS6142: Module './ui/CodePreview' was resolved to '/home/bz1000/Dentaxy-lab/src/core/packages/studio/ui/CodePreview.tsx', but '--jsx' is not set.
+src/core/packages/studio/ComponentStudio.tsx(58,9): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(64,13): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(66,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(67,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(71,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(72,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(76,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(77,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(81,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(82,21): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(83,25): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(84,29): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(85,29): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(87,25): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(88,29): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(89,29): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(91,25): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(92,29): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(98,17): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(100,25): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(101,29): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/ComponentStudio.tsx(102,33): error TS17004: Cannot use JSX unless the '--jsx' flag is provided.
+src/core/packages/studio/engine/store.ts(4,35): error TS6142: Module './registry' was resolved to '/home/bz1000/Dentaxy-lab/src/core/packages/studio/engine/registry.tsx', but '--jsx' is not set.
+src/core/packages/studio/engine/store.ts(47,126): error TS2339: Property 'defaultValue' does not exist on type 'unknown'.

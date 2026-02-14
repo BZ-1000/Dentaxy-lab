@@ -8,6 +8,7 @@ interface PadecimientoCardProps {
     handleDolorChange: (field: string, value: any) => void;
     handleSinSintomasChange: (checked: boolean) => void;
     onSeccionGenerada: (seccionId: string, contenido: string) => void;
+    onToggleViewMode?: () => void;
 }
 
 export const PadecimientoCard: React.FC<PadecimientoCardProps> = ({
@@ -16,6 +17,7 @@ export const PadecimientoCard: React.FC<PadecimientoCardProps> = ({
     handleDolorChange,
     handleSinSintomasChange,
     onSeccionGenerada,
+    onToggleViewMode,
 }) => {
     return (
         <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
@@ -27,6 +29,7 @@ export const PadecimientoCard: React.FC<PadecimientoCardProps> = ({
                         handleDolorChange={handleDolorChange}
                         handleSinSintomasChange={handleSinSintomasChange}
                         onRedaccionGenerada={(content: string) => onSeccionGenerada('padecimiento', content)}
+                        onToggleViewMode={onToggleViewMode}
                     />
                 </div>
             </CardContent>

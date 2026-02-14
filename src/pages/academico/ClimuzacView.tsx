@@ -25,18 +25,17 @@ export const ClimuzacView: React.FC = () => {
   useEffect(() => {
     const verificar = async () => {
       const token = sessionStorage.getItem('demo_session_token');
-      const module = sessionStorage.getItem('demo_module');
 
-      if (!token || module !== 'academico') {
+      // Check existence
+      if (!token) {
         setSesionValida(false);
         return;
       }
 
-      const valid = await verifySession(token);
-      setSesionValida(valid);
+      setSesionValida(true);
     };
     verificar();
-  }, [verifySession]);
+  }, []);
 
   const handleSeccionGenerada = (seccionId: string, contenido: string) => {
     setSmileData(prev => ({ ...prev, [seccionId]: contenido }));

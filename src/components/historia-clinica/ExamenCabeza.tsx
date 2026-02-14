@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormDataState } from '@/types/historiaClinica';
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Copy, CheckCircle, ChevronDown } from "lucide-react";
+import { Minus, Maximize2, X, Copy, CheckCircle, ChevronDown, Sparkles } from "lucide-react";
 import { AnimatedTextareaWithTyping } from "@/components/ui/AnimatedTextareaWithTyping"; // Asegúrate de tener este componente
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -51,9 +51,10 @@ interface ExamenCabezaProps {
   formData: FormDataState;
   handleExamenCabezaChange: (part: string, value: any) => void;
   onRedaccionGenerada?: (redaccion: string) => void;
+  onToggleViewMode?: () => void;
 }
 
-const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada }: ExamenCabezaProps) => {
+const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada, onToggleViewMode }: ExamenCabezaProps) => {
   // Estados para la UI de la tarjeta y la redacción
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -290,6 +291,10 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
     }
     setShowForm(false);
     redaccionRef.current?.scrollIntoView({ behavior: 'smooth' });
+
+    if (onToggleViewMode) {
+      onToggleViewMode();
+    }
   };
 
   const handleCopy = async () => {
@@ -786,6 +791,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
                     onClick={generarRedaccionIA}
                     className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
                   >
+                    <Sparkles className="w-4 h-4 mr-2" />
                     Generar Redacción IA
                   </Button>
                   <Button

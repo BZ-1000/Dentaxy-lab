@@ -30,11 +30,11 @@ interface DemoLink {
 }
 
 const MODULE_LABELS: Record<string, string> = {
-  motor_neuronal: 'Motor Neuronal',
-  proyecto_stark: 'Proyecto Stark',
-  academico: 'Académico',
-  enterprise: 'Enterprise',
-  visualizacion_3d: '3D',
+  motor_neuronal: 'DENTAXY AI',
+  dicom: 'DICOM',
+  academico: 'UNIVERSIDADES',
+  enterprise: 'ENTERPRISE',
+  proyecto_stark: 'STARK',
 };
 
 export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
@@ -73,9 +73,15 @@ export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTri
   };
 
   const handleRevoke = async (demo: DemoLink) => {
-    if (!adminId) return;
+    if (!adminId) {
+      toast.error('No se pudo obtener ID de administrador');
+      console.error('adminId is missing');
+      return;
+    }
 
     setRevokingId(demo.id);
+    console.log('Attempting to revoke demo:', { demoId: demo.id, adminId });
+
     try {
       // Use the revoke function to also revoke sessions
       const { data, error } = await supabase.rpc('revoke_all_sessions_for_link', {
@@ -83,15 +89,22 @@ export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTri
         p_admin_id: adminId,
       });
 
-      if (error) throw error;
+      console.log('RPC response:', { data, error });
 
+      if (error) {
+        console.error('RPC error details:', error);
+        throw error;
+      }
+
+      // Update local state to reflect the change
       setDemos((prev) =>
         prev.map((d) => (d.id === demo.id ? { ...d, is_revoked: true } : d))
       );
-      toast.success(`Demo revocado (${data || 0} sesiones terminadas)`);
-    } catch (error) {
+
+      toast.success(`Demo revocado exitosamente (${data || 0} sesiones terminadas)`);
+    } catch (error: any) {
       console.error('Error revoking demo:', error);
-      toast.error('Error al revocar el demo');
+      toast.error(`Error al revocar: ${error?.message || 'Error desconocido'}`);
     } finally {
       setRevokingId(null);
     }
@@ -116,9 +129,9 @@ export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTri
 
   if (demos.length === 0) {
     return (
-      <div className="flex h-40 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-800 bg-zinc-900/30">
-        <Link2 className="mb-2 h-8 w-8 text-zinc-600" />
-        <p className="text-sm text-zinc-500">No hay demos creados</p>
+      <div className="flex h-40 flex-col items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-50/50">
+        <Link2 className="mb-2 h-8 w-8 text-gray-400" />
+        <p className="text-sm text-gray-500">No hay demos creados</p>
       </div>
     );
   }
@@ -133,29 +146,29 @@ export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTri
           return (
             <motion.div
               key={demo.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
               transition={{ delay: index * 0.05 }}
               className={cn(
-                'rounded-xl border p-4 transition-all',
+                'rounded-xl border p-4 transition-all duration-300 group hover:border-gray-300',
                 isActive
-                  ? 'border-zinc-800/50 bg-zinc-900/50'
-                  : 'border-zinc-800/30 bg-zinc-950/50 opacity-60'
+                  ? 'border-gray-200 bg-white shadow-sm'
+                  : 'border-gray-100 bg-gray-50 opacity-60 grayscale'
               )}
             >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <code className="rounded bg-zinc-800 px-2 py-0.5 font-mono text-sm text-zinc-300">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <code className="rounded-lg bg-gray-100 px-3 py-1 font-mono text-sm text-indigo-600 border border-gray-200 tracking-wider">
                       {demo.token}
                     </code>
-                    <Badge variant="outline" className={cn('border', status.color)}>
+                    <Badge variant="outline" className={cn('border bg-opacity-10 backdrop-blur-sm', status.color)}>
                       {status.label}
                     </Badge>
                   </div>
 
-                  <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-zinc-500">
+                  <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       Expira {formatDistanceToNow(new Date(demo.expires_at), { locale: es, addSuffix: true })}
@@ -170,11 +183,11 @@ export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTri
                   </div>
 
                   {demo.allowed_modules && demo.allowed_modules.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
+                    <div className="mt-3 flex flex-wrap gap-1">
                       {demo.allowed_modules.map((module) => (
                         <span
                           key={module}
-                          className="rounded bg-zinc-800/50 px-1.5 py-0.5 text-xs text-zinc-400"
+                          className="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] text-gray-600 border border-gray-200 uppercase tracking-wide"
                         >
                           {MODULE_LABELS[module] || module}
                         </span>
@@ -183,12 +196,12 @@ export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTri
                   )}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 opacity-100 group-hover:opacity-100 transition-opacity">
                   <Button
                     size="icon"
                     variant="ghost"
                     onClick={() => handleCopy(demo.token, demo.id)}
-                    className="h-8 w-8 text-zinc-400 hover:text-zinc-100"
+                    className="h-8 w-8 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
                     disabled={!isActive}
                   >
                     {copiedId === demo.id ? (
@@ -201,7 +214,7 @@ export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTri
                     size="icon"
                     variant="ghost"
                     onClick={() => handleRevoke(demo)}
-                    className="h-8 w-8 text-zinc-400 hover:text-red-500"
+                    className="h-8 w-8 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
                     disabled={!isActive || revokingId === demo.id}
                   >
                     {revokingId === demo.id ? (

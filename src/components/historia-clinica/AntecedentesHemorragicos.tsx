@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Minus, Maximize2, X, Sparkles } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
@@ -9,11 +10,15 @@ import { VoiceInput } from "@/components/ui/voice-input";
 interface AntecedentesHemorragicosProps {
   formData: FormDataState;
   handleAntecedenteHemorragicoChange: (field: string, value: any) => void;
+  onRedaccionGenerada?: (text: string) => void;
+  onToggleViewMode?: () => void;
 }
 
 const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
   formData,
-  handleAntecedenteHemorragicoChange
+  handleAntecedenteHemorragicoChange,
+  onRedaccionGenerada,
+  onToggleViewMode
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -45,37 +50,43 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
   };
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
-    setTimeout(() => {
-      let content = "ANTECEDENTES HEMORRÁGICOS:\n\n";
+    // Remove timeout
+    let content = "ANTECEDENTES HEMORRÁGICOS:\n\n";
 
-      if (formData.antecedentesHemorragicos.transfusiones === 'si' || formData.antecedentesHemorragicos.transfusionPrevia) {
-        content += "El paciente ha recibido transfusiones sanguíneas o derivados. ";
-        if (formData.antecedentesHemorragicos.motivoTransfusion) {
-          content += `Motivo de la transfusión: ${formData.antecedentesHemorragicos.motivoTransfusion}. `;
-        }
-        if (formData.antecedentesHemorragicos.fechaTransfusion) {
-          content += `Fecha de la transfusión: ${formData.antecedentesHemorragicos.fechaTransfusion}. `;
-        }
-      } else {
-        content += "El paciente niega antecedentes de transfusiones sanguíneas. ";
+    if (formData.antecedentesHemorragicos.transfusiones === 'si' || formData.antecedentesHemorragicos.transfusionPrevia) {
+      content += "El paciente ha recibido transfusiones sanguíneas o derivados. ";
+      if (formData.antecedentesHemorragicos.motivoTransfusion) {
+        content += `Motivo de la transfusión: ${formData.antecedentesHemorragicos.motivoTransfusion}. `;
       }
+      if (formData.antecedentesHemorragicos.fechaTransfusion) {
+        content += `Fecha de la transfusión: ${formData.antecedentesHemorragicos.fechaTransfusion}. `;
+      }
+    } else {
+      content += "El paciente niega antecedentes de transfusiones sanguíneas. ";
+    }
 
-      if (formData.antecedentesHemorragicos.sangradoProlongado === 'si') {
-        content += "\nRefiere episodios de sangrado prolongado. ";
-      }
-      if (formData.antecedentesHemorragicos.hematomas === 'si') {
-        content += "Presenta tendencia a desarrollar hematomas. ";
-      }
-      if (formData.antecedentesHemorragicos.hemorragiasEspontaneas === 'si') {
-        content += "Ha experimentado hemorragias espontáneas. ";
-      }
-      if (formData.antecedentesHemorragicos.detallesAdicionales) {
-        content += `\n\nDetalles adicionales: ${formData.antecedentesHemorragicos.detallesAdicionales}`;
-      }
-      setRedaccionContent(content);
-      setIsGeneratingRedaccion(false);
-      setActiveTab('redaccion');
-    }, 1000);
+    if (formData.antecedentesHemorragicos.sangradoProlongado === 'si') {
+      content += "\nRefiere episodios de sangrado prolongado. ";
+    }
+    if (formData.antecedentesHemorragicos.hematomas === 'si') {
+      content += "Presenta tendencia a desarrollar hematomas. ";
+    }
+    if (formData.antecedentesHemorragicos.hemorragiasEspontaneas === 'si') {
+      content += "Ha experimentado hemorragias espontáneas. ";
+    }
+    if (formData.antecedentesHemorragicos.detallesAdicionales) {
+      content += `\n\nDetalles adicionales: ${formData.antecedentesHemorragicos.detallesAdicionales}`;
+    }
+    setRedaccionContent(content);
+    if (onRedaccionGenerada) {
+      onRedaccionGenerada(content);
+    }
+    setIsGeneratingRedaccion(false);
+    setActiveTab('redaccion');
+
+    if (onToggleViewMode) {
+      onToggleViewMode();
+    }
   };
 
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="antecedentesHemorragicos" data-formulario-section="antecedentes-hemorragicos">
@@ -160,7 +171,18 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
               </div>
             </div>
 
-            <div className="flex justify-center mt-6"></div>
+            <div className="flex justify-center mt-6">
+              {onToggleViewMode && (
+                <Button
+                  variant="outline"
+                  onClick={generateRedaccion}
+                  className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Ver Redacción IA
+                </Button>
+              )}
+            </div>
           </div>
         </div> : <div className="p-6">
           <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" style={{

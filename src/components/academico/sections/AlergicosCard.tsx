@@ -5,11 +5,15 @@ import AntecedentesAlergicos from '@/components/historia-clinica/AntecedentesAle
 interface AlergicosCardProps {
     formData: any;
     handleAntecedenteAlergicoChange: any;
+    onSeccionGenerada: (seccionId: string, contenido: string) => void;
+    onToggleViewMode?: () => void;
 }
 
 export const AlergicosCard: React.FC<AlergicosCardProps> = ({
     formData,
     handleAntecedenteAlergicoChange,
+    onSeccionGenerada,
+    onToggleViewMode,
 }) => {
     return (
         <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
@@ -18,6 +22,8 @@ export const AlergicosCard: React.FC<AlergicosCardProps> = ({
                     <AntecedentesAlergicos
                         formData={formData}
                         handleAntecedenteAlergicoChange={handleAntecedenteAlergicoChange}
+                        onRedaccionGenerada={(content: string) => onSeccionGenerada('alergicos', content)}
+                        onToggleViewMode={onToggleViewMode}
                     />
                 </div>
             </CardContent>

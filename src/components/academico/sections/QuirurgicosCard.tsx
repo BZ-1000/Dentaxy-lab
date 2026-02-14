@@ -6,12 +6,14 @@ interface QuirurgicosCardProps {
     formData: any;
     handleAntecedenteQuirurgicoChange: any;
     onSeccionGenerada: (seccionId: string, contenido: string) => void;
+    onToggleViewMode?: () => void;
 }
 
 export const QuirurgicosCard: React.FC<QuirurgicosCardProps> = ({
     formData,
     handleAntecedenteQuirurgicoChange,
     onSeccionGenerada,
+    onToggleViewMode,
 }) => {
     return (
         <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
@@ -21,6 +23,7 @@ export const QuirurgicosCard: React.FC<QuirurgicosCardProps> = ({
                         formData={formData}
                         handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange}
                         onRedaccionGenerada={(content: string) => onSeccionGenerada('quirurgicos', content)}
+                        onToggleViewMode={onToggleViewMode}
                     />
                 </div>
             </CardContent>

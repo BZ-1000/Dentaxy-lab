@@ -1,8 +1,10 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 import { AcademicoProvider } from '@/contexts/AcademicoContext';
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
 import Index from './pages/Index';
 import Landing from './pages/Landing';
 import ModulesHub from './pages/ModulesHub';
@@ -29,13 +31,19 @@ import DonationSuccess from './pages/DonationSuccess';
 
 // Admin Panel
 import AdminLayout from './pages/admin/AdminLayout';
-import AdminLogin from './pages/admin/AdminLogin';
+import AdminLoginPage from './pages/admin/LoginPage';
 import AdminDashboard from './pages/admin/Dashboard';
+import Ecosystem from './pages/admin/Ecosystem';
 import DemoControl from './pages/admin/DemoControl';
+import Security from './pages/admin/Security';
+import GeoMap from './pages/admin/GeoMap';
+import Analytics from './pages/admin/Analytics';
+import Communication from './pages/admin/Communication';
 import StudentModule from './pages/admin/StudentModule';
 import ModulesManager from './pages/admin/ModulesManager';
 import AuditLogs from './pages/admin/AuditLogs';
 import Settings from './pages/admin/Settings';
+import AdminUsers from './pages/admin/Users';
 
 // Shop (Tienda privada)
 import ShopLogin from './pages/shop/ShopLogin';
@@ -45,9 +53,18 @@ import { ShopAuthProvider } from './contexts/ShopAuthContext';
 // Demo Académico UAO
 import { AcademicoDemo, ClinicaView } from './pages/academico';
 
+// Demo DENTAXY AI
+import AIDemo from './pages/demo/AIDemo';
+import DICOMDemo from './pages/demo/DICOMDemo';
+import EnterpriseDemo from './pages/demo/EnterpriseDemo';
+import StarkDemo from './pages/demo/StarkDemo';
+
 // Dentaxy Core
-import CoreLogin from './pages/core/CoreLogin';
-import CoreDashboard from './pages/core/CoreDashboard';
+import CorePage from './app/core/page';
+
+// Dentaxy Seed
+import SeedLanding from './pages/seed/SeedLanding';
+import SeedLogin from './pages/seed/SeedLogin';
 
 // Component to initialize global tracking
 const GlobalTracker = () => {
@@ -58,79 +75,98 @@ const GlobalTracker = () => {
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <AdminAuthProvider>
-          <GlobalTracker />
-          <div translate="no">
-            <Toaster richColors position="top-right" />
-            <Router>
-              <Routes>
-                {/* Página de inicio */}
-                <Route path="/" element={<Landing />} />
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AdminAuthProvider>
+            <GlobalTracker />
+            <div translate="no">
+              <Toaster richColors position="top-right" />
+              <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <Routes>
+                  {/* Página de inicio */}
+                  <Route path="/" element={<Landing />} />
 
-                {/* Hub de módulos */}
-                <Route path="/hub" element={<ModulesHub />} />
-                <Route path="/modules" element={<ModulesHub />} />
+                  {/* Hub de módulos */}
+                  <Route path="/hub" element={<ModulesHub />} />
+                  <Route path="/modules" element={<ModulesHub />} />
 
-                {/* Páginas del menú principal */}
-                <Route path="/about" element={<About />} />
-                <Route path="/nosotros" element={<About />} />
-                <Route path="/como-funciona" element={<HowItWorks />} />
-                <Route path="/how-it-works" element={<HowItWorks />} />
-                <Route path="/benefits" element={<Benefits />} />
-                <Route path="/beneficios" element={<Benefits />} />
+                  {/* Páginas del menú principal */}
+                  <Route path="/about" element={<About />} />
+                  <Route path="/nosotros" element={<About />} />
+                  <Route path="/como-funciona" element={<HowItWorks />} />
+                  <Route path="/how-it-works" element={<HowItWorks />} />
+                  <Route path="/benefits" element={<Benefits />} />
+                  <Route path="/beneficios" element={<Benefits />} />
 
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/contacto" element={<Contact />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/contacto" element={<Contact />} />
 
-                {/* Páginas de políticas */}
-                <Route path="/terms" element={<TermsAndConditions />} />
-                <Route path="/privacy" element={<PrivacyPolicy />} />
+                  {/* Páginas de políticas */}
+                  <Route path="/terms" element={<TermsAndConditions />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
 
-                {/* Donación */}
-                <Route path="/donation-success" element={<DonationSuccess />} />
+                  {/* Donación */}
+                  <Route path="/donation-success" element={<DonationSuccess />} />
 
-                {/* Admin Panel */}
-                <Route path="/admin" element={<AdminLogin />} />
-                <Route path="/admin/*" element={<AdminLayout />}>
-                  <Route path="dashboard" element={<AdminDashboard />} />
-                  <Route path="demos" element={<DemoControl />} />
-                  <Route path="students" element={<StudentModule />} />
-                  <Route path="modules" element={<ModulesManager />} />
-                  <Route path="audit" element={<AuditLogs />} />
-                  <Route path="settings" element={<Settings />} />
-                </Route>
+                  {/* Admin Panel */}
+                  <Route path="/admin" element={<AdminLoginPage />} />
+                  <Route path="/admin/*" element={<AdminLayout />}>
+                    <Route path="dashboard" element={<AdminDashboard />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="ecosystem" element={<Ecosystem />} />
+                    <Route path="demos" element={<DemoControl />} />
+                    <Route path="security" element={<Security />} />
+                    <Route path="geomap" element={<GeoMap />} />
+                    <Route path="analytics" element={<Analytics />} />
+                    <Route path="communication" element={<Communication />} />
 
-                {/* Shop - Tienda privada */}
-                <Route path="/shop" element={<ShopLogin />} />
-                <Route path="/shop/tienda" element={
-                  <ShopAuthProvider>
-                    <Shop />
-                  </ShopAuthProvider>
-                } />
+                    {/* Legacy or Secondary Modules */}
+                    <Route path="students" element={<StudentModule />} />
+                    <Route path="modules" element={<ModulesManager />} />
+                    <Route path="audit" element={<AuditLogs />} />
+                    <Route path="settings" element={<Settings />} />
+                  </Route>
 
-                {/* Redireccion legacy de auth */}
-                <Route path="/auth/*" element={<Navigate to="/hub" replace />} />
+                  {/* Shop - Tienda privada */}
+                  <Route path="/shop" element={<ShopLogin />} />
+                  <Route path="/shop/tienda" element={
+                    <ShopAuthProvider>
+                      <Shop />
+                    </ShopAuthProvider>
+                  } />
 
-                {/* Demo Académico UAO */}
-                <Route path="/academico" element={<AcademicoDemo />} />
-                <Route path="/academico/:clinicaId" element={<ClinicaView />} />
+                  {/* Redireccion legacy de auth */}
+                  <Route path="/auth/*" element={<Navigate to="/hub" replace />} />
 
-                {/* Dentaxy Core */}
-                <Route path="/core/login" element={<CoreLogin />} />
-                <Route path="/core" element={<CoreDashboard />} />
+                  {/* Demo Académico UAO */}
+                  <Route path="/academico" element={<AcademicoDemo />} />
+                  <Route path="/academico/:clinicaId" element={<ClinicaView />} />
 
-                {/* App - Acceso libre */}
-                <Route path="/app" element={<Index />} />
+                  {/* Demo DENTAXY AI */}
+                  <Route path="/demo/ai" element={<AIDemo />} />
+                  <Route path="/demo/dicom" element={<DICOMDemo />} />
+                  <Route path="/enterprise" element={<EnterpriseDemo />} />
+                  <Route path="/stark" element={<StarkDemo />} />
 
-                {/* 404 - No encontrado */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Router>
-            <Analytics />
-          </div>
-        </AdminAuthProvider>
-      </AuthProvider>
+                  {/* Dentaxy Core */}
+                  <Route path="/core" element={<CorePage />} />
+
+                  {/* Dentaxy Seed */}
+                  <Route path="/seed" element={<SeedLogin />} />
+                  <Route path="/seed/overview" element={<SeedLanding />} />
+
+                  {/* App - Acceso libre */}
+                  <Route path="/app" element={<Index />} />
+
+                  {/* 404 - No encontrado */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Router>
+              <VercelAnalytics />
+            </div>
+          </AdminAuthProvider>
+        </AuthProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }

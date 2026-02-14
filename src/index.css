@@ -77,3 +77,45 @@
         @apply text-sm font-medium text-muted-foreground ml-1 mb-1.5 block;
     }
 }
+
+@layer utilities {
+    .glass {
+        @apply bg-white/5 backdrop-blur-lg border border-white/10;
+    }
+
+    .card-border {
+        @apply border border-white/10 bg-white/5 backdrop-blur-md;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05),
+            0 4px 6px -1px rgba(0, 0, 0, 0.1),
+            0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .gradient-border {
+        position: relative;
+        border-radius: 0.75rem;
+        /* rounded-xl */
+        background: linear-gradient(var(--card-bg, rgba(0, 0, 0, 0.5)), var(--card-bg, rgba(0, 0, 0, 0.5))) padding-box,
+            linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05), transparent) border-box;
+        border: 1px solid transparent;
+    }
+
+    .inner-glow {
+        box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02);
+    }
+
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+}

@@ -5,11 +5,15 @@ import InterrogatorioSistemas from '@/components/historia-clinica/Interrogatorio
 interface InterrogatorioCardProps {
     formData: any;
     handleInterrogatorioChange: any;
+    onSeccionGenerada: (seccionId: string, contenido: string) => void;
+    onToggleViewMode?: () => void;
 }
 
 export const InterrogatorioCard: React.FC<InterrogatorioCardProps> = ({
     formData,
     handleInterrogatorioChange,
+    onSeccionGenerada,
+    onToggleViewMode,
 }) => {
     return (
         <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
@@ -18,6 +22,8 @@ export const InterrogatorioCard: React.FC<InterrogatorioCardProps> = ({
                     <InterrogatorioSistemas
                         formData={formData}
                         handleInterrogatorioChange={handleInterrogatorioChange}
+                        onRedaccionGenerada={(content: string) => onSeccionGenerada('interrogatorio', content)}
+                        onToggleViewMode={onToggleViewMode}
                     />
                 </div>
             </CardContent>

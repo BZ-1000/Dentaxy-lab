@@ -1,0 +1,75 @@
+.seed-theme {
+    /* Professional Blue primary for Seed */
+    --primary: 217 91% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --accent: 224 76% 42%;
+    --accent-foreground: 0 0% 100%;
+
+    --seed-accent: 217 91% 50%;
+    --glow-primary: 217 91% 50%;
+    --glow-secondary: 224 76% 42%;
+
+    /* Icon palette */
+    --icon-blue: 217 91% 60%;
+    --icon-amber: 32 95% 52%;
+    --icon-indigo: 245 58% 51%;
+    --icon-teal: 187 72% 44%;
+    --icon-rose: 346 77% 50%;
+    --icon-slate: 215 25% 40%;
+}
+
+.seed-theme .gradient-text {
+    background: linear-gradient(to right, hsl(217, 91%, 50%), hsl(224, 76%, 42%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.seed-theme .seed-text {
+    color: hsl(var(--seed-accent));
+}
+
+.seed-theme .glow-box {
+    box-shadow: 0 8px 32px -8px hsl(var(--glow-primary) / 0.15),
+        0 4px 16px -8px hsl(var(--glow-secondary) / 0.1);
+}
+
+.seed-theme .glass-card {
+    background-color: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(24px);
+    border: 1px solid hsl(var(--border));
+}
+
+.seed-theme .gradient-border {
+    position: relative;
+}
+
+.seed-theme .gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(217, 91%, 50%), hsl(224, 76%, 42%));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}
+
+@keyframes glow-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 40px rgba(59, 130, 246, 0.4);
+    }
+}
+
+.seed-theme .animate-glow-pulse {
+    animation: glow-pulse 3s infinite;
+}

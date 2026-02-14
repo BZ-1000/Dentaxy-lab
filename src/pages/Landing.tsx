@@ -21,6 +21,10 @@ const menuItems = [{
   href: "/shop",
   isSpecial: true
 }, {
+  label: "Seed",
+  href: "/seed",
+  isSeed: true
+}, {
   label: "Nosotros",
   href: "/about"
 }, {
@@ -73,7 +77,9 @@ const Landing = () => {
               to={item.href}
               className={`flex items-center gap-1 transition-colors text-sm ${item.isSpecial
                 ? "text-emerald-500 hover:text-emerald-400 font-medium"
-                : "text-muted-foreground hover:text-foreground"
+                : item.isSeed
+                  ? "text-blue-500 hover:text-blue-400 font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
                 }`}
             >
               {item.isSpecial && <Sparkles className="w-3.5 h-3.5" />}
@@ -97,7 +103,9 @@ const Landing = () => {
               to={item.href}
               className={`flex flex-col items-center text-xs transition-colors ${item.isSpecial
                 ? "text-emerald-500 font-medium"
-                : "text-muted-foreground hover:text-foreground"
+                : item.isSeed
+                  ? "text-blue-500 font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
                 }`}
             >
               {item.isSpecial && <Sparkles className="w-5 h-5 mb-1" />}
@@ -108,7 +116,7 @@ const Landing = () => {
       </nav>}
 
       {/* Main Content - Snap Scroll */}
-      <main ref={mainRef} className="flex-1 overflow-y-auto snap-y snap-mandatory scroll-smooth">
+      <main ref={mainRef} className="flex-1 overflow-y-auto snap-y snap-proximity scroll-smooth">
         <HeroSection onExplore={handleExplore} />
         <ArchitectureSection />
         <MotorNeuronalSection />
@@ -119,7 +127,7 @@ const Landing = () => {
         <CTASection onRequestDemo={handleRequestDemo} />
 
         {/* Footer */}
-        <footer className="min-h-[50vh] bg-background py-12 border-t border-border snap-start flex items-center w-full">
+        <footer className="min-h-[50vh] bg-background py-12 border-t border-border flex items-center w-full">
           <div className="w-full mx-auto px-6 max-w-6xl">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
               {/* Company Info */}
@@ -142,7 +150,9 @@ const Landing = () => {
                       to={item.href}
                       className={`transition-colors text-sm ${item.isSpecial
                         ? "text-emerald-500 hover:text-emerald-400 font-medium"
-                        : "text-muted-foreground hover:text-foreground"
+                        : item.isSeed
+                          ? "text-blue-500 hover:text-blue-400 font-semibold"
+                          : "text-muted-foreground hover:text-foreground"
                         }`}
                     >
                       {item.label}

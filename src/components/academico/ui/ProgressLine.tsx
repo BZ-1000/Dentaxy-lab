@@ -14,7 +14,7 @@ interface ProgressLineProps {
     isScrolled?: boolean;
 }
 
-export const ProgressLine: React.FC<ProgressLineProps> = ({
+export const ProgressLine = React.memo<ProgressLineProps>(({
     totalSteps,
     currentStep,
     isGenerating,
@@ -32,7 +32,7 @@ export const ProgressLine: React.FC<ProgressLineProps> = ({
 
     // ULTRA-OPTIMIZED TRANSITION
     // Slightly faster, very snappy, no bounce on height
-    const heightTransition = { duration: 0.25, ease: [0.42, 0, 0.58, 1] }; // easeInOut
+    const heightTransition = { duration: 0.25, ease: [0.42, 0, 0.58, 1] as any }; // easeInOut
 
     return (
         <motion.div
@@ -92,7 +92,7 @@ export const ProgressLine: React.FC<ProgressLineProps> = ({
                             scale: isScrolled ? 0.9 : 1,
                             pointerEvents: isScrolled ? 'none' : 'auto'
                         }}
-                        transition={{ duration: 0.15 }}
+                        transition={heightTransition}
                     >
                         {Array.from({ length: totalSteps }).map((_, index) => (
                             <button
@@ -145,4 +145,4 @@ export const ProgressLine: React.FC<ProgressLineProps> = ({
             </div>
         </motion.div>
     );
-};
+}); // End of React.memo

@@ -6,12 +6,14 @@ interface ATMCardProps {
     formData: any;
     handleArticulacionCraneomandibularChange: any;
     onSeccionGenerada: (seccionId: string, contenido: string) => void;
+    onToggleViewMode?: () => void;
 }
 
 export const ATMCard: React.FC<ATMCardProps> = ({
     formData,
     handleArticulacionCraneomandibularChange,
     onSeccionGenerada,
+    onToggleViewMode,
 }) => {
     return (
         <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
@@ -21,6 +23,7 @@ export const ATMCard: React.FC<ATMCardProps> = ({
                         formData={formData}
                         handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange}
                         onRedaccionGenerada={(content: string) => onSeccionGenerada('atm', content)}
+                        onToggleViewMode={onToggleViewMode}
                     />
                 </div>
             </CardContent>

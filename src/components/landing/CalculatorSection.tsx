@@ -35,9 +35,9 @@ export const CalculatorSection = () => {
   const ahorroHorasAnio = ahorroHorasMes * 12;
 
   return (
-    <section 
-      ref={ref} 
-      className="min-h-screen w-full max-w-full flex flex-col items-center justify-center bg-background px-4 sm:px-6 py-12 sm:py-16 snap-start overflow-hidden"
+    <section
+      ref={ref}
+      className="min-h-screen w-full max-w-full flex flex-col items-center justify-center bg-background px-4 sm:px-6 py-12 sm:py-16 overflow-hidden"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -113,7 +113,7 @@ export const CalculatorSection = () => {
           >
             <Clock className="w-4 h-4 sm:w-6 sm:h-6 text-blue-500 mx-auto mb-1 sm:mb-2" />
             <p className="text-[10px] sm:text-xs font-medium text-blue-700 dark:text-blue-300 mb-1">Ahorro/Día</p>
-            <motion.p 
+            <motion.p
               key={ahorroHorasDia}
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
@@ -131,7 +131,7 @@ export const CalculatorSection = () => {
           >
             <Clock className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-500 mx-auto mb-1 sm:mb-2" />
             <p className="text-[10px] sm:text-xs font-medium text-emerald-700 dark:text-emerald-300 mb-1">Ahorro/Mes</p>
-            <motion.p 
+            <motion.p
               key={ahorroHorasMes}
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
@@ -149,7 +149,7 @@ export const CalculatorSection = () => {
           >
             <Clock className="w-4 h-4 sm:w-6 sm:h-6 text-purple-500 mx-auto mb-1 sm:mb-2" />
             <p className="text-[10px] sm:text-xs font-medium text-purple-700 dark:text-purple-300 mb-1">Ahorro/Año</p>
-            <motion.p 
+            <motion.p
               key={ahorroHorasAnio}
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}

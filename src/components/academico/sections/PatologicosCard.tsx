@@ -6,12 +6,14 @@ interface PatologicosCardProps {
     formData: any;
     handleAntecedentePatologicoChange: any;
     onSeccionGenerada: (seccionId: string, contenido: string) => void;
+    onToggleViewMode?: () => void;
 }
 
 export const PatologicosCard: React.FC<PatologicosCardProps> = ({
     formData,
     handleAntecedentePatologicoChange,
     onSeccionGenerada,
+    onToggleViewMode,
 }) => {
     return (
         <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
@@ -21,6 +23,7 @@ export const PatologicosCard: React.FC<PatologicosCardProps> = ({
                         formData={formData}
                         handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
                         onRedaccionGenerada={(content: string) => onSeccionGenerada('patologicos', content)}
+                        onToggleViewMode={onToggleViewMode}
                     />
                 </div>
             </CardContent>

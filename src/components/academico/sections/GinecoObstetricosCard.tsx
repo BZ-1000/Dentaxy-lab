@@ -5,11 +5,15 @@ import AntecedentesGinecoObstetricos from '@/components/historia-clinica/Anteced
 interface GinecoObstetricosCardProps {
     formData: any;
     handleAntecedenteGinecoObstetricoChange: any;
+    onSeccionGenerada: (seccionId: string, contenido: string) => void;
+    onToggleViewMode?: () => void;
 }
 
 export const GinecoObstetricosCard: React.FC<GinecoObstetricosCardProps> = ({
     formData,
     handleAntecedenteGinecoObstetricoChange,
+    onSeccionGenerada,
+    onToggleViewMode,
 }) => {
     return (
         <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
@@ -18,6 +22,8 @@ export const GinecoObstetricosCard: React.FC<GinecoObstetricosCardProps> = ({
                     <AntecedentesGinecoObstetricos
                         formData={formData}
                         handleAntecedenteGinecoObstetricoChange={handleAntecedenteGinecoObstetricoChange}
+                        onRedaccionGenerada={(content: string) => onSeccionGenerada('ginecoObstetricos', content)}
+                        onToggleViewMode={onToggleViewMode}
                     />
                 </div>
             </CardContent>

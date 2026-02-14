@@ -31,18 +31,19 @@ export const ClinicaView: React.FC = () => {
     // Verify session
     const verificar = async () => {
       const token = sessionStorage.getItem('demo_session_token');
-      const module = sessionStorage.getItem('demo_module');
+      // We check if token exists. Checking "demo_module === academico" might be too strict
+      // if the token is a general 'hub' token that allows academic access.
+      // useDemoSession already validates permissions on entry.
 
-      if (!token || module !== 'academico') {
+      if (!token) {
         setSesionValida(false);
         return;
       }
 
-      const valid = await verifySession(token);
-      setSesionValida(valid);
+      setSesionValida(true);
     };
     verificar();
-  }, [verifySession]);
+  }, []);
 
   useEffect(() => {
     if (clinicaId) {

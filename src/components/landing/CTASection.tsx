@@ -11,9 +11,9 @@ export const CTASection = ({ onRequestDemo }: CTASectionProps) => {
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   return (
-    <section 
-      ref={ref} 
-      className="min-h-screen w-full max-w-full flex flex-col items-center justify-center bg-background px-4 sm:px-6 py-12 sm:py-16 snap-start overflow-hidden"
+    <section
+      ref={ref}
+      className="min-h-screen w-full max-w-full flex flex-col items-center justify-center bg-background px-4 sm:px-6 py-12 sm:py-16 overflow-hidden"
     >
       <motion.div
         initial={{ opacity: 0, y: 30 }}

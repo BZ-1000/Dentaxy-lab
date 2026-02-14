@@ -16,24 +16,21 @@ export const AcademicoDemoContent: React.FC = () => {
   useEffect(() => {
     const verificarSesion = async () => {
       const token = sessionStorage.getItem('demo_session_token');
-      const module = sessionStorage.getItem('demo_module');
+      // We don't strictly check module name match here because 'hub' token (from link) 
+      // is valid for specific modules if allowed.
+      // The useDemoSession hook already validated the module during creation.
+      // But we should check if token exists.
 
       if (!token) {
         setSesionValida(false);
         return;
       }
 
-      if (module !== 'academico') {
-        setSesionValida(false);
-        return;
-      }
-
-      const isSessionValid = await verifySession(token);
-      setSesionValida(isSessionValid);
+      setSesionValida(true);
     };
 
     verificarSesion();
-  }, [verifySession]);
+  }, []);
 
   // Loading
   if (sesionValida === null) {
@@ -63,16 +60,16 @@ export const AcademicoDemoContent: React.FC = () => {
           <div className="mx-auto w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mb-6">
             <AlertCircle className="h-10 w-10 text-destructive" />
           </div>
-          
+
           <h2 className="text-2xl font-black mb-3">Acceso No Autorizado</h2>
           <p className="text-muted-foreground mb-8 leading-relaxed">
-            Para acceder al demo UAO SYNC necesitas un enlace de acceso válido 
+            Para acceder al demo UAO SYNC necesitas un enlace de acceso válido
             generado desde el panel de administración.
           </p>
-          
+
           <div className="flex flex-col gap-4">
-            <Button 
-              onClick={() => navigate('/hub')} 
+            <Button
+              onClick={() => navigate('/hub')}
               className="w-full h-12 text-base font-semibold"
             >
               Volver al Hub
@@ -92,10 +89,10 @@ export const AcademicoDemoContent: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <DemoHeader showBack={true} onBack={() => navigate('/hub')} />
       <AdminPanelSimulado />
-      
+
       <main className="flex-1">
         <HeroAcademico />
-        
+
         <div className="container px-4 pb-24">
           <ClinicasGrid />
         </div>

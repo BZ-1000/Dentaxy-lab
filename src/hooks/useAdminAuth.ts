@@ -9,15 +9,6 @@ interface AdminAuthState {
   isLoading: boolean;
 }
 
-const ADMIN_SESSION_KEY = 'dentaxy_admin_session';
-const SESSION_DURATION = 4 * 60 * 60 * 1000; // 4 hours
-
-interface StoredSession {
-  adminId: string;
-  displayName: string;
-  expiresAt: number;
-}
-
 export function useAdminAuth() {
   const [state, setState] = useState<AdminAuthState>({
     isAuthenticated: false,
@@ -26,105 +17,131 @@ export function useAdminAuth() {
     isLoading: true,
   });
 
-  // Check for existing session on mount
+  // Check for existing session on mount and listen for changes
   useEffect(() => {
-    const checkSession = () => {
+    const checkSession = async () => {
       try {
-        const stored = sessionStorage.getItem(ADMIN_SESSION_KEY);
-        if (stored) {
-          const session: StoredSession = JSON.parse(stored);
-          if (session.expiresAt > Date.now()) {
-            setState({
-              isAuthenticated: true,
-              adminId: session.adminId,
-              displayName: session.displayName,
-              isLoading: false,
-            });
-            return;
-          }
-          // Session expired
-          sessionStorage.removeItem(ADMIN_SESSION_KEY);
+        // 1. Verificar bypass temporal (Prioridad para desarrollo)
+        const bypassActive = localStorage.getItem('admin_bypass') === 'true';
+        const bypassUid = localStorage.getItem('admin_bypass_uid');
+
+        if (bypassActive && bypassUid) {
+          setState({
+            isAuthenticated: true,
+            adminId: bypassUid,
+            displayName: 'Admin (Bypass)',
+            isLoading: false,
+          });
+          return;
         }
-      } catch (e) {
-        sessionStorage.removeItem(ADMIN_SESSION_KEY);
+
+        // 2. Verificar sesión de Supabase Auth
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error) throw error;
+
+        if (session?.user) {
+          setState({
+            isAuthenticated: true,
+            adminId: session.user.id,
+            displayName: session.user.email,
+            isLoading: false,
+          });
+        } else {
+          setState({
+            isAuthenticated: false,
+            adminId: null,
+            displayName: null,
+            isLoading: false,
+          });
+        }
+      } catch (error) {
+        console.error('Session check error:', error);
+        setState(prev => ({ ...prev, isLoading: false }));
       }
-      setState(prev => ({ ...prev, isLoading: false }));
     };
 
     checkSession();
+
+    // Suscribirse a cambios de autenticación
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('🔄 Auth state change:', event);
+
+      if (session?.user) {
+        setState({
+          isAuthenticated: true,
+          adminId: session.user.id,
+          displayName: session.user.email,
+          isLoading: false,
+        });
+      } else if (localStorage.getItem('admin_bypass') !== 'true') {
+        // Solo resetear si no hay bypass activo
+        setState({
+          isAuthenticated: false,
+          adminId: null,
+          displayName: null,
+          isLoading: false,
+        });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
-  const login = useCallback(async (username: string, password: string): Promise<boolean> => {
+  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     setState(prev => ({ ...prev, isLoading: true }));
 
     try {
-      const { data, error } = await supabase.rpc('verify_admin_login', {
-        p_username: username,
-        p_password: password,
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
       if (error) {
-        console.error('Login error:', error);
-        toast.error('Error de conexión');
+        toast.error('Error de acceso', {
+          description: error.message === 'Invalid login credentials'
+            ? 'Usuario o contraseña incorrectos'
+            : error.message
+        });
         return false;
       }
 
-      const result = data?.[0];
-      
-      if (!result?.success) {
-        toast.error(result?.error_message || 'Credenciales inválidas');
-        return false;
+      if (data.session) {
+        toast.success(`Bienvenido, ${data.user.email}`);
+        return true;
       }
 
-      // Create session
-      const session: StoredSession = {
-        adminId: result.admin_id,
-        displayName: result.display_name,
-        expiresAt: Date.now() + SESSION_DURATION,
-      };
-
-      sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
-
-      setState({
-        isAuthenticated: true,
-        adminId: result.admin_id,
-        displayName: result.display_name,
-        isLoading: false,
-      });
-
-      toast.success(`Bienvenido, ${result.display_name}`);
-      return true;
-    } catch (error) {
+      return false;
+    } catch (error: any) {
       console.error('Login error:', error);
-      toast.error('Error al iniciar sesión');
+      toast.error('Error inseperado en el servidor');
       return false;
     } finally {
       setState(prev => ({ ...prev, isLoading: false }));
     }
   }, []);
 
-  const logout = useCallback(() => {
-    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  const logout = useCallback(async () => {
+    localStorage.removeItem('admin_bypass');
+    localStorage.removeItem('admin_bypass_uid');
+
+    const { error } = await supabase.auth.signOut();
+    if (error) console.error('Logout error:', error);
+
     setState({
       isAuthenticated: false,
       adminId: null,
       displayName: null,
       isLoading: false,
     });
+
     toast.success('Sesión cerrada');
   }, []);
 
-  const refreshSession = useCallback(() => {
-    try {
-      const stored = sessionStorage.getItem(ADMIN_SESSION_KEY);
-      if (stored) {
-        const session: StoredSession = JSON.parse(stored);
-        session.expiresAt = Date.now() + SESSION_DURATION;
-        sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
-      }
-    } catch (e) {
-      // Ignore
-    }
+  const refreshSession = useCallback(async () => {
+    await supabase.auth.refreshSession();
   }, []);
 
   return {

@@ -48,12 +48,27 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const checkSubscription = async () => {
     if (!session) return;
-    
+
     try {
       setSubscription(prev => ({ ...prev, loading: true }));
-      
+
       console.log('Checking subscription for user:', session.user.email);
-      
+
+      // Check if user is admin - admins get full access without subscription check
+      const userRole = session.user.app_metadata?.role || session.user.user_metadata?.role;
+
+      if (userRole === 'admin') {
+        console.log('User is admin, granting full access');
+        setSubscription({
+          subscribed: true,
+          subscription_tier: 'admin',
+          subscription_end: null,
+          loading: false,
+        });
+        return;
+      }
+
+      // For non-admin users, try to check subscription via Edge Function
       const { data, error } = await supabase.functions.invoke('check-subscription', {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
@@ -63,12 +78,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (error) {
         console.error('Error checking subscription:', error);
         console.error('Full error details:', JSON.stringify(error, null, 2));
+
+        // If Edge Function doesn't exist or fails, deny access for non-admin users
         toast({
           title: "Error de configuración",
-          description: "No se pudo verificar el estado de la suscripción. Verifica la configuración de Stripe.",
+          description: "No se pudo verificar el estado de la suscripción. Contacta a soporte.",
           variant: "destructive",
         });
-        setSubscription(prev => ({ ...prev, loading: false }));
+        setSubscription({
+          subscribed: false,
+          subscription_tier: null,
+          subscription_end: null,
+          loading: false,
+        });
         return;
       }
 
@@ -88,19 +110,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signOut = async () => {
     const userId = session?.user?.id;
     const currentUser = session?.user;
-    
+
     try {
       // Limpiar solo datos del usuario actual
       if (currentUser) {
         UserStorage.clearUserData(currentUser);
       }
-      
+
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      
+
       // Clear global session storage
       localStorage.removeItem('userSession');
-      
+
       // Reset subscription state
       setSubscription({
         subscribed: false,
@@ -108,9 +130,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         subscription_end: null,
         loading: false,
       });
-      
+
       securityLogger.logAuthEvent('signout', userId);
-      
+
       toast({
         title: "Sesión cerrada",
         description: "Has cerrado sesión exitosamente",
@@ -118,13 +140,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     } catch (error) {
       securityLogger.logError('Signout failed', 'AuthContext');
       console.error('Error signing out:', error);
-      
+
       // Force logout even if there's an error
       if (currentUser) {
         UserStorage.clearUserData(currentUser);
       }
       localStorage.removeItem('userSession');
-      
+
       setSession(null);
       setSubscription({
         subscribed: false,
@@ -132,7 +154,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         subscription_end: null,
         loading: false,
       });
-      
+
       toast({
         title: "Sesión cerrada",
         description: "Tu sesión ha sido cerrada",
@@ -147,11 +169,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         // Get initial session
         const { data: { session }, error } = await supabase.auth.getSession();
-        
+
         if (error) {
           console.error('Error getting session:', error);
         }
-        
+
         if (mounted) {
           setSession(session);
           if (session) {
@@ -173,9 +195,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
-        
+
         console.log('Auth state changed:', event, session?.user?.email);
-        
+
         // Log security events
         if (event === 'SIGNED_IN') {
           securityLogger.logAuthEvent('signin', session?.user?.id);
@@ -184,9 +206,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         } else if (event === 'TOKEN_REFRESHED') {
           securityLogger.logAuthEvent('token_refresh', session?.user?.id);
         }
-        
+
         setSession(session);
-        
+
         if (session) {
           localStorage.setItem('userSession', JSON.stringify(session));
           // Check subscription status when user logs in
@@ -206,7 +228,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
             loading: false,
           });
         }
-        
+
         setLoading(false);
       }
     );

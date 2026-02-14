@@ -9,6 +9,25 @@ import OrganicShopFrame from '@/components/shop/OrganicShopFrame';
 
 type ModalState = 'none' | 'admin' | 'presale' | 'waitlist';
 
+// Animation Variants (Seed Style)
+const fadeUp = {
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0 },
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 },
+  },
+};
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1 },
+};
+
 export default function ShopLogin() {
   const [openModal, setOpenModal] = useState<ModalState>('none');
   const navigate = useNavigate();
@@ -77,11 +96,8 @@ export default function ShopLogin() {
   return (
     <div className="min-h-screen w-full relative bg-[#F5F5F7] overflow-hidden font-sans selection:bg-emerald-500/20 selection:text-emerald-900">
 
-      {/* Background Ambience */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-[-10%] right-[-5%] w-[40vw] h-[40vw] bg-emerald-100/40 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[35vw] h-[35vw] bg-blue-100/40 rounded-full blur-[100px]" />
-      </div>
+      {/* Background - Pure White */}
+      <div className="absolute inset-0 bg-white pointer-events-none" />
 
       <OrganicShopFrame
         onHomeClick={() => navigate('/')}
@@ -90,56 +106,99 @@ export default function ShopLogin() {
       />
 
       {/* Main Content */}
-      <main className="relative z-10 h-screen w-full flex flex-col items-center justify-center p-6">
+      <main className="relative z-10 min-h-screen w-full flex flex-col items-center justify-center p-6">
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="flex flex-col items-center text-center space-y-12 max-w-2xl"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+          className="flex flex-col items-center text-center space-y-12 max-w-3xl"
         >
-          {/* Brand Logo / Icon */}
-          <div className="w-24 h-24 bg-white rounded-[2rem] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.08)] flex items-center justify-center mb-4">
-            <img
-              src="/brand/dentaxy-icon-solid.webp"
-              alt="Dentaxy"
-              className="w-12 h-12 object-contain"
-            />
+          {/* Hero Section */}
+          <div className="space-y-8 flex flex-col items-center">
+
+            {/* Animated Counter Pill */}
+            <motion.div
+              variants={fadeUp}
+              className="inline-flex items-center gap-3 px-4 py-2 bg-neutral-50 border border-neutral-100 rounded-full shadow-sm"
+            >
+              <div className="flex -space-x-2">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="w-6 h-6 rounded-full bg-neutral-200 border-2 border-white flex items-center justify-center overflow-hidden">
+                    <User className="w-3 h-3 text-neutral-400" />
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <p className="text-sm font-medium text-neutral-600">
+                  <span className="text-neutral-900 font-bold">{waitlistCount}</span> en espera
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Massive Title */}
+            <motion.h1
+              variants={fadeUp}
+              className="text-6xl md:text-8xl font-bold tracking-tighter text-neutral-900 font-sans leading-tight"
+            >
+              Dentaxy<span className="text-emerald-500">.Shop</span>
+            </motion.h1>
+
+            <motion.p
+              variants={fadeUp}
+              className="text-lg md:text-xl text-neutral-500 font-light max-w-lg mx-auto leading-relaxed"
+            >
+              Suministros inteligentes para la odontología moderna.
+            </motion.p>
           </div>
 
-          <div className="space-y-4">
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-neutral-900">
-              Dentaxy<span className="text-neutral-400">.Shop</span>
-            </h1>
-            <p className="text-lg md:text-xl text-neutral-500 font-light max-w-md mx-auto leading-relaxed">
-              La plataforma exclusiva de suministros para la nueva generación de odontólogos.
-            </p>
-          </div>
-
-          {/* Action Cards */}
-          <div className="flex flex-col sm:flex-row gap-6 w-full max-w-lg mt-8">
-            <button
+          {/* Action Interface - Rich Cards Restored */}
+          <motion.div
+            variants={staggerContainer}
+            className="flex flex-col sm:flex-row gap-6 w-full max-w-2xl mt-8"
+          >
+            <motion.button
+              variants={scaleIn}
               onClick={() => setOpenModal('presale')}
-              className="flex-1 group bg-white hover:bg-neutral-50 border border-neutral-200 p-6 rounded-3xl text-left shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              className="flex-1 group relative bg-white border border-neutral-100 p-6 rounded-3xl text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_-12px_rgba(16,185,129,0.2)] transition-all duration-500 hover:-translate-y-1 overflow-hidden"
             >
-              <div className="bg-emerald-50 w-12 h-12 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-emerald-100 transition-colors">
-                <ShieldCheck className="w-6 h-6 text-emerald-600" />
+              <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <ArrowRight className="w-5 h-5 text-emerald-500 -rotate-45" />
               </div>
-              <h3 className="font-semibold text-neutral-900 text-lg">Preventa</h3>
-              <p className="text-sm text-neutral-500 mt-1">Acceso anticipado con código</p>
-            </button>
 
-            <button
-              onClick={() => setOpenModal('waitlist')}
-              className="flex-1 group bg-white hover:bg-neutral-50 border border-neutral-200 p-6 rounded-3xl text-left shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <div className="bg-blue-50 w-12 h-12 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">
-                <Mail className="w-6 h-6 text-blue-600" />
+              <div className="bg-emerald-50 w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
+                <ShieldCheck className="w-7 h-7 text-emerald-600" />
               </div>
-              <h3 className="font-semibold text-neutral-900 text-lg">Lista de Espera</h3>
-              <p className="text-sm text-neutral-500 mt-1">Notifícame el lanzamiento</p>
-            </button>
-          </div>
+
+              <div className="space-y-1 relative z-10">
+                <h3 className="font-bold text-neutral-900 text-xl group-hover:text-emerald-700 transition-colors">Tengo Código</h3>
+                <p className="text-sm text-neutral-500">Acceso anticipado a preventa</p>
+              </div>
+            </motion.button>
+
+            <motion.button
+              variants={scaleIn}
+              onClick={() => setOpenModal('waitlist')}
+              className="flex-1 group relative bg-white border border-neutral-100 p-6 rounded-3xl text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.2)] transition-all duration-500 hover:-translate-y-1 overflow-hidden"
+            >
+              <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <ArrowRight className="w-5 h-5 text-blue-500 -rotate-45" />
+              </div>
+
+              <div className="bg-blue-50 w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
+                <Mail className="w-7 h-7 text-blue-600" />
+              </div>
+
+              <div className="space-y-1 relative z-10">
+                <h3 className="font-bold text-neutral-900 text-xl group-hover:text-blue-700 transition-colors">Lista de Espera</h3>
+                <p className="text-sm text-neutral-500">Notificar lanzamiento oficial</p>
+              </div>
+            </motion.button>
+          </motion.div>
 
         </motion.div>
       </main>

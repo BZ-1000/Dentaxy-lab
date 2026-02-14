@@ -1,39 +1,38 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HTMLTypewriterEffect } from '@/components/ui/HTMLTypewriterEffect';
 import { Loader2 } from 'lucide-react';
 import { FormDataState } from '@/types/historiaClinica';
 
 import { useGenerarTodasRedacciones } from '@/hooks/useGenerarTodasRedacciones';
 import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 
-// Master Plan Components
-import { ProgressLine } from '@/components/academico/ui/ProgressLine';
-import { CommandDock } from '@/components/academico/ui/CommandDock';
-import { SectionCard, ViewMode } from '@/components/academico/ui/SectionCard';
+// UI Components
+import { ProgressLine } from './ui/ProgressLine';
+import { CommandDock } from './ui/CommandDock';
+import { SectionCard, ViewMode } from './ui/SectionCard';
 
-// Real Component Imports
-import PadecimientoActual from '@/components/historia-clinica/PadecimientoActual';
-import AntecedentesHeredoFamiliares from '@/components/historia-clinica/AntecedentesHeredoFamiliares';
-import AntecedentesPersonalesNoPatologicos from '@/components/historia-clinica/AntecedentesPersonalesNoPatologicos';
-import AntecedentesPersonalesPatologicos from '@/components/historia-clinica/AntecedentesPersonalesPatologicos';
-import AntecedentesAlergicos from '@/components/historia-clinica/AntecedentesAlergicos';
-import AntecedentesQuirurgicos from '@/components/historia-clinica/AntecedentesQuirurgicos';
-import AntecedentesHemorragicos from '@/components/historia-clinica/AntecedentesHemorragicos';
-import AntecedentesGinecoObstetricos from '@/components/historia-clinica/AntecedentesGinecoObstetricos';
-import InterrogatorioSistemas from '@/components/historia-clinica/InterrogatorioSistemas';
-import ExploracionFisica from '@/components/historia-clinica/ExploracionFisica';
-import ExamenCabeza from '@/components/historia-clinica/ExamenCabeza';
-import ArticulacionCraneomandibular from '@/components/historia-clinica/ArticulacionCraneomandibular';
-import ExamenCuello from '@/components/historia-clinica/ExamenCuello';
-import ExamenIntrabucal from '@/components/historia-clinica/ExamenIntrabucal';
-import GlandulasSalivales from '@/components/historia-clinica/GlandulasSalivales';
-import Oclusion from '@/components/historia-clinica/Oclusion';
-import RelacionDientes from '@/components/historia-clinica/RelacionDientes';
-import LineaMedia from '@/components/historia-clinica/LineaMedia';
-import Frenillos from '@/components/historia-clinica/Frenillos';
-import Diagnostico from '@/components/historia-clinica/Diagnostico';
-import Pronostico from '@/components/historia-clinica/Pronostico';
+// Section Card Imports (Wrappers with Visual Styling)
+import { PadecimientoCard } from './sections/PadecimientoCard';
+import { HeredofamiliaresCard } from './sections/HeredofamiliaresCard';
+import { NoPatologicosCard } from './sections/NoPatologicosCard';
+import { PatologicosCard } from './sections/PatologicosCard';
+import { AlergicosCard } from './sections/AlergicosCard';
+import { QuirurgicosCard } from './sections/QuirurgicosCard';
+import { HemorragicosCard } from './sections/HemorragicosCard';
+import { GinecoObstetricosCard } from './sections/GinecoObstetricosCard';
+import { InterrogatorioCard } from './sections/InterrogatorioCard';
+import { ExploracionFisicaCard } from './sections/ExploracionFisicaCard';
+import { CabezaCard } from './sections/CabezaCard';
+import { ATMCard } from './sections/ATMCard';
+import { CuelloCard } from './sections/CuelloCard';
+import { IntrabucalCard } from './sections/IntrabucalCard';
+import { SalivalesCard } from './sections/SalivalesCard';
+import { OclusionCard } from './sections/OclusionCard';
+import { RelacionDientesCard } from './sections/RelacionDientesCard';
+import { LineaMediaCard } from './sections/LineaMediaCard';
+import { FrenillosCard } from './sections/FrenillosCard';
+import { DiagnosticoCard } from './sections/DiagnosticoCard';
+import { PronosticoCard } from './sections/PronosticoCard';
 
 interface DentaxyFormPanelProps {
   onGeneracionCompleta?: (datos: Record<string, string>, formData?: FormDataState) => void;
@@ -98,9 +97,8 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   const seccionesActivas = seccionesGenerables.filter(s => s.id !== 'ginecoObstetricos' || esMujer);
   const currentSectionInfo = seccionesActivas[currentStep];
 
+  /* Generaciones de contenido */
   const [generations, setGenerations] = useState<Record<string, any>>({});
-  /* Text State for Smile Panel */
-  const [textGenerations, setTextGenerations] = useState<Record<string, string>>({});
 
   const {
     formData,
@@ -133,17 +131,12 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
 
   const handleContentGenerated = (seccionId: string, contenido: any, textoPlano?: string) => {
     setGenerations(prev => ({ ...prev, [seccionId]: contenido }));
-    // If explicit text is provided, use it. Otherwise, if content is string, use that.
-    const cleanText = textoPlano || (typeof contenido === 'string' ? contenido : '');
-    if (cleanText) {
-      setTextGenerations(prev => ({ ...prev, [seccionId]: cleanText }));
-    }
 
-    // Notify parent with the clean text version for "Smile Panel" mirroring
-    if (onSeccionGenerada && cleanText) {
-      onSeccionGenerada(seccionId, cleanText);
-    } else if (onSeccionGenerada && typeof contenido === 'string') {
+    // Notify parent if listener exists
+    if (onSeccionGenerada && typeof contenido === 'string') {
       onSeccionGenerada(seccionId, contenido);
+    } else if (onSeccionGenerada && textoPlano) {
+      onSeccionGenerada(seccionId, textoPlano);
     }
   };
 
@@ -154,22 +147,13 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   /* Logic needed for ProgressLine status */
   const getStepStatuses = () => {
     return seccionesActivas.map((seccion, index) => {
-      // 1. If currently active -> 'active' (handled by component but good for logic)
       if (index === currentStep) return 'active';
-
-      // 2. Check if generated content exists
       if (generations[seccion.id]) return 'completed';
-
-      // 3. Fallback: Check heuristics for specific complex forms (Example)
-      // Note: This is a simplified heuristic. Ideally we check deep formData.
       if (seccion.id === 'padecimiento') {
         if (formData.padecimientoActual.motivoConsulta &&
           formData.padecimientoActual.motivoConsulta.length > 30) return 'completed';
       }
-
-      // 4. If index is less than current but not completed -> 'skipped'
       if (index < currentStep) return 'skipped';
-
       return 'pending';
     });
   };
@@ -204,7 +188,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
       setDirection(1);
       setCurrentStep(prev => prev + 1);
       setViewMode('form');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -213,137 +197,153 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
       setDirection(-1);
       setCurrentStep(prev => prev - 1);
       setViewMode('form');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  /* View Mode Toggling */
+  const handleToggleViewMode = () => {
+    setViewMode(prev => prev === 'form' ? 'redaction' : 'form');
   };
 
   const renderCurrentStepContent = () => {
     const section = seccionesActivas[currentStep];
-    const commonProps = { onRedaccionGenerada: (text: string) => handleContentGenerated(section.id, text) };
-    // NOTE: Some legacy components might not accept onRedaccionGenerada or might name it differently.
-    // PadecimientoActual does. Others might need adaptation. 
-    // To avoid further TS errors, I'm passing what I can.
+    const onSeccionGeneradaProp = (seccionId: string, text: string) => handleContentGenerated(seccionId, text);
+    const commonProps = {
+      onToggleViewMode: handleToggleViewMode,
+      onSeccionGenerada: onSeccionGeneradaProp
+    };
 
     switch (section.id) {
       case 'padecimiento':
-        return <PadecimientoActual
+        return <PadecimientoCard
           formData={formData}
           handlePadecimientoChange={handlePadecimientoChange}
           handleDolorChange={handleDolorChange}
           handleSinSintomasChange={handleSinSintomasChange}
-          onToggleViewMode={() => setViewMode(prev => prev === 'form' ? 'redaction' : 'form')}
           {...commonProps}
         />;
       case 'heredofamiliares':
-        return <AntecedentesHeredoFamiliares
+        return <HeredofamiliaresCard
           formData={formData}
           handleFamiliarChange={handleFamiliarChange}
           handleCondicionChange={handleCondicionChange}
-          onToggleViewMode={() => setViewMode(prev => prev === 'form' ? 'redaction' : 'form')}
           {...commonProps}
         />;
       case 'noPatologicos':
-        return <AntecedentesPersonalesNoPatologicos
+        return <NoPatologicosCard
           formData={formData}
           handleAntecedenteNoPatologicoChange={handleAntecedenteChange}
           toggleService={toggleService}
-          onToggleViewMode={() => {
-            setViewMode(prev => prev === 'form' ? 'redaction' : 'form');
-            scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
           {...commonProps}
         />;
       case 'patologicos':
-        return <AntecedentesPersonalesPatologicos
+        return <PatologicosCard
           formData={formData}
           handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
-          onToggleViewMode={() => setViewMode(prev => prev === 'form' ? 'redaction' : 'form')}
           {...commonProps}
         />;
       case 'alergicos':
-        return <AntecedentesAlergicos
+        return <AlergicosCard
           formData={formData}
           handleAntecedenteAlergicoChange={handleAntecedenteAlergicoChange}
+          {...commonProps}
         />;
       case 'quirurgicos':
-        return <AntecedentesQuirurgicos
+        return <QuirurgicosCard
           formData={formData}
           handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange}
+          {...commonProps}
         />;
       case 'hemorragicos':
-        return <AntecedentesHemorragicos
+        return <HemorragicosCard
           formData={formData}
           handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange}
+          {...commonProps}
         />;
       case 'ginecoObstetricos':
-        return <AntecedentesGinecoObstetricos
+        return <GinecoObstetricosCard
           formData={formData}
           handleAntecedenteGinecoObstetricoChange={handleAntecedenteGinecoObstetricoChange}
+          {...commonProps}
         />;
       case 'interrogatorio':
-        return <InterrogatorioSistemas
+        return <InterrogatorioCard
           formData={formData}
           handleInterrogatorioChange={handleInterrogatorioChange}
+          {...commonProps}
         />;
       case 'exploracionFisica':
-        return <ExploracionFisica
+        return <ExploracionFisicaCard
           formData={formData}
           handleExploracionFisicaChange={handleExploracionFisicaChange}
+          {...commonProps}
         />;
       case 'cabeza':
-        return <ExamenCabeza
+        return <CabezaCard
           formData={formData}
           handleExamenCabezaChange={handleExamenCabezaChange}
+          {...commonProps}
         />;
       case 'atm':
-        return <ArticulacionCraneomandibular
+        return <ATMCard
           formData={formData}
           handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange}
+          {...commonProps}
         />;
       case 'cuello':
-        return <ExamenCuello
+        return <CuelloCard
           formData={formData}
           handleExamenCuelloChange={handleExamenCuelloChange}
+          {...commonProps}
         />;
       case 'intrabucal':
-        return <ExamenIntrabucal
+        return <IntrabucalCard
           formData={formData}
           handleExamenIntrabucalChange={handleExamenIntrabucalChange}
+          {...commonProps}
         />;
       case 'salivales':
-        return <GlandulasSalivales
+        return <SalivalesCard
           formData={formData}
           handleGlandulasSalivalesChange={handleGlandulasSalivalesChange}
+          {...commonProps}
         />;
       case 'oclusion':
-        return <Oclusion
+        return <OclusionCard
           formData={formData}
           handleOclusionChange={handleOclusionChange}
+          {...commonProps}
         />;
       case 'relacionDientes':
-        return <RelacionDientes
+        return <RelacionDientesCard
           formData={formData}
           handleRelacionDientesChange={handleRelacionDientesChange}
+          {...commonProps}
         />;
       case 'lineaMedia':
-        return <LineaMedia
+        return <LineaMediaCard
           formData={formData}
           handleLineaMediaChange={handleLineaMediaChange}
+          {...commonProps}
         />;
       case 'frenillos':
-        return <Frenillos
+        return <FrenillosCard
           formData={formData}
           handleFrenillosChange={handleFrenillosChange}
+          {...commonProps}
         />;
       case 'diagnostico':
-        return <Diagnostico
+        return <DiagnosticoCard
           formData={formData}
           handleDiagnosticoChange={handleDiagnosticoChange}
+          {...commonProps}
         />;
       case 'pronostico':
-        return <Pronostico
+        return <PronosticoCard
           formData={formData}
           handlePronosticoChange={handlePronosticoChange}
+          {...commonProps}
         />;
       default:
         return null;
@@ -366,18 +366,10 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   */
   const handleGenerateCurrent = async () => {
     const currentSectionId = seccionesActivas[currentStep].id;
-
-    // 1. SPECIAL HANDLE: Padecimiento Actual (Direct Generation)
-    // We bypass the DOM button to ensure reliability as requested by the user ("sigue sin verse").
-    // 1. SPECIAL HANDLE: Removed. Padecimiento now uses the generic DOM button click 
-    // to ensure consistency with the local button's logic (Animation + Clean Text).
-    // if (currentSectionId === 'padecimiento') { ... }
-
-    // 2. GENERIC HANDLE: DOM Clicker for other sections (e.g. Heredofamiliares)
+    // ... logic remains same ...
     const sectionContainer = document.querySelector(`div[data-section="${currentSectionId}"]`);
 
     if (sectionContainer) {
-      // Search for the local generate button by text content
       const buttons = Array.from(sectionContainer.querySelectorAll('button'));
       const generateButton = buttons.find(btn => {
         const text = btn.textContent?.toLowerCase() || '';

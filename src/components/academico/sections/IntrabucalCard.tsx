@@ -6,12 +6,14 @@ interface IntrabucalCardProps {
     formData: any;
     handleExamenIntrabucalChange: any;
     onSeccionGenerada: (seccionId: string, contenido: string) => void;
+    onToggleViewMode?: () => void;
 }
 
 export const IntrabucalCard: React.FC<IntrabucalCardProps> = ({
     formData,
     handleExamenIntrabucalChange,
     onSeccionGenerada,
+    onToggleViewMode,
 }) => {
     return (
         <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
@@ -21,6 +23,7 @@ export const IntrabucalCard: React.FC<IntrabucalCardProps> = ({
                         formData={formData}
                         handleExamenIntrabucalChange={handleExamenIntrabucalChange}
                         onRedaccionGenerada={(content: string) => onSeccionGenerada('intrabucal', content)}
+                        onToggleViewMode={onToggleViewMode}
                     />
                 </div>
             </CardContent>

@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Minus, Maximize2, X, Sparkles } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -10,11 +11,15 @@ import { VoiceInput } from "@/components/ui/voice-input";
 interface AntecedentesGinecoObstetricosProps {
   formData: FormDataState;
   handleAntecedenteGinecoObstetricoChange: (field: string, value: any) => void;
+  onRedaccionGenerada?: (text: string) => void;
+  onToggleViewMode?: () => void;
 }
 
 const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps> = ({
   formData,
-  handleAntecedenteGinecoObstetricoChange
+  handleAntecedenteGinecoObstetricoChange,
+  onRedaccionGenerada,
+  onToggleViewMode
 }) => {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
@@ -53,35 +58,41 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
   };
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
-    setTimeout(() => {
-      let content = "ANTECEDENTES GINECO-OBSTÉTRICOS:\n\n";
-      if (formData.antecedentesGinecoObstetricos) {
-        const {
-          embarazos,
-          partos,
-          cesareas,
-          abortos,
-          complicaciones
-        } = formData.antecedentesGinecoObstetricos;
-        content += `Gestas: ${embarazos || 0}\n`;
-        content += `Partos: ${partos || 0}\n`;
-        content += `Cesáreas: ${cesareas || 0}\n`;
-        content += `Abortos: ${abortos || 0}\n\n`;
-        if (complicaciones) {
-          content += `Complicaciones: ${complicaciones}\n`;
-        } else {
-          content += "No se reportan complicaciones.\n";
-        }
-
-        // Fórmula obstétrica
-        content += `\nFórmula obstétrica: G${embarazos || 0} P${partos || 0} C${cesareas || 0} A${abortos || 0}`;
+    // Remove timeout
+    let content = "ANTECEDENTES GINECO-OBSTÉTRICOS:\n\n";
+    if (formData.antecedentesGinecoObstetricos) {
+      const {
+        embarazos,
+        partos,
+        cesareas,
+        abortos,
+        complicaciones
+      } = formData.antecedentesGinecoObstetricos;
+      content += `Gestas: ${embarazos || 0}\n`;
+      content += `Partos: ${partos || 0}\n`;
+      content += `Cesáreas: ${cesareas || 0}\n`;
+      content += `Abortos: ${abortos || 0}\n\n`;
+      if (complicaciones) {
+        content += `Complicaciones: ${complicaciones}\n`;
       } else {
-        content += "No se registraron datos gineco-obstétricos.";
+        content += "No se reportan complicaciones.\n";
       }
-      setRedaccionContent(content);
-      setIsGeneratingRedaccion(false);
-      setActiveTab('redaccion');
-    }, 1000);
+
+      // Fórmula obstétrica
+      content += `\nFórmula obstétrica: G${embarazos || 0} P${partos || 0} C${cesareas || 0} A${abortos || 0}`;
+    } else {
+      content += "No se registraron datos gineco-obstétricos.";
+    }
+    setRedaccionContent(content);
+    if (onRedaccionGenerada) {
+      onRedaccionGenerada(content);
+    }
+    setIsGeneratingRedaccion(false);
+    setActiveTab('redaccion');
+
+    if (onToggleViewMode) {
+      onToggleViewMode();
+    }
   };
 
   return (
@@ -91,29 +102,26 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
       data-section-name="antecedentesGinecoObstetricos"
     >
       <Card
-        className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${
-          isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""
-        }`}
+        className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""
+          }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
             <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
               <button
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                  activeTab === "formulario"
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${activeTab === "formulario"
                     ? "bg-blue-500 text-white shadow-md"
                     : "text-gray-700 dark:text-gray-300"
-                }`}
+                  }`}
                 onClick={() => setActiveTab("formulario")}
               >
                 Formulario
               </button>
               <button
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                  activeTab === "redaccion"
+                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${activeTab === "redaccion"
                     ? "bg-blue-500 text-white shadow-md"
                     : "text-gray-700 dark:text-gray-300"
-                }`}
+                  }`}
                 onClick={() => setActiveTab("redaccion")}
               >
                 Redacción IA
@@ -225,6 +233,19 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                       <VoiceInput onTranscriptionComplete={handleVoiceInput("complicaciones")} />
                     </div>
                   </div>
+                </div>
+
+                <div className="flex justify-center mt-6">
+                  {onToggleViewMode && (
+                    <Button
+                      variant="outline"
+                      onClick={generateRedaccion}
+                      className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Ver Redacción IA
+                    </Button>
+                  )}
                 </div>
               </div>
             ) : (
