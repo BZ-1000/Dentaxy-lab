@@ -63,5 +63,8 @@ export default defineConfig(({ mode }) => ({
         manualChunks: undefined
       }
     }
+  },
+  worker: {
+    format: 'es'
   }
 }));
