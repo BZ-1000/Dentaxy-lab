@@ -1,0 +1,11 @@
+commit 393aa6843af1b0eea74267e0a17e6e67b1281429
+Author: Dentaxy Agent <agent@dentaxy.com>
+Date:   Thu Feb 19 04:47:01 2026 -0600
+
+    feat: integrar useDemoGuard en todos los demos y corregir botón libre acceso
+    
+    - Integra useDemoGuard en DICOMDemo, AIDemo, EnterpriseDemo, StarkDemo y AcademicoDemo
+    - Todos los demos ahora verifican token de sesión O libre acceso en Supabase
+    - Corrige el botón de libre acceso en ModuleControlCard: ya no se deshabilita para módulos con status 'beta' o 'classified', sólo para módulos en mantenimiento o desactivados
+    - useDemoGuard verifica free_access en la tabla dentaxy_modules y redirige al hub si no hay acceso
+    - La funcionalidad es en tiempo real vía Supabase realtime

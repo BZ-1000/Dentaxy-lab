@@ -76,7 +76,7 @@ export const DICOMDemo: React.FC = () => {
                         <ArrowLeft className="w-5 h-5" />
                     </button>
                     <h1 className="text-sm font-semibold tracking-wide text-violet-400">
-                        DENTAXY <span className="text-white/60">{view === 'viewer' ? 'Viewer' : 'Network'}</span>
+                        DENTAXY <span className="text-white/60">{view === 'viewer' ? 'Viewer' : 'RX'}</span>
                     </h1>
                 </div>
 
