@@ -49,11 +49,16 @@ const modulesConfig = [
     rgbColor: "139, 92, 246", // Violet
     accentColor: "#8B5CF6",
     moduleInfo: {
-      whatItDemonstrates: "La imagen también decide.",
-      problemItSolves: "Modelos 3D interactivos. Estudios accesibles desde cualquier dispositivo. Comunicación visual precisa.",
-      contextOfUse: "Contexto clínico real. Sin envíos inseguros por WhatsApp.",
-      publicTarget: "Profesionales que entienden que la imagen es parte del diagnóstico.",
-      whatIncluded: ["Modelos 3D interactivos", "Estudios accesibles desde cualquier dispositivo", "Comunicación visual precisa", "Contexto clínico real"],
+      whatItDemonstrates: "La precisión clínica es la base de la confianza. Tu capacidad tecnológica define tu estándar de práctica.",
+      problemItSolves: "Diagnóstico radiográfico instantáneo. Interpretación de archivos .dcm nativos sin software pesado. Eliminación de barreras técnicas para la visualización de alta fidelidad.",
+      contextOfUse: "Entorno clínico digital y teleodontología. Consulta de gabinete o movilidad total. Fin de la dependencia de visores propietarios o archivos estáticos de baja resolución.",
+      publicTarget: "Odontólogos y especialistas que exigen la máxima información diagnóstica de una panorámica y no aceptan menos que el formato original.",
+      whatIncluded: [
+        "Visualizador DICOM nativo: Renderizado fluido de radiografías panorámicas en el navegador.",
+        "Acceso Universal: Compatibilidad total en Desktop y Mobile para revisiones en tiempo real.",
+        "Herramientas de Precisión: Ajuste de contraste, brillo y zoom dinámico para detección de patologías.",
+        "Seguridad de Datos: Gestión de archivos bajo estándares de identidad protegida"
+      ],
       whatNotIncluded: ["Almacenamiento PACS completo", "Procesamiento de tomografías completas", "Envíos por canales inseguros"],
     },
   },

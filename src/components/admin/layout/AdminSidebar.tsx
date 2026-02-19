@@ -27,7 +27,7 @@ interface AdminSidebarProps {
 
 const navItems = [
   { path: '/admin/dashboard', icon: LayoutGrid, label: 'Dashboard' },
-  { path: '/admin/users', icon: Users, label: 'Identity Nexus' },
+  { path: '/admin/nexus-intel', icon: Users, label: 'DENTAXY Nexus' },
   { path: '/admin/ecosystem', icon: Network, label: 'Ecosystem' },
   { path: '/admin/demos', icon: Share2, label: 'Demo Engine' },
   { path: '/admin/security', icon: ShieldCheck, label: 'Security' },

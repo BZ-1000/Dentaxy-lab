@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, X, User, ShieldCheck, Mail, Lock } from 'lucide-react';
+import { ArrowRight, X, User, ShieldCheck, Mail, Lock, Upload, Loader2, CheckCircle2, AlertCircle, Brain } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import OrganicShopFrame from '@/components/shop/OrganicShopFrame'; // Reusing the frame layout
+import OrganicShopFrame from '@/components/shop/OrganicShopFrame';
 import "./Seed.css";
+import { useP2P } from '@/hooks/useP2P';
+import { leadsService } from '@/services/leads';
+import { toast } from 'sonner';
 
 type ModalState = 'none' | 'admin' | 'presale' | 'waitlist';
 
@@ -43,10 +46,17 @@ export default function SeedLogin() {
     const [presaleError, setPresaleError] = useState('');
     const [presaleSubmitting, setPresaleSubmitting] = useState(false);
 
-    // Waitlist State
+    // Waitlist State (DENTAXY Nexus - P2P)
+    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [file, setFile] = useState<File | null>(null);
     const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
     const [waitlistSuccess, setWaitlistSuccess] = useState(false);
+    const [p2pError, setP2pError] = useState('');
+
+    // P2P Hook (modo emisor)
+    const { initializePeer, sendLeadData } = useP2P();
 
     // Simulated count (Maybe different for Seed?)
     const [waitlistCount] = useState(843);
@@ -85,9 +95,58 @@ export default function SeedLogin() {
     const handleWaitlistSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setWaitlistSubmitting(true);
-        await new Promise(resolve => setTimeout(resolve, 1200));
-        setWaitlistSubmitting(false);
-        setWaitlistSuccess(true);
+        setP2pError('');
+
+        try {
+            // 1. Leer el PeerID del receptor (DENTAXY Nexus) desde Supabase
+            const receiverPeerId = await leadsService.getReceiverPeerId();
+
+            // 2. Inicializar el peer emisor
+            const peer = await initializePeer();
+
+            // 3. Preparar datos del lead
+            const leadData = {
+                full_name: fullName,
+                phone: `+52 ${phone}`,
+                source: 'Seed' as const,
+                email,
+            };
+
+            // 4. Si DENTAXY Nexus está abierto, enviar vía P2P (con archivo si existe)
+            if (receiverPeerId) {
+                try {
+                    await sendLeadData(receiverPeerId, leadData, file || undefined);
+                    toast.success('📡 Historia enviada a DENTAXY Nexus');
+                } catch (p2pErr) {
+                    console.warn('[Seed] P2P no disponible:', p2pErr);
+                    toast.info('DENTAXY Nexus no está disponible · Guardando en base de datos');
+                }
+            } else {
+                toast.info('DENTAXY Nexus offline · Guardando en base de datos');
+            }
+
+            // 5. Guardar metadatos en Supabase (siempre, el archivo va por P2P)
+            await leadsService.createLead({
+                full_name: fullName,
+                phone: `+52 ${phone}`,
+                source: 'Seed',
+                peer_id: peer.id || '',
+                email,
+            });
+
+            setWaitlistSuccess(true);
+        } catch (error) {
+            console.error('[Seed] Error enviando lead:', error);
+            setP2pError('Hubo un error al enviar tus datos. Inténtalo de nuevo.');
+        } finally {
+            setWaitlistSubmitting(false);
+        }
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setFile(e.target.files[0]);
+        }
     };
 
     return (
@@ -224,7 +283,10 @@ export default function SeedLogin() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 z-[100] bg-neutral-900/20 backdrop-blur-md flex items-center justify-center p-4"
-                        onClick={() => setOpenModal('none')}
+                        onClick={() => {
+                            if (!waitlistSuccess) setOpenModal('none');
+                            else setOpenModal('none');
+                        }}
                     >
                         <motion.div
                             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -333,21 +395,94 @@ export default function SeedLogin() {
                                             </div>
 
                                             <form onSubmit={handleWaitlistSubmit} className="space-y-4">
-                                                <Input
-                                                    type="email"
-                                                    placeholder="tu@email.com"
-                                                    value={email}
-                                                    onChange={(e) => setEmail(e.target.value)}
-                                                    className="h-12 rounded-xl bg-white/50 border-neutral-200"
-                                                    required
-                                                />
+                                                <div className="space-y-3">
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="Nombre Completo"
+                                                        value={fullName}
+                                                        onChange={(e) => setFullName(e.target.value)}
+                                                        className="h-11 rounded-xl bg-white/50 border-neutral-200"
+                                                        required
+                                                    />
+
+                                                    <Input
+                                                        type="email"
+                                                        placeholder="correo@ejemplo.com"
+                                                        value={email}
+                                                        onChange={(e) => setEmail(e.target.value)}
+                                                        className="h-11 rounded-xl bg-white/50 border-neutral-200"
+                                                        required
+                                                    />
+
+                                                    {/* Teléfono con bandea MX + formato automático */}
+                                                    <div className="relative">
+                                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 text-sm flex items-center gap-1 pointer-events-none">
+                                                            🇲🇽 +52
+                                                        </span>
+                                                        <Input
+                                                            type="tel"
+                                                            placeholder="123 456 7890"
+                                                            value={phone}
+                                                            onChange={(e) => {
+                                                                let input = e.target.value.replace(/\D/g, '');
+                                                                if (input.length > 10) input = input.slice(0, 10);
+                                                                let res = '';
+                                                                if (input.length > 0) res += input.substring(0, 3);
+                                                                if (input.length >= 4) res += ' ' + input.substring(3, 6);
+                                                                if (input.length >= 7) res += ' ' + input.substring(6, 10);
+                                                                setPhone(res);
+                                                            }}
+                                                            className="h-11 rounded-xl bg-white/50 border-neutral-200 pl-20"
+                                                            required
+                                                        />
+                                                    </div>
+
+                                                    {/* File Upload Field */}
+                                                    <div className="relative">
+                                                        <input
+                                                            type="file"
+                                                            id="file-upload-seed"
+                                                            className="hidden"
+                                                            accept=".pdf,application/pdf"
+                                                            onChange={handleFileChange}
+                                                        />
+                                                        <label
+                                                            htmlFor="file-upload-seed"
+                                                            className={`flex items-center justify-center gap-2 w-full h-11 rounded-xl border border-dashed cursor-pointer transition-colors ${file ? 'bg-indigo-50 border-indigo-300 text-indigo-700' : 'bg-white/50 border-neutral-300 text-neutral-500 hover:bg-neutral-50'}`}
+                                                        >
+                                                            <Upload className="w-4 h-4" />
+                                                            <span className="text-sm font-medium truncate max-w-[200px]">
+                                                                {file ? file.name : 'Historia Clínica (PDF – opcional)'}
+                                                            </span>
+                                                        </label>
+                                                    </div>
+
+                                                    {/* Disclaimer donación de datos IA */}
+                                                    <div className="flex items-start gap-2 bg-indigo-50/50 border border-indigo-100 rounded-xl p-3">
+                                                        <Brain className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0" />
+                                                        <p className="text-xs text-indigo-700 leading-relaxed">
+                                                            <span className="font-semibold">Donación de datos:</span> La historia clínica que compartas será usada únicamente para hacer a Dentaxy más inteligente. Es una contribución anónima al cerebro IA — nunca la vendemos ni la compartimos.
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                {p2pError && (
+                                                    <p className="text-xs text-red-500 text-center bg-red-50 py-2 rounded-lg font-medium flex items-center gap-1 justify-center">
+                                                        <AlertCircle className="h-3 w-3" /> {p2pError}
+                                                    </p>
+                                                )}
 
                                                 <Button
                                                     type="submit"
                                                     disabled={waitlistSubmitting}
                                                     className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-lg shadow-indigo-200"
                                                 >
-                                                    {waitlistSubmitting ? 'Registrando...' : 'Unirme'}
+                                                    {waitlistSubmitting ? (
+                                                        <>
+                                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                            Conectando P2P...
+                                                        </>
+                                                    ) : 'Unirme'}
                                                 </Button>
                                             </form>
                                         </>

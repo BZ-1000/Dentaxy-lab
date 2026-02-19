@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, X, User, ShieldCheck, Mail, Lock } from 'lucide-react';
+import { ArrowRight, X, User, ShieldCheck, Mail, Lock, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useShopAuth } from '@/hooks/useShopAuth';
 import OrganicShopFrame from '@/components/shop/OrganicShopFrame';
+import { useP2P } from '@/hooks/useP2P';
+import { leadsService } from '@/services/leads';
+import { toast } from 'sonner';
 
 type ModalState = 'none' | 'admin' | 'presale' | 'waitlist';
 
@@ -44,13 +47,20 @@ export default function ShopLogin() {
   const [presaleError, setPresaleError] = useState('');
   const [presaleSubmitting, setPresaleSubmitting] = useState(false);
 
-  // Waitlist State
+  // Waitlist State (DENTAXY Nexus - P2P)
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [clientType, setClientType] = useState<'odontologo' | 'deposito'>('odontologo');
   const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
   const [waitlistSuccess, setWaitlistSuccess] = useState(false);
 
+  // P2P Hook (modo emisor)
+  const { initializePeer, sendLeadData } = useP2P();
+  const [p2pError, setP2pError] = useState('');
+
   // Simulated count
-  const [waitlistCount] = useState(127);
+  const [waitlistCount] = useState(128);
 
   useEffect(() => {
     if (isAuthenticated && !isLoading) {
@@ -86,10 +96,58 @@ export default function ShopLogin() {
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setWaitlistSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    setWaitlistSubmitting(false);
-    setWaitlistSuccess(true);
+    setP2pError('');
+
+    try {
+      // 1. Leer el PeerID del receptor (DENTAXY Nexus) desde Supabase
+      const receiverPeerId = await leadsService.getReceiverPeerId();
+
+      // 2. Inicializar el peer emisor
+      const peer = await initializePeer();
+
+      // 3. Preparar datos del lead
+      const leadData = {
+        full_name: fullName,
+        phone: `+52 ${phone}`,
+        source: 'Shop' as const,
+        email,
+        metadata: { client_type: clientType },
+      };
+
+      // 4. Si DENTAXY Nexus está abierto, enviar vía P2P
+      if (receiverPeerId) {
+        try {
+          await sendLeadData(receiverPeerId, leadData);
+          toast.success('📡 Datos enviados a DENTAXY Nexus');
+        } catch (p2pErr) {
+          // P2P falló (receptor no conectado), continuar sin él
+          console.warn('[Shop] P2P no disponible, guardando solo en Supabase:', p2pErr);
+          toast.info('DENTAXY Nexus no está en línea, guardando en base de datos.');
+        }
+      } else {
+        toast.info('DENTAXY Nexus offline · Guardando en base de datos');
+      }
+
+      // 5. Guardar metadatos en Supabase (siempre)
+      await leadsService.createLead({
+        full_name: fullName,
+        phone: `+52 ${phone}`,
+        source: 'Shop',
+        peer_id: peer.id || '',
+        email,
+        metadata: { client_type: clientType },
+      });
+
+      setWaitlistSuccess(true);
+    } catch (error) {
+      console.error('[Shop] Error enviando lead:', error);
+      setP2pError('Hubo un error al enviar tus datos. Inténtalo de nuevo.');
+    } finally {
+      setWaitlistSubmitting(false);
+    }
   };
+
+  // Removed handleFileChange as it is no longer used
 
   if (isLoading) return null;
 
@@ -211,7 +269,10 @@ export default function ShopLogin() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] bg-neutral-900/20 backdrop-blur-md flex items-center justify-center p-4"
-            onClick={() => setOpenModal('none')}
+            onClick={() => {
+              if (!waitlistSuccess) setOpenModal('none'); // Prevent closing if success (keep P2P alive ideally, or warn)
+              else setOpenModal('none');
+            }}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -320,31 +381,103 @@ export default function ShopLogin() {
                       </div>
 
                       <form onSubmit={handleWaitlistSubmit} className="space-y-4">
-                        <Input
-                          type="email"
-                          placeholder="tu@email.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="h-12 rounded-xl bg-white/50 border-neutral-200"
-                          required
-                        />
+                        <div className="space-y-3">
+                          <Input
+                            type="text"
+                            placeholder="Nombre Completo"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            className="h-11 rounded-xl bg-white/50 border-neutral-200"
+                            required
+                          />
+
+                          <Input
+                            type="email"
+                            placeholder="correo@ejemplo.com"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className="h-11 rounded-xl bg-white/50 border-neutral-200"
+                            required
+                          />
+
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 text-sm flex items-center gap-1">
+                              🇲🇽 +52
+                            </span>
+                            <Input
+                              type="tel"
+                              placeholder="123 456 7890"
+                              value={phone}
+                              onChange={(e) => {
+                                let input = e.target.value.replace(/\D/g, '');
+                                if (input.length > 10) input = input.slice(0, 10);
+
+                                let res = '';
+                                if (input.length > 0) res += input.substring(0, 3);
+                                if (input.length >= 4) res += ' ' + input.substring(3, 6);
+                                if (input.length >= 7) res += ' ' + input.substring(6, 10);
+
+                                setPhone(res);
+                              }}
+                              className="h-11 rounded-xl bg-white/50 border-neutral-200 pl-20"
+                              required
+                            />
+                          </div>
+
+                          {/* Client Type Selector */}
+                          <div className="pt-2">
+                            <p className="text-sm font-medium text-neutral-700 mb-2">Soy:</p>
+                            <div className="grid grid-cols-2 gap-3">
+                              <button
+                                type="button"
+                                onClick={() => setClientType('odontologo')}
+                                className={`p-3 rounded-xl border text-sm font-medium transition-all ${clientType === 'odontologo' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white/50 border-neutral-200 text-neutral-600 hover:bg-neutral-50'}`}
+                              >
+                                Odontólogo
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setClientType('deposito')}
+                                className={`p-3 rounded-xl border text-sm font-medium transition-all ${clientType === 'deposito' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white/50 border-neutral-200 text-neutral-600 hover:bg-neutral-50'}`}
+                              >
+                                Depósito Dental
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {p2pError && (
+                          <p className="text-xs text-red-500 text-center bg-red-50 py-2 rounded-lg font-medium flex items-center gap-1 justify-center">
+                            <AlertCircle className="h-3 w-3" /> {p2pError}
+                          </p>
+                        )}
 
                         <Button
                           type="submit"
                           disabled={waitlistSubmitting}
-                          className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-lg shadow-blue-200"
+                          className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-lg shadow-emerald-200"
                         >
-                          {waitlistSubmitting ? 'Registrando...' : 'Unirme'}
+                          {waitlistSubmitting ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              {waitlistSubmitting ? 'Enviando a DENTAXY Nexus...' : 'Conectando...'}
+                            </>
+                          ) : 'Unirme al Futuro'}
                         </Button>
                       </form>
                     </>
                   ) : (
                     <div className="text-center py-8">
                       <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <ArrowRight className="w-8 h-8 text-green-600" />
+                        <CheckCircle2 className="w-8 h-8 text-green-600" />
                       </div>
-                      <h3 className="text-xl font-bold text-neutral-900">¡Suscrito!</h3>
-                      <p className="text-neutral-500 mt-2 text-sm">Te mantendremos informado.</p>
+                      <h3 className="text-xl font-bold text-neutral-900">¡Recibido!</h3>
+                      <p className="text-neutral-500 mt-2 text-sm">
+                        Gracias, Dentaxy es más inteligente hoy gracias a ti.
+                      </p>
+                      <p className="text-xs text-neutral-400 mt-4 bg-neutral-50 p-3 rounded-lg border border-neutral-100">
+                        <span className="font-bold text-neutral-600">Nota de privacidad:</span> Manten esta pestaña abierta unos segundos para asegurar la sincronización P2P con DENTAXY Nexus.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -358,5 +491,3 @@ export default function ShopLogin() {
     </div>
   );
 }
-
-

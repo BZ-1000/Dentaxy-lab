@@ -4,78 +4,90 @@
 
 vite v5.4.14 building for production...
 transforming...
-Browserslist: browsers data (caniuse-lite) is 12 months old. Please run:
-  npx update-browserslist-db@latest
-  Why you should do it regularly: https://github.com/browserslist/update-db#readme
-✓ 34 modules transformed.
+
+warn - The class `ease-[cubic-bezier(0.22,1,0.36,1)]` is ambiguous and matches multiple utilities.
+warn - If this is content and not a class, replace it with `ease-&lsqb;cubic-bezier(0.22,1,0.36,1)&rsqb;` to silence this warning.
+
+/grid.svg referenced in /grid.svg didn't resolve at build time, it will remain unchanged to be resolved at runtime
+
+/noise.png referenced in /noise.png didn't resolve at build time, it will remain unchanged to be resolved at runtime
+[plugin:vite:resolve] [plugin vite:resolve] Module "fs" has been externalized for browser compatibility, imported by "/home/bz1000/Dentaxy-lab/node_modules/@cornerstonejs/codec-libjpeg-turbo-8bit/dist/libjpegturbowasm_decode.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin:vite:resolve] [plugin vite:resolve] Module "path" has been externalized for browser compatibility, imported by "/home/bz1000/Dentaxy-lab/node_modules/@cornerstonejs/codec-libjpeg-turbo-8bit/dist/libjpegturbowasm_decode.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin:vite:resolve] [plugin vite:resolve] Module "fs" has been externalized for browser compatibility, imported by "/home/bz1000/Dentaxy-lab/node_modules/@cornerstonejs/codec-charls/dist/charlswasm_decode.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin:vite:resolve] [plugin vite:resolve] Module "path" has been externalized for browser compatibility, imported by "/home/bz1000/Dentaxy-lab/node_modules/@cornerstonejs/codec-charls/dist/charlswasm_decode.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin:vite:resolve] [plugin vite:resolve] Module "fs" has been externalized for browser compatibility, imported by "/home/bz1000/Dentaxy-lab/node_modules/@cornerstonejs/codec-openjpeg/dist/openjpegwasm_decode.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin:vite:resolve] [plugin vite:resolve] Module "path" has been externalized for browser compatibility, imported by "/home/bz1000/Dentaxy-lab/node_modules/@cornerstonejs/codec-openjpeg/dist/openjpegwasm_decode.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin:vite:resolve] [plugin vite:resolve] Module "fs" has been externalized for browser compatibility, imported by "/home/bz1000/Dentaxy-lab/node_modules/@cornerstonejs/codec-openjph/dist/openjphjs.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+[plugin:vite:resolve] [plugin vite:resolve] Module "path" has been externalized for browser compatibility, imported by "/home/bz1000/Dentaxy-lab/node_modules/@cornerstonejs/codec-openjph/dist/openjphjs.js". See https://vite.dev/guide/troubleshooting.html#module-externalized-for-browser-compatibility for more details.
+✓ 3859 modules transformed.
 
 ✨ [36m[vite-plugin-image-optimizer][39m - optimized images successfully: 
-[2mdist[22m/[94mcursor-new.png[39m                                            [90m[32m-11%[39m[90m   [39m [2m0.45 kB ⭢  0.40 kB[22m
-[2mdist[22m/[94mdentaxy-tooth-icon.png[39m                                    [90m[32m-4%[39m[90m    [39m [2m0.46 kB ⭢  0.44 kB[22m
-[2mdist[22m/[94mextension-card.png[39m                                        [90m[32m-3%[39m[90m    [39m [2m7.95 kB ⭢  7.73 kB[22m
-[2mdist[22m/[94mdentaxy-ai-avatar.png[39m                                     [90m[32m-3%[39m[90m    [39m [2m5.91 kB ⭢  5.74 kB[22m
-[2mdist[22m/[94mdentaxy-icon.png[39m                                          [90m[32m-5%[39m[90m    [39m [2m6.25 kB ⭢  5.94 kB[22m
-[2mdist[22m/[94mdiente.png[39m                                                [90m[32m-3%[39m[90m    [39m [2m5.94 kB ⭢  5.76 kB[22m
-[2mdist[22m/[94mlogos/dentaxy-reference.png[39m                               [90m[32m-5%[39m[90m    [39m [2m5.19 kB ⭢  4.95 kB[22m
-[2mdist[22m/[94mlovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png[39m  [90m[32m-7%[39m[90m    [39m [2m5.94 kB ⭢  5.55 kB[22m
-[2mdist[22m/[94mlovable-uploads/104ede46-15f3-4b38-81a8-fffb97199f2e.png[39m  [90m[32m-1%[39m[90m    [39m [2m3.30 kB ⭢  3.27 kB[22m
-[2mdist[22m/[94mlovable-uploads/47756bd5-fe5d-45cf-bbb4-f61daf4a38cd.png[39m  [90m[32m-28%[39m[90m   [39m [2m15.32 kB ⭢  11.08 kB[22m
-[2mdist[22m/[94mlovable-uploads/653a2835-38e0-465b-b288-e07e2141701c.png[39m  [90m[32m-6%[39m[90m    [39m [2m3.31 kB ⭢  3.13 kB[22m
-[2mdist[22m/[94mlovable-uploads/502dc4c5-337e-4bbe-a9cc-d3b85de7da2b.png[39m  [90m[32m-28%[39m[90m   [39m [2m15.32 kB ⭢  11.08 kB[22m
-[2mdist[22m/[94mlovable-uploads/5636450b-9d56-40a0-b095-dd830e161077.png[39m  [90m[32m-3%[39m[90m    [39m [2m5.94 kB ⭢  5.76 kB[22m
-[2mdist[22m/[94mlovable-uploads/7898fc25-0e62-40e1-a139-6582324afb27.png[39m  [90m[32m-28%[39m[90m   [39m [2m15.32 kB ⭢  11.08 kB[22m
-[2mdist[22m/[94mlovable-uploads/688aaa11-080e-4ce1-ad03-970733b79d54.png[39m  [90m[32m-2%[39m[90m    [39m [2m4.89 kB ⭢  4.83 kB[22m
-[2mdist[22m/[94mlovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png[39m  [90m[32m-28%[39m[90m   [39m [2m15.32 kB ⭢  11.08 kB[22m
+[2mdist[22m/[94mbrand/dentaxy-icon-outline.png[39m                            [90m[32m-4%[39m[90m    [39m [2m5.74 kB ⭢  5.53 kB[22m
+[2mdist[22m/[94mcursor-new.png[39m                                            [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 0.40 kB <= optimized: 0.40 kB[22m
+[2mdist[22m/[94mbrand/dentaxy-icon-solid.png[39m                              [90m[32m-2%[39m[90m    [39m [2m6.54 kB ⭢  6.45 kB[22m
+[2mdist[22m/[94mbrand/dentaxy-icon-outline.webp[39m                           [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 9.47 kB <= optimized: 9.47 kB[22m
+[2mdist[22m/[94mbrand/dentaxy-icon-solid.webp[39m                             [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 9.31 kB <= optimized: 9.31 kB[22m
+[2mdist[22m/[94mdentaxy-tooth-icon.png[39m                                    [90m[32m-3%[39m[90m    [39m [2m0.44 kB ⭢  0.43 kB[22m
+[2mdist[22m/[94mdentaxy-gloves-hero.jpg[39m                                   [90m[31m+121%[39m[90m   [39m [33m[1mskipped[22m[39m [2moriginal: 95.10 kB <= optimized: 210.76 kB[22m
+[2mdist[22m/[94mdentaxy-ai-avatar.png[39m                                     [90m[32m-4%[39m[90m    [39m [2m5.74 kB ⭢  5.53 kB[22m
+[2mdist[22m/[94mdentaxy-icon.png[39m                                          [90m[32m-6%[39m[90m    [39m [2m5.94 kB ⭢  5.59 kB[22m
+[2mdist[22m/[94mdiente.png[39m                                                [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 5.76 kB <= optimized: 5.76 kB[22m
+[2mdist[22m/[94mdentaxy-shop-hero-new.jpg[39m                                 [90m[31m+36%[39m[90m    [39m [33m[1mskipped[22m[39m [2moriginal: 228.76 kB <= optimized: 311.51 kB[22m
+[2mdist[22m/[94mextension-card.png[39m                                        [90m[32m-3%[39m[90m    [39m [2m7.73 kB ⭢  7.53 kB[22m
+[2mdist[22m/[94mlogos/dentaxy-reference.png[39m                               [90m[32m-2%[39m[90m    [39m [2m4.95 kB ⭢  4.88 kB[22m
+[2mdist[22m/[94mdentaxy-shop-hero.jpg[39m                                     [90m[31m+32%[39m[90m    [39m [33m[1mskipped[22m[39m [2moriginal: 273.15 kB <= optimized: 361.07 kB[22m
+[2mdist[22m/[94mlogos/Dentaxy icono sin fondo .webp[39m                       [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 9.39 kB <= optimized: 9.39 kB[22m
+[2mdist[22m/[94mlovable-uploads/104ede46-15f3-4b38-81a8-fffb97199f2e.png[39m  [90m[32m-3%[39m[90m    [39m [2m3.27 kB ⭢  3.18 kB[22m
+[2mdist[22m/[94mlovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png[39m  [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 5.55 kB <= optimized: 5.55 kB[22m
+[2mdist[22m/[94mlovable-uploads/502dc4c5-337e-4bbe-a9cc-d3b85de7da2b.png[39m  [90m[32m-2%[39m[90m    [39m [2m11.08 kB ⭢  10.91 kB[22m
+[2mdist[22m/[94mlovable-uploads/47756bd5-fe5d-45cf-bbb4-f61daf4a38cd.png[39m  [90m[32m-2%[39m[90m    [39m [2m11.08 kB ⭢  10.91 kB[22m
+[2mdist[22m/[94mlovable-uploads/5636450b-9d56-40a0-b095-dd830e161077.png[39m  [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 5.76 kB <= optimized: 5.76 kB[22m
+[2mdist[22m/[94mlovable-uploads/653a2835-38e0-465b-b288-e07e2141701c.png[39m  [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 3.13 kB <= optimized: 3.13 kB[22m
+[2mdist[22m/[94mlovable-uploads/688aaa11-080e-4ce1-ad03-970733b79d54.png[39m  [90m[32m-6%[39m[90m    [39m [2m4.83 kB ⭢  4.57 kB[22m
+[2mdist[22m/[94mlovable-uploads/7898fc25-0e62-40e1-a139-6582324afb27.png[39m  [90m[32m-2%[39m[90m    [39m [2m11.08 kB ⭢  10.91 kB[22m
+[2mdist[22m/[94mdentaxy-shop-hero-3d.png[39m                                  [90m[32m-7%[39m[90m    [39m [2m314.58 kB ⭢  292.61 kB[22m
+[2mdist[22m/[94mlovable-uploads/8d0bcc46-2c73-4647-8420-9aa25c312389.png[39m  [90m[32m-2%[39m[90m    [39m [2m11.08 kB ⭢  10.91 kB[22m
+[2mdist[22m/[94mlovable-uploads/a2b8f3d5-a650-4154-ab5b-6f940d4556b1.png[39m  [90m[32m-3%[39m[90m    [39m [2m3.01 kB ⭢  2.92 kB[22m
 [2mdist[22m/[94mlogos/uao-odontologia.png[39m                                 [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 24.45 kB <= optimized: 24.45 kB[22m
-[2mdist[22m/[94mlovable-uploads/a2b8f3d5-a650-4154-ab5b-6f940d4556b1.png[39m  [90m[32m-1%[39m[90m    [39m [2m3.04 kB ⭢  3.01 kB[22m
-[2mdist[22m/[94mlovable-uploads/6eccb70a-06f2-4cef-8198-bebdf9b928e2.png[39m  [90m[32m-2%[39m[90m    [39m [2m174.42 kB ⭢  171.86 kB[22m
-[2mdist[22m/[94mlovable-uploads/cbccabfc-6598-4a76-afab-7970f12a9fb2.png[39m  [90m[32m-28%[39m[90m   [39m [2m15.32 kB ⭢  11.08 kB[22m
 [2mdist[22m/[94mlovable-uploads/bce5010e-fad1-4148-a895-a1ebb1bd74aa.png[39m  [90m[31m+6%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 12.72 kB <= optimized: 13.57 kB[22m
+[2mdist[22m/[94mlovable-uploads/caf6610c-f882-4ea5-a313-6d48cb3c6ee4.png[39m  [90m[32m-4%[39m[90m    [39m [2m49.37 kB ⭢  47.49 kB[22m
+[2mdist[22m/[94mlovable-uploads/6eccb70a-06f2-4cef-8198-bebdf9b928e2.png[39m  [90m[32m-1%[39m[90m    [39m [2m171.86 kB ⭢  171.20 kB[22m
+[2mdist[22m/[94mlovable-uploads/cbccabfc-6598-4a76-afab-7970f12a9fb2.png[39m  [90m[32m-2%[39m[90m    [39m [2m11.08 kB ⭢  10.91 kB[22m
+[2mdist[22m/[94mlovable-uploads/e8d8ac6c-7648-4a38-b15a-d6470c9f09a7.png[39m  [90m[32m-4%[39m[90m    [39m [2m5.18 kB ⭢  5.02 kB[22m
+[2mdist[22m/[94mlovable-uploads/d122138d-9f75-4331-a81b-fd93b1b2e542.png[39m  [90m[32m-4%[39m[90m    [39m [2m49.37 kB ⭢  47.49 kB[22m
+[2mdist[22m/[94mlovable-uploads/ef8b2c7f-7b50-4455-b253-cd8b3523518b.png[39m  [90m[32m-5%[39m[90m    [39m [2m6.84 kB ⭢  6.51 kB[22m
 [2mdist[22m/[94mlovable-uploads/41476c1b-5cc4-4df4-aaee-20ca4676caa4.png[39m  [90m[31m+1%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 242.32 kB <= optimized: 246.25 kB[22m
-[2mdist[22m/[94mlovable-uploads/e8d8ac6c-7648-4a38-b15a-d6470c9f09a7.png[39m  [90m[32m-1%[39m[90m    [39m [2m5.21 kB ⭢  5.18 kB[22m
-[2mdist[22m/[94mlovable-uploads/caf6610c-f882-4ea5-a313-6d48cb3c6ee4.png[39m  [90m[32m-4%[39m[90m    [39m [2m51.09 kB ⭢  49.37 kB[22m
-[2mdist[22m/[94mlovable-uploads/ef8b2c7f-7b50-4455-b253-cd8b3523518b.png[39m  [90m[32m-3%[39m[90m    [39m [2m7.02 kB ⭢  6.84 kB[22m
-[2mdist[22m/[94mlovable-uploads/d122138d-9f75-4331-a81b-fd93b1b2e542.png[39m  [90m[32m-4%[39m[90m    [39m [2m51.09 kB ⭢  49.37 kB[22m
-[2mdist[22m/[94mlovable-uploads/f3d0d575-258c-44ef-a500-2a819a3d7043.png[39m  [90m[32m-28%[39m[90m   [39m [2m15.32 kB ⭢  11.08 kB[22m
-[2mdist[22m/[94mlovable-uploads/fde8b90b-dc35-4ac3-baf8-f54862d6becb.png[39m  [90m[32m-7%[39m[90m    [39m [2m5.94 kB ⭢  5.55 kB[22m
-[2mdist[22m/[94mog-preview.png[39m                                            [90m[32m-2%[39m[90m    [39m [2m13.04 kB ⭢  12.82 kB[22m
-[2mdist[22m/[94mlovable-uploads/mesocefalo.png[39m                            [90m[32m-10%[39m[90m   [39m [2m262.16 kB ⭢  237.49 kB[22m
+[2mdist[22m/[94mlovable-uploads/f3d0d575-258c-44ef-a500-2a819a3d7043.png[39m  [90m[32m-2%[39m[90m    [39m [2m11.08 kB ⭢  10.91 kB[22m
+[2mdist[22m/[94mlovable-uploads/fde8b90b-dc35-4ac3-baf8-f54862d6becb.png[39m  [90m[32m0%[39m[90m     [39m [33m[1mskipped[22m[39m [2moriginal: 5.55 kB <= optimized: 5.55 kB[22m
+[2mdist[22m/[94mog-preview.png[39m                                            [90m[32m-2%[39m[90m    [39m [2m12.82 kB ⭢  12.63 kB[22m
+[2mdist[22m/[94mlovable-uploads/mesocefalo.png[39m                            [90m[32m-30%[39m[90m   [39m [2m237.49 kB ⭢  167.16 kB[22m
 [2mdist[22m/[94mlovable-uploads/85981ffd-d2f5-4c51-94ab-9a32dcfd49ec.png[39m  [90m[31m+48%[39m[90m    [39m [33m[1mskipped[22m[39m [2moriginal: 167.00 kB <= optimized: 248.75 kB[22m
 
-💰 total savings = [32m58.97kB[39m/[32m720.46kB[39m ≈ [32m8%[39m
+💰 total savings = [32m100.00kB[39m/[32m962.19kB[39m ≈ [32m10%[39m
 
 
 
 🚨 [31m[vite-plugin-image-optimizer][39m - errors during optimization: 
-[2mdist[22m/[94mconcavo.svg[39m        [31mCannot find package 'svgo' imported from /home/bz1000/Dentaxy-lab/node_modules/vite-plugin-image-optimizer/dist/index.js[39m
 [2mdist[22m/[94mbraquicefalo.svg[39m   [31mCannot find package 'svgo' imported from /home/bz1000/Dentaxy-lab/node_modules/vite-plugin-image-optimizer/dist/index.js[39m
 [2mdist[22m/[94mconvexo.svg[39m        [31mCannot find package 'svgo' imported from /home/bz1000/Dentaxy-lab/node_modules/vite-plugin-image-optimizer/dist/index.js[39m
+[2mdist[22m/[94mconcavo.svg[39m        [31mCannot find package 'svgo' imported from /home/bz1000/Dentaxy-lab/node_modules/vite-plugin-image-optimizer/dist/index.js[39m
 [2mdist[22m/[94mdolicocefalo.svg[39m   [31mCannot find package 'svgo' imported from /home/bz1000/Dentaxy-lab/node_modules/vite-plugin-image-optimizer/dist/index.js[39m
-[2mdist[22m/[94mmesocefalo.svg[39m     [31mCannot find package 'svgo' imported from /home/bz1000/Dentaxy-lab/node_modules/vite-plugin-image-optimizer/dist/index.js[39m
 [2mdist[22m/[94mplaceholder.svg[39m    [31mCannot find package 'svgo' imported from /home/bz1000/Dentaxy-lab/node_modules/vite-plugin-image-optimizer/dist/index.js[39m
+[2mdist[22m/[94mmesocefalo.svg[39m     [31mCannot find package 'svgo' imported from /home/bz1000/Dentaxy-lab/node_modules/vite-plugin-image-optimizer/dist/index.js[39m
 [2mdist[22m/[94mrecto.svg[39m          [31mCannot find package 'svgo' imported from /home/bz1000/Dentaxy-lab/node_modules/vite-plugin-image-optimizer/dist/index.js[39m
 
 
-x Build failed in 12.75s
+x Build failed in 1m
 error during build:
-[vite:esbuild] Transform failed with 1 error:
-/home/bz1000/Dentaxy-lab/src/pages/shop/ShopLogin.tsx:303:7: ERROR: Multiple exports with the same name "default"
-file: /home/bz1000/Dentaxy-lab/src/pages/shop/ShopLogin.tsx:303:7
-
-Multiple exports with the same name "default"
-301|  }
-302|  
-303|  export default ShopLogin;
-   |         ^
-304|  
-
-    at failureErrorWithLog (/home/bz1000/Dentaxy-lab/node_modules/vite/node_modules/esbuild/lib/main.js:1472:15)
-    at /home/bz1000/Dentaxy-lab/node_modules/vite/node_modules/esbuild/lib/main.js:755:50
-    at responseCallbacks.<computed> (/home/bz1000/Dentaxy-lab/node_modules/vite/node_modules/esbuild/lib/main.js:622:9)
-    at handleIncomingPacket (/home/bz1000/Dentaxy-lab/node_modules/vite/node_modules/esbuild/lib/main.js:677:12)
-    at Socket.readFromStdout (/home/bz1000/Dentaxy-lab/node_modules/vite/node_modules/esbuild/lib/main.js:600:7)
-    at Socket.emit (node:events:519:28)
-    at addChunk (node:internal/streams/readable:561:12)
-    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
-    at Readable.push (node:internal/streams/readable:392:5)
-    at Pipe.onStreamRead (node:internal/stream_base_commons:189:23)
+[commonjs--resolver] Invalid value "iife" for option "output.format" - UMD and IIFE output formats are not supported for code-splitting builds.
+file: /home/bz1000/Dentaxy-lab/node_modules/@cornerstonejs/dicom-image-loader/dist/esm/init.js
+    at getRollupError (file:///home/bz1000/Dentaxy-lab/node_modules/rollup/dist/es/shared/parseAst.js:397:41)
+    at error (file:///home/bz1000/Dentaxy-lab/node_modules/rollup/dist/es/shared/parseAst.js:393:42)
+    at validateOptionsForMultiChunkOutput (file:///home/bz1000/Dentaxy-lab/node_modules/rollup/dist/es/shared/node-entry.js:20341:16)
+    at Bundle.generate (file:///home/bz1000/Dentaxy-lab/node_modules/rollup/dist/es/shared/node-entry.js:20232:17)
+    at async file:///home/bz1000/Dentaxy-lab/node_modules/rollup/dist/es/shared/node-entry.js:22954:27
+    at async catchUnfinishedHookActions (file:///home/bz1000/Dentaxy-lab/node_modules/rollup/dist/es/shared/node-entry.js:22319:16)
+    at async bundleWorkerEntry (file:///home/bz1000/Dentaxy-lab/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:47633:9)
+    at async workerFileToUrl (file:///home/bz1000/Dentaxy-lab/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:47695:25)
+    at async Object.transform (file:///home/bz1000/Dentaxy-lab/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:48132:26)
+    at async transform (file:///home/bz1000/Dentaxy-lab/node_modules/rollup/dist/es/shared/node-entry.js:20821:16)

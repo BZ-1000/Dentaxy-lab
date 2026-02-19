@@ -1,6 +1,252 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, X, Check } from 'lucide-react';
+
+// ─── Preview: Antecedentes Heredo-Familiares — clonado de FormulariosSection ──
+interface FamiliarState {
+    status: string;
+    condicion?: string;
+}
+
+const HeredoFamiliaresPreview = () => {
+    const [animationStep, setAnimationStep] = useState(0);
+    const [states, setStates] = useState<Record<string, FamiliarState>>({
+        padre: { status: '' },
+        madre: { status: '' },
+        abuelo: { status: '' },
+    });
+    const [isTyping, setIsTyping] = useState(false);
+    const [typedText, setTypedText] = useState('');
+    const [showCondicionInput, setShowCondicionInput] = useState(false);
+    const [condicionText, setCondicionText] = useState('');
+
+    const finalText = 'El Padre está vivo y aparentemente sano. La Madre está viva con diagnóstico de Diabetes mellitus tipo 2 bajo tratamiento médico. El Abuelo Paterno finado, causa desconocida.';
+
+    const familiares = [
+        { key: 'padre', label: 'Padre' },
+        { key: 'madre', label: 'Madre' },
+        { key: 'abuelo', label: 'Abuelo Paterno' },
+    ];
+
+    // Loop continuo (sin isInView — siempre activo en la card)
+    useEffect(() => {
+        let isCancelled = false;
+
+        const reset = () => {
+            setAnimationStep(0);
+            setStates({ padre: { status: '' }, madre: { status: '' }, abuelo: { status: '' } });
+            setIsTyping(false);
+            setTypedText('');
+            setShowCondicionInput(false);
+            setCondicionText('');
+        };
+
+        const runAnimation = async () => {
+            while (!isCancelled) {
+                reset();
+                await new Promise(r => setTimeout(r, 1000));
+
+                // Padre: Vivo y Sano
+                if (isCancelled) return;
+                setAnimationStep(1);
+                await new Promise(r => setTimeout(r, 300));
+                if (isCancelled) return;
+                setStates(prev => ({ ...prev, padre: { status: 'vivoSano' } }));
+
+                // Madre: Condición + typewriting "Diabetes mellitus tipo 2"
+                await new Promise(r => setTimeout(r, 800));
+                if (isCancelled) return;
+                setAnimationStep(2);
+                await new Promise(r => setTimeout(r, 300));
+                if (isCancelled) return;
+                setStates(prev => ({ ...prev, madre: { status: 'condicion' } }));
+                await new Promise(r => setTimeout(r, 400));
+                if (isCancelled) return;
+                setShowCondicionInput(true);
+                const condition = 'Diabetes mellitus tipo 2';
+                for (let i = 0; i <= condition.length; i++) {
+                    if (isCancelled) return;
+                    await new Promise(r => setTimeout(r, 50));
+                    setCondicionText(condition.slice(0, i));
+                }
+                if (isCancelled) return;
+                setStates(prev => ({ ...prev, madre: { status: 'condicion', condicion: condition } }));
+
+                // Abuelo: Finado
+                await new Promise(r => setTimeout(r, 800));
+                if (isCancelled) return;
+                setAnimationStep(3);
+                await new Promise(r => setTimeout(r, 300));
+                if (isCancelled) return;
+                setStates(prev => ({ ...prev, abuelo: { status: 'finado' } }));
+
+                // Botón Generar
+                await new Promise(r => setTimeout(r, 600));
+                if (isCancelled) return;
+                setAnimationStep(4);
+
+                // Typewriting del texto generado
+                await new Promise(r => setTimeout(r, 400));
+                if (isCancelled) return;
+                setIsTyping(true);
+                for (let i = 0; i <= finalText.length; i++) {
+                    if (isCancelled) return;
+                    await new Promise(r => setTimeout(r, 22));
+                    setTypedText(finalText.slice(0, i));
+                }
+
+                // Pausa antes de reiniciar
+                await new Promise(r => setTimeout(r, 3000));
+            }
+        };
+
+        const timeout = setTimeout(runAnimation, 600);
+        return () => {
+            isCancelled = true;
+            clearTimeout(timeout);
+        };
+    }, []);
+
+    return (
+        <div className="w-full h-full overflow-y-auto flex items-start justify-center p-2">
+            <div className="bg-card border border-border rounded-xl p-3 shadow-lg w-full">
+                {/* Barra de ventana */}
+                <div className="flex items-center gap-1.5 mb-3">
+                    <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-green-500" />
+                    <span className="ml-2 text-[10px] text-muted-foreground truncate">Antecedentes Heredo-Familiares</span>
+                </div>
+
+                {/* Familiares */}
+                <div className="space-y-2 mb-3">
+                    {familiares.map((fam, i) => {
+                        const state = states[fam.key as keyof typeof states];
+                        const isCurrentStep = animationStep === i + 1;
+                        return (
+                            <motion.div key={fam.key} className="flex flex-col gap-1">
+                                <span className="text-[11px] font-medium text-foreground">{fam.label}</span>
+                                <div className="flex flex-wrap gap-1">
+                                    <motion.button
+                                        animate={isCurrentStep && fam.key === 'padre'
+                                            ? { scale: [1, 0.95, 1], boxShadow: '0 0 0 3px rgba(16,185,129,0.3)' }
+                                            : {}}
+                                        className={`px-2 py-1 rounded-full text-[10px] font-medium border transition-all ${state.status === 'vivoSano'
+                                            ? 'bg-emerald-500 text-white border-emerald-500'
+                                            : 'bg-background text-muted-foreground border-border'}`}
+                                    >
+                                        Vivo y Sano
+                                    </motion.button>
+                                    <motion.button
+                                        animate={isCurrentStep && fam.key === 'madre'
+                                            ? { scale: [1, 0.95, 1], boxShadow: '0 0 0 3px rgba(59,130,246,0.3)' }
+                                            : {}}
+                                        className={`px-2 py-1 rounded-full text-[10px] font-medium border transition-all ${state.status === 'condicion'
+                                            ? 'bg-blue-500 text-white border-blue-500'
+                                            : 'bg-background text-muted-foreground border-border'}`}
+                                    >
+                                        Condición
+                                    </motion.button>
+                                    <motion.button
+                                        animate={isCurrentStep && fam.key === 'abuelo'
+                                            ? { scale: [1, 0.95, 1], boxShadow: '0 0 0 3px rgba(239,68,68,0.3)' }
+                                            : {}}
+                                        className={`px-2 py-1 rounded-full text-[10px] font-medium border transition-all ${state.status === 'finado'
+                                            ? 'bg-red-500 text-white border-red-500'
+                                            : 'bg-background text-muted-foreground border-border'}`}
+                                    >
+                                        Finado
+                                    </motion.button>
+                                </div>
+
+                                {/* Input de condición (Madre) con typewriting */}
+                                {fam.key === 'madre' && showCondicionInput && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        className="mt-0.5"
+                                    >
+                                        <div className="px-2 py-1 rounded-lg bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-[10px] text-blue-700 dark:text-blue-300">
+                                            {condicionText}
+                                            {condicionText.length < 'Diabetes mellitus tipo 2'.length && (
+                                                <motion.span
+                                                    animate={{ opacity: [1, 0] }}
+                                                    transition={{ repeat: Infinity, duration: 0.5 }}
+                                                    className="inline-block w-0.5 h-3 bg-blue-500 ml-0.5 align-middle"
+                                                />
+                                            )}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </motion.div>
+                        );
+                    })}
+                </div>
+
+                {/* Botón Generar */}
+                <motion.button
+                    animate={animationStep === 4
+                        ? { scale: [1, 0.95, 1], backgroundColor: 'hsl(var(--primary))' }
+                        : {}}
+                    transition={{ duration: 0.2 }}
+                    className={`w-full py-2 rounded-lg text-[11px] font-medium flex items-center justify-center gap-1.5 transition-all ${animationStep >= 4
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-muted-foreground'}`}
+                >
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                    </svg>
+                    Generar Redacción IA
+                </motion.button>
+
+                {/* Texto generado con typewriting */}
+                <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={isTyping ? { opacity: 1, height: 'auto' } : { opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="mt-2 p-2 bg-primary/5 rounded-lg border border-primary/20 overflow-hidden"
+                >
+                    <p className="text-[10px] text-muted-foreground italic min-h-[36px]">
+                        "{typedText}
+                        {isTyping && typedText.length < finalText.length && (
+                            <motion.span
+                                animate={{ opacity: [1, 0] }}
+                                transition={{ repeat: Infinity, duration: 0.5 }}
+                                className="inline-block w-0.5 h-3 bg-primary ml-0.5 align-middle"
+                            />
+                        )}
+                        "
+                    </p>
+                </motion.div>
+            </div>
+        </div>
+    );
+};
+
+// ─── Preview: Video DICOM en loop ─────────────────────────────────────────────
+const DicomVideoPreview = () => {
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    return (
+        <div className="w-full h-full relative overflow-hidden rounded-xl">
+            <video
+                ref={videoRef}
+                src="/brand/Animacion de radiografias preview.webm"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-full object-cover"
+                style={{ filter: 'brightness(0.95) contrast(1.05)' }}
+            />
+            <div className="absolute inset-0 pointer-events-none rounded-xl"
+                style={{ boxShadow: 'inset 0 0 30px rgba(0,0,0,0.3)' }}
+            />
+        </div>
+    );
+};
+
+
 
 interface ModuleInfo {
     whatItDemonstrates: string;
@@ -59,21 +305,39 @@ export function SchemaHubCard({
                         ${isExpanded ? 'w-16 h-16 flex-shrink-0' : 'w-full h-48'}`}
                         onClick={onExplore}
                         style={{
-                            background: `linear-gradient(135deg, rgba(${color},0.1), rgba(${color},0.05), transparent)`,
+                            background: title === 'DICOM'
+                                ? 'transparent'
+                                : `linear-gradient(135deg, rgba(${color},0.1), rgba(${color},0.05), transparent)`,
                             borderColor: `rgba(${color}, 0.2)`,
                             borderWidth: '1px'
                         }}
                     >
-                        {/* Animated grid background */}
-                        <div className="absolute inset-0 opacity-30">
-                            <div
-                                className="w-full h-full animate-pulse transition-opacity duration-1000"
-                                style={{
-                                    backgroundImage: `linear-gradient(90deg, rgba(${color},0.3) 1px, transparent 1px), linear-gradient(rgba(${color},0.3) 1px, transparent 1px)`,
-                                    backgroundSize: '15px 15px'
-                                }}
-                            />
-                        </div>
+                        {/* Animated grid background — solo si NO es DICOM */}
+                        {title !== 'DICOM' && (
+                            <div className="absolute inset-0 opacity-30">
+                                <div
+                                    className="w-full h-full animate-pulse transition-opacity duration-1000"
+                                    style={{
+                                        backgroundImage: `linear-gradient(90deg, rgba(${color},0.3) 1px, transparent 1px), linear-gradient(rgba(${color},0.3) 1px, transparent 1px)`,
+                                        backgroundSize: '15px 15px'
+                                    }}
+                                />
+                            </div>
+                        )}
+
+                        {/* Preview DENTAXY AI: Animación Heredo-Familiares */}
+                        {title === 'DENTAXY AI' && !isExpanded && (
+                            <div className="absolute inset-0 z-10">
+                                <HeredoFamiliaresPreview />
+                            </div>
+                        )}
+
+                        {/* Preview DICOM: Video en loop */}
+                        {title === 'DICOM' && !isExpanded && (
+                            <div className="absolute inset-0 z-10">
+                                <DicomVideoPreview />
+                            </div>
+                        )}
                     </div>
 
                     {/* Expanded Header Content */}

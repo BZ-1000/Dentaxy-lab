@@ -43,7 +43,7 @@ import StudentModule from './pages/admin/StudentModule';
 import ModulesManager from './pages/admin/ModulesManager';
 import AuditLogs from './pages/admin/AuditLogs';
 import Settings from './pages/admin/Settings';
-import AdminUsers from './pages/admin/Users';
+import AdminNexusIntel from './pages/admin/NexusIntel';
 
 // Shop (Tienda privada)
 import ShopLogin from './pages/shop/ShopLogin';
@@ -112,7 +112,7 @@ function App() {
                   <Route path="/admin" element={<AdminLoginPage />} />
                   <Route path="/admin/*" element={<AdminLayout />}>
                     <Route path="dashboard" element={<AdminDashboard />} />
-                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="nexus-intel" element={<AdminNexusIntel />} />
                     <Route path="ecosystem" element={<Ecosystem />} />
                     <Route path="demos" element={<DemoControl />} />
                     <Route path="security" element={<Security />} />
