@@ -314,7 +314,7 @@ export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) 
                         isFreeAccess && "bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/20"
                     )}
                     onClick={handleFreeAccessClick}
-                    disabled={!isActive || isSavingFreeAccess}
+                    disabled={!module.is_enabled || isMaintenance || isSavingFreeAccess}
                 >
                     <div className="flex items-center justify-center gap-2">
                         {isFreeAccess ? (

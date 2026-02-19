@@ -1,15 +1,28 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DemoAlertListener } from '@/components/demos/DemoAlertListener';
-import { ArrowLeft, Building2 } from 'lucide-react';
+import { ArrowLeft, Building2, Loader2 } from 'lucide-react';
+import { useDemoGuard } from '@/hooks/useDemoGuard';
 
 /**
  * Demo ENTERPRISE - Arquitectura Clínica
  * 
  * Placeholder para el módulo Enterprise de arquitectura clínica multi-entorno.
+ * Protegido por useDemoGuard.
  */
 export const EnterpriseDemo: React.FC = () => {
     const navigate = useNavigate();
+    const { isAllowed, isLoading: isGuardLoading } = useDemoGuard('enterprise');
+
+    if (isGuardLoading) {
+        return (
+            <div className="h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-black to-zinc-950">
+                <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
+            </div>
+        );
+    }
+
+    if (!isAllowed) return null;
 
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-black to-zinc-950">

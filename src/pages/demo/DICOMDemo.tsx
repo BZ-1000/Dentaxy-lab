@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { DicomViewport } from '@/modules/dicom/components/DicomViewport';
 import { DicomToolbar } from '@/modules/dicom/components/DicomToolbar';
 import { DynamicControlPanel } from '@/modules/dicom/viewer/DynamicControlPanel';
@@ -8,11 +8,13 @@ import { DicomErrorBoundary } from '@/modules/dicom/components/DicomErrorBoundar
 import { StudyList } from '@/modules/dicom/components/StudyList';
 import { ToolGroupManager, Enums as csToolsEnums } from '@cornerstonejs/tools';
 import { initCornerstone } from '@/modules/dicom/services/cornerstone';
+import { useDemoGuard } from '@/hooks/useDemoGuard';
 
 /**
  * Demo DICOM - Visualización Médica (v1)
  * 
  * Implementación modular de CornerstoneJS.
+ * Protegido por useDemoGuard: verifica token de sesión o libre acceso en Supabase.
  */
 import { ToolController } from '@/modules/dicom/viewer/ToolController';
 import { useToolState } from '@/modules/dicom/viewer/ToolState';
@@ -22,12 +24,25 @@ import { ToolNames } from '@/modules/dicom/viewer/ToolRegistry';
 
 export const DICOMDemo: React.FC = () => {
     const navigate = useNavigate();
+    const { isAllowed, isLoading: isGuardLoading, isFreeAccess, accessMessage } = useDemoGuard('dicom');
     const toolGroupId = 'myToolGroup';
     const { activeTool, setActiveTool } = useToolState(); // Use global state
     const [loadedImageId, setLoadedImageId] = useState<string | null>(null);
 
     const [view, setView] = useState<'list' | 'viewer'>('list');
     const [selectedStudy, setSelectedStudy] = useState<any>(null);
+
+    // Mostrar spinner mientras verifica acceso
+    if (isGuardLoading) {
+        return (
+            <div className="h-screen flex items-center justify-center bg-black">
+                <Loader2 className="h-8 w-8 animate-spin text-violet-400" />
+            </div>
+        );
+    }
+
+    // Si no tiene acceso, useDemoGuard ya redirigió — no renderizar nada
+    if (!isAllowed) return null;
 
     // Initial setup handled by DicomViewport, but we can set default tool here if needed
     // or rely on default state in ToolState

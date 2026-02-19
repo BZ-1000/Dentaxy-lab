@@ -1,15 +1,28 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DemoAlertListener } from '@/components/demos/DemoAlertListener';
-import { ArrowLeft, Hand, Shield } from 'lucide-react';
+import { ArrowLeft, Hand, Shield, Loader2 } from 'lucide-react';
+import { useDemoGuard } from '@/hooks/useDemoGuard';
 
 /**
  * Demo STARK - Proyecto Clasificado
  * 
  * Placeholder para el Proyecto STARK (acceso restringido).
+ * Protegido por useDemoGuard.
  */
 export const StarkDemo: React.FC = () => {
     const navigate = useNavigate();
+    const { isAllowed, isLoading: isGuardLoading } = useDemoGuard('proyecto_stark');
+
+    if (isGuardLoading) {
+        return (
+            <div className="h-screen flex items-center justify-center bg-gradient-to-br from-red-950 via-black to-rose-950">
+                <Loader2 className="h-8 w-8 animate-spin text-red-400" />
+            </div>
+        );
+    }
+
+    if (!isAllowed) return null;
 
     return (
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-red-950 via-black to-rose-950">
