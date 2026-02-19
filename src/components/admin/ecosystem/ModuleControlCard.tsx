@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Hexagon,
     Globe,
@@ -12,7 +12,9 @@ import {
     Clock,
     Database as DatabaseIcon,
     Hand,
-    Box
+    Box,
+    MessageSquare,
+    Sparkles,
 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleModule, setMaintenanceMode } from '@/lib/admin-api';
@@ -39,20 +41,22 @@ import type { Database } from '@/integrations/supabase/types';
 
 type Module = Database['public']['Tables']['dentaxy_modules']['Row'] & {
     free_access?: boolean;
+    access_message?: string | null;
 };
 
 interface ModuleControlCardProps {
     module: Module;
 }
 
-const MODULE_CONFIG: Record<string, { label: string; desc: string; icon: any; color: string; bg: string; border: string }> = {
+const MODULE_CONFIG: Record<string, { label: string; desc: string; icon: any; color: string; bg: string; border: string; accent: string }> = {
     'motor_neuronal': {
         label: 'DENTAXY AI',
         desc: 'Motor Neuronal',
         icon: Hexagon,
         color: 'text-emerald-600',
         bg: 'bg-emerald-50',
-        border: 'border-emerald-200'
+        border: 'border-emerald-200',
+        accent: '#10B981'
     },
     'dicom': {
         label: 'DICOM',
@@ -60,7 +64,8 @@ const MODULE_CONFIG: Record<string, { label: string; desc: string; icon: any; co
         icon: Box,
         color: 'text-violet-600',
         bg: 'bg-violet-50',
-        border: 'border-violet-200'
+        border: 'border-violet-200',
+        accent: '#8B5CF6'
     },
     'academico': {
         label: 'DENTAXY UNIVERSIDADES',
@@ -68,7 +73,8 @@ const MODULE_CONFIG: Record<string, { label: string; desc: string; icon: any; co
         icon: DatabaseIcon,
         color: 'text-blue-600',
         bg: 'bg-blue-50',
-        border: 'border-blue-200'
+        border: 'border-blue-200',
+        accent: '#00A3FF'
     },
     'enterprise': {
         label: 'DENTAXY ENTERPRISE',
@@ -76,7 +82,8 @@ const MODULE_CONFIG: Record<string, { label: string; desc: string; icon: any; co
         icon: Globe,
         color: 'text-slate-600',
         bg: 'bg-slate-50',
-        border: 'border-slate-200'
+        border: 'border-slate-200',
+        accent: '#94A3B8'
     },
     'proyecto_stark': {
         label: 'PROYECTO STARK',
@@ -84,18 +91,24 @@ const MODULE_CONFIG: Record<string, { label: string; desc: string; icon: any; co
         icon: Hand,
         color: 'text-red-600',
         bg: 'bg-red-50',
-        border: 'border-red-200'
+        border: 'border-red-200',
+        accent: '#EF4444'
     },
-    // Fallbacks para legacy names
-    'shop': { label: 'SHOP', desc: 'Shop Module', icon: Globe, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200' },
-    'seed': { label: 'SEED', desc: 'Seed Module', icon: DatabaseIcon, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
-    'visualizacion_3d': { label: 'VIZ 3D', desc: 'Legacy', icon: Activity, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-200' },
-    'default': { label: 'MODULE', desc: 'System Module', icon: Server, color: 'text-zinc-600', bg: 'bg-zinc-50', border: 'border-zinc-200' }
+    // Fallbacks
+    'shop': { label: 'SHOP', desc: 'Shop Module', icon: Globe, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', accent: '#6B7280' },
+    'seed': { label: 'SEED', desc: 'Seed Module', icon: DatabaseIcon, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', accent: '#3B82F6' },
+    'default': { label: 'MODULE', desc: 'System Module', icon: Server, color: 'text-zinc-600', bg: 'bg-zinc-50', border: 'border-zinc-200', accent: '#71717A' }
 };
+
+// Presets de mensajes rápidos para libre acceso
+const MESSAGE_PRESETS = [
+    'Libre acceso por fase beta — UAO Zacatecas',
+    'Demo abierto para clínica colaboradora',
+    'Acceso VIP para evaluación académica',
+];
 
 export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) => {
     const config = MODULE_CONFIG[module.name] || MODULE_CONFIG['default'];
-    // Override display name if we have a config for it, otherwise use DB or fallback
     const displayName = MODULE_CONFIG[module.name] ? config.label : (module.display_name || config.label);
     const description = MODULE_CONFIG[module.name] ? config.desc : (module.description || config.desc);
     const Icon = config.icon;
@@ -103,9 +116,20 @@ export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) 
     const queryClient = useQueryClient();
     const [maintenanceReason, setMaintenanceReason] = useState('');
     const [maintenanceDuration, setMaintenanceDuration] = useState('60');
-    const [isFreeAccess, setIsFreeAccess] = useState(module.free_access || false);
 
-    // Mutation para Toggle (Activar/Desactivar)
+    // --- Estado de libre acceso (sincronizado con la prop del módulo) ---
+    const [isFreeAccess, setIsFreeAccess] = useState(module.free_access ?? false);
+    const [accessMessage, setAccessMessage] = useState(module.access_message ?? '');
+    const [isFreeAccessDialogOpen, setIsFreeAccessDialogOpen] = useState(false);
+    const [isSavingFreeAccess, setIsSavingFreeAccess] = useState(false);
+
+    // Sincronizar cuando la prop del módulo cambia (vía realtime)
+    useEffect(() => {
+        setIsFreeAccess(module.free_access ?? false);
+        setAccessMessage(module.access_message ?? '');
+    }, [module.free_access, module.access_message]);
+
+    // Mutation para Toggle (Activar/Desactivar módulo)
     const toggleMutation = useMutation({
         mutationFn: toggleModule,
         onSuccess: (data) => {
@@ -160,27 +184,45 @@ export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) 
         });
     };
 
-    // Handler para toggle de Libre Acceso
-    const handleFreeAccessToggle = async () => {
+    // Handler principal para guardar libre acceso con mensaje
+    const handleSaveFreeAccess = async (newFreeAccess: boolean) => {
+        setIsSavingFreeAccess(true);
         try {
-            const newValue = !isFreeAccess;
             const { error } = await supabase
                 .from('dentaxy_modules')
-                .update({ free_access: newValue })
+                .update({
+                    free_access: newFreeAccess,
+                    access_message: newFreeAccess ? (accessMessage || null) : null,
+                })
                 .eq('id', module.id);
 
             if (error) throw error;
 
-            setIsFreeAccess(newValue);
+            setIsFreeAccess(newFreeAccess);
             queryClient.invalidateQueries({ queryKey: ['dentaxy_modules'] });
+            setIsFreeAccessDialogOpen(false);
+
             toast.success(
-                newValue
-                    ? `✅ Libre acceso activado para ${displayName}`
+                newFreeAccess
+                    ? `🔓 Libre acceso activado para ${displayName}`
                     : `🔒 Libre acceso desactivado para ${displayName}`
             );
         } catch (error) {
             console.error('Error toggling free access:', error);
             toast.error('Error al cambiar el modo de acceso');
+        } finally {
+            setIsSavingFreeAccess(false);
+        }
+    };
+
+    // Si ya tiene libre acceso, revocarlo directamente (sin dialog)
+    const handleFreeAccessClick = () => {
+        if (isFreeAccess) {
+            // Revocar directamente
+            handleSaveFreeAccess(false);
+        } else {
+            // Abrir dialog para configurar mensaje
+            setIsFreeAccessDialogOpen(true);
         }
     };
 
@@ -191,7 +233,7 @@ export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) 
         <div className={cn(
             "group relative overflow-hidden rounded-[2rem] border p-6 transition-all",
             isActive
-                ? `bg-white hover:shadow-lg ${config.border} border-${config.border.split('-')[0]}-100`
+                ? `bg-white hover:shadow-lg border-zinc-100`
                 : isMaintenance
                     ? "border-amber-200 bg-amber-50/50"
                     : "border-zinc-200 bg-zinc-50 opacity-90"
@@ -224,7 +266,17 @@ export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) 
                 <p className="text-sm font-medium text-zinc-400">{description}</p>
             </div>
 
-            {/* Métricas Rápidas (Simuladas por ahora, conectar luego) */}
+            {/* Indicador de libre acceso activo */}
+            {isFreeAccess && module.access_message && (
+                <div className="mt-3 mb-1 flex items-start gap-2 p-2 rounded-xl bg-emerald-50 border border-emerald-100">
+                    <MessageSquare className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-emerald-700 leading-snug line-clamp-2">
+                        {module.access_message}
+                    </p>
+                </div>
+            )}
+
+            {/* Métricas */}
             <div className="mt-6 flex items-center gap-4 border-t border-dashed border-zinc-200 pt-4">
                 <div className="flex flex-col">
                     <span className="text-[10px] font-bold uppercase text-zinc-400">Uptime</span>
@@ -232,12 +284,22 @@ export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) 
                 </div>
                 <div className="h-8 w-px bg-zinc-100" />
                 <div className="flex flex-col">
-                    <span className="text-[10px] font-bold uppercase text-zinc-400">Latency</span>
+                    <span className="text-[10px] font-bold uppercase text-zinc-400">Acceso</span>
                     <span className={cn(
                         "font-mono text-sm font-bold",
-                        isMaintenance ? "text-amber-600" : "text-emerald-600"
+                        isFreeAccess ? "text-emerald-600" : "text-zinc-500"
                     )}>
-                        {Math.floor(Math.random() * 50 + 20)}ms
+                        {isFreeAccess ? 'Libre' : 'Token'}
+                    </span>
+                </div>
+                <div className="h-8 w-px bg-zinc-100" />
+                <div className="flex flex-col">
+                    <span className="text-[10px] font-bold uppercase text-zinc-400">Estado</span>
+                    <span className={cn(
+                        "font-mono text-sm font-bold",
+                        isMaintenance ? "text-amber-600" : isActive ? "text-emerald-600" : "text-zinc-400"
+                    )}>
+                        {isMaintenance ? 'Maint.' : isActive ? 'Online' : 'Offline'}
                     </span>
                 </div>
             </div>
@@ -251,8 +313,8 @@ export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) 
                         "w-full font-medium transition-all",
                         isFreeAccess && "bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:from-emerald-600 hover:to-teal-600 shadow-lg shadow-emerald-500/20"
                     )}
-                    onClick={handleFreeAccessToggle}
-                    disabled={!isActive}
+                    onClick={handleFreeAccessClick}
+                    disabled={!isActive || isSavingFreeAccess}
                 >
                     <div className="flex items-center justify-center gap-2">
                         {isFreeAccess ? (
@@ -260,7 +322,7 @@ export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) 
                                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
                                 </svg>
-                                <span>🔓 Libre Acceso</span>
+                                <span>🔓 Libre Acceso — Click para cerrar</span>
                             </>
                         ) : (
                             <>
@@ -306,7 +368,7 @@ export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) 
                             <DialogHeader>
                                 <DialogTitle>Modo Mantenimiento: {module.display_name}</DialogTitle>
                                 <DialogDescription>
-                                    Configura el estado de mantenimiento para este módulo. Esto restringirá el acceso a los usuarios.
+                                    Esto restringirá el acceso a los usuarios durante el mantenimiento.
                                 </DialogDescription>
                             </DialogHeader>
 
@@ -368,8 +430,95 @@ export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) 
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
-                </div> {/* Cierre del flex gap-2 de botones */}
-            </div> {/* Cierre del space-y-3 de acciones */}
+                </div>
+            </div>
+
+            {/* ====== Dialog de Libre Acceso + Mensaje ====== */}
+            <Dialog open={isFreeAccessDialogOpen} onOpenChange={setIsFreeAccessDialogOpen}>
+                <DialogContent className="sm:max-w-[480px]">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <span
+                                className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-sm"
+                                style={{ background: config.accent }}
+                            >
+                                🔓
+                            </span>
+                            Activar Libre Acceso — {displayName}
+                        </DialogTitle>
+                        <DialogDescription>
+                            Al activar el libre acceso, cualquier visitante podrá entrar al demo sin necesitar un token.
+                            Puedes incluir un mensaje personalizado que verán al entrar.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid gap-5 py-4">
+                        {/* Textarea de mensaje */}
+                        <div className="grid gap-2">
+                            <Label htmlFor="access-message" className="flex items-center gap-2">
+                                <MessageSquare className="w-4 h-4 text-emerald-500" />
+                                Mensaje de Notificación
+                                <span className="text-zinc-400 text-xs font-normal">(opcional)</span>
+                            </Label>
+                            <Textarea
+                                id="access-message"
+                                placeholder="Libre acceso por fase beta de la Unidad Académica de Odontología"
+                                value={accessMessage}
+                                onChange={(e) => setAccessMessage(e.target.value)}
+                                className="min-h-[80px] resize-none"
+                            />
+                            <p className="text-xs text-zinc-400">
+                                Este mensaje es visible para todos los que entren al demo mientras el libre acceso esté activo.
+                            </p>
+                        </div>
+
+                        {/* Presets rápidos */}
+                        <div className="space-y-2">
+                            <Label className="flex items-center gap-2 text-xs text-zinc-500 uppercase tracking-wider">
+                                <Sparkles className="w-3 h-3" />
+                                Mensajes Predefinidos
+                            </Label>
+                            <div className="flex flex-wrap gap-2">
+                                {MESSAGE_PRESETS.map((preset) => (
+                                    <button
+                                        key={preset}
+                                        type="button"
+                                        onClick={() => setAccessMessage(preset)}
+                                        className={cn(
+                                            "text-xs px-3 py-1.5 rounded-full border transition-all",
+                                            accessMessage === preset
+                                                ? "border-emerald-400 bg-emerald-50 text-emerald-700"
+                                                : "border-zinc-200 text-zinc-500 hover:border-zinc-300 hover:text-zinc-700"
+                                        )}
+                                    >
+                                        {preset}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <DialogFooter className="gap-2">
+                        <DialogClose asChild>
+                            <Button variant="outline">Cancelar</Button>
+                        </DialogClose>
+                        <Button
+                            onClick={() => handleSaveFreeAccess(true)}
+                            disabled={isSavingFreeAccess}
+                            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold shadow-lg shadow-emerald-500/20"
+                        >
+                            {isSavingFreeAccess ? (
+                                <>
+                                    <span className="animate-spin mr-2">⟳</span>
+                                    Activando...
+                                </>
+                            ) : (
+                                '✅ Activar Libre Acceso'
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

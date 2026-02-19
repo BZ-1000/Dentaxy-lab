@@ -15,6 +15,7 @@ const modules = [
     gradient: "from-emerald-500 to-teal-400",
     accentColor: "#10B981",
     isActive: true,
+    hubModule: "motor_neuronal",  // Nombre en Supabase / Hub
     route: "/demo/ai",
     features: [
       "Narrativa clínica profesional",
@@ -33,6 +34,7 @@ const modules = [
     gradient: "from-violet-500 to-purple-400",
     accentColor: "#8B5CF6",
     isActive: false,
+    hubModule: "dicom",
     features: [
       "Visualizador DICOM nativo en navegador",
       "Herramientas de precisión diagnóstica",
@@ -50,6 +52,7 @@ const modules = [
     gradient: "from-sky-500 to-cyan-400",
     accentColor: "#00A3FF",
     isActive: false,
+    hubModule: "academico",
     features: [
       "Clínicas universitarias conectadas",
       "Operación geolocalizada",
@@ -67,6 +70,7 @@ const modules = [
     gradient: "from-slate-400 to-slate-200",
     accentColor: "#FFFFFF",
     isActive: false,
+    hubModule: "enterprise",
     features: [
       "Arquitectura multi-entorno",
       "Flujos clínicos continuos",
@@ -85,6 +89,7 @@ const modules = [
     accentColor: "#FF2A2A",
     isActive: false,
     isSecret: true,
+    hubModule: "proyecto_stark",
     features: [],
     description: "",
   },
@@ -97,8 +102,9 @@ export const ModulosSection = () => {
 
   const handleCTAClick = (mod: typeof modules[0], e: React.MouseEvent) => {
     e.stopPropagation();
-    if (mod.isActive && mod.route) {
-      navigate(mod.route);
+    // Siempre navegar al Hub en la card correspondiente
+    if (mod.hubModule) {
+      navigate(`/modules?module=${mod.hubModule}`);
     } else {
       toast.info("🚧 En Desarrollo", {
         description: `${mod.title} estará disponible próximamente.`,

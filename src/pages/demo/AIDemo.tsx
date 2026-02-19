@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnalysisModeProvider } from '@/contexts/AnalysisModeContext';
 import { DentaxyFormPanel } from '@/components/academico/DentaxyFormPanel';
@@ -17,22 +17,7 @@ export const AIDemo: React.FC = () => {
     const navigate = useNavigate();
     const { fullName, expiresAt } = useDemoSession();
 
-    const [sesionValida, setSesionValida] = useState<boolean | null>(null);
     const [tiempoRestante, setTiempoRestante] = useState<string>('--:--');
-
-    useEffect(() => {
-        const verificar = async () => {
-            const token = sessionStorage.getItem('demo_session_token');
-
-            if (!token) {
-                setSesionValida(false);
-                return;
-            }
-
-            setSesionValida(true);
-        };
-        verificar();
-    }, []);
 
     useEffect(() => {
         if (!expiresAt) return;
@@ -60,24 +45,6 @@ export const AIDemo: React.FC = () => {
     const isLowTime = tiempoRestante !== '--:--' &&
         tiempoRestante !== '00:00' &&
         parseInt(tiempoRestante.split(':')[0]) < 5;
-
-    // Loading state
-    if (sesionValida === null) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="h-8 w-8 text-emerald-500 animate-spin" />
-                    <p className="text-sm text-muted-foreground">Iniciando DENTAXY AI...</p>
-                </div>
-            </div>
-        );
-    }
-
-    // Invalid session
-    if (!sesionValida) {
-        navigate('/modules');
-        return null;
-    }
 
     return (
         <AnalysisModeProvider>

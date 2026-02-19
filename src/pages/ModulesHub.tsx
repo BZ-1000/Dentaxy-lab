@@ -616,12 +616,13 @@ export default function ModulesHub() {
               return;
             }
 
-            // Safe to update state
+            // Safe to update state (incluyendo free_access para control de acceso)
             setModulesState((prev) => ({
               ...prev,
               [updated.name]: {
                 is_enabled: updated.is_enabled,
                 status: updated.status,
+                free_access: updated.free_access ?? false,
               },
             }));
           } catch (error) {
@@ -667,6 +668,22 @@ export default function ModulesHub() {
       }, 1000);
 
       return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
+
+  // Navegar directo a la card del módulo desde la landing (?module=nombre)
+  useEffect(() => {
+    const moduleParam = searchParams.get('module');
+    if (moduleParam) {
+      const moduleIndex = modulesConfig.findIndex((m) => m.name === moduleParam);
+      if (moduleIndex !== -1) {
+        setShowSplash(false);
+        setShowHub(true);
+        setActiveModuleIndex(moduleIndex);
+      }
+      // Limpiar el query param
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
     }
   }, [searchParams]);
 

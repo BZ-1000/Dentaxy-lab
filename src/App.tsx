@@ -58,6 +58,7 @@ import AIDemo from './pages/demo/AIDemo';
 import DICOMDemo from './pages/demo/DICOMDemo';
 import EnterpriseDemo from './pages/demo/EnterpriseDemo';
 import StarkDemo from './pages/demo/StarkDemo';
+import { DemoGuard } from './components/demos/DemoGuard';
 
 // Dentaxy Core
 import CorePage from './app/core/page';
@@ -142,11 +143,11 @@ function App() {
                   <Route path="/academico" element={<AcademicoDemo />} />
                   <Route path="/academico/:clinicaId" element={<ClinicaView />} />
 
-                  {/* Demo DENTAXY AI */}
-                  <Route path="/demo/ai" element={<AIDemo />} />
-                  <Route path="/demo/dicom" element={<DICOMDemo />} />
-                  <Route path="/enterprise" element={<EnterpriseDemo />} />
-                  <Route path="/stark" element={<StarkDemo />} />
+                  {/* Demo DENTAXY AI — Protegidos por DemoGuard */}
+                  <Route path="/demo/ai" element={<DemoGuard moduleName="motor_neuronal"><AIDemo /></DemoGuard>} />
+                  <Route path="/demo/dicom" element={<DemoGuard moduleName="dicom"><DICOMDemo /></DemoGuard>} />
+                  <Route path="/enterprise" element={<DemoGuard moduleName="enterprise"><EnterpriseDemo /></DemoGuard>} />
+                  <Route path="/stark" element={<DemoGuard moduleName="proyecto_stark"><StarkDemo /></DemoGuard>} />
 
                   {/* Dentaxy Core */}
                   <Route path="/core" element={<CorePage />} />
