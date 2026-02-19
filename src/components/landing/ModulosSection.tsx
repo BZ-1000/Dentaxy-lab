@@ -1,79 +1,88 @@
-import { motion, useInView, AnimatePresence } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
-import { Brain, GraduationCap, Building2, Box, Shield, ArrowRight, Check } from "lucide-react";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+import { Brain, GraduationCap, Building2, Box, Hand, Check, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 const modules = [
   {
-    title: "AI ACTIVO",
-    subtitle: "Motor Neuronal",
+    title: "DENTAXY AI",
+    subtitle: "Asistencia Cognitiva",
     icon: Brain,
     badge: "Activo",
-    gradient: "from-emerald-500 to-teal-500",
-    glowColor: "emerald",
+    // emerald-500 → #10B981
+    gradient: "from-emerald-500 to-teal-400",
+    accentColor: "#10B981",
     isActive: true,
-    route: "/app",
+    route: "/demo/ai",
     features: [
       "Narrativa clínica profesional",
       "Coherencia documental",
+      "Menos escritura, más criterio",
       "Documentación con peso legal",
     ],
-    description: "El clínico piensa. El sistema redacta. La historia clínica ya no se escribe. Se construye.",
+    description: "El clínico piensa. El sistema redacta. La narrativa se vuelve consistente, clara y reutilizable. No es automatización. Es asistencia cognitiva.",
   },
   {
-    title: "UAZ SYNC",
-    subtitle: "Académico",
+    title: "DICOM",
+    subtitle: "Visualización Médica",
+    icon: Box,
+    badge: "Interactivo",
+    // Violet → #8B5CF6
+    gradient: "from-violet-500 to-purple-400",
+    accentColor: "#8B5CF6",
+    isActive: false,
+    features: [
+      "Visualizador DICOM nativo en navegador",
+      "Herramientas de precisión diagnóstica",
+      "Acceso universal: Desktop y Mobile",
+      "Seguridad de datos por diseño",
+    ],
+    description: "La imagen clínica deja de ser un archivo. Se convierte en un espacio manipulable. Directo. Seguro. Sin fricción. Aquí la imagen no se envía. Se explora.",
+  },
+  {
+    title: "DENTAXY UNIVERSIDADES",
+    subtitle: "Plataforma Académica",
     icon: GraduationCap,
     badge: "Infraestructura",
-    gradient: "from-blue-500 to-cyan-500",
-    glowColor: "blue",
+    // Neon Tech Blue → #00A3FF
+    gradient: "from-sky-500 to-cyan-400",
+    accentColor: "#00A3FF",
     isActive: false,
     features: [
       "Clínicas universitarias conectadas",
       "Operación geolocalizada",
+      "Datos clínicos estandarizados",
       "Supervisión institucional silenciosa",
     ],
-    description: "Donde la formación clínica deja de ser teoría. Cada dato capturado tiene un propósito.",
+    description: "Donde la formación clínica deja de ser teoría. Cada dato capturado tiene un propósito. Cada práctica deja rastro. Cada alumno opera dentro de un sistema mayor.",
   },
   {
-    title: "ENTERPRISE",
-    subtitle: "Clínicas Premium",
+    title: "DENTAXY ENTERPRISE",
+    subtitle: "Arquitectura Clínica",
     icon: Building2,
     badge: "Arquitectura",
-    gradient: "from-purple-500 to-pink-500",
-    glowColor: "purple",
+    // White-toned premium
+    gradient: "from-slate-400 to-slate-200",
+    accentColor: "#FFFFFF",
     isActive: false,
     features: [
       "Arquitectura multi-entorno",
+      "Flujos clínicos continuos",
       "Control administrativo central",
       "Seguridad por diseño",
     ],
-    description: "La operación clínica como sistema. Aquí no se improvisa. Se gobierna.",
-  },
-  {
-    title: "DICOM",
-    subtitle: "Visualización 3D",
-    icon: Box,
-    badge: "Interactivo",
-    gradient: "from-orange-500 to-amber-500",
-    glowColor: "orange",
-    isActive: false,
-    features: [
-      "Modelos 3D interactivos",
-      "Comunicación visual precisa",
-      "Contexto clínico real",
-    ],
-    description: "Ver no es suficiente. Hay que interactuar. La imagen también decide.",
+    description: "La operación clínica como sistema. No importa cuántas unidades ni cuántos doctores. La información fluye. El control permanece. Esto no escala clínicas. Estandariza decisiones.",
   },
   {
     title: "PROYECTO STARK",
-    subtitle: "Clasificado",
-    icon: Shield,
+    subtitle: "CLASIFICADO",
+    icon: Hand,
     badge: "Clasificado",
-    gradient: "from-red-500 to-rose-500",
-    glowColor: "red",
+    // Neon Red → #FF2A2A
+    gradient: "from-red-600 to-rose-500",
+    accentColor: "#FF2A2A",
     isActive: false,
     isSecret: true,
     features: [],
@@ -85,24 +94,6 @@ export const ModulosSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: false, margin: "-10%" });
   const navigate = useNavigate();
-  const [expandedModule, setExpandedModule] = useState<string | null>(null);
-
-  // Reset expanded state when out of view
-  useEffect(() => {
-    if (!isInView) {
-      setExpandedModule(null);
-    }
-  }, [isInView]);
-
-  const handleModuleClick = (mod: typeof modules[0]) => {
-    if (mod.isSecret) {
-      toast.error("🔒 Acceso Denegado", {
-        description: "Este módulo requiere autorización especial.",
-      });
-      return;
-    }
-    setExpandedModule(expandedModule === mod.title ? null : mod.title);
-  };
 
   const handleCTAClick = (mod: typeof modules[0], e: React.MouseEvent) => {
     e.stopPropagation();
@@ -113,18 +104,6 @@ export const ModulosSection = () => {
         description: `${mod.title} estará disponible próximamente.`,
       });
     }
-  };
-
-  const getGlowStyle = (color: string, isExpanded: boolean) => {
-    if (!isExpanded) return {};
-    const glowColors: Record<string, string> = {
-      emerald: "0 0 60px rgba(16, 185, 129, 0.3)",
-      blue: "0 0 60px rgba(59, 130, 246, 0.3)",
-      purple: "0 0 60px rgba(168, 85, 247, 0.3)",
-      orange: "0 0 60px rgba(249, 115, 22, 0.3)",
-      red: "0 0 60px rgba(239, 68, 68, 0.3)",
-    };
-    return { boxShadow: glowColors[color] || "" };
   };
 
   return (
@@ -149,149 +128,107 @@ export const ModulosSection = () => {
         No ofrecemos herramientas. Construimos dependencias estratégicas.
       </motion.p>
 
-      <motion.div
-        layout
-        className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 w-full max-w-7xl mx-auto"
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 w-full max-w-7xl mx-auto px-4"
       >
         {modules.map((mod, i) => {
-          const isExpanded = expandedModule === mod.title;
-
           return (
             <motion.div
               key={mod.title}
-              layout
               initial={{ opacity: 0, y: 30 }}
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
               transition={{
                 duration: 0.5,
                 delay: i * 0.08,
-                layout: { type: "spring", stiffness: 300, damping: 30 }
               }}
-              onClick={() => handleModuleClick(mod)}
-              className={`cursor-pointer ${isExpanded ? "col-span-2 sm:col-span-2 lg:col-span-3 xl:col-span-5" : ""}`}
+              className="flex"
             >
-              <motion.div
-                layout
-                whileHover={!isExpanded ? { scale: 1.02, y: -4 } : {}}
-                className={`relative rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-300 ${mod.isSecret ? "animate-pulse" : ""
+              <div
+                className={`flex-1 relative rounded-2xl overflow-hidden border border-white/20 dark:border-white/10 backdrop-blur-xl bg-white/5 dark:bg-black/10 p-6 flex flex-col hover:border-white/40 transition-colors ${mod.isSecret ? "border-red-500/30" : ""
                   }`}
-                style={getGlowStyle(mod.glowColor, isExpanded)}
               >
-                {/* Glassmorphism Card */}
-                <div className={`relative backdrop-blur-xl bg-white/5 dark:bg-black/10 border border-white/20 dark:border-white/10 rounded-xl sm:rounded-2xl ${isExpanded ? "p-4 sm:p-6" : "p-3 sm:p-5"
-                  }`}>
-                  {/* Background gradient */}
-                  <div className={`absolute inset-0 opacity-10 bg-gradient-to-br ${mod.gradient} rounded-xl sm:rounded-2xl`} />
+                {/* Background gradient hint */}
+                <div className={`absolute inset-0 opacity-5 bg-gradient-to-br ${mod.gradient}`} />
 
-                  {/* Scanlines for secret */}
-                  {mod.isSecret && (
-                    <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,0,0,0.03)_2px,rgba(255,0,0,0.03)_4px)] pointer-events-none rounded-xl sm:rounded-2xl" />
-                  )}
+                {/* Scanlines for secret */}
+                {mod.isSecret && (
+                  <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,0,0,0.03)_2px,rgba(255,0,0,0.03)_4px)] pointer-events-none" />
+                )}
 
-                  <motion.div layout="position" className="relative z-10">
-                    {/* Header row */}
-                    <div className={`flex items-start gap-2 sm:gap-4 ${isExpanded ? "mb-4 sm:mb-6" : ""}`}>
-                      {/* Icon */}
-                      <motion.div
-                        layout="position"
-                        className={`rounded-lg sm:rounded-xl flex items-center justify-center bg-gradient-to-br ${mod.gradient} ${isExpanded ? "w-10 h-10 sm:w-14 sm:h-14" : "w-8 h-8 sm:w-10 sm:h-10"
+                <div className="relative z-10 flex flex-col h-full">
+                  {/* Header */}
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br ${mod.gradient} shadow-lg shadow-black/20 flex-shrink-0`}>
+                      <mod.icon className="text-white w-6 h-6" />
+                    </div>
+                    <div className="min-w-0">
+                      <span
+                        className={`inline-block text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full border uppercase mb-1 ${mod.isActive
+                          ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-500"
+                          : mod.isSecret
+                            ? "bg-red-500/20 border-red-500/50 text-red-400"
+                            : "bg-muted/50 border-border text-muted-foreground"
                           }`}
                       >
-                        <mod.icon className={`text-white ${isExpanded ? "w-5 h-5 sm:w-7 sm:h-7" : "w-4 h-4 sm:w-5 sm:h-5"}`} />
-                      </motion.div>
-
-                      <div className="flex-1 min-w-0">
-                        {/* Badge */}
-                        <motion.span
-                          layout="position"
-                          className={`inline-block text-[8px] sm:text-[9px] font-bold tracking-wider px-1.5 sm:px-2 py-0.5 rounded-full border uppercase mb-1 sm:mb-2 ${mod.isActive
-                              ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-500"
-                              : mod.isSecret
-                                ? "bg-red-500/20 border-red-500/50 text-red-400"
-                                : "bg-muted/50 border-border text-muted-foreground"
-                            }`}
-                        >
-                          {mod.badge}
-                        </motion.span>
-
-                        {/* Title */}
-                        <motion.h3
-                          layout="position"
-                          className={`font-semibold text-foreground truncate ${isExpanded ? "text-base sm:text-xl" : "text-xs sm:text-base"}`}
-                        >
-                          {mod.title}
-                        </motion.h3>
-                        <motion.p
-                          layout="position"
-                          className="text-[10px] sm:text-xs text-muted-foreground truncate"
-                        >
-                          {mod.subtitle}
-                        </motion.p>
-                      </div>
+                        {mod.badge}
+                      </span>
+                      <h3 className="font-semibold text-foreground text-lg truncate">
+                        {mod.title}
+                      </h3>
                     </div>
+                  </div>
 
-                    {/* Expanded Content - Not for secret modules */}
-                    <AnimatePresence>
-                      {isExpanded && !mod.isSecret && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-                            {/* Description */}
-                            <div>
-                              <p className="text-muted-foreground leading-relaxed mb-3 sm:mb-4 text-xs sm:text-base">
-                                {mod.description}
-                              </p>
+                  {/* Body */}
+                  <div className="flex-1 flex flex-col">
+                    <p className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wide">
+                      {mod.subtitle}
+                    </p>
+                    <p className="text-sm text-foreground/80 leading-relaxed mb-4">
+                      {mod.description || "Módulo en fase de desarrollo estratégico."}
+                    </p>
 
-                              {/* Features */}
-                              {mod.features.length > 0 && (
-                                <ul className="space-y-2">
-                                  {mod.features.map((feature, idx) => (
-                                    <motion.li
-                                      key={idx}
-                                      initial={{ opacity: 0, x: -20 }}
-                                      animate={{ opacity: 1, x: 0 }}
-                                      transition={{ delay: idx * 0.1 }}
-                                      className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground"
-                                    >
-                                      <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center bg-gradient-to-br ${mod.gradient} flex-shrink-0`}>
-                                        <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
-                                      </div>
-                                      {feature}
-                                    </motion.li>
-                                  ))}
-                                </ul>
-                              )}
+                    {/* Features list */}
+                    {!mod.isSecret && mod.features.length > 0 && (
+                      <ul className="space-y-2 mb-6">
+                        {mod.features.map((feature, idx) => (
+                          <li key={idx} className="flex items-start gap-2 text-xs text-muted-foreground">
+                            <div className={`w-4 h-4 rounded-full flex items-center justify-center bg-gradient-to-br ${mod.gradient} flex-shrink-0 mt-0.5`}>
+                              <Check className="w-2.5 h-2.5 text-white" />
                             </div>
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
 
-                            {/* CTA */}
-                            <div className="flex flex-col justify-end">
-                              <Button
-                                onClick={(e) => handleCTAClick(mod, e)}
-                                className={`w-full bg-gradient-to-r ${mod.gradient} hover:opacity-90 text-white rounded-lg sm:rounded-xl py-4 sm:py-6 text-sm sm:text-base font-medium shadow-lg`}
-                              >
-                                {mod.isActive ? "Probar Demo" : "Notificarme"}
-                                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
-                              </Button>
-                              <p className="text-[10px] sm:text-xs text-muted-foreground text-center mt-2">
-                                {mod.isActive ? "Acceso inmediato" : "Te avisaremos cuando esté listo"}
-                              </p>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
+                  {/* CTA */}
+                  {!mod.isSecret ? (
+                    <div className="mt-auto">
+                      <Button
+                        onClick={(e) => handleCTAClick(mod, e)}
+                        className={`w-full bg-gradient-to-r ${mod.gradient} hover:opacity-90 text-white rounded-xl py-5 text-sm font-medium shadow-md transition-all active:scale-95`}
+                      >
+                        {mod.isActive ? "Probar Demo" : "Notificarme"}
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
+                      <p className="text-[10px] text-muted-foreground text-center mt-2 font-medium opacity-60">
+                        {mod.isActive ? "Acceso inmediato" : "Próximamente"}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mt-auto pt-4 border-t border-white/5">
+                      <p className="text-[10px] text-red-400 font-mono text-center uppercase tracking-widest">
+                        Nivel de Acceso: Restringido
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </motion.div>
+              </div>
             </motion.div>
           );
         })}
-      </motion.div>
+      </div>
     </section>
   );
 };
