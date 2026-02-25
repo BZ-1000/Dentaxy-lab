@@ -157,6 +157,7 @@ export default function ModulesHub() {
       'motor_neuronal': '/demo/ai',
       'dicom': '/demo/dicom',
       'academico': '/academico',
+      'academico_presentacion': '/demo/presentacion',
       'enterprise': '/enterprise',
       'proyecto_stark': '/stark'
     };
@@ -196,6 +197,31 @@ export default function ModulesHub() {
     }
 
     setTargetModuleForDemo(moduleName);
+    setDemoTokenInput("");
+    setDemoStep('token');
+    setIsDemoDialogOpen(true);
+  };
+
+  // Handler para el botón Presentación — misma lógica que handleTryDemo
+  // pero apunta al módulo 'academico_presentacion'
+  const handleTryPresentation = () => {
+    const presentacionKey = 'academico_presentacion';
+    const moduleState = modulesState[presentacionKey];
+
+    if (moduleState?.free_access) {
+      console.log(`🔓 [FREE ACCESS] Accediendo libremente a presentación`);
+      toast.success("Presentación disponible", {
+        description: "Cargando presentación corporativa...",
+        duration: 3000
+      });
+      setTimeout(() => {
+        redirectToModule(presentacionKey);
+      }, 800);
+      return;
+    }
+
+    // Sin libre acceso → pedir token
+    setTargetModuleForDemo(presentacionKey);
     setDemoTokenInput("");
     setDemoStep('token');
     setIsDemoDialogOpen(true);
@@ -693,7 +719,7 @@ export default function ModulesHub() {
   };
 
   return (
-    <div className="min-h-screen bg-black overflow-hidden relative">
+    <div className="min-h-dvh bg-black overflow-hidden relative">
       {/* Splash Screen */}
       <AnimatePresence>
         {showSplash && <ShaderSplash onComplete={handleSplashComplete} />}
@@ -706,54 +732,58 @@ export default function ModulesHub() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="min-h-screen relative"
+            className="min-h-dvh relative"
           >
             {/* Fullscreen Wave Visualizer Background */}
             <SchemaWaveBackground color={modulesConfig[activeModuleIndex]?.rgbColor} />
 
             {/* Content - Compact Layout */}
-            <div className="relative z-20 w-full h-screen overflow-hidden flex flex-col pointer-events-none">
-              {/* Top Bar - Centered Title, Back Button Left */}
-              <div className="pointer-events-auto flex-shrink-0 p-6 relative flex items-center justify-center z-50">
-                <div className="absolute left-6 top-6 flex items-center gap-6">
+            <div className="relative z-20 w-full min-h-dvh overflow-hidden flex flex-col pointer-events-none">
+              {/* Top Bar - Responsive: botón + logo izquierda, etiqueta centrada oculta en móvil */}
+              <div className="pointer-events-auto flex-shrink-0 px-3 sm:px-6 py-3 sm:py-4 relative flex items-center z-50">
+                {/* Bloque izquierdo: botón + logo */}
+                <div className="flex items-center gap-2 sm:gap-4">
                   <motion.button
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
                     onClick={() => navigate("/")}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 backdrop-blur-sm text-white/60 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300 group"
+                    className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-white/10 bg-white/5 backdrop-blur-sm text-white/60 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300 group"
                   >
-                    <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-                    <span className="text-xs font-medium">Regresar</span>
+                    <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover:-translate-x-1 transition-transform" />
+                    <span className="text-[11px] sm:text-xs font-medium">Regresar</span>
                   </motion.button>
 
                   <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="flex items-center gap-3"
+                    className="flex items-center gap-2 sm:gap-3"
                   >
                     <img
                       src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png"
                       alt="DENTAXY"
-                      className="h-6 w-6 opacity-80"
+                      className="h-5 w-5 sm:h-6 sm:w-6 opacity-80"
                     />
-                    <h1 className="text-lg font-bold text-white tracking-tight">
-                      DENTAXY <span className="text-white/50 font-normal">Technologies</span>
+                    <h1 className="text-sm sm:text-base md:text-lg font-bold text-white tracking-tight">
+                      DENTAXY <span className="text-white/50 font-normal hidden sm:inline">Technologies</span>
                     </h1>
                   </motion.div>
                 </div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="flex flex-col items-center"
-                >
-                  <p className="text-white/40 text-[10px] uppercase tracking-wider font-mono bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm border border-white/5">
-                    selecciona un DENTAXY Demo
-                  </p>
-                </motion.div>
+                {/* Etiqueta centrada — con inset-x-0 para centrado absoluto perfecto */}
+                <div className="hidden sm:flex absolute inset-x-0 top-0 h-full items-center justify-center pointer-events-none">
+                  <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="flex flex-col items-center pointer-events-auto"
+                  >
+                    <p className="text-white/40 text-[10px] uppercase tracking-wider font-mono bg-black/20 px-3 py-1 rounded-full backdrop-blur-sm border border-white/5">
+                      selecciona un DENTAXY Demo
+                    </p>
+                  </motion.div>
+                </div>
               </div>
 
               {/* Loading state */}
@@ -764,15 +794,15 @@ export default function ModulesHub() {
               ) : (
                 /* Modules Carousel - Centered & Compact */
                 <div className="flex-1 flex items-center justify-center pointer-events-auto min-h-0 relative">
-                  <div className={`flex items-center justify-center gap-4 md:gap-12 w-full px-4 transition-all duration-500 ${isExpanded ? 'max-w-7xl' : 'max-w-7xl scale-90 md:scale-100'}`}>
+                  <div className={`flex items-center justify-center gap-2 sm:gap-4 md:gap-8 lg:gap-12 w-full px-2 sm:px-4 transition-all duration-500 ${isExpanded ? 'max-w-7xl' : 'max-w-7xl'}`}>
                     {/* Previous Button */}
                     <motion.button
                       onClick={handlePrev}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      className="flex-shrink-0 w-10 h-10 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-white/60 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300 flex items-center justify-center group"
+                      className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-white/60 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300 flex items-center justify-center group"
                     >
-                      <ChevronLeft className="h-5 w-5 group-hover:-translate-x-0.5 transition-transform" />
+                      <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5 group-hover:-translate-x-0.5 transition-transform" />
                     </motion.button>
 
                     {/* Active Module Card */}
@@ -798,6 +828,11 @@ export default function ModulesHub() {
                             color={modulesConfig[activeModuleIndex].rgbColor}
                             onExplore={handleExplore}
                             onTryDemo={() => handleTryDemo(modulesConfig[activeModuleIndex].name)}
+                            onPresentation={
+                              modulesConfig[activeModuleIndex].name === 'academico'
+                                ? handleTryPresentation
+                                : undefined
+                            }
                             isActive={true}
                             isExpanded={isExpanded}
                             moduleInfo={modulesConfig[activeModuleIndex].moduleInfo}
@@ -811,14 +846,14 @@ export default function ModulesHub() {
                       onClick={handleNext}
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
-                      className="flex-shrink-0 w-10 h-10 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-white/60 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300 flex items-center justify-center group"
+                      className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm text-white/60 hover:text-white hover:border-white/20 hover:bg-white/10 transition-all duration-300 flex items-center justify-center group"
                     >
-                      <ChevronRight className="h-5 w-5 group-hover:translate-x-0.5 transition-transform" />
+                      <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-0.5 transition-transform" />
                     </motion.button>
                   </div>
 
                   {/* Module Indicator Dots */}
-                  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+                  <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
                     {modulesConfig.map((_, index) => (
                       <button
                         key={index}
@@ -834,7 +869,7 @@ export default function ModulesHub() {
               )}
 
               {/* Security Footer - Compact & Fixed Bottom */}
-              <div className="pointer-events-auto flex-shrink-0 p-6 w-full">
+              <div className="pointer-events-auto flex-shrink-0 px-3 sm:px-6 py-2 sm:py-4 w-full">
                 <motion.footer
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}

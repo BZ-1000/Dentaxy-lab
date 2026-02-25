@@ -24,15 +24,19 @@ import type { Database } from '@/integrations/supabase/types';
 export async function toggleModule(request: ModuleToggleRequest) {
     const { moduleId, enabled, reason, notifyUsers } = request;
 
-    // 1. Actualizar estado del módulo
-    const { data: module, error: moduleError } = await supabase
-        .from('dentaxy_modules')
-        .update({ is_enabled: enabled })
-        .eq('id', moduleId)
-        .select()
-        .single();
+    // 1. Actualizar estado del módulo mediante RPC (SECURITY DEFINER bypassa RLS)
+    const { data: rpcData, error: moduleError } = await supabase.rpc('toggle_module_enabled', {
+        p_module_id: moduleId,
+        p_enabled: enabled,
+    });
 
     if (moduleError) throw moduleError;
+
+    const result = rpcData as { success: boolean; id?: string; name?: string; display_name?: string; is_enabled?: boolean };
+    if (!result?.success) throw new Error('Error al actualizar el estado del módulo');
+
+    // Construir objeto de módulo a partir del resultado RPC
+    const module = { id: result.id, name: result.name, display_name: result.display_name, is_enabled: result.is_enabled };
 
     // 2. Registrar en audit logs
     const { error: auditError } = await supabase.from('audit_logs').insert({
@@ -40,7 +44,7 @@ export async function toggleModule(request: ModuleToggleRequest) {
         resource_type: 'dentaxy_module',
         resource_id: moduleId,
         details: { reason, module_name: module.name },
-        ip_address: '0.0.0.0', // TODO: obtener IP real del admin
+        ip_address: '0.0.0.0',
     });
 
     if (auditError) console.error('Failed to log audit:', auditError);
@@ -70,8 +74,6 @@ export async function setMaintenanceMode(config: MaintenanceModeConfig) {
 
     // 1. Actualizar system_state
     const maintenanceKey = `maintenance_${moduleId}`;
-
-    // Pre-calcular valores ISO para evitar error de serialización JSON
     const scheduledEndISO = scheduledEnd ? scheduledEnd.toISOString() : null;
     const startedAtISO = enabled ? new Date().toISOString() : null;
 
@@ -89,23 +91,17 @@ export async function setMaintenanceMode(config: MaintenanceModeConfig) {
 
     if (stateError) throw stateError;
 
-    // 2. Deshabilitar módulo si maintenance está habilitado
-    if (enabled) {
-        const { error: moduleError } = await supabase
-            .from('dentaxy_modules')
-            .update({ is_enabled: false, status: 'maintenance' })
-            .eq('id', moduleId);
+    // 2. Actualizar módulo mediante RPC (SECURITY DEFINER bypassa RLS)
+    const { data: rpcData, error: moduleError } = await supabase.rpc('set_module_maintenance', {
+        p_module_id: moduleId,
+        p_enabled: enabled,
+        p_status: enabled ? 'maintenance' : 'active',
+    });
 
-        if (moduleError) throw moduleError;
-    } else {
-        // Re-habilitar el módulo
-        const { error: moduleError } = await supabase
-            .from('dentaxy_modules')
-            .update({ is_enabled: true, status: 'active' })
-            .eq('id', moduleId);
+    if (moduleError) throw moduleError;
 
-        if (moduleError) throw moduleError;
-    }
+    const rpcResult = rpcData as { success: boolean };
+    if (!rpcResult?.success) throw new Error('Error al actualizar modo mantenimiento');
 
     // 3. Broadcast a usuarios
     await broadcastMessage({

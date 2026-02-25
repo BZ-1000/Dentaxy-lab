@@ -189,6 +189,8 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
     onSectionActive
   );
 
+
+
   React.useEffect(() => {
     if (onGeneratingChange) onGeneratingChange(isGenerating);
   }, [isGenerating, onGeneratingChange]);

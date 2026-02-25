@@ -50,7 +50,7 @@ export const FreeAccessBanner: React.FC<FreeAccessBannerProps> = ({
     return (
         <AnimatePresence>
             {visible && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none">
+                <div className="fixed inset-0 z-[70] flex items-center justify-center pointer-events-none">
                     {/* Overlay */}
                     <motion.div
                         initial={{ opacity: 0 }}

@@ -59,6 +59,8 @@ import DICOMDemo from './pages/demo/DICOMDemo';
 import EnterpriseDemo from './pages/demo/EnterpriseDemo';
 import StarkDemo from './pages/demo/StarkDemo';
 import { DemoGuard } from './components/demos/DemoGuard';
+import DentaxyPresentation from './pages/demo/DentaxyPresentation';
+import PresentationRemote from './pages/admin/PresentationRemote';
 
 // Dentaxy Core
 import CorePage from './app/core/page';
@@ -120,6 +122,7 @@ function App() {
                     <Route path="geomap" element={<GeoMap />} />
                     <Route path="analytics" element={<Analytics />} />
                     <Route path="communication" element={<Communication />} />
+                    <Route path="presentation-remote" element={<PresentationRemote />} />
 
                     {/* Legacy or Secondary Modules */}
                     <Route path="students" element={<StudentModule />} />
@@ -148,6 +151,7 @@ function App() {
                   <Route path="/demo/dicom" element={<DemoGuard moduleName="dicom"><DICOMDemo /></DemoGuard>} />
                   <Route path="/enterprise" element={<DemoGuard moduleName="enterprise"><EnterpriseDemo /></DemoGuard>} />
                   <Route path="/stark" element={<DemoGuard moduleName="proyecto_stark"><StarkDemo /></DemoGuard>} />
+                  <Route path="/demo/presentacion" element={<DemoGuard moduleName="academico_presentacion"><DentaxyPresentation /></DemoGuard>} />
 
                   {/* Dentaxy Core */}
                   <Route path="/core" element={<CorePage />} />

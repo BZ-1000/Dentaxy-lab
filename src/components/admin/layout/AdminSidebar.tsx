@@ -15,7 +15,8 @@ import {
   Zap,
   Lock,
   Layers,
-  Users
+  Users,
+  Tv2
 } from 'lucide-react';
 import { useAdminSecurity } from '@/contexts/AdminSecurityContext';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
@@ -34,6 +35,7 @@ const navItems = [
   { path: '/admin/geomap', icon: Globe, label: 'GeoMap' },
   { path: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
   { path: '/admin/communication', icon: Megaphone, label: 'Communication' },
+  { path: '/admin/presentation-remote', icon: Tv2, label: 'Control Remoto P' },
 ];
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isCollapsed, onToggle }) => {

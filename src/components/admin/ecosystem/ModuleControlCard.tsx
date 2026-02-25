@@ -94,6 +94,15 @@ const MODULE_CONFIG: Record<string, { label: string; desc: string; icon: any; co
         border: 'border-red-200',
         accent: '#EF4444'
     },
+    'academico_presentacion': {
+        label: 'PRESENTACIÓN UAZ',
+        desc: 'Presentación Corporativa',
+        icon: DatabaseIcon,
+        color: 'text-cyan-600',
+        bg: 'bg-cyan-50',
+        border: 'border-cyan-200',
+        accent: '#00A3FF'
+    },
     // Fallbacks
     'shop': { label: 'SHOP', desc: 'Shop Module', icon: Globe, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', accent: '#6B7280' },
     'seed': { label: 'SEED', desc: 'Seed Module', icon: DatabaseIcon, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200', accent: '#3B82F6' },
@@ -185,18 +194,23 @@ export const ModuleControlCard: React.FC<ModuleControlCardProps> = ({ module }) 
     };
 
     // Handler principal para guardar libre acceso con mensaje
+    // Usa RPC con SECURITY DEFINER para bypassear la política RLS que requiere
+    // auth.role()='authenticated'. El panel admin usa custom auth (anon).
     const handleSaveFreeAccess = async (newFreeAccess: boolean) => {
         setIsSavingFreeAccess(true);
         try {
-            const { error } = await supabase
-                .from('dentaxy_modules')
-                .update({
-                    free_access: newFreeAccess,
-                    access_message: newFreeAccess ? (accessMessage || null) : null,
-                })
-                .eq('id', module.id);
+            const { data, error } = await supabase.rpc('set_module_free_access', {
+                p_module_id: module.id,
+                p_free_access: newFreeAccess,
+                p_access_message: newFreeAccess ? (accessMessage || null) : null,
+            });
 
             if (error) throw error;
+
+            const result = data as { success: boolean; error?: string };
+            if (!result?.success) {
+                throw new Error(result?.error || 'Error desconocido al actualizar el módulo');
+            }
 
             setIsFreeAccess(newFreeAccess);
             queryClient.invalidateQueries({ queryKey: ['dentaxy_modules'] });

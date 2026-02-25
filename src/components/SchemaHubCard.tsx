@@ -265,6 +265,7 @@ interface SchemaHubCardProps {
     color?: string; // RGB format: "r,g,b"
     onExplore?: () => void;
     onTryDemo?: () => void;
+    onPresentation?: () => void; // Nuevo: abre la presentación corporativa
     isActive?: boolean;
     isExpanded?: boolean;
     moduleInfo?: ModuleInfo;
@@ -278,6 +279,7 @@ export function SchemaHubCard({
     color = "168, 85, 247", // Default purple
     onExplore,
     onTryDemo,
+    onPresentation,
     isActive = false,
     isExpanded = false,
     moduleInfo
@@ -285,7 +287,11 @@ export function SchemaHubCard({
 
     return (
         <div
-            className={`relative transition-all duration-500 ease-out ${isExpanded ? 'w-full max-w-5xl' : 'w-full max-w-xs'}`}
+            // ── RESPONSIVO: ancho fluido escalado por breakpoint ──────────────
+            className={`relative transition-all duration-500 ease-out mx-auto ${isExpanded
+                ? 'w-full max-w-xs sm:max-w-2xl md:max-w-4xl lg:max-w-5xl'
+                : 'w-full max-w-[280px] sm:max-w-[320px] md:max-w-sm'
+                }`}
             style={{ zIndex: isExpanded ? 50 : 10 }}
         >
             <div
@@ -297,12 +303,16 @@ export function SchemaHubCard({
                 }}
             >
                 {/* Header / Main Visual Area */}
-                <div className={`p-4 flex transition-all duration-500 ${isExpanded ? 'flex-row items-center gap-6 border-b border-white/10' : 'justify-center relative'}`}>
+                <div className={`p-3 sm:p-4 flex transition-all duration-500 ${isExpanded ? 'flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 border-b border-white/10' : 'justify-center relative'}`}>
 
                     {/* Visualizer (Small in Compact, Logo-like in Expanded) */}
                     <div
+                        // ── RESPONSIVO: altura proporcional según modo ──────────
                         className={`rounded-xl inner-glow overflow-hidden relative group cursor-pointer transition-all duration-500
-                        ${isExpanded ? 'w-16 h-16 flex-shrink-0' : 'w-full h-48'}`}
+                        ${isExpanded
+                                ? 'w-full sm:w-16 sm:h-16 h-24 flex-shrink-0'
+                                : 'w-full h-36 sm:h-40 md:h-44 lg:h-48'
+                            }`}
                         onClick={onExplore}
                         style={{
                             background: title === 'DICOM'
@@ -342,7 +352,7 @@ export function SchemaHubCard({
 
                     {/* Expanded Header Content */}
                     {isExpanded && (
-                        <div className="flex-1 animate-in fade-in slide-in-from-left-4 duration-300 flex items-center justify-between">
+                        <div className="flex-1 animate-in fade-in slide-in-from-left-4 duration-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
                             <div>
                                 <span className="inline-block px-3 py-1 glass rounded-full text-xs font-medium mb-2"
                                     style={{
@@ -352,22 +362,50 @@ export function SchemaHubCard({
                                     }}>
                                     {badge || subtitle}
                                 </span>
-                                <h3 className="text-2xl font-bold text-white">{title}</h3>
+                                <h3 className="text-xl sm:text-2xl font-bold text-white">{title}</h3>
                             </div>
 
-                            {/* PROBAR DEMO Button */}
-                            {onTryDemo && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onTryDemo();
-                                    }}
-                                    className="px-8 py-3 rounded-xl font-bold text-sm tracking-wider uppercase transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2 shadow-[0_0_20px_rgba(0,0,0,0.3)] bg-white text-black hover:bg-white/90"
-                                >
-                                    PROBAR DEMO
-                                    <ArrowUpRight className="w-4 h-4" />
-                                </button>
-                            )}
+                            {/* Grupo de botones de acción */}
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 flex-shrink-0">
+
+                                {/* Botón Presentación — solo si se provee la prop */}
+                                {onPresentation && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onPresentation();
+                                        }}
+                                        className="w-full sm:w-auto px-4 sm:px-5 md:px-6 py-2.5 sm:py-3 rounded-xl font-semibold text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 backdrop-blur-sm"
+                                        style={{
+                                            border: `1px solid rgba(${color}, 0.5)`,
+                                            color: `rgb(${color})`,
+                                            background: `rgba(${color}, 0.08)`,
+                                            boxShadow: `0 0 20px rgba(${color}, 0.15)`,
+                                        }}
+                                    >
+                                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                                            <line x1="8" y1="21" x2="16" y2="21" />
+                                            <line x1="12" y1="17" x2="12" y2="21" />
+                                        </svg>
+                                        Presentación
+                                    </button>
+                                )}
+
+                                {/* Botón PROBAR DEMO */}
+                                {onTryDemo && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onTryDemo();
+                                        }}
+                                        className="w-full sm:w-auto px-4 sm:px-6 md:px-8 py-2.5 sm:py-3 rounded-xl font-bold text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(0,0,0,0.3)] bg-white text-black hover:bg-white/90 flex-shrink-0"
+                                    >
+                                        PROBAR DEMO
+                                        <ArrowUpRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     )}
                 </div>
@@ -381,11 +419,11 @@ export function SchemaHubCard({
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             transition={{ duration: 0.15 }}
-                            className="p-4 text-left"
+                            className="p-3 sm:p-4 text-left"
                         >
-                            <div className="w-full h-px mb-4" style={{ background: `linear-gradient(90deg, transparent, rgba(${color}, 0.3), transparent)` }} />
+                            <div className="w-full h-px mb-3 sm:mb-4" style={{ background: `linear-gradient(90deg, transparent, rgba(${color}, 0.3), transparent)` }} />
 
-                            <span className="inline-block px-3 py-1 glass rounded-full text-xs font-medium mb-3"
+                            <span className="inline-block px-2.5 sm:px-3 py-1 glass rounded-full text-[10px] sm:text-xs font-medium mb-2 sm:mb-3"
                                 style={{
                                     color: `rgb(${color})`,
                                     borderColor: `rgba(${color}, 0.3)`,
@@ -393,14 +431,15 @@ export function SchemaHubCard({
                                 }}>
                                 {badge || subtitle}
                             </span>
-                            <h3 className="text-lg font-medium text-white mb-2">{title}</h3>
-                            <p className="text-white/70 mb-4 leading-relaxed text-xs h-16 overflow-hidden line-clamp-4">
+                            {/* ── RESPONSIVO: título escalado ── */}
+                            <h3 className="text-base sm:text-lg font-medium text-white mb-2">{title}</h3>
+                            <p className="text-white/70 mb-3 sm:mb-4 leading-relaxed text-[11px] sm:text-xs line-clamp-3 sm:line-clamp-4">
                                 {description}
                             </p>
                             <div className="flex justify-between items-center">
                                 <button
                                     onClick={onExplore}
-                                    className="transition flex items-center text-xs font-medium glass px-3 py-1.5 rounded-lg hover:bg-white/10"
+                                    className="transition flex items-center text-[10px] sm:text-xs font-medium glass px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-lg hover:bg-white/10"
                                     style={{
                                         color: `rgb(${color})`,
                                         borderColor: `rgba(${color}, 0.3)`,
@@ -409,7 +448,7 @@ export function SchemaHubCard({
                                     Explorar
                                     <ArrowUpRight className="w-3 h-3 ml-1" />
                                 </button>
-                                <span className="text-white/50 text-xs glass px-2 py-1 rounded-full border border-white/10">
+                                <span className="text-white/50 text-[10px] sm:text-xs glass px-2 py-1 rounded-full border border-white/10">
                                     Active
                                 </span>
                             </div>
@@ -422,49 +461,50 @@ export function SchemaHubCard({
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -10 }}
                             transition={{ duration: 0.25, ease: "easeOut" }}
-                            className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-left"
+                            // ── RESPONSIVO: 1 col → 2 cols → 3 cols ──
+                            className="p-4 sm:p-5 md:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 text-left"
                         >
                             {/* Column 1: Context & Problem */}
-                            <div className="space-y-4">
+                            <div className="space-y-3 sm:space-y-4">
                                 <div>
-                                    <h4 className="text-white/40 text-xs font-mono uppercase tracking-wider mb-2">Problema que Resuelve</h4>
-                                    <p className="text-white/80 text-sm leading-relaxed">{moduleInfo?.problemItSolves}</p>
+                                    <h4 className="text-white/40 text-[10px] sm:text-xs font-mono uppercase tracking-wider mb-2">Problema que Resuelve</h4>
+                                    <p className="text-white/80 text-xs sm:text-sm leading-relaxed">{moduleInfo?.problemItSolves}</p>
                                 </div>
                                 <div>
-                                    <h4 className="text-white/40 text-xs font-mono uppercase tracking-wider mb-2">Contexto de Uso</h4>
-                                    <p className="text-white/80 text-sm leading-relaxed">{moduleInfo?.contextOfUse}</p>
+                                    <h4 className="text-white/40 text-[10px] sm:text-xs font-mono uppercase tracking-wider mb-2">Contexto de Uso</h4>
+                                    <p className="text-white/80 text-xs sm:text-sm leading-relaxed">{moduleInfo?.contextOfUse}</p>
                                 </div>
                             </div>
 
                             {/* Column 2: Implementation & Target */}
-                            <div className="space-y-4">
+                            <div className="space-y-3 sm:space-y-4">
                                 <div>
-                                    <h4 className="text-white/40 text-xs font-mono uppercase tracking-wider mb-2">Lo que Demuestra</h4>
-                                    <p className="text-emerald-400 text-sm leading-relaxed font-medium">{moduleInfo?.whatItDemonstrates}</p>
+                                    <h4 className="text-white/40 text-[10px] sm:text-xs font-mono uppercase tracking-wider mb-2">Lo que Demuestra</h4>
+                                    <p className="text-emerald-400 text-xs sm:text-sm leading-relaxed font-medium">{moduleInfo?.whatItDemonstrates}</p>
                                 </div>
                                 <div>
-                                    <h4 className="text-white/40 text-xs font-mono uppercase tracking-wider mb-2">Para Quién</h4>
-                                    <p className="text-white/80 text-sm leading-relaxed">{moduleInfo?.publicTarget}</p>
+                                    <h4 className="text-white/40 text-[10px] sm:text-xs font-mono uppercase tracking-wider mb-2">Para Quién</h4>
+                                    <p className="text-white/80 text-xs sm:text-sm leading-relaxed">{moduleInfo?.publicTarget}</p>
                                 </div>
                             </div>
 
-                            {/* Column 3: Included / Not Included */}
-                            <div className="space-y-4 bg-black/20 p-4 rounded-xl border border-white/5">
+                            {/* Column 3: Included / Not Included — ocupa todo en sm */}
+                            <div className="sm:col-span-2 lg:col-span-1 space-y-3 sm:space-y-4 bg-black/20 p-3 sm:p-4 rounded-xl border border-white/5">
                                 <div>
-                                    <h4 className="text-white/40 text-xs font-mono uppercase tracking-wider mb-2 flex items-center gap-2">
+                                    <h4 className="text-white/40 text-[10px] sm:text-xs font-mono uppercase tracking-wider mb-2 flex items-center gap-2">
                                         <Check className="w-3 h-3 text-emerald-500" /> Incluido
                                     </h4>
                                     <ul className="space-y-1">
                                         {moduleInfo?.whatIncluded.map((item, i) => (
-                                            <li key={i} className="text-white/60 text-xs">• {item}</li>
+                                            <li key={i} className="text-white/60 text-[10px] sm:text-xs">• {item}</li>
                                         ))}
                                     </ul>
                                 </div>
                                 {/* Close Button Section */}
-                                <div className="pt-4 mt-auto">
+                                <div className="pt-3 sm:pt-4 mt-auto">
                                     <button
                                         onClick={onExplore}
-                                        className="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white text-xs font-medium py-2 rounded-lg transition-colors border border-white/10"
+                                        className="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white text-[10px] sm:text-xs font-medium py-2 rounded-lg transition-colors border border-white/10"
                                     >
                                         <X className="w-3 h-3" /> Cerrar Detalle
                                     </button>

@@ -35,6 +35,7 @@ const MODULES = [
   { id: 'motor_neuronal', name: 'DENTAXY AI', icon: 'Brain', color: '#10B981', route: '/demo/ai' },
   { id: 'dicom', name: 'DICOM', icon: 'Box', color: '#8B5CF6', route: '/demo/dicom' },
   { id: 'academico', name: 'DENTAXY UNIVERSIDADES', icon: 'GraduationCap', color: '#00A3FF', route: '/academico' },
+  { id: 'academico_presentacion', name: 'DENTAXY PRESENTACIÓN', icon: 'Monitor', color: '#00A3FF', route: '/demo/presentacion' },
   { id: 'enterprise', name: 'DENTAXY ENTERPRISE', icon: 'Building2', color: '#FFFFFF', route: '/enterprise' },
   { id: 'proyecto_stark', name: 'PROYECTO STARK', icon: 'Hand', color: '#FF2A2A', route: '/stark' },
 ];

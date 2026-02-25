@@ -52,7 +52,7 @@ export const DemoGuard: React.FC<DemoGuardProps> = ({ children, moduleName }) =>
                     <motion.div
                         initial={{ y: -50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none"
+                        className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] pointer-events-none"
                     >
                         <div className="bg-emerald-500/10 backdrop-blur-md border border-emerald-500/20 px-4 py-2 rounded-full flex items-center gap-3 shadow-2xl shadow-emerald-500/10">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />

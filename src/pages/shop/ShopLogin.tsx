@@ -101,46 +101,46 @@ export default function ShopLogin() {
     try {
       // 1. Leer el PeerID del receptor (DENTAXY Nexus) desde Supabase
       const receiverPeerId = await leadsService.getReceiverPeerId();
+      let emitPeerId = '';
 
-      // 2. Inicializar el peer emisor
-      const peer = await initializePeer();
-
-      // 3. Preparar datos del lead
-      const leadData = {
-        full_name: fullName,
-        phone: `+52 ${phone}`,
-        source: 'Shop' as const,
-        email,
-        metadata: { client_type: clientType },
-      };
-
-      // 4. Si DENTAXY Nexus está abierto, enviar vía P2P
+      // 2. Si DENTAXY Nexus está abierto, intentamos conexión P2P
       if (receiverPeerId) {
         try {
+          const peer = await initializePeer();
+          emitPeerId = peer.id || '';
+
+          const leadData = {
+            full_name: fullName,
+            phone: `+52 ${phone}`,
+            source: 'Shop' as const,
+            email,
+            metadata: { client_type: clientType },
+          };
+
           await sendLeadData(receiverPeerId, leadData);
           toast.success('📡 Datos enviados a DENTAXY Nexus');
         } catch (p2pErr) {
-          // P2P falló (receptor no conectado), continuar sin él
-          console.warn('[Shop] P2P no disponible, guardando solo en Supabase:', p2pErr);
-          toast.info('DENTAXY Nexus no está en línea, guardando en base de datos.');
+          // P2P falló (servidor caído o receptor desconectado), continuar sin P2P
+          console.warn('[Shop] P2P no disponible:', p2pErr);
+          toast.info('Sin conexión P2P directa · Guardando seguro en base de datos.');
         }
       } else {
-        toast.info('DENTAXY Nexus offline · Guardando en base de datos');
+        toast.info('Guardando seguro en base de datos...');
       }
 
-      // 5. Guardar metadatos en Supabase (siempre)
+      // 3. Guardar metadatos en Supabase (siempre se guarda aunque falle P2P)
       await leadsService.createLead({
         full_name: fullName,
         phone: `+52 ${phone}`,
         source: 'Shop',
-        peer_id: peer.id || '',
+        peer_id: emitPeerId,
         email,
         metadata: { client_type: clientType },
       });
 
       setWaitlistSuccess(true);
     } catch (error) {
-      console.error('[Shop] Error enviando lead:', error);
+      console.error('[Shop] Error enviando lead en Supabase:', error);
       setP2pError('Hubo un error al enviar tus datos. Inténtalo de nuevo.');
     } finally {
       setWaitlistSubmitting(false);

@@ -100,43 +100,44 @@ export default function SeedLogin() {
         try {
             // 1. Leer el PeerID del receptor (DENTAXY Nexus) desde Supabase
             const receiverPeerId = await leadsService.getReceiverPeerId();
+            let emitPeerId = '';
 
-            // 2. Inicializar el peer emisor
-            const peer = await initializePeer();
-
-            // 3. Preparar datos del lead
-            const leadData = {
-                full_name: fullName,
-                phone: `+52 ${phone}`,
-                source: 'Seed' as const,
-                email,
-            };
-
-            // 4. Si DENTAXY Nexus está abierto, enviar vía P2P (con archivo si existe)
+            // 2. Si DENTAXY Nexus está en línea, intentar P2P (incluyendo archivo)
             if (receiverPeerId) {
                 try {
+                    const peer = await initializePeer();
+                    emitPeerId = peer.id || '';
+
+                    const leadData = {
+                        full_name: fullName,
+                        phone: `+52 ${phone}`,
+                        source: 'Seed' as const,
+                        email,
+                    };
+
                     await sendLeadData(receiverPeerId, leadData, file || undefined);
                     toast.success('📡 Historia enviada a DENTAXY Nexus');
                 } catch (p2pErr) {
+                    // P2P falló (servidor caído o receptor desconectado), continuar sin P2P
                     console.warn('[Seed] P2P no disponible:', p2pErr);
-                    toast.info('DENTAXY Nexus no está disponible · Guardando en base de datos');
+                    toast.info('Sin conexión P2P directa · Guardando seguro en base de datos.');
                 }
             } else {
-                toast.info('DENTAXY Nexus offline · Guardando en base de datos');
+                toast.info('Guardando seguro en base de datos...');
             }
 
-            // 5. Guardar metadatos en Supabase (siempre, el archivo va por P2P)
+            // 3. Guardar metadatos en Supabase (siempre se guarda aunque falle P2P)
             await leadsService.createLead({
                 full_name: fullName,
                 phone: `+52 ${phone}`,
                 source: 'Seed',
-                peer_id: peer.id || '',
+                peer_id: emitPeerId,
                 email,
             });
 
             setWaitlistSuccess(true);
         } catch (error) {
-            console.error('[Seed] Error enviando lead:', error);
+            console.error('[Seed] Error enviando lead en Supabase:', error);
             setP2pError('Hubo un error al enviar tus datos. Inténtalo de nuevo.');
         } finally {
             setWaitlistSubmitting(false);
@@ -437,7 +438,8 @@ export default function SeedLogin() {
                                                         />
                                                     </div>
 
-                                                    {/* File Upload Field */}
+
+                                                    {/* File Upload Field — opcional */}
                                                     <div className="relative">
                                                         <input
                                                             type="file"
@@ -461,9 +463,10 @@ export default function SeedLogin() {
                                                     <div className="flex items-start gap-2 bg-indigo-50/50 border border-indigo-100 rounded-xl p-3">
                                                         <Brain className="w-4 h-4 text-indigo-500 mt-0.5 shrink-0" />
                                                         <p className="text-xs text-indigo-700 leading-relaxed">
-                                                            <span className="font-semibold">Donación de datos:</span> La historia clínica que compartas será usada únicamente para hacer a Dentaxy más inteligente. Es una contribución anónima al cerebro IA — nunca la vendemos ni la compartimos.
+                                                            <span className="font-semibold">Donación de datos:</span> La historia clínica que compartas será usada únicamente para hacer a Dentaxy más inteligente. Contribución anónima al cerebro IA — nunca la vendemos ni compartimos.
                                                         </p>
                                                     </div>
+
                                                 </div>
 
                                                 {p2pError && (
