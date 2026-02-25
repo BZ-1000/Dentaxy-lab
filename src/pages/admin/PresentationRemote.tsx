@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft, ChevronRight, AlertTriangle, Wifi, WifiOff } from 'lucide-react';
 
-const TOTAL_SLIDES = 10;
+const TOTAL_SLIDES = 11;
 
 export default function PresentationRemote() {
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -116,7 +116,7 @@ export default function PresentationRemote() {
     const slideNames = [
         'Portada', 'Problema', 'Validación', 'Acelerador',
         'Crecimiento', 'Autoridad', 'Ecosistema', 'Personalización',
-        'Visión CEO', 'Cierre'
+        'Motor de Simulación', 'UAZ: Propuesta', 'Resultados UAZ',
     ];
 
     // Vista Launcher

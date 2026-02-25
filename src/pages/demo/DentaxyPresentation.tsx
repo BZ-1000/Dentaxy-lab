@@ -1167,42 +1167,181 @@ const Slide8SimEngine = () => {
 };
 
 
-/* Slide 9 — CIERRE */
-const Slide9Closing = () => (
-  <div style={{ maxWidth: 700, textAlign: "center" }}>
+/* Slide 9 — UAZ: ALIADO INSTITUCIONAL */
+const Slide9UAZ = ({ onCalificar }: { onCalificar?: () => void }) => (
+  <GlassCard glow="green" style={{ maxWidth: 860, padding: '28px 36px' }}>
     <motion.div {...a(0)}>
-      <motion.div animate={{ y: [0, -8, 0] }} transition={{ duration: 2.5, repeat: Infinity }}>
-        <DentaxyLogo size={68} />
-      </motion.div>
-    </motion.div>
-    <motion.div {...a(0.15)} style={{ marginTop: 20 }}>
-      <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: "0.2em", color: "#10B981", textTransform: "uppercase", marginBottom: 16, fontFamily: "'Space Grotesk'", textShadow: "0 0 8px #10B98188" }}>✦ Startup Unicornio en Proceso · Contrato de Excelencia 3M ✦</p>
-      <h1 style={{ fontFamily: "'Syne'", fontSize: "clamp(24px,4vw,48px)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1.08, marginBottom: 14 }}>
-        <span style={{ color: "white" }}>UAZ: </span><span className="shimmer-text">Socio Fundador</span><br />
-        <span style={{ color: "rgba(255,255,255,0.85)" }}>y Hub de Innovación Dental de México</span>
-      </h1>
-      <p style={{ fontSize: 16, color: "rgba(255,255,255,0.45)", lineHeight: 1.8, maxWidth: 440, margin: "0 auto 36px", fontFamily: "'Inter'", fontWeight: 200 }}>
-        Si no firman hoy, pierden la oportunidad de ser los arquitectos de la odontología del futuro.
+      <Tag color="#10B981">Aliado Institucional</Tag>
+      <H1>UAZ: <span style={{ color: '#10B981', textShadow: '0 0 20px #10B98188' }}>Hub de Innovación</span> Dental</H1>
+      <p style={{ fontSize: 10, fontWeight: 500, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', fontFamily: "'Space Grotesk'", marginBottom: 18 }}>
+        Startup Unicornio en Proceso · Contrato de Excelencia Tecnológica
       </p>
     </motion.div>
-    <motion.div {...a(0.38)}>
-      <motion.button whileHover={{ scale: 1.06, boxShadow: "0 0 60px rgba(16,185,129,0.7)" }} whileTap={{ scale: 0.97 }}
-        style={{ background: "linear-gradient(135deg,#10B981,#059669)", color: "white", border: "none", borderRadius: 100, padding: "20px 58px", fontSize: 14, fontWeight: 600, cursor: "pointer", boxShadow: "0 0 30px rgba(16,185,129,0.5)", letterSpacing: "0.12em", fontFamily: "'Space Grotesk'" }}>
-        IMPLEMENTAR EN UAZ
+
+    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+      {/* 1. Propuesta Financiera */}
+      <motion.div {...a(0.15)} className="glass" style={{ padding: '14px 16px', border: '1px solid rgba(16,185,129,0.2)' }}>
+        <p style={{ fontSize: 10, color: '#10B981', fontWeight: 700, letterSpacing: '0.12em', marginBottom: 10, fontFamily: "'Space Grotesk'" }}>1. PROPUESTA FINANCIERA Y LANZAMIENTO</p>
+        {[
+          ['💰', 'Inversión Institucional', '$3,300,000 MXN (esquema semestral)'],
+          ['🟢', 'Implementación 2026', 'Full Access Institucional sin costo'],
+          ['📅', 'Operación 2027', 'Licenciamiento semestral (soporte, nube, updates)'],
+        ].map(([icon, t, d], i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            <span style={{ fontSize: 14, flexShrink: 0 }}>{icon}</span>
+            <div>
+              <p style={{ fontSize: 11.5, fontWeight: 600, color: 'rgba(255,255,255,0.85)', fontFamily: "'Space Grotesk'", marginBottom: 1 }}>{t}</p>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter'", fontWeight: 300 }}>{d}</p>
+            </div>
+          </div>
+        ))}
+      </motion.div>
+
+      {/* 2. Ecosistema Evolutivo */}
+      <motion.div {...a(0.25)} className="glass" style={{ padding: '14px 16px', border: '1px solid rgba(99,102,241,0.2)' }}>
+        <p style={{ fontSize: 10, color: '#818CF8', fontWeight: 700, letterSpacing: '0.12em', marginBottom: 10, fontFamily: "'Space Grotesk'" }}>2. BENEFICIOS DE ECOSISTEMA EVOLUTIVO</p>
+        {[
+          ['🔧', 'Tecnología Modular', '6 meses de prueba gratuita en cada nueva tecnología Dentaxy.'],
+          ['🎓', 'Impacto al Egresado', '50% de descuento en paquete inicial de Dentaxy Seed para alumnos UAZ.'],
+        ].map(([icon, t, d], i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+            <span style={{ fontSize: 14, flexShrink: 0 }}>{icon}</span>
+            <div>
+              <p style={{ fontSize: 11.5, fontWeight: 600, color: 'rgba(255,255,255,0.85)', fontFamily: "'Space Grotesk'", marginBottom: 2 }}>{t}</p>
+              <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter'", fontWeight: 300, lineHeight: 1.5 }}>{d}</p>
+            </div>
+          </div>
+        ))}
+      </motion.div>
+    </div>
+
+    {/* 3. Calificación */}
+    <motion.div {...a(0.35)} className="glass" style={{ padding: '14px 18px', border: '1px solid rgba(245,158,11,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+      <div>
+        <p style={{ fontSize: 10, color: '#F59E0B', fontWeight: 700, letterSpacing: '0.12em', marginBottom: 4, fontFamily: "'Space Grotesk'" }}>3. CALIFICACIÓN DEL PROYECTO</p>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', fontFamily: "'Inter'", fontWeight: 300 }}>
+          Su visión define el estándar de la odontología en México.
+        </p>
+      </div>
+      <motion.button
+        whileHover={{ scale: 1.06, boxShadow: '0 0 40px rgba(245,158,11,0.5)' }}
+        whileTap={{ scale: 0.97 }}
+        onClick={onCalificar}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0,
+          padding: '12px 22px', borderRadius: 100,
+          background: 'linear-gradient(135deg, #F59E0B, #D97706)',
+          border: 'none', color: 'white',
+          fontSize: 13, fontWeight: 700, fontFamily: "'Space Grotesk'",
+          letterSpacing: '0.08em', cursor: 'pointer',
+          boxShadow: '0 0 24px rgba(245,158,11,0.35)',
+        }}
+      >
+        ⭐ CALIFICAR AQUÍ
       </motion.button>
     </motion.div>
-    <motion.div {...a(0.55)} style={{ marginTop: 28 }}>
-      <div style={{ display: "flex", justifyContent: "center", gap: 24, flexWrap: "wrap" }}>
-        {[["🔒", "Seguridad Médica", "#10B981"], ["🏆", "1er Lugar UAZ", "#6366F1"], ["🚀", "IA Clínica Activa", "#A855F7"]].map(([icon, t, c], i) => (
-          <motion.div key={i} whileHover={{ y: -2 }} className="glass" style={{ display: "flex", alignItems: "center", gap: 7, padding: "8px 16px", boxShadow: `0 0 16px ${c}22` }}>
-            <span style={{ fontSize: 14 }}>{icon}</span>
-            <span style={{ fontSize: 11.5, color: "rgba(255,255,255,0.55)", fontFamily: "'Space Grotesk'" }}>{t}</span>
-          </motion.div>
-        ))}
-      </div>
-    </motion.div>
-  </div>
+  </GlassCard>
 );
+
+/* Slide 10 — RESULTADOS EN TIEMPO REAL */
+const Slide10Results = () => {
+  const [ratings, setRatings] = useState<{ id: string; name: string; cargo: string; stars: number }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      const { data } = await (supabase as any)
+        .from('uaz_ratings')
+        .select('*')
+        .order('created_at', { ascending: false });
+      setRatings(data || []);
+      setLoading(false);
+    };
+    load();
+
+    const channel = (supabase as any)
+      .channel('uaz-ratings-live')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'uaz_ratings' },
+        (payload: any) => {
+          setRatings(prev => [payload.new, ...prev]);
+        })
+      .subscribe();
+
+    return () => { (supabase as any).removeChannel(channel); };
+  }, []);
+
+  const avg = ratings.length > 0 ? (ratings.reduce((s, r) => s + r.stars, 0) / ratings.length) : 0;
+  const fullStars = (n: number) => '⭐'.repeat(n) + '☆'.repeat(5 - n);
+
+  return (
+    <GlassCard glow="purple" style={{ maxWidth: 860, padding: '28px 36px' }}>
+      <motion.div {...a(0)} style={{ textAlign: 'center', marginBottom: 20 }}>
+        <Tag color="#A855F7">Resultados en Tiempo Real</Tag>
+        <H1 center>DENTAXY <span style={{ color: '#10B981' }}>×</span> UAZ:<br />
+          <span style={{ fontSize: 'clamp(16px,2vw,26px)', color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>El Futuro en Tiempo Real</span>
+        </H1>
+      </motion.div>
+
+      {/* Promedio */}
+      <motion.div {...a(0.1)} style={{ textAlign: 'center', marginBottom: 22 }}>
+        <div className="glass" style={{ display: 'inline-flex', alignItems: 'center', gap: 16, padding: '14px 28px', border: '1px solid rgba(168,85,247,0.25)' }}>
+          <div>
+            <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.16em', textTransform: 'uppercase', fontFamily: "'Space Grotesk'", marginBottom: 3 }}>Promedio de Aceptación</p>
+            <p style={{ fontSize: 32, lineHeight: 1 }}>{ratings.length > 0 ? fullStars(Math.round(avg)) : '☆☆☆☆☆'}</p>
+          </div>
+          <div style={{ textAlign: 'left' }}>
+            <p style={{ fontSize: 28, fontWeight: 800, color: avg >= 4 ? '#10B981' : '#F59E0B', fontFamily: "'Syne'" }}>{ratings.length > 0 ? avg.toFixed(1) : '—'}</p>
+            <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', fontFamily: "'Space Grotesk'" }}>{ratings.length} voto{ratings.length !== 1 ? 's' : ''}</p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Tabla */}
+      <motion.div {...a(0.2)} style={{ background: 'rgba(255,255,255,0.02)', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: "'Space Grotesk'" }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}>
+              {['Autoridad / Directivo', 'Cargo', 'Calificación', 'Validación'].map(h => (
+                <th key={h} style={{ padding: '9px 14px', textAlign: 'left', fontSize: 9.5, fontWeight: 600, color: 'rgba(255,255,255,0.3)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {loading && (
+              <tr><td colSpan={4} style={{ padding: '24px', textAlign: 'center', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>Cargando...</td></tr>
+            )}
+            {!loading && ratings.length === 0 && (
+              <tr>
+                <td colSpan={4} style={{ padding: '24px', textAlign: 'center' }}>
+                  <p style={{ fontSize: 28, marginBottom: 8 }}>☆</p>
+                  <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', fontFamily: "'Inter'", fontWeight: 300 }}>Las calificaciones aparecerán aquí en tiempo real</p>
+                </td>
+              </tr>
+            )}
+            {ratings.map((r, i) => (
+              <motion.tr
+                key={r.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+                style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+              >
+                <td style={{ padding: '10px 14px', fontSize: 13, color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>{r.name}</td>
+                <td style={{ padding: '10px 14px', fontSize: 11.5, color: 'rgba(255,255,255,0.45)' }}>{r.cargo}</td>
+                <td style={{ padding: '10px 14px', fontSize: 14 }}>{fullStars(r.stars)}</td>
+                <td style={{ padding: '10px 14px' }}>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 10.5, fontWeight: 600, color: r.stars >= 4 ? '#10B981' : '#F59E0B', background: r.stars >= 4 ? 'rgba(16,185,129,0.12)' : 'rgba(245,158,11,0.12)', border: `1px solid ${r.stars >= 4 ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}`, borderRadius: 20, padding: '3px 10px' }}>
+                    {r.stars >= 4 ? '✓ Proyecto Validado' : '○ En revisión'}
+                  </span>
+                </td>
+              </motion.tr>
+            ))}
+          </tbody>
+        </table>
+      </motion.div>
+    </GlassCard>
+  );
+};
 
 /* ─── ARRAY DE SLIDES (componentes nombrados, sin hooks inline) ─── */
 const SLIDES = [
@@ -1215,7 +1354,8 @@ const SLIDES = [
   Slide6Ecosystem,
   Slide7Personalization,
   Slide8SimEngine,
-  Slide9Closing,
+  Slide9UAZ,
+  Slide10Results,
 ];
 
 /* ─── COMPONENTE RAÍZ ─── */
@@ -1231,6 +1371,14 @@ export default function DentaxyPresentation() {
   const [showGrowthTiming, setShowGrowthTiming] = useState(false);
   const [activeYearLog, setActiveYearLog] = useState<string | null>(null);
   const [showHubInvite, setShowHubInvite] = useState(false);
+  // ⭐ Modal de calificación UAZ
+  const [showRatingModal, setShowRatingModal] = useState(false);
+  const [ratingName, setRatingName] = useState('');
+  const [ratingCargo, setRatingCargo] = useState('');
+  const [ratingStars, setRatingStars] = useState(0);
+  const [ratingHover, setRatingHover] = useState(0);
+  const [ratingSending, setRatingSending] = useState(false);
+  const [ratingSent, setRatingSent] = useState(false);
   const TOTAL = SLIDES.length;
 
   // Ref para que goTo siempre lea el idx actual (evita stale closures en Realtime)
@@ -1327,6 +1475,7 @@ export default function DentaxyPresentation() {
     if (idx === 3) return <Slide3Accelerator onShowAcceleratorStudios={() => setShowAcceleratorStudios(true)} />;
     if (idx === 4) return <Slide4Growth onShowGrowthTiming={() => setShowGrowthTiming(true)} activeYearLog={activeYearLog} onShowYearLog={(y) => setActiveYearLog(y ?? null)} />;
     if (idx === 6) return <Slide6Ecosystem onExplorarHub={() => window.open('/hub', '_blank')} />;
+    if (idx === 9) return <Slide9UAZ onCalificar={() => { setRatingSent(false); setRatingStars(0); setRatingName(''); setRatingCargo(''); setShowRatingModal(true); }} />;
     return <SlideContent />;
   };
 
@@ -1850,6 +1999,128 @@ export default function DentaxyPresentation() {
                 >
                   Cerrar
                 </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* \u2b50 MODAL: Calificar Proyecto UAZ */}
+      <AnimatePresence>
+        {showRatingModal && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => !ratingSending && setShowRatingModal(false)}
+              style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(20px)' }}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.88, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.88, y: 24 }}
+              transition={{ type: 'spring', stiffness: 360, damping: 28 }}
+              style={{ position: 'fixed', inset: 0, zIndex: 201, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}
+            >
+              <div style={{
+                width: 'min(420px, 92vw)', borderRadius: 24, padding: '32px 28px',
+                background: 'rgba(5,10,20,0.95)', backdropFilter: 'blur(40px)',
+                border: '1px solid rgba(245,158,11,0.3)',
+                boxShadow: '0 32px 80px rgba(0,0,0,0.7), 0 0 80px rgba(245,158,11,0.1)',
+                pointerEvents: 'auto',
+              }}>
+                {ratingSent ? (
+                  /* Estado de éxito */
+                  <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: 'center' }}>
+                    <p style={{ fontSize: 48, marginBottom: 14 }}>✅</p>
+                    <p style={{ fontSize: 18, fontWeight: 700, color: 'white', fontFamily: "'Syne'", marginBottom: 8 }}>¡Calificación Registrada!</p>
+                    <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter'", fontWeight: 300, marginBottom: 20 }}>
+                      Tu voto aparecerá en la diapositiva de resultados en tiempo real.
+                    </p>
+                    <button
+                      onClick={() => setShowRatingModal(false)}
+                      style={{ padding: '10px 28px', borderRadius: 100, background: 'linear-gradient(135deg, #F59E0B, #D97706)', border: 'none', color: 'white', fontSize: 13, fontWeight: 600, fontFamily: "'Space Grotesk'", cursor: 'pointer' }}
+                    >
+                      Cerrar
+                    </button>
+                  </motion.div>
+                ) : (
+                  /* Formulario */
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                      <div>
+                        <p style={{ fontSize: 10, color: '#F59E0B', fontWeight: 700, letterSpacing: '0.16em', fontFamily: "'Space Grotesk'" }}>CALIFICACIÓN DEL PROYECTO</p>
+                        <p style={{ fontSize: 18, fontWeight: 800, color: 'white', fontFamily: "'Syne'" }}>Dentaxy × UAZ</p>
+                      </div>
+                      <button onClick={() => setShowRatingModal(false)} style={{ width: 32, height: 32, borderRadius: 10, border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: 16 }}>✕</button>
+                    </div>
+
+                    {/* Estrellas */}
+                    <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                      <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: "'Space Grotesk'", marginBottom: 10 }}>Selecciona tu calificación</p>
+                      <div style={{ display: 'flex', justifyContent: 'center', gap: 8 }}>
+                        {[1, 2, 3, 4, 5].map(s => (
+                          <motion.button
+                            key={s}
+                            whileHover={{ scale: 1.3 }}
+                            whileTap={{ scale: 0.9 }}
+                            onMouseEnter={() => setRatingHover(s)}
+                            onMouseLeave={() => setRatingHover(0)}
+                            onClick={() => setRatingStars(s)}
+                            style={{ background: 'none', border: 'none', fontSize: 32, cursor: 'pointer', filter: (ratingHover || ratingStars) >= s ? 'drop-shadow(0 0 8px #F59E0B)' : 'grayscale(1) opacity(0.3)', transition: 'filter 0.15s' }}
+                          >
+                            ⭐
+                          </motion.button>
+                        ))}
+                      </div>
+                      {ratingStars > 0 && (
+                        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ fontSize: 11, color: '#F59E0B', fontFamily: "'Space Grotesk'", marginTop: 6 }}>
+                          {['', 'Necesita mejoras', 'Aceptable', 'Bueno', 'Muy bueno', 'Proyecto Validado ✓'][ratingStars]}
+                        </motion.p>
+                      )}
+                    </div>
+
+                    {/* Campos */}
+                    {[
+                      { label: 'Nombre completo *', val: ratingName, set: setRatingName, ph: 'Dr. Nombre Apellido' },
+                      { label: 'Cargo / Institución', val: ratingCargo, set: setRatingCargo, ph: 'Director, UAZ' },
+                    ].map(f => (
+                      <div key={f.label} style={{ marginBottom: 12 }}>
+                        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', fontFamily: "'Space Grotesk'", marginBottom: 5, letterSpacing: '0.08em' }}>{f.label}</p>
+                        <input
+                          value={f.val}
+                          onChange={e => f.set(e.target.value)}
+                          placeholder={f.ph}
+                          style={{ width: '100%', padding: '10px 14px', borderRadius: 12, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontSize: 13, fontFamily: "'Inter'", outline: 'none', boxSizing: 'border-box' }}
+                        />
+                      </div>
+                    ))}
+
+                    {/* Botón enviar */}
+                    <motion.button
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                      onClick={async () => {
+                        if (!ratingName.trim() || ratingStars === 0) return;
+                        setRatingSending(true);
+                        await (supabase as any).from('uaz_ratings').insert([{ name: ratingName.trim(), cargo: ratingCargo.trim(), stars: ratingStars }]);
+                        setRatingSending(false);
+                        setRatingSent(true);
+                      }}
+                      disabled={!ratingName.trim() || ratingStars === 0 || ratingSending}
+                      style={{
+                        width: '100%', padding: '14px', borderRadius: 100, marginTop: 8,
+                        background: (!ratingName.trim() || ratingStars === 0) ? 'rgba(255,255,255,0.07)' : 'linear-gradient(135deg, #F59E0B, #D97706)',
+                        border: 'none', color: (!ratingName.trim() || ratingStars === 0) ? 'rgba(255,255,255,0.3)' : 'white',
+                        fontSize: 13, fontWeight: 700, fontFamily: "'Space Grotesk'",
+                        letterSpacing: '0.08em', cursor: (!ratingName.trim() || ratingStars === 0) ? 'default' : 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {ratingSending ? 'Enviando...' : '⭐ ENVIAR CALIFICACIÓN'}
+                    </motion.button>
+                  </>
+                )}
               </div>
             </motion.div>
           </>
