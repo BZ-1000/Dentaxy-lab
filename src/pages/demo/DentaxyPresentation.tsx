@@ -410,26 +410,26 @@ const ESTUDIOS = [
   },
 ];
 
-/* ─── DESCARGA PDF CON BRANDING DENTAXY ─── */
-const descargarEstudiosPDF = () => {
+/* ─── HELPER: GENERAR PDF (Solución Robusta) ─── */
+const generarPDF = (title: string, tag: string, contentTitle: string, subtitle: string, items: any[], accentColor: string) => {
   const html = `<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
-<title>Dentaxy — Base Científica del Problema</title>
+<title>Dentaxy — ${title}</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:'Helvetica Neue',Arial,sans-serif;background:#fff;color:#111;padding:48px 56px}
-  .header{display:flex;align-items:center;gap:16px;margin-bottom:40px;padding-bottom:24px;border-bottom:2px solid #10B981}
+  .header{display:flex;align-items:center;gap:16px;margin-bottom:40px;padding-bottom:24px;border-bottom:2px solid ${accentColor}}
   .logo{width:48px;height:48px;border-radius:12px;overflow:hidden}
   .logo img{width:100%;height:100%;object-fit:cover}
   .brand{display:flex;flex-direction:column}
   .brand-name{font-size:22px;font-weight:800;letter-spacing:-0.03em;color:#111}
-  .brand-tag{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#10B981;margin-top:2px}
+  .brand-tag{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:${accentColor};margin-top:2px}
   h1{font-size:28px;font-weight:800;color:#111;letter-spacing:-0.03em;margin-bottom:8px}
   .subtitle{font-size:13px;color:#666;margin-bottom:36px}
-  .estudio{margin-bottom:28px;padding:20px 24px;border-radius:12px;border-left:4px solid #10B981;background:#FAFAFA}
-  .estudio-num{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#10B981;margin-bottom:6px}
+  .estudio{margin-bottom:28px;padding:20px 24px;border-radius:12px;border-left:4px solid ${accentColor};background:#FAFAFA}
+  .estudio-num{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:${accentColor};margin-bottom:6px}
   .estudio-titulo{font-size:15px;font-weight:700;color:#111;margin-bottom:8px}
   .estudio-dato{font-size:12px;color:#444;line-height:1.7;margin-bottom:10px}
   .estudio-ref{font-size:11px;font-style:italic;color:#888;margin-bottom:6px}
@@ -442,11 +442,11 @@ const descargarEstudiosPDF = () => {
 <body>
 <div class="header">
   <div class="logo"><img src="${window.location.origin}/brand/dentaxy-icon-solid.png" alt="Dentaxy"/></div>
-  <div class="brand"><span class="brand-name">DENTAXY</span><span class="brand-tag">Base Científica — El Problema</span></div>
+  <div class="brand"><span class="brand-name">DENTAXY</span><span class="brand-tag">${tag}</span></div>
 </div>
-<h1>La Crisis Silenciosa del Expediente Clínico</h1>
-<p class="subtitle">Evidencia científica que respalda la necesidad de una solución tecnológica en odontología educativa • dentaxy.com</p>
-${ESTUDIOS.map(e => `
+<h1>${contentTitle}</h1>
+<p class="subtitle">${subtitle}</p>
+${items.map(e => `
 <div class="estudio" style="border-left-color:${e.color}">
   <div class="estudio-num">${e.num} —</div>
   <div class="estudio-titulo">${e.titulo}</div>
@@ -456,22 +456,35 @@ ${ESTUDIOS.map(e => `
 </div>`).join('')}
 <div class="footer">
   <span class="footer-text">© ${new Date().getFullYear()} DENTAXY TECHNOLOGIES — dentaxy.com</span>
-  <span class="footer-text">Documento generado el ${new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+  <span class="footer-text">Generado el ${new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
 </div>
+<script>
+  window.onload = () => {
+    window.print();
+    setTimeout(() => window.close(), 500);
+  };
+</script>
 </body></html>`;
 
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px';
-  document.body.appendChild(iframe);
-  iframe.onload = () => {
-    setTimeout(() => {
-      iframe.contentWindow?.print();
-      setTimeout(() => { document.body.removeChild(iframe); URL.revokeObjectURL(url); }, 2000);
-    }, 300);
-  };
-  iframe.src = url;
+  const printWindow = window.open('', '_blank', 'width=800,height=900');
+  if (printWindow) {
+    printWindow.document.write(html);
+    printWindow.document.close();
+  } else {
+    alert('Por favor, permite las ventanas emergentes para descargar el PDF.');
+  }
+};
+
+/* ─── DESCARGA PDF CON BRANDING DENTAXY ─── */
+const descargarEstudiosPDF = () => {
+  generarPDF(
+    "Base Científica del Problema",
+    "Base Científica — El Problema",
+    "La Crisis Silenciosa del Expediente Clínico",
+    "Evidencia científica que respalda la necesidad de una solución tecnológica en odontología educativa • dentaxy.com",
+    ESTUDIOS,
+    "#10B981"
+  );
 };
 
 /* Slide 1 — PROBLEMA */
@@ -573,66 +586,14 @@ const ESTUDIOS_ACELERADOR = [
 
 /* ─── DESCARGA PDF ACELERADOR ─── */
 const descargarAceleradorPDF = () => {
-  const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8"/>
-<title>Dentaxy — Evidencia Científica del Acelerador</title>
-<style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Helvetica Neue',Arial,sans-serif;background:#fff;color:#111;padding:48px 56px}
-  .header{display:flex;align-items:center;gap:16px;margin-bottom:40px;padding-bottom:24px;border-bottom:2px solid #10B981}
-  .logo{width:48px;height:48px;border-radius:12px;overflow:hidden}
-  .logo img{width:100%;height:100%;object-fit:cover}
-  .brand{display:flex;flex-direction:column}
-  .brand-name{font-size:22px;font-weight:800;letter-spacing:-0.03em;color:#111}
-  .brand-tag{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#10B981;margin-top:2px}
-  h1{font-size:28px;font-weight:800;color:#111;letter-spacing:-0.03em;margin-bottom:8px}
-  .subtitle{font-size:13px;color:#666;margin-bottom:36px}
-  .estudio{margin-bottom:28px;padding:20px 24px;border-radius:12px;border-left:4px solid #10B981;background:#FAFAFA}
-  .estudio-num{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#10B981;margin-bottom:6px}
-  .estudio-titulo{font-size:15px;font-weight:700;color:#111;margin-bottom:8px}
-  .estudio-dato{font-size:12px;color:#444;line-height:1.7;margin-bottom:10px}
-  .estudio-ref{font-size:11px;font-style:italic;color:#888;margin-bottom:6px}
-  .estudio-link{font-size:11px;color:#6366F1;text-decoration:none}
-  .footer{margin-top:48px;padding-top:20px;border-top:1px solid #E5E5E5;display:flex;justify-content:space-between;align-items:center}
-  .footer-text{font-size:10px;color:#AAA;letter-spacing:0.08em}
-  @media print{body{padding:32px 40px}.estudio{break-inside:avoid}}
-</style>
-</head>
-<body>
-<div class="header">
-  <div class="logo"><img src="${window.location.origin}/brand/dentaxy-icon-solid.png" alt="Dentaxy"/></div>
-  <div class="brand"><span class="brand-name">DENTAXY</span><span class="brand-tag">Evidencia Científica — El Acelerador</span></div>
-</div>
-<h1>El Acelerador: Por Qué Dentaxy Funciona</h1>
-<p class="subtitle">Evidencia científica que respalda el modelo de enseñanza clínica guiada de Dentaxy para la UAZ • dentaxy.com</p>
-${ESTUDIOS_ACELERADOR.map(e => `
-<div class="estudio" style="border-left-color:${e.color}">
-  <div class="estudio-num">${e.num} —</div>
-  <div class="estudio-titulo">${e.titulo}</div>
-  <div class="estudio-dato">${e.dato}</div>
-  <div class="estudio-ref">📄 ${e.estudio}</div>
-  <a class="estudio-link" href="${e.link}">${e.linkLabel} →</a>
-</div>`).join('')}
-<div class="footer">
-  <span class="footer-text">© ${new Date().getFullYear()} DENTAXY TECHNOLOGIES — dentaxy.com</span>
-  <span class="footer-text">Generado el ${new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-</div>
-</body></html>`;
-
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px';
-  document.body.appendChild(iframe);
-  iframe.onload = () => {
-    setTimeout(() => {
-      iframe.contentWindow?.print();
-      setTimeout(() => { document.body.removeChild(iframe); URL.revokeObjectURL(url); }, 2000);
-    }, 300);
-  };
-  iframe.src = url;
+  generarPDF(
+    "Evidencia Científica del Acelerador",
+    "Evidencia Científica — El Acelerador",
+    "El Acelerador: Por Qué Dentaxy Funciona",
+    "Evidencia científica que respalda el modelo de enseñanza clínica guiada de Dentaxy para la UAZ • dentaxy.com",
+    ESTUDIOS_ACELERADOR,
+    "#10B981"
+  );
 };
 
 /* Slide 3 — ACELERADOR */
@@ -723,66 +684,14 @@ const ESTUDIOS_TIMING = [
 
 /* ─── DESCARGA PDF TIMING 2026 ─── */
 const descargarTimingPDF = () => {
-  const html = `<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8"/>
-<title>Dentaxy — Por Qué 2026 es el Momento Zero</title>
-<style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Helvetica Neue',Arial,sans-serif;background:#fff;color:#111;padding:48px 56px}
-  .header{display:flex;align-items:center;gap:16px;margin-bottom:40px;padding-bottom:24px;border-bottom:2px solid #EAB308}
-  .logo{width:48px;height:48px;border-radius:12px;overflow:hidden}
-  .logo img{width:100%;height:100%;object-fit:cover}
-  .brand{display:flex;flex-direction:column}
-  .brand-name{font-size:22px;font-weight:800;letter-spacing:-0.03em;color:#111}
-  .brand-tag{font-size:10px;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;color:#EAB308;margin-top:2px}
-  h1{font-size:28px;font-weight:800;color:#111;letter-spacing:-0.03em;margin-bottom:8px}
-  .subtitle{font-size:13px;color:#666;margin-bottom:36px}
-  .estudio{margin-bottom:28px;padding:20px 24px;border-radius:12px;border-left:4px solid #EAB308;background:#FAFAFA}
-  .estudio-num{font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#EAB308;margin-bottom:6px}
-  .estudio-titulo{font-size:15px;font-weight:700;color:#111;margin-bottom:8px}
-  .estudio-dato{font-size:12px;color:#444;line-height:1.7;margin-bottom:10px}
-  .estudio-ref{font-size:11px;font-style:italic;color:#888;margin-bottom:6px}
-  .estudio-link{font-size:11px;color:#6366F1;text-decoration:none}
-  .footer{margin-top:48px;padding-top:20px;border-top:1px solid #E5E5E5;display:flex;justify-content:space-between;align-items:center}
-  .footer-text{font-size:10px;color:#AAA;letter-spacing:0.08em}
-  @media print{body{padding:32px 40px}.estudio{break-inside:avoid}}
-</style>
-</head>
-<body>
-<div class="header">
-  <div class="logo"><img src="${window.location.origin}/brand/dentaxy-icon-solid.png" alt="Dentaxy"/></div>
-  <div class="brand"><span class="brand-name">DENTAXY</span><span class="brand-tag">El Timing Perfecto — 2026</span></div>
-</div>
-<h1>La Ventana Tecnológica (2022-2026)</h1>
-<p class="subtitle">Justificación del "Act Two" de la IA y cómo Dentaxy desarrolló su Core acorde a las predicciones 2026 • dentaxy.com</p>
-${ESTUDIOS_TIMING.map(e => `
-<div class="estudio" style="border-left-color:${e.color}">
-  <div class="estudio-num">${e.num} —</div>
-  <div class="estudio-titulo">${e.titulo}</div>
-  <div class="estudio-dato">${e.dato}</div>
-  <div class="estudio-ref">📄 ${e.estudio}</div>
-  <a class="estudio-link" href="${e.link}">${e.linkLabel} →</a>
-</div>`).join('')}
-<div class="footer">
-  <span class="footer-text">© ${new Date().getFullYear()} DENTAXY TECHNOLOGIES — dentaxy.com</span>
-  <span class="footer-text">Generado el ${new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-</div>
-</body></html>`;
-
-  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px';
-  document.body.appendChild(iframe);
-  iframe.onload = () => {
-    setTimeout(() => {
-      iframe.contentWindow?.print();
-      setTimeout(() => { document.body.removeChild(iframe); URL.revokeObjectURL(url); }, 2000);
-    }, 300);
-  };
-  iframe.src = url;
+  generarPDF(
+    "Por Qué 2026 es el Momento Zero",
+    "El Timing Perfecto — 2026",
+    "La Ventana Tecnológica (2022-2026)",
+    "Justificación del \"Act Two\" de la IA y cómo Dentaxy desarrolló su Core acorde a las predicciones 2026 • dentaxy.com",
+    ESTUDIOS_TIMING,
+    "#EAB308"
+  );
 };
 
 /* Slide 4 — CRECIMIENTO */
