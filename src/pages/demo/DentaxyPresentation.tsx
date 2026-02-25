@@ -900,14 +900,14 @@ const Slide5Authority = () => (
 );
 
 /* Slide 6 — ECOSISTEMA */
-const Slide6Ecosystem = () => (
+const Slide6Ecosystem = ({ onExplorarHub }: { onExplorarHub?: () => void }) => (
   <GlassCard glow="green">
     <motion.div {...a(0)}><Tag color="#10B981">Ecosistema</Tag><H1>El Universo <span style={{ color: "#10B981", textShadow: "0 0 20px #10B98188" }}>Dentaxy</span></H1></motion.div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32, alignItems: "center", marginTop: 18 }}>
       <motion.div {...a(0.2)}><NodeDiagram /></motion.div>
       <motion.div {...a(0.35)}>
         <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.85, marginBottom: 20, fontFamily: "'Inter'", fontWeight: 300 }}>Estructuras planificadas por IA analizando conductas reales de aprendizaje clínico.</p>
-        <motion.div whileHover={{ scale: 1.02 }} className="glass" style={{ padding: "16px 18px", display: "flex", gap: 12, alignItems: "flex-start", border: "1px solid rgba(16,185,129,0.2)" }}>
+        <motion.div whileHover={{ scale: 1.02 }} className="glass" style={{ padding: "16px 18px", display: "flex", gap: 12, alignItems: "flex-start", border: "1px solid rgba(16,185,129,0.2)", marginBottom: 20 }}>
           <div style={{ padding: 8, background: "rgba(16,185,129,0.15)", borderRadius: 10, border: "1px solid rgba(16,185,129,0.3)", flexShrink: 0 }}>
             <Shield size={16} style={{ color: "#10B981" }} />
           </div>
@@ -916,6 +916,26 @@ const Slide6Ecosystem = () => (
             <p style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", lineHeight: 1.7, fontFamily: "'Inter'", fontWeight: 300 }}>Arquitectura <span style={{ color: "#10B981", fontWeight: 500 }}>Offline-First</span> & Encriptación de Grado Médico</p>
           </div>
         </motion.div>
+        {/* Botón Explorar más */}
+        <motion.button
+          whileHover={{ scale: 1.04, boxShadow: '0 0 32px rgba(16,185,129,0.45)' }}
+          whileTap={{ scale: 0.97 }}
+          onClick={onExplorarHub}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '12px 24px', borderRadius: 100,
+            background: 'linear-gradient(135deg, #10B981, #059669)',
+            border: '1px solid rgba(16,185,129,0.4)',
+            color: 'white', fontSize: 13, fontWeight: 600,
+            fontFamily: "'Space Grotesk'", letterSpacing: '0.08em',
+            cursor: 'pointer', boxShadow: '0 0 20px rgba(16,185,129,0.3)',
+            width: '100%', justifyContent: 'center',
+          }}
+        >
+          <span style={{ fontSize: 15 }}>⚡</span>
+          EXPLORAR MÓDULOS
+          <span style={{ fontSize: 13, opacity: 0.7 }}>→</span>
+        </motion.button>
       </motion.div>
     </div>
   </GlassCard>
@@ -1085,7 +1105,7 @@ export default function DentaxyPresentation() {
     setK(p => p + 1);
   };
 
-  // Suscripción Realtime: escuchar cambios de slide y manualMode desde Supabase
+  // Suscripción Realtime: escuchar cambios de slide, manualMode y open_hub desde Supabase
   useEffect(() => {
     // Cargar estado inicial
     const loadState = async () => {
@@ -1113,6 +1133,16 @@ export default function DentaxyPresentation() {
         setManualMode(row.manual_mode);
         if (!row.manual_mode) {
           goTo(row.current_slide);
+        }
+        // 🛰️ Comando remoto: abrir /hub en nueva pestaña
+        if (row.open_hub === true) {
+          window.open('/hub', '_blank');
+          // Resetear la bandera para que no se abra de nuevo en reloads
+          (supabase as any)
+            .from('presentation_state')
+            .update({ open_hub: false })
+            .eq('id', 1)
+            .then(() => { });
         }
       })
       .subscribe();
@@ -1146,6 +1176,7 @@ export default function DentaxyPresentation() {
     if (idx === 2) return <Slide2Validation onShowRecognition={() => setShowRecognition(true)} />;
     if (idx === 3) return <Slide3Accelerator onShowAcceleratorStudios={() => setShowAcceleratorStudios(true)} />;
     if (idx === 4) return <Slide4Growth onShowGrowthTiming={() => setShowGrowthTiming(true)} activeYearLog={activeYearLog} onShowYearLog={(y) => setActiveYearLog(y ?? null)} />;
+    if (idx === 6) return <Slide6Ecosystem onExplorarHub={() => window.open('/hub', '_blank')} />;
     return <SlideContent />;
   };
 

@@ -10,6 +10,7 @@ export default function PresentationRemote() {
     const [notes, setNotes] = useState('');
     const [connected, setConnected] = useState(false);
     const [fullscreen, setFullscreen] = useState(false);
+    const [openingHub, setOpeningHub] = useState(false);
     const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
     // Cargar estado inicial
@@ -80,6 +81,26 @@ export default function PresentationRemote() {
             .update({ manual_mode: newMode, updated_at: new Date().toISOString() })
             .eq('id', 1);
     }, [manualMode]);
+
+    // Abrir /hub remotamente en todos los viewers
+    const openHubRemote = useCallback(async () => {
+        setOpeningHub(true);
+        // Abrir localmente también
+        window.open('/hub', '_blank');
+        // Disparar a todos los viewers via Supabase
+        await supabase
+            .from('presentation_state')
+            .update({ open_hub: true, updated_at: new Date().toISOString() })
+            .eq('id', 1);
+        // Resetear después de 2s para que no se dispare de nuevo
+        setTimeout(async () => {
+            await supabase
+                .from('presentation_state')
+                .update({ open_hub: false })
+                .eq('id', 1);
+            setOpeningHub(false);
+        }, 2000);
+    }, []);
 
     // Auto-save notas con debounce 1s
     const handleNotesChange = (text: string) => {
@@ -253,7 +274,26 @@ export default function PresentationRemote() {
             </div>
 
             {/* ── BOTÓN DE EMERGENCIA ── */}
-            <div style={{ padding: '12px 20px 8px', display: 'flex', justifyContent: 'center' }}>
+            <div style={{ padding: '12px 20px 8px', display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
+                {/* Botón Abrir Hub */}
+                <button
+                    onClick={openHubRemote}
+                    disabled={openingHub}
+                    style={{
+                        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                        padding: '10px 16px', borderRadius: 12,
+                        border: 'none',
+                        background: openingHub ? '#D1FAE5' : 'linear-gradient(135deg, #10B981, #059669)',
+                        color: openingHub ? '#065F46' : 'white',
+                        fontSize: 13, fontWeight: 600, cursor: openingHub ? 'default' : 'pointer',
+                        transition: 'all 0.2s',
+                        boxShadow: openingHub ? 'none' : '0 4px 16px rgba(16,185,129,0.35)',
+                    }}
+                >
+                    <span>{openingHub ? '✅' : '⚡'}</span>
+                    {openingHub ? 'Hub abierto en audiencia' : 'Abrir /hub en audiencia'}
+                </button>
+
                 <button
                     onClick={toggleManualMode}
                     style={{
