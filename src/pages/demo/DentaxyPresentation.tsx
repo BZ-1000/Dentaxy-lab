@@ -994,29 +994,178 @@ const Slide7Personalization = () => {
   );
 };
 
-/* Slide 8 — VISIÓN CEO */
-const Slide8Vision = () => (
-  <div style={{ maxWidth: 700, textAlign: "center" }}>
-    <motion.div {...a(0)}><Tag color="#A855F7">Visión Fundacional</Tag></motion.div>
-    <div style={{ position: "relative", padding: "20px 20px 0" }}>
-      <motion.span {...a(0.1)} style={{ position: "absolute", top: -20, left: 10, fontFamily: "'Syne'", fontSize: 140, fontWeight: 800, lineHeight: 1, userSelect: "none", zIndex: 0, background: "linear-gradient(135deg,rgba(168,85,247,0.12),transparent)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>"</motion.span>
-      <motion.p {...a(0.2)} style={{ fontFamily: "'Inter'", fontWeight: 200, fontSize: "clamp(18px,2.5vw,26px)", color: "rgba(255,255,255,0.88)", lineHeight: 1.9, position: "relative", zIndex: 1 }}>
-        El internet fue la antorcha; la IA es la red eléctrica. Pasar a Dentaxy es{" "}<span style={{ color: "#10B981", fontWeight: 300, textShadow: "0 0 16px #10B98166" }}>encender la ciudad entera.</span>
-      </motion.p>
-    </div>
-    <motion.div {...a(0.4)} style={{ marginTop: 36 }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14 }}>
-        <div style={{ width: 52, height: 52, borderRadius: "50%", background: "linear-gradient(135deg,rgba(16,185,129,0.2),rgba(16,185,129,0.05))", border: "1.5px solid rgba(16,185,129,0.5)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 20px rgba(16,185,129,0.3)" }}>
-          <span style={{ color: "#10B981", fontWeight: 800, fontSize: 15, fontFamily: "'Syne'", textShadow: "0 0 8px #10B981" }}>BZ</span>
+/* Slide 8 — MOTOR DE SIMULACIÓN CLÍNICA */
+const Slide8SimEngine = () => {
+  const [open, setOpen] = useState<number | null>(null);
+
+  const cards = [
+    {
+      icon: '🔒', color: '#10B981', label: 'Privacidad de Grado Clínico',
+      preview: 'Procesamiento 100% local. Los datos nunca salen.',
+      detail: (
+        <div>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
+            <div style={{ flex: 1, padding: '10px 14px', borderRadius: 10, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)' }}>
+              <p style={{ fontSize: 10, color: '#10B981', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 4, fontFamily: "'Space Grotesk'" }}>DENTAXY ENGINE</p>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontFamily: "'Inter'", fontWeight: 300, lineHeight: 1.6 }}>Procesamiento 100% Local. Datos sensibles nunca salen de la infraestructura de la clínica.</p>
+            </div>
+            <div style={{ flex: 1, padding: '10px 14px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+              <p style={{ fontSize: 10, color: '#F87171', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 4, fontFamily: "'Space Grotesk'" }}>IA GENERATIVA</p>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontFamily: "'Inter'", fontWeight: 300, lineHeight: 1.6 }}>Requiere enviar datos a servidores externos (OpenAI/Cloud), aumentando vulnerabilidades y riesgos legales.</p>
+            </div>
+          </div>
         </div>
-        <div style={{ textAlign: "left" }}>
-          <p style={{ fontWeight: 600, color: "white", fontSize: 15, fontFamily: "'Space Grotesk'" }}>Braulio Zavala Uribe</p>
-          <p style={{ fontSize: 12.5, color: "rgba(255,255,255,0.4)", fontFamily: "'Space Grotesk'" }}>Founder & CEO, Dentaxy Technologies</p>
+      ),
+    },
+    {
+      icon: '⚡', color: '#6366F1', label: 'Velocidad "Zero Latency"',
+      preview: 'Respuesta en milisegundos vs. 5–15 seg de espera.',
+      detail: (
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ flex: 1, padding: '10px 14px', borderRadius: 10, background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)' }}>
+            <p style={{ fontSize: 10, color: '#818CF8', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 4, fontFamily: "'Space Grotesk'" }}>SIMULACIÓN ESTRUCTURADA</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontFamily: "'Inter'", fontWeight: 300, lineHeight: 1.6 }}>Ejecución instantánea. Al presionar "Generar", la redacción aparece en <strong style={{ color: '#818CF8' }}>milisegundos</strong> sobre estructura lógica ya definida.</p>
+          </div>
+          <div style={{ flex: 1, padding: '10px 14px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+            <p style={{ fontSize: 10, color: '#F87171', fontWeight: 700, letterSpacing: '0.1em', marginBottom: 4, fontFamily: "'Space Grotesk'" }}>IA GENERATIVA</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', fontFamily: "'Inter'", fontWeight: 300, lineHeight: 1.6 }}>Tiempo de espera de <strong style={{ color: '#F87171' }}>5 a 15 segundos</strong> mientras el servidor "piensa" y redacta palabra por palabra.</p>
+          </div>
         </div>
-      </div>
-    </motion.div>
-  </div>
-);
+      ),
+    },
+    {
+      icon: '💰', color: '#F59E0B', label: 'Costo Operativo: $0 MXN',
+      preview: '50,000 notas/mes con IA = $60,000 MXN. Con Dentaxy = $0.',
+      detail: (
+        <div>
+          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', fontFamily: "'Inter'", marginBottom: 10 }}>Basado en ~4,000 tokens por nota de 20 apartados</p>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 11.5, fontFamily: "'Space Grotesk'" }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                {['Escala', 'GPT-4o', 'Dentaxy Engine'].map(h => (
+                  <th key={h} style={{ padding: '5px 8px', textAlign: 'left', color: 'rgba(255,255,255,0.4)', fontWeight: 500, fontSize: 10 }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                ['Por nota', '~$1.20 MXN', '$0.00'],
+                ['1,000 notas/mes', '$1,200 MXN', '$0.00'],
+                ['50,000 notas (UAZ)', '$60,000 MXN', '$0.00'],
+              ].map(([label, bad, good], i) => (
+                <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                  <td style={{ padding: '7px 8px', color: 'rgba(255,255,255,0.6)' }}>{label}</td>
+                  <td style={{ padding: '7px 8px', color: '#F87171', fontWeight: 600 }}>{bad}</td>
+                  <td style={{ padding: '7px 8px', color: '#10B981', fontWeight: 700 }}>{good}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ),
+    },
+    {
+      icon: '🧠', color: '#A855F7', label: 'Simulación vs. IA: Por qué importa',
+      preview: 'Margen de error cero. Soberanía tecnológica total.',
+      detail: (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {[
+            { icon: '🎯', t: 'Margen de Error Cero', d: 'En medicina, la "creatividad" de la IA es un riesgo. Usamos Árboles de Decisión Deterministas para redacción exacta.' },
+            { icon: '🛡️', t: 'Soberanía Tecnológica', d: 'No dependemos de servidores externos ni cambios de precios en APIs extranjeras.' },
+            { icon: '⚙️', t: 'Ingeniería Propia', d: 'Transformamos el poder de la IA en precisión quirúrgica — no en un simple generador de texto.' },
+          ].map((item, i) => (
+            <div key={i} style={{ display: 'flex', gap: 10, padding: '8px 12px', borderRadius: 10, background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.18)' }}>
+              <span style={{ fontSize: 16 }}>{item.icon}</span>
+              <div>
+                <p style={{ fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.9)', fontFamily: "'Space Grotesk'", marginBottom: 2 }}>{item.t}</p>
+                <p style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.5)', fontFamily: "'Inter'", fontWeight: 300, lineHeight: 1.5 }}>{item.d}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <GlassCard glow="purple" style={{ maxWidth: 860, padding: '28px 36px' }}>
+      {/* Header: pregunta-respuesta */}
+      <motion.div {...a(0)} style={{ marginBottom: 20 }}>
+        <Tag color="#A855F7">Motor de Simulación Clínica</Tag>
+        <div className="glass" style={{ padding: '14px 18px', borderRadius: 18, border: '1px solid rgba(168,85,247,0.2)', marginBottom: 12 }}>
+          <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontFamily: "'Space Grotesk'", marginBottom: 6, letterSpacing: '0.06em' }}>❓ PREGUNTA FRECUENTE</p>
+          <p style={{ fontSize: 14.5, fontWeight: 500, color: 'rgba(255,255,255,0.85)', fontFamily: "'Inter'", lineHeight: 1.5, marginBottom: 10 }}>
+            "¿Entonces Dentaxy es una IA que escribe mis notas?"
+          </p>
+          <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.55)', fontFamily: "'Inter'", fontWeight: 300, lineHeight: 1.7 }}>
+            <span style={{ color: '#A855F7', fontWeight: 500 }}>No.</span> Es un{' '}
+            <span style={{ color: '#C084FC', fontWeight: 600 }}>Motor de Simulación Clínica.</span>{' '}
+            Usamos IA de alto nivel para entrenar todos los caminos lógicos del diagnóstico. El resultado:
+            precisión quirúrgica, sin errores y a{' '}
+            <span style={{ color: '#10B981', fontWeight: 500 }}>fracción del costo</span>{' '}
+            de cualquier otra herramienta. Es ingeniería aplicada, no solo generación de texto.
+          </p>
+        </div>
+      </motion.div>
+
+      {/* Cards expandibles */}
+      <motion.div {...a(0.15)}>
+        <p style={{ fontSize: 9.5, color: 'rgba(255,255,255,0.25)', letterSpacing: '0.16em', textTransform: 'uppercase', fontFamily: "'Space Grotesk'", marginBottom: 10 }}>
+          Toca una card para ver el detalle →
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {cards.map((card, i) => {
+            const isOpen = open === i;
+            return (
+              <motion.div
+                key={i}
+                layout
+                onClick={() => setOpen(isOpen ? null : i)}
+                whileHover={{ scale: isOpen ? 1 : 1.02 }}
+                style={{
+                  borderRadius: 16, cursor: 'pointer', overflow: 'hidden',
+                  background: isOpen ? `${card.color}12` : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${isOpen ? card.color + '40' : 'rgba(255,255,255,0.08)'}`,
+                  boxShadow: isOpen ? `0 0 24px ${card.color}22` : 'none',
+                  transition: 'background 0.25s, border 0.25s, box-shadow 0.25s',
+                  gridColumn: isOpen ? 'span 2' : 'span 1',
+                }}
+              >
+                {/* Header de card */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: 18 }}>{card.icon}</span>
+                    <div>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: isOpen ? card.color : 'rgba(255,255,255,0.8)', fontFamily: "'Space Grotesk'", transition: 'color 0.2s' }}>{card.label}</p>
+                      {!isOpen && <p style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.35)', fontFamily: "'Inter'", fontWeight: 300, marginTop: 1 }}>{card.preview}</p>}
+                    </div>
+                  </div>
+                  <motion.span animate={{ rotate: isOpen ? 45 : 0 }} transition={{ duration: 0.2 }}
+                    style={{ fontSize: 16, color: isOpen ? card.color : 'rgba(255,255,255,0.2)', fontWeight: 300 }}>+</motion.span>
+                </div>
+                {/* Detalle expandido */}
+                <AnimatePresence>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.25 }}
+                      style={{ padding: '0 14px 14px', overflow: 'hidden' }}
+                    >
+                      {card.detail}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
+    </GlassCard>
+  );
+};
+
 
 /* Slide 9 — CIERRE */
 const Slide9Closing = () => (
@@ -1065,7 +1214,7 @@ const SLIDES = [
   Slide5Authority,
   Slide6Ecosystem,
   Slide7Personalization,
-  Slide8Vision,
+  Slide8SimEngine,
   Slide9Closing,
 ];
 
