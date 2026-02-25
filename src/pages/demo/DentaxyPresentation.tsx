@@ -1081,6 +1081,7 @@ export default function DentaxyPresentation() {
   const [showAcceleratorStudios, setShowAcceleratorStudios] = useState(false);
   const [showGrowthTiming, setShowGrowthTiming] = useState(false);
   const [activeYearLog, setActiveYearLog] = useState<string | null>(null);
+  const [showHubInvite, setShowHubInvite] = useState(false);
   const TOTAL = SLIDES.length;
 
   // Ref para que goTo siempre lea el idx actual (evita stale closures en Realtime)
@@ -1134,10 +1135,10 @@ export default function DentaxyPresentation() {
         if (!row.manual_mode) {
           goTo(row.current_slide);
         }
-        // 🛰️ Comando remoto: abrir /hub en nueva pestaña
+        // 🛰️ Comando remoto: mostrar invitación para abrir /hub
         if (row.open_hub === true) {
-          window.open('/hub', '_blank');
-          // Resetear la bandera para que no se abra de nuevo en reloads
+          setShowHubInvite(true);
+          // Resetear la bandera en Supabase
           (supabase as any)
             .from('presentation_state')
             .update({ open_hub: false })
@@ -1630,6 +1631,81 @@ export default function DentaxyPresentation() {
       </AnimatePresence>
 
 
+      {/* ── OVERLAY: Invitación a explorar /hub (activado remotamente por admin) ── */}
+      <AnimatePresence>
+        {showHubInvite && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(16px)' }}
+            />
+            {/* Panel */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.88, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.88, y: 30 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 28 }}
+              style={{ position: 'fixed', inset: 0, zIndex: 201, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <div style={{
+                textAlign: 'center', padding: '48px 40px', borderRadius: 28,
+                background: 'rgba(5,10,20,0.92)', backdropFilter: 'blur(40px)',
+                border: '1px solid rgba(16,185,129,0.35)',
+                boxShadow: '0 32px 80px rgba(0,0,0,0.7), 0 0 100px rgba(16,185,129,0.12), inset 0 1px 0 rgba(255,255,255,0.08)',
+                maxWidth: 420, width: '90vw',
+              }}>
+                {/* Ícono animado */}
+                <motion.div
+                  animate={{ scale: [1, 1.12, 1], opacity: [0.7, 1, 0.7] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  style={{ fontSize: 48, marginBottom: 20 }}
+                >
+                  ⚡
+                </motion.div>
+                <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.2em', color: '#10B981', textTransform: 'uppercase', fontFamily: "'Space Grotesk'", marginBottom: 12 }}>
+                  ✦ CONTENIDO DESBLOQUEADO ✦
+                </p>
+                <h2 style={{ fontFamily: "'Syne', sans-serif", fontWeight: 800, fontSize: 26, color: 'white', lineHeight: 1.2, marginBottom: 10 }}>
+                  Explora los Módulos<br />
+                  <span style={{ color: '#10B981', textShadow: '0 0 20px #10B98166' }}>Dentaxy</span>
+                </h2>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', fontFamily: "'Inter'", fontWeight: 300, lineHeight: 1.6, marginBottom: 28 }}>
+                  La presentación continúa detrás.<br />Pulsa para explorar el ecosistema completo.
+                </p>
+                {/* CTA principal */}
+                <motion.button
+                  whileHover={{ scale: 1.05, boxShadow: '0 0 48px rgba(16,185,129,0.5)' }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => { window.open('/hub', '_blank'); setShowHubInvite(false); }}
+                  style={{
+                    width: '100%', padding: '16px 24px', borderRadius: 100,
+                    background: 'linear-gradient(135deg, #10B981, #059669)',
+                    border: 'none', color: 'white',
+                    fontSize: 15, fontWeight: 700, fontFamily: "'Space Grotesk'",
+                    letterSpacing: '0.08em', cursor: 'pointer',
+                    boxShadow: '0 0 30px rgba(16,185,129,0.35)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+                    marginBottom: 12,
+                  }}
+                >
+                  <span>🚀</span> ABRIR MÓDULOS
+                </motion.button>
+                {/* Cerrar */}
+                <button
+                  onClick={() => setShowHubInvite(false)}
+                  style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.3)', fontSize: 12, fontFamily: "'Inter'", cursor: 'pointer', padding: '4px 12px' }}
+                >
+                  Cerrar
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
     </div>
   );
