@@ -1,0 +1,32 @@
+[
+    {
+        "id": "main-001",
+        "title": "The SMILE Killer",
+        "description": "Reemplazar la plataforma UAZ con Dentaxy Seed. Capturar el primer contrato institucional y eliminar el expediente de papel de la Clínica Multidisciplinaria.",
+        "category": "Main Quest",
+        "status": "Active",
+        "priority": "Critical",
+        "reward_xp": 500,
+        "icon": "⚔️"
+    },
+    {
+        "id": "side-001",
+        "title": "CROID Financing",
+        "description": "Cerrar trato de financiamiento con Dr. Correa del CROID. Objetivo: asegurar el capital inicial para la expansión de infraestructura y el primer despliegue comercial.",
+        "category": "Side Quest",
+        "status": "Active",
+        "priority": "High",
+        "reward_xp": 300,
+        "icon": "💰"
+    },
+    {
+        "id": "tech-001",
+        "title": "AI Squad Assembly",
+        "description": "Configurar y optimizar agentes de IA en el servidor local. Integrar DeepSeek-R1, configurar pipelines de inferencia y establecer el protocolo de comunicación entre agentes.",
+        "category": "Tech Quest",
+        "status": "Active",
+        "priority": "Normal",
+        "reward_xp": 200,
+        "icon": "🤖"
+    }
+]

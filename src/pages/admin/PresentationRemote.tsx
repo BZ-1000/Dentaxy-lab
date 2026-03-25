@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ChevronLeft, ChevronRight, AlertTriangle, Wifi, WifiOff } from 'lucide-react';
+import { ChevronLeft, ChevronRight, AlertTriangle, Wifi, WifiOff, PenLine } from 'lucide-react';
 
 const TOTAL_SLIDES = 11;
 
 export default function PresentationRemote() {
+    const navigate = useNavigate();
     const [currentSlide, setCurrentSlide] = useState(0);
     const [manualMode, setManualMode] = useState(false);
     const [notes, setNotes] = useState('');
@@ -290,8 +292,33 @@ export default function PresentationRemote() {
                         boxShadow: openingHub ? 'none' : '0 4px 16px rgba(16,185,129,0.35)',
                     }}
                 >
-                    <span>{openingHub ? '✅' : '⚡'}</span>
+                    <span>{openingHub ? '\u2705' : '\u26a1'}</span>
                     {openingHub ? 'Hub abierto en audiencia' : 'Abrir /hub en audiencia'}
+                </button>
+
+                {/* ── NUEVO: Botón de Edición de Presentación ── */}
+                <button
+                    onClick={() => navigate('/admin/presentation-editor')}
+                    style={{
+                        width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                        padding: '10px 16px', borderRadius: 12,
+                        border: '1.5px solid rgba(99,102,241,0.4)',
+                        background: 'rgba(99,102,241,0.08)',
+                        color: '#6366F1',
+                        fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                        transition: 'all 0.2s',
+                    }}
+                    onMouseOver={(e) => {
+                        (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.15)';
+                        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.6)';
+                    }}
+                    onMouseOut={(e) => {
+                        (e.currentTarget as HTMLElement).style.background = 'rgba(99,102,241,0.08)';
+                        (e.currentTarget as HTMLElement).style.borderColor = 'rgba(99,102,241,0.4)';
+                    }}
+                >
+                    <PenLine size={14} />
+                    Edición de Presentación
                 </button>
 
                 <button

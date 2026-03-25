@@ -61,13 +61,20 @@ import StarkDemo from './pages/demo/StarkDemo';
 import { DemoGuard } from './components/demos/DemoGuard';
 import DentaxyPresentation from './pages/demo/DentaxyPresentation';
 import PresentationRemote from './pages/admin/PresentationRemote';
+import PresentationEditor from './pages/admin/PresentationEditor';
 
 // Dentaxy Core
 import CorePage from './app/core/page';
 
+// Dentaxy Singularity Workspace
+import SingularityPage from './app/singularity/page';
+
 // Dentaxy Seed
 import SeedLanding from './pages/seed/SeedLanding';
 import SeedLogin from './pages/seed/SeedLogin';
+
+// NFC Verificación de Autenticidad
+import NFCVerify from './pages/verify/NFCVerify';
 
 // Component to initialize global tracking
 const GlobalTracker = () => {
@@ -123,6 +130,7 @@ function App() {
                     <Route path="analytics" element={<Analytics />} />
                     <Route path="communication" element={<Communication />} />
                     <Route path="presentation-remote" element={<PresentationRemote />} />
+                    <Route path="presentation-editor" element={<PresentationEditor />} />
 
                     {/* Legacy or Secondary Modules */}
                     <Route path="students" element={<StudentModule />} />
@@ -156,12 +164,18 @@ function App() {
                   {/* Dentaxy Core */}
                   <Route path="/core" element={<CorePage />} />
 
+                  {/* Dentaxy Singularity Workspace */}
+                  <Route path="/singularity" element={<SingularityPage />} />
+
                   {/* Dentaxy Seed */}
                   <Route path="/seed" element={<SeedLogin />} />
                   <Route path="/seed/overview" element={<SeedLanding />} />
 
                   {/* App - Acceso libre */}
                   <Route path="/app" element={<Index />} />
+
+                  {/* NFC — Verificación de Autenticidad de Documentos */}
+                  <Route path="/verify" element={<NFCVerify />} />
 
                   {/* 404 - No encontrado */}
                   <Route path="*" element={<NotFound />} />

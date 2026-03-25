@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CARTA DE INTENCIÓN - UAO SYNC</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=M+PLUS+1p:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563EB;
+            --primary-hover: #1D4ED8;
+            --secondary: #4ADE80;
+            --bg-body: #FFFFFF;
+            --text-main: #09090B;
+            --muted: #F4F4F5;
+            --border-radius: 12px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            background-color: var(--bg-body);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            font-size: 11pt;
+            /* Adjust padding for PDF printing standard A4 */
+            box-sizing: border-box;
+        }
+
+        .page {
+            padding: 15mm 20mm;
+            max-width: 210mm;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--muted);
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            max-width: 150px;
+            object-fit: contain;
+        }
+
+        .doc-meta {
+            text-align: right;
+            font-size: 9pt;
+            color: #555;
+        }
+
+        .title-section {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-family: 'M PLUS 1p', sans-serif;
+            color: var(--primary);
+            font-size: 22pt;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-family: 'M PLUS 1p', sans-serif;
+            color: var(--text-main);
+            font-size: 14pt;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        .parties-box {
+            display: flex;
+            justify-content: space-between;
+            background-color: var(--muted);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .party {
+            width: 48%;
+        }
+
+        .party strong {
+            display: block;
+            color: var(--primary);
+            font-family: 'M PLUS 1p', sans-serif;
+            font-size: 11pt;
+            margin-bottom: 0.5rem;
+        }
+
+        .date-line {
+            text-align: right;
+            font-style: italic;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            font-family: 'M PLUS 1p', sans-serif;
+            color: var(--primary);
+            font-size: 14pt;
+            border-bottom: 1px solid var(--muted);
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
+            font-size: 12pt;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+        ul {
+            margin-bottom: 1.5rem;
+            padding-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            text-align: justify;
+        }
+
+        li strong {
+            color: var(--primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-size: 10pt;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e4e4e7;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        .cost-table th {
+            text-align: center;
+        }
+
+        .cost-table td {
+            text-align: center;
+        }
+
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 4rem;
+            page-break-inside: avoid;
+        }
+
+        .signature-block {
+            width: 45%;
+            text-align: center;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid var(--text-main);
+            margin-bottom: 0.5rem;
+            height: 60px;
+        }
+
+        .signature-name {
+            font-weight: bold;
+            font-size: 11pt;
+            color: var(--primary);
+        }
+
+        .signature-title {
+            font-size: 9.5pt;
+            color: #555;
+            line-height: 1.3;
+        }
+
+        .footer-note {
+            font-size: 8pt;
+            color: #71717a;
+            text-align: center;
+            margin-top: 3rem;
+            border-top: 1px solid var(--muted);
+            padding-top: 1rem;
+            page-break-inside: avoid;
+        }
+
+        /* Glassmorphism badge */
+        .badge-glass {
+            display: inline-block;
+            background: rgba(74, 222, 128, 0.15);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            color: #166534;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 8pt;
+            font-weight: 600;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+        
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <div class="header">
+        <!-- Logo con absolute path -->
+        <img src="file:///home/bz1000/Dentaxy-lab/public/lovable-uploads/7898fc25-0e62-40e1-a139-6582324afb27.png" alt="Dentaxy Logo" class="logo" onerror="this.src='https://placehold.co/300x100?text=Dentaxy+Logo'">
+        
+        <div class="doc-meta">
+            CARTA DE INTENCIÓN<br>
+            DOCUMENTO CONFIDENCIAL<br>
+            <strong>VERSIÓN:</strong> 1.0 (2026)
+        </div>
+    </div>
+
+    <div class="title-section">
+        <h1>CARTA DE INTENCIÓN</h1>
+        <div class="subtitle">DE COLABORACIÓN TECNOLÓGICA</div>
+        <div class="subtitle" style="font-weight: 700; color: #2563EB; margin-top: 1rem;">UAO SYNC: Ecosistema Tecnológico Universitario</div>
+    </div>
+
+    <div class="parties-box">
+        <div class="party">
+            <strong>EL TITULAR</strong>
+            Braulio Zavala Uribe<br>
+            <span style="font-size: 9.5pt; color: #555;">CEO y Fundador — Dentaxy Technologies</span>
+        </div>
+        <div class="party" style="border-left: 1px solid #d4d4d8; padding-left: 1rem;">
+            <strong>LA INSTITUCIÓN</strong>
+            Universidad Autónoma de Zacatecas<br>
+            <span style="font-size: 9.5pt; color: #555;">Unidad Académica de Odontología (UAO)</span>
+        </div>
+    </div>
+
+    <div class="date-line">
+        Guadalupe, Zacatecas, México, a __ de __________ de 2026
+    </div>
+
+    <h2>I. OBJETIVO DE LA COLABORACIÓN TECNOLÓGICA</h2>
+    <p>El presente documento tiene como propósito formalizar la intención de colaboración entre Braulio Zavala Uribe, en su carácter de CEO y Fundador de Dentaxy Technologies (en adelante, "EL TITULAR"), y la Universidad Autónoma de Zacatecas "Francisco García Salinas" como entidad madre, con énfasis operativo en la Unidad Académica de Odontología (UAO) (en adelante, "LA INSTITUCIÓN"), para el despliegue del ecosistema denominado</p>
+    
+    <p style="text-align: center; font-weight: bold; font-size: 13pt; color: var(--primary); margin: 2rem 0;">
+        "UAO SYNC: Ecosistema Tecnológico Universitario"
+    </p>
+
+    <p>Los objetivos estratégicos de esta colaboración son:</p>
+    <ul>
+        <li><strong>Optimización del Rendimiento Clínico:</strong> Implementar una solución tecnológica orientada a reducir significativamente la carga administrativa en la formación clínica, permitiendo que el tiempo del alumnado se enfoque prioritariamente en el diagnóstico, el contacto directo con el paciente y el aprendizaje práctico.</li>
+        <li><strong>Despliegue de Infraestructura Multimodal:</strong> Establecer una red de cinco (5) nodos operativos interconectados — CLIMUZAC I y II, CLIZAC, CLICAMP, CLIJANI y el Nodo Maestro de Especialidades — garantizando trazabilidad completa del progreso de competencias clínicas e integridad de datos académicos en tiempo real.</li>
+        <li><strong>Soberanía de Datos y Privacidad de Grado Médico:</strong> Integrar un motor de Inteligencia Artificial 100% Determinista y Local. El procesamiento de textos clínicos se ejecutará exclusivamente dentro de la infraestructura de LA INSTITUCIÓN, asegurando que los datos sensibles (PHI) no abandonen el entorno controlado, con costo operativo de $0.00 MXN por procesamiento de notas clínicas.</li>
+        <li><strong>Fase de Co-Construcción del Demo:</strong> Ejecutar un periodo de colaboración activa en el cual ambas partes trabajen conjuntamente, mediante reuniones periódicas, para personalizar, presentar y validar el ecosistema en función de las necesidades específicas, prioridades institucionales y condiciones de LA INSTITUCIÓN, con el objetivo de alcanzar un estándar de rendimiento óptimo para la práctica profesional.</li>
+    </ul>
+
+    <h2>II. DESCRIPCIÓN DEL ECOSISTEMA UAO SYNC</h2>
+    <h3>2.1 Arquitectura de nodos operativos</h3>
+    <p>El ecosistema UAO SYNC se estructura en los siguientes nodos clínicos, basados en la infraestructura real de LA INSTITUCIÓN, interconectados bajo una plataforma de supervisión centralizada:</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>NODO</th>
+                <th>CLÍNICA UAZ</th>
+                <th>UBICACIÓN Y HORARIO</th>
+                <th>FUNCIÓN EN UAO SYNC</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>CLIMUZAC</strong></td>
+                <td>Clínica Multidisciplinaria Zacatecas I y II</td>
+                <td>Calle Begonias s/n, Col. Centro, Guadalupe, Zac.<br>Lun–Vie 9:00–13:00 / 15:00–19:00 · Sáb 9:00–17:00</td>
+                <td>Nodo principal de transición: SMILE se sustituye por UAO SYNC, con migración y continuidad.</td>
+            </tr>
+            <tr>
+                <td><strong>CLIZAC</strong></td>
+                <td>Clínica Universitaria Central</td>
+                <td>Carretera a la Bufa S/N<br>Lun–Vie 9:00–13:00 / 15:00–19:00 · Sáb 9:00–17:00</td>
+                <td>Clínica central de formación de élite; práctica de mayor complejidad diagnóstica.</td>
+            </tr>
+            <tr>
+                <td><strong>CLICAMP</strong></td>
+                <td>Campus Siglo XXI</td>
+                <td>Carretera Zac.–Gdl. Km 6<br>Lun–Sáb 9:00–17:00</td>
+                <td>Nodo multisede de alto rendimiento; infraestructura escalable para volumen mayor.</td>
+            </tr>
+            <tr>
+                <td><strong>CLIJANI</strong></td>
+                <td>Clínica Janiway <br> Brigadas Comunitarias</td>
+                <td>Comunidades del Estado de Zacatecas (rotativo)<br>Según programación</td>
+                <td>Impacto comunitario y salud pública; censos de salud dental y epidemiológicos.</td>
+            </tr>
+            <tr>
+                <td><strong>ESPECIALIDADES</strong></td>
+                <td>Nodo Maestro — Posgrado</td>
+                <td>Vinculado a la Especialidad en Odontopediatría<br>Horario según programa.</td>
+                <td><strong>Nodo nuevo</strong> <span class="badge-glass">NUEVO ✦</span><br>Recibe derivaciones de los 4 nodos; gestiona casos complejos.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>2.2 Arquitectura de acceso diferenciado</h3>
+    <p>La plataforma diferencia cuatro perfiles de acceso con permisos independientes:</p>
+    <ul>
+        <li><strong>Alumno:</strong> expedientes propios, historial de pacientes asignados, progreso de competencias personales y agenda de citas.</li>
+        <li><strong>Docente supervisor:</strong> expedientes completos de su grupo, herramienta de firma electrónica, rúbricas de evaluación y alertas de situaciones clínicas relevantes.</li>
+        <li><strong>Coordinador de Especialidades:</strong> vista maestra de todos los nodos, gestión de derivaciones inter-clínica y vinculación con formación de posgrado.</li>
+        <li><strong>Administrativo institucional:</strong> (acceso restringido) métricas de uso por nodo y reportes de seguimiento institucional. <em>Este perfil no accede a datos clínicos.</em></li>
+    </ul>
+
+    <h3>2.3 Datos de demostración y entorno de producción</h3>
+    <p>Los datos exhibidos en la fase de demostración pública ("Demo Verificado") son ficticios e ilustrativos. Los datos reales de LA INSTITUCIÓN serán visibles exclusivamente para los perfiles administrativos autorizados mediante credenciales institucionales, en un entorno de producción separado del entorno público de demostración.</p>
+
+    <!-- Forzar salto de página razonable aquí si fuera necesario usando css en puppeteer, pero lo dejamos a flujo natural primero -->
+    
+    <h2>III. MOTOR CLÍNICO Y TECNOLOGÍA</h2>
+    <h3>3.1 Historia clínica digital — veintiún secciones</h3>
+    <p>El núcleo del sistema es un Motor de Simulación Clínica Determinista que guía al alumno a través de veintiún (21) secciones estandarizadas del expediente odontológico. El sistema emplea la metodología de Progressive Disclosure (una sección visible a la vez) para reducir la carga cognitiva, con generación local de redacción clínica profesional sin dependencia de servidores externos.</p>
+
+    <h3>3.2 Comparativa de costos operativos</h3>
+    <table class="cost-table">
+        <thead>
+            <tr>
+                <th style="text-align: left;">ESCALA</th>
+                <th>IA GENERATIVA EXTERNA (GPT-4o)</th>
+                <th>MOTOR DENTAXY (LOCAL)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td style="text-align: left;">Por nota clínica</td>
+                <td>~$1.20 MXN</td>
+                <td style="color: var(--secondary); font-weight: bold;">$0.00 MXN</td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">1,000 notas / mes</td>
+                <td>$1,200 MXN</td>
+                <td style="color: var(--secondary); font-weight: bold;">$0.00 MXN</td>
+            </tr>
+            <tr>
+                <td style="text-align: left;">50,000 notas (escala UAZ)</td>
+                <td>$60,000 MXN</td>
+                <td style="color: var(--secondary); font-weight: bold;">$0.00 MXN</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>IV. FASE DE CO-CONSTRUCCIÓN Y VALIDACIÓN</h2>
+    <h3>4.1 Metodología de trabajo conjunto</h3>
+    <p>Ambas partes acuerdan en principio la ejecución de una Fase de Co-Construcción cuyo propósito es desarrollar, personalizar y validar iterativamente un demo completo y estructurado del ecosistema UAO SYNC, adaptado a las necesidades, prioridades operativas y condiciones específicas de LA INSTITUCIÓN.</p>
+    <p>Durante esta fase, EL TITULAR y LA INSTITUCIÓN sostendrán reuniones periódicas de seguimiento para presentar avances del demo, recibir retroalimentación, ajustar funcionalidades y validar que el sistema responde a los requerimientos reales del entorno clínico-académico de la UAO, dentro de las posibilidades técnicas y económicas acordadas.</p>
+    
+    <p>Esta fase comprende, entre otras actividades:</p>
+    <ul>
+        <li>Presentación progresiva del demo a los equipos académico, clínico y administrativo de LA INSTITUCIÓN.</li>
+        <li>Reuniones periódicas de revisión conjunta para ajustar flujos, módulos y configuraciones del sistema.</li>
+        <li>Definición participativa de los requerimientos prioritarios por nodo clínico.</li>
+        <li>Acceso sin costo a todos los módulos disponibles durante el periodo de validación acordado, con soporte técnico directo de EL TITULAR.</li>
+        <li>Generación de métricas de uso y satisfacción como insumo para la evaluación institucional y la negociación del contrato de licenciamiento definitivo.</li>
+    </ul>
+
+    <h3>4.2 Cronograma de la fase de co-construcción</h3>
+    <p>El siguiente cronograma es indicativo y flexible. Las fechas específicas y el alcance de cada etapa se definirán de común acuerdo durante las reuniones de seguimiento:</p>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 20%;">PERIODO</th>
+                <th>ACTIVIDAD DE CO-CONSTRUCCIÓN</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Marzo 2026</strong></td>
+                <td>Firma del presente LOI. Definición de equipo institucional de referencia. Primera reunión de alineación.</td>
+            </tr>
+            <tr>
+                <td><strong>Abril 2026</strong></td>
+                <td>Reuniones semanales de presentación y validación. Ajuste de módulos. Incorporación progresiva de nodos.</td>
+            </tr>
+            <tr>
+                <td><strong>Mayo 2026</strong></td>
+                <td>Perfeccionamiento del demo completo. Validación de flujos clínicos, académicos y administrativos.</td>
+            </tr>
+            <tr>
+                <td><strong>Junio 2026+</strong></td>
+                <td>Presentación de resultados consolidados. Inicio de negociación del contrato de licenciamiento y propuesta económica.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="page-break-before: always; padding-top: 2rem;"></div> <!-- Forzando página para las cláusulas finales -->
+
+    <h2>V. PROPIEDAD INTELECTUAL</h2>
+    <p><strong>5.1 Titularidad del sistema.</strong> EL TITULAR declara y LA INSTITUCIÓN reconoce expresamente que la totalidad del software, arquitectura, código fuente, modelos de datos, diseño de interfaz, motor de redacción clínica, algoritmos deterministas y cualquier componente tecnológico que integra el ecosistema Dentaxy / UAO SYNC constituyen propiedad intelectual exclusiva e indivisible de Dentaxy Technologies, representada por Braulio Zavala Uribe. Ninguna disposición del presente documento se interpretará como cesión, transferencia o co-titularidad de dicha propiedad intelectual a favor de LA INSTITUCIÓN.</p>
+    <p><strong>5.2 Datos académicos e institucionales.</strong> Los datos clínicos, académicos, financieros y de identidad generados dentro de la plataforma por alumnos, docentes y pacientes de LA INSTITUCIÓN son propiedad exclusiva de LA INSTITUCIÓN. EL TITULAR no almacenará, transferirá ni comercializará dichos datos. El procesamiento se realizará de forma local.</p>
+    <p><strong>5.3 Mejoras y desarrollos derivados.</strong> Cualquier funcionalidad o mejora desarrollada por EL TITULAR durante la vigencia de esta colaboración, incluso si fue motivada por retroalimentación de LA INSTITUCIÓN, será propiedad de EL TITULAR. LA INSTITUCIÓN podrá beneficiarse de dichas mejoras conforme a los términos del contrato de licenciamiento vigente.</p>
+    <p><strong>5.4 Prohibición de ingeniería inversa.</strong> LA INSTITUCIÓN se compromete a no intentar, directa ni indirectamente, descompilar, replicar, adaptar o realizar ingeniería inversa sobre el sistema o cualquiera de sus componentes.</p>
+
+    <h2>VI. CONFIDENCIALIDAD</h2>
+    <p>Ambas partes reconocen que, en el marco de las negociaciones y la ejecución de la presente Carta de Intención, podrán tener acceso a información confidencial de la otra parte, incluyendo sin carácter limitativo: información técnica, estratégica, comercial, académica y de datos sensibles.</p>
+    <p><strong>6.1 Obligación de reserva.</strong> Cada parte se obliga a mantener estricta confidencialidad sobre la Información Confidencial de la otra, no divulgándola a terceros sin consentimiento previo y por escrito de la parte titular.</p>
+    <p><strong>6.2 Uso permitido.</strong> La Información Confidencial podrá ser utilizada únicamente para los fines de evaluación y ejecución de la colaboración descrita en el presente documento.</p>
+    <p><strong>6.3 Excepciones.</strong> No se considerará confidencial la información que: (i) sea o se vuelva del dominio público sin acto imputable a la parte receptora; (ii) sea requerida por autoridad judicial o administrativa competente.</p>
+    <p>Las obligaciones de confidencialidad tendrán vigencia de tres (3) años a partir de la firma de este documento. Las Partes acuerdan que este LOI no sustituye un Acuerdo de No Divulgación (NDA) independiente, el cual será suscrito por separado con alcances más amplios.</p>
+
+    <h2>VII. VIGENCIA Y NATURALEZA JURÍDICA</h2>
+    <p><strong>7.1 Naturaleza no vinculante.</strong> La presente Carta de Intención es un instrumento de buena fe que expresa el interés mutuo de ambas partes. No constituye un contrato definitivo ni genera obligaciones económicas inmediatas, salvo las disposiciones de confidencialidad y propiedad intelectual de las cláusulas V y VI.</p>
+    <p><strong>7.2 Vigencia.</strong> Este documento tendrá una vigencia de seis (6) meses a partir de la fecha de firma, plazo durante el cual las partes formalizarán el contrato de licenciamiento definitivo o decidirán de mutuo acuerdo no continuar.</p>
+    <p><strong>7.3 Propuesta económica.</strong> Los términos comerciales se presentarán en una Propuesta Económica detallada en documento anexo independiente, ajustada al alcance validado durante la fase de co-construcción.</p>
+    <p><strong>7.4 Jurisdicción.</strong> Para la interpretación y resolución de cualquier controversia, las partes se someten a la jurisdicción de los tribunales competentes de Guadalupe, Zacatecas, México, renunciando a cualquier otro fuero que pudiera corresponderles.</p>
+
+    <h2>VIII. FIRMAS DE CONFORMIDAD</h2>
+    <p>En señal de acuerdo con el espíritu de colaboración expresado en el presente documento, las partes firman de conformidad en la fecha y lugar indicados al inicio de este instrumento.</p>
+
+    <div class="signatures">
+        <div class="signature-block">
+            <div class="signature-line"></div>
+            <div class="signature-name">Braulio Zavala Uribe</div>
+            <div class="signature-title">CEO y Fundador — Dentaxy Technologies</div>
+        </div>
+        <div class="signature-block">
+            <div class="signature-line"></div>
+            <div class="signature-name">Director(a) de la Unidad Académica<br>de Odontología</div>
+            <div class="signature-title">Universidad Autónoma de Zacatecas</div>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        Este documento forma parte del expediente de colaboración UAO SYNC.<br>La Propuesta Económica y el Acuerdo de No Divulgación (NDA) se presentarán como instrumentos independientes para descargar.
+    </div>
+
+</div>
+
+</body>
+</html>

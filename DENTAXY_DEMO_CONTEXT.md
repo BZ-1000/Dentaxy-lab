@@ -1,3 +1,29 @@
+# Dentaxy University Presentation Demo - Contexto para IA
+
+Este documento ha sido generado para que una IA secundaria o tú puedan entender y visualizar exactamente cómo funciona el demo interactivo de Dentaxy para Universidades.
+
+## 1. Arquitectura de la Presentación
+La presentación está construida en un solo archivo principal `DentaxyPresentation.tsx` (aproximadamente 2200 líneas) para mantener todo acoplado y fluido, aprovechando las potentes transiciones de hardware-accelerated.
+- **Tecnologías:** React, TypeScript, Vite.
+- **Animaciones:** `framer-motion` (utilizando `motion`, `AnimatePresence`, variants y custom cursors).
+- **Styling Sistemático (Glassmorfismo):** Se utiliza un `<FontLoader />` en la parte superior que inyecta fuentes (Syne, Space Grotesk, Inter) y variables nativas de CSS (por ejemplo, `--slide-px`, `--card-px`) que manejan la responsividad de forma limpia y purista sin ensuciar el markup. Hay clases globales como `.glass` y `.glass-heavy`.
+
+## 2. Gestión de Estado y Navegación
+- **Flujo de Pantallas:** La presentación es un wizard o carrusel impulsado por la variable de estado `currentSlide` (va de 0 a 11).
+- **Engine de Movimiento:** `AnimatePresence` de fremar-motion envuelve las slides. Utiliza un `custom={direction}` para deslizar izquierda a derecha según el orden natural.
+- **Controles Universales:** Navegación por flechas direccionales de teclado, botón de Espacio, y botones flotantes en la UI integrados armónicamente.
+
+## 3. Estructura de Slides (Desacoplamiento Local)
+Cada slide se comporta como un sub-componente nombrado, renderizado dinámicamente según `currentSlide`:
+- **Slide0Cover al Slide4Result:** Son slides de Storytelling. Muestran los "4 Ejes Críticos", estadísticas de tiempo perdido en historias clínicas, carga cognitiva y el ROI de Dentaxy. 
+  - *Funcionalidad Clave:* Algunas slides tienen una función `generarPDF()` integrada que construye un HTML dinámico, hace `window.print()` y permite descargar los estudios científicos justificados sin usar librerías externas.
+- **Slide5Bridge y Slide6Demo / Slide8Form:** Estas slides integran sub-contextos y el componente real `DentaxyFormPanel` interactuando de forma "silulada" y auto-ejecutable para demostrar la simplicidad del producto.
+- **Slide9Pricing y Slides Finales:** Detallan la "Soberanía Financiera", el esquema de precios, módulos por fases y un panel futurista tipo "Dashboard Administrativo" para demostrar Nexus Inteligente, y el Call to Action final.
+
+## 4. Código Fuente Completo (DentaxyPresentation.tsx)
+A continuación se encuentra el código integro para que la IA entienda el árbol de componentes, los custom hooks de lógica de slide, los gradientes SVG puros, los Donut Charts hechos con stroke-dasharray directamente en en svg y los bindings de estado.
+
+```tsx
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Award, Shield, Zap, X, CheckCircle2 } from "lucide-react";
@@ -2240,3 +2266,5 @@ export default function DentaxyPresentation() {
     </div>
   );
 }
+
+```

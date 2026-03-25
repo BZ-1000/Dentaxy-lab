@@ -6,9 +6,10 @@ import { DocumentTransformerFactory } from '@/core/packages/transformers/documen
 import { TextNormalizer } from '@/core/packages/transformers/text-normalizer';
 import { DocumentViewer } from '@/core/packages/document-viewer';
 import DentaxyFormPanel from '../packages/clinical-form';
-import { FileSearch, ClipboardList, Palette, Sparkles, Layout } from 'lucide-react';
+import { FileSearch, ClipboardList, Palette, Sparkles, Layout, Target } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { DentaxyStudio } from '@/core/packages/studio/DentaxyStudio';
+import { QuestEngine } from '@/core/packages/quest-engine/QuestEngine';
 import { DentaxyErrorBoundary } from '@/components/ui/DentaxyErrorBoundary';
 import { cn } from '@/lib/utils';
 
@@ -51,6 +52,7 @@ export const phases = [
     { id: 1, name: 'Ingesta', fullName: 'Fase 1: Ingesta Documental', icon: FileSearch, color: 'blue' },
     { id: 2, name: 'Clínica', fullName: 'Fase 2: Historia Clínica', icon: ClipboardList, color: 'emerald' },
     { id: 3, name: 'Studio', fullName: 'Fase 3: DENTAXY Studio', icon: Palette, color: 'indigo' },
+    { id: 4, name: 'Planificador', fullName: 'Fase 4: Planificador Inteligente', icon: Target, color: 'amber' },
 ];
 
 export const PhaseNavigator = ({ activePhase, setActivePhase }: { activePhase: number, setActivePhase: (id: number) => void }) => {
@@ -75,7 +77,8 @@ export const PhaseNavigator = ({ activePhase, setActivePhase }: { activePhase: n
                                     "absolute inset-0 z-0",
                                     phase.color === 'blue' && "bg-blue-600 shadow-lg shadow-blue-500/20",
                                     phase.color === 'emerald' && "bg-emerald-600 shadow-lg shadow-emerald-500/20",
-                                    phase.color === 'indigo' && "bg-indigo-600 shadow-lg shadow-indigo-500/20"
+                                    phase.color === 'indigo' && "bg-indigo-600 shadow-lg shadow-indigo-500/20",
+                                    phase.color === 'amber' && "bg-amber-500 shadow-lg shadow-amber-500/20"
                                 )}
                                 transition={{ type: "spring", bounce: 0.1, duration: 0.3 }}
                             />
@@ -304,6 +307,21 @@ export const CoreInterface = ({ activePhase, setActivePhase }: CoreInterfaceProp
                                 <DentaxyStudio />
                             </DentaxyErrorBoundary>
                         </div>
+                    </div>
+                </motion.div>
+            )}
+
+            {/* --- PHASE 4 VIEW --- */}
+            {activePhase === 4 && (
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: "spring", damping: 20, stiffness: 100 }}
+                >
+                    <div className="bg-white shadow-2xl sm:rounded-[3.5rem] p-8 relative border border-slate-200/50">
+                        <DentaxyErrorBoundary componentName="Quest Engine" fallbackTitle="Error en el Motor de Misiones">
+                            <QuestEngine />
+                        </DentaxyErrorBoundary>
                     </div>
                 </motion.div>
             )}
