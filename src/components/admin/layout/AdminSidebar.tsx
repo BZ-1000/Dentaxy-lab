@@ -16,7 +16,8 @@ import {
   Lock,
   Layers,
   Users,
-  Tv2
+  Tv2,
+  ListChecks,
 } from 'lucide-react';
 import { useAdminSecurity } from '@/contexts/AdminSecurityContext';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
@@ -30,6 +31,7 @@ const navItems = [
   { path: '/admin/dashboard', icon: LayoutGrid, label: 'Dashboard' },
   { path: '/admin/nexus-intel', icon: Users, label: 'DENTAXY Nexus' },
   { path: '/admin/ecosystem', icon: Network, label: 'Ecosystem' },
+  { path: '/admin/waitlist', icon: ListChecks, label: 'Lista de Espera' },
   { path: '/admin/demos', icon: Share2, label: 'Demo Engine' },
   { path: '/admin/security', icon: ShieldCheck, label: 'Security' },
   { path: '/admin/geomap', icon: Globe, label: 'GeoMap' },

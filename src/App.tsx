@@ -44,6 +44,7 @@ import ModulesManager from './pages/admin/ModulesManager';
 import AuditLogs from './pages/admin/AuditLogs';
 import Settings from './pages/admin/Settings';
 import AdminNexusIntel from './pages/admin/NexusIntel';
+import WaitlistAdmin from './pages/admin/WaitlistAdmin';
 
 // Shop (Tienda privada)
 import ShopLogin from './pages/shop/ShopLogin';
@@ -72,6 +73,14 @@ import SingularityPage from './app/singularity/page';
 // Dentaxy Seed
 import SeedLanding from './pages/seed/SeedLanding';
 import SeedLogin from './pages/seed/SeedLogin';
+
+// Dentaxy Ecosistema (páginas de cada producto)
+import LabPage from './pages/ecosystem/LabPage';
+import ClubPage from './pages/ecosystem/ClubPage';
+import NewsPage from './pages/ecosystem/NewsPage';
+import AuraPage from './pages/ecosystem/AuraPage';
+import SpacePage from './pages/ecosystem/SpacePage';
+import MyLanaPage from './pages/ecosystem/MyLanaPage';
 
 // NFC Verificación de Autenticidad
 import NFCVerify from './pages/verify/NFCVerify';
@@ -124,6 +133,7 @@ function App() {
                     <Route path="dashboard" element={<AdminDashboard />} />
                     <Route path="nexus-intel" element={<AdminNexusIntel />} />
                     <Route path="ecosystem" element={<Ecosystem />} />
+                    <Route path="waitlist" element={<WaitlistAdmin />} />
                     <Route path="demos" element={<DemoControl />} />
                     <Route path="security" element={<Security />} />
                     <Route path="geomap" element={<GeoMap />} />
@@ -170,6 +180,14 @@ function App() {
                   {/* Dentaxy Seed */}
                   <Route path="/seed" element={<SeedLogin />} />
                   <Route path="/seed/overview" element={<SeedLanding />} />
+
+                  {/* Dentaxy Ecosistema — Páginas de cada producto */}
+                  <Route path="/lab" element={<LabPage />} />
+                  <Route path="/club" element={<ClubPage />} />
+                  <Route path="/news" element={<NewsPage />} />
+                  <Route path="/aura" element={<AuraPage />} />
+                  <Route path="/space" element={<SpacePage />} />
+                  <Route path="/mylana" element={<MyLanaPage />} />
 
                   {/* App - Acceso libre */}
                   <Route path="/app" element={<Index />} />
