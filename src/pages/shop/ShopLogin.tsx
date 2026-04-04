@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, X, User, ShieldCheck, Mail, Lock, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowRight, X, User, ShieldCheck, Mail, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useShopAuth } from '@/hooks/useShopAuth';
 import OrganicShopFrame from '@/components/shop/OrganicShopFrame';
-import { useP2P } from '@/hooks/useP2P';
-import { leadsService } from '@/services/leads';
-import { toast } from 'sonner';
+import WaitlistMasterModal from '@/components/waitlist/WaitlistMasterModal';
 
-type ModalState = 'none' | 'admin' | 'presale' | 'waitlist';
+type ModalState = 'none' | 'admin' | 'presale';
 
 // Animation Variants (Seed Style)
 const fadeUp = {
@@ -47,19 +45,7 @@ export default function ShopLogin() {
   const [presaleError, setPresaleError] = useState('');
   const [presaleSubmitting, setPresaleSubmitting] = useState(false);
 
-  // Waitlist State (DENTAXY Nexus - P2P)
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [clientType, setClientType] = useState<'odontologo' | 'deposito'>('odontologo');
-  const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
-  const [waitlistSuccess, setWaitlistSuccess] = useState(false);
-
-  // P2P Hook (modo emisor)
-  const { initializePeer, sendLeadData } = useP2P();
-  const [p2pError, setP2pError] = useState('');
-
-  // Simulated count
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
   const [waitlistCount] = useState(128);
 
   useEffect(() => {
@@ -72,7 +58,6 @@ export default function ShopLogin() {
     e.preventDefault();
     setAuthError('');
     setIsSubmitting(true);
-    // Simulate network delay
     await new Promise(resolve => setTimeout(resolve, 600));
 
     const success = login(username, password);
@@ -93,89 +78,27 @@ export default function ShopLogin() {
     setPresaleSubmitting(false);
   };
 
-  const handleWaitlistSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setWaitlistSubmitting(true);
-    setP2pError('');
-
-    try {
-      // 1. Leer el PeerID del receptor (DENTAXY Nexus) desde Supabase
-      const receiverPeerId = await leadsService.getReceiverPeerId();
-      let emitPeerId = '';
-
-      // 2. Si DENTAXY Nexus está abierto, intentamos conexión P2P
-      if (receiverPeerId) {
-        try {
-          const peer = await initializePeer();
-          emitPeerId = peer.id || '';
-
-          const leadData = {
-            full_name: fullName,
-            phone: `+52 ${phone}`,
-            source: 'Shop' as const,
-            email,
-            metadata: { client_type: clientType },
-          };
-
-          await sendLeadData(receiverPeerId, leadData);
-          toast.success('📡 Datos enviados a DENTAXY Nexus');
-        } catch (p2pErr) {
-          // P2P falló (servidor caído o receptor desconectado), continuar sin P2P
-          console.warn('[Shop] P2P no disponible:', p2pErr);
-          toast.info('Sin conexión P2P directa · Guardando seguro en base de datos.');
-        }
-      } else {
-        toast.info('Guardando seguro en base de datos...');
-      }
-
-      // 3. Guardar metadatos en Supabase (siempre se guarda aunque falle P2P)
-      await leadsService.createLead({
-        full_name: fullName,
-        phone: `+52 ${phone}`,
-        source: 'Shop',
-        peer_id: emitPeerId,
-        email,
-        metadata: { client_type: clientType },
-      });
-
-      setWaitlistSuccess(true);
-    } catch (error) {
-      console.error('[Shop] Error enviando lead en Supabase:', error);
-      setP2pError('Hubo un error al enviar tus datos. Inténtalo de nuevo.');
-    } finally {
-      setWaitlistSubmitting(false);
-    }
-  };
-
-  // Removed handleFileChange as it is no longer used
-
   if (isLoading) return null;
 
   return (
     <div className="min-h-screen w-full relative bg-[#F5F5F7] overflow-hidden font-sans selection:bg-emerald-500/20 selection:text-emerald-900">
-
-      {/* Background - Pure White */}
       <div className="absolute inset-0 bg-white pointer-events-none" />
 
+      <WaitlistMasterModal isOpen={waitlistOpen} onClose={() => setWaitlistOpen(false)} preselectedModule="Shop" />
       <OrganicShopFrame
         onHomeClick={() => navigate('/')}
         onAdminClick={() => setOpenModal('admin')}
         waitlistCount={waitlistCount}
       />
 
-      {/* Main Content */}
       <main className="relative z-10 min-h-screen w-full flex flex-col items-center justify-center p-6">
-
         <motion.div
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
           className="flex flex-col items-center text-center space-y-12 max-w-3xl"
         >
-          {/* Hero Section */}
           <div className="space-y-8 flex flex-col items-center">
-
-            {/* Animated Counter Pill */}
             <motion.div
               variants={fadeUp}
               className="inline-flex items-center gap-3 px-4 py-2 bg-neutral-50 border border-neutral-100 rounded-full shadow-sm"
@@ -198,7 +121,6 @@ export default function ShopLogin() {
               </div>
             </motion.div>
 
-            {/* Massive Title */}
             <motion.h1
               variants={fadeUp}
               className="text-6xl md:text-8xl font-bold tracking-tighter text-neutral-900 font-sans leading-tight"
@@ -214,7 +136,6 @@ export default function ShopLogin() {
             </motion.p>
           </div>
 
-          {/* Action Interface - Rich Cards Restored */}
           <motion.div
             variants={staggerContainer}
             className="flex flex-col sm:flex-row gap-6 w-full max-w-2xl mt-8"
@@ -227,11 +148,9 @@ export default function ShopLogin() {
               <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <ArrowRight className="w-5 h-5 text-emerald-500 -rotate-45" />
               </div>
-
               <div className="bg-emerald-50 w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                 <ShieldCheck className="w-7 h-7 text-emerald-600" />
               </div>
-
               <div className="space-y-1 relative z-10">
                 <h3 className="font-bold text-neutral-900 text-xl group-hover:text-emerald-700 transition-colors">Tengo Código</h3>
                 <p className="text-sm text-neutral-500">Acceso anticipado a preventa</p>
@@ -240,28 +159,24 @@ export default function ShopLogin() {
 
             <motion.button
               variants={scaleIn}
-              onClick={() => setOpenModal('waitlist')}
+              onClick={() => setWaitlistOpen(true)}
               className="flex-1 group relative bg-white border border-neutral-100 p-6 rounded-3xl text-left shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_-12px_rgba(37,99,235,0.2)] transition-all duration-500 hover:-translate-y-1 overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <ArrowRight className="w-5 h-5 text-blue-500 -rotate-45" />
               </div>
-
               <div className="bg-blue-50 w-14 h-14 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                 <Mail className="w-7 h-7 text-blue-600" />
               </div>
-
               <div className="space-y-1 relative z-10">
                 <h3 className="font-bold text-neutral-900 text-xl group-hover:text-blue-700 transition-colors">Lista de Espera</h3>
                 <p className="text-sm text-neutral-500">Notificar lanzamiento oficial</p>
               </div>
             </motion.button>
           </motion.div>
-
         </motion.div>
       </main>
 
-      {/* MODALS */}
       <AnimatePresence>
         {openModal !== 'none' && (
           <motion.div
@@ -269,10 +184,7 @@ export default function ShopLogin() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] bg-neutral-900/20 backdrop-blur-md flex items-center justify-center p-4"
-            onClick={() => {
-              if (!waitlistSuccess) setOpenModal('none'); // Prevent closing if success (keep P2P alive ideally, or warn)
-              else setOpenModal('none');
-            }}
+            onClick={() => setOpenModal('none')}
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -288,7 +200,6 @@ export default function ShopLogin() {
                 <X className="w-4 h-4 text-neutral-600" />
               </button>
 
-              {/* Modal Content Switcher */}
               {openModal === 'admin' && (
                 <div className="space-y-6">
                   <div className="text-center space-y-2">
@@ -298,7 +209,6 @@ export default function ShopLogin() {
                     <h2 className="text-2xl font-bold text-neutral-900">Admin</h2>
                     <p className="text-neutral-500 text-sm">Acceso reservado para administración</p>
                   </div>
-
                   <form onSubmit={handleAdminSubmit} className="space-y-4">
                     <div className="space-y-3">
                       <Input
@@ -315,13 +225,11 @@ export default function ShopLogin() {
                         className="h-12 rounded-xl bg-white/50 border-neutral-200 focus:ring-emerald-500/20"
                       />
                     </div>
-
                     {authError && (
                       <p className="text-xs text-red-500 text-center font-medium bg-red-50 py-2 rounded-lg">
                         {authError}
                       </p>
                     )}
-
                     <Button
                       type="submit"
                       disabled={isSubmitting}
@@ -342,7 +250,6 @@ export default function ShopLogin() {
                     <h2 className="text-2xl font-bold text-neutral-900">Preventa</h2>
                     <p className="text-neutral-500 text-sm">Introduce tu código de invitación</p>
                   </div>
-
                   <form onSubmit={handlePresaleSubmit} className="space-y-4">
                     <Input
                       placeholder="XXXX-XXXX-XXXX"
@@ -350,13 +257,11 @@ export default function ShopLogin() {
                       value={presaleCode}
                       onChange={(e) => setPresaleCode(e.target.value)}
                     />
-
                     {presaleError && (
                       <p className="text-xs text-amber-600 text-center bg-amber-50 py-2 rounded-lg font-medium">
                         {presaleError}
                       </p>
                     )}
-
                     <Button
                       type="submit"
                       disabled={presaleSubmitting}
@@ -367,127 +272,10 @@ export default function ShopLogin() {
                   </form>
                 </div>
               )}
-
-              {openModal === 'waitlist' && (
-                <div className="space-y-6">
-                  {!waitlistSuccess ? (
-                    <>
-                      <div className="text-center space-y-2">
-                        <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                          <Mail className="w-6 h-6 text-blue-600" />
-                        </div>
-                        <h2 className="text-2xl font-bold text-neutral-900">Lista de Espera</h2>
-                        <p className="text-neutral-500 text-sm">Recibe noticias exclusivas</p>
-                      </div>
-
-                      <form onSubmit={handleWaitlistSubmit} className="space-y-4">
-                        <div className="space-y-3">
-                          <Input
-                            type="text"
-                            placeholder="Nombre Completo"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            className="h-11 rounded-xl bg-white/50 border-neutral-200"
-                            required
-                          />
-
-                          <Input
-                            type="email"
-                            placeholder="correo@ejemplo.com"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="h-11 rounded-xl bg-white/50 border-neutral-200"
-                            required
-                          />
-
-                          <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 text-sm flex items-center gap-1">
-                              🇲🇽 +52
-                            </span>
-                            <Input
-                              type="tel"
-                              placeholder="123 456 7890"
-                              value={phone}
-                              onChange={(e) => {
-                                let input = e.target.value.replace(/\D/g, '');
-                                if (input.length > 10) input = input.slice(0, 10);
-
-                                let res = '';
-                                if (input.length > 0) res += input.substring(0, 3);
-                                if (input.length >= 4) res += ' ' + input.substring(3, 6);
-                                if (input.length >= 7) res += ' ' + input.substring(6, 10);
-
-                                setPhone(res);
-                              }}
-                              className="h-11 rounded-xl bg-white/50 border-neutral-200 pl-20"
-                              required
-                            />
-                          </div>
-
-                          {/* Client Type Selector */}
-                          <div className="pt-2">
-                            <p className="text-sm font-medium text-neutral-700 mb-2">Soy:</p>
-                            <div className="grid grid-cols-2 gap-3">
-                              <button
-                                type="button"
-                                onClick={() => setClientType('odontologo')}
-                                className={`p-3 rounded-xl border text-sm font-medium transition-all ${clientType === 'odontologo' ? 'bg-emerald-50 border-emerald-500 text-emerald-700' : 'bg-white/50 border-neutral-200 text-neutral-600 hover:bg-neutral-50'}`}
-                              >
-                                Odontólogo
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setClientType('deposito')}
-                                className={`p-3 rounded-xl border text-sm font-medium transition-all ${clientType === 'deposito' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'bg-white/50 border-neutral-200 text-neutral-600 hover:bg-neutral-50'}`}
-                              >
-                                Depósito Dental
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {p2pError && (
-                          <p className="text-xs text-red-500 text-center bg-red-50 py-2 rounded-lg font-medium flex items-center gap-1 justify-center">
-                            <AlertCircle className="h-3 w-3" /> {p2pError}
-                          </p>
-                        )}
-
-                        <Button
-                          type="submit"
-                          disabled={waitlistSubmitting}
-                          className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-lg shadow-emerald-200"
-                        >
-                          {waitlistSubmitting ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              {waitlistSubmitting ? 'Enviando a DENTAXY Nexus...' : 'Conectando...'}
-                            </>
-                          ) : 'Unirme al Futuro'}
-                        </Button>
-                      </form>
-                    </>
-                  ) : (
-                    <div className="text-center py-8">
-                      <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <CheckCircle2 className="w-8 h-8 text-green-600" />
-                      </div>
-                      <h3 className="text-xl font-bold text-neutral-900">¡Recibido!</h3>
-                      <p className="text-neutral-500 mt-2 text-sm">
-                        Gracias, Dentaxy es más inteligente hoy gracias a ti.
-                      </p>
-                      <p className="text-xs text-neutral-400 mt-4 bg-neutral-50 p-3 rounded-lg border border-neutral-100">
-                        <span className="font-bold text-neutral-600">Nota de privacidad:</span> Manten esta pestaña abierta unos segundos para asegurar la sincronización P2P con DENTAXY Nexus.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
     </div>
   );
 }

@@ -1,11 +1,10 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useGlobalMetrics } from "@/hooks/useGlobalMetrics";
 import { toast } from "sonner";
 import { TypewriterSyncProvider } from "@/contexts/TypewriterSyncContext";
-import { Sparkles } from "lucide-react";
+import { DentaxyNav } from "@/components/nav/DentaxyNav";
+import WaitlistMasterModal from "@/components/waitlist/WaitlistMasterModal";
 
 // Landing sections
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -16,32 +15,12 @@ import { ModulosSection } from "@/components/landing/ModulosSection";
 import { TecnologiasPreviewSection } from "@/components/landing/TecnologiasPreviewSection";
 import { CalculatorSection } from "@/components/landing/CalculatorSection";
 import { CTASection } from "@/components/landing/CTASection";
-const menuItems = [{
-  label: "Shop",
-  href: "/shop",
-  isSpecial: true
-}, {
-  label: "Seed",
-  href: "/seed",
-  isSeed: true
-}, {
-  label: "Nosotros",
-  href: "/about"
-}, {
-  label: "Tecnologías",
-  href: "/how-it-works"
-}, {
-  label: "Beneficios",
-  href: "/benefits"
-}, {
-  label: "Contacto",
-  href: "/contact"
-}];
+
 const Landing = () => {
   useGlobalMetrics();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const mainRef = useRef<HTMLDivElement>(null);
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
   const handleBetaAccess = () => {
     navigate("/hub");
   };
@@ -56,64 +35,13 @@ const Landing = () => {
     }
   };
   const handleRequestDemo = () => {
-    toast.success("¡Solicitud recibida!", {
-      description: "Nos pondremos en contacto contigo pronto."
-    });
+    setWaitlistOpen(true);
   };
   return <TypewriterSyncProvider>
     <div className="h-screen w-screen max-w-full bg-background flex flex-col overflow-hidden">
-      {/* Header */}
-      <header className="sticky top-0 bg-background/95 backdrop-blur-sm z-50 flex items-center justify-between px-6 py-4 border-b border-border flex-shrink-0">
-        <div className="flex items-center gap-2">
-          <img alt="Logo DENTAXY" src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png" className="h-8 w-8" />
-          <span className="text-xs font-bold text-foreground">DENTAXY Technologies</span>
-        </div>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-6">
-          {menuItems.map(item => (
-            <Link
-              key={item.label}
-              to={item.href}
-              className={`flex items-center gap-1 transition-colors text-sm ${item.isSpecial
-                ? "text-emerald-500 hover:text-emerald-400 font-medium"
-                : item.isSeed
-                  ? "text-blue-500 hover:text-blue-400 font-semibold"
-                  : "text-muted-foreground hover:text-foreground"
-                }`}
-            >
-              {item.isSpecial && <Sparkles className="w-3.5 h-3.5" />}
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* CTA Button */}
-        <Button onClick={handleBetaAccess} className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full text-sm">
-          Probar Demo
-        </Button>
-      </header>
-
-      {/* Mobile Menu */}
-      {isMobile && <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border p-4">
-        <div className="flex justify-around">
-          {menuItems.map(item => (
-            <Link
-              key={item.label}
-              to={item.href}
-              className={`flex flex-col items-center text-xs transition-colors ${item.isSpecial
-                ? "text-emerald-500 font-medium"
-                : item.isSeed
-                  ? "text-blue-500 font-semibold"
-                  : "text-muted-foreground hover:text-foreground"
-                }`}
-            >
-              {item.isSpecial && <Sparkles className="w-5 h-5 mb-1" />}
-              {item.label}
-            </Link>
-          ))}
-        </div>
-      </nav>}
+      <WaitlistMasterModal isOpen={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
+      {/* Header — DentaxyNav con mega-menu */}
+      <DentaxyNav />
 
       {/* Main Content - Snap Scroll */}
       <main ref={mainRef} className="flex-1 overflow-y-auto snap-y snap-proximity scroll-smooth">
@@ -145,18 +73,15 @@ const Landing = () => {
               <nav>
                 <h3 className="text-sm font-medium text-foreground mb-4">Enlaces</h3>
                 <ul className="space-y-2">
-                  {menuItems.map(item => <li key={item.label}>
-                    <Link
-                      to={item.href}
-                      className={`transition-colors text-sm ${item.isSpecial
-                        ? "text-emerald-500 hover:text-emerald-400 font-medium"
-                        : item.isSeed
-                          ? "text-blue-500 hover:text-blue-400 font-semibold"
-                          : "text-muted-foreground hover:text-foreground"
-                        }`}
-                    >
-                      {item.label}
-                    </Link>
+                  {[
+                    { label: "Shop", href: "/shop", cls: "text-emerald-500 hover:text-emerald-400 font-medium" },
+                    { label: "Seed", href: "/seed", cls: "text-blue-500 hover:text-blue-400 font-semibold" },
+                    { label: "Nosotros", href: "/about", cls: "text-muted-foreground hover:text-foreground" },
+                    { label: "Tecnologías", href: "/how-it-works", cls: "text-muted-foreground hover:text-foreground" },
+                    { label: "Beneficios", href: "/benefits", cls: "text-muted-foreground hover:text-foreground" },
+                    { label: "Contacto", href: "/contact", cls: "text-muted-foreground hover:text-foreground" },
+                  ].map(item => <li key={item.label}>
+                    <Link to={item.href} className={`transition-colors text-sm ${item.cls}`}>{item.label}</Link>
                   </li>)}
                 </ul>
               </nav>
