@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BZ-1000 ACADEMY: MISSION CONTROL</title>
+    <style>
+        :root {
+            --bg: #05070a;
+            --card: #1c1f26;
+            --accent: #00d4ff;
+            --success: #00ff88;
+            --text: #e0e6ed;
+            --neon: #00f2ff;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            border: 2px solid var(--neon);
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+            border-radius: 15px;
+            background: rgba(28, 31, 38, 0.8);
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--neon);
+            letter-spacing: 5px;
+            text-transform: uppercase;
+        }
+
+        .prompt-box {
+            background: #111418;
+            border-left: 5px solid var(--accent);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        button.copy-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        button.copy-btn:hover {
+            background: var(--neon);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+        }
+
+        .course-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #30363d;
+            transition: 0.4s;
+        }
+
+        .course-card.completed {
+            border-color: var(--success);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+            opacity: 0.8;
+        }
+
+        h3 {
+            color: var(--accent);
+            margin-top: 0;
+            font-size: 1.4rem;
+        }
+
+        .quiz-section {
+            background: #0d1117;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px dashed #444;
+        }
+
+        .reflection-box {
+            width: 100%;
+            height: 80px;
+            background: #0d1117;
+            color: #00ff88;
+            border: 1px solid #30363d;
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: sans-serif;
+            resize: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            background: #1c1f26;
+            height: 15px;
+            border-radius: 10px;
+            margin-bottom: 35px;
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--accent), var(--success));
+            height: 100%;
+            width: 0%;
+            transition: 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        .status-tag {
+            font-size: 0.8rem;
+            color: var(--success);
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <h1>DENTAXY BLITZKRIEG</h1>
+            <p>CONTROL DE MISIÓN | AGENTE: BROTHER-BOT</p>
+        </header>
+
+        <div class="progress-bar">
+            <div id="main-progress" class="progress-fill"></div>
+        </div>
+
+        <div class="prompt-box">
+            <h3>⚡ CÓDIGO MAESTRO (PROMPT)</h3>
+            <p id="promptText" style="font-size: 0.9rem; line-height: 1.5; color: #aaa;">"Hola Gemini, soy el asistente
+                de BZ-1000. Estamos trabajando para obtener los certificados de Google para Dentaxy Technologies. Mi
+                tarea es completar este curso rápido y aprender lo esencial. Tu función será: 1. Analizar preguntas y
+                darme respuestas directas. 2. Explicarme en una frase la lógica. 3. Ayudarme con tareas prácticas. Vamos
+                con el curso: [ESCRIBE NOMBRE AQUÍ]. ¿Listo?"</p>
+            <button class="copy-btn" onclick="copyPrompt()">COPIAR AL PORTAPAPELES</button>
+        </div>
+
+        <div id="course-list"></div>
+    </div>
+
+    <script>
+        const courses = [
+            { id: 1, name: "Google Data Analytics", q1: "¿Para qué sirven los datos?", a: "Para tomar decisiones inteligentes", b: "Para llenar la memoria", correct: "a" },
+            { id: 2, name: "Digital Marketing & E-commerce", q1: "¿Cuál es el objetivo del marketing?", a: "Vender y que la gente nos conozca", b: "Hacer dibujos bonitos", correct: "a" },
+            { id: 3, name: "Cybersecurity Professional", q1: "¿Cómo protegemos la empresa?", a: "Con contraseñas seguras y cuidado", b: "No apagando la luz", correct: "a" },
+            { id: 4, name: "Project Management", q1: "¿Qué hace un líder de proyecto?", a: "Ayuda al equipo a terminar a tiempo", b: "Mira cómo otros trabajan", correct: "a" },
+            { id: 5, name: "Google AI Essentials", q1: "¿Qué es lo mejor de la IA?", a: "Nos ahorra tiempo aburrido", b: "Hace la tarea sola sin que lea", correct: "a" },
+            { id: 6, name: "AI For Everyone", q1: "¿La IA sustituye a los humanos?", a: "No, nos ayuda a ser mejores", b: "Sí, mañana mandan los robots", correct: "a" },
+            { id: 7, name: "IT Support Professional", q1: "¿Qué es el soporte técnico?", a: "Arreglar problemas de tecnología", b: "Limpiar la pantalla con agua", correct: "a" },
+            { id: 8, name: "Generative AI for Leaders", q1: "¿Cómo usa un CEO la IA?", a: "Para hacer la empresa más eficiente", b: "Para mandar correos de broma", correct: "a" }
+        ];
+
+        function copyPrompt() {
+            const text = document.getElementById('promptText').innerText;
+            navigator.clipboard.writeText(text);
+            alert("¡CÓDIGO COPIADO! Pégalo en el chat de Gemini.");
+        }
+
+        function renderCourses() {
+            const list = document.getElementById('course-list');
+            list.innerHTML = courses.map(c => `
+            <div class="course-card" id="card-${c.id}">
+                <h3>${c.id}. ${c.name} <span class="status-tag" id="status-${c.id}">[MISIÓN CUMPLIDA]</span></h3>
+                <div class="quiz-section" id="quiz-${c.id}">
+                    <p><strong>BOSS FIGHT:</strong> ${c.q1}</p>
+                    <label><input type="radio" name="q-${c.id}" value="a"> ${c.a}</label><br>
+                    <label><input type="radio" name="q-${c.id}" value="b"> ${c.b}</label>
+                </div>
+                <p><strong>REPORTE DE CAMPO (¿Qué aprendiste?):</strong></p>
+                <textarea class="reflection-box" id="ref-${c.id}" placeholder="Escribe aquí tu conclusión..."></textarea>
+                <br><br>
+                <button class="copy-btn" id="btn-${c.id}" style="background:var(--success)" onclick="completeCourse(${c.id})">COMPLETAR NIVEL</button>
+            </div>
+        `).join('');
+            loadProgress();
+        }
+
+        function completeCourse(id) {
+            const selected = document.querySelector(`input[name="q-${id}"]:checked`);
+            if (!selected) { alert("¡Alerta! Responde la Boss Fight primero."); return; }
+
+            if (selected.value === courses[id - 1].correct) {
+                document.getElementById(`card-${id}`).classList.add('completed');
+                document.getElementById(`status-${id}`).style.display = 'inline';
+                document.getElementById(`quiz-${id}`).style.opacity = '0.5';
+                document.getElementById(`btn-${id}`).style.display = 'none';
+                saveProgress();
+                updateProgressBar();
+                const winMessages = ["¡SISTEMA ACTUALIZADO!", "¡HACKEO EXITOSO!", "¡NIVEL CONQUISTADO!", "¡BZ-1000 ESTÁ ORGULLOSO!"];
+                alert(winMessages[Math.floor(Math.random() * winMessages.length)]);
+            } else {
+                alert("Respuesta incorrecta. ¡Analiza de nuevo, agente!");
+            }
+        }
+
+        function updateProgressBar() {
+            const completed = document.querySelectorAll('.completed').length;
+            const fill = (completed / courses.length) * 100;
+            document.getElementById('main-progress').style.width = fill + "%";
+        }
+
+        function saveProgress() {
+            const completedData = Array.from(document.querySelectorAll('.completed')).map(c => c.id.split('-')[1]);
+            const reflections = {};
+            courses.forEach(c => {
+                reflections[c.id] = document.getElementById(`ref-${c.id}`).value;
+            });
+            localStorage.setItem('blitz_completed', JSON.stringify(completedData));
+            localStorage.setItem('blitz_reflections', JSON.stringify(reflections));
+        }
+
+        function loadProgress() {
+            const saved = JSON.parse(localStorage.getItem('blitz_completed'));
+            const savedRefs = JSON.parse(localStorage.getItem('blitz_reflections'));
+            if (saved) {
+                saved.forEach(id => {
+                    const card = document.getElementById(`card-${id}`);
+                    if (card) {
+                        card.classList.add('completed');
+                        document.getElementById(`status-${id}`).style.display = 'inline';
+                        document.getElementById(`btn-${id}`).style.display = 'none';
+                    }
+                });
+            }
+            if (savedRefs) {
+                Object.keys(savedRefs).forEach(id => {
+                    const area = document.getElementById(`ref-${id}`);
+                    if (area) area.value = savedRefs[id];
+                });
+            }
+            updateProgressBar();
+        }
+
+        window.onbeforeunload = saveProgress;
+        renderCourses();
+    </script>
+
+</body>
+
+</html>

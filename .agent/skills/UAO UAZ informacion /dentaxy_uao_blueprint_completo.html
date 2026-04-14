@@ -1,0 +1,857 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);color:var(--color-text-primary);background:transparent}
+.w{max-width:900px;padding:8px 0}
+.sec{margin-bottom:32px}
+.sh{font-size:11px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--color-text-tertiary);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.sh::after{content:'';flex:1;height:0.5px;background:var(--color-border-tertiary)}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.c{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px 16px}
+.c-t{height:3px;border-radius:3px 3px 0 0;margin:-14px -16px 12px}
+.tg{display:inline-block;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;padding:2px 8px;border-radius:20px;margin-bottom:8px}
+.tg-tl{background:#E1F5EE;color:#085041}
+.tg-bl{background:#E6F1FB;color:#0C447C}
+.tg-am{background:#FAEEDA;color:#633806}
+.tg-rd{background:#FCEBEB;color:#791F1F}
+.tg-pu{background:#EEEDFE;color:#3C3489}
+.tg-gy{background:#F1EFE8;color:#444441}
+.tg-gn{background:#EAF3DE;color:#27500A}
+.tg-pk{background:#FBEAF0;color:#72243E}
+h3{font-size:14px;font-weight:500;margin-bottom:7px}
+ul{list-style:none;padding:0;margin:0}
+ul li{font-size:12px;color:var(--color-text-secondary);line-height:1.8;padding-left:14px;position:relative}
+ul li::before{content:'→';position:absolute;left:0;color:var(--color-text-tertiary);font-size:10px;top:3px}
+p.sm{font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:6px}
+.role-block{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:8px}
+.role-hd{padding:10px 14px;display:flex;align-items:center;gap:10px}
+.role-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;flex-shrink:0}
+.role-name{font-size:13px;font-weight:500}
+.role-sub{font-size:11px;color:var(--color-text-tertiary)}
+.role-perms{display:flex;flex-wrap:wrap;gap:4px;padding:8px 14px 12px}
+.perm{font-size:10px;padding:2px 8px;border-radius:20px;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.perm.full{background:#E1F5EE;color:#085041}
+.perm.read{background:#E6F1FB;color:#0C447C}
+.perm.none{background:#FCEBEB;color:#791F1F;text-decoration:line-through}
+.module-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.mod-pill{padding:6px 12px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.tree{padding:8px 0}
+.tree-item{padding:6px 0 6px 20px;border-left:1px solid var(--color-border-tertiary);margin-left:8px;font-size:12px;color:var(--color-text-secondary);position:relative}
+.tree-item::before{content:'';position:absolute;left:0;top:14px;width:12px;height:0.5px;background:var(--color-border-tertiary)}
+.tree-item strong{color:var(--color-text-primary);font-weight:500}
+.flow{display:flex;align-items:stretch;gap:0;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:8px}
+.flow-col{flex:1;padding:12px;border-right:0.5px solid var(--color-border-tertiary)}
+.flow-col:last-child{border-right:none}
+.flow-label{font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;margin-bottom:5px;color:var(--color-text-tertiary)}
+.flow-title{font-size:12px;font-weight:500;margin-bottom:4px}
+.flow-items{font-size:11px;color:var(--color-text-secondary);line-height:1.7}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary)}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-g{background:#1D9E75}
+.dot-b{background:#378ADD}
+.dot-a{background:#BA7517}
+.dot-r{background:#E24B4A}
+.dot-p{background:#7F77DD}
+</style>
+
+<div class="w">
+<h2 class="sr-only">Blueprint completo DentaXy UAO — estructura del MVP universitario</h2>
+
+<div class="sec">
+  <div class="sh">1 — Visión general del sistema</div>
+  <div class="c">
+    <p class="sm" style="font-size:13px;margin-bottom:12px">DentaXy UAO es el sistema operativo completo de la Unidad Académica de Odontología. No es un gestor de historias clínicas — es la infraestructura digital total que conecta la formación académica, la práctica clínica, la administración institucional, los pagos y la comunidad profesional en una sola plataforma.</p>
+    <div class="module-row">
+      <span class="mod-pill" style="background:#E1F5EE;color:#085041">Clínica</span>
+      <span class="mod-pill" style="background:#E6F1FB;color:#0C447C">Académico</span>
+      <span class="mod-pill" style="background:#FAEEDA;color:#633806">Administración</span>
+      <span class="mod-pill" style="background:#EEEDFE;color:#3C3489">Pagos</span>
+      <span class="mod-pill" style="background:#EAF3DE;color:#27500A">Inventario</span>
+      <span class="mod-pill" style="background:#FBEAF0;color:#72243E">Recursos Humanos</span>
+      <span class="mod-pill" style="background:#F1EFE8;color:#444441">Reportes</span>
+      <span class="mod-pill" style="background:#FCEBEB;color:#791F1F">Seguridad</span>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">2 — Jerarquía de usuarios y permisos</div>
+
+  <div class="role-block">
+    <div class="role-hd">
+      <div class="role-avatar" style="background:#FAEEDA;color:#633806">DG</div>
+      <div><div class="role-name">Director General UAO</div><div class="role-sub">Acceso total — 1 usuario</div></div>
+    </div>
+    <div class="role-perms">
+      <span class="perm full">Ver todas las clínicas</span>
+      <span class="perm full">Reportes institucionales</span>
+      <span class="perm full">Aprobar contratos</span>
+      <span class="perm full">Gestión de personal</span>
+      <span class="perm full">Finanzas globales</span>
+      <span class="perm full">Configuración del sistema</span>
+      <span class="perm full">Exportar a autoridades UAZ</span>
+    </div>
+  </div>
+
+  <div class="role-block">
+    <div class="role-hd">
+      <div class="role-avatar" style="background:#E6F1FB;color:#0C447C">SC</div>
+      <div><div class="role-name">Subdirector / Coordinador Académico</div><div class="role-sub">Acceso académico completo — por área</div></div>
+    </div>
+    <div class="role-perms">
+      <span class="perm full">Carga académica docentes</span>
+      <span class="perm full">Calendarios y semestres</span>
+      <span class="perm full">Evaluación docente</span>
+      <span class="perm full">Plan de estudios SEM</span>
+      <span class="perm read">Ver clínicas (no editar)</span>
+      <span class="perm read">Ver finanzas (no modificar)</span>
+    </div>
+  </div>
+
+  <div class="role-block">
+    <div class="role-hd">
+      <div class="role-avatar" style="background:#E1F5EE;color:#085041">JC</div>
+      <div><div class="role-name">Jefe de Clínica / Coordinador de Nodo</div><div class="role-sub">Acceso completo a su clínica asignada</div></div>
+    </div>
+    <div class="role-perms">
+      <span class="perm full">Supervisar expedientes de su nodo</span>
+      <span class="perm full">Aprobar historias clínicas</span>
+      <span class="perm full">Asignar pacientes a alumnos</span>
+      <span class="perm full">Inventario de su clínica</span>
+      <span class="perm full">Bitácora diaria</span>
+      <span class="perm read">Ver reportes de su nodo</span>
+      <span class="perm none">Otras clínicas</span>
+    </div>
+  </div>
+
+  <div class="role-block">
+    <div class="role-hd">
+      <div class="role-avatar" style="background:#EEEDFE;color:#3C3489">DO</div>
+      <div><div class="role-name">Docente / Profesor Clínico</div><div class="role-sub">Su grupo de alumnos + supervisión</div></div>
+    </div>
+    <div class="role-perms">
+      <span class="perm full">Ver expedientes de sus alumnos</span>
+      <span class="perm full">Firmar y validar historias</span>
+      <span class="perm full">Calificar procedimientos</span>
+      <span class="perm full">Registrar notas de supervisión</span>
+      <span class="perm read">Ver agenda de su grupo</span>
+      <span class="perm none">Expedientes de otros grupos</span>
+      <span class="perm none">Administración financiera</span>
+    </div>
+  </div>
+
+  <div class="role-block">
+    <div class="role-hd">
+      <div class="role-avatar" style="background:#EAF3DE;color:#27500A">AL</div>
+      <div><div class="role-name">Alumno Clínico</div><div class="role-sub">Sus pacientes asignados únicamente</div></div>
+    </div>
+    <div class="role-perms">
+      <span class="perm full">Crear y editar sus expedientes</span>
+      <span class="perm full">Odontograma + periodontograma</span>
+      <span class="perm full">Plan de tratamiento</span>
+      <span class="perm full">Agenda de sus pacientes</span>
+      <span class="perm read">Ver su historial académico clínico</span>
+      <span class="perm none">Expedientes de otros alumnos</span>
+      <span class="perm none">Finanzas y administración</span>
+    </div>
+  </div>
+
+  <div class="role-block">
+    <div class="role-hd">
+      <div class="role-avatar" style="background:#F1EFE8;color:#444441">AD</div>
+      <div><div class="role-name">Administrativo / Recepción</div><div class="role-sub">Registro de pacientes, cobros, agenda</div></div>
+    </div>
+    <div class="role-perms">
+      <span class="perm full">Registro de pacientes nuevos</span>
+      <span class="perm full">Agenda general de la clínica</span>
+      <span class="perm full">Cobros y recibos</span>
+      <span class="perm full">Inventario básico</span>
+      <span class="perm read">Ver expedientes (sin editar)</span>
+      <span class="perm none">Historial clínico detallado</span>
+    </div>
+  </div>
+
+  <div class="role-block">
+    <div class="role-hd">
+      <div class="role-avatar" style="background:#FBEAF0;color:#72243E">PA</div>
+      <div><div class="role-name">Paciente</div><div class="role-sub">Portal propio — acceso a su expediente</div></div>
+    </div>
+    <div class="role-perms">
+      <span class="perm read">Ver su expediente completo</span>
+      <span class="perm read">Historial de tratamientos</span>
+      <span class="perm read">Estado de su plan de tratamiento</span>
+      <span class="perm full">Agendar / confirmar citas</span>
+      <span class="perm full">Ver y pagar sus cobros</span>
+      <span class="perm none">Expedientes de otros pacientes</span>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">3 — Módulo clínico completo (núcleo del sistema)</div>
+  <div class="g2">
+    <div class="c">
+      <div class="c-t" style="background:#1D9E75"></div>
+      <span class="tg tg-tl">Historia clínica</span>
+      <h3>21 secciones — motor $0</h3>
+      <ul>
+        <li>I. Ficha de identificación del paciente</li>
+        <li>II. Motivo de consulta</li>
+        <li>III. Padecimiento actual</li>
+        <li>IV. Antecedentes heredo-familiares</li>
+        <li>V. Antecedentes personales patológicos</li>
+        <li>VI. Antecedentes personales no patológicos</li>
+        <li>VII. Exploración física general</li>
+        <li>VIII. Exploración extraoral</li>
+        <li>IX. Exploración intraoral</li>
+        <li>X. Odontograma</li>
+        <li>XI. Periodontograma</li>
+        <li>XII. Estudios complementarios (RX)</li>
+        <li>XIII. Diagnóstico presuntivo</li>
+        <li>XIV. Diagnóstico definitivo</li>
+        <li>XV. Pronóstico</li>
+        <li>XVI. Plan de tratamiento</li>
+        <li>XVII. Tratamiento realizado por cita</li>
+        <li>XVIII. Evolución y seguimiento</li>
+        <li>XIX. Consentimiento informado</li>
+        <li>XX. Firmas (paciente + alumno + docente)</li>
+        <li>XXI. Cierre y referencia</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#378ADD"></div>
+      <span class="tg tg-bl">Odontograma digital</span>
+      <h3>Estándar FDI completo</h3>
+      <ul>
+        <li>32 dientes permanentes (notación FDI)</li>
+        <li>20 dientes deciduos para pediatría</li>
+        <li>5 caras por diente: O, M, D, V, L/P</li>
+        <li>Estados: sano, caries, obturado, corona, puente, ausente, extracción indicada, fractura, endodoncia, implante, sellador, movilidad</li>
+        <li>Código de colores ADA estándar internacional</li>
+        <li>Raíces: tratamiento de conductos</li>
+        <li>Diastemas y malposiciones</li>
+        <li>Sincronizado con plan de tratamiento</li>
+        <li>Historial de cambios por fecha</li>
+        <li>Exporta SVG + PDF automáticamente</li>
+        <li>Vista comparativa: inicial vs actual</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#7F77DD"></div>
+      <span class="tg tg-pu">Periodontograma</span>
+      <h3>6 puntos por diente + gráfica</h3>
+      <ul>
+        <li>Sondaje 6 puntos: MB, B, DB, ML, L, DL</li>
+        <li>Nivel de inserción clínica (NIC)</li>
+        <li>Recesión gingival por punto</li>
+        <li>Sangrado al sondaje (toggle visual)</li>
+        <li>Supuración presente/ausente</li>
+        <li>Placa bacteriana (índice O'Leary)</li>
+        <li>Cálculo supra e infragingival</li>
+        <li>Compromiso de furca: grado I/II/III</li>
+        <li>Movilidad: grado 0/I/II/III (Miller)</li>
+        <li>Clasificación automática: AAP 2017</li>
+        <li>Gráfica de progresión por cita</li>
+        <li>Diagnóstico periodontal generado por motor $0</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#BA7517"></div>
+      <span class="tg tg-am">Plan de tratamiento</span>
+      <h3>Por fases + firma digital</h3>
+      <ul>
+        <li>Fase I — Sistémica y control de infección</li>
+        <li>Fase II — Fase causal (raspado, higiene)</li>
+        <li>Fase III — Rehabilitadora (operatoria, prótesis)</li>
+        <li>Fase IV — Quirúrgica (si aplica)</li>
+        <li>Fase V — Mantenimiento periodontal</li>
+        <li>Por procedimiento: diente, diagnóstico, código, costo, alumno, estado</li>
+        <li>Prioridad: urgente / necesario / electivo</li>
+        <li>Progreso por sesión: pendiente / en proceso / completado</li>
+        <li>Presupuesto total y saldo pendiente</li>
+        <li>Firma digital en canvas táctil</li>
+        <li>Consentimiento informado por procedimiento</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#D4537E"></div>
+      <span class="tg tg-pk">Radiografías y estudios</span>
+      <h3>Gestión de imágenes clínicas</h3>
+      <ul>
+        <li>Subida de radiografías periapicales y panorámicas</li>
+        <li>Anotación sobre la imagen (marcadores digitales)</li>
+        <li>Interpretación radiográfica en texto (motor $0)</li>
+        <li>Fotografías intraorales y extraorales</li>
+        <li>Modelos de estudio (fotos de yeso)</li>
+        <li>Vinculadas al expediente y fecha de cita</li>
+        <li>Almacenamiento local — servidor UAZ, nunca nube</li>
+        <li>Exportación incluida en PDF del expediente</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#639922"></div>
+      <span class="tg tg-gn">Notas de evolución por cita</span>
+      <h3>Registro sesión a sesión</h3>
+      <ul>
+        <li>Procedimiento realizado en la cita</li>
+        <li>Materiales usados (vinculado a inventario)</li>
+        <li>Observaciones clínicas</li>
+        <li>Siguiente cita y próximo procedimiento</li>
+        <li>Firma del alumno + visto bueno del docente</li>
+        <li>Timestamp inmutable del sistema</li>
+        <li>Registro de anestesia: tipo, dosis, técnica</li>
+        <li>Alergias y reacciones documentadas</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">4 — Módulo académico</div>
+  <div class="g3">
+    <div class="c">
+      <div class="c-t" style="background:#378ADD"></div>
+      <span class="tg tg-bl">Control escolar clínico</span>
+      <h3>Horas y procedimientos</h3>
+      <ul>
+        <li>Registro de horas clínicas por alumno</li>
+        <li>Contador de procedimientos por tipo y fase</li>
+        <li>Requisitos por semestre configurables</li>
+        <li>Semáforo: verde/amarillo/rojo por avance</li>
+        <li>Alerta cuando el alumno está por debajo</li>
+        <li>Historial acumulado desde semestre 1</li>
+        <li>Reporte de suficiencia clínica para titulación</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#1D9E75"></div>
+      <span class="tg tg-tl">Asignación de pacientes</span>
+      <h3>Carga clínica por alumno</h3>
+      <ul>
+        <li>Registro de pacientes en lista de espera</li>
+        <li>Asignación automática o manual a alumno</li>
+        <li>Tipo de caso: general, endodoncia, ortodoncia, pediatría, etc.</li>
+        <li>Nivel de complejidad del caso</li>
+        <li>Rotación de alumnos por clínica y semestre</li>
+        <li>Alumnos con cupo lleno marcados automáticamente</li>
+        <li>Registro de pacientes que abandonan tratamiento</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#BA7517"></div>
+      <span class="tg tg-am">Carga académica docente</span>
+      <h3>Horarios y grupos</h3>
+      <ul>
+        <li>Asignación de docente por clínica y turno</li>
+        <li>Horario semanal del docente</li>
+        <li>Número de alumnos supervisados</li>
+        <li>Registro de asistencia docente</li>
+        <li>Evaluación del desempeño docente</li>
+        <li>Perfil PRODEP y SNI vinculado</li>
+        <li>Horas frente a grupo vs investigación</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#7F77DD"></div>
+      <span class="tg tg-pu">Evaluación clínica</span>
+      <h3>Calificaciones por procedimiento</h3>
+      <ul>
+        <li>Rúbrica configurable por procedimiento</li>
+        <li>Calificación numérica y cualitativa</li>
+        <li>El docente califica en tiempo real desde su vista</li>
+        <li>El alumno ve su calificación inmediatamente</li>
+        <li>Acumulado semestral automático</li>
+        <li>Examen clínico de competencias</li>
+        <li>Evidencias fotográficas del procedimiento</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#639922"></div>
+      <span class="tg tg-gn">Servicio social</span>
+      <h3>Módulo de pasantes</h3>
+      <ul>
+        <li>Registro de pasante y sede de servicio</li>
+        <li>Plan de trabajo mensual</li>
+        <li>Reporte mensual de actividades</li>
+        <li>Firma del supervisor de sede</li>
+        <li>Control de horas completadas vs requeridas</li>
+        <li>Carta de liberación generada automáticamente</li>
+        <li>Registro de comunidades atendidas</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#D85A30"></div>
+      <span class="tg tg-rd">Plan de estudios SEM</span>
+      <h3>Los 5 módulos curriculares</h3>
+      <ul>
+        <li>Módulo I — Comunidad (sem 1-2)</li>
+        <li>Módulo II — Grupo Social Niños (sem 3-4)</li>
+        <li>Módulo III — Binomio Materno-Infantil (sem 5-6)</li>
+        <li>Módulo IV — Grupo Social Adolescente, Adulto y Senecto (sem 7-8)</li>
+        <li>Módulo V — Comunidad final (sem 9-10)</li>
+        <li>Objetivos y competencias por módulo</li>
+        <li>Vinculación clínica por eje problematizador</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">5 — Módulo de agenda y citas</div>
+  <div class="g2">
+    <div class="c">
+      <div class="c-t" style="background:#1D9E75"></div>
+      <span class="tg tg-tl">Agenda clínica</span>
+      <h3>Por clínica, docente y alumno</h3>
+      <ul>
+        <li>Vista semana / mes / día por nodo</li>
+        <li>Horarios de cada clínica configurables (CLIMUZAC: lun-vie 9-19, sáb 9-17)</li>
+        <li>Slot de sillón: capacidad por unidad dental</li>
+        <li>Cita asignada: alumno + docente supervisor + sillón</li>
+        <li>Estados: programada / confirmada / en consulta / completada / cancelada / no show</li>
+        <li>Tiempo estimado por tipo de procedimiento</li>
+        <li>Bloqueo de sillones para limpieza y mantenimiento</li>
+        <li>Recordatorio automático al paciente (email/SMS)</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#378ADD"></div>
+      <span class="tg tg-bl">Portal del paciente</span>
+      <h3>Autogestión de citas</h3>
+      <ul>
+        <li>Registro de paciente nuevo con QR en recepción</li>
+        <li>Login con CURP o código de expediente</li>
+        <li>Ver próximas citas</li>
+        <li>Confirmar o cancelar con 24h de anticipación</li>
+        <li>Ver su expediente en lectura</li>
+        <li>Historial de tratamientos realizados</li>
+        <li>Estado de su plan de tratamiento y saldo</li>
+        <li>Descargar PDF de su expediente</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">6 — Módulo de administración y pagos</div>
+  <div class="g3">
+    <div class="c">
+      <div class="c-t" style="background:#BA7517"></div>
+      <span class="tg tg-am">Cobros y aranceles</span>
+      <h3>Sistema de pagos UAO</h3>
+      <ul>
+        <li>Catálogo de procedimientos con precio UAO</li>
+        <li>Precio diferenciado: estudiante UAZ vs externo vs APAC</li>
+        <li>Descuentos por convenio institucional</li>
+        <li>Procedimientos gratuitos (CLIJANI, servicio social)</li>
+        <li>Cobro parcial por avance del tratamiento</li>
+        <li>Recibo de pago con folio digital</li>
+        <li>Registro de pagos en efectivo, transferencia, terminal</li>
+        <li>Cuenta por cobrar del paciente en tiempo real</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#639922"></div>
+      <span class="tg tg-gn">Caja y corte diario</span>
+      <h3>Control financiero de la clínica</h3>
+      <ul>
+        <li>Corte de caja por turno y por clínica</li>
+        <li>Total recaudado por procedimiento</li>
+        <li>Desglose por alumno (qué generó cada quien)</li>
+        <li>Conciliación diaria con recibos emitidos</li>
+        <li>Reporte semanal y mensual</li>
+        <li>Exportable a Excel para finanzas UAZ</li>
+        <li>Historial de cortes con responsable y firma</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#E24B4A"></div>
+      <span class="tg tg-rd">Presupuestos y cotizaciones</span>
+      <h3>Propuesta económica al paciente</h3>
+      <ul>
+        <li>Generado automáticamente del plan de tratamiento</li>
+        <li>Desglose por procedimiento y fase</li>
+        <li>Firma de aceptación del paciente</li>
+        <li>Versión imprimible en PDF con membrete UAO</li>
+        <li>Vigencia del presupuesto: 30 días</li>
+        <li>Comparativa: precio UAO vs precio privado de mercado</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#7F77DD"></div>
+      <span class="tg tg-pu">Convenios institucionales</span>
+      <h3>APAC, IMSS, gobierno, UAZ</h3>
+      <ul>
+        <li>Registro de convenio: institución, vigencia, condiciones</li>
+        <li>Tarifa especial por convenio aplicada automáticamente</li>
+        <li>Reporte mensual de pacientes por convenio</li>
+        <li>Factura o recibo para la institución convenante</li>
+        <li>Límite de pacientes por convenio</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#1D9E75"></div>
+      <span class="tg tg-tl">Cuotas y colegiaturas</span>
+      <h3>Pagos del alumno a la UAO</h3>
+      <ul>
+        <li>Control de cuota de laboratorio por alumno</li>
+        <li>Material clínico obligatorio por semestre</li>
+        <li>Deuda pendiente bloquea acceso a módulos</li>
+        <li>Recibo de pago integrado</li>
+        <li>Reporte al área de control escolar UAZ</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#378ADD"></div>
+      <span class="tg tg-bl">Reportes financieros</span>
+      <h3>Para dirección y UAZ</h3>
+      <ul>
+        <li>Ingresos por clínica, por mes, por año</li>
+        <li>Procedimientos más frecuentes y más rentables</li>
+        <li>Comparativo de producción clínica entre nodos</li>
+        <li>Proyección de ingresos por semestre</li>
+        <li>Exportable al formato requerido por finanzas UAZ</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">7 — Módulo de inventario y materiales</div>
+  <div class="g2">
+    <div class="c">
+      <div class="c-t" style="background:#639922"></div>
+      <span class="tg tg-gn">Inventario por clínica</span>
+      <h3>Stock en tiempo real</h3>
+      <ul>
+        <li>Catálogo de materiales odontológicos</li>
+        <li>Stock actual por clínica (no compartido entre nodos)</li>
+        <li>Alerta de stock mínimo configurable</li>
+        <li>Registro de consumo por procedimiento</li>
+        <li>El alumno registra material usado en la nota de cita</li>
+        <li>Descuento automático del inventario al registrar consumo</li>
+        <li>Lote y fecha de caducidad de cada material</li>
+        <li>Alerta de caducidad próxima</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#BA7517"></div>
+      <span class="tg tg-am">Compras y proveedores</span>
+      <h3>Gestión de adquisiciones</h3>
+      <ul>
+        <li>Catálogo de proveedores con contacto y condiciones</li>
+        <li>Solicitud de compra generada cuando el stock baja</li>
+        <li>Orden de compra con folio y aprobación de jefe de clínica</li>
+        <li>Registro de entrada: cantidad, lote, precio unitario</li>
+        <li>Costo promedio ponderado actualizado automáticamente</li>
+        <li>Historial de compras por proveedor y material</li>
+        <li>Reporte de gasto en materiales por clínica y mes</li>
+        <li>Comparativo de precios entre proveedores</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#7F77DD"></div>
+      <span class="tg tg-pu">Equipos y mantenimiento</span>
+      <h3>Unidades dentales y aparatos</h3>
+      <ul>
+        <li>Inventario de equipos por clínica (sillones, RX, autoclaves)</li>
+        <li>Número de serie, marca, modelo, año de adquisición</li>
+        <li>Calendario de mantenimiento preventivo</li>
+        <li>Registro de fallas y reparaciones</li>
+        <li>Sillón fuera de servicio → bloqueado en agenda automáticamente</li>
+        <li>Costo de mantenimiento acumulado por equipo</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#D4537E"></div>
+      <span class="tg tg-pk">Esterilización y bioseguridad</span>
+      <h3>Registro obligatorio</h3>
+      <ul>
+        <li>Bitácora de ciclos de autoclave por fecha y hora</li>
+        <li>Resultado del indicador biológico</li>
+        <li>Responsable del ciclo</li>
+        <li>Registro de manejo de RPBI (residuos peligrosos)</li>
+        <li>Alertas de vencimiento de contratos de manejo de residuos</li>
+        <li>Reporte para COFEPRIS si se requiere</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">8 — Módulo de recursos humanos</div>
+  <div class="g3">
+    <div class="c">
+      <div class="c-t" style="background:#378ADD"></div>
+      <span class="tg tg-bl">Expediente del personal</span>
+      <h3>Docentes y administrativos</h3>
+      <ul>
+        <li>Datos generales: nombre, RFC, CURP, NSS</li>
+        <li>Tipo de contrato: base, interino, por honorarios</li>
+        <li>Adscripción: clínica principal y secundaria</li>
+        <li>Perfil académico: grado, especialidad, certificaciones</li>
+        <li>Perfil PRODEP: sí/no + fecha de vigencia</li>
+        <li>Nivel SNI si aplica</li>
+        <li>Documentos escaneados: título, cédula, contrato</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#1D9E75"></div>
+      <span class="tg tg-tl">Asistencia del personal</span>
+      <h3>Control de entrada y salida</h3>
+      <ul>
+        <li>Registro de asistencia por día y turno</li>
+        <li>Faltas, retardos y justificaciones</li>
+        <li>Permisos y días económicos</li>
+        <li>Incapacidades (con folio IMSS)</li>
+        <li>Reporte mensual de asistencia para nómina</li>
+        <li>Integración con sistema de nómina UAZ (exportación)</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#BA7517"></div>
+      <span class="tg tg-am">Capacitación y certificaciones</span>
+      <h3>Desarrollo profesional</h3>
+      <ul>
+        <li>Registro de cursos y capacitaciones tomadas</li>
+        <li>Certificaciones vigentes (RCP, bioseguridad, etc.)</li>
+        <li>Alerta de certificación próxima a vencer</li>
+        <li>Constancias generadas por el sistema</li>
+        <li>Vinculado con evaluación docente semestral</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">9 — Módulo de reportes e inteligencia institucional</div>
+  <div class="g2">
+    <div class="c">
+      <div class="c-t" style="background:#E24B4A"></div>
+      <span class="tg tg-rd">Epidemiología clínica</span>
+      <h3>Datos de salud bucal de la comunidad</h3>
+      <ul>
+        <li>Diagnósticos más frecuentes por clínica y semestre</li>
+        <li>Índice de caries promedio (CPOD) por grupo etario</li>
+        <li>Prevalencia de enfermedad periodontal</li>
+        <li>Mapa de cobertura geográfica de pacientes</li>
+        <li>Análisis de morbilidad bucal por colonia y municipio</li>
+        <li>Reporte para INIVO (investigación)</li>
+        <li>Exportable en formato para publicación científica</li>
+        <li>Base de datos anonimizada para estudios de la UAZ</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#7F77DD"></div>
+      <span class="tg tg-pu">Reportes académicos</span>
+      <h3>Para dirección y Rectoría UAZ</h3>
+      <ul>
+        <li>Alumnos activos por semestre y clínica</li>
+        <li>Procedimientos realizados vs meta semestral</li>
+        <li>Eficiencia terminal estimada</li>
+        <li>Deserción clínica: alumnos que abandonan pacientes</li>
+        <li>Reporte PRODEP: horas de investigación vs docencia</li>
+        <li>Indicadores para CONAEDO (acreditación)</li>
+        <li>Indicadores para CIEES</li>
+        <li>Formato listo para PDI UAZ 2021-2025</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#1D9E75"></div>
+      <span class="tg tg-tl">Dashboard en tiempo real</span>
+      <h3>Panel de supervisión general</h3>
+      <ul>
+        <li>Alumnos en consulta ahora mismo</li>
+        <li>Historias generadas hoy / esta semana / este mes</li>
+        <li>Clínicas activas y con incidencias</li>
+        <li>Pacientes en sala de espera por nodo</li>
+        <li>Sillones ocupados vs disponibles en tiempo real</li>
+        <li>Ingresos del día en todas las clínicas</li>
+        <li>Alertas críticas: stock mínimo, equipos fuera de servicio</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#378ADD"></div>
+      <span class="tg tg-bl">Bitácora institucional</span>
+      <h3>Trazabilidad completa</h3>
+      <ul>
+        <li>Todo cambio en el sistema queda registrado</li>
+        <li>Quién, qué, cuándo, desde qué IP</li>
+        <li>Historial de cambios en expedientes</li>
+        <li>Log de accesos por usuario y rol</li>
+        <li>Inmutable: no se puede borrar el historial</li>
+        <li>Exportable para auditoría interna UAZ</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">10 — Módulo de Especialidad en Odontopediatría (CLIO)</div>
+  <div class="c">
+    <p class="sm">La Especialidad en Odontopediatría (inaugurada en 1992) requiere módulos específicos que van más allá de la licenciatura.</p>
+    <div class="g3" style="margin-top:12px">
+      <div>
+        <h3 style="font-size:13px;margin-bottom:6px">Historia clínica pediátrica</h3>
+        <ul>
+          <li>Ficha perinatal y desarrollo</li>
+          <li>Hábitos orales (succión, deglución)</li>
+          <li>Odontograma deciduo + mixto + permanente</li>
+          <li>Índice de caries ceo-d / CPO-D</li>
+          <li>Consentimiento firmado por tutor legal</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="font-size:13px;margin-bottom:6px">Control de especialistas</h3>
+        <ul>
+          <li>Expediente del residente de posgrado</li>
+          <li>Casos clínicos por tipo y complejidad</li>
+          <li>Evaluación por tutor de posgrado</li>
+          <li>Producción académica vinculada (tesis, artículos)</li>
+          <li>Constancia de casos para titulación</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="font-size:13px;margin-bottom:6px">CLIJANI — 9 jardines de niños</h3>
+        <ul>
+          <li>Padrón de niños por jardín</li>
+          <li>Control de tratamiento preventivo por ciclo escolar</li>
+          <li>Selladores y fluoruros aplicados</li>
+          <li>Reporte de cobertura por institución</li>
+          <li>Vinculado con SEP o DIF para convenio</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">11 — Módulo de investigación INIVO</div>
+  <div class="c">
+    <div class="g2">
+      <div>
+        <h3 style="font-size:13px;margin-bottom:6px">Gestión de proyectos de investigación</h3>
+        <ul>
+          <li>Registro de proyectos activos con responsable, línea y financiamiento</li>
+          <li>Integrantes del cuerpo académico</li>
+          <li>Avance por etapa del proyecto</li>
+          <li>Vinculación con PRODEP y CONAHCyT</li>
+          <li>Publicaciones derivadas del proyecto</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="font-size:13px;margin-bottom:6px">Base de datos anonimizada para investigación</h3>
+        <ul>
+          <li>Exportación de datos epidemiológicos sin identificadores</li>
+          <li>Filtros por diagnóstico, clínica, semestre, edad</li>
+          <li>Formato SPSS / Excel / CSV</li>
+          <li>Control de acceso: solo investigadores autorizados</li>
+          <li>Consentimiento informado para uso de datos (ya incluido en historia)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">12 — Seguridad, privacidad y arquitectura técnica</div>
+  <div class="g3">
+    <div class="c">
+      <div class="c-t" style="background:#E24B4A"></div>
+      <span class="tg tg-rd">Zero-Trust por nodo</span>
+      <h3>Seguridad de acceso</h3>
+      <ul>
+        <li>Cada clínica es un nodo independiente</li>
+        <li>Autenticación multi-factor para directivos</li>
+        <li>Sesión expira automáticamente por inactividad</li>
+        <li>YubiKey física para director y coordinadores</li>
+        <li>IP de acceso registrada en bitácora</li>
+        <li>Sin acceso desde redes no autorizadas</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#7F77DD"></div>
+      <span class="tg tg-pu">Privacidad por diseño</span>
+      <h3>Datos que nunca salen de la UAZ</h3>
+      <ul>
+        <li>Servidor físico dentro de las instalaciones UAZ</li>
+        <li>Cero llamadas a APIs externas para datos clínicos</li>
+        <li>Motor de redacción corre en el navegador ($0, sin nube)</li>
+        <li>Respaldo automático en disco local + servidor secundario UAZ</li>
+        <li>Cifrado AES-256 en reposo</li>
+        <li>Cumplimiento con NOM-024-SSA3-2010</li>
+      </ul>
+    </div>
+    <div class="c">
+      <div class="c-t" style="background:#1D9E75"></div>
+      <span class="tg tg-tl">Exportación y continuidad</span>
+      <h3>El alumno se lleva su historial</h3>
+      <ul>
+        <li>Al egresar: exportación de su portafolio clínico completo</li>
+        <li>Formato PDF + JSON descargable</li>
+        <li>Migración automática a cuenta Seed personal</li>
+        <li>Sus expedientes de práctica quedan en la UAZ</li>
+        <li>Su perfil profesional migra a Aura (DentaXy público)</li>
+        <li>Sin pérdida de datos al cambiar de sistema</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">13 — Rutas del sistema (arquitectura /academico)</div>
+  <div class="c">
+    <div class="tree">
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">/academico — UAO Sync</div>
+      <div class="tree-item"><strong>/academico</strong> — Panel de supervisión general (director + coordinadores)</div>
+      <div class="tree-item"><strong>/academico/[nodo]</strong> — Dashboard por clínica (CLIMUZAC, CLIZAC, CLICAMP, CLITACO, CLIJANI, CLIO)</div>
+      <div class="tree-item"><strong>/academico/[nodo]/pacientes</strong> — Lista de pacientes del nodo + búsqueda</div>
+      <div class="tree-item"><strong>/academico/[nodo]/agenda</strong> — Calendario de citas del nodo</div>
+      <div class="tree-item"><strong>/academico/[nodo]/alumnos</strong> — Alumnos activos en el nodo + avance</div>
+      <div class="tree-item"><strong>/academico/[nodo]/inventario</strong> — Stock del nodo</div>
+      <div class="tree-item"><strong>/academico/reportes</strong> — Reportes institucionales consolidados</div>
+      <div class="tree-item"><strong>/academico/personal</strong> — Gestión de docentes y administrativos</div>
+      <div class="tree-item"><strong>/academico/finanzas</strong> — Caja, cobros y reportes financieros</div>
+      <div style="font-size:13px;font-weight:500;margin:16px 0 10px">/clinica — Módulo clínico por alumno</div>
+      <div class="tree-item"><strong>/clinica</strong> — Mis pacientes activos</div>
+      <div class="tree-item"><strong>/clinica/nuevo-paciente</strong> — Registro e historia clínica nueva</div>
+      <div class="tree-item"><strong>/clinica/expediente/[id]</strong> — Expediente completo del paciente</div>
+      <div class="tree-item"><strong>/clinica/expediente/[id]/historia</strong> — Historia clínica 21 secciones</div>
+      <div class="tree-item"><strong>/clinica/expediente/[id]/odontograma</strong> — Odontograma interactivo</div>
+      <div class="tree-item"><strong>/clinica/expediente/[id]/periodontograma</strong> — Periodontograma + gráfica</div>
+      <div class="tree-item"><strong>/clinica/expediente/[id]/tratamiento</strong> — Plan de tratamiento por fases</div>
+      <div class="tree-item"><strong>/clinica/expediente/[id]/notas</strong> — Notas de evolución por cita</div>
+      <div class="tree-item"><strong>/clinica/expediente/[id]/radiografias</strong> — Imágenes y estudios</div>
+      <div class="tree-item"><strong>/clinica/expediente/[id]/pdf</strong> — Exportar expediente completo</div>
+      <div class="tree-item"><strong>/clinica/agenda</strong> — Mi agenda de pacientes</div>
+      <div style="font-size:13px;font-weight:500;margin:16px 0 10px">/paciente — Portal del paciente</div>
+      <div class="tree-item"><strong>/paciente/login</strong> — Acceso con CURP o código</div>
+      <div class="tree-item"><strong>/paciente/expediente</strong> — Mi expediente (lectura)</div>
+      <div class="tree-item"><strong>/paciente/citas</strong> — Mis próximas citas</div>
+      <div class="tree-item"><strong>/paciente/pagos</strong> — Mi cuenta y pagos pendientes</div>
+      <div style="font-size:13px;font-weight:500;margin:16px 0 10px">/demo — Demo pública del motor</div>
+      <div class="tree-item"><strong>/demo/ai</strong> — Motor de historias clínicas (ya funciona)</div>
+    </div>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sh">14 — Lo que DentaXy UAO entrega que Smile nunca podrá dar</div>
+  <div class="flow">
+    <div class="flow-col" style="background:#FCEBEB">
+      <div class="flow-label" style="color:#791F1F">Smile Software</div>
+      <div class="flow-title" style="color:#791F1F">Solo existía aquí</div>
+      <div class="flow-items" style="color:#A32D2D">Gestión clínica universitaria básica. El alumno egresaba y perdía todo. Los datos en servidores de Smile. Sin agenda, sin pagos, sin inventario, sin INIVO, sin epidemiología, sin posgrado integrado.</div>
+    </div>
+    <div class="flow-col" style="background:#E1F5EE">
+      <div class="flow-label" style="color:#085041">DentaXy UAO</div>
+      <div class="flow-title" style="color:#085041">Existe en todo esto</div>
+      <div class="flow-items" style="color:#0F6E56">13 módulos integrados. 7 roles de usuario. 17 clínicas como nodos. Datos propios de la UAZ. Motor de redacción $0. El alumno migra a Seed al egresar. Epidemiología para INIVO. Acreditación CONAEDO lista. Investigación + posgrado + servicio social.</div>
+    </div>
+  </div>
+</div>
+
+</div>
