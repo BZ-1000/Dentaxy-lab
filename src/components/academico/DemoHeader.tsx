@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Shield, Sparkles } from 'lucide-react';
+import { ArrowLeft, Shield, Sparkles, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useDemo } from '@/pages/academico/context/DemoContext';
 
 interface DemoHeaderProps {
   showBack?: boolean;
@@ -11,6 +12,7 @@ interface DemoHeaderProps {
 
 export const DemoHeader: React.FC<DemoHeaderProps> = ({ showBack = true, onBack }) => {
   const navigate = useNavigate();
+  const { isZeroState, toggleZeroState } = useDemo();
 
   const handleBack = () => {
     if (onBack) {
@@ -56,16 +58,24 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({ showBack = true, onBack 
 
         {/* Right - Status */}
         <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-            <Shield className="h-3.5 w-3.5 text-emerald-500" />
+          <button 
+            onClick={toggleZeroState}
+            title={isZeroState ? "Llenar con datos mágicos" : "Volver a estado inicial (cero)"}
+            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors group cursor-pointer"
+          >
+            {isZeroState ? (
+              <Wand2 className="h-3.5 w-3.5 text-emerald-500 group-hover:scale-110 transition-transform" />
+            ) : (
+              <Shield className="h-3.5 w-3.5 text-emerald-500" />
+            )}
             <span className="text-xs font-medium text-emerald-600">
-              Demo Verificado
+              {isZeroState ? "Zero-State Activo" : "Demo Verificado"}
             </span>
-          </div>
+          </button>
           
           <img 
-            src="/logos/uao-odontologia.png" 
-            alt="UAO" 
+            src="/logos/uao-uaz-logo.svg" 
+            alt="UAO UAZ" 
             className="h-10 object-contain"
           />
         </div>

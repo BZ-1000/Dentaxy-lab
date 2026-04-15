@@ -184,6 +184,7 @@ const InventarioViewContent: React.FC = () => {
   const [categoriaFiltro, setCategoriaFiltro] = useState<CategoriaInsumo | 'todas'>('todas');
   const [nivelFiltro, setNivelFiltro] = useState<NivelStock | 'todos'>('todos');
   const [showOrden, setShowOrden] = useState(false);
+  const { isZeroState } = useDemo();
 
   React.useEffect(() => {
     if (!isAuthenticated) navigate('/academico');
@@ -197,9 +198,9 @@ const InventarioViewContent: React.FC = () => {
     return matchBusqueda && matchCategoria && matchNivel;
   });
 
-  const criticos = INSUMOS.filter(i => i.nivel === 'critico').length;
-  const bajos = INSUMOS.filter(i => i.nivel === 'bajo').length;
-  const normales = INSUMOS.filter(i => i.nivel === 'normal').length;
+  const criticos = isZeroState ? 0 : INSUMOS.filter(i => i.nivel === 'critico').length;
+  const bajos = isZeroState ? 0 : INSUMOS.filter(i => i.nivel === 'bajo').length;
+  const normales = isZeroState ? 0 : INSUMOS.filter(i => i.nivel === 'normal').length;
 
   return (
     <div className="p-4 sm:p-6">
@@ -298,7 +299,25 @@ const InventarioViewContent: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {insumosFiltrados.length === 0 ? (
+              {isZeroState ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-16">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="w-16 h-16 bg-zinc-100 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+                        <Package className="h-8 w-8 text-zinc-400" />
+                      </div>
+                      <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">Inventario Vacío</h3>
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mb-6">
+                        No hay insumos registrados en la red de clínicas. Comienza registrando el almacén base o importa un catálogo.
+                      </p>
+                      <button className="flex items-center gap-2 px-6 py-2.5 bg-zinc-900 hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-semibold rounded-full transition-colors">
+                        <Plus className="h-4 w-4" />
+                        Añadir Insumo
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : insumosFiltrados.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-center py-10 text-xs text-zinc-400">
                     No se encontraron insumos con los filtros aplicados

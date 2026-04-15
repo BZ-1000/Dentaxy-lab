@@ -16,6 +16,7 @@ interface DemoState {
   rolActivo: RolId | null;
   nodoActivo: NodoId | null;
   subUnidadActiva: string | null;
+  isZeroState: boolean;
 }
 
 interface DemoContextType extends DemoState {
@@ -26,6 +27,7 @@ interface DemoContextType extends DemoState {
   selectRol: (rolId: RolId) => void;
   selectNodo: (nodoId: NodoId, subUnidadId?: string) => void;
   clearNodo: () => void;
+  toggleZeroState: () => void;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -39,6 +41,7 @@ const defaultState: DemoState = {
   rolActivo: null,
   nodoActivo: null,
   subUnidadActiva: null,
+  isZeroState: true, // Por defecto inicia en zero-state como pidió el usuario
 };
 
 const DemoContext = createContext<DemoContextType | null>(null);
@@ -94,12 +97,16 @@ export const DemoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setState(prev => ({ ...prev, nodoActivo: null, subUnidadActiva: null }));
   }, []);
 
+  const toggleZeroState = useCallback(() => {
+    setState(prev => ({ ...prev, isZeroState: !prev.isZeroState }));
+  }, []);
+
   // ── Derived
   const rolData = state.rolActivo ? getRolById(state.rolActivo) ?? null : null;
   const nodoData = state.nodoActivo ? getNodoById(state.nodoActivo) ?? null : null;
 
   return (
-    <DemoContext.Provider value={{ ...state, rolData, nodoData, login, logout, selectRol, selectNodo, clearNodo }}>
+    <DemoContext.Provider value={{ ...state, rolData, nodoData, login, logout, selectRol, selectNodo, clearNodo, toggleZeroState }}>
       {children}
     </DemoContext.Provider>
   );

@@ -185,7 +185,7 @@ function SlideItem({
             ref={setNodeRef}
             style={{
                 transform: CSS.Transform.toString(transform),
-                transition,
+                transition: transition || 'all 0.15s ease',
                 opacity: isDragging ? 0.5 : 1,
                 display: 'flex', flexDirection: 'column', gap: 4,
                 padding: '8px 10px', borderRadius: 10,
@@ -193,7 +193,6 @@ function SlideItem({
                 background: isActive ? B.activeBg : B.panel,
                 cursor: isDragging ? 'grabbing' : 'pointer',
                 userSelect: 'none',
-                transition: 'all 0.15s ease',
             }}
             onClick={() => !editing && onSelect(slide.id)}
         >

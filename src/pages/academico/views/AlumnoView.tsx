@@ -8,19 +8,18 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   Stethoscope, Calendar, ChevronRight, TrendingUp,
-  Clock, User, Award, FileText
+  Clock, User, Award, FileText, UserPlus, Plus
 } from 'lucide-react';
 import { PACIENTES_DEMO } from '@/data/uaoMockData';
 import { useDemo } from '../context/DemoContext';
 import UAOLayout from '../components/UAOLayout';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SEMÁFORO DE AVANCE
 // ─────────────────────────────────────────────────────────────────────────────
 const Semaforo: React.FC<{ pct: number }> = ({ pct }) => {
   const color = pct >= 70 ? 'bg-emerald-500' : pct >= 40 ? 'bg-amber-500' : 'bg-red-500';
-  const label = pct >= 70 ? 'Al corriente' : pct >= 40 ? 'En proceso' : 'Atención';
   return (
     <div className="flex items-center gap-2">
       <div className="w-24 h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
@@ -129,10 +128,12 @@ const PacienteCard: React.FC<PacienteCardProps> = ({ paciente, index }) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // STATS BAR
 // ─────────────────────────────────────────────────────────────────────────────
-const StatsBar: React.FC = () => {
+const StatsBar: React.FC<{ isZeroState: boolean }> = ({ isZeroState }) => {
   const procedimientosMeta = 48;
-  const procedimientosHechos = 31;
-  const pct = Math.round(procedimientosHechos / procedimientosMeta * 100);
+  const procedimientosHechos = isZeroState ? 0 : 31;
+  const pacientesAsignados = isZeroState ? 0 : PACIENTES_DEMO.length;
+  const citasHoy = isZeroState ? '0' : '1';
+  const pct = isZeroState ? 0 : Math.round((procedimientosHechos / procedimientosMeta) * 100);
 
   return (
     <motion.div
@@ -142,11 +143,11 @@ const StatsBar: React.FC = () => {
       className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"
     >
       {[
-        { label: 'Pacientes asignados', value: PACIENTES_DEMO.length, icon: User, color: 'text-blue-600' },
-        { label: 'Cita hoy', value: '1', icon: Calendar, color: 'text-emerald-600' },
+        { label: 'Pacientes asignados', value: pacientesAsignados, icon: User, color: 'text-blue-600' },
+        { label: 'Cita hoy', value: citasHoy, icon: Calendar, color: 'text-emerald-600' },
         { label: 'Procedimientos sem.', value: `${procedimientosHechos}/${procedimientosMeta}`, icon: TrendingUp, color: 'text-violet-600' },
-        { label: 'Avance semestral', value: `${pct}%`, icon: Award, color: pct >= 70 ? 'text-emerald-600' : 'text-amber-600' },
-      ].map((item, i) => (
+        { label: 'Avance semestral', value: isZeroState ? '0%' : `${pct}%`, icon: Award, color: pct >= 70 ? 'text-emerald-600' : 'text-amber-600' },
+      ].map((item) => (
         <div key={item.label} className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 p-4">
           <div className="flex items-center justify-between mb-2">
             <item.icon className={`h-4 w-4 ${item.color}`} />
@@ -164,7 +165,7 @@ const StatsBar: React.FC = () => {
 // ─────────────────────────────────────────────────────────────────────────────
 const AlumnoViewContent: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useDemo();
+  const { isAuthenticated, isZeroState } = useDemo();
 
   React.useEffect(() => {
     if (!isAuthenticated) navigate('/academico');
@@ -183,45 +184,67 @@ const AlumnoViewContent: React.FC = () => {
         </p>
       </motion.div>
 
-      <StatsBar />
+      <StatsBar isZeroState={isZeroState} />
 
-      {/* Lista de pacientes */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {PACIENTES_DEMO.map((p, i) => (
-          <PacienteCard key={p.id} paciente={p} index={i} />
-        ))}
-      </div>
-
-      {/* Historial rápido */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-6 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 p-5"
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <FileText className="h-4 w-4 text-zinc-500" />
-          <h2 className="text-sm font-bold text-zinc-900 dark:text-white">Última actividad clínica</h2>
-        </div>
-        <div className="space-y-2.5">
-          {[
-            { texto: 'Historia clínica actualizada — M. G. Flores Reyes', tiempo: 'hace 2 horas', tipo: 'historia' },
-            { texto: 'Odontograma completado — J. A. Hernández Cruz', tiempo: 'ayer 11:30', tipo: 'odontograma' },
-            { texto: 'Plan de tratamiento firmado — R. C. Leal Sandoval', tiempo: 'ayer 09:15', tipo: 'plan' },
-          ].map((item, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600 mt-1.5 shrink-0" />
-              <div>
-                <p className="text-xs text-zinc-700 dark:text-zinc-300">{item.texto}</p>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <Clock className="h-3 w-3 text-zinc-400" />
-                  <p className="text-[10px] text-zinc-400">{item.tiempo}</p>
-                </div>
-              </div>
-            </div>
+      {/* Lista de pacientes o Zero-State */}
+      {isZeroState ? (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700/80 rounded-3xl p-10 flex flex-col items-center justify-center text-center mt-6"
+        >
+          <div className="w-16 h-16 bg-blue-50 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
+            <UserPlus className="h-8 w-8 text-blue-500" />
+          </div>
+          <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">Aún no tienes pacientes asignados</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mb-6">
+            Comienza dando de alta tu primer expediente clínico para registrar el diagnóstico inicial y el plan de tratamiento.
+          </p>
+          <Button className="rounded-full gap-2 px-6 shadow-xl shadow-blue-500/20">
+            <Plus className="h-4 w-4" />
+            Crear Nuevo Expediente
+          </Button>
+        </motion.div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {PACIENTES_DEMO.map((p, i) => (
+            <PacienteCard key={p.id} paciente={p} index={i} />
           ))}
         </div>
-      </motion.div>
+      )}
+
+      {/* Historial rápido (solo con datos) */}
+      {!isZeroState && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="mt-6 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 p-5"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <FileText className="h-4 w-4 text-zinc-500" />
+            <h2 className="text-sm font-bold text-zinc-900 dark:text-white">Última actividad clínica</h2>
+          </div>
+          <div className="space-y-2.5">
+            {[
+              { texto: 'Historia clínica actualizada — M. G. Flores Reyes', tiempo: 'hace 2 horas' },
+              { texto: 'Odontograma completado — J. A. Hernández Cruz', tiempo: 'ayer 11:30' },
+              { texto: 'Plan de tratamiento firmado — R. C. Leal Sandoval', tiempo: 'ayer 09:15' },
+            ].map((item, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600 mt-1.5 shrink-0" />
+                <div>
+                  <p className="text-xs text-zinc-700 dark:text-zinc-300">{item.texto}</p>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <Clock className="h-3 w-3 text-zinc-400" />
+                    <p className="text-[10px] text-zinc-400">{item.tiempo}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 };
