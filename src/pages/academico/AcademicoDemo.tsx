@@ -10,6 +10,8 @@ import { KeyRound, ShieldAlert, ShieldCheck, ChevronRight, MapPin, Loader2, KeyS
 import { useDemo } from './context/DemoContext';
 import { checkGeofence } from './utils/geo';
 import { RolId } from '@/data/uaoMockData';
+import { useDemoTokenValidator } from '@/hooks/useDemoTokenValidator';
+import { supabase } from '@/integrations/supabase/client';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // COMPONENTE GENERADOR DE TOKENS (DIRECTOR / ADMIN)
@@ -107,17 +109,22 @@ const TokenManager: React.FC<{ onClose: () => void; }> = ({ onClose }) => {
 const ConstrainedAccess: React.FC = () => {
   const navigate = useNavigate();
   const { loginWithToken, isAuthenticated, rolActivo } = useDemo();
+  const { validateToken } = useDemoTokenValidator();
 
   const [token, setToken] = useState('');
+  const [userName, setUserName] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [shake, setShake] = useState(false);
-  
-  // Estados de validación GPS
-  const [checkingGeo, setCheckingGeo] = useState(true);
-  const [isGeoValid, setIsGeoValid] = useState(false);
-  
-  // Estado para Administrar Tokens (secreto)
+
+  // Estado de validación GPS
+  const [geoZoneForToken, setGeoZoneForToken] = useState<{
+    name: string; lat: number; lng: number; radiusKm: number;
+  } | null>(null);
+  const [geoStatus, setGeoStatus] = useState<'idle' | 'checking' | 'ok' | 'denied'>('idle');
+  const [geoMessage, setGeoMessage] = useState('');
+
+  // Estado para Administrar Tokens (secreto: director-root)
   const [showTokenManager, setShowTokenManager] = useState(false);
 
   // Redirigir si ya está logeado
@@ -125,24 +132,25 @@ const ConstrainedAccess: React.FC = () => {
     if (isAuthenticated && rolActivo) {
       navigate(`/academico/${rolActivo}`);
     } else if (isAuthenticated && !rolActivo) {
-      // Por si entra como "admin" super bypass
       navigate('/academico/roles');
     }
   }, [isAuthenticated, rolActivo, navigate]);
 
-  // Validar GPS al montar
-  useEffect(() => {
-    let mounted = true;
-    const verifyLocation = async () => {
-      const isInside = await checkGeofence();
-      if (mounted) {
-        setIsGeoValid(isInside);
-        setCheckingGeo(false);
-      }
-    };
-    verifyLocation();
-    return () => { mounted = false; };
-  }, []);
+  // Verificar GPS contra la zona del token cuando se activa el geofence
+  const checkTokenGeo = async (zone: { name: string; lat: number; lng: number; radiusKm: number }) => {
+    setGeoStatus('checking');
+    const result = await checkGeofence({
+      customZones: [{ nombre: zone.name, lat: zone.lat, lng: zone.lng, radiusKm: zone.radiusKm }],
+    });
+    if (result.ok) {
+      setGeoStatus('ok');
+      setGeoMessage(`En zona: ${result.zonaNombre}`);
+    } else {
+      setGeoStatus('denied');
+      setGeoMessage(result.error || 'Fuera de la zona autorizada');
+    }
+    return result.ok;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -151,7 +159,7 @@ const ConstrainedAccess: React.FC = () => {
 
     const tkn = token.trim();
 
-    // Huevo de pascua para abrir el generador
+    // Huevo de pascua para el panel de tokens locales
     if (tkn === 'director-root') {
       setShowTokenManager(true);
       setToken('');
@@ -159,42 +167,75 @@ const ConstrainedAccess: React.FC = () => {
       return;
     }
 
-    // Bypass maestro en caso de error GPS para pruebas del dev
+    // Bypass maestro para desarrollo
     if (tkn.toLowerCase() === 'admin') {
-       loginWithToken('admin');
-       return; // Se encargará el useEffect de re-rutear
+      loginWithToken('admin');
+      return;
     }
 
-    if (!isGeoValid) {
+    // 1. Validar token contra Supabase (con fallback local)
+    const validation = await validateToken(tkn);
+    if (!validation.valid) {
       setLoading(false);
-      setError('Ubicación denegada. Debes estar en el campus UAO para entrar.');
+      setError(validation.errorMessage || 'Token inválido o expirado.');
       setShake(true);
       setTimeout(() => setShake(false), 600);
       return;
     }
 
-    // Simular red
-    await new Promise(r => setTimeout(r, 600));
+    // 2. Si el token requiere geofence, verificar GPS
+    if (validation.requiresGeoCheck && validation.geoZone) {
+      setGeoZoneForToken(validation.geoZone);
+      const isInside = await checkTokenGeo(validation.geoZone);
+      if (!isInside) {
+        setLoading(false);
+        setError(`Acceso restringido: Debes estar en "${validation.geoZone.name}" para usar este token.`);
+        setShake(true);
+        setTimeout(() => setShake(false), 600);
+        return;
+      }
+    }
 
+    // 3. Token de Supabase válido — registrar sesión e iniciar
+    if (validation.source === 'supabase' && validation.tokenRow) {
+      // Incrementar uso en Supabase
+      try {
+        await supabase
+          .from('demo_links')
+          .update({ use_count: ((validation.tokenRow as any).use_count ?? 0) + 1 })
+          .eq('token', tkn);
+      } catch { /* no-op */ }
+
+      // Guardar en sessionStorage para que el Hub también lo conozca
+      sessionStorage.setItem('demo_token', tkn);
+      sessionStorage.setItem('demo_source', 'supabase');
+
+      // El módulo principal permitido (por defecto: academico)
+      const primaryModule = validation.allowedModules?.[0] ?? 'academico';
+      if (primaryModule === 'academico') {
+        // Usar loginWithToken local para el router interno de UAO
+        const ok = loginWithToken(tkn);
+        if (!ok) {
+          // Si no hay token local con ese valor, entrar en modo libre
+          loginWithToken('admin');
+        }
+      } else {
+        navigate(`/${primaryModule}`);
+      }
+      setLoading(false);
+      return;
+    }
+
+    // 4. Fallback: token local UAO
+    await new Promise(r => setTimeout(r, 400));
     const ok = loginWithToken(tkn);
     setLoading(false);
-
     if (!ok) {
       setError('Token de acceso inválido o expirado.');
       setShake(true);
       setTimeout(() => setShake(false), 600);
     }
   };
-
-  // Render del estado comprobando GPS
-  if (checkingGeo) {
-    return (
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col justify-center items-center">
-        <Loader2 className="h-8 w-8 text-emerald-500 animate-spin mb-4" />
-        <p className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Verificando perímetro de seguridad UAO UAZ...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-50 via-white to-zinc-100 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 flex items-center justify-center p-4">
@@ -246,17 +287,41 @@ const ConstrainedAccess: React.FC = () => {
                 </p>
               </div>
 
-              {/* Geo Status */}
-              <div className={`px-8 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${isGeoValid ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600 dark:text-emerald-400' : 'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border-b border-red-100 dark:border-red-900/30'}`}>
-                {isGeoValid ? (
-                  <><MapPin className="h-3.5 w-3.5" /> En Campus Guadalupe</>
-                ) : (
-                  <><ShieldAlert className="h-3.5 w-3.5" /> Ubicación fuera de rango</>
-                )}
-              </div>
+              {/* Geo Status chip (solo visible cuando hay info del token) */}
+              {(geoStatus !== 'idle') && (
+                <div className={`px-8 py-3 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 ${
+                  geoStatus === 'ok'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-600'
+                    : geoStatus === 'denied'
+                    ? 'bg-red-50 dark:bg-red-950/20 text-red-600'
+                    : 'bg-zinc-50 text-zinc-400'
+                }`}>
+                  {geoStatus === 'checking' && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                  {geoStatus === 'ok' && <ShieldCheck className="h-3.5 w-3.5" />}
+                  {geoStatus === 'denied' && <ShieldAlert className="h-3.5 w-3.5" />}
+                  {geoStatus === 'checking' ? 'Verificando ubicación...' : geoMessage}
+                </div>
+              )}
 
               {/* Formulario */}
               <form onSubmit={handleSubmit} className="px-8 py-7 space-y-4">
+
+                {/* Nombre (opcional pero recomendado) */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">
+                    Nombre (opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={userName}
+                    onChange={e => setUserName(e.target.value)}
+                    placeholder="Dr. García"
+                    autoComplete="name"
+                    className="w-full px-3 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all"
+                  />
+                </div>
+
+                {/* Token */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wide">
                     Access Token / Llave Maestra
@@ -266,7 +331,7 @@ const ConstrainedAccess: React.FC = () => {
                     <input
                       type="text"
                       value={token}
-                      onChange={e => { setToken(e.target.value.toUpperCase()); setError(''); }}
+                      onChange={e => { setToken(e.target.value.toUpperCase()); setError(''); setGeoStatus('idle'); }}
                       placeholder="TKN-XXXXXX"
                       autoComplete="off"
                       className="w-full pl-10 pr-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-bold text-zinc-900 dark:text-white placeholder:text-zinc-400 placeholder:font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all font-mono tracking-widest text-center"
@@ -274,15 +339,23 @@ const ConstrainedAccess: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Geo chip del token (si aplica) */}
+                {geoZoneForToken && geoStatus === 'idle' && (
+                  <div className="flex items-center gap-2 text-xs text-blue-600 bg-blue-50 rounded-xl px-3 py-2 font-semibold">
+                    <MapPin className="h-3.5 w-3.5" />
+                    Zona requerida: {geoZoneForToken.name}
+                  </div>
+                )}
+
                 <AnimatePresence>
                   {error && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
                       animate={{ opacity: 1, height: 'auto' }}
                       exit={{ opacity: 0, height: 0 }}
-                      className="flex items-center gap-2 px-3 py-2.5 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-200 dark:border-red-800 mt-2"
+                      className="flex items-center gap-2 px-3 py-2.5 bg-red-50 dark:bg-red-950/30 rounded-xl border border-red-200 dark:border-red-800"
                     >
-                      <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
+                      <ShieldAlert className="h-4 w-4 text-red-500 shrink-0" />
                       <p className="text-xs text-red-600 dark:text-red-400 font-medium leading-tight">{error}</p>
                     </motion.div>
                   )}
@@ -290,10 +363,10 @@ const ConstrainedAccess: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={loading || !token}
-                  className={`w-full flex items-center justify-center gap-2 py-3 mt-4 text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-xl ${(!isGeoValid && token.toLowerCase() !== 'admin') ? 'bg-zinc-400 dark:bg-zinc-700 cursor-not-allowed shadow-none' : 'bg-emerald-600 hover:bg-emerald-500 hover:shadow-emerald-500/20 active:scale-[0.98]'}`}
+                  disabled={loading || !token || geoStatus === 'checking'}
+                  className="w-full flex items-center justify-center gap-2 py-3 mt-4 text-white rounded-xl font-bold text-sm transition-all duration-200 shadow-xl bg-emerald-600 hover:bg-emerald-500 hover:shadow-emerald-500/20 active:scale-[0.98] disabled:bg-zinc-400 dark:disabled:bg-zinc-700 disabled:cursor-not-allowed disabled:shadow-none"
                 >
-                  {loading ? (
+                  {loading || geoStatus === 'checking' ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <>
@@ -316,7 +389,7 @@ const ConstrainedAccess: React.FC = () => {
                 <p className="text-xs font-medium">Autenticación por Token Seguro UAZ</p>
               </div>
               <p className="text-center text-[10px] text-zinc-400 dark:text-zinc-600">
-                Solo doctores/alumnos en campus con token asignado.
+                Tokens generados en Demo Engine · Acceso local sin internet disponible.
               </p>
             </motion.div>
           </motion.div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Link2, Copy, Check, Sparkles, Lock, LockOpen } from 'lucide-react';
+import { Plus, Link2, Copy, Check, Sparkles, Lock, LockOpen, MapPin, Navigation } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useAdminAuthContext } from '@/contexts/AdminAuthContext';
 import { Switch } from '@/components/ui/switch';
+import { useGeoZones } from '@/hooks/useGeoZones';
 
 const DURATION_OPTIONS = [
   { value: '15', label: '15 minutos' },
@@ -52,6 +53,10 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
   const [selectedModules, setSelectedModules] = useState<string[]>(['motor_neuronal']);
   const [requiresToken, setRequiresToken] = useState(true);
   const [requiresUserInfo, setRequiresUserInfo] = useState(true);
+  const [isGeoFenced, setIsGeoFenced] = useState(false);
+  const [selectedZoneId, setSelectedZoneId] = useState<string>('');
+
+  const { zones: geoZones, isLoading: zonesLoading } = useGeoZones();
 
   // Generación de token único con crypto
   const generateToken = () => {
@@ -112,6 +117,11 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
         p_allowed_modules: selectedModules,
         p_requires_token: requiresToken,
         p_requires_user_info: requiresUserInfo,
+        p_is_geo_fenced: isGeoFenced,
+        p_geo_zone_name: isGeoFenced ? (geoZones.find(z => z.id === selectedZoneId)?.name ?? null) : null,
+        p_geo_lat: isGeoFenced ? (geoZones.find(z => z.id === selectedZoneId)?.lat ?? null) : null,
+        p_geo_lng: isGeoFenced ? (geoZones.find(z => z.id === selectedZoneId)?.lng ?? null) : null,
+        p_geo_radius_km: isGeoFenced ? (geoZones.find(z => z.id === selectedZoneId)?.radius_km ?? 1.5) : 1.5,
       });
 
       if (rpcError) {
@@ -154,6 +164,8 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
     setSelectedModules(['motor_neuronal']);
     setRequiresToken(true);
     setRequiresUserInfo(true);
+    setIsGeoFenced(false);
+    setSelectedZoneId('');
   };
 
   const toggleModule = (moduleId: string) => {
@@ -236,6 +248,12 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
                 )}
                 {requiresUserInfo ? 'Solicita información del usuario' : 'Acceso directo (sin formulario)'}
               </p>
+              {isGeoFenced && (
+                <p className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-blue-500" />
+                  Solo en: {geoZones.find(z => z.id === selectedZoneId)?.name ?? 'Zona no seleccionada'}
+                </p>
+              )}
             </div>
           </motion.div>
         ) : (
@@ -370,6 +388,73 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
                     className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-teal-500 data-[state=checked]:to-emerald-500"
                   />
                 </div>
+              </div>
+
+              {/* ── NUEVO: Restricción Geográfica ──────────────────────── */}
+              <div className="rounded-xl border-2 border-blue-200/50 bg-gradient-to-br from-white via-blue-50/30 to-white p-4 shadow-[inset_0_0_20px_rgba(59,130,246,0.04)]">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-slate-700 font-semibold flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-blue-500" />
+                      Restricción Geográfica
+                    </Label>
+                    <p className="text-xs text-slate-500">
+                      {isGeoFenced
+                        ? 'Solo se podrá abrir desde la zona seleccionada'
+                        : 'Accesible desde cualquier ubicación'}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={isGeoFenced}
+                    onCheckedChange={setIsGeoFenced}
+                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-cyan-500"
+                  />
+                </div>
+
+                {isGeoFenced && (
+                  <div className="mt-4 space-y-3">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Seleccionar Zona</p>
+                    {zonesLoading ? (
+                      <div className="flex items-center gap-2 text-slate-400 text-sm py-2">
+                        <div className="w-4 h-4 border-2 border-slate-300 border-t-blue-500 rounded-full animate-spin" />
+                        Cargando zonas...
+                      </div>
+                    ) : geoZones.length === 0 ? (
+                      <div className="text-xs text-slate-400 py-2 flex items-center gap-2">
+                        <Navigation className="h-3.5 w-3.5" />
+                        No hay zonas configuradas. Ve a{' '}
+                        <a href="/admin/geomap" target="_blank" className="text-blue-500 underline font-semibold">GeoMap</a>{' '}
+                        para crear una.
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {geoZones.map(zone => (
+                          <button
+                            key={zone.id}
+                            type="button"
+                            onClick={() => setSelectedZoneId(zone.id)}
+                            className={`w-full text-left p-3 rounded-xl border-2 transition-all ${
+                              selectedZoneId === zone.id
+                                ? 'border-blue-400/60 bg-blue-50/50 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+                                : 'border-slate-200/50 bg-white hover:border-blue-200/50'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: zone.color }} />
+                                <span className="text-sm font-semibold text-slate-700">{zone.name}</span>
+                              </div>
+                              <span className="text-[10px] font-mono text-slate-400">{zone.radius_km} km</span>
+                            </div>
+                            {zone.description && (
+                              <p className="text-xs text-slate-400 mt-1 pl-4">{zone.description}</p>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 

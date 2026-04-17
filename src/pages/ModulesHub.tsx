@@ -6,6 +6,7 @@ import { ShaderSplash } from "@/components/ShaderSplash";
 import { SchemaHubCard } from "@/components/SchemaHubCard";
 import { SchemaWaveBackground } from "@/components/ui/SchemaWaveBackground";
 import { supabase } from "@/integrations/supabase/client";
+import { checkGeofence } from "@/pages/academico/utils/geo";
 import {
   Dialog,
   DialogContent,
@@ -269,6 +270,21 @@ export default function ModulesHub() {
         throw new Error("Este token ha alcanzado el límite de usos");
       }
 
+      // ── GEOFENCE CHECK: Si el token tiene restricción geográfica ────────────
+      if (linkData.is_geo_fenced && linkData.geo_lat && linkData.geo_lng) {
+        const geoResult = await checkGeofence({
+          customZones: [{
+            nombre: linkData.geo_zone_name || 'Zona Autorizada',
+            lat: linkData.geo_lat,
+            lng: linkData.geo_lng,
+            radiusKm: linkData.geo_radius_km ?? 1.5,
+          }]
+        });
+        if (!geoResult.ok) {
+          throw new Error(`Acceso restringido: Debes estar en "${linkData.geo_zone_name || 'la zona autorizada'}" para usar este token. ${geoResult.error || ''}`);
+        }
+      }
+
       // Check requirements
       if (linkData.requires_user_info) {
         setValidatedDemoData(linkData);
@@ -370,6 +386,21 @@ export default function ModulesHub() {
 
       if (linkData.current_uses >= linkData.max_uses) {
         throw new Error("Este token ha alcanzado el límite de usos");
+      }
+
+      // ── GEOFENCE CHECK: Si el token tiene restricción geográfica ────────────
+      if (linkData.is_geo_fenced && linkData.geo_lat && linkData.geo_lng) {
+        const geoResult = await checkGeofence({
+          customZones: [{
+            nombre: linkData.geo_zone_name || 'Zona Autorizada',
+            lat: linkData.geo_lat,
+            lng: linkData.geo_lng,
+            radiusKm: linkData.geo_radius_km ?? 1.5,
+          }]
+        });
+        if (!geoResult.ok) {
+          throw new Error(`Acceso restringido: Debes estar en "${linkData.geo_zone_name || 'la zona autorizada'}". ${geoResult.error || ''}`);
+        }
       }
 
       // 2. Check if module is allowed (if restrictions exist)

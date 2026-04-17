@@ -83,7 +83,9 @@ export function getCurrentPosition(): Promise<GeolocationCoordinates> {
 }
 
 // ── Función principal de verificación ────────────────────────────────────────
-export async function checkGeofence(): Promise<{
+export async function checkGeofence(options?: {
+  customZones?: GeoZona[];
+}): Promise<{
   ok: boolean;
   zonaNombre?: string;
   distanciaKm?: number;
@@ -93,7 +95,11 @@ export async function checkGeofence(): Promise<{
     const coords = await getCurrentPosition();
     const { latitude, longitude } = coords;
 
-    const todasLasZonas: GeoZona[] = [...ZONAS_FIJAS, ...getExtraZones()];
+    // Si se pasan customZones, solo validar contra esas (para tokens con geofence específico)
+    // Si no, usar las zonas fijas + extras del localStorage
+    const todasLasZonas: GeoZona[] = options?.customZones?.length
+      ? options.customZones
+      : [...ZONAS_FIJAS, ...getExtraZones()];
 
     for (const zona of todasLasZonas) {
       const dist = getDistanceKm(latitude, longitude, zona.lat, zona.lng);
@@ -102,7 +108,7 @@ export async function checkGeofence(): Promise<{
       }
     }
 
-    // Ninguna zona coincide: calcular la más cercana para mostrar en el mensaje de error
+    // Ninguna zona coincide: calcular la más cercana para el mensaje de error
     let menorDist = Infinity;
     let zonaBase = todasLasZonas[0];
     for (const zona of todasLasZonas) {
