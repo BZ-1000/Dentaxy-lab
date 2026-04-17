@@ -28,9 +28,23 @@ const HeredoFamiliaresPreview = () => {
         { key: 'abuelo', label: 'Abuelo Paterno' },
     ];
 
-    // Loop continuo (sin isInView — siempre activo en la card)
+    // Loop con pausa automática — Page Visibility API para no quemar CPU en segundo plano
     useEffect(() => {
         let isCancelled = false;
+        let isPaused = false;
+
+        const handleVisibility = () => { isPaused = document.hidden; };
+        document.addEventListener('visibilitychange', handleVisibility);
+
+        const waitWhilePaused = () =>
+            new Promise<void>(resolve => {
+                if (!isPaused) { resolve(); return; }
+                const check = setInterval(() => {
+                    if (!isPaused || isCancelled) { clearInterval(check); resolve(); }
+                }, 200);
+            });
+
+        const delay = (ms: number) => new Promise(r => setTimeout(r, ms));
 
         const reset = () => {
             setAnimationStep(0);
@@ -43,60 +57,56 @@ const HeredoFamiliaresPreview = () => {
 
         const runAnimation = async () => {
             while (!isCancelled) {
+                await waitWhilePaused();
                 reset();
-                await new Promise(r => setTimeout(r, 1000));
+                await delay(1000);
 
-                // Padre: Vivo y Sano
                 if (isCancelled) return;
                 setAnimationStep(1);
-                await new Promise(r => setTimeout(r, 300));
+                await delay(300);
                 if (isCancelled) return;
                 setStates(prev => ({ ...prev, padre: { status: 'vivoSano' } }));
 
-                // Madre: Condición + typewriting "Diabetes mellitus tipo 2"
-                await new Promise(r => setTimeout(r, 800));
+                await delay(800);
                 if (isCancelled) return;
                 setAnimationStep(2);
-                await new Promise(r => setTimeout(r, 300));
+                await delay(300);
                 if (isCancelled) return;
                 setStates(prev => ({ ...prev, madre: { status: 'condicion' } }));
-                await new Promise(r => setTimeout(r, 400));
+                await delay(400);
                 if (isCancelled) return;
                 setShowCondicionInput(true);
                 const condition = 'Diabetes mellitus tipo 2';
                 for (let i = 0; i <= condition.length; i++) {
                     if (isCancelled) return;
-                    await new Promise(r => setTimeout(r, 50));
+                    await delay(35); // 35ms en vez de 50ms — más fluido
                     setCondicionText(condition.slice(0, i));
                 }
                 if (isCancelled) return;
                 setStates(prev => ({ ...prev, madre: { status: 'condicion', condicion: condition } }));
 
-                // Abuelo: Finado
-                await new Promise(r => setTimeout(r, 800));
+                await delay(800);
                 if (isCancelled) return;
                 setAnimationStep(3);
-                await new Promise(r => setTimeout(r, 300));
+                await delay(300);
                 if (isCancelled) return;
                 setStates(prev => ({ ...prev, abuelo: { status: 'finado' } }));
 
-                // Botón Generar
-                await new Promise(r => setTimeout(r, 600));
+                await delay(600);
                 if (isCancelled) return;
                 setAnimationStep(4);
 
-                // Typewriting del texto generado
-                await new Promise(r => setTimeout(r, 400));
+                await delay(400);
                 if (isCancelled) return;
                 setIsTyping(true);
+                // Typewriter a 28ms (muy fluido) en vez de 22ms — ahorra ~20% de setState calls
                 for (let i = 0; i <= finalText.length; i++) {
                     if (isCancelled) return;
-                    await new Promise(r => setTimeout(r, 22));
+                    await delay(28);
                     setTypedText(finalText.slice(0, i));
                 }
 
-                // Pausa antes de reiniciar
-                await new Promise(r => setTimeout(r, 3000));
+                await delay(3000);
             }
         };
 
@@ -104,6 +114,7 @@ const HeredoFamiliaresPreview = () => {
         return () => {
             isCancelled = true;
             clearTimeout(timeout);
+            document.removeEventListener('visibilitychange', handleVisibility);
         };
     }, []);
 
@@ -286,17 +297,24 @@ export function SchemaHubCard({
 }: SchemaHubCardProps) {
 
     return (
-        <div
+        // layout=true → Framer Motor calcula la diferencia de tamaño y la anima
+        // via transform (GPU-only). Cero Layout/Reflow. Expansión instantánea y fluida.
+        <motion.div
+            layout
+            transition={{ layout: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] } }}
             // ── RESPONSIVO: ancho fluido escalado por breakpoint ──────────────
-            className={`relative transition-all duration-500 ease-out mx-auto ${isExpanded
+            className={`relative mx-auto ${isExpanded
                 ? 'w-full max-w-xs sm:max-w-2xl md:max-w-4xl lg:max-w-5xl'
                 : 'w-full max-w-[280px] sm:max-w-[320px] md:max-w-sm'
                 }`}
-            style={{ zIndex: isExpanded ? 50 : 10 }}
+            style={{ zIndex: isExpanded ? 50 : 10, willChange: 'transform' }}
         >
-            <div
-                className={`relative card-border overflow-hidden rounded-2xl flex flex-col transition-all duration-500 ${!isExpanded ? 'animate-float' : ''}`}
+            <motion.div
+                layout
+                transition={{ layout: { duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] } }}
+                className={`relative card-border overflow-hidden rounded-2xl flex flex-col ${!isExpanded ? 'animate-float' : ''}`}
                 style={{
+                    willChange: 'transform',
                     borderColor: `rgba(${color}, 0.5)`,
                     boxShadow: `0 0 100px -20px rgba(${color}, 0.5), 0 0 30px -10px rgba(${color}, 0.3)`,
                     background: `linear-gradient(135deg, rgba(${color},0.1), rgba(${color},0.05), rgba(0,0,0,0.8))`
@@ -322,14 +340,14 @@ export function SchemaHubCard({
                             borderWidth: '1px'
                         }}
                     >
-                        {/* Animated grid background — solo si NO es DICOM */}
+                        {/* Grid background estático — se eliminó animate-pulse que causaba repaints constantes */}
                         {title !== 'DICOM' && (
-                            <div className="absolute inset-0 opacity-30">
+                            <div className="absolute inset-0 opacity-20" style={{ willChange: 'auto' }}>
                                 <div
-                                    className="w-full h-full animate-pulse transition-opacity duration-1000"
                                     style={{
+                                        width: '100%', height: '100%',
                                         backgroundImage: `linear-gradient(90deg, rgba(${color},0.3) 1px, transparent 1px), linear-gradient(rgba(${color},0.3) 1px, transparent 1px)`,
-                                        backgroundSize: '15px 15px'
+                                        backgroundSize: '20px 20px'
                                     }}
                                 />
                             </div>
@@ -513,7 +531,7 @@ export function SchemaHubCard({
                         </motion.div>
                     )}
                 </AnimatePresence>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }
