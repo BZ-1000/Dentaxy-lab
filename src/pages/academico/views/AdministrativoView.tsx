@@ -89,7 +89,7 @@ const ALUMNOS_OPCIONES = [
 
 const inputCls = "w-full text-sm bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl px-3 py-2.5 text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white transition-all";
 
-const ModalNuevoPaciente: React.FC<{ onClose: () => void; onGuardar: (f: FormNuevoPaciente) => void }> = ({ onClose, onGuardar }) => {
+const ModalNuevoPaciente: React.FC<{ onClose: () => void; onGuardar: (f: FormNuevoPaciente) => Promise<void>; isSubmitting: boolean }> = ({ onClose, onGuardar, isSubmitting }) => {
   const [form, setForm] = useState<FormNuevoPaciente>(formVacio);
   const upd = (k: keyof FormNuevoPaciente, v: string) => setForm(p => ({ ...p, [k]: v }));
   const valido = form.nombre.length > 1 && form.apellidos.length > 1 && form.edad.length > 0 && form.telefono.length >= 10;
@@ -158,16 +158,16 @@ const ModalNuevoPaciente: React.FC<{ onClose: () => void; onGuardar: (f: FormNue
             Cancelar
           </button>
           <button
-            onClick={() => valido && onGuardar(form)}
-            disabled={!valido}
+            onClick={() => valido && !isSubmitting && onGuardar(form)}
+            disabled={!valido || isSubmitting}
             className={cn(
               'flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all',
-              valido
+              valido && !isSubmitting
                 ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-100'
                 : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed'
             )}
           >
-            Registrar y asignar folio
+            {isSubmitting ? 'Sincronizando...' : 'Registrar y enviar'}
           </button>
         </div>
       </motion.div>
@@ -186,6 +186,8 @@ const chipEspera = (estado: EstadoEspera) => ({
   no_show:     { cls: 'bg-red-100 dark:bg-red-950/30 text-red-700',                            label: '❌ No show',      icon: X },
 })[estado];
 
+import { useUaoSandbox } from '../context/SandboxContext';
+
 // ─────────────────────────────────────────────────────────────────────────────
 // ADMINISTRATIVO VIEW
 // ─────────────────────────────────────────────────────────────────────────────
@@ -193,12 +195,15 @@ const chipEspera = (estado: EstadoEspera) => ({
 const AdministrativoViewContent: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useDemo();
+  const { addPatient } = useUaoSandbox();
+  
   const [tab, setTab] = useState<'cola' | 'cobros' | 'registro'>('cola');
   const [cola, setCola] = useState<PacienteEspera[]>(COLA_ESPERA_INICIAL);
   const [cobros, setCobros] = useState<CobrosItem[]>(COBROS_DIA);
   const [showModal, setShowModal] = useState(false);
   const [busqueda, setBusqueda] = useState('');
   const [successPaciente, setSuccessPaciente] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   React.useEffect(() => {
     if (!isAuthenticated) navigate('/academico');
@@ -218,7 +223,18 @@ const AdministrativoViewContent: React.FC = () => {
     setCola(prev => prev.map(p => p.id === id ? { ...p, estado } : p));
   };
 
-  const registrarPaciente = (form: FormNuevoPaciente) => {
+  const registrarPaciente = async (form: FormNuevoPaciente) => {
+    // 1. Guardar en Sandbox de forma Real-Time (para que Alumnos y Docentes lo vean Mágicamente)
+    setIsSubmitting(true);
+    await addPatient({
+      nombre: `${form.nombre} ${form.apellidos}`,
+      edad: parseInt(form.edad),
+      diagnostico: form.motivo || 'Evaluación inicial (Primera Vez)',
+      creador_rol: 'administrativo',
+      creador_nombre: 'Recepción UAO'
+    });
+
+    // 2. Comportamiento UI local (Cola de espera)
     const folio = `PAC-${Math.floor(Math.random() * 9000) + 1000}`;
     const nuevo: PacienteEspera = {
       id: folio,
@@ -234,7 +250,8 @@ const AdministrativoViewContent: React.FC = () => {
     };
     setCola(prev => [...prev, nuevo]);
     setShowModal(false);
-    setSuccessPaciente(`${form.nombre} — Folio: ${folio}`);
+    setIsSubmitting(false);
+    setSuccessPaciente(`${form.nombre} — Enviado al Sandbox Universitario`);
     setTimeout(() => setSuccessPaciente(null), 4000);
     setTab('cola');
   };
@@ -500,6 +517,7 @@ const AdministrativoViewContent: React.FC = () => {
           <ModalNuevoPaciente
             onClose={() => setShowModal(false)}
             onGuardar={registrarPaciente}
+            isSubmitting={isSubmitting}
           />
         )}
       </AnimatePresence>

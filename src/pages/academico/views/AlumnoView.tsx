@@ -161,11 +161,7 @@ const StatsBar: React.FC<{ pacientesCount: number }> = ({ pacientesCount }) => {
 const AlumnoViewContent: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, isZeroState, toggleZeroState } = useDemo();
-  const { patients, isLoading, addPatient } = useUaoSandbox();
-
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ nombre: '', edad: '', diagnostico: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { patients, isLoading } = useUaoSandbox();
 
   React.useEffect(() => {
     if (!isAuthenticated) navigate('/academico');
@@ -177,21 +173,7 @@ const AlumnoViewContent: React.FC = () => {
     if (patients.length > 0 && isZeroState) toggleZeroState();
   }, [patients.length, isZeroState, toggleZeroState]);
 
-  const handleCreatePatient = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.nombre) return;
-    setIsSubmitting(true);
-    await addPatient({
-      nombre: formData.nombre,
-      edad: formData.edad ? parseInt(formData.edad) : 25,
-      diagnostico: formData.diagnostico || 'Caries de primer grado',
-      creador_rol: 'alumno',
-      creador_nombre: 'Dra. Demo Alumno'
-    });
-    setShowModal(false);
-    setIsSubmitting(false);
-    setFormData({ nombre: '', edad: '', diagnostico: '' });
-  };
+
 
   return (
     <div className="p-4 sm:p-6 pb-24">
@@ -203,15 +185,9 @@ const AlumnoViewContent: React.FC = () => {
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">Mis Pacientes</h1>
           <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mt-1">
-            Workspace Sandbox (Multi-usuario Activo)
+            Revisa tu asignación de hoy
           </p>
         </div>
-        <Button 
-          onClick={() => setShowModal(true)}
-          className="rounded-full shadow-lg shadow-blue-500/20 gap-2 bg-blue-600 hover:bg-blue-700"
-        >
-          <Plus className="h-4 w-4" /> Registrar Paciente Libre
-        </Button>
       </motion.div>
 
       <StatsBar pacientesCount={patients.length} />
@@ -231,14 +207,10 @@ const AlumnoViewContent: React.FC = () => {
           <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-5 ring-8 ring-blue-50/50 dark:ring-blue-900/10">
             <UserPlus className="h-7 w-7 text-blue-600 dark:text-blue-500" />
           </div>
-          <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Base de datos en blanco (Estado Cero)</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md mb-8 leading-relaxed">
-            Estás usando un token temporal de demostración. Crea un paciente (o haz que Administración cree uno) y velo aparecer mágicamente en tiempo real en esta pantalla.
+          <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Sin pacientes asignados</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md mt-2 leading-relaxed">
+            Aún no tienes pacientes asignados en este demo. Pide al personal de Recepción (Rol Administrativo) que registre un nuevo paciente, y al Jefe de Clínica que te lo asigne, para que aparezca en tu panel automáticamente.
           </p>
-          <Button onClick={() => setShowModal(true)} className="rounded-full px-8">
-            <Plus className="h-4 w-4 mr-2" />
-            Crear mi primer expediente clínico
-          </Button>
         </motion.div>
       ) : (
         <motion.div 
@@ -251,65 +223,7 @@ const AlumnoViewContent: React.FC = () => {
         </motion.div>
       )}
 
-      {/* Modal Realtime para Alta Ficticia */}
-      <AnimatePresence>
-        {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div 
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowModal(false)}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-            />
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-[28px] border border-zinc-200 dark:border-zinc-800 shadow-2xl p-7"
-            >
-              <button 
-                onClick={() => setShowModal(false)}
-                className="absolute top-5 right-5 p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-colors"
-              >
-                <X className="h-5 w-5" />
-              </button>
-              
-              <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">Registrar Paciente Sandbox</h2>
-              <p className="text-xs font-medium text-zinc-500 mb-6">Todos los en sala lo verán instantly. Desaparecerá finalizando sesión.</p>
-              
-              <form onSubmit={handleCreatePatient} className="space-y-4">
-                <div>
-                  <label className="block text-[11px] font-bold tracking-wide text-zinc-600 dark:text-zinc-400 uppercase mb-1.5 ml-1">Nombre Completo</label>
-                  <input required type="text" value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow" placeholder="E.g. Juan Pérez Gómez" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[11px] font-bold tracking-wide text-zinc-600 dark:text-zinc-400 uppercase mb-1.5 ml-1">Edad</label>
-                    <input type="number" value={formData.edad} onChange={e => setFormData({...formData, edad: e.target.value})}
-                      className="w-full bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow" placeholder="35" />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-bold tracking-wide text-zinc-600 dark:text-zinc-400 uppercase mb-1.5 ml-1">Rol Creador</label>
-                    <input disabled value="Alumno (Tú)"
-                      className="w-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/50 rounded-xl px-4 py-3 text-sm text-zinc-500 cursor-not-allowed" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-[11px] font-bold tracking-wide text-zinc-600 dark:text-zinc-400 uppercase mb-1.5 ml-1">Asunto / Diagnóstico Inicial</label>
-                  <input type="text" value={formData.diagnostico} onChange={e => setFormData({...formData, diagnostico: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow" placeholder="Evaluación general de rutina..." />
-                </div>
-                
-                <div className="pt-4">
-                  <Button type="submit" disabled={isSubmitting} className="w-full rounded-xl py-6 text-[15px] font-bold shadow-lg shadow-blue-500/20 bg-blue-600 hover:bg-blue-700">
-                    {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Sincronizar Paciente Universal'}
-                  </Button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+
     </div>
   );
 };
