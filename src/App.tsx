@@ -54,6 +54,7 @@ import { ShopAuthProvider } from './contexts/ShopAuthContext';
 // Demo Académico UAO — Fases 1–5
 import { AcademicoDemo, ClinicaView } from './pages/academico';
 import { DemoProvider } from './pages/academico/context/DemoContext';
+import { UaoSandboxProvider } from './pages/academico/context/SandboxContext';
 import RolSelectorView from './pages/academico/views/RolSelectorView';
 import NodosView from './pages/academico/views/NodosView';
 import DirectorView from './pages/academico/views/DirectorView';
@@ -176,7 +177,7 @@ function App() {
                   <Route path="/auth/*" element={<Navigate to="/hub" replace />} />
 
                   {/* Demo Académico UAO Sync — Fase 1-5 Agrupado con DemoProvider único */}
-                  <Route path="/academico" element={<DemoProvider><Outlet /></DemoProvider>}>
+                  <Route path="/academico" element={<DemoProvider><UaoSandboxProvider><Outlet /></UaoSandboxProvider></DemoProvider>}>
                     <Route index element={<AcademicoDemo />} />
                     <Route path="roles" element={<RolSelectorView />} />
                     <Route path="nodos" element={<NodosView />} />

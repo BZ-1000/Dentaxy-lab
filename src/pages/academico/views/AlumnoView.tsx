@@ -1,22 +1,22 @@
 /**
- * AlumnoView.tsx — Fase 2A
- * Vista principal del Alumno Clínico: lista de pacientes asignados
+ * AlumnoView.tsx — Fase 2 (Multijugador)
+ * Vista principal del Alumno Clínico con conexión Real-Time al Sandbox
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Stethoscope, Calendar, ChevronRight, TrendingUp,
-  Clock, User, Award, FileText, UserPlus, Plus
+  Clock, User, Award, FileText, UserPlus, Plus, X, Loader2
 } from 'lucide-react';
-import { PACIENTES_DEMO } from '@/data/uaoMockData';
 import { useDemo } from '../context/DemoContext';
+import { useUaoSandbox, SandboxPatient } from '../context/SandboxContext';
 import UAOLayout from '../components/UAOLayout';
 import { Button } from '@/components/ui/button';
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SEMÁFORO DE AVANCE
+// SEMÁFORO DE AVANCE (Aleatorio simulado para los pacientes)
 // ─────────────────────────────────────────────────────────────────────────────
 const Semaforo: React.FC<{ pct: number }> = ({ pct }) => {
   const color = pct >= 70 ? 'bg-emerald-500' : pct >= 40 ? 'bg-amber-500' : 'bg-red-500';
@@ -38,10 +38,10 @@ const Semaforo: React.FC<{ pct: number }> = ({ pct }) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CARD PACIENTE
+// CARD PACIENTE SANDBOX
 // ─────────────────────────────────────────────────────────────────────────────
 interface PacienteCardProps {
-  paciente: typeof PACIENTES_DEMO[0];
+  paciente: SandboxPatient;
   index: number;
 }
 
@@ -51,8 +51,11 @@ const PacienteCard: React.FC<PacienteCardProps> = ({ paciente, index }) => {
   const colorMap = ['bg-blue-500', 'bg-violet-500', 'bg-emerald-500', 'bg-rose-500'];
   const avatarColor = colorMap[index % colorMap.length];
 
-  const proxCita = new Date(paciente.proximaCita);
-  const esHoy = proxCita.toDateString() === new Date().toDateString();
+  const proxCita = new Date();
+  proxCita.setDate(proxCita.getDate() + (index % 3)); // Fechas demo
+
+  // Simulamos un % de avance aleatorio pero determinista por ID
+  const avance = Math.abs(paciente.id.charCodeAt(0) % 100); 
 
   return (
     <motion.button
@@ -71,7 +74,6 @@ const PacienteCard: React.FC<PacienteCardProps> = ({ paciente, index }) => {
         </div>
 
         <div className="flex-1 min-w-0">
-          {/* Nombre + arrow */}
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-sm font-bold text-zinc-900 dark:text-white truncate pr-2">
               {paciente.nombre}
@@ -81,39 +83,35 @@ const PacienteCard: React.FC<PacienteCardProps> = ({ paciente, index }) => {
 
           {/* Diagnóstico */}
           <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-snug mb-3 line-clamp-1">
-            {paciente.diagnosticoPrincipal}
+            {paciente.diagnostico || 'Diagnóstico inicial pendiente'}
           </p>
 
-          {/* Avance */}
           <div className="mb-3">
             <div className="flex justify-between mb-1">
-              <span className="text-[10px] text-zinc-400 font-medium">Avance del plan</span>
+              <span className="text-[10px] text-zinc-400 font-medium">Avance del tratamiento</span>
             </div>
-            <Semaforo pct={paciente.avanceTratamiento} />
+            <Semaforo pct={avance} />
           </div>
 
-          {/* Info row */}
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             <div className="flex items-center gap-1.5">
               <Calendar className="h-3 w-3 text-zinc-400" />
-              <span className={`text-[11px] font-medium ${esHoy ? 'text-blue-600 dark:text-blue-400' : 'text-zinc-500'}`}>
-                {esHoy ? 'Hoy' : proxCita.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
-                {' · '}{proxCita.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}
+              <span className="text-[11px] font-medium text-zinc-500">
+                {proxCita.toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
               </span>
             </div>
             <div className="flex items-center gap-1.5">
               <Stethoscope className="h-3 w-3 text-zinc-400" />
-              <span className="text-[11px] text-zinc-500 truncate max-w-[160px]">{paciente.procedimientoNext}</span>
+              <span className="text-[11px] text-zinc-500 truncate max-w-[160px]">Revisión Clínica</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Footer — docente */}
       <div className="mt-3 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <User className="h-3 w-3 text-zinc-400" />
-          <span className="text-[11px] text-zinc-400">Supervisor: {paciente.docenteSupervisor}</span>
+          <span className="text-[11px] text-zinc-400">Docente: {paciente.creador_rol === 'docente' ? paciente.creador_nombre : 'Dr. Asignado'}</span>
         </div>
         {paciente.saldo > 0 && (
           <span className="text-[10px] font-semibold px-2 py-0.5 bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 rounded-full">
@@ -128,13 +126,10 @@ const PacienteCard: React.FC<PacienteCardProps> = ({ paciente, index }) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // STATS BAR
 // ─────────────────────────────────────────────────────────────────────────────
-const StatsBar: React.FC<{ isZeroState: boolean }> = ({ isZeroState }) => {
-  const procedimientosMeta = 48;
-  const procedimientosHechos = isZeroState ? 0 : 31;
-  const pacientesAsignados = isZeroState ? 0 : PACIENTES_DEMO.length;
-  const citasHoy = isZeroState ? '0' : '1';
-  const pct = isZeroState ? 0 : Math.round((procedimientosHechos / procedimientosMeta) * 100);
-
+const StatsBar: React.FC<{ pacientesCount: number }> = ({ pacientesCount }) => {
+  const meta = 48;
+  const asignados = pacientesCount;
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
@@ -143,17 +138,17 @@ const StatsBar: React.FC<{ isZeroState: boolean }> = ({ isZeroState }) => {
       className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6"
     >
       {[
-        { label: 'Pacientes asignados', value: pacientesAsignados, icon: User, color: 'text-blue-600' },
-        { label: 'Cita hoy', value: citasHoy, icon: Calendar, color: 'text-emerald-600' },
-        { label: 'Procedimientos sem.', value: `${procedimientosHechos}/${procedimientosMeta}`, icon: TrendingUp, color: 'text-violet-600' },
-        { label: 'Avance semestral', value: isZeroState ? '0%' : `${pct}%`, icon: Award, color: pct >= 70 ? 'text-emerald-600' : 'text-amber-600' },
+        { label: 'Pacientes en Sandbox', value: asignados, icon: User, color: 'text-blue-600' },
+        { label: 'Cita hoy', value: asignados > 0 ? '1' : '0', icon: Calendar, color: 'text-emerald-600' },
+        { label: 'Firmas Sem.', value: `${asignados}/${meta}`, icon: TrendingUp, color: 'text-violet-600' },
+        { label: 'Aprobación', value: asignados > 0 ? 'En curso' : '0%', icon: Award, color: asignados > 0 ? 'text-amber-600' : 'text-emerald-600' },
       ].map((item) => (
-        <div key={item.label} className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 p-4">
+        <div key={item.label} className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80 p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <item.icon className={`h-4 w-4 ${item.color}`} />
           </div>
-          <p className={`text-2xl font-bold ${item.color}`}>{item.value}</p>
-          <p className="text-[11px] text-zinc-400 mt-0.5">{item.label}</p>
+          <p className={`text-xl md:text-2xl font-bold ${item.color}`}>{item.value}</p>
+          <p className="text-[11px] text-zinc-400 mt-0.5 font-medium">{item.label}</p>
         </div>
       ))}
     </motion.div>
@@ -165,86 +160,156 @@ const StatsBar: React.FC<{ isZeroState: boolean }> = ({ isZeroState }) => {
 // ─────────────────────────────────────────────────────────────────────────────
 const AlumnoViewContent: React.FC = () => {
   const navigate = useNavigate();
-  const { isAuthenticated, isZeroState } = useDemo();
+  const { isAuthenticated, isZeroState, toggleZeroState } = useDemo();
+  const { patients, isLoading, addPatient } = useUaoSandbox();
+
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({ nombre: '', edad: '', diagnostico: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   React.useEffect(() => {
     if (!isAuthenticated) navigate('/academico');
   }, [isAuthenticated, navigate]);
 
+  // Si hay pacientes en el sandbox, forzamos apagar el flag "ZeroState" 
+  // que antes usábamos manualmente
+  React.useEffect(() => {
+    if (patients.length > 0 && isZeroState) toggleZeroState();
+  }, [patients.length, isZeroState, toggleZeroState]);
+
+  const handleCreatePatient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.nombre) return;
+    setIsSubmitting(true);
+    await addPatient({
+      nombre: formData.nombre,
+      edad: formData.edad ? parseInt(formData.edad) : 25,
+      diagnostico: formData.diagnostico || 'Caries de primer grado',
+      creador_rol: 'alumno',
+      creador_nombre: 'Dra. Demo Alumno'
+    });
+    setShowModal(false);
+    setIsSubmitting(false);
+    setFormData({ nombre: '', edad: '', diagnostico: '' });
+  };
+
   return (
-    <div className="p-4 sm:p-6">
+    <div className="p-4 sm:p-6 pb-24">
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6"
+        className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
       >
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">Mis Pacientes</h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Semestre 8 · Módulo IV — Adolescente, Adulto y Senecto
-        </p>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-zinc-900 dark:text-white tracking-tight">Mis Pacientes</h1>
+          <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mt-1">
+            Workspace Sandbox (Multi-usuario Activo)
+          </p>
+        </div>
+        <Button 
+          onClick={() => setShowModal(true)}
+          className="rounded-full shadow-lg shadow-blue-500/20 gap-2 bg-blue-600 hover:bg-blue-700"
+        >
+          <Plus className="h-4 w-4" /> Registrar Paciente Libre
+        </Button>
       </motion.div>
 
-      <StatsBar isZeroState={isZeroState} />
+      <StatsBar pacientesCount={patients.length} />
 
-      {/* Lista de pacientes o Zero-State */}
-      {isZeroState ? (
+      {/* Loading o Grid */}
+      {isLoading ? (
+        <div className="w-full py-20 flex flex-col items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-500 mb-4" />
+          <p className="text-sm font-medium text-zinc-500">Sincronizando con Sandbox Realtime...</p>
+        </div>
+      ) : patients.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="w-full bg-white dark:bg-zinc-900 border border-dashed border-zinc-300 dark:border-zinc-700/80 rounded-3xl p-10 flex flex-col items-center justify-center text-center mt-6"
+          className="w-full bg-white dark:bg-zinc-900/50 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-3xl p-12 flex flex-col items-center justify-center text-center mt-6 shadow-sm"
         >
-          <div className="w-16 h-16 bg-blue-50 dark:bg-zinc-800 rounded-full flex items-center justify-center mb-4">
-            <UserPlus className="h-8 w-8 text-blue-500" />
+          <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mb-5 ring-8 ring-blue-50/50 dark:ring-blue-900/10">
+            <UserPlus className="h-7 w-7 text-blue-600 dark:text-blue-500" />
           </div>
-          <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-2">Aún no tienes pacientes asignados</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-sm mb-6">
-            Comienza dando de alta tu primer expediente clínico para registrar el diagnóstico inicial y el plan de tratamiento.
+          <h3 className="text-xl font-bold text-zinc-900 dark:text-white mb-2">Base de datos en blanco (Estado Cero)</h3>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 max-w-md mb-8 leading-relaxed">
+            Estás usando un token temporal de demostración. Crea un paciente (o haz que Administración cree uno) y velo aparecer mágicamente en tiempo real en esta pantalla.
           </p>
-          <Button className="rounded-full gap-2 px-6 shadow-xl shadow-blue-500/20">
-            <Plus className="h-4 w-4" />
-            Crear Nuevo Expediente
+          <Button onClick={() => setShowModal(true)} className="rounded-full px-8">
+            <Plus className="h-4 w-4 mr-2" />
+            Crear mi primer expediente clínico
           </Button>
         </motion.div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {PACIENTES_DEMO.map((p, i) => (
+        <motion.div 
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
+        >
+          {patients.map((p, i) => (
             <PacienteCard key={p.id} paciente={p} index={i} />
           ))}
-        </div>
-      )}
-
-      {/* Historial rápido (solo con datos) */}
-      {!isZeroState && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6 bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200/80 dark:border-zinc-800/80 p-5"
-        >
-          <div className="flex items-center gap-2 mb-4">
-            <FileText className="h-4 w-4 text-zinc-500" />
-            <h2 className="text-sm font-bold text-zinc-900 dark:text-white">Última actividad clínica</h2>
-          </div>
-          <div className="space-y-2.5">
-            {[
-              { texto: 'Historia clínica actualizada — M. G. Flores Reyes', tiempo: 'hace 2 horas' },
-              { texto: 'Odontograma completado — J. A. Hernández Cruz', tiempo: 'ayer 11:30' },
-              { texto: 'Plan de tratamiento firmado — R. C. Leal Sandoval', tiempo: 'ayer 09:15' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <div className="w-1.5 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600 mt-1.5 shrink-0" />
-                <div>
-                  <p className="text-xs text-zinc-700 dark:text-zinc-300">{item.texto}</p>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <Clock className="h-3 w-3 text-zinc-400" />
-                    <p className="text-[10px] text-zinc-400">{item.tiempo}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         </motion.div>
       )}
+
+      {/* Modal Realtime para Alta Ficticia */}
+      <AnimatePresence>
+        {showModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setShowModal(false)}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-white dark:bg-zinc-900 rounded-[28px] border border-zinc-200 dark:border-zinc-800 shadow-2xl p-7"
+            >
+              <button 
+                onClick={() => setShowModal(false)}
+                className="absolute top-5 right-5 p-2 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-400 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+              
+              <h2 className="text-xl font-bold text-zinc-900 dark:text-white mb-1">Registrar Paciente Sandbox</h2>
+              <p className="text-xs font-medium text-zinc-500 mb-6">Todos los en sala lo verán instantly. Desaparecerá finalizando sesión.</p>
+              
+              <form onSubmit={handleCreatePatient} className="space-y-4">
+                <div>
+                  <label className="block text-[11px] font-bold tracking-wide text-zinc-600 dark:text-zinc-400 uppercase mb-1.5 ml-1">Nombre Completo</label>
+                  <input required type="text" value={formData.nombre} onChange={e => setFormData({...formData, nombre: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow" placeholder="E.g. Juan Pérez Gómez" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[11px] font-bold tracking-wide text-zinc-600 dark:text-zinc-400 uppercase mb-1.5 ml-1">Edad</label>
+                    <input type="number" value={formData.edad} onChange={e => setFormData({...formData, edad: e.target.value})}
+                      className="w-full bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow" placeholder="35" />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-bold tracking-wide text-zinc-600 dark:text-zinc-400 uppercase mb-1.5 ml-1">Rol Creador</label>
+                    <input disabled value="Alumno (Tú)"
+                      className="w-full bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/50 rounded-xl px-4 py-3 text-sm text-zinc-500 cursor-not-allowed" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold tracking-wide text-zinc-600 dark:text-zinc-400 uppercase mb-1.5 ml-1">Asunto / Diagnóstico Inicial</label>
+                  <input type="text" value={formData.diagnostico} onChange={e => setFormData({...formData, diagnostico: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-shadow" placeholder="Evaluación general de rutina..." />
+                </div>
+                
+                <div className="pt-4">
+                  <Button type="submit" disabled={isSubmitting} className="w-full rounded-xl py-6 text-[15px] font-bold shadow-lg shadow-blue-500/20 bg-blue-600 hover:bg-blue-700">
+                    {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Sincronizar Paciente Universal'}
+                  </Button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
