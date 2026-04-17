@@ -182,8 +182,8 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
           Crear Demo
         </Button>
       </DialogTrigger>
-      <DialogContent className="border-2 border-emerald-200/50 bg-white/95 backdrop-blur-2xl sm:max-w-2xl shadow-[0_0_100px_rgba(16,185,129,0.2),0_0_60px_rgba(20,184,166,0.15),0_0_30px_rgba(52,211,153,0.1)]">
-        <DialogHeader>
+      <DialogContent className="border-2 border-emerald-200/50 bg-white/95 backdrop-blur-2xl sm:max-w-2xl shadow-[0_0_100px_rgba(16,185,129,0.2),0_0_60px_rgba(20,184,166,0.15),0_0_30px_rgba(52,211,153,0.1)] max-h-[90vh] flex flex-col overflow-hidden p-0">
+        <DialogHeader className="px-6 pt-6 pb-4 flex-shrink-0 border-b border-emerald-100/50">
           <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 bg-clip-text text-transparent flex items-center gap-2">
             <div className="relative">
               <Sparkles className="h-6 w-6 text-emerald-500" />
@@ -197,6 +197,9 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
               : 'Configura las opciones del demo temporal.'}
           </DialogDescription>
         </DialogHeader>
+
+        {/* Área scrollable */}
+        <div className="overflow-y-auto flex-1 px-6 py-4">
 
         {createdLink ? (
           <motion.div
@@ -483,6 +486,7 @@ export const DemoLinkCreator: React.FC<{ onCreated: () => void }> = ({ onCreated
             </Button>
           </div>
         )}
+        </div>{/* fin área scrollable */}
       </DialogContent>
     </Dialog>
   );
