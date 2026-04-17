@@ -58,7 +58,7 @@ export function useDemoTokenValidator() {
           return { valid: false, source: 'supabase', requiresGeoCheck: false, errorMessage: 'Token expirado.' };
         }
         // Verificar usos
-        if (linkData.use_count >= linkData.max_uses) {
+        if (linkData.current_uses >= linkData.max_uses) {
           return { valid: false, source: 'supabase', requiresGeoCheck: false, errorMessage: 'Este token ha alcanzado su límite de usos.' };
         }
         // Verificar revocación

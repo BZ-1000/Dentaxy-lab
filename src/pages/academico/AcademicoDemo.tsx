@@ -157,7 +157,22 @@ const ConstrainedAccess: React.FC = () => {
     setError('');
     setLoading(true);
 
-    const tkn = token.trim();
+    let tkn = token.trim();
+
+    // Extractor de URL si el usuario pegó el link completo
+    if (tkn.toLowerCase().includes('demo=')) {
+      try {
+        const urlStr = tkn.toLowerCase().startsWith('http') ? tkn : `http://${tkn}`;
+        const url = new URL(urlStr);
+        // Rescatar param respetando el case original (si url lo permite) 
+        // Es mejor extraerlo con REXGEX para no perder cases
+        const match = token.match(/[?&]demo=([^&]+)/i) || token.match(/[?&]DEMO=([^&]+)/i);
+        if (match) tkn = match[1];
+      } catch (e) {
+        const match = token.match(/[?&]demo=([^&]+)/i);
+        if (match) tkn = match[1];
+      }
+    }
 
     // Huevo de pascua para el panel de tokens locales
     if (tkn === 'director-root') {
@@ -198,13 +213,12 @@ const ConstrainedAccess: React.FC = () => {
 
     // 3. Token de Supabase válido — registrar sesión e iniciar
     if (validation.source === 'supabase' && validation.tokenRow) {
-      // Incrementar uso en Supabase
+      // Incrementar uso en Supabase via RPC (bypassa RLS public)
       try {
-        await supabase
-          .from('demo_links')
-          .update({ use_count: ((validation.tokenRow as any).use_count ?? 0) + 1 })
-          .eq('token', tkn);
-      } catch { /* no-op */ }
+        await supabase.rpc('increment_demo_uses', { p_token: tkn });
+      } catch (err) { 
+        console.error("Error al incrementar usos", err);
+      }
 
       // Guardar en sessionStorage para que el Hub también lo conozca
       sessionStorage.setItem('demo_token', tkn);
@@ -331,8 +345,8 @@ const ConstrainedAccess: React.FC = () => {
                     <input
                       type="text"
                       value={token}
-                      onChange={e => { setToken(e.target.value.toUpperCase()); setError(''); setGeoStatus('idle'); }}
-                      placeholder="TKN-XXXXXX"
+                      onChange={e => { setToken(e.target.value); setError(''); setGeoStatus('idle'); }}
+                      placeholder="TKN-XXXXXX o URL link"
                       autoComplete="off"
                       className="w-full pl-10 pr-4 py-3 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-sm font-bold text-zinc-900 dark:text-white placeholder:text-zinc-400 placeholder:font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all font-mono tracking-widest text-center"
                     />
