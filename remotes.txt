@@ -1,7 +1,0 @@
-dev-fork	https://github.com/zavalabrau2018-4383/Dentaxy-lab.git (fetch)
-dev-fork	https://github.com/zavalabrau2018-4383/Dentaxy-lab.git (push)
-origin	https://github.com/DentalBasicsAcademy1/Dentaxy-lab.git (fetch)
-origin	https://github.com/DentalBasicsAcademy1/Dentaxy-lab.git (push)
-personal	https://github.com/BZ-1000/Dentaxy-lab.git (fetch)
-personal	https://github.com/BZ-1000/Dentaxy-lab.git (push)
-Everything up-to-date

@@ -82,7 +82,7 @@ export const VistaDocumento: React.FC<VistaDocumentoProps> = ({
             {/* Document Header */}
             <div className="relative border-b-2 border-gray-200 p-8">
               <div className="flex items-center justify-center gap-6 mb-6">
-                <img src="/logos/uao-uaz-logo.svg" alt="UAO UAZ" className="h-16 object-contain" />
+                <img src="/logos/uao-odontologia.png" alt="Institución" className="h-10 opacity-90 object-contain" />
               </div>
               <div className="text-center">
                 <h1 className="text-2xl font-bold text-gray-900 mb-1">

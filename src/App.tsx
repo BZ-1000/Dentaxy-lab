@@ -175,95 +175,27 @@ function App() {
                   {/* Redireccion legacy de auth */}
                   <Route path="/auth/*" element={<Navigate to="/hub" replace />} />
 
-                  {/* Demo Académico UAO Sync — Fase 1 */}
-                  <Route path="/academico" element={
-                    <DemoProvider>
-                      <AcademicoDemo />
-                    </DemoProvider>
-                  } />
-                  <Route path="/academico/roles" element={
-                    <DemoProvider>
-                      <RolSelectorView />
-                    </DemoProvider>
-                  } />
-                  <Route path="/academico/nodos" element={
-                    <DemoProvider>
-                      <NodosView />
-                    </DemoProvider>
-                  } />
-                  <Route path="/academico/nodos/:nodoId" element={
-                    <DemoProvider>
-                      <NodosView />
-                    </DemoProvider>
-                  } />
-                  <Route path="/academico/nodos/:nodoId/:subId" element={
-                    <DemoProvider>
-                      <NodosView />
-                    </DemoProvider>
-                  } />
-                  <Route path="/academico/director" element={
-                    <DemoProvider>
-                      <DirectorView />
-                    </DemoProvider>
-                  } />
-                  {/* Jefe de Clínica — Fase 3 */}
-                  <Route path="/academico/jefe" element={
-                    <DemoProvider>
-                      <JefeView />
-                    </DemoProvider>
-                  } />
-                  {/* Coordinador Académico — Fase 3 */}
-                  <Route path="/academico/coordinador" element={
-                    <DemoProvider>
-                      <CoordinadorView />
-                    </DemoProvider>
-                  } />
-                  {/* Docente Clínico — Fase 3 */}
-                  <Route path="/academico/docente" element={
-                    <DemoProvider>
-                      <DocenteView />
-                    </DemoProvider>
-                  } />
-                  {/* Rutas del Alumno Clínico — Fase 2 */}
-                  <Route path="/academico/alumno" element={
-                    <DemoProvider>
-                      <AlumnoView />
-                    </DemoProvider>
-                  } />
-                  <Route path="/academico/alumno/expediente/:id" element={
-                    <DemoProvider>
-                      <ExpedienteView />
-                    </DemoProvider>
-                  } />
-                  {/* Fase 4 — Administrativo, Paciente y Agenda */}
-                  <Route path="/academico/administrativo" element={
-                    <DemoProvider>
-                      <AdministrativoView />
-                    </DemoProvider>
-                  } />
-                  <Route path="/academico/paciente" element={
-                    <DemoProvider>
-                      <PacientePortalView />
-                    </DemoProvider>
-                  } />
-                  <Route path="/academico/agenda" element={
-                    <DemoProvider>
-                      <AgendaView />
-                    </DemoProvider>
-                  } />
-                  {/* Fase 5 — Reportes e Inventario */}
-                  <Route path="/academico/reportes" element={
-                    <DemoProvider>
-                      <ReportesView />
-                    </DemoProvider>
-                  } />
-                  <Route path="/academico/inventario" element={
-                    <DemoProvider>
-                      <InventarioView />
-                    </DemoProvider>
-                  } />
-                  {/* Legacy compatibility */}
-                  <Route path="/academico/:clinicaId" element={<ClinicaView />} />
+                  {/* Demo Académico UAO Sync — Fase 1-5 Agrupado con DemoProvider único */}
+                  <Route path="/academico" element={<DemoProvider><Outlet /></DemoProvider>}>
+                    <Route index element={<AcademicoDemo />} />
+                    <Route path="roles" element={<RolSelectorView />} />
+                    <Route path="nodos" element={<NodosView />} />
+                    <Route path="nodos/:nodoId" element={<NodosView />} />
+                    <Route path="nodos/:nodoId/:subId" element={<NodosView />} />
+                    <Route path="director" element={<DirectorView />} />
+                    <Route path="jefe" element={<JefeView />} />
+                    <Route path="coordinador" element={<CoordinadorView />} />
+                    <Route path="docente" element={<DocenteView />} />
+                    <Route path="alumno" element={<AlumnoView />} />
+                    <Route path="alumno/expediente/:id" element={<ExpedienteView />} />
+                    <Route path="administrativo" element={<AdministrativoView />} />
+                    <Route path="paciente" element={<PacientePortalView />} />
+                    <Route path="agenda" element={<AgendaView />} />
+                    <Route path="reportes" element={<ReportesView />} />
+                    <Route path="inventario" element={<InventarioView />} />
+                    {/* Legacy compatibility */}
+                    <Route path=":clinicaId" element={<ClinicaView />} />
+                  </Route>
 
                   {/* Demo DENTAXY AI — Protegidos por DemoGuard */}
                   <Route path="/demo/ai" element={<DemoGuard moduleName="motor_neuronal"><AIDemo /></DemoGuard>} />

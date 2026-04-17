@@ -1,3 +1,9 @@
+/**
+ * @deprecated OBSOLETO — Este componente ya no está registrado en las rutas de App.tsx.
+ * El login activo del panel Admin se encuentra en: `pages/admin/LoginPage.tsx`
+ * Pendiente de eliminación en el siguiente sprint de limpieza.
+ * Última revisión: Abril 2026
+ */
 import React, { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { Shield, Fingerprint, Loader2, Lock, User, CheckCircle2, AlertCircle, Command } from 'lucide-react';

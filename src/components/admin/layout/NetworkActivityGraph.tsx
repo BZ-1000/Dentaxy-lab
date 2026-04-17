@@ -61,10 +61,11 @@ export const NetworkActivityGraph: React.FC<NetworkActivityGraphProps> = ({ clas
                 </ResponsiveContainer>
             </div>
 
-            {/* Scan line overlay */}
+            {/* Scan line overlay — usa `x` (translateX) en lugar de `left` para animación GPU-only */}
             <motion.div
-                className="absolute inset-y-0 w-px bg-cyan-400/50 shadow-[0_0_15px_#22d3ee] z-20 pointer-events-none"
-                animate={{ left: ['0%', '100%'] }}
+                className="absolute inset-y-0 w-px bg-cyan-400/50 shadow-[0_0_15px_#22d3ee] z-20 pointer-events-none will-change-transform"
+                style={{ left: 0 }}
+                animate={{ x: ['0%', '100vw'] }}
                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
             />
         </div>

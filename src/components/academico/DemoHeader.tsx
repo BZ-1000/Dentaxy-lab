@@ -74,7 +74,7 @@ export const DemoHeader: React.FC<DemoHeaderProps> = ({ showBack = true, onBack 
           </button>
           
           <img 
-            src="/logos/uao-uaz-logo.svg" 
+            src="/logos/uao-odontologia.png" 
             alt="UAO UAZ" 
             className="h-10 object-contain"
           />

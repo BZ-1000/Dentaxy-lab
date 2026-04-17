@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { NeonStatCard } from './NeonStatCard';
+import { NeonStatCard } from '../layout/NeonStatCard';
 import { Activity, ShieldCheck, Globe, Server, TrendingUp, Users } from 'lucide-react';
 
 export const GlobalCommandCenter: React.FC = () => {

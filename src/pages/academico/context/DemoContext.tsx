@@ -22,19 +22,33 @@ interface DemoState {
 interface DemoContextType extends DemoState {
   rolData: Rol | null;
   nodoData: NodoClinico | null;
-  login: (usuario: string, password: string) => boolean;
+  loginWithToken: (token: string) => boolean;
   logout: () => void;
   selectRol: (rolId: RolId) => void;
   selectNodo: (nodoId: NodoId, subUnidadId?: string) => void;
   clearNodo: () => void;
   toggleZeroState: () => void;
+  generateToken: (rolId: RolId) => string;
+  validTokens: Record<string, RolId>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // VALORES POR DEFECTO
 // ─────────────────────────────────────────────────────────────────────────────
 
+
 const STORAGE_KEY = 'uao_demo_state';
+const TOKENS_KEY = 'uao_demo_tokens';
+
+const DEFAULT_TOKENS: Record<string, RolId> = {
+  'TKN-DIR-2026': 'director',
+  'TKN-COO-2026': 'coordinador',
+  'TKN-JEF-2026': 'jefe',
+  'TKN-DOC-2026': 'docente',
+  'TKN-ALU-2026': 'alumno',
+  'TKN-ADM-2026': 'administrativo',
+  'TKN-PAC-2026': 'paciente'
+};
 
 const defaultState: DemoState = {
   isAuthenticated: false,
@@ -60,20 +74,50 @@ export const DemoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   });
 
-  // Persist to sessionStorage whenever state changes
+  const [validTokens, setValidTokens] = useState<Record<string, RolId>>(() => {
+    try {
+      const saved = localStorage.getItem(TOKENS_KEY);
+      return saved ? JSON.parse(saved) : DEFAULT_TOKENS;
+    } catch {
+      return DEFAULT_TOKENS;
+    }
+  });
+
+  // Persist state
   useEffect(() => {
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch { /* ignore */ }
   }, [state]);
 
+  // Persist tokens
+  useEffect(() => {
+    try {
+      localStorage.setItem(TOKENS_KEY, JSON.stringify(validTokens));
+    } catch { /* ignore */ }
+  }, [validTokens]);
+
   // ── Acciones
-  const login = useCallback((usuario: string, password: string): boolean => {
-    if (usuario.trim().toLowerCase() === 'admin' && password === 'admin') {
+  const loginWithToken = useCallback((token: string): boolean => {
+    const t = token.trim();
+    if (t.toLowerCase() === 'admin') {
       setState(prev => ({ ...prev, isAuthenticated: true }));
       return true;
     }
+    const match = validTokens[t];
+    if (match) {
+      setState(prev => ({ ...prev, isAuthenticated: true, rolActivo: match }));
+      return true;
+    }
     return false;
+  }, [validTokens]);
+
+  const generateToken = useCallback((rolId: RolId) => {
+    const prefix = rolId.substring(0, 3).toUpperCase();
+    const hash = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const newToken = `TKN-${prefix}-${hash}`;
+    setValidTokens(prev => ({ ...prev, [newToken]: rolId }));
+    return newToken;
   }, []);
 
   const logout = useCallback(() => {
@@ -106,7 +150,11 @@ export const DemoProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const nodoData = state.nodoActivo ? getNodoById(state.nodoActivo) ?? null : null;
 
   return (
-    <DemoContext.Provider value={{ ...state, rolData, nodoData, login, logout, selectRol, selectNodo, clearNodo, toggleZeroState }}>
+    <DemoContext.Provider value={{
+      ...state, rolData, nodoData, loginWithToken, logout,
+      selectRol, selectNodo, clearNodo, toggleZeroState,
+      generateToken, validTokens
+    }}>
       {children}
     </DemoContext.Provider>
   );

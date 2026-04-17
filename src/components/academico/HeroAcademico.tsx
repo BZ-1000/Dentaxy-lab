@@ -26,7 +26,7 @@ export const HeroAcademico: React.FC = () => {
             <span className="text-2xl md:text-3xl font-black tracking-tight">DENTAXY</span>
           </div>
           <div className="h-10 w-px bg-border" />
-          <img src="/logos/uao-uaz-logo.svg" alt="UAO UAZ" className="h-14 md:h-20 object-contain" />
+          <img src="/logos/uao-odontologia.png" alt="UAO UAZ" className="h-14 md:h-20 object-contain" />
         </motion.div>
 
         {/* Main Title */}

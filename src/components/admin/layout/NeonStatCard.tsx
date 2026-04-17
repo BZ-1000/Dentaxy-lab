@@ -127,11 +127,11 @@ export const NeonStatCard: React.FC<NeonStatCardProps> = ({
                 )}
             </div>
 
-            {/* Progress/Activity Line at bottom */}
+            {/* Progress/Activity Line at bottom — usa `scaleX` en lugar de `width` para GPU-only */}
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
                 <motion.div
-                    initial={{ width: "0%" }}
-                    animate={{ width: "100%" }}
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
                     transition={{
                         duration: 2,
                         repeat: Infinity,
@@ -139,7 +139,8 @@ export const NeonStatCard: React.FC<NeonStatCardProps> = ({
                         ease: "easeInOut",
                         delay: Math.random() * 2
                     }}
-                    className={cn("h-full opacity-50", style.text.replace('text-', 'bg-'))}
+                    style={{ transformOrigin: 'left' }}
+                    className={cn("h-full opacity-50 will-change-transform", style.text.replace('text-', 'bg-'))}
                 />
             </div>
         </motion.div>

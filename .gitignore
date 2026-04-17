@@ -22,3 +22,37 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# ─── Archivos temporales de agente / debug ─────────────────────────────────
+# Archivos de status y logs generados por el agente Antigravity
+*_antigravity.txt
+git_status*.txt
+git_status*.log
+push*.log
+push*.txt
+remote*.log
+remote*.txt
+branches.log
+last_commit*.txt
+last_commit*.log
+deploy_all.log
+vercel_*.txt
+vercel_*.log
+status_*.txt
+status_*.log
+tsc_output.txt
+eslint_output.txt
+build_log.txt
+build_error.log
+commit_check.txt
+count_*.txt
+create_log.txt
+log_compare.txt
+diff_check.txt
+trigger_deploy.txt
+loi_template.html
+
+# ─── Credenciales GCP (NUNCA commitear) ───────────────────────────────────
+credentials/
+*.json.key
+service-account*.json

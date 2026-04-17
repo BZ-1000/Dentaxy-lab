@@ -1,1 +1,0 @@
-ls: no se puede acceder a '.vercel': No existe el fichero o el directorio
