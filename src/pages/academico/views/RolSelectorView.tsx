@@ -23,9 +23,8 @@ const DESTINO_ROL: Record<string, string> = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CARD DE ROL
+// CARD DE ROL (PREMIUM REDESIGN)
 // ─────────────────────────────────────────────────────────────────────────────
-
 interface RolCardProps {
   rol: typeof ROLES[0];
   index: number;
@@ -36,58 +35,70 @@ const RolCard: React.FC<RolCardProps> = ({ rol, index, onSelect }) => (
   <motion.button
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ delay: index * 0.06, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-    whileHover={{ y: -3, scale: 1.01 }}
+    transition={{ delay: index * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+    whileHover={{ y: -6, scale: 1.01 }}
     whileTap={{ scale: 0.98 }}
     onClick={onSelect}
-    className="group w-full text-left bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800/80 rounded-2xl p-5 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-lg hover:shadow-zinc-200/60 dark:hover:shadow-zinc-950/60 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-white focus:ring-offset-2"
+    className="group relative w-full text-left bg-white/70 dark:bg-zinc-900/60 backdrop-blur-md border border-zinc-200/80 dark:border-zinc-800/80 rounded-[28px] p-6 hover:shadow-2xl transition-all duration-300 focus:outline-none overflow-hidden"
+    style={{
+      // Añadimos una variable CSS local para usar el color dinámico en el hover
+      '--hover-shadow': `0 20px 40px -10px ${rol.color}30`,
+      '--hover-border': `${rol.color}50`
+    } as React.CSSProperties}
   >
-    <div className="flex items-start gap-4">
-      {/* Avatar */}
-      <div
-        className="w-11 h-11 rounded-2xl flex items-center justify-center text-xl shrink-0 transition-transform group-hover:scale-105"
-        style={{ backgroundColor: rol.color + '18' }}
-      >
-        {rol.icono}
+    {/* Efecto de borde en Hover inyectado via in-line style para aprovechar el color nativo */}
+    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-[28px] border-2" style={{ borderColor: 'var(--hover-border)', boxShadow: 'var(--hover-shadow)' }} />
+
+    <div className="flex items-start gap-5 relative z-10">
+      {/* Avatar Container */}
+      <div className="relative shrink-0">
+        <div
+          className="w-16 h-16 rounded-[20px] flex items-center justify-center text-3xl shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+          style={{ backgroundColor: rol.color, color: '#fff' }}
+        >
+          {rol.icono}
+        </div>
+        {/* Glow subyacente */}
+        <div 
+          className="absolute inset-0 rounded-[20px] blur-xl opacity-40 group-hover:opacity-80 transition-opacity duration-500 -z-10"
+          style={{ backgroundColor: rol.color }}
+        />
       </div>
 
       {/* Contenido */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="text-sm font-semibold text-zinc-900 dark:text-white leading-tight">
+      <div className="flex-1 min-w-0 pt-1">
+        <div className="flex items-center gap-2 mb-1.5">
+          <h3 className="text-[17px] font-bold text-zinc-900 dark:text-white leading-tight font-['Inter']">
             {rol.nombre}
           </h3>
-          {/* Dot de color */}
-          <span
-            className="inline-block w-1.5 h-1.5 rounded-full shrink-0 mt-px"
-            style={{ backgroundColor: rol.color }}
-          />
+          {/* Dot Animado */}
+          <span className="relative flex h-2.5 w-2.5 mt-px shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-40 group-hover:opacity-75 transition-opacity" style={{ backgroundColor: rol.color }}></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ backgroundColor: rol.color }}></span>
+          </span>
         </div>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2">
+        <p className="text-[13px] text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-[280px]">
           {rol.descripcion}
         </p>
 
-        {/* Permisos rápidos */}
-        <div className="flex flex-wrap gap-1 mt-2.5">
+        {/* Permisos (Tags Píldora) */}
+        <div className="flex flex-wrap gap-1.5 mt-4">
           {rol.permisos.slice(0, 3).map(p => (
             <span
               key={p}
-              className="inline-block text-[10px] font-medium px-2 py-0.5 rounded-full"
-              style={{ backgroundColor: rol.color + '12', color: rol.color }}
+              className="inline-flex items-center text-[10px] font-bold px-2.5 py-1 rounded-full transition-colors"
+              style={{ backgroundColor: rol.color, color: '#fff' }}
             >
               {p}
             </span>
           ))}
           {rol.permisos.length > 3 && (
-            <span className="inline-block text-[10px] text-zinc-400 px-2 py-0.5">
+            <span className="inline-flex items-center text-[10px] font-bold px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
               +{rol.permisos.length - 3} más
             </span>
           )}
         </div>
       </div>
-
-      {/* Arrow */}
-      <ChevronRight className="h-4 w-4 text-zinc-300 dark:text-zinc-600 group-hover:text-zinc-500 dark:group-hover:text-zinc-400 group-hover:translate-x-0.5 transition-all mt-1 shrink-0" />
     </div>
   </motion.button>
 );
@@ -95,7 +106,6 @@ const RolCard: React.FC<RolCardProps> = ({ rol, index, onSelect }) => (
 // ─────────────────────────────────────────────────────────────────────────────
 // VISTA PRINCIPAL
 // ─────────────────────────────────────────────────────────────────────────────
-
 const RolSelectorView: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated, selectRol, logout } = useDemo();
@@ -111,48 +121,56 @@ const RolSelectorView: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      {/* Header */}
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#09090B] font-['Inter'] flex flex-col relative overflow-hidden">
+      
+      {/* Background Orbs */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-500/10 dark:bg-blue-500/5 blur-[120px] rounded-full pointer-events-none -z-10" />
+
+      {/* Header Corporativo */}
       <motion.header
-        initial={{ opacity: 0, y: -10 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-b border-zinc-200/60 dark:border-zinc-800/60"
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="w-full h-20 px-8 flex items-center justify-between border-b border-zinc-200/50 dark:border-zinc-800/50 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-xl z-20"
       >
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center gap-3">
-          <img src="/logos/uao-uaz-logo.svg" alt="UAO" className="h-7 w-7" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-zinc-900 dark:text-white leading-none">UAO Sync</p>
-            <p className="text-[11px] text-zinc-400 leading-none mt-0.5">DentaXy Académico · UAZ</p>
+        <div className="flex items-center gap-4">
+          <div className="h-10 w-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-600/20">
+            <img src="/logos/uao-uaz-logo.svg" alt="UAO Icon" className="h-6 w-6 brightness-0 invert" />
           </div>
-          <button
-            onClick={() => { logout(); navigate('/academico'); }}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs text-zinc-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            Salir
-          </button>
+          <div>
+            <h2 className="text-[15px] font-bold text-zinc-900 dark:text-white leading-none">UAO Sync</h2>
+            <p className="text-[12px] font-medium text-zinc-500 dark:text-zinc-400 mt-1">DentaXy Académico - UAZ</p>
+          </div>
         </div>
+        
+        <button
+          onClick={() => { logout(); navigate('/academico'); }}
+          className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-sm font-semibold text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:shadow-sm transition-all"
+        >
+          Salir <LogOut className="h-4 w-4" />
+        </button>
       </motion.header>
 
-      {/* Contenido */}
-      <div className="max-w-3xl mx-auto px-4 py-8">
-        {/* Hero text */}
+      {/* Main Content Area */}
+      <main className="flex-1 w-full max-w-5xl mx-auto px-6 py-16 flex flex-col items-center justify-center z-10">
+        
+        {/* Títulos Centrados */}
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="mb-8"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="text-center mb-16"
         >
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">
+          <h1 className="text-4xl md:text-[44px] font-extrabold text-zinc-900 dark:text-white tracking-tight mb-4">
             ¿Cuál es tu rol hoy?
           </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-base text-zinc-600 dark:text-zinc-400 font-medium">
             Selecciona tu jerarquía para acceder a los módulos y permisos correspondientes.
           </p>
         </motion.div>
 
-        {/* Grid de roles */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {/* Grid de Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-[960px]">
           {ROLES.map((rol, i) => (
             <RolCard
               key={rol.id}
@@ -163,22 +181,7 @@ const RolSelectorView: React.FC = () => {
           ))}
         </div>
 
-        {/* Footer info */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-8 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-200/60 dark:border-blue-800/40"
-        >
-          <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-1">
-            🔒 Acceso basado en roles
-          </p>
-          <p className="text-xs text-blue-600/70 dark:text-blue-400/70 leading-relaxed">
-            Cada jerarquía accede únicamente a los módulos y datos que le corresponden.
-            La información clínica nunca sale del servidor UAZ.
-          </p>
-        </motion.div>
-      </div>
+      </main>
     </div>
   );
 };
