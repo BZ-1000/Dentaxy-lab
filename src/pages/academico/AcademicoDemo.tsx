@@ -224,23 +224,25 @@ const ConstrainedAccess: React.FC = () => {
       sessionStorage.setItem('demo_token', tkn);
       sessionStorage.setItem('demo_source', 'supabase');
 
-      // El módulo principal permitido (por defecto: academico)
-      const primaryModule = validation.allowedModules?.[0] ?? 'academico';
-      if (primaryModule === 'academico') {
-        // Usar loginWithToken local para el router interno de UAO
-        const ok = loginWithToken(tkn);
-        if (!ok) {
-          // Si no hay token local con ese valor, entrar en modo libre
-          loginWithToken('admin');
-        }
-      } else {
-        navigate(`/${primaryModule}`);
+      // Validar que el token tenga permiso para este módulo específico
+      if (validation.allowedModules && validation.allowedModules.length > 0 && !validation.allowedModules.includes('academico')) {
+         setError('Este token no tiene permiso para el módulo UAO Sync (Universidades)');
+         setLoading(false);
+         return;
+      }
+
+      // Iniciar sesión en el DemoContext de UAO Sync
+      const ok = loginWithToken(tkn);
+      if (!ok) {
+        // Si el token no está en el Mock local (que es lo normal para tokens web), 
+        // damos el acceso default 'admin'
+        loginWithToken('admin');
       }
       setLoading(false);
       return;
     }
 
-    // 4. Fallback: token local UAO
+    // 4. Fallback: token local UAO (sin internet)
     await new Promise(r => setTimeout(r, 400));
     const ok = loginWithToken(tkn);
     setLoading(false);
