@@ -45,6 +45,7 @@ import AuditLogs from './pages/admin/AuditLogs';
 import Settings from './pages/admin/Settings';
 import AdminNexusIntel from './pages/admin/NexusIntel';
 import WaitlistAdmin from './pages/admin/WaitlistAdmin';
+import SeedManager from './pages/admin/SeedManager';
 
 // Shop (Tienda privada)
 import ShopLogin from './pages/shop/ShopLogin';
@@ -150,6 +151,7 @@ function App() {
                     <Route path="nexus-intel" element={<AdminNexusIntel />} />
                     <Route path="ecosystem" element={<Ecosystem />} />
                     <Route path="waitlist" element={<WaitlistAdmin />} />
+                    <Route path="seed" element={<SeedManager />} />
                     <Route path="demos" element={<DemoControl />} />
                     <Route path="security" element={<Security />} />
                     <Route path="geomap" element={<GeoMap />} />

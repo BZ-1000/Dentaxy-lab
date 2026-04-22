@@ -353,7 +353,9 @@ export default function SeedLogin() {
   return (
     <div className="seed-theme min-h-screen w-full bg-white flex flex-col overflow-hidden selection:bg-blue-500/20">
       <WaitlistMasterModal isOpen={waitlistOpen} onClose={() => setWaitlistOpen(false)} preselectedModule="Seed" />
-      <AnimatePresence><{showAdmin && <AdminModal onClose={() => setShowAdmin(false)} />}</AnimatePresence>
+      <AnimatePresence>
+        {showAdmin && <AdminModal onClose={() => setShowAdmin(false)} />}
+      </AnimatePresence>
 
       {/* Header mínimo */}
       <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4">
