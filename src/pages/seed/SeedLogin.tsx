@@ -16,14 +16,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import WaitlistMasterModal from '@/components/waitlist/WaitlistMasterModal';
+import { supabase } from '@/integrations/supabase/client';
 import "./Seed.css";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CONSTANTES
 // ─────────────────────────────────────────────────────────────────────────────
 
-/** Código universal de preventa. Cambiar aquí para rotar. */
-const PREVENTA_CODE = 'PREVENTA';
 const WAITLIST_COUNT = 843;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -57,13 +56,70 @@ const StepCodigo: React.FC<{ onNext: () => void }> = ({ onNext }) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    await new Promise(r => setTimeout(r, 600));
-    if (code.trim().toUpperCase() === PREVENTA_CODE) {
-      onNext();
-    } else {
-      setError('Código no válido. Revisa tu acceso de preventa.');
+
+    // 1. Verificar tokens dinámicos de preventa en la base de datos
+    try {
+      // Buscamos el token. Usamos una búsqueda exacta. 
+      // Si el usuario generó un token corto, será en mayúsculas.
+      const { data, error } = await supabase
+        .from('demo_links')
+        .select('*')
+        .eq('token', code.trim().toUpperCase())
+        .eq('is_revoked', false)
+        .gte('expires_at', new Date().toISOString())
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) {
+        const modules = data.allowed_modules || [];
+        // Permitimos acceso si tiene el módulo 'seed_preventa' O si es un acceso general que incluya 'academico'
+        if (modules.includes('seed_preventa') || modules.includes('academico')) {
+          // Verificar si ya se usó (si es single-use)
+          if (data.max_uses && data.current_uses >= data.max_uses) {
+            setError('Este código ya ha sido utilizado.');
+          } else {
+            // Token válido — lo marcamos como usado inmediatamente
+            const { error: updateError } = await supabase
+              .from('demo_links')
+              .update({ current_uses: (data.current_uses || 0) + 1 })
+              .eq('id', data.id);
+
+            if (updateError) console.error('Error updating usage:', updateError);
+            
+            onNext();
+          }
+        } else {
+          setError('Este código no tiene permisos para Dentaxy Seed.');
+        }
+      } else {
+        // Si no se encontró en mayúsculas, probamos tal cual se escribió (por si es un token largo de sistema)
+        const { data: dataRaw, error: errorRaw } = await supabase
+          .from('demo_links')
+          .select('*')
+          .eq('token', code.trim())
+          .eq('is_revoked', false)
+          .gte('expires_at', new Date().toISOString())
+          .maybeSingle();
+
+        if (dataRaw && (dataRaw.allowed_modules?.includes('seed_preventa') || dataRaw.allowed_modules?.includes('academico'))) {
+            // Repetir lógica de validación para el token raw
+            if (dataRaw.max_uses && dataRaw.current_uses >= dataRaw.max_uses) {
+                setError('Este código ya ha sido utilizado.');
+            } else {
+                await supabase.from('demo_links').update({ current_uses: (dataRaw.current_uses || 0) + 1 }).eq('id', dataRaw.id);
+                onNext();
+            }
+        } else {
+            setError('Código no válido o expirado.');
+        }
+      }
+    } catch (err) {
+      console.error('Error validating preventa token:', err);
+      setError('Error al validar acceso. Intenta de nuevo.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

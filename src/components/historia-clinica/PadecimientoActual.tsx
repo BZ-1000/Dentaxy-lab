@@ -391,17 +391,6 @@ const PadecimientoActual = ({
                     </div>
                   </div>
 
-                  {/* Back to Form Button */}
-                  <div className="flex justify-center pt-8">
-                    <Button
-                      variant="ghost"
-                      onClick={() => onToggleViewMode && onToggleViewMode()}
-                      className="rounded-full px-8 py-6 text-zinc-500 hover:text-indigo-600 hover:bg-indigo-50 dark:text-zinc-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/20 transition-all duration-300 group"
-                    >
-                      <ChevronRight className="w-5 h-5 mr-2 rotate-180 group-hover:-translate-x-1 transition-transform" />
-                      <span className="font-medium">Volver a editar</span>
-                    </Button>
-                  </div>
                 </>
               );
 

@@ -13,6 +13,7 @@ import { DocumentWriterPanel } from './ui/DocumentWriterPanel';
 import { SectionCard, ViewMode } from './ui/SectionCard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 // Section Card Imports (Wrappers with Visual Styling)
 import { PadecimientoCard } from './sections/PadecimientoCard';

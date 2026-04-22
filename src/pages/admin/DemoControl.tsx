@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { DemoLinkCreator } from '@/components/admin/demos/DemoLinkCreator';
 import { DemoLinksList } from '@/components/admin/demos/DemoLinksList';
 import { ActiveDemoSessions } from '@/components/admin/demos/ActiveDemoSessions';
-import { Sparkles, Activity, Link as LinkIcon } from 'lucide-react';
+import { PreSaleTokenCreator } from '@/components/admin/demos/PreSaleTokenCreator';
+import { Sparkles, Activity, Link as LinkIcon, Ticket } from 'lucide-react';
 
 const DemoControl: React.FC = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -50,11 +51,12 @@ const DemoControl: React.FC = () => {
                     <LinkIcon className="w-5 h-5 text-indigo-600" />
                     Generador de Accesos
                   </h3>
-                  <div className="scale-90 origin-right">
+                  <div className="flex items-center gap-2 scale-90 origin-right">
+                    <PreSaleTokenCreator onCreated={() => setRefreshTrigger(p => p + 1)} />
                     <DemoLinkCreator onCreated={() => setRefreshTrigger(p => p + 1)} />
                   </div>
                 </div>
-                <p className="text-gray-500 text-sm">Crea tokens de único uso con expiración automática.</p>
+                <p className="text-gray-500 text-sm">Crea tokens de único uso (24h) para preventa o accesos a demos temporales.</p>
               </div>
             </div>
 

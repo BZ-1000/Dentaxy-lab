@@ -35,6 +35,7 @@ const MODULE_LABELS: Record<string, string> = {
   academico: 'UNIVERSIDADES',
   enterprise: 'ENTERPRISE',
   proyecto_stark: 'STARK',
+  seed_preventa: 'PREVENTA SEED',
 };
 
 export const DemoLinksList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
