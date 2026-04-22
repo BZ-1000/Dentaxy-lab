@@ -1,7 +1,8 @@
 
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import { SeedOnboardingModal } from "./SeedOnboardingModal";
 import {
     FileText,
     Shield,
@@ -11,7 +12,7 @@ import {
     CheckCircle,
     Lock,
     MapPin,
-    Usb,
+    HardDrive,
     Globe,
     Zap,
     ArrowRight,
@@ -24,7 +25,8 @@ import {
     Users,
     Calendar,
     Layers,
-    ArrowLeft
+    ArrowLeft,
+    FolderSync
 } from "lucide-react";
 import heroImage from "@/assets/seed/hero-seed.jpg";
 import "./Seed.css";
@@ -433,11 +435,11 @@ const HowItWorksSection = () => {
         },
         {
             number: "05",
-            icon: Package,
-            title: "Entrega de tu Dentaxy Seed funcional",
+            icon: FolderSync,
+            title: "Sincronización automática con tu Google Drive",
             description:
-                "Recibes un sistema completamente listo: formularios personalizados, redacción automática activa, documentos listos para descarga.",
-            highlight: "Desde el primer día, el sistema trabaja contigo.",
+                "Cada expediente clínico se guarda automáticamente en tu propia Google Drive bajo la carpeta Dentaxy Seed / Expedientes / [Folio] - [Nombre]. Sin configurar nada técnico. Sin que tus datos toquen nuestros servidores.",
+            highlight: "Soberanía de datos garantizada desde el primer día.",
         },
     ];
 
@@ -630,51 +632,55 @@ const SecuritySection = () => (
                 ))}
             </div>
 
-            {/* USB Storage */}
+            {/* Google Drive Storage */}
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="max-w-3xl mx-auto"
+                className="max-w-4xl mx-auto"
             >
                 <div className="glass-card glow-box rounded-3xl p-8 md:p-12">
                     <div className="flex flex-col md:flex-row items-center gap-8">
-                        <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shrink-0">
-                            <Usb className="w-12 h-12 text-white" />
+                        <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shrink-0 shadow-xl shadow-blue-500/25">
+                            <FolderSync className="w-12 h-12 text-white" />
                         </div>
                         <div className="text-center md:text-left">
                             <h3 className="text-2xl font-bold mb-4">
-                                ¿Dónde vive tu información?
+                                ¿Dónde viven tus expedientes?
                             </h3>
-                            <ul className="space-y-2 text-gray-500">
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0" />
-                                    Se procesa dentro de Dentaxy
+                            <ul className="space-y-3 text-gray-500">
+                                <li className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                                    <span>Se <strong className="text-gray-700">generan localmente</strong> en tu dispositivo — sin conexión a nuestros servidores</span>
                                 </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0" />
-                                    Se guarda únicamente en tu{" "}
-                                    <span className="text-indigo-600 font-medium">
-                                        Dentaxy USB personalizada
-                                    </span>
+                                <li className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                                    <span>Se guardan automáticamente en <strong className="text-blue-600">tu Google Drive personal</strong> bajo la carpeta <code className="text-xs bg-blue-50 px-1.5 py-0.5 rounded text-blue-700">Dentaxy Seed / Expedientes /</code></span>
                                 </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0" />
-                                    No se sube a nubes públicas
+                                <li className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                                    <span>Organizados por <strong className="text-gray-700">folio de expediente y nombre del paciente</strong> automáticamente</span>
                                 </li>
-                                <li className="flex items-center gap-2">
-                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0" />
-                                    No depende de suscripciones mensuales obligatorias
+                                <li className="flex items-start gap-2">
+                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                                    <span>Dentaxy <strong className="text-gray-700">nunca almacena</strong> los datos clínicos de tus pacientes</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
-                    <div className="mt-8 pt-8 border-t border-gray-200 text-center">
-                        <p className="text-lg font-medium">
-                            <span className="text-blue-600">Tus pacientes.</span>{" "}
-                            <span className="text-indigo-600">Tu información.</span>{" "}
-                            <span className="gradient-text font-bold">Tu control.</span>
-                        </p>
+                    <div className="mt-8 pt-8 border-t border-gray-200">
+                        <div className="grid md:grid-cols-3 gap-4 text-center">
+                            {[
+                                { label: 'Tu Google Drive', desc: 'Tus datos, tu nube', color: 'text-blue-600' },
+                                { label: 'Soberanía Total', desc: 'Nunca en nuestros servidores', color: 'text-teal-600' },
+                                { label: 'Sin instalaciones', desc: 'Todo desde el navegador', color: 'text-indigo-600' },
+                            ].map((item, i) => (
+                                <div key={i} className="p-3 rounded-xl bg-gray-50">
+                                    <p className={`font-bold ${item.color}`}>{item.label}</p>
+                                    <p className="text-xs text-gray-500 mt-1">{item.desc}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </motion.div>
@@ -745,7 +751,8 @@ const GrowthSection = () => (
 );
 
 // CTA Section
-const CTASection = () => (
+type CTASectionProps = { onCTA?: () => void };
+const CTASection = ({ onCTA }: CTASectionProps) => (
     <section className="py-32 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-white via-blue-500/5 to-white" />
         <div className="container mx-auto px-6 relative z-10">
@@ -756,26 +763,32 @@ const CTASection = () => (
                 className="max-w-4xl mx-auto text-center"
             >
                 <div className="glass-card glow-box rounded-3xl p-8 md:p-16">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full mb-6">
+                        <span className="animate-ping inline-flex h-2 w-2 rounded-full bg-blue-500 opacity-75" />
+                        <span className="text-blue-700 text-sm font-bold tracking-wide">PREVENTA ACTIVA · CUPOS LIMITADOS</span>
+                    </div>
                     <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
                         <span className="text-gray-900">Dentaxy</span>{" "}
                         <span className="seed-text">Seed</span> convierte tu
                         historia clínica en un sistema inteligente, privado y seguro
                     </h2>
-                    <p className="text-xl text-gray-500 mb-10">
-                        Que escribe, organiza y protege tu práctica clínica.
+                    <p className="text-xl text-gray-500 mb-4">
+                        Que escribe, organiza y protege tu práctica clínica —
+                        sincronizado silenciosamente con <strong className="text-blue-600">tu Google Drive</strong>.
                     </p>
+                    <p className="text-sm text-gray-400 mb-10">Sin instalar nada. Sin cambiar tu forma de trabajar. Sin almacenar nada en nuestros servidores.</p>
                     <motion.button
-                        whileHover={{
-                            scale: 1.05,
-                            boxShadow: "0 0 60px rgba(59, 130, 246, 0.6)",
-                        }}
+                        onClick={onCTA}
+                        whileHover={{ scale: 1.05, boxShadow: "0 0 60px rgba(59, 130, 246, 0.6)" }}
                         whileTap={{ scale: 0.95 }}
-                        className="px-10 py-5 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold text-lg shadow-[0_0_40px_rgba(37,99,235,0.4)] animate-glow-pulse relative overflow-hidden"
+                        className="px-10 py-5 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold text-lg shadow-[0_0_40px_rgba(37,99,235,0.4)] animate-glow-pulse relative overflow-hidden inline-flex items-center gap-3"
                     >
-                        {/* Inner Light Effect */}
                         <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none" />
-                        Comienza tu Transformación Hoy
+                        <Sparkles className="w-5 h-5" />
+                        Obtener mi Dentaxy Seed exclusivo
+                        <ArrowRight className="w-5 h-5" />
                     </motion.button>
+                    <p className="text-xs text-gray-400 mt-6">Precio de preventa · Incluye configuración personalizada de tu historia clínica</p>
                 </div>
             </motion.div>
         </div>
@@ -785,10 +798,22 @@ const CTASection = () => (
 // Main Component
 const SeedLanding = () => {
     const navigate = useNavigate();
+    const [onboardingOpen, setOnboardingOpen] = useState(false);
+
+    // Leer usuario logeado del sessionStorage (puesto en SeedLogin)
+    const rawUser = sessionStorage.getItem('seed_user');
+    const seedUser = rawUser ? JSON.parse(rawUser) : null;
 
     return (
         <div className="seed-theme min-h-screen bg-white text-gray-900 overflow-x-hidden font-sans">
-            {/* Cloned Header Element */}
+            {/* Modal de Onboarding */}
+            <SeedOnboardingModal
+                isOpen={onboardingOpen}
+                onClose={() => setOnboardingOpen(false)}
+                userEmail={seedUser?.email || ''}
+            />
+
+            {/* Header */}
             <header className="fixed top-0 left-0 z-50 p-6">
                 <button
                     onClick={() => navigate('/')}
@@ -807,7 +832,7 @@ const SeedLanding = () => {
             <EnvironmentSection />
             <SecuritySection />
             <GrowthSection />
-            <CTASection />
+            <CTASection onCTA={() => setOnboardingOpen(true)} />
 
             {/* Back to Home Link */}
             <div className="py-12 text-center">
