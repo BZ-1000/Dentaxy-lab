@@ -9,7 +9,10 @@ import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 // UI Components
 import { ProgressLine } from './ui/ProgressLine';
 import { CommandDock } from './ui/CommandDock';
+import { DocumentWriterPanel } from './ui/DocumentWriterPanel';
 import { SectionCard, ViewMode } from './ui/SectionCard';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { toast } from 'sonner';
 
 // Section Card Imports (Wrappers with Visual Styling)
 import { PadecimientoCard } from './sections/PadecimientoCard';
@@ -93,6 +96,11 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   const [viewMode, setViewMode] = useState<ViewMode>('form');
   const [isSectionExpanded, setIsSectionExpanded] = useState(true);
 
+  // Split-screen state
+  const isMobile = useIsMobile();
+  const [isDocumentOpen, setIsDocumentOpen] = useState(false);
+  const [isDocumentExpanded, setIsDocumentExpanded] = useState(false);
+
   // Filter sections based on gender
   const seccionesActivas = seccionesGenerables.filter(s => s.id !== 'ginecoObstetricos' || esMujer);
   const currentSectionInfo = seccionesActivas[currentStep];
@@ -131,6 +139,14 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
 
   const handleContentGenerated = (seccionId: string, contenido: any, textoPlano?: string) => {
     setGenerations(prev => ({ ...prev, [seccionId]: contenido }));
+
+    // Show toast
+    toast.success('Se redactó correctamente el apartado');
+
+    // Open split panel on Desktop
+    if (!isMobile) {
+      setIsDocumentOpen(true);
+    }
 
     // Notify parent if listener exists
     if (onSeccionGenerada && typeof contenido === 'string') {
@@ -373,7 +389,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
       const buttons = Array.from(sectionContainer.querySelectorAll('button'));
       const generateButton = buttons.find(btn => {
         const text = btn.textContent?.toLowerCase() || '';
-        return text.includes('generar redacción') || text.includes('redactar') || text.includes('generar') || text.includes('ver redacción');
+        return btn.classList.contains('data-trigger-generation') || text.includes('generar redacción') || text.includes('redactar') || text.includes('generar') || text.includes('ver redacción');
       });
 
       if (generateButton) {
@@ -385,90 +401,109 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   };
 
   return (
-    <div className="h-full w-full bg-white dark:bg-zinc-950 flex flex-col relative overflow-hidden">
+    <div className="flex w-full h-full bg-white dark:bg-zinc-950 overflow-hidden relative">
 
-      {/* 1. Global Navigation: Progress Line (Sticky Top) */}
-      <div className="w-full sticky top-0 z-50 bg-white dark:bg-zinc-950 transition-all">
-        <ProgressLine
-          totalSteps={seccionesActivas.length}
+      {/* Left Panel: Form View */}
+      <div className={cn(
+        "flex flex-col relative h-full transition-[width] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[width]",
+        (isDocumentOpen && !isMobile) ? (isDocumentExpanded ? "w-1/2" : "w-2/3 flex-1") : "w-full"
+      )}>
+        {/* 1. Global Navigation: Progress Line (Sticky Top) */}
+        <div className="w-full sticky top-0 z-50 bg-white dark:bg-zinc-950 transition-all">
+          <ProgressLine
+            totalSteps={seccionesActivas.length}
+            currentStep={currentStep}
+            isGenerating={isGenerating}
+            stepNames={seccionesActivas.map(s => s.nombre)}
+            onStepClick={handleStepClick}
+            stepStatuses={getStepStatuses() as any}
+            isScrolled={isScrolled}
+          />
+        </div>
+
+        {/* Main Content Area */}
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 overflow-y-auto overflow-x-hidden pb-40 scroll-smooth custom-scrollbar"
+        >
+          <div className="container mx-auto px-4 py-4 max-w-4xl">
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={currentStep}
+                custom={direction}
+                variants={variants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                transition={{
+                  x: { type: "spring", stiffness: 300, damping: 30 },
+                  opacity: { duration: 0.2 }
+                }}
+                className="w-full flex justify-center"
+              >
+                {/* 2. Focus Card: Section Container with Progressive Disclosure */}
+                <div className="w-full" data-section={currentSectionInfo.id}>
+                  <SectionCard
+                    title={currentSectionInfo.nombre}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                    redactionPreview={generations[currentSectionInfo.id]}
+                    isExpanded={isSectionExpanded}
+                    onToggleExpand={() => setIsSectionExpanded(!isSectionExpanded)}
+                    hideGlobalToggle={currentSectionInfo.id === 'padecimiento'}
+                  >
+                    {renderCurrentStepContent()}
+                  </SectionCard>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* 3. Command Dock: Bottom Control Center */}
+        <CommandDock
+          onNext={handleNext}
+          onPrev={handlePrev}
+          onGenerate={handleGenerateCurrent}
           currentStep={currentStep}
+          totalSteps={seccionesActivas.length}
+          nextLabel={seccionesActivas[currentStep + 1]?.nombre.split('. ')[1] || 'Finalizar'}
           isGenerating={isGenerating}
-          stepNames={seccionesActivas.map(s => s.nombre)}
-          onStepClick={handleStepClick}
-          stepStatuses={getStepStatuses() as any}
-          isScrolled={isScrolled}
+          canGoNext={currentStep < seccionesActivas.length - 1}
+          canGoPrev={currentStep > 0}
         />
-      </div>
 
-      {/* Main Content Area */}
-      <div
-        ref={scrollContainerRef}
-        onScroll={handleScroll}
-        className="flex-1 overflow-y-auto overflow-x-hidden pb-40 scroll-smooth custom-scrollbar"
-      >
-        <div className="container mx-auto px-4 py-4">
-          <AnimatePresence mode="wait" custom={direction}>
+        {/* Floating Automation Status Overlay */}
+        {isGenerating && progress && (
+          <div className="fixed top-24 right-6 z-50 pointer-events-none">
             <motion.div
-              key={currentStep}
-              custom={direction}
-              variants={variants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{
-                x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 }
-              }}
-              className="w-full flex justify-center"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-4 py-2 rounded-xl flex items-center gap-3 shadow-lg"
             >
-              {/* 2. Focus Card: Section Container with Progressive Disclosure */}
-              <div className="w-full" data-section={currentSectionInfo.id}>
-                <SectionCard
-                  title={currentSectionInfo.nombre}
-                  viewMode={viewMode}
-                  onViewModeChange={setViewMode}
-                  redactionPreview={generations[currentSectionInfo.id]}
-                  isExpanded={isSectionExpanded}
-                  onToggleExpand={() => setIsSectionExpanded(!isSectionExpanded)}
-                  hideGlobalToggle={currentSectionInfo.id === 'padecimiento'}
-                >
-                  {renderCurrentStepContent()}
-                </SectionCard>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <div className="flex flex-col">
+                <span className="text-[10px] font-bold uppercase">Dentaxy AI Running</span>
+                <span className="text-xs text-zinc-600 dark:text-zinc-400">{progress.percentage}% Completado</span>
               </div>
             </motion.div>
-          </AnimatePresence>
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* 3. Command Dock: Bottom Control Center */}
-      <CommandDock
-        onNext={handleNext}
-        onPrev={handlePrev}
-        onGenerate={handleGenerateCurrent}
-        currentStep={currentStep}
-        totalSteps={seccionesActivas.length}
-        nextLabel={seccionesActivas[currentStep + 1]?.nombre.split('. ')[1] || 'Finalizar'}
-        isGenerating={isGenerating}
-        canGoNext={currentStep < seccionesActivas.length - 1}
-        canGoPrev={currentStep > 0}
-      />
-
-      {/* Floating Automation Status Overlay */}
-      {isGenerating && progress && (
-        <div className="fixed top-24 right-6 z-50 pointer-events-none">
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-4 py-2 rounded-xl flex items-center gap-3 shadow-lg"
-          >
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <div className="flex flex-col">
-              <span className="text-[10px] font-bold uppercase">Dentaxy AI Running</span>
-              <span className="text-xs text-zinc-600 dark:text-zinc-400">{progress.percentage}% Completado</span>
-            </div>
-          </motion.div>
-        </div>
-      )}
+      {/* Right Panel: Split Document View */}
+      <AnimatePresence>
+        {isDocumentOpen && !isMobile && (
+          <DocumentWriterPanel
+            generations={generations}
+            seccionesActivas={seccionesActivas}
+            onClose={() => setIsDocumentOpen(false)}
+            isExpanded={isDocumentExpanded}
+            onToggleExpand={() => setIsDocumentExpanded(!isDocumentExpanded)}
+          />
+        )}
+      </AnimatePresence>
 
     </div>
   );

@@ -68,7 +68,7 @@ export const AIDemo: React.FC = () => {
                 <DemoAlertListener />
 
                 {/* Sticky Top Header */}
-                <header className="sticky top-0 z-[100] bg-background border-b border-border/50">
+                <header className="hidden sm:block sticky top-0 z-[100] bg-background border-b border-border/50">
                     <div className="flex items-center justify-between h-14 px-4 lg:px-6">
                         {/* Left: Back button & Brand */}
                         <div className="flex items-center gap-4">
