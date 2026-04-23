@@ -50,7 +50,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ isCollapsed, onToggl
   return (
     <aside
       className={cn(
-        'fixed left-4 top-4 bottom-4 z-50 flex flex-col transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+        'fixed left-4 top-4 bottom-4 z-50 flex flex-col transition-all duration-300 ease-out-expo',
         'rounded-3xl border border-white/60 bg-white/80 shadow-[0_0_20px_rgba(0,0,0,0.03)] backdrop-blur-xl supports-[backdrop-filter]:bg-white/60',
         isCollapsed ? 'w-[72px]' : 'w-[260px]'
       )}

@@ -81,7 +81,7 @@ const AdminLogin: React.FC = () => {
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
         <div className="absolute -left-[10%] top-[20%] h-[500px] w-[500px] rounded-full bg-gradient-to-tr from-blue-100/40 to-purple-100/40 blur-[100px]" />
         <div className="absolute -right-[10%] bottom-[20%] h-[500px] w-[500px] rounded-full bg-gradient-to-bl from-emerald-100/40 to-sky-100/40 blur-[100px]" />
-        <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.02] mix-blend-multiply" />
+        <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.02] mix-blend-multiply" />
       </div>
 
       <motion.div

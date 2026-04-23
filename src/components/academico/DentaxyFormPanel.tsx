@@ -406,7 +406,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
 
       {/* Left Panel: Form View */}
       <div className={cn(
-        "flex flex-col relative h-full transition-[width] duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] will-change-[width]",
+        "flex flex-col relative h-full transition-[width] duration-500 ease-out-back will-change-[width]",
         (isDocumentOpen && !isMobile) ? (isDocumentExpanded ? "w-1/2" : "w-2/3 flex-1") : "w-full"
       )}>
         {/* 1. Global Navigation: Progress Line (Sticky Top) */}

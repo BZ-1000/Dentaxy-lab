@@ -40,14 +40,14 @@ const AdminLayoutContent: React.FC = () => {
         <div className="pointer-events-none fixed inset-0 overflow-hidden">
           <div className="absolute -left-[10%] top-[10%] h-[600px] w-[600px] rounded-full bg-gradient-to-tr from-blue-100/30 to-purple-100/30 blur-[120px]" />
           <div className="absolute -right-[5%] bottom-[5%] h-[600px] w-[600px] rounded-full bg-gradient-to-bl from-emerald-100/30 to-sky-100/30 blur-[120px]" />
-          <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.015] mix-blend-multiply" />
+          <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.015] mix-blend-multiply" />
         </div>
 
         <AdminSidebar isCollapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
 
         <main
           className={cn(
-            'relative z-10 min-h-screen transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+            'relative z-10 min-h-screen transition-all duration-300 ease-out-expo',
             sidebarCollapsed ? 'ml-[100px]' : 'ml-[290px]'
           )}
         >
