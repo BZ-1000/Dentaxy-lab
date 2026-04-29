@@ -157,7 +157,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
   return (
     <div className='bg-background dark:bg-background transition-colors duration-300' data-section-redaction="true" data-section-name="antecedentesAlergicos" data-formulario-section="antecedentes-alergicos">
       <div className="space-y-6">
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="text-lg font-semibold mb-2 text-justify">Alergias</h4>
 
           <div>
@@ -170,7 +170,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
               ].map(item => (
                 <button
                   key={item.value}
-                  className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.tiposAlergias?.[item.value] ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`}
+                  className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.tiposAlergias?.[item.value] ? 'bg-zinc-800 text-white shadow-sm' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`}
                   onClick={() => handleToggleAllergyType(item.value as any)}
                 >
                   {item.label}
@@ -214,19 +214,19 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
           )}
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="text-lg font-semibold mb-2 text-justify">Anestesia</h4>
           <div>
             <h3 className="text-md font-medium mb-2">¿Le han administrado anestesia general y/o local?</h3>
             <div className="flex gap-4">
               <button
-                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.administradoAnestesia === true ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`}
+                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.administradoAnestesia === true ? 'bg-zinc-800 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700'}`}
                 onClick={() => handleToggleButton('administradoAnestesia')}
               >
                 Sí
               </button>
               <button
-                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.administradoAnestesia === false ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`}
+                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.administradoAnestesia === false ? 'bg-zinc-800 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700'}`}
                 onClick={() => handleToggleButton('administradoAnestesia')}
               >
                 No
@@ -255,13 +255,13 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
             <h3 className="text-md font-medium mb-2">¿Tuvo alguna reacción adversa a la anestesia?</h3>
             <div className="flex gap-4">
               <button
-                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.reaccionAnestesia === true ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`}
+                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.reaccionAnestesia === true ? 'bg-zinc-800 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700'}`}
                 onClick={() => handleToggleButton('reaccionAnestesia')}
               >
                 Sí
               </button>
               <button
-                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.reaccionAnestesia === false ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`}
+                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.reaccionAnestesia === false ? 'bg-zinc-800 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-700'}`}
                 onClick={() => handleToggleButton('reaccionAnestesia')}
               >
                 No
@@ -287,7 +287,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
           )}
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="text-lg font-semibold mb-2 text-justify">Adicciones</h4>
           <div>
             <h3 className="text-md font-medium mb-2">¿Tiene alguna adicción actual o pasada?</h3>
@@ -299,7 +299,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
               ].map(item => (
                 <button
                   key={item.value}
-                  className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.adicciones?.[item.value] ? 'bg-[#B3E5FC] hover:bg-[#B3E5FC]/80' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`}
+                  className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.adicciones?.[item.value] ? 'bg-zinc-800 text-white shadow-sm' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`}
                   onClick={() => handleToggleAddiction(item.value as any)}
                 >
                   {item.label}
@@ -336,7 +336,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
           <Button
             variant="outline"
             onClick={generateRedaccion}
-            className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+            className="hidden data-trigger-generation text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
           >
             <Sparkles className="w-4 h-4 mr-2" />
             Ver Redacción IA

@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Copy, CheckCircle, Loader2 } from "lucide-react";
 import { FormDataState, GanglioLinfatico } from '../types/historiaClinica';
 import { Label } from "@/components/ui/label";
@@ -25,9 +24,9 @@ interface CopiedState {
 // Mapa de estilos para evitar la purga de clases dinámicas de Tailwind
 const colorStyles: { [key: string]: { bg: string; border: string; text: string; } } = {
   blue: {
-    bg: 'bg-blue-50/30 dark:bg-blue-950/20',
-    border: 'border-blue-200 dark:border-blue-800',
-    text: 'text-blue-900 dark:text-blue-100',
+    bg: 'bg-zinc-50/30 dark:bg-zinc-950/20',
+    border: 'border-zinc-200 dark:border-zinc-800',
+    text: 'text-zinc-900 dark:text-zinc-100',
   },
   pink: {
     bg: 'bg-pink-50/30 dark:bg-pink-950/20',
@@ -356,7 +355,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
         onClick={() => handleGanglioChange(tipo, campo, valor)}
         className={`px-3 py-1.5 rounded-md text-xs transition-all ${
           isSelected
-            ? "bg-blue-500 text-white shadow-md"
+            ? "bg-zinc-800 text-white shadow-md"
             : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
         }`}
       >
@@ -464,44 +463,17 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
 
   return (
     <div ref={containerRef} className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="examen-cuello">
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
+      <div className="w-full bg-transparent">
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-              <button 
-                onClick={() => setShowForm(true)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                  showForm 
-                    ? "bg-blue-500 text-white shadow-md" 
-                    : "text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                Formulario
-              </button>
-              <button 
-                onClick={generarRedaccionIA}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                  !showForm 
-                    ? "bg-blue-500 text-white shadow-md" 
-                    : "text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
+            
 
           <div className="flex items-center gap-1 sm:gap-2">
-            <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
+            
+            
+            
           </div>
+        </div>{/* cierra flex justify-center */}
         </div>
 
         <div className="flex justify-start px-6 py-2">
@@ -543,7 +515,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
             ) : (
               <div className="p-6 space-y-4" ref={redaccionesRef}>
                 {isGenerating && (
-                  <div className="flex items-center gap-2 mb-4 text-blue-600 dark:text-blue-400">
+                  <div className="flex items-center gap-2 mb-4 text-emerald-600 dark:text-emerald-400">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     <span className="text-sm">Generando redacciones...</span>
                   </div>
@@ -613,7 +585,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
             )}
           </>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Copy, CheckCircle, Loader2 } from "lucide-react";
+import { Minus, Maximize2, X, Copy, CheckCircle, Loader2, RotateCcw } from "lucide-react";
 import { FormDataState, GanglioLinfatico } from '@/types/historiaClinica';
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,7 @@ interface CopiedState {
 // Mapa de estilos para evitar la purga de clases dinámicas de Tailwind
 const colorStyles: { [key: string]: { bg: string; border: string; text: string; } } = {
   blue: {
-    bg: 'bg-blue-50/30 dark:bg-blue-950/20',
+    bg: 'bg-emerald-50/30 dark:bg-blue-950/20',
     border: 'border-blue-200 dark:border-blue-800',
     text: 'text-blue-900 dark:text-blue-100',
   },
@@ -356,7 +355,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
         onClick={() => handleGanglioChange(tipo, campo, valor)}
         className={`px-3 py-1.5 rounded-md text-xs transition-all ${
           isSelected
-            ? "bg-blue-500 text-white shadow-md"
+            ? "bg-zinc-800 text-white shadow-sm"
             : "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
         }`}
       >
@@ -464,51 +463,13 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
 
   return (
     <div ref={containerRef} className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="examen-cuello">
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-              <button 
-                onClick={() => setShowForm(true)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                  showForm 
-                    ? "bg-blue-500 text-white shadow-md" 
-                    : "text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                Formulario
-              </button>
-              <button 
-                onClick={generarRedaccionIA}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                  !showForm 
-                    ? "bg-blue-500 text-white shadow-md" 
-                    : "text-gray-700 dark:text-gray-300"
-                }`}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
+      <div className="w-full bg-transparent">
 
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-          </div>
-        </div>
+            
 
-        <div className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">XII.</span> CUELLO
-          </h2>
-        </div>
+
+
+
 
         {!isMinimized && (
           <>
@@ -523,27 +484,27 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                   />
                 ))}
 
-                {/* Botones de acción */}
-                <div className="flex gap-3 pt-4">
+                {/* --- Botón de Acción --- */}
+                <div className="flex justify-between items-center pt-6 border-t border-gray-100 dark:border-gray-800 mt-4">
                   <Button
                     onClick={generarRedaccionIA}
-                    className="flex-1 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
-                  >
-                    Generar Redacción IA
-                  </Button>
+                    className="hidden data-trigger-generation"
+                    aria-label="Generar redacción examen cuello"
+                  />
                   <Button
+                    variant="ghost"
                     onClick={limpiarFormulario}
-                    variant="outline"
-                    className="flex-1"
+                    className="text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
                   >
-                    Limpiar Formulario
+                    <RotateCcw className="w-3 h-3 mr-2" />
+                    Reiniciar Sección
                   </Button>
                 </div>
               </div>
             ) : (
               <div className="p-6 space-y-4" ref={redaccionesRef}>
                 {isGenerating && (
-                  <div className="flex items-center gap-2 mb-4 text-blue-600 dark:text-blue-400">
+                  <div className="flex items-center gap-2 mb-4 text-emerald-600 dark:text-emerald-400">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     <span className="text-sm">Generando redacciones...</span>
                   </div>
@@ -613,7 +574,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
             )}
           </>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

@@ -1,12 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormDataState } from '@/types/historiaClinica';
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Copy, CheckCircle, ChevronDown, Sparkles } from "lucide-react";
+import { Minus, Maximize2, X, Copy, CheckCircle, ChevronDown, RotateCcw } from "lucide-react";
 import { AnimatedTextareaWithTyping } from "@/components/ui/AnimatedTextareaWithTyping"; // Asegúrate de tener este componente
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
@@ -316,48 +315,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
   // --- Renderizado del Componente ---
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="examen-cabeza">
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
+      <div className="w-full bg-transparent">
 
         {/* --- Barra Superior (Controles) --- */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-              <button
-                onClick={() => setShowForm(true)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Formulario
-              </button>
-              <button
-                onClick={() => setShowForm(false)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-          </div>
-        </div>
 
-        {/* --- Título de la Sección --- */}
-        <div className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-            Examen de Cabeza
-          </h2>
-        </div>
 
         {!isMinimized && (
-          <CardContent className="p-6">
+          <div className="pt-2">
             {showForm ? (
               // --- VISTA DE FORMULARIO ---
               <div className="space-y-8">
@@ -375,8 +339,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
                         {/* --- INICIO DE LA MODIFICACIÓN --- */}
                         <div
                           className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${getFormValue('tipoCraneo') === tipo.value
-                            ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
-                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
+                            ? 'border-zinc-800 scale-105 shadow-lg' 
+                            : 'border-gray-200 dark:border-gray-700 hover:border-zinc-400'
                             }`}
                           onClick={() => {
                             // MODIFICADO: Lógica para deseleccionar
@@ -412,8 +376,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
                         {/* --- INICIO DE LA MODIFICACIÓN --- */}
                         <div
                           className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${getFormValue('tipoPerfil') === perfil.value
-                            ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
-                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
+                            ? 'border-zinc-800 scale-105 shadow-lg' 
+                            : 'border-gray-200 dark:border-gray-700 hover:border-zinc-400'
                             }`}
                           onClick={() => {
                             // MODIFICADO: Lógica para deseleccionar
@@ -437,8 +401,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
                 </div>
 
                 {/* --- NUEVA SECCIÓN: CARA --- */}
-                <div className="space-y-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                <div className="space-y-6 pt-0">
+                  <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider">
                     Inspección Facial (Cara)
                   </h3>
 
@@ -492,7 +456,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
                     <Collapsible
                       open={getCheckboxValue('lunares')}
                       onOpenChange={(open) => handleDetailedChange('lunares', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="bg-white dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
@@ -555,7 +519,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
                     <Collapsible
                       open={getCheckboxValue('asimetriasFaciales')}
                       onOpenChange={(open) => handleDetailedChange('asimetriasFaciales', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="bg-white dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
@@ -619,7 +583,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
                     <Collapsible
                       open={getCheckboxValue('cicatrices')}
                       onOpenChange={(open) => handleDetailedChange('cicatrices', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
+                      className="bg-white dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
@@ -697,7 +661,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
                     <Collapsible
                       open={getCheckboxValue('edema')}
                       onOpenChange={(open) => handleDetailedChange('edema', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
+                      className="bg-white dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
@@ -785,21 +749,20 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
                   </div>
                 </div>
 
-                {/* --- Botones de Acción --- */}
-                <div className="flex justify-center gap-4 mt-6">
+                {/* --- Botón de Acción --- */}
+                <div className="flex justify-between items-center pt-6 border-t border-gray-100 dark:border-gray-800 mt-4">
                   <Button
                     onClick={generarRedaccionIA}
-                    className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
-                  >
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Generar Redacción IA
-                  </Button>
+                    className="hidden data-trigger-generation"
+                    aria-label="Generar redacción examen cabeza"
+                  />
                   <Button
+                    variant="ghost"
                     onClick={limpiarFormulario}
-                    variant="outline"
-                    className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
                   >
-                    Limpiar Formulario
+                    <RotateCcw className="w-3 h-3 mr-2" />
+                    Reiniciar Sección
                   </Button>
                 </div>
 
@@ -807,12 +770,12 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
             ) : (
               // --- VISTA DE REDACCIÓN IA ---
               <div className="space-y-6">
-                <div ref={redaccionRef} className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div ref={redaccionRef} className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Redacción General</h4>
                     <button
                       onClick={handleCopy}
-                      className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 transition-colors"
+                      className="flex items-center gap-1 text-sm text-emerald-500 hover:text-blue-700 transition-colors"
                     >
                       {copied ? (
                         <>
@@ -847,9 +810,9 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
                 </div>
               </div>
             )}
-          </CardContent>
+          </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

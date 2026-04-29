@@ -1,11 +1,10 @@
 
 import React, { useState, useRef, useEffect } from "react";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Minus, Maximize2, X, Eraser, Copy, CheckCircle, Plus, Sparkles } from "lucide-react";
 import { FormDataState, Familiar as OriginalFamiliar } from "@/types/historiaClinica";
-import { HTMLTypewriterEffect } from "@/components/ui/HTMLTypewriterEffect";
+import { AppleTypewriter } from "@/components/ui/AppleTypewriter";
 import './AntecedentesHeredoFamiliares.css';
 
 interface AntecedentesHeredoFamiliaresProps {
@@ -144,7 +143,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
         <button
           onClick={handleFinado}
           className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium col-span-1 ${familiarData.finado
-            ? "bg-gray-800 text-white border-gray-800"
+            ? "bg-gray-700 text-white border-gray-700"
             : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
             }`}
         >
@@ -153,7 +152,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
         {!familiarData.finado && (
           <button
             className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium ${familiarData.vivoSano
-              ? "bg-green-600 text-white col-span-4 md:col-span-7"
+              ? "bg-emerald-500 text-white col-span-4 md:col-span-7"
               : "bg-white text-gray-700 border-gray-300 col-span-1"
               }`}
             onClick={handleVivoSano}
@@ -167,8 +166,10 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
             return (
               <button
                 key={cond}
-                className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-colors text-xs md:text-sm font-medium col-span-1 ${familiarData.condiciones[condKey] ? "bg-blue-600 text-white" : "bg-white text-gray-700 border-gray-300"
-                  }`}
+                className={`px-2 md:px-4 py-1 md:py-2 rounded-full border shadow-sm transition-all text-xs md:text-sm col-span-1 ${familiarData.condiciones[condKey] 
+                  ? "bg-white text-black border-black ring-1 ring-black shadow-none" 
+                  : "bg-white text-gray-700 border-gray-200 font-medium hover:border-gray-400"
+                }`}
                 onClick={() => handleCondicionChange(familiarKey, condKey, !familiarData.condiciones[condKey])}
               >
                 {cond}
@@ -182,7 +183,7 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
             value={familiarData.causaMuerte}
             onChange={(e) => handleFamiliarChange(familiarKey, 'causaMuerte', e.target.value)}
             placeholder="Causa de fallecimiento"
-            className="w-full border rounded-md px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm mt-1 md:mt-2 shadow-inner"
+            className="w-full border border-gray-300 bg-white rounded-md px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm mt-1 md:mt-2 shadow-sm focus:border-black outline-none transition-all"
           />
         )
       }
@@ -192,11 +193,11 @@ const FamiliaRow = ({ familiar, formData, handleFamiliarChange, handleCondicionC
             value={typeof familiarData.condiciones.otras === 'string' ? familiarData.condiciones.otras : ''}
             onChange={(e) => handleCondicionChange(familiarKey, 'otras', e.target.value)}
             placeholder="Especifique otras condiciones"
-            className="w-full border rounded-md px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm mt-1 md:mt-2 shadow-inner"
+            className="w-full border border-gray-300 bg-white rounded-md px-2 md:px-3 py-1 md:py-2 text-xs md:text-sm mt-1 md:mt-2 shadow-sm focus:border-black outline-none transition-all"
           />
         )
       }
-    </div >
+    </div>
   );
 };
 
@@ -295,32 +296,18 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         condicionesConectadas = `${condicionesText.join(", ")} y ${ultima}`;
       }
 
-      if (familiarData.vivoSano) return `${articuloFemenino}${familiar} ${verboSerFemenino} ${ySanoFemenino}.`;
-      if (familiarData.finado) return `${articuloFemenino}${familiar} ${verboEstarFemenino} por ${familiarData.causaMuerte}.`;
-      if (condicionesConectadas) return `${articuloFemenino}${familiar} ${verboSerFemenino} con diagnóstico de ${condicionesConectadas}.`;
+      if (familiarData.vivoSano) return `${articuloFemenino}${familiar.toLowerCase()} ${verboSerFemenino} ${ySanoFemenino}.`;
+      if (familiarData.finado) return `${articuloFemenino}${familiar.toLowerCase()} se reporta ${verboEstarFemenino}${familiarData.causaMuerte ? ` a causa de ${familiarData.causaMuerte}` : ''}.`;
+      if (condicionesConectadas) return `${articuloFemenino}${familiar.toLowerCase()} ${verboSerFemenino} con diagnóstico de ${condicionesConectadas.toLowerCase()}.`;
       return '';
     }).filter(Boolean).join(" ");
 
     // Redundancy check (simplified for now)
 
-    const contenido = (
-      <>
-        <strong>Antecedentes Heredofamiliares:</strong>
-        <div style={{ textAlign: "justify" }}>
-          <HTMLTypewriterEffect
-            content={textoGenerado.trim() || "Niega antecedentes heredofamiliares de importancia."}
-            speed={15}
-          />
-        </div>
-      </>
-    );
-
-    const redaccionTexto = `
-<strong>Antecedentes Heredofamiliares:</strong><div style="text-align: justify;">${textoGenerado.trim() || "Niega antecedentes heredofamiliares de importancia."}</div>
-    `.trim();
+    const redaccionTexto = textoGenerado.trim() || "Niega antecedentes heredofamiliares de importancia.";
 
     if (onRedaccionGenerada) {
-      onRedaccionGenerada(contenido, redaccionTexto);
+      onRedaccionGenerada(redaccionTexto);
     }
     if (onToggleViewMode) {
       onToggleViewMode();
@@ -385,7 +372,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
         ))}
 
         {/* Selector para agregar familiares */}
-        <div className="flex items-center gap-2 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300">
+        <div className="flex items-center gap-2 p-4 bg-transparent dark:bg-gray-800 rounded-lg border-2 border-dashed border-gray-300">
           <Select value={selectedFamiliar} onValueChange={setSelectedFamiliar}>
             <SelectTrigger className="flex-1">
               <SelectValue placeholder="Seleccionar familiar adicional..." />
@@ -403,7 +390,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
           <Button
             onClick={agregarFamiliar}
             disabled={!selectedFamiliar}
-            className="bg-green-500 hover:bg-green-600 text-white"
+            className="bg-gradient-to-br from-emerald-400 to-emerald-600 hover:from-emerald-500 hover:to-emerald-700 text-white shadow-[0_0_14px_rgba(52,211,153,0.4)]"
             size="sm"
           >
             <Plus className="w-4 h-4" />
@@ -417,7 +404,7 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
           <Button
             variant="outline"
             onClick={generarRedaccionIA}
-            className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+            className="hidden data-trigger-generation text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
           >
             <Sparkles className="w-4 h-4 mr-2" />
             Ver Redacción IA
@@ -437,14 +424,14 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
-            <h2 className="text-lg font-semibold mb-4">Faltan datos</h2>
+            <h2 className="text-base font-semibold text-gray-800 dark:text-white mb-4">Faltan datos</h2>
             <p className="mb-4">Por favor, selecciona al menos una opción para los siguientes familiares:</p>
             <ul className="list-disc list-inside mb-4">
               {missingFamiliares.map((familiar, index) => (
                 <li key={index}>{familiar}</li>
               ))}
             </ul>
-            <Button onClick={() => setShowModal(false)} className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 w-full">
+            <Button onClick={() => setShowModal(false)} className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 w-full">
               Cerrar
             </Button>
           </div>

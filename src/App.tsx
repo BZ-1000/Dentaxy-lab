@@ -3,8 +3,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
-import { AcademicoProvider } from '@/contexts/AcademicoContext';
+
 import { Analytics as VercelAnalytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import Index from './pages/Index';
 import Landing from './pages/Landing';
 import ModulesHub from './pages/ModulesHub';
@@ -236,6 +237,7 @@ function App() {
                 </Routes>
               </Router>
               <VercelAnalytics />
+              <SpeedInsights />
             </div>
           </AdminAuthProvider>
         </AuthProvider>

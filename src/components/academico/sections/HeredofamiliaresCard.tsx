@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import AntecedentesHeredoFamiliares from '@/components/historia-clinica/AntecedentesHeredoFamiliares';
 
 interface HeredofamiliaresCardProps {
@@ -18,8 +17,8 @@ export const HeredofamiliaresCard: React.FC<HeredofamiliaresCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
-            <CardContent className="pt-6">
+        <div className="w-full bg-white">
+            <div className="w-full bg-white">
                 <div data-section="heredofamiliares">
                     <AntecedentesHeredoFamiliares
                         formData={formData}
@@ -29,7 +28,7 @@ export const HeredofamiliaresCard: React.FC<HeredofamiliaresCardProps> = ({
                         onToggleViewMode={onToggleViewMode}
                     />
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 };

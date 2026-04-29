@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import InterrogatorioSistemas from '@/components/historia-clinica/InterrogatorioSistemas';
 
 interface InterrogatorioCardProps {
@@ -16,8 +15,8 @@ export const InterrogatorioCard: React.FC<InterrogatorioCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
-            <CardContent className="pt-6">
+        <div className="w-full bg-white">
+            <div className="w-full bg-white">
                 <div data-section="interrogatorio">
                     <InterrogatorioSistemas
                         formData={formData}
@@ -26,7 +25,7 @@ export const InterrogatorioCard: React.FC<InterrogatorioCardProps> = ({
                         onToggleViewMode={onToggleViewMode}
                     />
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 };

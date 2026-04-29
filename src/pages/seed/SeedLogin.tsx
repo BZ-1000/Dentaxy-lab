@@ -182,21 +182,25 @@ const StepCodigo: React.FC<{ onNext: () => void }> = ({ onNext }) => {
 const StepGoogle: React.FC<{ onNext: (user: GoogleUser) => void }> = ({ onNext }) => {
   const [loading, setLoading] = useState(false);
 
-  /**
-   * En producción: usar Google Identity Services (Supabase signInWithOAuth o directamente
-   * el SDK de Google) para obtener tokenId y perfil. Aquí simulamos para tener algo funcional.
-   * Swap: supabase.auth.signInWithOAuth({ provider: 'google', options: { scopes: 'https://www.googleapis.com/auth/drive.file' } })
-   */
+  // Ejecutamos login real con Supabase + Google
   const handleGoogle = async () => {
     setLoading(true);
-    await new Promise(r => setTimeout(r, 1200));
-    // Simulación de usuario logueado → reemplazar con payload real de Google
-    onNext({
-      name: 'Dr. Braulio',
-      email: 'braulio@dentaxy.com',
-      picture: `https://ui-avatars.com/api/?name=Dr+Braulio&background=2563eb&color=fff&size=128`
-    });
-    setLoading(false);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          // Solicitamos acceso a Drive para poder organizar los expedientes
+          scopes: 'https://www.googleapis.com/auth/drive.file',
+          redirectTo: window.location.origin + '/seed/overview',
+        }
+      });
+      if (error) throw error;
+      // Nota: signInWithOAuth redirige la página a Google, 
+      // por lo que el código posterior no se ejecuta en esta sesión.
+    } catch (err) {
+      console.error('Error con Google Sign-In:', err);
+      setLoading(false);
+    }
   };
 
   return (

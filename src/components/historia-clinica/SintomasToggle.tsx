@@ -13,7 +13,7 @@ const SintomasToggle = ({ checked, onChange }: SintomasToggleProps) => {
       className={cn(
         "w-full py-2 sm:py-3 px-4 sm:px-6 rounded-lg text-xs sm:text-sm font-medium transition-all border",
         checked 
-          ? "bg-blue-500 text-white border-blue-600 hover:bg-blue-600 dark:bg-blue-600 dark:text-white dark:border-blue-700 dark:hover:bg-blue-700" 
+          ? "bg-emerald-600 text-white border-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:text-white dark:border-emerald-700 dark:hover:bg-emerald-700" 
           : "bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:border-gray-700 dark:hover:bg-gray-700"
       )}
     >

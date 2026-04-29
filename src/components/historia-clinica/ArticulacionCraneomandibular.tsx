@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Edit, FileText, Sparkles } from "lucide-react";
+import { Minus, Maximize2, X, Edit, Sparkles, RotateCcw } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { FormDataState } from '@/types/historiaClinica';
@@ -407,15 +406,15 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
   // --- Render Helper para Botones ---
   const renderOptionButtons = useCallback((title: string, options: Option[], currentValue: string | undefined | null, fieldPath: string) => (
     <div>
-      <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">{title}:</h4>
+      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{title}:</h4>
       <div className="flex flex-wrap gap-2 mb-4">
         {options.map(item => (
           <button
             key={`${fieldPath}-${item.value}`}
             type="button"
             className={`px-3 py-1 text-sm rounded-full transition-colors ${currentValue === item.value
-              ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-md ring-2 ring-emerald-300 dark:ring-emerald-700' // Añadido anillo para mejor visibilidad
-              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600' // Añadido borde sutil
+              ? 'bg-zinc-800 text-white hover:bg-zinc-700 shadow-md ring-1 ring-zinc-400' 
+              : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 border border-gray-200 dark:border-gray-600' 
               }`}
             onClick={() => handleOptionChange(fieldPath, item.value)}
           >
@@ -430,50 +429,9 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
   return (
     // Contenedor principal y Card (sin cambios significativos)
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : "my-4"}`} data-section-name="articulacionCraneomandibular">
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)]" : ""} ${isMinimized ? "h-16 overflow-hidden" : ""}`}>
-        {/* Header (Sticky) - Updated to match ExamenCuello */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button
-                onClick={() => setActiveTab('formulario')}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
-              >
-                Formulario
-              </button>
-              <button
-                onClick={() => setActiveTab('redaccion')}
-                className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${activeTab === 'redaccion' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-4 h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-4 h-4" />
-            </button>
-            <button onClick={() => setActiveTab('formulario')} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Contenedor de Contenido Scrollable (si no está minimizado) */}
-        <div className={`flex-grow overflow-y-auto ${isMinimized ? 'hidden' : ''}`}>
-          {/* Título Principal */}
-          <div className="flex justify-start px-6 pt-4 pb-2">
-            <h2 className="text-xl font-bold flex items-center gap-2 text-gray-800 dark:text-white tracking-tight">
-              <span className="text-blue-500 dark:text-blue-400 font-semibold">XI.</span> ARTICULACIÓN CRANEOMANDIBULAR Y LABIOS
-            </h2>
-          </div>
-
-          {/* Contenido Principal */}
-          <div className="px-6 pb-6">
+      <div className="w-full bg-transparent">
+        {/* Contenido Principal */}
+        <div className="px-6 pb-6">
             {activeTab === 'formulario' ? (
               <div className="space-y-8">
                 {/* --- ATM Formulario --- */}
@@ -481,18 +439,18 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                   <div className="space-y-5">
                     {/* Dolor Masticar/Hablar */}
                     <div>
-                      <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">Dolor al masticar o hablar</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dolor al masticar o hablar</h4>
                       <div className="flex gap-3">
                         <button
                           type="button"
-                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorMasticarHablar === true ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
+                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorMasticarHablar === true ? 'bg-zinc-800 text-white hover:bg-zinc-700 ring-1 ring-zinc-400' : 'bg-white dark:bg-gray-700 hover:bg-transparent dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
                           onClick={() => handleBooleanChange('dolorMasticarHablar', true)}
                         >
                           Sí
                         </button>
                         <button
                           type="button"
-                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorMasticarHablar === false ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
+                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorMasticarHablar === false ? 'bg-zinc-800 text-white hover:bg-zinc-700 ring-1 ring-zinc-400' : 'bg-white dark:bg-gray-700 hover:bg-transparent dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
                           onClick={() => handleBooleanChange('dolorMasticarHablar', false)}
                         >
                           No
@@ -524,18 +482,18 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                     )}
                     {/* Dolor Específico */}
                     <div>
-                      <h4 className="text-md font-medium mb-2 text-gray-700 dark:text-gray-300">Dificultad al hablar o masticar</h4>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Dificultad al hablar o masticar</h4>
                       <div className="flex gap-3">
                         <button
                           type="button"
-                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorEspecifico === true ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
+                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorEspecifico === true ? 'bg-zinc-800 text-white hover:bg-zinc-700 ring-1 ring-zinc-400' : 'bg-white dark:bg-gray-700 hover:bg-transparent dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
                           onClick={() => handleBooleanChange('dolorEspecifico', true)}
                         >
                           Sí
                         </button>
                         <button
                           type="button"
-                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorEspecifico === false ? 'bg-emerald-500 text-white hover:bg-emerald-600 ring-2 ring-emerald-300' : 'bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
+                          className={`px-4 py-1.5 rounded-md text-sm transition-colors shadow-sm ${formData.articulacionCraneomandibular?.dolorEspecifico === false ? 'bg-zinc-800 text-white hover:bg-zinc-700 ring-1 ring-zinc-400' : 'bg-white dark:bg-gray-700 hover:bg-transparent dark:hover:bg-gray-600 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200'}`}
                           onClick={() => handleBooleanChange('dolorEspecifico', false)}
                         >
                           No
@@ -566,7 +524,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                           value={formData.articulacionCraneomandibular?.otroPatronAbertura || ''}
                           onChange={e => handleTextChange('otroPatronAbertura', e)}
                           placeholder="Describa el patrón observado"
-                          className="min-h-[50px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm"
+                          className="min-h-[50px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-emerald-500 focus:border-emerald-500 rounded-md shadow-sm"
                         />
                       </div>
                     )}
@@ -577,7 +535,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                         value={formData.articulacionCraneomandibular?.otrasObservaciones || ''}
                         onChange={e => handleTextChange('otrasObservaciones', e)}
                         placeholder="Cualquier otro hallazgo relevante sobre la ATM..."
-                        className="min-h-[70px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm"
+                        className="min-h-[70px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-emerald-500 focus:border-emerald-500 rounded-md shadow-sm"
                       />
                     </div>
                   </div>
@@ -586,7 +544,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                 {/* --- Labios Formulario / Narrativa --- */}
                 <section>
                   <div className="mb-4 border-t border-gray-300 dark:border-gray-600 pt-6">
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Labios</h3>
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Labios</h3>
                   </div>
 
                   {/* Contenido Labios */}
@@ -601,33 +559,37 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                       {renderOptionButtons("Comisuras", comisurasOptions, formData.articulacionCraneomandibular?.labios?.comisuras, 'labios.comisuras')}
                       {renderOptionButtons("Función (Movimiento)", movimientoOptions, formData.articulacionCraneomandibular?.labios?.movimiento, 'labios.movimiento')}
                       <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Otras observaciones (Labios):</label>
+                        <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Otras observaciones (Labios):</label>
                         <Textarea
                           value={formData.articulacionCraneomandibular?.labios?.otrasObservaciones || ''}
                           onChange={e => handleTextChange('labios.otrasObservaciones', e)}
                           placeholder="Cualquier otro hallazgo relevante sobre los labios..."
-                          className="min-h-[70px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 rounded-md shadow-sm"
+                          className="min-h-[70px] bg-white dark:bg-gray-700/50 border-gray-300 dark:border-gray-600 focus:ring-emerald-500 focus:border-emerald-500 rounded-md shadow-sm"
                         />
                       </div>
 
-                      {/* Botón Generar Redacción IA al final */}
-                      <div className="flex justify-end pt-4">
-                        <Button
-                          variant="default"
-                          size="sm"
+                      {/* Botón oculto que dispara la generación desde el panel padre */}
+                      <div className="flex justify-between items-center pt-4 border-t border-gray-100 dark:border-gray-800 mt-2">
+                        <button
                           onClick={generateLipsNarrative}
-                          disabled={isGeneratingLipsNarrative}
-                          className="flex items-center gap-2"
+                          className="hidden data-trigger-generation"
+                          aria-label="Generar redacción labios ATM"
+                        />
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            // Reiniciar sección labios
+                            const camposLabios = ['simetria','volumen','coloracion','hidratacion','integridad','comisuras','movimiento','otrasObservaciones'];
+                            camposLabios.forEach(campo => handleOptionChange(`labios.${campo}`, ''));
+                            setLipsViewMode('form');
+                            setTargetLipsNarrative('');
+                            setDisplayedLipsNarrative('');
+                          }}
+                          className="text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
                         >
-                          {isGeneratingLipsNarrative ? (
-                            <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                          ) : (
-                            <FileText className="w-4 h-4" />
-                          )}
-                          {isGeneratingLipsNarrative ? 'Generando...' : 'Generar Redacción IA'}
+                          <RotateCcw className="w-3 h-3 mr-2" />
+                          Reiniciar Sección
                         </Button>
                       </div>
                     </div>
@@ -644,7 +606,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                           <Edit className="w-4 h-4" /> Editar
                         </Button>
                       </div>
-                      <div className="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 min-h-[120px] shadow-inner">
+                      <div className="p-4 bg-transparent dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 min-h-[120px] shadow-inner">
                         <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
                           {displayedLipsNarrative}
                           {/* Cursor solo si está animando */}
@@ -697,7 +659,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                         setActiveTab('redaccion');
                         onToggleViewMode();
                       }}
-                      className="text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
+                      className="hidden data-trigger-generation text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
                     >
                       <Sparkles className="w-4 h-4 mr-2" />
                       Ver Redacción IA
@@ -709,7 +671,7 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
             ) : (
               <div className="p-6">
                 <div
-                  className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap"
+                  className="bg-transparent dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap"
                   style={{
                     whiteSpace: "pre-wrap",
                   }}
@@ -720,10 +682,9 @@ const ArticulacionCraneomandibular: React.FC<ArticulacionCraneomandibularProps> 
                 </div>
               </div>
             )}
-          </div>
-        </div> {/* Fin Contenedor Scrollable */}
-      </Card >
-    </div >
+        </div>
+      </div>
+    </div>
   );
 };
 

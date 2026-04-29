@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card } from "@/components/ui/card";
-import { Minus, Maximize2, X, Copy, CheckCircle, Eraser } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Minus, Maximize2, X, Copy, CheckCircle, RotateCcw } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -198,11 +197,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
     localStorage.setItem('interrogatorio-sistemas-toggles', JSON.stringify(sintomasToggle));
   }, [sintomasToggle]);
 
-  useEffect(() => {
-    if (showForm === false) {
-      generateAndUpdateRedacciones();
-    }
-  }, [showForm, formValues]);
+  // Eliminado: ya no se usa showForm para mostrar redacción interna
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -586,11 +581,35 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
 
     setRedacciones(newRedacciones);
 
-    // Cambiar al apartado de redacción IA y hacer auto scroll
-    setShowForm(false);
-    setTimeout(() => {
-      redaccionesRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+    // Combinar todas las redacciones en un solo texto para el panel derecho
+    const sistemas = [
+      { key: 'digestivo', label: 'Aparato Digestivo' },
+      { key: 'respiratorio', label: 'Aparato Respiratorio' },
+      { key: 'cardiovascular', label: 'Aparato Cardiovascular' },
+      { key: 'genitoUrinario', label: 'Aparato Genito-Urinario' },
+      { key: 'endocrino', label: 'Sistema Endocrino' },
+      { key: 'tegumentario', label: 'Sistema Tegumentario' },
+      { key: 'musculoEsqueletico', label: 'Sistema Músculo-Esquelético' },
+      { key: 'nervioso', label: 'Sistema Nervioso' },
+    ];
+
+    const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-400 mt-4 mb-1">${title}</span>`;
+
+    const textoCombinado = sistemas
+      .map(s => {
+        const texto = newRedacciones[s.key as keyof typeof newRedacciones];
+        return texto ? `${formatTitle(s.label)}${texto}` : '';
+      })
+      .filter(Boolean)
+      .join('<br/>');
+
+    // Enviar al panel derecho
+    if (onRedaccionGenerada && textoCombinado) {
+      onRedaccionGenerada(textoCombinado);
+    }
+    if (onToggleViewMode) {
+      onToggleViewMode();
+    }
   };
 
   const getPercepcionGustoText = () => {
@@ -691,46 +710,17 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="interrogatorio-sistemas">
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button onClick={() => setShowForm(true)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
-                Formulario
-              </button>
-              <button onClick={() => setShowForm(false)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
-                Redacción IA
-              </button>
-            </div>
-          </div>
+      <div className="w-full bg-transparent">
 
-          <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-4 h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-4 h-4" />
-            </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        <div ref={redaccionesRef} className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">IX.</span> INTERROGATORIO POR APARATOS Y SISTEMAS
-          </h2>
-        </div>
 
         {!isMinimized && (
           <div className="p-6" ref={formRef}>
-            {showForm ? (
+            {showForm && (
               <div className="space-y-6">
                 {/* APARATO DIGESTIVO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-justify">Aparato Digestivo</h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Aparato Digestivo</h4>
                     <SintomasToggle
                       checked={sintomasToggle.digestivo}
                       onChange={(checked) => handleSintomasToggle('digestivo', checked)}
@@ -868,9 +858,9 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                 {/* APARATO RESPIRATORIO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-justify">Aparato Respiratorio</h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Aparato Respiratorio</h4>
                     <SintomasToggle
                       checked={sintomasToggle.respiratorio}
                       onChange={(checked) => handleSintomasToggle('respiratorio', checked)}
@@ -931,9 +921,9 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                 {/* APARATO CARDIOVASCULAR */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-justify">Aparato Cardiovascular</h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Aparato Cardiovascular</h4>
                     <SintomasToggle
                       checked={sintomasToggle.cardiovascular}
                       onChange={(checked) => handleSintomasToggle('cardiovascular', checked)}
@@ -1134,9 +1124,9 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                 {/* APARATO GENITO-URINARIO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-justify">Aparato Genito-Urinario</h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Aparato Genito-Urinario</h4>
                     <SintomasToggle
                       checked={sintomasToggle.genitoUrinario}
                       onChange={(checked) => handleSintomasToggle('genitoUrinario', checked)}
@@ -1246,9 +1236,9 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                 {/* SISTEMA ENDOCRINO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-justify">Sistema Endocrino</h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Sistema Endocrino</h4>
                     <SintomasToggle
                       checked={sintomasToggle.endocrino}
                       onChange={(checked) => handleSintomasToggle('endocrino', checked)}
@@ -1327,9 +1317,9 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                 {/* SISTEMA TEGUMENTARIO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-justify">Sistema Tegumentario</h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Sistema Tegumentario</h4>
                     <SintomasToggle
                       checked={sintomasToggle.tegumentario}
                       onChange={(checked) => handleSintomasToggle('tegumentario', checked)}
@@ -1390,9 +1380,9 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                 {/* SISTEMA MÚSCULO-ESQUELÉTICO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-justify">Sistema Músculo-Esquelético</h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Sistema Músculo-Esquelético</h4>
                     <SintomasToggle
                       checked={sintomasToggle.musculoEsqueletico}
                       onChange={(checked) => handleSintomasToggle('musculoEsqueletico', checked)}
@@ -1458,9 +1448,9 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                 {/* SISTEMA NERVIOSO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-white dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-lg font-semibold text-justify">Sistema Nervioso</h4>
+                    <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-3">Sistema Nervioso</h4>
                     <SintomasToggle
                       checked={sintomasToggle.nervioso}
                       onChange={(checked) => handleSintomasToggle('nervioso', checked)}
@@ -1530,328 +1520,136 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                   )}
                 </div>
 
-                <div className="flex justify-center pt-4">
-                  <Button onClick={generateAndUpdateRedacciones} className="bg-blue-500 hover:bg-blue-600 text-white">
-                    Generar Redacción IA
-                  </Button>
-                  <Button onClick={() => {
-                    // Limpiar localStorage
-                    localStorage.removeItem('interrogatorio-sistemas-formValues');
-
-                    setFormValues({
-                      digestivo: {
-                        alimentacion: "",
-                        masticacion: "",
-                        percepcionGusto: "",
-                        percepcionGustoEspecificaciones: "",
-                        salivacion: "",
-                        deglusion: "",
-                        halitosis: "",
-                        halitosisEspecificaciones: "",
-                        sintomasDigestivos: [],
-                        cambiosApetito: "",
-                        habitosAlimenticios: "",
-                        colorEvacuaciones: "",
-                        hematemesis: "",
-                        frecuenciaEvacuacion: "",
-                        frecuenciaEvacuacionEspecificaciones: ""
-                      },
-                      respiratorio: {
-                        tipoRespiracion: "",
-                        sintomasRespiratorios: [],
-                        apneaSuenio: "",
-                        oxigenoSuplementario: "",
-                        tosExpectoracion: ""
-                      },
-                      cardiovascular: {
-                        dolorToracico: "",
-                        dolorToracicoDetalle: "",
-                        lipotimia: "",
-                        lipotimiaDetalle: "",
-                        ritmoCardiaco: "",
-                        ritmoCardiacoDetalle: "",
-                        sintomasCardiovasculares: [],
-                        sintomasCardiovascularesDetalle: "",
-                        presionArterial: "",
-                        antecedentesCardiovasculares: [],
-                        antecedentesCardiovascularesDetalle: "",
-                        capacidadFuncional: "",
-                        capacidadFuncionalDetalle: "",
-                        disnea: "",
-                        disneaDetalle: "",
-                        otrosAntecedentes: [],
-                        otrosAntecedentesDetalle: ""
-                      },
-                      genitoUrinario: {
-                        frecuenciaUrinaria: "",
-                        sintomasUrinarios: [],
-                        urgenciaUrinaria: "",
-                        chorroUrinarioDebil: "",
-                        chorroUrinarioIntermitente: "",
-                        flujoVaginalUretral: "",
-                        infeccionesUrinarias: "",
-                        ultimaMenstruacion: "",
-                        dismenorrea: "",
-                        duracionMenstruacion: "",
-                        ultimoParto: "",
-                        antecedentesObstetricos: ""
-                      },
-                      endocrino: {
-                        sintomasEndocrinos: [],
-                        sudoracionNocturna: "",
-                        hirsutismo: "",
-                        galactorrea: "",
-                        cambiosRitmoMenstrual: "",
-                        cambiosPeso: "",
-                        intolerancia: "",
-                        condicionesEndocrinas: ""
-                      },
-                      tegumentario: {
-                        cambiosColoracion: "",
-                        cambiosColoracionEspecificaciones: "",
-                        sintomasTegumentarios: [],
-                        cambiosUnas: "",
-                        cambiosLunares: "",
-                        lesionesPigmentadas: ""
-                      },
-                      musculoEsqueletico: {
-                        fracturas: "",
-                        detallesFracturas: "",
-                        sintomasMusculoEsqueleticos: [],
-                        rigidezMatutina: "",
-                        debilidadMuscular: "",
-                        limitacionesMovimiento: ""
-                      },
-                      nervioso: {
-                        percepcionSentidos: "",
-                        horasSueno: "",
-                        trastornosSueno: "",
-                        trastornosSuenoEspecificaciones: "",
-                        estadoAnimo: "",
-                        parestesias: "",
-                        otrosSintomasNeurologicos: []
-                      }
-                    });
-                    setShowForm(true);
-                  }} variant="outline" className="ml-4 flex items-center gap-2">
-                    <Eraser className="w-4 h-4" />
-                    Limpiar formulario
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {/* Redacción IA */}
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Aparato Digestivo</h4>
-                    <button onClick={() => handleCopy('digestivo')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.digestivo ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.digestivo}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
+                {/* Botón Reiniciar Sección — genera la redacción al hacer clic */}
+                <div className="flex justify-between items-center pt-6 border-t border-gray-100 dark:border-gray-800 mt-2">
+                  <Button
+                    onClick={generateAndUpdateRedacciones}
+                    className="hidden data-trigger-generation"
+                    aria-label="Generar redacción interrogatorio"
                   />
-                </div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      // Limpiar localStorage
+                      localStorage.removeItem('interrogatorio-sistemas-formValues');
+                      localStorage.removeItem('interrogatorio-sistemas-toggles');
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Aparato Respiratorio</h4>
-                    <button onClick={() => handleCopy('respiratorio')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.respiratorio ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.respiratorio}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Aparato Cardiovascular</h4>
-                    <button onClick={() => handleCopy('cardiovascular')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.cardiovascular ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.cardiovascular}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Aparato Genito-Urinario</h4>
-                    <button onClick={() => handleCopy('genitoUrinario')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.genitoUrinario ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.genitoUrinario}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Sistema Endocrino</h4>
-                    <button onClick={() => handleCopy('endocrino')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.endocrino ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.endocrino}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Sistema Tegumentario</h4>
-                    <button onClick={() => handleCopy('tegumentario')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.tegumentario ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.tegumentario}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Sistema Músculo-Esquelético</h4>
-                    <button onClick={() => handleCopy('musculoEsqueletico')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.musculoEsqueletico ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.musculoEsqueletico}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="text-lg font-semibold">Sistema Nervioso</h4>
-                    <button onClick={() => handleCopy('nervioso')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
-                      {copied.nervioso ? (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          <span className="text-xs">Copiado</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span className="text-xs">Copiar</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <AnimatedTextarea
-                    content={redacciones.nervioso}
-                    className="min-h-[150px] bg-white dark:bg-gray-800 p-3 rounded-md border border-gray-300 dark:border-gray-600 w-full resize-none text-sm"
-                    readOnly
-                    textAlign="justify"
-                  />
-                </div>
-
-                <div className="flex justify-center">
-                  <Button onClick={() => setShowForm(true)} variant="outline" className="text-blue-500 border-blue-500">
-                    Volver al Formulario
+                      setFormValues({
+                        digestivo: {
+                          alimentacion: "",
+                          masticacion: "",
+                          percepcionGusto: "",
+                          percepcionGustoEspecificaciones: "",
+                          salivacion: "",
+                          deglusion: "",
+                          halitosis: "",
+                          halitosisEspecificaciones: "",
+                          sintomasDigestivos: [],
+                          cambiosApetito: "",
+                          habitosAlimenticios: "",
+                          colorEvacuaciones: "",
+                          hematemesis: "",
+                          frecuenciaEvacuacion: "",
+                          frecuenciaEvacuacionEspecificaciones: ""
+                        },
+                        respiratorio: {
+                          tipoRespiracion: "",
+                          sintomasRespiratorios: [],
+                          apneaSuenio: "",
+                          oxigenoSuplementario: "",
+                          tosExpectoracion: ""
+                        },
+                        cardiovascular: {
+                          dolorToracico: "",
+                          dolorToracicoDetalle: "",
+                          lipotimia: "",
+                          lipotimiaDetalle: "",
+                          ritmoCardiaco: "",
+                          ritmoCardiacoDetalle: "",
+                          sintomasCardiovasculares: [],
+                          sintomasCardiovascularesDetalle: "",
+                          presionArterial: "",
+                          antecedentesCardiovasculares: [],
+                          antecedentesCardiovascularesDetalle: "",
+                          capacidadFuncional: "",
+                          capacidadFuncionalDetalle: "",
+                          disnea: "",
+                          disneaDetalle: "",
+                          otrosAntecedentes: [],
+                          otrosAntecedentesDetalle: ""
+                        },
+                        genitoUrinario: {
+                          frecuenciaUrinaria: "",
+                          sintomasUrinarios: [],
+                          urgenciaUrinaria: "",
+                          chorroUrinarioDebil: "",
+                          chorroUrinarioIntermitente: "",
+                          flujoVaginalUretral: "",
+                          infeccionesUrinarias: "",
+                          ultimaMenstruacion: "",
+                          dismenorrea: "",
+                          duracionMenstruacion: "",
+                          ultimoParto: "",
+                          antecedentesObstetricos: ""
+                        },
+                        endocrino: {
+                          sintomasEndocrinos: [],
+                          sudoracionNocturna: "",
+                          hirsutismo: "",
+                          galactorrea: "",
+                          cambiosRitmoMenstrual: "",
+                          cambiosPeso: "",
+                          intolerancia: "",
+                          condicionesEndocrinas: ""
+                        },
+                        tegumentario: {
+                          cambiosColoracion: "",
+                          cambiosColoracionEspecificaciones: "",
+                          sintomasTegumentarios: [],
+                          cambiosUnas: "",
+                          cambiosLunares: "",
+                          lesionesPigmentadas: ""
+                        },
+                        musculoEsqueletico: {
+                          fracturas: "",
+                          detallesFracturas: "",
+                          sintomasMusculoEsqueleticos: [],
+                          rigidezMatutina: "",
+                          debilidadMuscular: "",
+                          limitacionesMovimiento: ""
+                        },
+                        nervioso: {
+                          percepcionSentidos: "",
+                          horasSueno: "",
+                          trastornosSueno: "",
+                          trastornosSuenoEspecificaciones: "",
+                          estadoAnimo: "",
+                          parestesias: "",
+                          otrosSintomasNeurologicos: []
+                        }
+                      });
+                      setSintomasToggle({
+                        digestivo: false,
+                        respiratorio: false,
+                        cardiovascular: false,
+                        genitoUrinario: false,
+                        endocrino: false,
+                        tegumentario: false,
+                        musculoEsqueletico: false,
+                        nervioso: false
+                      });
+                    }}
+                    className="text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
+                  >
+                    <RotateCcw className="w-3 h-3 mr-2" />
+                    Reiniciar Sección
                   </Button>
                 </div>
               </div>
             )}
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 };
@@ -1866,7 +1664,7 @@ const WordButton = ({
   isSelected: boolean;
   onClick: () => void;
 }) => {
-  return <button onClick={onClick} className={`px-2 py-1 text-xs rounded-md transition-colors mb-1 mr-1 ${isSelected ? "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200" : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"}`}>
+  return <button onClick={onClick} className={`px-2 py-1 text-xs rounded-md transition-colors mb-1 mr-1 ${isSelected ? "bg-zinc-800 text-white shadow-sm" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"}`}>
     {label}
   </button>;
 };

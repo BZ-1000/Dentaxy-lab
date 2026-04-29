@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Sparkles } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
@@ -51,8 +50,10 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
   };
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
+    const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-400 mt-4 mb-1">${title}</span>`;
+    
     // Remove timeout for snappy UX or keep it small
-    let content = "ANTECEDENTES MÉDICOS Y QUIRÚRGICOS:\n\n";
+    let content = "";
 
     if (formData.antecedentesQuirurgicos.tratamientoReciente) {
       content += "El paciente ha estado sometido a tratamiento médico en los últimos dos meses. ";
@@ -64,16 +65,16 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
     }
 
     if (formData.antecedentesQuirurgicos.hospitalizacionReciente) {
-      content += "\nHa sido hospitalizado en los últimos dos meses. ";
+      content += "<br/>Ha sido hospitalizado en los últimos dos meses. ";
       if (formData.antecedentesQuirurgicos.motivoHospitalizacion) {
         content += `Motivo: ${formData.antecedentesQuirurgicos.motivoHospitalizacion}. `;
       }
     } else {
-      content += "\nNo ha sido hospitalizado en los últimos dos meses. ";
+      content += "<br/>No ha sido hospitalizado en los últimos dos meses. ";
     }
 
     if (formData.antecedentesQuirurgicos.tomaMedicamentos) {
-      content += "\nActualmente está tomando medicamentos. ";
+      content += "<br/>Actualmente está tomando medicamentos. ";
       if (formData.antecedentesQuirurgicos.cualesMedicamentos) {
         content += `Medicamentos: ${formData.antecedentesQuirurgicos.cualesMedicamentos}. `;
       }
@@ -81,13 +82,13 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
         content += `Motivo: ${formData.antecedentesQuirurgicos.motivoMedicamentos}. `;
       }
     } else {
-      content += "\nNo está tomando medicamentos actualmente. ";
+      content += "<br/>No está tomando medicamentos actualmente. ";
     }
 
     if (formData.antecedentesQuirurgicos.sinQuirurgicos === false && formData.antecedentesQuirurgicos.cirugiasRealizadas?.length > 0) {
-      content += "\n\nANTECEDENTES QUIRÚRGICOS:\n";
+      content += `<br/>${formatTitle('ANTECEDENTES QUIRÚRGICOS')}`;
       formData.antecedentesQuirurgicos.cirugiasRealizadas.forEach((cirugia, index) => {
-        content += `\n${index + 1}. Tipo: ${cirugia.tipo || 'No especificado'}, Fecha: ${cirugia.fecha || 'No especificada'}, Motivo: ${cirugia.motivo || 'No especificado'}`;
+        content += `<br/>${index + 1}. Tipo: ${cirugia.tipo || 'No especificado'}, Fecha: ${cirugia.fecha || 'No especificada'}, Motivo: ${cirugia.motivo || 'No especificado'}`;
       });
     } else {
       content += "\n\nNo refiere antecedentes quirúrgicos.";
@@ -106,49 +107,18 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
   };
 
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="antecedentesQuirurgicos" data-formulario-section="antecedentes-quirurgicos">
-    <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex justify-center w-full">
-          {/* Header / Tabs - Keeping existing structure */}
-          <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-            <button className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`} onClick={() => setActiveTab('formulario')}>
-              Formulario
-            </button>
-            <button className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${activeTab === 'redaccion' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`} onClick={() => setActiveTab('redaccion')}>
-              Redacción IA
-            </button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1 sm:gap-2">
-          <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" type="button">
-            <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" type="button">
-            <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" type="button">
-            <X className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-        </div>
-      </div>
-
-      <div className="flex justify-start px-6 py-2">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <span className="text-gray-400">VI.</span> ANTECEDENTES MÉDICOS Y QUIRÚRGICOS
-        </h2>
-      </div>
+    <div className="w-full bg-transparent">
 
       {!isMinimized && <>
         {activeTab === 'formulario' ? <div className="p-6">
           <div className="space-y-6">
             <div>
-              <h3 className="text-md font-medium mb-2">¿Ha estado sometido(a) a algún tratamiento médico en los últimos dos meses?</h3>
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">¿Ha estado sometido(a) a algún tratamiento médico en los últimos dos meses?</h3>
               <div className="flex gap-2 sm:gap-4">
-                <button className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm transition-colors ${formData.antecedentesQuirurgicos.tratamientoReciente ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => handleBooleanChange('tratamientoReciente', true)}>
+                <button className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesQuirurgicos.tratamientoReciente ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`} onClick={() => handleBooleanChange('tratamientoReciente', true)}>
                   Sí
                 </button>
-                <button className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm transition-colors ${formData.antecedentesQuirurgicos.tratamientoReciente === false ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => handleBooleanChange('tratamientoReciente', false)}>
+                <button className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesQuirurgicos.tratamientoReciente === false ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`} onClick={() => handleBooleanChange('tratamientoReciente', false)}>
                   No
                 </button>
               </div>
@@ -156,7 +126,7 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
 
             {formData.antecedentesQuirurgicos.tratamientoReciente && (
               <div className="relative">
-                <label className="block text-sm font-medium mb-1">Motivo del tratamiento:</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Motivo del tratamiento:</label>
                 <div className="flex items-center gap-2 sm:gap-4">
                   <Textarea value={formData.antecedentesQuirurgicos.motivoTratamiento || ''} onChange={e => handleTextChange('motivoTratamiento', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
                   <div className="h-8 sm:h-10">
@@ -167,12 +137,12 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
             )}
 
             <div>
-              <h3 className="text-md font-medium mb-2">¿Ha sido hospitalizado(a) en los últimos dos meses?</h3>
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">¿Ha sido hospitalizado(a) en los últimos dos meses?</h3>
               <div className="flex gap-2 sm:gap-4">
-                <button className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm transition-colors ${formData.antecedentesQuirurgicos.hospitalizacionReciente ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => handleBooleanChange('hospitalizacionReciente', true)}>
+                <button className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesQuirurgicos.hospitalizacionReciente ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`} onClick={() => handleBooleanChange('hospitalizacionReciente', true)}>
                   Sí
                 </button>
-                <button className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm transition-colors ${formData.antecedentesQuirurgicos.hospitalizacionReciente === false ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => handleBooleanChange('hospitalizacionReciente', false)}>
+                <button className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesQuirurgicos.hospitalizacionReciente === false ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`} onClick={() => handleBooleanChange('hospitalizacionReciente', false)}>
                   No
                 </button>
               </div>
@@ -180,7 +150,7 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
 
             {formData.antecedentesQuirurgicos.hospitalizacionReciente && (
               <div className="relative">
-                <label className="block text-sm font-medium mb-1">Motivo de la hospitalización:</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Motivo de la hospitalización:</label>
                 <div className="flex items-center gap-2 sm:gap-4">
                   <Textarea value={formData.antecedentesQuirurgicos.motivoHospitalizacion || ''} onChange={e => handleTextChange('motivoHospitalizacion', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
                   <div className="h-8 sm:h-10">
@@ -191,12 +161,12 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
             )}
 
             <div>
-              <h3 className="text-md font-medium mb-2">¿Está tomando actualmente algún medicamento?</h3>
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">¿Está tomando actualmente algún medicamento?</h3>
               <div className="flex gap-2 sm:gap-4">
-                <button className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm transition-colors ${formData.antecedentesQuirurgicos.tomaMedicamentos ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => handleBooleanChange('tomaMedicamentos', true)}>
+                <button className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesQuirurgicos.tomaMedicamentos ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`} onClick={() => handleBooleanChange('tomaMedicamentos', true)}>
                   Sí
                 </button>
-                <button className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm transition-colors ${formData.antecedentesQuirurgicos.tomaMedicamentos === false ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => handleBooleanChange('tomaMedicamentos', false)}>
+                <button className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesQuirurgicos.tomaMedicamentos === false ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`} onClick={() => handleBooleanChange('tomaMedicamentos', false)}>
                   No
                 </button>
               </div>
@@ -205,7 +175,7 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
             {formData.antecedentesQuirurgicos.tomaMedicamentos && (
               <>
                 <div className="relative">
-                  <label className="block text-sm font-medium mb-1">¿Cuál o cuáles?:</label>
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">¿Cuál o cuáles?:</label>
                   <div className="flex items-center gap-2 sm:gap-4">
                     <Textarea value={formData.antecedentesQuirurgicos.cualesMedicamentos || ''} onChange={e => handleTextChange('cualesMedicamentos', e.target.value)} placeholder="Liste los medicamentos" className="min-h-[80px] flex-1" />
                     <div className="h-8 sm:h-10">
@@ -215,7 +185,7 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                 </div>
 
                 <div className="relative">
-                  <label className="block text-sm font-medium mb-1">Motivo por el cual toma estos medicamentos:</label>
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Motivo por el cual toma estos medicamentos:</label>
                   <div className="flex items-center gap-2 sm:gap-4">
                     <Textarea value={formData.antecedentesQuirurgicos.motivoMedicamentos || ''} onChange={e => handleTextChange('motivoMedicamentos', e.target.value)} placeholder="Explique por qué toma estos medicamentos" className="min-h-[80px] flex-1" />
                     <div className="h-8 sm:h-10">
@@ -227,27 +197,17 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
             )}
 
             <div className="flex justify-center mt-6">
-              {onToggleViewMode && (
-                <Button
-                  variant="outline"
-                  onClick={generateRedaccion}
-                  className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Ver Redacción IA
-                </Button>
-              )}
             </div>
           </div>
         </div> : <div className="p-6">
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" style={{
+          <div className="bg-transparent dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" style={{
             whiteSpace: 'pre-wrap'
           }} data-redaction-content>
             {redaccionContent || "No se ha generado redacción aún. Utilice el botón 'Generar Redacción IA' en la pestaña de Formulario."}
           </div>
         </div>}
       </>}
-    </Card>
+    </div>
   </div>;
 };
 export default AntecedentesQuirurgicos;

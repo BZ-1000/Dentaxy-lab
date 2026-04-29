@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -311,37 +310,18 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
   // --- Renderizado del Componente ---
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="examen-cabeza">
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
+      <div className="w-full bg-transparent">
 
         {/* --- Barra Superior (Controles) --- */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-              <button
-                onClick={() => setShowForm(true)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Formulario
-              </button>
-              <button
-                onClick={() => setShowForm(false)}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
+            
           <div className="flex items-center gap-1 sm:gap-2">
-            <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
+            
+            
+            
           </div>
+        </div>{/* cierra flex justify-center */}
         </div>
 
         {/* --- Título de la Sección --- */}
@@ -352,7 +332,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
         </div>
 
         {!isMinimized && (
-          <CardContent className="p-6">
+          <div className="pt-2">
             {showForm ? (
               // --- VISTA DE FORMULARIO ---
               <div className="space-y-8">
@@ -370,8 +350,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
                         {/* --- INICIO DE LA MODIFICACIÓN --- */}
                         <div
                           className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${getFormValue('tipoCraneo') === tipo.value
-                            ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
-                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
+                            ? 'border-zinc-800 scale-105 shadow-lg' 
+                            : 'border-gray-200 dark:border-gray-700 hover:border-zinc-400'
                             }`}
                           onClick={() => {
                             // MODIFICADO: Lógica para deseleccionar
@@ -407,8 +387,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
                         {/* --- INICIO DE LA MODIFICACIÓN --- */}
                         <div
                           className={`relative w-32 h-32 rounded-lg border-2 transition-all duration-200 cursor-pointer overflow-hidden ${getFormValue('tipoPerfil') === perfil.value
-                            ? 'border-blue-500 scale-105 shadow-lg' // MODIFICADO: Sin ring, sombra más sutil
-                            : 'border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500'
+                            ? 'border-zinc-800 scale-105 shadow-lg' 
+                            : 'border-gray-200 dark:border-gray-700 hover:border-zinc-400'
                             }`}
                           onClick={() => {
                             // MODIFICADO: Lógica para deseleccionar
@@ -487,7 +467,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
                     <Collapsible
                       open={getCheckboxValue('lunares')}
                       onOpenChange={(open) => handleDetailedChange('lunares', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="bg-transparent/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
@@ -550,7 +530,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
                     <Collapsible
                       open={getCheckboxValue('asimetriasFaciales')}
                       onOpenChange={(open) => handleDetailedChange('asimetriasFaciales', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
+                      className="bg-transparent/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
@@ -614,7 +594,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
                     <Collapsible
                       open={getCheckboxValue('cicatrices')}
                       onOpenChange={(open) => handleDetailedChange('cicatrices', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
+                      className="bg-transparent/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
@@ -692,7 +672,7 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
                     <Collapsible
                       open={getCheckboxValue('edema')}
                       onOpenChange={(open) => handleDetailedChange('edema', 'presente', open)}
-                      className="bg-gray-50/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
+                      className="bg-transparent/50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 md:col-span-2"
                     >
                       <CollapsibleTrigger asChild>
                         <Button
@@ -782,9 +762,9 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
 
                 {/* --- Botones de Acción --- */}
                 <div className="flex justify-center gap-4 mt-6">
-                  <Button
+                   <Button
                     onClick={generarRedaccionIA}
-                    className="bg-blue-500 hover:bg-blue-600 text-white shadow-sm"
+                    className="bg-zinc-800 hover:bg-zinc-900 text-white shadow-md transition-all"
                   >
                     Generar Redacción IA
                   </Button>
@@ -801,12 +781,12 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
             ) : (
               // --- VISTA DE REDACCIÓN IA ---
               <div className="space-y-6">
-                <div ref={redaccionRef} className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div ref={redaccionRef} className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-lg font-semibold text-gray-800 dark:text-white">Redacción General</h4>
                     <button
                       onClick={handleCopy}
-                      className="flex items-center gap-1 text-sm text-blue-500 hover:text-blue-700 transition-colors"
+                      className="flex items-center gap-1 text-sm text-emerald-500 hover:text-blue-700 transition-colors"
                     >
                       {copied ? (
                         <>
@@ -841,9 +821,9 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada 
                 </div>
               </div>
             )}
-          </CardContent>
+          </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -91,43 +90,8 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="exploracion-fisica">
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-              <button
-                onClick={() => setActiveTab('formulario')}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
-              >
-                Formulario
-              </button>
-              <button
-                onClick={() => setActiveTab('redaccion')}
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${activeTab === 'redaccion' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
+      <div className="w-full bg-transparent">
 
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-          </div>
-        </div>
-
-        <div className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">IX.</span> EXPLORACIÓN FÍSICA
-          </h2>
-        </div>
 
         {!isMinimized && (
           <>
@@ -190,7 +154,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                       </div>
                     </div>
 
-                    <div className="bg-gray-50 dark:bg-gray-900 rounded-lg w-full px-4 py-3">
+                    <div className="bg-transparent dark:bg-gray-900 rounded-lg w-full px-4 py-3">
                       <div className="text-sm">IMC: <span className="font-semibold">{imc}</span></div>
                       <div className={`text-sm ${getIMCCategory(imc).color}`}>
                         Categoría: {getIMCCategory(imc).label}
@@ -330,12 +294,12 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                   </div>
                 </div>
 
-                <div className="flex justify-center mt-6">
+                <div className="flex justify-end items-center gap-3 pt-6 mt-6 border-t border-gray-100 dark:border-gray-700/50">
                   {onToggleViewMode && (
                     <Button
                       variant="outline"
                       onClick={generarRedaccion}
-                      className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+                      className="hidden data-trigger-generation text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
                     >
                       <Sparkles className="w-4 h-4 mr-2" />
                       Ver Redacción IA
@@ -346,7 +310,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
             ) : (
               <div className="p-6">
                 <div
-                  className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap"
+                  className="bg-transparent dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap"
                   style={{
                     whiteSpace: "pre-wrap",
                   }}
@@ -359,7 +323,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
             )}
           </>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

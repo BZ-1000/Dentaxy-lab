@@ -130,7 +130,7 @@ var MODULE_DEFAULT = {
 // ─── Punto de entrada POST ─────────────────────────────────────────────────
 
 /**
- * Manejador principal. Recibe el lead, lo guarda y envía emails.
+ * Manejador principal. Recibe el lead o prospecto, lo guarda y envía emails.
  * Compatible con mode: 'no-cors' del frontend (no requiere headers CORS).
  */
 function doPost(e) {
@@ -139,12 +139,41 @@ function doPost(e) {
     var rawBody = e.postData ? e.postData.contents : '{}';
     var data = JSON.parse(rawBody);
 
+    var timestamp = new Date();
+
+    // Detección de tipo de payload: "prospecto_seed" vs "waitlist"
+    if (data.type === 'prospecto_seed') {
+      // 1. Manejo de archivos a Drive
+      var folderName = "Dentaxy Seed / Prospectos / " + data.nombre;
+      var folder = getOrCreateFolder(folderName);
+      var logoUrl = "—";
+      var historiaUrl = "—";
+
+      if (data.logoBase64) {
+        var logoBlob = Utilities.newBlob(Utilities.base64Decode(data.logoBase64), data.logoMime, data.logoNombre);
+        var logoFile = folder.createFile(logoBlob);
+        logoUrl = logoFile.getUrl();
+      }
+      if (data.historiaBase64) {
+        var historiaBlob = Utilities.newBlob(Utilities.base64Decode(data.historiaBase64), data.historiaMime, data.historiaNombre);
+        var historiaFile = folder.createFile(historiaBlob);
+        historiaUrl = historiaFile.getUrl();
+      }
+
+      // 2. Guardar en Sheet
+      saveProspectToSheet(data, logoUrl, historiaUrl, timestamp);
+
+      // 3. Notificar Admin
+      sendProspectAdminNotification(data, logoUrl, historiaUrl, timestamp);
+
+      return jsonResponse({ success: true, timestamp: timestamp.toISOString() });
+    }
+
+    // Flujo normal de Waitlist
     // Validación básica
     if (!data.email || !data.nombre) {
       return jsonResponse({ success: false, error: 'Datos incompletos: nombre y email son requeridos.' });
     }
-
-    var timestamp = new Date();
 
     // 1. Guardar lead en el Sheet
     saveToSheet(data, timestamp);
@@ -161,6 +190,83 @@ function doPost(e) {
     console.error('[Dentaxy Waitlist] Error en doPost:', err.toString());
     return jsonResponse({ success: false, error: err.toString() });
   }
+}
+
+// ─── Funciones para Prospectos Seed (Onboarding) ─────────────────────────
+
+function getOrCreateFolder(folderPath) {
+  var parts = folderPath.split('/');
+  var parent = DriveApp.getRootFolder();
+  for (var i = 0; i < parts.length; i++) {
+    var name = parts[i].trim();
+    if (!name) continue;
+    var folders = parent.getFoldersByName(name);
+    if (folders.hasNext()) {
+      parent = folders.next();
+    } else {
+      parent = parent.createFolder(name);
+    }
+  }
+  return parent;
+}
+
+function saveProspectToSheet(data, logoUrl, historiaUrl, timestamp) {
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  var sheetName = 'Prospectos Seed';
+  var sheet = ss.getSheetByName(sheetName);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    var headers = ['Timestamp', 'Nombre', 'Email', 'Especialidad', 'Clínica', 'Subdominio', 'Logo URL', 'Historia URL'];
+    sheet.appendRow(headers);
+    var headerRange = sheet.getRange(1, 1, 1, headers.length);
+    headerRange.setBackground('#2563EB');
+    headerRange.setFontColor('#ffffff');
+    headerRange.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+
+  sheet.appendRow([
+    timestamp,
+    data.nombre,
+    data.email,
+    data.especialidad,
+    data.clinica,
+    data.subdominio,
+    logoUrl,
+    historiaUrl
+  ]);
+}
+
+function sendProspectAdminNotification(data, logoUrl, historiaUrl, timestamp) {
+  try {
+    var fechaStr = Utilities.formatDate(timestamp, 'America/Mexico_City', 'dd/MM/yyyy HH:mm:ss');
+    var subject = '🌱 Nuevo Prospecto Seed Onboarding — ' + data.nombre;
+    var body = [
+      '══════════════════════════════════',
+      'NUEVO PROSPECTO DENTAXY SEED',
+      '══════════════════════════════════',
+      '',
+      '📅 Fecha: ' + fechaStr,
+      '👤 Doctor: ' + data.nombre,
+      '📧 Email: ' + data.email,
+      '🦷 Especialidad: ' + data.especialidad,
+      '🏥 Clínica: ' + data.clinica,
+      '🌐 Subdominio Elegido: ' + data.subdominio + '.dentaxy.com',
+      '',
+      '📁 Archivos en Drive:',
+      '- Logo: ' + logoUrl,
+      '- Historia Clínica: ' + historiaUrl,
+      '══════════════════════════════════',
+    ].join('\n');
+
+    MailApp.sendEmail({
+      to: ADMIN_EMAIL,
+      subject: subject,
+      body: body,
+      name: 'Dentaxy Seed Bot',
+    });
+  } catch(e) {}
 }
 
 /** Para pruebas GET desde el navegador */

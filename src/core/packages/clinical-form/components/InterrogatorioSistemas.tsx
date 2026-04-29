@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X, Copy, CheckCircle, Eraser } from "lucide-react";
 import { FormDataState } from '../types/historiaClinica';
 import { Label } from "@/components/ui/label";
@@ -687,30 +686,17 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
 
   return (
     <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-formulario-section="interrogatorio-sistemas">
-      <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
+      <div className="w-full bg-transparent">
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-1">
-              <button onClick={() => setShowForm(true)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
-                Formulario
-              </button>
-              <button onClick={() => setShowForm(false)} className={`px-5 py-1.5 rounded-full transition-all duration-300 text-sm ${!showForm ? "bg-blue-500 text-white shadow-md" : "text-gray-700 dark:text-gray-300"}`}>
-                Redacción IA
-              </button>
-            </div>
-          </div>
+            
 
           <div className="flex items-center gap-2">
-            <button onClick={handleMinimize} className="p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors">
-              <Minus className="w-4 h-4" />
-            </button>
-            <button onClick={handleMaximize} className="p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors">
-              <Maximize2 className="w-4 h-4" />
-            </button>
-            <button onClick={handleClose} className="p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors">
-              <X className="w-4 h-4" />
-            </button>
+            
+            
+            
           </div>
+        </div>{/* cierra flex justify-center */}
         </div>
 
         <div ref={redaccionesRef} className="flex justify-start px-6 py-2">
@@ -724,7 +710,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
             {showForm ? (
               <div className="space-y-6">
                 {/* APARATO DIGESTIVO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="text-lg font-semibold text-justify">Aparato Digestivo</h4>
                     <SintomasToggle 
@@ -864,7 +850,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                 {/* APARATO RESPIRATORIO */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="text-lg font-semibold text-justify">Aparato Respiratorio</h4>
                     <SintomasToggle 
@@ -927,7 +913,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                 {/* APARATO CARDIOVASCULAR */}
-                <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="text-lg font-semibold text-justify">Aparato Cardiovascular</h4>
                     <SintomasToggle 
@@ -1130,7 +1116,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                  {/* APARATO GENITO-URINARIO */}
-                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                 <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                    <div className="flex items-center justify-between mb-4">
                      <h4 className="text-lg font-semibold text-justify">Aparato Genito-Urinario</h4>
                      <SintomasToggle 
@@ -1242,7 +1228,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                  {/* SISTEMA ENDOCRINO */}
-                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                 <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                    <div className="flex items-center justify-between mb-4">
                      <h4 className="text-lg font-semibold text-justify">Sistema Endocrino</h4>
                      <SintomasToggle 
@@ -1323,7 +1309,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                  {/* SISTEMA TEGUMENTARIO */}
-                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                 <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                    <div className="flex items-center justify-between mb-4">
                      <h4 className="text-lg font-semibold text-justify">Sistema Tegumentario</h4>
                      <SintomasToggle 
@@ -1386,7 +1372,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                  {/* SISTEMA MÚSCULO-ESQUELÉTICO */}
-                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                 <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                    <div className="flex items-center justify-between mb-4">
                      <h4 className="text-lg font-semibold text-justify">Sistema Músculo-Esquelético</h4>
                      <SintomasToggle 
@@ -1454,7 +1440,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                  {/* SISTEMA NERVIOSO */}
-                 <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                 <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                    <div className="flex items-center justify-between mb-4">
                      <h4 className="text-lg font-semibold text-justify">Sistema Nervioso</h4>
                      <SintomasToggle 
@@ -1527,7 +1513,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                  <div className="flex justify-center pt-4">
-                  <Button onClick={generateAndUpdateRedacciones} className="bg-blue-500 hover:bg-blue-600 text-white">
+                  <Button onClick={generateAndUpdateRedacciones} className="bg-emerald-500 hover:bg-blue-600 text-white">
                     Generar Redacción IA
                   </Button>
                   <Button onClick={() => {
@@ -1638,10 +1624,10 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
             ) : (
               <div className="space-y-6">
                 {/* Redacción IA */}
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-transparent dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-lg font-semibold">Aparato Digestivo</h4>
-                    <button onClick={() => handleCopy('digestivo')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
+                    <button onClick={() => handleCopy('digestivo')} className="text-emerald-500 hover:text-blue-700 flex items-center gap-1">
                       {copied.digestivo ? (
                         <>
                           <CheckCircle className="w-4 h-4" />
@@ -1663,10 +1649,10 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                   />
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-transparent dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-lg font-semibold">Aparato Respiratorio</h4>
-                    <button onClick={() => handleCopy('respiratorio')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
+                    <button onClick={() => handleCopy('respiratorio')} className="text-emerald-500 hover:text-blue-700 flex items-center gap-1">
                       {copied.respiratorio ? (
                         <>
                           <CheckCircle className="w-4 h-4" />
@@ -1688,10 +1674,10 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                   />
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-transparent dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-lg font-semibold">Aparato Cardiovascular</h4>
-                    <button onClick={() => handleCopy('cardiovascular')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
+                    <button onClick={() => handleCopy('cardiovascular')} className="text-emerald-500 hover:text-blue-700 flex items-center gap-1">
                       {copied.cardiovascular ? (
                         <>
                           <CheckCircle className="w-4 h-4" />
@@ -1713,10 +1699,10 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                   />
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-transparent dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-lg font-semibold">Aparato Genito-Urinario</h4>
-                    <button onClick={() => handleCopy('genitoUrinario')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
+                    <button onClick={() => handleCopy('genitoUrinario')} className="text-emerald-500 hover:text-blue-700 flex items-center gap-1">
                       {copied.genitoUrinario ? (
                         <>
                           <CheckCircle className="w-4 h-4" />
@@ -1738,10 +1724,10 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                   />
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-transparent dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-lg font-semibold">Sistema Endocrino</h4>
-                    <button onClick={() => handleCopy('endocrino')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
+                    <button onClick={() => handleCopy('endocrino')} className="text-emerald-500 hover:text-blue-700 flex items-center gap-1">
                       {copied.endocrino ? (
                         <>
                           <CheckCircle className="w-4 h-4" />
@@ -1763,10 +1749,10 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                   />
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-transparent dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-lg font-semibold">Sistema Tegumentario</h4>
-                    <button onClick={() => handleCopy('tegumentario')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
+                    <button onClick={() => handleCopy('tegumentario')} className="text-emerald-500 hover:text-blue-700 flex items-center gap-1">
                       {copied.tegumentario ? (
                         <>
                           <CheckCircle className="w-4 h-4" />
@@ -1788,10 +1774,10 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                   />
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-transparent dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-lg font-semibold">Sistema Músculo-Esquelético</h4>
-                    <button onClick={() => handleCopy('musculoEsqueletico')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
+                    <button onClick={() => handleCopy('musculoEsqueletico')} className="text-emerald-500 hover:text-blue-700 flex items-center gap-1">
                       {copied.musculoEsqueletico ? (
                         <>
                           <CheckCircle className="w-4 h-4" />
@@ -1813,10 +1799,10 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                   />
                 </div>
 
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+                <div className="bg-transparent dark:bg-gray-900 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-lg font-semibold">Sistema Nervioso</h4>
-                    <button onClick={() => handleCopy('nervioso')} className="text-blue-500 hover:text-blue-700 flex items-center gap-1">
+                    <button onClick={() => handleCopy('nervioso')} className="text-emerald-500 hover:text-blue-700 flex items-center gap-1">
                       {copied.nervioso ? (
                         <>
                           <CheckCircle className="w-4 h-4" />
@@ -1839,7 +1825,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
                 </div>
 
                 <div className="flex justify-center">
-                  <Button onClick={() => setShowForm(true)} variant="outline" className="text-blue-500 border-blue-500">
+                  <Button onClick={() => setShowForm(true)} variant="outline" className="text-emerald-500 border-emerald-500">
                     Volver al Formulario
                   </Button>
                 </div>
@@ -1847,7 +1833,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
             )}
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

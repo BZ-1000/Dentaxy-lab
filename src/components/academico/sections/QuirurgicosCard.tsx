@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import AntecedentesQuirurgicos from '@/components/historia-clinica/AntecedentesQuirurgicos';
 
 interface QuirurgicosCardProps {
@@ -16,8 +15,8 @@ export const QuirurgicosCard: React.FC<QuirurgicosCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
-            <CardContent className="pt-6">
+        <div className="w-full bg-white">
+            <div className="w-full bg-white">
                 <div data-section="quirurgicos">
                     <AntecedentesQuirurgicos
                         formData={formData}
@@ -26,7 +25,7 @@ export const QuirurgicosCard: React.FC<QuirurgicosCardProps> = ({
                         onToggleViewMode={onToggleViewMode}
                     />
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 };

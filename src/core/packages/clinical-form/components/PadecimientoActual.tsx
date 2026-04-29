@@ -46,7 +46,7 @@ const ChatBubbleLabel = ({ children, icon: Icon }: { children: React.ReactNode, 
   <div className="flex items-start gap-3 mb-3 animate-in fade-in slide-in-from-left-4 duration-500">
     <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center -ml-1 -mt-1">
       {Icon ? (
-        <div className="w-full h-full flex items-center justify-center text-blue-500 dark:text-blue-400">
+        <div className="w-full h-full flex items-center justify-center text-emerald-500 dark:text-emerald-400">
           <Icon className="w-5 h-5" />
         </div>
       ) : (
@@ -100,7 +100,7 @@ const CopyButton = ({ textToCopy }: { textToCopy: string }) => {
         "h-9 px-3 transition-all duration-300",
         isCopied
           ? "text-green-600 bg-green-50 hover:text-green-600 hover:bg-green-50 dark:bg-green-900/30 dark:hover:bg-green-900/30" // Success: Forced Green (including hover)
-          : "text-zinc-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/20" // Hover: Blue as requested
+          : "text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/20" // Hover: Blue as requested
       )}
       onClick={() => {
         navigator.clipboard.writeText(textToCopy);
@@ -418,7 +418,7 @@ ${motivo}<br/><br/>
                 }
               }, 100); // Small delay to ensure state updates/UI shifts have started
             }}
-            className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+            className="hidden data-trigger-generation text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
           >
             <Sparkles className="w-4 h-4 mr-2" />
             Ver Redacción IA

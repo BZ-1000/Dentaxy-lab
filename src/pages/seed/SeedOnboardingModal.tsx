@@ -146,15 +146,31 @@ INSTRUCCIONES ESPECÍFICAS:
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// SERVICIO: Guardar en Supabase
+// SERVICIO: Guardar en Supabase y enviar a Google Apps Script
 // ─────────────────────────────────────────────────────────────────────────────
+
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzl6GEDxzlJddLzqJbq8ApTlLoNBOo5W2OOFEvIAKA7yu80aXSKZqjw4YP3w5brh7Pe/exec';
+
+const fileToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const base64String = (reader.result as string).split(',')[1];
+      resolve(base64String);
+    };
+    reader.onerror = error => reject(error);
+  });
+};
 
 async function saveProspect(data: OnboardingData, aiOutput: AiOutput | null): Promise<string | null> {
   try {
     let logoUrl: string | null = null;
     let historiaUrl: string | null = null;
+    let logoB64: string | null = null;
+    let historiaB64: string | null = null;
 
-    // Upload logo si existe
+    // Upload logo a Supabase (mantenemos para que la UI funcione si es necesario)
     if (data.clinicaLogo) {
       const ext = data.clinicaLogo.name.split('.').pop();
       const path = `logos/${Date.now()}-${data.subdominio}.${ext}`;
@@ -163,9 +179,10 @@ async function saveProspect(data: OnboardingData, aiOutput: AiOutput | null): Pr
         const { data: pub } = supabase.storage.from('seed-assets').getPublicUrl(path);
         logoUrl = pub.publicUrl;
       }
+      logoB64 = await fileToBase64(data.clinicaLogo);
     }
 
-    // Upload historia clínica si existe
+    // Upload historia clínica a Supabase
     if (data.historiaClinica) {
       const ext = data.historiaClinica.name.split('.').pop();
       const path = `historias/${Date.now()}-${data.subdominio}.${ext}`;
@@ -174,8 +191,10 @@ async function saveProspect(data: OnboardingData, aiOutput: AiOutput | null): Pr
         const { data: pub } = supabase.storage.from('seed-assets').getPublicUrl(path);
         historiaUrl = pub.publicUrl;
       }
+      historiaB64 = await fileToBase64(data.historiaClinica);
     }
 
+    // Insertar en Supabase db
     const { data: row, error } = await supabase
       .from('seed_prospects')
       .insert({
@@ -193,7 +212,36 @@ async function saveProspect(data: OnboardingData, aiOutput: AiOutput | null): Pr
       .select('id')
       .single();
 
-    if (error) console.error('Error guardando prospecto:', error);
+    if (error) console.error('Error guardando prospecto en Supabase:', error);
+
+    // Enviar al Google Apps Script webhook
+    try {
+      const payload = {
+        type: 'prospecto_seed',
+        nombre: data.googleName,
+        email: data.googleEmail,
+        especialidad: data.especialidad,
+        clinica: data.clinicaNombre,
+        subdominio: data.subdominio,
+        logoBase64: logoB64,
+        logoNombre: data.clinicaLogo?.name,
+        logoMime: data.clinicaLogo?.type,
+        historiaBase64: historiaB64,
+        historiaNombre: data.historiaClinica?.name,
+        historiaMime: data.historiaClinica?.type
+      };
+
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify(payload),
+        mode: 'no-cors'
+      });
+      console.log('Prospecto enviado a Google Apps Script.');
+    } catch (gasError) {
+      console.error('Error enviando a GAS:', gasError);
+    }
+
     return row?.id || null;
   } catch (e) {
     console.error('saveProspect error:', e);
@@ -218,7 +266,7 @@ const fadeSlide = {
 const StepEspecialidad: React.FC<{ value: string; onChange: (v: string) => void }> = ({ value, onChange }) => (
   <div className="space-y-4">
     <div className="text-center pb-1">
-      <div className="w-13 h-13 rounded-2xl bg-blue-50 flex items-center justify-center mx-auto mb-3 w-12 h-12">
+      <div className="w-13 h-13 rounded-2xl bg-zinc-50 flex items-center justify-center mx-auto mb-3 w-12 h-12">
         <span className="text-2xl">🦷</span>
       </div>
       <h3 className="text-2xl font-bold text-gray-900">¿Cuál es tu especialidad?</h3>
@@ -232,16 +280,16 @@ const StepEspecialidad: React.FC<{ value: string; onChange: (v: string) => void 
           className={cn(
             'flex items-center gap-4 px-4 py-3.5 rounded-2xl border-2 text-left transition-all duration-200 w-full',
             value === e.id
-              ? 'border-blue-500 bg-blue-50/70 shadow-sm shadow-blue-100'
-              : 'border-gray-100 hover:border-blue-200 hover:bg-gray-50/80'
+              ? 'border-zinc-900 bg-zinc-50/70 shadow-sm shadow-zinc-200'
+              : 'border-gray-100 hover:border-zinc-200 hover:bg-gray-50/80'
           )}
         >
           <span className="text-xl shrink-0">{e.emoji}</span>
           <div className="min-w-0 flex-1">
-            <p className={cn('font-semibold text-sm', value === e.id ? 'text-blue-700' : 'text-gray-800')}>{e.label}</p>
+            <p className={cn('font-semibold text-sm', value === e.id ? 'text-zinc-900' : 'text-gray-800')}>{e.label}</p>
             <p className="text-xs text-gray-400 truncate">{e.desc}</p>
           </div>
-          {value === e.id && <CheckCircle2 className="w-4 h-4 text-blue-500 shrink-0" />}
+          {value === e.id && <CheckCircle2 className="w-4 h-4 text-zinc-500 shrink-0" />}
         </button>
       ))}
     </div>
@@ -262,8 +310,8 @@ const StepClinica: React.FC<{
   return (
     <div className="space-y-5">
       <div className="text-center">
-        <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">
-          <Building2 className="w-6 h-6 text-indigo-600" />
+        <div className="w-12 h-12 rounded-2xl bg-zinc-50 flex items-center justify-center mx-auto mb-3">
+          <Building2 className="w-6 h-6 text-zinc-900" />
         </div>
         <h3 className="text-2xl font-bold text-gray-900">Tu consultorio</h3>
         <p className="text-sm text-gray-500 mt-1">El nombre y logo que aparecerán en tus expedientes</p>
@@ -274,7 +322,7 @@ const StepClinica: React.FC<{
           placeholder="Ej. Ortodoncia Soto, Clínica Dr. Hernández..."
           value={nombre}
           onChange={e => onNombre(e.target.value)}
-          className="h-12 rounded-xl border-2 border-gray-100 focus:border-indigo-400 text-base"
+          className="h-12 rounded-xl border-2 border-gray-100 focus:border-zinc-400 text-base"
         />
         {nombre.length > 0 && nombre.length < 3 && (
           <p className="text-xs text-amber-600 mt-1">Mínimo 3 caracteres</p>
@@ -286,7 +334,7 @@ const StepClinica: React.FC<{
           onClick={() => logoRef.current?.click()}
           className={cn(
             'w-full h-28 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 transition-all',
-            logo ? 'border-indigo-400 bg-indigo-50/40' : 'border-gray-200 hover:border-indigo-400 text-gray-400 hover:text-indigo-500'
+            logo ? 'border-zinc-400 bg-zinc-50/40' : 'border-gray-200 hover:border-zinc-400 text-gray-400 hover:text-zinc-500'
           )}
         >
           {previewUrl ? (
@@ -299,7 +347,7 @@ const StepClinica: React.FC<{
           )}
         </button>
         <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={e => onLogo(e.target.files?.[0] || null)} />
-        {logo && <p className="text-xs text-indigo-600 mt-1.5 font-medium">✓ {logo.name}</p>}
+        {logo && <p className="text-xs text-zinc-900 mt-1.5 font-medium">✓ {logo.name}</p>}
       </div>
     </div>
   );
@@ -319,8 +367,8 @@ const StepHistoria: React.FC<{
   return (
     <div className="space-y-5">
       <div className="text-center">
-        <div className="w-12 h-12 rounded-2xl bg-teal-50 flex items-center justify-center mx-auto mb-3">
-          <FileText className="w-6 h-6 text-teal-600" />
+        <div className="w-12 h-12 rounded-2xl bg-zinc-50 flex items-center justify-center mx-auto mb-3">
+          <FileText className="w-6 h-6 text-zinc-900" />
         </div>
         <h3 className="text-2xl font-bold text-gray-900">Tu historia clínica actual</h3>
         <p className="text-sm text-gray-500 mt-1 max-w-xs mx-auto">
@@ -332,14 +380,14 @@ const StepHistoria: React.FC<{
         onClick={() => fileRef.current?.click()}
         className={cn(
           'w-full h-36 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-3 transition-all',
-          file ? 'border-teal-400 bg-teal-50/40' : 'border-gray-200 hover:border-teal-400 text-gray-400 hover:text-teal-500'
+          file ? 'border-zinc-400 bg-zinc-50/40' : 'border-gray-200 hover:border-zinc-400 text-gray-400 hover:text-zinc-500'
         )}
       >
         {file ? (
           <div className="flex flex-col items-center gap-1.5">
-            <CheckCircle2 className="w-9 h-9 text-teal-500" />
+            <CheckCircle2 className="w-9 h-9 text-zinc-500" />
             <p className="text-sm font-semibold text-teal-700 px-4 truncate max-w-full">{file.name}</p>
-            <p className="text-xs text-teal-500">Toca para cambiar</p>
+            <p className="text-xs text-zinc-500">Toca para cambiar</p>
           </div>
         ) : (
           <>
@@ -361,16 +409,16 @@ const StepHistoria: React.FC<{
             initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             className={cn(
               'rounded-2xl px-4 py-3 flex items-center gap-3',
-              aiStatus === 'loading' ? 'bg-blue-50 border border-blue-100' :
+              aiStatus === 'loading' ? 'bg-zinc-50 border border-zinc-200' :
               aiStatus === 'done' ? 'bg-emerald-50 border border-emerald-100' :
               'bg-red-50 border border-red-100'
             )}
           >
             {aiStatus === 'loading' && (
-              <><Loader2 className="w-4 h-4 text-blue-500 animate-spin shrink-0" />
+              <><Loader2 className="w-4 h-4 text-zinc-500 animate-spin shrink-0" />
               <div>
-                <p className="text-xs font-bold text-blue-700">Motor IA trabajando...</p>
-                <p className="text-xs text-blue-500">Generando tus formularios personalizados</p>
+                <p className="text-xs font-bold text-zinc-900">Motor IA trabajando...</p>
+                <p className="text-xs text-zinc-500">Generando tus formularios personalizados</p>
               </div></>
             )}
             {aiStatus === 'done' && (
@@ -422,8 +470,8 @@ const StepSubdominio: React.FC<{
   return (
     <div className="space-y-5">
       <div className="text-center">
-        <div className="w-12 h-12 rounded-2xl bg-violet-50 flex items-center justify-center mx-auto mb-3">
-          <Globe className="w-6 h-6 text-violet-600" />
+        <div className="w-12 h-12 rounded-2xl bg-zinc-50 flex items-center justify-center mx-auto mb-3">
+          <Globe className="w-6 h-6 text-zinc-900" />
         </div>
         <h3 className="text-2xl font-bold text-gray-900">Tu espacio Dentaxy</h3>
         <p className="text-sm text-gray-500 mt-1">El nombre único de tu consultorio digital</p>
@@ -438,7 +486,7 @@ const StepSubdominio: React.FC<{
             ))}
           </div>
           <div className="flex-1 bg-white rounded-md px-3 py-1 text-xs font-mono border border-gray-200 flex items-center gap-1">
-            <span className={isValid ? 'text-violet-600 font-semibold' : 'text-gray-300'}>
+            <span className={isValid ? 'text-zinc-900 font-semibold' : 'text-gray-300'}>
               {isValid ? value : 'tu-consultorio'}
             </span>
             <span className="text-gray-400">.dentaxy.com</span>
@@ -449,7 +497,7 @@ const StepSubdominio: React.FC<{
             placeholder={aiSuggestion || 'mi-consultorio'}
             value={value}
             onChange={e => onChange(clean(e.target.value))}
-            className="font-mono text-sm rounded-xl border-2 border-gray-100 focus:border-violet-400"
+            className="font-mono text-sm rounded-xl border-2 border-gray-100 focus:border-zinc-400"
           />
           {value.length > 0 && value.length < 3 && (
             <p className="text-xs text-amber-600 mt-1.5">Mínimo 3 caracteres.</p>
@@ -468,7 +516,7 @@ const StepSubdominio: React.FC<{
         <motion.button
           initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
           onClick={onViewPreview}
-          className="w-full h-12 rounded-2xl border-2 border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-sm flex items-center justify-center gap-2 transition-all"
+          className="w-full h-12 rounded-2xl border-2 border-zinc-200 bg-zinc-50 hover:bg-zinc-100 text-zinc-900 font-bold text-sm flex items-center justify-center gap-2 transition-all"
         >
           <Eye className="w-4 h-4" />
           Ver mi Dentaxy Seed antes de comprar
@@ -503,7 +551,7 @@ const PreviewModal: React.FC<{
         className="bg-white w-full max-w-[720px] max-h-[90vh] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Header del preview */}
-        <div className="bg-gradient-to-r from-blue-700 to-blue-900 px-6 py-4 flex items-center justify-between shrink-0">
+        <div className="bg-gradient-to-r from-zinc-800 to-black px-6 py-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             {logoUrl ? (
               <img src={logoUrl} alt="Logo" className="w-10 h-10 rounded-xl object-contain bg-white p-1" />
@@ -532,12 +580,12 @@ const PreviewModal: React.FC<{
         <div className="flex-1 overflow-y-auto">
           {/* Bienvenida */}
           <div className="px-6 pt-5 pb-3">
-            <div className="rounded-2xl bg-blue-50 border border-blue-100 px-5 py-4">
+            <div className="rounded-2xl bg-zinc-50 border border-zinc-200 px-5 py-4">
               <div className="flex items-start gap-3">
-                <Brain className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                <Brain className="w-5 h-5 text-zinc-900 shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-1">Dentaxy AI</p>
-                  <p className="text-sm text-blue-800 font-medium">{aiOutput.bienvenida}</p>
+                  <p className="text-xs font-bold text-zinc-900 uppercase tracking-wide mb-1">Dentaxy AI</p>
+                  <p className="text-sm text-zinc-700 font-medium">{aiOutput.bienvenida}</p>
                 </div>
               </div>
             </div>
@@ -581,7 +629,7 @@ const PreviewModal: React.FC<{
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 shrink-0">
           <Button
             onClick={onClose}
-            className="w-full h-12 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold text-sm flex items-center justify-center gap-2"
+            className="w-full h-12 rounded-2xl bg-gradient-to-r from-zinc-800 to-black text-white font-bold text-sm flex items-center justify-center gap-2"
           >
             <Sparkles className="w-4 h-4" />
             ¡Quiero activar mi Dentaxy Seed!
@@ -632,21 +680,21 @@ const StepCheckout: React.FC<{
       </div>
 
       {/* Precio */}
-      <div className="rounded-2xl bg-blue-50 border border-blue-100 px-5 py-4 flex items-center justify-between">
+      <div className="rounded-2xl bg-zinc-50 border border-zinc-200 px-5 py-4 flex items-center justify-between">
         <div>
-          <p className="text-xs font-bold text-blue-700 uppercase tracking-wide">Preventa Exclusiva</p>
-          <p className="text-xs text-blue-500 mt-0.5">Incluye configuración personalizada + soporte</p>
+          <p className="text-xs font-bold text-zinc-900 uppercase tracking-wide">Preventa Exclusiva</p>
+          <p className="text-xs text-zinc-500 mt-0.5">Incluye configuración personalizada + soporte</p>
         </div>
         <div className="text-right">
-          <p className="text-3xl font-bold text-blue-700">$X,XXX</p>
-          <p className="text-xs text-blue-500">MXN · pago único</p>
+          <p className="text-3xl font-bold text-zinc-900">$X,XXX</p>
+          <p className="text-xs text-zinc-500">MXN · pago único</p>
         </div>
       </div>
 
       <Button
         onClick={onStripe}
         disabled={saving}
-        className="w-full h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold text-base shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2"
+        className="w-full h-14 rounded-2xl bg-gradient-to-r from-zinc-800 to-black text-white font-bold text-base shadow-lg shadow-zinc-500/10 flex items-center justify-center gap-2"
       >
         {saving ? (
           <><Loader2 className="w-5 h-5 animate-spin" />Preparando tu sistema...</>
@@ -767,15 +815,15 @@ export const SeedOnboardingModal: React.FC<SeedOnboardingModalProps> = ({
           {/* Progress Header */}
           <div className="px-7 pt-6 pb-3 shrink-0">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-bold text-blue-600 uppercase tracking-widest">
+              <p className="text-xs font-bold text-zinc-900 uppercase tracking-widest">
                 {step + 1}/{TOTAL_STEPS} · {STEP_TITLES[step]}
               </p>
               <div className="flex items-center gap-2">
                 {/* IA badge */}
                 {aiStatus === 'loading' && (
-                  <div className="flex items-center gap-1 bg-blue-50 rounded-full px-2.5 py-1">
-                    <Loader2 className="w-3 h-3 text-blue-500 animate-spin" />
-                    <span className="text-xs text-blue-600 font-bold">IA</span>
+                  <div className="flex items-center gap-1 bg-zinc-50 rounded-full px-2.5 py-1">
+                    <Loader2 className="w-3 h-3 text-zinc-500 animate-spin" />
+                    <span className="text-xs text-zinc-900 font-bold">IA</span>
                   </div>
                 )}
                 {aiStatus === 'done' && (
@@ -834,7 +882,7 @@ export const SeedOnboardingModal: React.FC<SeedOnboardingModalProps> = ({
                 className={cn(
                   'flex-1 h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2',
                   canNext()
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-200'
+                    ? 'bg-gradient-to-r from-zinc-800 to-black text-white shadow-lg shadow-blue-200'
                     : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                 )}
               >

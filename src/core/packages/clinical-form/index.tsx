@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HTMLTypewriterEffect } from './ui/HTMLTypewriterEffect';
+
 import { Loader2 } from 'lucide-react';
 import { FormDataState } from './types/historiaClinica';
 

@@ -63,10 +63,9 @@ export const AppleTypewriter: React.FC<AppleTypewriterProps> = ({
                     return (
                         <span
                             key={i}
-                            className="will-change-opacity"
                             style={{
                                 opacity: 0,
-                                animation: `apple-word-reveal 0.5s ease-out forwards ${myDelay}s`
+                                animation: `apple-word-reveal 0.3s ease-out forwards ${myDelay}s`
                             }}
                         >
                             {part}
@@ -101,8 +100,8 @@ export const AppleTypewriter: React.FC<AppleTypewriterProps> = ({
         <Component className={cn("leading-relaxed", className)}>
             <style>{`
         @keyframes apple-word-reveal {
-          0% { opacity: 0; transform: translateY(2px); filter: blur(2px); }
-          100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+          0% { opacity: 0; }
+          100% { opacity: 1; }
         }
       `}</style>
 

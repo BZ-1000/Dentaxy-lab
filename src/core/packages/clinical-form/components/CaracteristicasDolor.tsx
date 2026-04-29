@@ -245,7 +245,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
                 onChange={handleLocalizacionChange}
                 onKeyDown={e => handleKeyDown(defaultLocalizacion, e)}
                 placeholder={defaultLocalizacion}
-                className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify"
+                className="min-h-[100px] max-h-[200px] w-full resize-y bg-transparent dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify"
               />
               {localizacionText === defaultLocalizacion && (
                 <div className="absolute top-2 left-[115px] pointer-events-none">
@@ -305,7 +305,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
                 onChange={handleCausaProvocadoChange}
                 onKeyDown={e => handleKeyDown(defaultCausaProvocado, e)}
                 placeholder={defaultCausaProvocado}
-                className="min-h-[100px] max-h-[200px] w-full resize-y bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify"
+                className="min-h-[100px] max-h-[200px] w-full resize-y bg-transparent dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md text-justify"
               />
               {causaProvocadoText === defaultCausaProvocado && (
                 <div className="absolute top-2 left-[115px] pointer-events-none">

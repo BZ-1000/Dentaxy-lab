@@ -1,8 +1,9 @@
 
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { SeedOnboardingModal } from "./SeedOnboardingModal";
+import { supabase } from '@/integrations/supabase/client';
 import {
     FileText,
     Shield,
@@ -52,11 +53,11 @@ const scaleIn = {
 
 // Helper: icon bg that matches the icon color
 const iconBgMap: Record<string, string> = {
-    "text-icon-blue": "bg-blue-500/10",
+    "text-icon-blue": "bg-zinc-900/10",
     "text-icon-amber": "bg-amber-500/10",
     "text-icon-indigo": "bg-indigo-500/10",
     "text-icon-teal": "bg-teal-500/10",
-    "text-icon-rose": "bg-rose-500/10",
+    "text-icon-rose": "bg-zinc-300/10",
     "text-icon-slate": "bg-slate-500/10",
     "text-primary": "bg-primary/10",
 };
@@ -140,7 +141,7 @@ const HeroSection = () => {
                             onClick={() => document.getElementById('que-es')?.scrollIntoView({ behavior: 'smooth' })}
                             whileHover={{ scale: 1.05, boxShadow: "0 0 50px rgba(59, 130, 246, 0.6)" }}
                             whileTap={{ scale: 0.95 }}
-                            className="px-8 py-4 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold text-lg flex items-center gap-2 justify-center shadow-[0_0_30px_rgba(37,99,235,0.4)] animate-glow-pulse relative overflow-hidden"
+                            className="px-8 py-4 rounded-full bg-gradient-to-r from-zinc-800 to-black text-white font-semibold text-lg flex items-center gap-2 justify-center shadow-lg animate-glow-pulse relative overflow-hidden"
                         >
                             {/* Inner Light Effect */}
                             <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none" />
@@ -163,7 +164,7 @@ const HeroSection = () => {
                     transition={{ duration: 2, repeat: Infinity }}
                     className="w-6 h-10 rounded-full border-2 border-gray-300 flex items-start justify-center p-1"
                 >
-                    <motion.div className="w-1.5 h-3 rounded-full bg-blue-500" />
+                    <motion.div className="w-1.5 h-3 rounded-full bg-zinc-900" />
                 </motion.div>
             </motion.div>
         </section>
@@ -182,7 +183,7 @@ const WhatIsSection = () => (
                 className="max-w-4xl mx-auto text-center mb-20"
             >
                 <motion.div variants={fadeUp} className="mb-6">
-                    <span className="text-blue-500 text-sm font-semibold tracking-widest uppercase">
+                    <span className="text-zinc-500 text-sm font-semibold tracking-widest uppercase">
                         ¿Qué es Dentaxy Seed?
                     </span>
                 </motion.div>
@@ -230,13 +231,13 @@ const WhatIsSection = () => (
                 className="max-w-3xl mx-auto"
             >
                 <div className="glass-card glow-box rounded-3xl p-8 md:p-12 text-center">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center mx-auto mb-6">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-zinc-800 to-black flex items-center justify-center mx-auto mb-6">
                         <Sparkles className="w-8 h-8 text-white" />
                     </div>
                     <p className="text-xl md:text-2xl text-gray-900 leading-relaxed">
-                        Es la <span className="text-blue-600 font-semibold">transformación</span> de tu historia
+                        Es la <span className="text-zinc-900 font-semibold">transformación</span> de tu historia
                         clínica actual en un sistema inteligente que{" "}
-                        <span className="text-teal-600 font-semibold">trabaja por ti</span>, desde tu propio
+                        <span className="text-zinc-800 font-semibold">trabaja por ti</span>, desde tu propio
                         consultorio, respetando tu forma real de ejercer la clínica.
                     </p>
                 </div>
@@ -248,11 +249,11 @@ const WhatIsSection = () => (
 // What It Does Section
 const WhatItDoesSection = () => {
     const features = [
-        { icon: FileCheck, title: "Formularios clínicos", description: "Claros, estructurados y profesionales", color: "text-blue-500" },
-        { icon: PenTool, title: "Redacciones automáticas", description: "Precisas y listas para expediente", color: "text-indigo-500" },
-        { icon: Download, title: "Documentos descargables", description: "Finales en formato PDF", color: "text-teal-500" },
-        { icon: FolderOpen, title: "Sistema ordenado", description: "Organiza y archiva automáticamente", color: "text-amber-500" },
-        { icon: Cpu, title: "Lógica clínica digital", description: "Basada en tu propio estilo de trabajo", color: "text-rose-500" },
+        { icon: FileCheck, title: "Formularios clínicos", description: "Claros, estructurados y profesionales", color: "text-zinc-500" },
+        { icon: PenTool, title: "Redacciones automáticas", description: "Precisas y listas para expediente", color: "text-zinc-500" },
+        { icon: Download, title: "Documentos descargables", description: "Finales en formato PDF", color: "text-zinc-500" },
+        { icon: FolderOpen, title: "Sistema ordenado", description: "Organiza y archiva automáticamente", color: "text-zinc-500" },
+        { icon: Cpu, title: "Lógica clínica digital", description: "Basada en tu propio estilo de trabajo", color: "text-zinc-500" },
     ];
 
     return (
@@ -267,7 +268,7 @@ const WhatItDoesSection = () => {
                 >
                     <motion.span
                         variants={fadeUp}
-                        className="text-blue-600 text-sm font-semibold tracking-widest uppercase"
+                        className="text-zinc-900 text-sm font-semibold tracking-widest uppercase"
                     >
                         Capacidades
                     </motion.span>
@@ -298,7 +299,7 @@ const WhatItDoesSection = () => {
                             whileHover={{ y: -8, transition: { duration: 0.3 } }}
                             className="glass-card rounded-2xl p-6 text-center group"
                         >
-                            <div className={`w-14 h-14 rounded-xl ${iconBgMap[feature.color.replace('text-', 'text-icon-')] || 'bg-blue-500/10'} flex items-center justify-center mx-auto mb-4 transition-colors`}>
+                            <div className={`w-14 h-14 rounded-xl ${iconBgMap[feature.color.replace('text-', 'text-icon-')] || 'bg-zinc-900/10'} flex items-center justify-center mx-auto mb-4 transition-colors`}>
                                 <feature.icon className={`w-7 h-7 ${feature.color}`} />
                             </div>
                             <h3 className="font-semibold mb-2">{feature.title}</h3>
@@ -314,7 +315,7 @@ const WhatItDoesSection = () => {
                     className="text-center text-lg text-gray-500 mt-12"
                 >
                     Todo esto{" "}
-                    <span className="text-teal-600 font-medium">sin cambiar tu forma de trabajar</span>, solo
+                    <span className="text-zinc-800 font-medium">sin cambiar tu forma de trabajar</span>, solo
                     llevándola a un nivel más eficiente, seguro y profesional.
                 </motion.p>
             </div>
@@ -346,7 +347,7 @@ const ProblemSection = () => {
                     >
                         <motion.span
                             variants={fadeUp}
-                            className="text-rose-500 text-sm font-semibold tracking-widest uppercase"
+                            className="text-zinc-500 text-sm font-semibold tracking-widest uppercase"
                         >
                             El problema
                         </motion.span>
@@ -361,9 +362,9 @@ const ProblemSection = () => {
                                 <motion.div
                                     key={i}
                                     variants={fadeUp}
-                                    className="flex items-center gap-4 p-4 rounded-xl bg-rose-500/5 border border-rose-500/20"
+                                    className="flex items-center gap-4 p-4 rounded-xl bg-zinc-50 border border-zinc-200"
                                 >
-                                    <div className="w-2 h-2 rounded-full bg-rose-500" />
+                                    <div className="w-2 h-2 rounded-full bg-zinc-300" />
                                     <span className="text-gray-500">{problem}</span>
                                 </motion.div>
                             ))}
@@ -378,7 +379,7 @@ const ProblemSection = () => {
                         className="relative"
                     >
                         <div className="glass-card glow-box rounded-3xl p-8 md:p-12">
-                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center mb-6">
+                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-zinc-800 to-black flex items-center justify-center mb-6">
                                 <Zap className="w-8 h-8 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold mb-4">
@@ -399,7 +400,7 @@ const ProblemSection = () => {
 
 // How It Works Section
 const HowItWorksSection = () => {
-    const stepColors = ["text-blue-500", "text-indigo-500", "text-teal-500", "text-slate-500", "text-amber-500"];
+    const stepColors = ["text-zinc-500", "text-zinc-500", "text-zinc-500", "text-slate-500", "text-zinc-500"];
     const steps = [
         {
             number: "01",
@@ -455,7 +456,7 @@ const HowItWorksSection = () => {
                 >
                     <motion.span
                         variants={fadeUp}
-                        className="text-blue-600 text-sm font-semibold tracking-widest uppercase"
+                        className="text-zinc-900 text-sm font-semibold tracking-widest uppercase"
                     >
                         Proceso
                     </motion.span>
@@ -480,7 +481,7 @@ const HowItWorksSection = () => {
                         >
                             {/* Timeline */}
                             <div className="flex flex-col items-center">
-                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 text-white font-bold text-sm shrink-0">
+                                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-zinc-800 to-black text-white font-bold text-sm shrink-0">
                                     {step.number}
                                 </div>
                                 {i < steps.length - 1 && (
@@ -491,7 +492,7 @@ const HowItWorksSection = () => {
                             {/* Content */}
                             <div className="glass-card rounded-2xl p-6 md:p-8 flex-1 group hover:glow-box transition-shadow duration-500">
                                 <div className="flex items-start gap-4 mb-4">
-                                    <div className={`w-12 h-12 rounded-xl ${iconBgMap[stepColors[i].replace('text-', 'text-icon-')] || 'bg-blue-500/10'} flex items-center justify-center shrink-0 transition-colors`}>
+                                    <div className={`w-12 h-12 rounded-xl ${iconBgMap[stepColors[i].replace('text-', 'text-icon-')] || 'bg-zinc-900/10'} flex items-center justify-center shrink-0 transition-colors`}>
                                         <step.icon className={`w-6 h-6 ${stepColors[i]}`} />
                                     </div>
                                     <div>
@@ -499,8 +500,8 @@ const HowItWorksSection = () => {
                                         <p className="text-gray-500">{step.description}</p>
                                     </div>
                                 </div>
-                                <div className="ml-16 mt-4 px-4 py-3 rounded-lg bg-blue-500/10 border-l-2 border-blue-500">
-                                    <p className="text-blue-600 font-medium text-sm">
+                                <div className="ml-16 mt-4 px-4 py-3 rounded-lg bg-zinc-900/10 border-l-2 border-blue-500">
+                                    <p className="text-zinc-900 font-medium text-sm">
                                         👉 {step.highlight}
                                     </p>
                                 </div>
@@ -524,7 +525,7 @@ const EnvironmentSection = () => (
                     viewport={{ once: true }}
                     transition={{ duration: 0.6 }}
                 >
-                    <span className="text-blue-600 text-sm font-semibold tracking-widest uppercase">
+                    <span className="text-zinc-900 text-sm font-semibold tracking-widest uppercase">
                         Tu espacio
                     </span>
                     <h2 className="text-4xl md:text-5xl font-bold mt-4 mb-6">
@@ -537,7 +538,7 @@ const EnvironmentSection = () => (
 
                     <div className="glass-card rounded-2xl p-6 mb-8 inline-block">
                         <div className="flex items-center gap-2 text-lg">
-                            <Globe className="w-5 h-5 text-blue-500" />
+                            <Globe className="w-5 h-5 text-zinc-500" />
                             <span className="text-gray-500">tu-consultorio</span>
                             <span className="gradient-text font-bold">.dentaxy.com</span>
                         </div>
@@ -558,7 +559,7 @@ const EnvironmentSection = () => (
                                 transition={{ delay: i * 0.1 }}
                                 className="flex items-center gap-3"
                             >
-                                <CheckCircle className="w-5 h-5 text-teal-600 shrink-0" />
+                                <CheckCircle className="w-5 h-5 text-zinc-800 shrink-0" />
                                 <span>{item}</span>
                             </motion.div>
                         ))}
@@ -596,7 +597,7 @@ const SecuritySection = () => (
             >
                 <motion.span
                     variants={fadeUp}
-                    className="text-blue-600 text-sm font-semibold tracking-widest uppercase"
+                    className="text-zinc-900 text-sm font-semibold tracking-widest uppercase"
                 >
                     Protección
                 </motion.span>
@@ -610,10 +611,10 @@ const SecuritySection = () => (
 
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto mb-16">
                 {[
-                    { icon: MapPin, title: "Validación por ubicación", description: "El acceso se valida desde tu consultorio autorizado", color: "text-blue-500" },
-                    { icon: Lock, title: "Reconocimiento clínico", description: "El sistema reconoce cuándo estás dentro de tu clínica", color: "text-indigo-500" },
-                    { icon: Shield, title: "Restricción externa", description: "Fuera de esa zona, el acceso se restringe automáticamente", color: "text-teal-500" },
-                    { icon: CheckCircle, title: "Validación adicional", description: "En accesos externos, se solicita validación del doctor", color: "text-teal-500" },
+                    { icon: MapPin, title: "Validación por ubicación", description: "El acceso se valida desde tu consultorio autorizado", color: "text-zinc-500" },
+                    { icon: Lock, title: "Reconocimiento clínico", description: "El sistema reconoce cuándo estás dentro de tu clínica", color: "text-zinc-500" },
+                    { icon: Shield, title: "Restricción externa", description: "Fuera de esa zona, el acceso se restringe automáticamente", color: "text-zinc-500" },
+                    { icon: CheckCircle, title: "Validación adicional", description: "En accesos externos, se solicita validación del doctor", color: "text-zinc-500" },
                 ].map((item, i) => (
                     <motion.div
                         key={i}
@@ -623,7 +624,7 @@ const SecuritySection = () => (
                         transition={{ delay: i * 0.1 }}
                         className="glass-card rounded-2xl p-6 text-center"
                     >
-                        <div className={`w-14 h-14 rounded-xl ${iconBgMap[item.color.replace('text-', 'text-icon-')] || 'bg-blue-500/10'} flex items-center justify-center mx-auto mb-4`}>
+                        <div className={`w-14 h-14 rounded-xl ${iconBgMap[item.color.replace('text-', 'text-icon-')] || 'bg-zinc-900/10'} flex items-center justify-center mx-auto mb-4`}>
                             <item.icon className={`w-7 h-7 ${item.color}`} />
                         </div>
                         <h3 className="font-semibold mb-2">{item.title}</h3>
@@ -641,7 +642,7 @@ const SecuritySection = () => (
             >
                 <div className="glass-card glow-box rounded-3xl p-8 md:p-12">
                     <div className="flex flex-col md:flex-row items-center gap-8">
-                        <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shrink-0 shadow-xl shadow-blue-500/25">
+                        <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-zinc-800 to-black flex items-center justify-center shrink-0 shadow-xl shadow-zinc-500/10">
                             <FolderSync className="w-12 h-12 text-white" />
                         </div>
                         <div className="text-center md:text-left">
@@ -650,19 +651,19 @@ const SecuritySection = () => (
                             </h3>
                             <ul className="space-y-3 text-gray-500">
                                 <li className="flex items-start gap-2">
-                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                                    <CheckCircle className="w-4 h-4 text-zinc-800 shrink-0 mt-0.5" />
                                     <span>Se <strong className="text-gray-700">generan localmente</strong> en tu dispositivo — sin conexión a nuestros servidores</span>
                                 </li>
                                 <li className="flex items-start gap-2">
-                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
-                                    <span>Se guardan automáticamente en <strong className="text-blue-600">tu Google Drive personal</strong> bajo la carpeta <code className="text-xs bg-blue-50 px-1.5 py-0.5 rounded text-blue-700">Dentaxy Seed / Expedientes /</code></span>
+                                    <CheckCircle className="w-4 h-4 text-zinc-800 shrink-0 mt-0.5" />
+                                    <span>Se guardan automáticamente en <strong className="text-zinc-900">tu Google Drive personal</strong> bajo la carpeta <code className="text-xs bg-zinc-100 px-1.5 py-0.5 rounded text-zinc-900">Dentaxy Seed / Expedientes /</code></span>
                                 </li>
                                 <li className="flex items-start gap-2">
-                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                                    <CheckCircle className="w-4 h-4 text-zinc-800 shrink-0 mt-0.5" />
                                     <span>Organizados por <strong className="text-gray-700">folio de expediente y nombre del paciente</strong> automáticamente</span>
                                 </li>
                                 <li className="flex items-start gap-2">
-                                    <CheckCircle className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                                    <CheckCircle className="w-4 h-4 text-zinc-800 shrink-0 mt-0.5" />
                                     <span>Dentaxy <strong className="text-gray-700">nunca almacena</strong> los datos clínicos de tus pacientes</span>
                                 </li>
                             </ul>
@@ -671,9 +672,9 @@ const SecuritySection = () => (
                     <div className="mt-8 pt-8 border-t border-gray-200">
                         <div className="grid md:grid-cols-3 gap-4 text-center">
                             {[
-                                { label: 'Tu Google Drive', desc: 'Tus datos, tu nube', color: 'text-blue-600' },
-                                { label: 'Soberanía Total', desc: 'Nunca en nuestros servidores', color: 'text-teal-600' },
-                                { label: 'Sin instalaciones', desc: 'Todo desde el navegador', color: 'text-indigo-600' },
+                                { label: 'Tu Google Drive', desc: 'Tus datos, tu nube', color: 'text-zinc-900' },
+                                { label: 'Soberanía Total', desc: 'Nunca en nuestros servidores', color: 'text-zinc-800' },
+                                { label: 'Sin instalaciones', desc: 'Todo desde el navegador', color: 'text-zinc-800' },
                             ].map((item, i) => (
                                 <div key={i} className="p-3 rounded-xl bg-gray-50">
                                     <p className={`font-bold ${item.color}`}>{item.label}</p>
@@ -701,7 +702,7 @@ const GrowthSection = () => (
             >
                 <motion.span
                     variants={fadeUp}
-                    className="text-blue-600 text-sm font-semibold tracking-widest uppercase"
+                    className="text-zinc-900 text-sm font-semibold tracking-widest uppercase"
                 >
                     Escalabilidad
                 </motion.span>
@@ -723,12 +724,12 @@ const GrowthSection = () => (
 
             <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                 {[
-                    { icon: Zap, title: "Automatización avanzada", color: "text-amber-500" },
-                    { icon: Layers, title: "Nuevos módulos Dentaxy", color: "text-indigo-500" },
-                    { icon: Calendar, title: "Agenda clínica", color: "text-blue-500" },
-                    { icon: Users, title: "Usuarios adicionales", color: "text-teal-500" },
+                    { icon: Zap, title: "Automatización avanzada", color: "text-zinc-500" },
+                    { icon: Layers, title: "Nuevos módulos Dentaxy", color: "text-zinc-500" },
+                    { icon: Calendar, title: "Agenda clínica", color: "text-zinc-500" },
+                    { icon: Users, title: "Usuarios adicionales", color: "text-zinc-500" },
                     { icon: Settings, title: "Expansión de funciones", color: "text-slate-500" },
-                    { icon: Globe, title: "Integración con otros sistemas", color: "text-rose-500" },
+                    { icon: Globe, title: "Integración con otros sistemas", color: "text-zinc-500" },
                 ].map((item, i) => (
                     <motion.div
                         key={i}
@@ -763,9 +764,9 @@ const CTASection = ({ onCTA }: CTASectionProps) => (
                 className="max-w-4xl mx-auto text-center"
             >
                 <div className="glass-card glow-box rounded-3xl p-8 md:p-16">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-full mb-6">
-                        <span className="animate-ping inline-flex h-2 w-2 rounded-full bg-blue-500 opacity-75" />
-                        <span className="text-blue-700 text-sm font-bold tracking-wide">PREVENTA ACTIVA · CUPOS LIMITADOS</span>
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-zinc-100 rounded-full mb-6">
+                        <span className="animate-ping inline-flex h-2 w-2 rounded-full bg-zinc-900 opacity-75" />
+                        <span className="text-zinc-900 text-sm font-bold tracking-wide">PREVENTA ACTIVA · CUPOS LIMITADOS</span>
                     </div>
                     <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
                         <span className="text-gray-900">Dentaxy</span>{" "}
@@ -774,14 +775,14 @@ const CTASection = ({ onCTA }: CTASectionProps) => (
                     </h2>
                     <p className="text-xl text-gray-500 mb-4">
                         Que escribe, organiza y protege tu práctica clínica —
-                        sincronizado silenciosamente con <strong className="text-blue-600">tu Google Drive</strong>.
+                        sincronizado silenciosamente con <strong className="text-zinc-900">tu Google Drive</strong>.
                     </p>
                     <p className="text-sm text-gray-400 mb-10">Sin instalar nada. Sin cambiar tu forma de trabajar. Sin almacenar nada en nuestros servidores.</p>
                     <motion.button
                         onClick={onCTA}
                         whileHover={{ scale: 1.05, boxShadow: "0 0 60px rgba(59, 130, 246, 0.6)" }}
                         whileTap={{ scale: 0.95 }}
-                        className="px-10 py-5 rounded-full bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold text-lg shadow-[0_0_40px_rgba(37,99,235,0.4)] animate-glow-pulse relative overflow-hidden inline-flex items-center gap-3"
+                        className="px-10 py-5 rounded-full bg-gradient-to-r from-zinc-800 to-black text-white font-bold text-lg shadow-xl animate-glow-pulse relative overflow-hidden inline-flex items-center gap-3"
                     >
                         <div className="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none" />
                         <Sparkles className="w-5 h-5" />
@@ -799,10 +800,37 @@ const CTASection = ({ onCTA }: CTASectionProps) => (
 const SeedLanding = () => {
     const navigate = useNavigate();
     const [onboardingOpen, setOnboardingOpen] = useState(false);
+    const [seedUser, setSeedUser] = useState<any>(null);
 
-    // Leer usuario logeado del sessionStorage (puesto en SeedLogin)
-    const rawUser = sessionStorage.getItem('seed_user');
-    const seedUser = rawUser ? JSON.parse(rawUser) : null;
+    // Leer usuario logeado desde Supabase Auth en lugar de sessionStorage
+    useEffect(() => {
+        const getSession = async () => {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error || !session?.user) {
+                navigate('/seed', { replace: true });
+            } else {
+                setSeedUser({
+                    email: session.user.email,
+                    name: session.user.user_metadata?.full_name || session.user.email
+                });
+            }
+        };
+        getSession();
+        
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (session?.user) {
+                setSeedUser({
+                    email: session.user.email,
+                    name: session.user.user_metadata?.full_name || session.user.email
+                });
+            } else {
+                setSeedUser(null);
+                navigate('/seed', { replace: true });
+            }
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
 
     return (
         <div className="seed-theme min-h-screen bg-white text-gray-900 overflow-x-hidden font-sans">
@@ -811,6 +839,7 @@ const SeedLanding = () => {
                 isOpen={onboardingOpen}
                 onClose={() => setOnboardingOpen(false)}
                 userEmail={seedUser?.email || ''}
+                userName={seedUser?.name || ''}
             />
 
             {/* Header */}
@@ -836,7 +865,7 @@ const SeedLanding = () => {
 
             {/* Back to Home Link */}
             <div className="py-12 text-center">
-                <a href="/" className="text-blue-500 font-bold hover:underline">Volver a Dentaxy Principal</a>
+                <a href="/" className="text-zinc-500 font-bold hover:underline">Volver a Dentaxy Principal</a>
             </div>
         </div>
     );

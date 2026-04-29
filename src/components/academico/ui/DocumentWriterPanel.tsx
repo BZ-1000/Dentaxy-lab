@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, FileText, Minimize2, Maximize2 } from 'lucide-react';
+import { X, Minimize2, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { FormDataState } from '@/types/historiaClinica';
+import parse from 'html-react-parser';
 import { AppleTypewriter } from '@/components/ui/AppleTypewriter';
 
 interface DocumentWriterPanelProps {
+  formData?: FormDataState;
   generations: Record<string, string | React.ReactNode>;
   seccionesActivas: Array<{ id: string, nombre: string }>;
   onClose: () => void;
@@ -14,12 +17,43 @@ interface DocumentWriterPanelProps {
 }
 
 export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
+  formData,
   generations,
   seccionesActivas,
   onClose,
   isExpanded,
   onToggleExpand
 }) => {
+  // Datos reactivos del paciente
+  const nombrePaciente = formData?.datosGenerales?.nombreCompleto || '______________________';
+  
+  // Fecha actual formateada
+  const today = new Date();
+  const fechaHoy = today.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  const statusActivo = Object.keys(generations).length > 0;
+  const statusText = statusActivo ? "EN REDACCIÓN" : "ESPERANDO...";
+
+  // Referencias y efecto para autoscroll
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const prevGenerationsLength = useRef(0);
+
+  useEffect(() => {
+    const currentLength = Object.keys(generations).length;
+    if (currentLength > prevGenerationsLength.current) {
+      const activeIds = seccionesActivas.filter(s => generations[s.id]).map(s => s.id);
+      if (activeIds.length > 0) {
+        const lastId = activeIds[activeIds.length - 1];
+        const el = document.getElementById(`doc-section-${lastId}`);
+        if (el) {
+          setTimeout(() => {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        }
+      }
+    }
+    prevGenerationsLength.current = currentLength;
+  }, [generations, seccionesActivas]);
+
   return (
     <motion.div
       initial={{ x: '100%', opacity: 0 }}
@@ -27,68 +61,147 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
       exit={{ x: '100%', opacity: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className={cn(
-        "h-full bg-slate-50 dark:bg-zinc-950 border-l border-border relative flex flex-col shadow-2xl z-40 transition-all duration-500 will-change-[width]",
-        isExpanded ? "w-1/2" : "w-1/3 min-w-[400px]"
+        "h-full bg-white border-l border-zinc-100 relative flex flex-col shadow-2xl z-40 transition-all duration-500 will-change-[width]",
+        isExpanded ? "w-1/2" : "w-[45%] min-w-[500px]"
       )}
     >
-      {/* Header */}
-      <div className="h-14 flex items-center justify-between px-4 border-b border-border/50 bg-white/50 dark:bg-zinc-900/50 backdrop-blur">
-        <div className="flex items-center gap-2 text-primary font-medium">
-          <FileText className="w-4 h-4 text-emerald-500" />
-          <span className="text-sm">Documento Clínico</span>
-        </div>
+      {/* System Header */}
+      <div className="h-12 flex items-center justify-between px-4 border-b border-zinc-100 bg-white z-10 shrink-0">
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={onToggleExpand} className="h-8 w-8 text-muted-foreground hover:text-foreground">
-            {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          <span className="text-[11px] uppercase tracking-widest text-zinc-400 font-semibold">Documento Automático</span>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" onClick={onToggleExpand} className="h-7 w-7 text-zinc-300 hover:text-zinc-700">
+            {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </Button>
-          <Button variant="ghost" size="icon" onClick={onClose} className="h-8 w-8 text-muted-foreground hover:text-red-500">
+          <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7 text-zinc-300 hover:text-red-400">
             <X className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
-      {/* Pages / Document Area */}
-      <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-zinc-100 dark:bg-black/40 custom-scrollbar">
-        {/* Render a physical paper look */}
-        <div className="bg-white dark:bg-zinc-900 w-full min-h-[800px] shadow-sm ring-1 ring-black/5 dark:ring-white/10 p-8 md:p-12 font-mplus prose prose-sm dark:prose-invert max-w-none text-zinc-800 dark:text-zinc-200">
-          
-          {/* Header of paper */}
-          <div className="border-b-2 border-black/10 dark:border-white/10 pb-4 mb-8 text-center text-xs uppercase tracking-widest text-zinc-500">
-            Historia Clínica
-          </div>
+      {/* Pages / Document Area — fondo blanco puro, scrollbar fantasma */}
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-10 scroll-smooth dentaxy-scrollbar"
+      >
+        {/* HOJA FÍSICA — sin bordes visibles, un solo plano blanco */}
+        <div
+          className="mx-auto bg-white font-mplus"
+          style={{
+            width: '100%',
+            maxWidth: '860px',
+            color: '#0f0f0f',
+            padding: '48px 40px 120px',
+          }}
+        >
+          {/* HEADER DEL DOCUMENTO CLÍNICO */}
+          <header className="border-b border-zinc-200 pb-8 mb-10">
+            <div className="flex items-start justify-between gap-6">
+              <div className="flex flex-col gap-1">
+                <div className="text-[22px] font-light tracking-tight text-zinc-900">
+                  Consultorio Odontológico
+                </div>
+                <div className="font-mono text-[11px] text-zinc-400 tracking-widest uppercase">
+                  Céd. Prof. 0000000 | Zacatecas, Mx.
+                </div>
+              </div>
 
+              {/* Logo Dentaxy Technologies — real, clickeable */}
+              <a
+                href="https://dentaxy.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2.5 shrink-0 opacity-70 hover:opacity-100 transition-opacity cursor-pointer group"
+                title="Dentaxy Technologies"
+              >
+                <img
+                  src="/brand/dentaxy-icon-solid.webp"
+                  alt="Dentaxy Technologies"
+                  className="w-8 h-8 object-contain group-hover:scale-105 transition-transform"
+                />
+                <div className="flex flex-col leading-tight">
+                  <span className="font-semibold text-[11px] tracking-widest uppercase text-zinc-700">Dentaxy</span>
+                  <span className="text-[9px] tracking-[0.12em] uppercase text-zinc-400 font-light">Technologies</span>
+                </div>
+              </a>
+            </div>
+
+            {/* Meta Strip */}
+            <div className="mt-7 grid grid-cols-4 border border-zinc-100 rounded-lg overflow-hidden">
+              <div className="p-2.5 px-4 border-r border-zinc-100">
+                <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Folio</div>
+                <div className="text-[13px] font-medium text-zinc-800">EXP-2026-001</div>
+              </div>
+              <div className="p-2.5 px-4 border-r border-zinc-100">
+                <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Fecha</div>
+                <div className="text-[13px] font-medium text-zinc-800">{fechaHoy}</div>
+              </div>
+              <div className="p-2.5 px-4 border-r border-zinc-100">
+                <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Paciente</div>
+                <div className="text-[13px] font-medium text-zinc-800 uppercase truncate" title={nombrePaciente}>{nombrePaciente}</div>
+              </div>
+              <div className="p-2.5 px-4">
+                <div className="font-mono text-[9px] font-semibold tracking-[0.14em] uppercase text-zinc-400 mb-1">Estatus</div>
+                <div className={cn(
+                  "text-[12px] font-bold tracking-wide flex items-center gap-1.5",
+                  statusActivo ? "text-emerald-500" : "text-zinc-300"
+                )}>
+                  {statusActivo && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_6px_2px_rgba(52,211,153,0.7)]" />
+                  )}
+                  {statusText}
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* MAIN DOCUMENT CONTENT */}
           {Object.keys(generations).length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center opacity-40 py-20 text-center">
-              <FileText className="w-12 h-12 mb-4" />
-              <p>El documento mágico está listo.</p>
-              <p className="text-xs">Presiona Siguiente para comenzar a redactar.</p>
+            <div className="flex flex-col items-center justify-center opacity-20 py-20 text-center">
+              <p className="text-sm font-light text-zinc-500">Inicia la redacción en el panel izquierdo.</p>
             </div>
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-10">
               {seccionesActivas.map(seccion => {
                 const content = generations[seccion.id];
                 if (!content) return null;
-                
+
                 return (
-                  <div key={seccion.id} className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-primary mb-4 border-l-2 border-primary pl-3 bg-primary/5 py-1">
-                      {seccion.nombre.replace(/^[MDCLXVI]+\.\s/, '')}
-                    </h3>
-                    
-                    {/* Render Content */}
-                    <div className="text-justify leading-relaxed">
+                  <section
+                    id={`doc-section-${seccion.id}`}
+                    key={seccion.id}
+                    className="animate-in fade-in slide-in-from-bottom-4 duration-700"
+                  >
+                    {/* Título de sección — estilo expediente clínico de referencia */}
+                    <div className="flex items-center gap-2 mb-4">
+                      <p className="font-mono text-[11px] text-zinc-400 tracking-[0.12em]">
+                        {String(seccionesActivas.findIndex(s => s.id === seccion.id) + 1).padStart(2, '0')}
+                      </p>
+                      <h2 className="text-[17px] font-semibold tracking-tight text-zinc-900 border-l-[3px] border-zinc-900 pl-[14px] leading-snug m-0">
+                        {seccion.nombre.replace(/^\d+\.\s*/, '')}
+                      </h2>
+                    </div>
+
+                    {/* Contenido de la redacción */}
+                    <div className="prose max-w-none text-[15px] leading-relaxed text-zinc-700 text-justify font-mplus">
                       {typeof content === 'string' ? (
-                          <div dangerouslySetInnerHTML={{ __html: content }} />
+                        seccion.id === 'odontograma' ? (
+                          <div className="overflow-x-auto">{parse(content)}</div>
+                        ) : (
+                          <AppleTypewriter speed={0.8} delay={0.2}>
+                            {parse(content)}
+                          </AppleTypewriter>
+                        )
                       ) : (
-                          <>{content}</>
+                        <>{content}</>
                       )}
                     </div>
-                  </div>
+                  </section>
                 );
               })}
             </div>
           )}
-
         </div>
       </div>
     </motion.div>

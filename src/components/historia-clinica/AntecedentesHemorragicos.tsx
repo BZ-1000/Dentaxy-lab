@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Sparkles } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
@@ -51,7 +50,7 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
     // Remove timeout
-    let content = "ANTECEDENTES HEMORRÁGICOS:\n\n";
+    let content = "";
 
     if (formData.antecedentesHemorragicos.transfusiones === 'si' || formData.antecedentesHemorragicos.transfusionPrevia) {
       content += "El paciente ha recibido transfusiones sanguíneas o derivados. ";
@@ -66,7 +65,7 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
     }
 
     if (formData.antecedentesHemorragicos.sangradoProlongado === 'si') {
-      content += "\nRefiere episodios de sangrado prolongado. ";
+      content += "<br/>Refiere episodios de sangrado prolongado. ";
     }
     if (formData.antecedentesHemorragicos.hematomas === 'si') {
       content += "Presenta tendencia a desarrollar hematomas. ";
@@ -75,7 +74,7 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
       content += "Ha experimentado hemorragias espontáneas. ";
     }
     if (formData.antecedentesHemorragicos.detallesAdicionales) {
-      content += `\n\nDetalles adicionales: ${formData.antecedentesHemorragicos.detallesAdicionales}`;
+      content += `<br/><br/>Detalles adicionales: ${formData.antecedentesHemorragicos.detallesAdicionales}`;
     }
     setRedaccionContent(content);
     if (onRedaccionGenerada) {
@@ -90,48 +89,18 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
   };
 
   return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="antecedentesHemorragicos" data-formulario-section="antecedentes-hemorragicos">
-    <Card className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}>
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex justify-center w-full">
-          <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-            <button className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${activeTab === 'formulario' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`} onClick={() => setActiveTab('formulario')}>
-              Formulario
-            </button>
-            <button className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${activeTab === 'redaccion' ? 'bg-blue-500 text-white shadow-md' : 'text-gray-700 dark:text-gray-300'}`} onClick={() => setActiveTab('redaccion')}>
-              Redacción IA
-            </button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1 sm:gap-2">
-          <button onClick={handleMinimize} className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors" type="button">
-            <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <button onClick={handleMaximize} className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors" type="button">
-            <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-          <button onClick={handleClose} className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors" type="button">
-            <X className="w-3 h-3 sm:w-4 sm:h-4" />
-          </button>
-        </div>
-      </div>
-
-      <div className="flex justify-start px-6 py-2">
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          <span className="text-gray-400">VII.</span> ANTECEDENTES HEMORRÁGICOS
-        </h2>
-      </div>
+    <div className="w-full bg-transparent">
 
       {!isMinimized && <>
         {activeTab === 'formulario' ? <div className="p-6">
           <div className="space-y-6">
             <div>
-              <h3 className="text-md font-medium mb-2">¿Le han transfundido sangre o algún derivado de la misma?</h3>
+              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">¿Le han transfundido sangre o algún derivado de la misma?</h3>
               <div className="flex gap-2 sm:gap-4">
-                <button className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm transition-colors ${formData.antecedentesHemorragicos.transfusionPrevia ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => handleBooleanChange('transfusionPrevia', true)}>
+                <button className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesHemorragicos.transfusionPrevia ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`} onClick={() => handleBooleanChange('transfusionPrevia', true)}>
                   Sí
                 </button>
-                <button className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-md text-xs sm:text-sm transition-colors ${formData.antecedentesHemorragicos.transfusionPrevia === false ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`} onClick={() => handleBooleanChange('transfusionPrevia', false)}>
+                <button className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesHemorragicos.transfusionPrevia === false ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`} onClick={() => handleBooleanChange('transfusionPrevia', false)}>
                   No
                 </button>
               </div>
@@ -140,7 +109,7 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
             {formData.antecedentesHemorragicos.transfusionPrevia && (
               <>
                 <div className="relative">
-                  <label className="block text-sm font-medium mb-1">Motivo de la transfusión:</label>
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Motivo de la transfusión:</label>
                   <div className="flex items-center gap-2 sm:gap-4">
                     <Textarea value={formData.antecedentesHemorragicos.motivoTransfusion || ''} onChange={e => handleTextChange('motivoTransfusion', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
                     <div className="h-8 sm:h-10">
@@ -150,7 +119,7 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                 </div>
 
                 <div className="relative">
-                  <label className="block text-sm font-medium mb-1">Fecha de la transfusión:</label>
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Fecha de la transfusión:</label>
                   <div className="flex items-center gap-2 sm:gap-4">
                     <Textarea value={formData.antecedentesHemorragicos.fechaTransfusion || ''} onChange={e => handleTextChange('fechaTransfusion', e.target.value)} placeholder="DD/MM/AAAA o especifique aproximadamente" className="min-h-[60px] flex-1" />
                     <div className="h-8 sm:h-10">
@@ -171,28 +140,18 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
               </div>
             </div>
 
-            <div className="flex justify-center mt-6">
-              {onToggleViewMode && (
-                <Button
-                  variant="outline"
-                  onClick={generateRedaccion}
-                  className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Ver Redacción IA
-                </Button>
-              )}
+            <div className="flex justify-end items-center gap-3 pt-6 mt-6 border-t border-gray-100 dark:border-gray-700/50">
             </div>
           </div>
         </div> : <div className="p-6">
-          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" style={{
+          <div className="bg-transparent dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" style={{
             whiteSpace: 'pre-wrap'
           }} data-redaction-content>
             {redaccionContent || "No se ha generado redacción aún. Utilice el botón 'Generar Redacción IA' en la pestaña de Formulario."}
           </div>
         </div>}
       </>}
-    </Card>
+    </div>
   </div>;
 };
 

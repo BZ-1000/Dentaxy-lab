@@ -169,9 +169,9 @@ const FormulariosSidebar = ({
   return <div className="">
       <div className="hidden md:block md:sticky md:top-4 md:self-start h-fit">
         <Sidebar open={open} setOpen={setOpen} animate={true}>
-          <SidebarBody className="bg-gray-50">
+          <SidebarBody className="bg-transparent">
             <div className="sticky top-0 bg-slate-50 z-10">
-              <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-gray-50">
+              <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden bg-transparent">
                 {open ? <Logo>
                     <BookOpen className="flex-shrink-0" size={24} color={theme === 'dark' ? 'white' : '#3b82f6'} />
                   </Logo> : <LogoIcon>

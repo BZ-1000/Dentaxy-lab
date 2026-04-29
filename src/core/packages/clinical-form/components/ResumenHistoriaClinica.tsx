@@ -18,7 +18,7 @@ const ResumenHistoriaClinica = ({ resumen }: ResumenHistoriaClinicaProps) => {
           Historia Clínica Generada con IA
         </h2>
         <div className="prose dark:prose-invert max-w-none">
-          <pre className={`whitespace-pre-line ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} p-6 rounded-lg text-sm transition-colors duration-200`}>
+          <pre className={`whitespace-pre-line ${theme === 'dark' ? 'bg-gray-900' : 'bg-transparent'} p-6 rounded-lg text-sm transition-colors duration-200`}>
             {resumen}
           </pre>
         </div>

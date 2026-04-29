@@ -1,3 +1,15 @@
+export interface DatosGenerales {
+  nombreCompleto: string;
+  fechaNacimiento: string;
+  sexo: string;
+  estadoCivil: string;
+  ocupacion: string;
+  domicilio: string;
+  telefono: string;
+  correo: string;
+  contactoEmergencia: string;
+}
+
 export interface Familiar {
   finado: boolean;
   causaMuerte: string;
@@ -501,6 +513,7 @@ export interface Alimentacion {
   }
 
 export interface FormDataState {
+  datosGenerales: DatosGenerales;
   padecimientoActual: PadecimientoActual;
   antecedentesHeredoFamiliares: AntecedentesHeredoFamiliares;
   antecedentesPersonalesNoPatologicos: AntecedentesPersonalesNoPatologicos;
@@ -530,6 +543,7 @@ export interface FormDataState {
   relacionDientes: RelacionDientes;
   lineaMedia: LineaMedia;
   frenillos: Frenillos;
+  odontograma: Record<number, "sano" | "caries" | "obturado" | "corona" | "ausente">;
   diagnostico: Diagnostico;
   pronostico: Pronostico;
   serviciosDomiciliarios: string;

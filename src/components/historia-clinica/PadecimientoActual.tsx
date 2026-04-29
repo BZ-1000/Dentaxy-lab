@@ -46,14 +46,14 @@ const ChatBubbleLabel = ({ children, icon: Icon }: { children: React.ReactNode, 
   <div className="flex items-start gap-3 mb-3 animate-in fade-in slide-in-from-left-4 duration-500">
     <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center -ml-1 -mt-1">
       {Icon ? (
-        <div className="w-full h-full flex items-center justify-center text-blue-500 dark:text-blue-400">
+        <div className="w-full h-full flex items-center justify-center text-emerald-500 dark:text-emerald-400">
           <Icon className="w-5 h-5" />
         </div>
       ) : (
         <img src="/dentaxy-ai-avatar.png" alt="Dentaxy AI" className="w-full h-full object-contain" />
       )}
     </div>
-    <div className="bg-gray-100 dark:bg-zinc-800 px-4 py-2 rounded-2xl rounded-tl-sm text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm border border-gray-200/50 dark:border-white/5">
+    <div className="bg-white dark:bg-background px-4 py-2 rounded-2xl rounded-tl-sm text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm border border-gray-200/50 dark:border-white/5">
       {children}
     </div>
   </div>
@@ -100,7 +100,7 @@ const CopyButton = ({ textToCopy }: { textToCopy: string }) => {
         "h-9 px-3 transition-all duration-300",
         isCopied
           ? "text-green-600 bg-green-50 hover:text-green-600 hover:bg-green-50 dark:bg-green-900/30 dark:hover:bg-green-900/30" // Success: Forced Green (including hover)
-          : "text-zinc-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/20" // Hover: Blue as requested
+          : "text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/20" // Hover: Blue as requested
       )}
       onClick={() => {
         navigator.clipboard.writeText(textToCopy);
@@ -366,43 +366,12 @@ const PadecimientoActual = ({
                 historyText = sentences.join(" ");
               }
 
-              // 1. Visual Component (Animated Phrase by Phrase)
-              const fullTextRaw = `Motivo de consulta:\n${motivo}\n\nHistoria del padecimiento:\n${historyText}`;
-
-              const redaccionVisual = (
-                <>
-                  <div className="prose dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed font-mplus mb-6 relative group">
-                    <div className="absolute right-0 top-0 z-10">
-                      <CopyButton textToCopy={fullTextRaw} />
-                    </div>
-                    {/* Motivo - Starts Immediately */}
-                    <strong>Motivo de consulta:</strong><br />
-                    <AppleTypewriter as="span" speed={0.4} delay={0}>
-                      {motivo}
-                    </AppleTypewriter>
-                    <br /><br />
-
-                    {/* Historia - Sequential Sentence Reveal */}
-                    <strong>Historia del padecimiento:</strong>
-                    <div className="text-justify inline block">
-                      <AppleTypewriter speed={0.8} delay={0.5}>
-                        {historyText}
-                      </AppleTypewriter>
-                    </div>
-                  </div>
-
-                </>
-              );
-
-              // 2. Plain Text (For Clipboard/Smile Panel)
-              const redaccionTexto = `
-<strong>Motivo de consulta:</strong><br/>
-${motivo}<br/><br/>
-<strong>Historia del padecimiento:</strong><div style="text-align: justify;">${historyText}</div>
-              `.trim();
+              // Generación de Texto Unificada
+              const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-400 mt-4 mb-1">${title}</span>`;
+              const redaccionTexto = `${formatTitle("Motivo de consulta")}${motivo}<br/>${formatTitle("Historia del padecimiento")}${historyText}`.trim();
 
               if (onRedaccionGenerada) {
-                onRedaccionGenerada(redaccionVisual, redaccionTexto);
+                onRedaccionGenerada(redaccionTexto);
               }
             }}
             className="hidden data-trigger-generation text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"

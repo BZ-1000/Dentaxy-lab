@@ -56,3 +56,5 @@ loi_template.html
 credentials/
 *.json.key
 service-account*.json
+.vercel
+.env*.local

@@ -15,6 +15,17 @@ export default defineConfig(({ mode }) => ({
       "Cross-Origin-Embedder-Policy": "require-corp",
       "Cross-Origin-Opener-Policy": "same-origin",
     },
+    watch: {
+      // Excluir directorios pesados que no son código fuente
+      ignored: [
+        '**/node_modules/**',
+        '**/.git/**',
+        '**/y/**',               // Google Cloud SDK symlink/carpeta dentro del proyecto
+        '**/google-cloud-sdk/**',
+        '**/.cache/**',
+        '**/dist/**',
+      ],
+    },
   },
   plugins: [
     react(),

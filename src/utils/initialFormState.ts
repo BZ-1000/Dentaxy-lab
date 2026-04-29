@@ -2,6 +2,17 @@
 import { FormDataState } from '@/types/historiaClinica';
 
 export const getInitialFormState = (): FormDataState => ({
+  datosGenerales: {
+    nombreCompleto: '',
+    fechaNacimiento: '',
+    sexo: '',
+    estadoCivil: '',
+    ocupacion: '',
+    domicilio: '',
+    telefono: '',
+    correo: '',
+    contactoEmergencia: ''
+  },
   padecimientoActual: {
     sinSintomas: false,
     motivoConsulta: '',
@@ -445,6 +456,7 @@ export const getInitialFormState = (): FormDataState => ({
     particular: "",
     observaciones: ""
   },
+  odontograma: {},
   serviciosDomiciliarios: '',
   pisosVivienda: '',
   materialVivienda: '',

@@ -49,11 +49,11 @@ export const SectionCard: React.FC<SectionCardProps> = ({
                                         redactionPreview ? (
                                             typeof redactionPreview === 'string' ? (
                                                 <div
-                                                    className="prose dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed font-mplus"
+                                                    className="prose dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed text-justify font-mplus"
                                                     dangerouslySetInnerHTML={{ __html: redactionPreview }}
                                                 />
                                             ) : (
-                                                <div className="prose dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed font-mplus">
+                                                <div className="prose dark:prose-invert max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed text-justify font-mplus">
                                                     {redactionPreview}
                                                 </div>
                                             )

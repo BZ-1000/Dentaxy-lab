@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import Pronostico from '@/components/historia-clinica/Pronostico';
 
 interface PronosticoCardProps {
@@ -16,8 +15,8 @@ export const PronosticoCard: React.FC<PronosticoCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
-            <CardContent className="pt-6">
+        <div className="w-full bg-white">
+            <div className="w-full bg-white">
                 <div data-section="pronostico">
                     <Pronostico
                         formData={formData}
@@ -26,7 +25,7 @@ export const PronosticoCard: React.FC<PronosticoCardProps> = ({
                         onToggleViewMode={onToggleViewMode}
                     />
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 };

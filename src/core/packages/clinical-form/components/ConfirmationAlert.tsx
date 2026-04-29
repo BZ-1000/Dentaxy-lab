@@ -52,7 +52,7 @@ const ConfirmationAlert = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Volver al formulario</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="bg-blue-500 hover:bg-blue-600">
+          <AlertDialogAction onClick={onConfirm} className="bg-emerald-500 hover:bg-blue-600">
             Deseo continuar
           </AlertDialogAction>
         </AlertDialogFooter>

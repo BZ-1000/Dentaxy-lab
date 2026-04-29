@@ -11,7 +11,14 @@ export const useHistoriaClinica = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState<FormDataState>(() => {
     const savedData = UserStorage.getItem(null, 'currentFormData');
-    return savedData || getInitialFormState();
+    const initialState = getInitialFormState();
+    if (savedData) {
+      if (!savedData.datosGenerales) {
+        savedData.datosGenerales = initialState.datosGenerales;
+      }
+      return savedData;
+    }
+    return initialState;
   });
 
   // Persistir cambios en formData
@@ -41,6 +48,16 @@ export const useHistoriaClinica = () => {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleDatosGeneralesChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      datosGenerales: {
+        ...prev.datosGenerales,
+        [field]: value
+      }
     }));
   };
 
@@ -454,6 +471,16 @@ export const useHistoriaClinica = () => {
     }));
   };
 
+  const handleOdontogramaChange = (pieza: number, estado: "sano" | "caries" | "obturado" | "corona" | "ausente") => {
+    setFormData(prev => ({
+      ...prev,
+      odontograma: {
+        ...prev.odontograma,
+        [pieza]: estado
+      }
+    }));
+  };
+
   const handleDiagnosticoChange = (part: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -611,6 +638,7 @@ export const useHistoriaClinica = () => {
     resumen,
     isGenerating,
     handleInputChange,
+    handleDatosGeneralesChange,
     handlePadecimientoChange,
     handleDolorChange,
     handleSinSintomasChange,
@@ -633,6 +661,7 @@ export const useHistoriaClinica = () => {
     handleRelacionDientesChange,
     handleLineaMediaChange,
     handleFrenillosChange,
+    handleOdontogramaChange,
     handleDiagnosticoChange,
     handlePronosticoChange,
     toggleService,

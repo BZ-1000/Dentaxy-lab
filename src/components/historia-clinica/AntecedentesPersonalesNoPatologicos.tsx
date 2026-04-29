@@ -1,6 +1,5 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { Minus, Maximize2, X, Eraser, Copy, CheckCircle, Sparkles } from "lucide
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { AnimatedTextarea } from "@/components/ui/animated-textarea";
-import { HTMLTypewriterEffect } from '@/components/ui/HTMLTypewriterEffect';
+import { AppleTypewriter } from '@/components/ui/AppleTypewriter';
 
 interface AntecedentesPersonalesNoPatologicosProps {
   formData: FormDataState;
@@ -28,7 +27,7 @@ const WordButton = ({
   isSelected: boolean;
   onClick: () => void;
 }) => {
-  return <button onClick={onClick} className={`px-2 py-1 text-xs rounded-md transition-colors mb-1 mr-1 ${isSelected ? "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-200" : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"}`}>
+  return <button onClick={onClick} className={`px-3 py-1 text-xs font-medium rounded-full transition-all mb-1 mr-1 ${isSelected ? "bg-zinc-800 text-white shadow-sm" : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"}`}>
     {label}
   </button>;
 };
@@ -54,49 +53,27 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     const higBucal = generateHigieneBucalText();
     const alimentacion = generateAlimentacionText();
 
-    // Formatting HTML Logic
-    // We now generate React Elements for Parallel Typing
-    const content = (
-      <>
-        <div className="mb-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="font-bold mb-2">Servicios Domiciliarios</h4>
-          <div className="text-justify text-gray-700 dark:text-gray-300">
-            <HTMLTypewriterEffect content={servicios} speed={25} />
-          </div>
-        </div>
+    const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-400 mt-4 mb-1">${title}</span>`;
 
-        <div className="mb-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="font-bold mb-2">Higiene de la Vivienda</h4>
-          <div className="text-justify text-gray-700 dark:text-gray-300">
-            <HTMLTypewriterEffect content={vivienda} speed={25} />
-          </div>
-        </div>
+    const redaccionTexto = `
+${formatTitle("Servicios Domiciliarios")}
+${servicios}
 
-        <div className="mb-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="font-bold mb-2">Higiene Personal</h4>
-          <div className="text-justify text-gray-700 dark:text-gray-300">
-            <HTMLTypewriterEffect content={higPersonal} speed={25} />
-          </div>
-        </div>
+${formatTitle("Higiene de la Vivienda")}
+${vivienda}
 
-        <div className="mb-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="font-bold mb-2">Higiene Bucal</h4>
-          <div className="text-justify text-gray-700 dark:text-gray-300">
-            <HTMLTypewriterEffect content={higBucal} speed={25} />
-          </div>
-        </div>
+${formatTitle("Higiene Personal")}
+${higPersonal}
 
-        <div className="mb-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="font-bold mb-2">Alimentación</h4>
-          <div className="text-justify text-gray-700 dark:text-gray-300">
-            <HTMLTypewriterEffect content={alimentacion} speed={25} />
-          </div>
-        </div>
-      </>
-    );
+${formatTitle("Higiene Bucal")}
+${higBucal}
+
+${formatTitle("Alimentación")}
+${alimentacion}
+    `.trim();
 
     if (onRedaccionGenerada) {
-      onRedaccionGenerada(content);
+      onRedaccionGenerada(redaccionTexto);
     }
     if (onToggleViewMode) {
       onToggleViewMode();
@@ -223,9 +200,9 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
     let alimentosText = alimentosConsumidos.length > 0 ? alimentosConsumidos.join(', ') : '[no especificado]';
     let horarios = '';
     if (horarioComidas) {
-      horarios = `Desayuno: ${formatTime12Hour(horarioComidas.desayuno)}\nAlmuerzo: ${formatTime12Hour(horarioComidas.almuerzo)}\nCena: ${formatTime12Hour(horarioComidas.cena)}`;
+      horarios = `Desayuno: ${formatTime12Hour(horarioComidas.desayuno)}<br/>Almuerzo: ${formatTime12Hour(horarioComidas.almuerzo)}<br/>Cena: ${formatTime12Hour(horarioComidas.cena)}`;
     }
-    return `El paciente tiene una alimentación basada en ${alimentosText}, lo que influye en su estado nutricional y salud general. El consumo de frutas y verduras es ${frecuenciaFrutasVerduras || '[no especificada]'}, mientras que la ingesta de bebidas azucaradas ocurre ${frecuenciaBebidasAzucaradas || '[no especificada]'} y el consumo de comida chatarra ${frecuenciaComidaChatarra || '[no especificada]'}, factores determinantes en el riesgo de enfermedades metabólicas y caries dental. La cantidad de agua ingerida diariamente es de aproximadamente ${consumoAgua || '[no especificado]'}, contribuyendo a la hidratación y función renal. Realiza ${numeroComidas || '[no especificado]'} comidas al día, con los siguientes horarios reportados:\n\n${horarios}`;
+    return `El paciente tiene una alimentación basada en ${alimentosText}, lo que influye en su estado nutricional y salud general. El consumo de frutas y verduras es ${frecuenciaFrutasVerduras || '[no especificada]'}, mientras que la ingesta de bebidas azucaradas ocurre ${frecuenciaBebidasAzucaradas || '[no especificada]'} y el consumo de comida chatarra ${frecuenciaComidaChatarra || '[no especificada]'}, factores determinantes en el riesgo de enfermedades metabólicas y caries dental. La cantidad de agua ingerida diariamente es de aproximadamente ${consumoAgua || '[no especificado]'}, contribuyendo a la hidratación y función renal. Realiza ${numeroComidas || '[no especificado]'} comidas al día, con los siguientes horarios reportados:<br/><br/>${horarios}`;
   };
 
   const handleFormChange = (field: string, value: any) => {
@@ -322,8 +299,8 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
   return (
     <div className='bg-background dark:bg-background transition-colors duration-300' data-formulario-section="antecedentes-personales-no-patologicos">
       <div className="space-y-6">
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="text-lg font-semibold mb-2 text-justify">Servicios Domiciliarios</h4>
+        <div className="bg-white dark:bg-gray-900/30 p-5 rounded-xl border border-gray-100 dark:border-gray-700/50">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Servicios Domiciliarios</h4>
 
 
           <div className="grid grid-cols-2 gap-4">
@@ -395,8 +372,8 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           </div>
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="text-lg font-semibold mb-2 text-justify">Higiene de la Vivienda</h4>
+        <div className="bg-white dark:bg-gray-900/30 p-5 rounded-xl border border-gray-100 dark:border-gray-700/50">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Higiene de la Vivienda</h4>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -481,8 +458,8 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           </div>
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="text-lg font-semibold mb-2 text-justify">Higiene Personal</h4>
+        <div className="bg-white dark:bg-gray-900/30 p-5 rounded-xl border border-gray-100 dark:border-gray-700/50">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Higiene Personal</h4>
 
           <div className="grid grid-cols-1 gap-4">
             <div>
@@ -522,8 +499,8 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           </div>
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="text-lg font-semibold mb-2 text-justify">Higiene Bucal</h4>
+        <div className="bg-white dark:bg-gray-900/30 p-5 rounded-xl border border-gray-100 dark:border-gray-700/50">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Higiene Bucal</h4>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -590,8 +567,8 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           </div>
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="text-lg font-semibold mb-2 text-justify">Alimentación</h4>
+        <div className="bg-white dark:bg-gray-900/30 p-5 rounded-xl border border-gray-100 dark:border-gray-700/50">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Alimentación</h4>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -703,12 +680,12 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
         </div>
 
         {/* Footer Controls */}
-        <div className="flex justify-end items-center gap-4 pt-10 opacity-90 transition-opacity">
+        <div className="flex justify-end items-center gap-3 pt-6 mt-6 border-t border-gray-100 dark:border-gray-700/50">
           {onToggleViewMode && (
             <Button
               variant="outline"
               onClick={generarRedaccionIA}
-              className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+              className="hidden data-trigger-generation text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Ver Redacción IA
@@ -726,7 +703,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
         </div>
       </div>
 
-    </div >
+    </div>
   );
 };
 

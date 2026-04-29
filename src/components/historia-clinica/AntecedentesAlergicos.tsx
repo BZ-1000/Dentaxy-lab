@@ -62,17 +62,25 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
     (formData.antecedentesAlergicos.tiposAlergias?.ambiente || false);
 
   const generateRedaccion = () => {
-    // Instant generation, removed setTimeout for snappy UX
-    let content = "<strong>Antecedentes Alérgicos</strong><br/><br/>";
+    const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-400 mt-4 mb-1">${title}</span>`;
+
+    let content = "";
 
     const alergias = [];
     if (formData.antecedentesAlergicos.tiposAlergias?.medicamentos) alergias.push("medicamentos");
     if (formData.antecedentesAlergicos.tiposAlergias?.alimentos) alergias.push("alimentos");
     if (formData.antecedentesAlergicos.tiposAlergias?.ambiente) alergias.push("ambiente");
 
+    const joinConY = (arr: string[]) => {
+      if (arr.length === 0) return "";
+      if (arr.length === 1) return arr[0];
+      if (arr.length === 2) return `${arr[0]} y ${arr[1]}`;
+      return `${arr.slice(0, -1).join(", ")} y ${arr[arr.length - 1]}`;
+    };
+
     let alergiasText = "";
     if (alergias.length > 0) {
-      alergiasText += `El paciente presenta antecedentes de alergia a ${alergias.join(", ")}. `;
+      alergiasText += `El paciente presenta antecedentes de alergia a ${joinConY(alergias)}. `;
       if (formData.antecedentesAlergicos.cualesAlergias) {
         alergiasText += `Específicamente a: ${formData.antecedentesAlergicos.cualesAlergias}. `;
       }
@@ -82,9 +90,9 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
     } else {
       alergiasText += "El paciente no refiere antecedentes de alergias. ";
     }
-    content += `<div style="text-align: justify;">${alergiasText}</div><br/>`;
+    content += `${formatTitle("Alergias a medicamentos")}${alergiasText}<br/>`;
 
-    content += "<strong>Antecedentes de Anestesia</strong><br/>";
+    content += `${formatTitle("Complicaciones con anestesia local")}`;
     let anestesiaText = "";
     if (formData.antecedentesAlergicos.administradoAnestesia) {
       anestesiaText += "Se le ha administrado anestesia previamente";
@@ -106,9 +114,9 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
     } else {
       anestesiaText += "No se le ha administrado anestesia previamente. ";
     }
-    content += `<div style="text-align: justify;">${anestesiaText}</div><br/>`;
+    content += `${anestesiaText}<br/>`;
 
-    content += "<strong>Adicciones</strong><br/>";
+    content += `${formatTitle("Adicciones")}`;
     let adiccionesText = "";
     const adicciones = [];
     if (formData.antecedentesAlergicos.adicciones?.tabaco) adicciones.push("tabaco");
@@ -116,14 +124,14 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
     if (formData.antecedentesAlergicos.adicciones?.drogas) adicciones.push("drogas");
 
     if (adicciones.length > 0) {
-      adiccionesText += `El paciente refiere adicción a: ${adicciones.join(", ")}. `;
+      adiccionesText += `El paciente refiere adicción a: ${joinConY(adicciones)}. `;
       if (formData.antecedentesAlergicos.detallesAdicciones) {
         adiccionesText += `Detalles: ${formData.antecedentesAlergicos.detallesAdicciones}`;
       }
     } else {
       adiccionesText += "El paciente no refiere adicciones.";
     }
-    content += `<div style="text-align: justify;">${adiccionesText}</div>`;
+    content += `${adiccionesText}`;
 
     if (onRedaccionGenerada) {
       onRedaccionGenerada(content);
@@ -157,11 +165,11 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
   return (
     <div className='bg-background dark:bg-background transition-colors duration-300' data-section-redaction="true" data-section-name="antecedentesAlergicos" data-formulario-section="antecedentes-alergicos">
       <div className="space-y-6">
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="text-lg font-semibold mb-2 text-justify">Alergias</h4>
+        <div className="bg-white dark:bg-gray-900/30 p-5 rounded-xl border border-gray-100 dark:border-gray-700/50">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Alergias</h4>
 
           <div>
-            <h3 className="text-md font-medium mb-2">¿Ha presentado alguna reacción alérgica a alguno de los siguientes?</h3>
+            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">¿Ha presentado alguna reacción alérgica a alguno de los siguientes?</h3>
             <div className="flex flex-wrap gap-2 mb-4">
               {[
                 { label: "Medicamentos", value: "medicamentos" },
@@ -170,7 +178,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
               ].map(item => (
                 <button
                   key={item.value}
-                  className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.tiposAlergias?.[item.value] ? 'bg-emerald-500 text-white hover:bg-emerald-600' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`}
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${formData.antecedentesAlergicos.tiposAlergias?.[item.value] ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_8px_rgba(52,211,153,0.45)]' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                   onClick={() => handleToggleAllergyType(item.value as any)}
                 >
                   {item.label}
@@ -182,7 +190,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
           {hasAnyAllergySelected && (
             <>
               <div className="relative mt-4">
-                <label className="block text-sm font-medium mb-1">¿Cuáles?</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">¿Cuáles?</label>
                 <div className="flex items-center">
                   <Textarea
                     value={formData.antecedentesAlergicos.cualesAlergias || ''}
@@ -197,7 +205,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
               </div>
 
               <div className="relative mt-4">
-                <label className="block text-sm font-medium mb-1">¿A qué específicamente?</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">¿A qué específicamente?</label>
                 <div className="flex items-center">
                   <Textarea
                     value={formData.antecedentesAlergicos.especificacionAlergias || ''}
@@ -214,19 +222,19 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
           )}
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="text-lg font-semibold mb-2 text-justify">Anestesia</h4>
+        <div className="bg-white dark:bg-gray-900/30 p-5 rounded-xl border border-gray-100 dark:border-gray-700/50">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Anestesia</h4>
           <div>
-            <h3 className="text-md font-medium mb-2">¿Le han administrado anestesia general y/o local?</h3>
+            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">¿Le han administrado anestesia general y/o local?</h3>
             <div className="flex gap-4">
               <button
-                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.administradoAnestesia === true ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.administradoAnestesia === true ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_12px_rgba(52,211,153,0.55)]' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-300'}`}
                 onClick={() => handleToggleButton('administradoAnestesia')}
               >
                 Sí
               </button>
               <button
-                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.administradoAnestesia === false ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.administradoAnestesia === false ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_12px_rgba(52,211,153,0.55)]' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-300'}`}
                 onClick={() => handleToggleButton('administradoAnestesia')}
               >
                 No
@@ -236,7 +244,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
 
           {formData.antecedentesAlergicos.administradoAnestesia === true && (
             <div className="relative mt-4">
-              <label className="block text-sm font-medium mb-1">Especifique el tipo de anestesia y procedimiento:</label>
+              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Especifique el tipo de anestesia y procedimiento:</label>
               <div className="flex items-center">
                 <Textarea
                   value={formData.antecedentesAlergicos.tipoAnestesia || ''}
@@ -252,16 +260,16 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
           )}
 
           <div className="mt-4">
-            <h3 className="text-md font-medium mb-2">¿Tuvo alguna reacción adversa a la anestesia?</h3>
+            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">¿Tuvo alguna reacción adversa a la anestesia?</h3>
             <div className="flex gap-4">
               <button
-                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.reaccionAnestesia === true ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.reaccionAnestesia === true ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_12px_rgba(52,211,153,0.55)]' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-300'}`}
                 onClick={() => handleToggleButton('reaccionAnestesia')}
               >
                 Sí
               </button>
               <button
-                className={`px-4 py-2 rounded-md text-sm transition-colors ${formData.antecedentesAlergicos.reaccionAnestesia === false ? 'bg-[#2ecc71] text-white' : 'bg-gray-100 dark:bg-gray-700'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.reaccionAnestesia === false ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_12px_rgba(52,211,153,0.55)]' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-300'}`}
                 onClick={() => handleToggleButton('reaccionAnestesia')}
               >
                 No
@@ -271,7 +279,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
 
           {formData.antecedentesAlergicos.reaccionAnestesia === true && (
             <div className="relative mt-4">
-              <label className="block text-sm font-medium mb-1">Si respondió que sí, especifique la reacción:</label>
+              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Si respondió que sí, especifique la reacción:</label>
               <div className="flex items-center">
                 <Textarea
                   value={formData.antecedentesAlergicos.descripcionReaccion || ''}
@@ -287,10 +295,10 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
           )}
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
-          <h4 className="text-lg font-semibold mb-2 text-justify">Adicciones</h4>
+        <div className="bg-white dark:bg-gray-900/30 p-5 rounded-xl border border-gray-100 dark:border-gray-700/50">
+          <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4">Adicciones</h4>
           <div>
-            <h3 className="text-md font-medium mb-2">¿Tiene alguna adicción actual o pasada?</h3>
+            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">¿Tiene alguna adicción actual o pasada?</h3>
             <div className="flex flex-wrap gap-2 mb-4">
               {[
                 { label: "Tabaco", value: "tabaco" },
@@ -299,7 +307,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
               ].map(item => (
                 <button
                   key={item.value}
-                  className={`px-3 py-1 text-sm rounded-full transition-colors ${formData.antecedentesAlergicos.adicciones?.[item.value] ? 'bg-[#B3E5FC] hover:bg-[#B3E5FC]/80' : 'bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600'}`}
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${formData.antecedentesAlergicos.adicciones?.[item.value] ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_8px_rgba(52,211,153,0.45)]' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                   onClick={() => handleToggleAddiction(item.value as any)}
                 >
                   {item.label}
@@ -312,7 +320,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
             formData.antecedentesAlergicos.adicciones?.alcohol ||
             formData.antecedentesAlergicos.adicciones?.drogas) && (
               <div className="relative mt-4">
-                <label className="block text-sm font-medium mb-1">Especifique tipo, frecuencia y duración:</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Especifique tipo, frecuencia y duración:</label>
                 <div className="flex items-center">
                   <Textarea
                     value={formData.antecedentesAlergicos.detallesAdicciones || ''}
@@ -331,12 +339,12 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
       </div>
 
       {/* Footer Controls */}
-      <div className="flex justify-end items-center gap-4 pt-10 opacity-90 transition-opacity">
+      <div className="flex justify-end items-center gap-3 pt-6 mt-6 border-t border-gray-100 dark:border-gray-700/50">
         {onToggleViewMode && (
           <Button
             variant="outline"
             onClick={generateRedaccion}
-            className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+            className="hidden data-trigger-generation text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
           >
             <Sparkles className="w-4 h-4 mr-2" />
             Ver Redacción IA

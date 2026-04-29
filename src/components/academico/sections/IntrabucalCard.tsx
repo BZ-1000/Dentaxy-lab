@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import ExamenIntrabucal from '@/components/historia-clinica/ExamenIntrabucal';
 
 interface IntrabucalCardProps {
@@ -16,8 +15,8 @@ export const IntrabucalCard: React.FC<IntrabucalCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
-            <CardContent className="pt-6">
+        <div className="w-full bg-white">
+            <div className="w-full bg-white">
                 <div data-section="intrabucal">
                     <ExamenIntrabucal
                         formData={formData}
@@ -26,7 +25,7 @@ export const IntrabucalCard: React.FC<IntrabucalCardProps> = ({
                         onToggleViewMode={onToggleViewMode}
                     />
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 };

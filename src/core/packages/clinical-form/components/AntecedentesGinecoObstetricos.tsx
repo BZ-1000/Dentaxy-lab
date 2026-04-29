@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
 import { Minus, Maximize2, X } from "lucide-react";
 import { FormDataState } from '../types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
@@ -90,60 +89,21 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
       data-section-redaction="true"
       data-section-name="antecedentesGinecoObstetricos"
     >
-      <Card
-        className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${
+      <div
+        className={`w-full bg-transparent ${
           isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""
         }`}
       >
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-              <button
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                  activeTab === "formulario"
-                    ? "bg-blue-500 text-white shadow-md"
-                    : "text-gray-700 dark:text-gray-300"
-                }`}
-                onClick={() => setActiveTab("formulario")}
-              >
-                Formulario
-              </button>
-              <button
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                  activeTab === "redaccion"
-                    ? "bg-blue-500 text-white shadow-md"
-                    : "text-gray-700 dark:text-gray-300"
-                }`}
-                onClick={() => setActiveTab("redaccion")}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
+            
 
           <div className="flex items-center gap-1 sm:gap-2">
-            <button
-              onClick={handleMinimize}
-              className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-              type="button"
-            >
-              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button
-              onClick={handleMaximize}
-              className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors"
-              type="button"
-            >
-              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button
-              onClick={handleClose}
-              className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-              type="button"
-            >
-              <X className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
+            
+            
+            
           </div>
+        </div>{/* cierra flex justify-center */}
         </div>
 
         <div className="flex justify-start px-6 py-2">
@@ -230,7 +190,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
             ) : (
               <div className="p-6">
                 <div
-                  className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap"
+                  className="bg-transparent dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap"
                   style={{
                     whiteSpace: "pre-wrap",
                   }}
@@ -243,7 +203,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
             )}
           </>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

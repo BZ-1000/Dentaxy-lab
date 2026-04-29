@@ -1,6 +1,5 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { Minus, Maximize2, X, Eraser, Copy, CheckCircle, Sparkles } from "lucide
 import { FormDataState } from '../types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { AnimatedTextarea } from "@/components/ui/animated-textarea";
-import { HTMLTypewriterEffect } from '../ui/HTMLTypewriterEffect';
+import { AppleTypewriter } from '@/components/ui/AppleTypewriter';
 
 interface AntecedentesPersonalesNoPatologicosProps {
   formData: FormDataState;
@@ -61,35 +60,35 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
         <div className="mb-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="font-bold mb-2">Servicios Domiciliarios</h4>
           <div className="text-justify text-gray-700 dark:text-gray-300">
-            <HTMLTypewriterEffect content={servicios} speed={25} />
+            <AppleTypewriter speed={0.8} delay={0}>{servicios}</AppleTypewriter>
           </div>
         </div>
 
         <div className="mb-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="font-bold mb-2">Higiene de la Vivienda</h4>
           <div className="text-justify text-gray-700 dark:text-gray-300">
-            <HTMLTypewriterEffect content={vivienda} speed={25} />
+            <AppleTypewriter speed={0.8} delay={0.2}>{vivienda}</AppleTypewriter>
           </div>
         </div>
 
         <div className="mb-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="font-bold mb-2">Higiene Personal</h4>
           <div className="text-justify text-gray-700 dark:text-gray-300">
-            <HTMLTypewriterEffect content={higPersonal} speed={25} />
+            <AppleTypewriter speed={0.8} delay={0.4}>{higPersonal}</AppleTypewriter>
           </div>
         </div>
 
         <div className="mb-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="font-bold mb-2">Higiene Bucal</h4>
           <div className="text-justify text-gray-700 dark:text-gray-300">
-            <HTMLTypewriterEffect content={higBucal} speed={25} />
+            <AppleTypewriter speed={0.8} delay={0.6}>{higBucal}</AppleTypewriter>
           </div>
         </div>
 
         <div className="mb-4 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="font-bold mb-2">Alimentación</h4>
           <div className="text-justify text-gray-700 dark:text-gray-300">
-            <HTMLTypewriterEffect content={alimentacion} speed={25} />
+            <AppleTypewriter speed={0.8} delay={0.8}>{alimentacion}</AppleTypewriter>
           </div>
         </div>
       </>
@@ -322,7 +321,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
   return (
     <div className='bg-background dark:bg-background transition-colors duration-300' data-formulario-section="antecedentes-personales-no-patologicos">
       <div className="space-y-6">
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="text-lg font-semibold mb-2 text-justify">Servicios Domiciliarios</h4>
 
 
@@ -395,7 +394,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           </div>
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="text-lg font-semibold mb-2 text-justify">Higiene de la Vivienda</h4>
 
           <div className="grid grid-cols-2 gap-4">
@@ -481,7 +480,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           </div>
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="text-lg font-semibold mb-2 text-justify">Higiene Personal</h4>
 
           <div className="grid grid-cols-1 gap-4">
@@ -522,7 +521,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           </div>
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="text-lg font-semibold mb-2 text-justify">Higiene Bucal</h4>
 
           <div className="grid grid-cols-2 gap-4">
@@ -590,7 +589,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
           </div>
         </div>
 
-        <div className="bg-gray-50/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="bg-transparent/50 dark:bg-gray-900/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
           <h4 className="text-lg font-semibold mb-2 text-justify">Alimentación</h4>
 
           <div className="grid grid-cols-2 gap-4">
@@ -708,7 +707,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
             <Button
               variant="outline"
               onClick={generarRedaccionIA}
-              className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
+              className="hidden data-trigger-generation text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
             >
               <Sparkles className="w-4 h-4 mr-2" />
               Ver Redacción IA
@@ -726,7 +725,7 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
         </div>
       </div>
 
-    </div >
+    </div>
   );
 };
 

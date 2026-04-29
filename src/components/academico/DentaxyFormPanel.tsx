@@ -37,6 +37,8 @@ import { LineaMediaCard } from './sections/LineaMediaCard';
 import { FrenillosCard } from './sections/FrenillosCard';
 import { DiagnosticoCard } from './sections/DiagnosticoCard';
 import { PronosticoCard } from './sections/PronosticoCard';
+import { DatosGeneralesCard } from './sections/DatosGeneralesCard';
+import OdontogramaInteractivo from '../../core/packages/clinical-form/components/OdontogramaInteractivo';
 
 interface DentaxyFormPanelProps {
   onGeneracionCompleta?: (datos: Record<string, string>, formData?: FormDataState) => void;
@@ -68,27 +70,29 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
 }) => {
 
   const seccionesGenerables = [
-    { id: 'padecimiento', nombre: 'I. Padecimiento Actual' },
-    { id: 'heredofamiliares', nombre: 'II. Antecedentes Heredofamiliares' },
-    { id: 'noPatologicos', nombre: 'III. Antecedentes No Patológicos' },
-    { id: 'patologicos', nombre: 'IV. Antecedentes Patológicos' },
-    { id: 'alergicos', nombre: 'V. Antecedentes Alérgicos' },
-    { id: 'quirurgicos', nombre: 'VI. Antecedentes Quirúrgicos' },
-    { id: 'hemorragicos', nombre: 'VII. Antecedentes Hemorrágicos' },
-    { id: 'ginecoObstetricos', nombre: 'VIII. Antecedentes Gineco-obstétricos' },
-    { id: 'interrogatorio', nombre: 'IX. Interrogatorio por Sistemas' },
-    { id: 'exploracionFisica', nombre: 'X. Exploración Física' },
-    { id: 'cabeza', nombre: 'XI. Examen de Cabeza' },
-    { id: 'atm', nombre: 'XII. Articulación Craneomandibular' },
-    { id: 'cuello', nombre: 'XIII. Examen de Cuello' },
-    { id: 'intrabucal', nombre: 'XIV. Examen Intrabucal' },
-    { id: 'salivales', nombre: 'XV. Glándulas Salivales' },
-    { id: 'oclusion', nombre: 'XVI. Oclusión' },
-    { id: 'relacionDientes', nombre: 'XVII. Relación de Dientes' },
-    { id: 'lineaMedia', nombre: 'XVIII. Línea Media' },
-    { id: 'frenillos', nombre: 'XIX. Frenillos' },
-    { id: 'diagnostico', nombre: 'XX. Diagnóstico' },
-    { id: 'pronostico', nombre: 'XXI. Pronóstico' },
+    { id: 'datosGenerales', nombre: '1. Datos Generales' },
+    { id: 'padecimiento', nombre: '2. Padecimiento Actual' },
+    { id: 'heredofamiliares', nombre: '3. Antecedentes Heredofamiliares' },
+    { id: 'noPatologicos', nombre: '4. Antecedentes No Patológicos' },
+    { id: 'patologicos', nombre: '5. Antecedentes Patológicos' },
+    { id: 'alergicos', nombre: '6. Antecedentes Alérgicos' },
+    { id: 'quirurgicos', nombre: '7. Antecedentes Quirúrgicos' },
+    { id: 'hemorragicos', nombre: '8. Antecedentes Hemorrágicos' },
+    { id: 'ginecoObstetricos', nombre: '9. Antecedentes Gineco-obstétricos' },
+    { id: 'interrogatorio', nombre: '10. Interrogatorio por Sistemas' },
+    { id: 'exploracionFisica', nombre: '11. Exploración Física' },
+    { id: 'cabeza', nombre: '12. Examen de Cabeza' },
+    { id: 'atm', nombre: '13. Articulación Craneomandibular' },
+    { id: 'cuello', nombre: '14. Examen de Cuello' },
+    { id: 'intrabucal', nombre: '15. Examen Intrabucal' },
+    { id: 'odontograma', nombre: '16. Odontograma' },
+    { id: 'salivales', nombre: '17. Glándulas Salivales' },
+    { id: 'oclusion', nombre: '18. Oclusión' },
+    { id: 'relacionDientes', nombre: '19. Relación de Dientes' },
+    { id: 'lineaMedia', nombre: '20. Línea Media' },
+    { id: 'frenillos', nombre: '21. Frenillos' },
+    { id: 'diagnostico', nombre: '22. Diagnóstico' },
+    { id: 'pronostico', nombre: '23. Pronóstico' },
   ];
 
   const [esMujer] = useState(false);
@@ -111,6 +115,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
 
   const {
     formData,
+    handleDatosGeneralesChange,
     handlePadecimientoChange,
     handleDolorChange,
     handleSinSintomasChange,
@@ -133,6 +138,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
     handleRelacionDientesChange,
     handleLineaMediaChange,
     handleFrenillosChange,
+    handleOdontogramaChange,
     handleDiagnosticoChange,
     handlePronosticoChange,
     toggleService,
@@ -232,6 +238,12 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
     };
 
     switch (section.id) {
+      case 'datosGenerales':
+        return <DatosGeneralesCard
+          formData={formData}
+          handleDatosGeneralesChange={handleDatosGeneralesChange}
+          {...commonProps}
+        />;
       case 'padecimiento':
         return <PadecimientoCard
           formData={formData}
@@ -320,6 +332,15 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
           handleExamenIntrabucalChange={handleExamenIntrabucalChange}
           {...commonProps}
         />;
+      case 'odontograma': {
+        const { onSeccionGenerada: _ignored, ...restCommon } = commonProps;
+        return <OdontogramaInteractivo
+          formData={formData}
+          handleOdontogramaChange={handleOdontogramaChange}
+          onRedaccionGenerada={(content: string) => handleContentGenerated('odontograma', content)}
+          {...restCommon}
+        />;
+      }
       case 'salivales':
         return <SalivalesCard
           formData={formData}
@@ -426,7 +447,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
         <div
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto overflow-x-hidden pb-40 scroll-smooth custom-scrollbar"
+          className="flex-1 overflow-y-auto overflow-x-hidden pb-40 scroll-smooth dentaxy-scrollbar"
         >
           <div className="container mx-auto px-4 py-4 max-w-4xl">
             <AnimatePresence mode="wait" custom={direction}>
@@ -481,7 +502,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-white/90 dark:bg-zinc-900/90 backdrop-blur border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-4 py-2 rounded-xl flex items-center gap-3 shadow-lg"
+              className="bg-gradient-to-br from-emerald-400 to-emerald-600 text-white px-4 py-2 rounded-xl flex items-center gap-3 shadow-[0_0_18px_rgba(52,211,153,0.55)] border-0 hover:shadow-[0_0_24px_rgba(52,211,153,0.7)] transition-all"
             >
               <Loader2 className="h-4 w-4 animate-spin" />
               <div className="flex flex-col">
@@ -497,6 +518,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
       <AnimatePresence>
         {isDocumentOpen && !isMobile && (
           <DocumentWriterPanel
+            formData={formData}
             generations={generations}
             seccionesActivas={seccionesActivas}
             onClose={() => setIsDocumentOpen(false)}

@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Sparkles } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
@@ -59,7 +58,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
     // Remove timeout
-    let content = "ANTECEDENTES GINECO-OBSTÉTRICOS:\n\n";
+    let content = "";
     if (formData.antecedentesGinecoObstetricos) {
       const {
         embarazos,
@@ -68,18 +67,18 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
         abortos,
         complicaciones
       } = formData.antecedentesGinecoObstetricos;
-      content += `Gestas: ${embarazos || 0}\n`;
-      content += `Partos: ${partos || 0}\n`;
-      content += `Cesáreas: ${cesareas || 0}\n`;
-      content += `Abortos: ${abortos || 0}\n\n`;
+      content += `Gestas: ${embarazos || 0}<br/>`;
+      content += `Partos: ${partos || 0}<br/>`;
+      content += `Cesáreas: ${cesareas || 0}<br/>`;
+      content += `Abortos: ${abortos || 0}<br/><br/>`;
       if (complicaciones) {
-        content += `Complicaciones: ${complicaciones}\n`;
+        content += `Complicaciones: ${complicaciones}<br/>`;
       } else {
-        content += "No se reportan complicaciones.\n";
+        content += "No se reportan complicaciones.<br/>";
       }
 
       // Fórmula obstétrica
-      content += `\nFórmula obstétrica: G${embarazos || 0} P${partos || 0} C${cesareas || 0} A${abortos || 0}`;
+      content += `<br/>Fórmula obstétrica: G${embarazos || 0} P${partos || 0} C${cesareas || 0} A${abortos || 0}`;
     } else {
       content += "No se registraron datos gineco-obstétricos.";
     }
@@ -101,65 +100,11 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
       data-section-redaction="true"
       data-section-name="antecedentesGinecoObstetricos"
     >
-      <Card
-        className={`bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-lg rounded-xl border-0 ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""
-          }`}
+      <div
+        className={`w-full bg-transparent ${isMaximized ? "h-[calc(100vh-2rem)] overflow-y-auto" : ""}`}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex justify-center w-full">
-            <div className="flex bg-gray-200 dark:bg-gray-700 rounded-full p-0.5 sm:p-1">
-              <button
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${activeTab === "formulario"
-                    ? "bg-blue-500 text-white shadow-md"
-                    : "text-gray-700 dark:text-gray-300"
-                  }`}
-                onClick={() => setActiveTab("formulario")}
-              >
-                Formulario
-              </button>
-              <button
-                className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-full transition-all duration-300 text-xs sm:text-sm ${activeTab === "redaccion"
-                    ? "bg-blue-500 text-white shadow-md"
-                    : "text-gray-700 dark:text-gray-300"
-                  }`}
-                onClick={() => setActiveTab("redaccion")}
-              >
-                Redacción IA
-              </button>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button
-              onClick={handleMinimize}
-              className="p-0.5 sm:p-1 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
-              type="button"
-            >
-              <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button
-              onClick={handleMaximize}
-              className="p-0.5 sm:p-1 rounded-full bg-yellow-100 text-yellow-600 hover:bg-yellow-200 transition-colors"
-              type="button"
-            >
-              <Maximize2 className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-            <button
-              onClick={handleClose}
-              className="p-0.5 sm:p-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
-              type="button"
-            >
-              <X className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
-          </div>
-        </div>
 
-        <div className="flex justify-start px-6 py-2">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <span className="text-gray-400">VIII.</span> ANTECEDENTES GINECO-OBSTÉTRICOS
-            <span className="text-xs text-gray-400 ml-2">(solo para pacientes mujeres)</span>
-          </h2>
-        </div>
 
         {!isMinimized && (
           <>
@@ -167,7 +112,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
               <div className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="embarazos" className="block text-sm font-medium mb-1">Número de embarazos:</label>
+                    <label htmlFor="embarazos" className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Número de embarazos:</label>
                     <Input
                       id="embarazos"
                       type="number"
@@ -180,7 +125,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                   </div>
 
                   <div>
-                    <label htmlFor="partos" className="block text-sm font-medium mb-1">Número de partos:</label>
+                    <label htmlFor="partos" className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Número de partos:</label>
                     <Input
                       id="partos"
                       type="number"
@@ -193,7 +138,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                   </div>
 
                   <div>
-                    <label htmlFor="cesareas" className="block text-sm font-medium mb-1">Número de cesáreas:</label>
+                    <label htmlFor="cesareas" className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Número de cesáreas:</label>
                     <Input
                       id="cesareas"
                       type="number"
@@ -206,7 +151,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                   </div>
 
                   <div>
-                    <label htmlFor="abortos" className="block text-sm font-medium mb-1">Número de abortos:</label>
+                    <label htmlFor="abortos" className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Número de abortos:</label>
                     <Input
                       id="abortos"
                       type="number"
@@ -220,7 +165,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                 </div>
 
                 <div className="relative">
-                  <label htmlFor="complicaciones" className="block text-sm font-medium mb-1">Complicaciones:</label>
+                  <label htmlFor="complicaciones" className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Complicaciones:</label>
                   <div className="flex items-center gap-2 sm:gap-4">
                     <Textarea
                       id="complicaciones"
@@ -235,23 +180,13 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                   </div>
                 </div>
 
-                <div className="flex justify-center mt-6">
-                  {onToggleViewMode && (
-                    <Button
-                      variant="outline"
-                      onClick={generateRedaccion}
-                      className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
-                    >
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Ver Redacción IA
-                    </Button>
-                  )}
+                <div className="flex justify-end items-center gap-3 pt-6 mt-6 border-t border-gray-100 dark:border-gray-700/50">
                 </div>
               </div>
             ) : (
               <div className="p-6">
                 <div
-                  className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap"
+                  className="bg-transparent dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap"
                   style={{
                     whiteSpace: "pre-wrap",
                   }}
@@ -264,7 +199,7 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
             )}
           </>
         )}
-      </Card>
+      </div>
     </div>
   );
 };

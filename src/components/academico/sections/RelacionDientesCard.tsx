@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import RelacionDientes from '@/components/historia-clinica/RelacionDientes';
 
 interface RelacionDientesCardProps {
@@ -16,8 +15,8 @@ export const RelacionDientesCard: React.FC<RelacionDientesCardProps> = ({
     onToggleViewMode,
 }) => {
     return (
-        <Card className="mb-6 shadow-md border-0 dark:bg-gray-800">
-            <CardContent className="pt-6">
+        <div className="w-full bg-white">
+            <div className="w-full bg-white">
                 <div data-section="relacionDientes">
                     <RelacionDientes
                         formData={formData}
@@ -26,7 +25,7 @@ export const RelacionDientesCard: React.FC<RelacionDientesCardProps> = ({
                         onToggleViewMode={onToggleViewMode}
                     />
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 };
