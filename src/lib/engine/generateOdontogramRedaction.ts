@@ -340,72 +340,63 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
   const diagnoses = generateDiagnosis(teeth);
   const plan = generateTreatmentPlan(teeth);
 
-  // Agrupar hallazgos por estado para la tabla
+  // Agrupar hallazgos por estado para la tabla de colores vibrantes
   const activeStates = [...new Set(
     teeth.filter(t => t.state !== 'S').map(t => t.state)
   )] as ToothState[];
 
-  // ── Estilos compartidos (3A) para tablas simples ───────────────────────────
-  const tdKeyStyle = "font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;color:#888;text-transform:uppercase;width:38%;padding:11px 16px 11px 0;vertical-align:top;border-bottom:1px solid #e5e7eb;";
-  const tdValStyle = "font-size:14px;font-weight:300;color:#3a3a3a;padding:11px 0 11px 16px;vertical-align:top;border-bottom:1px solid #e5e7eb;";
-  
-  // ── Sección de hallazgos (Odontograma) ─────────────────────────────────────
-  let hallazgosHTML = '';
-  if (activeStates.length > 0) {
-    const rows = activeStates.map((state, i) => {
-      const group = teeth.filter(t => t.state === state);
-      const label = STATE_LABELS[state];
-      const teethStr = group.map(t => {
-        const surf = formatSurfaces(t.surfaces);
-        return surf ? `OD ${t.id} (${surf})` : `OD ${t.id}`;
-      }).join(', ');
-      
-      const bg = i % 2 !== 0 ? ' style="background:#f9fafb;"' : '';
-      return `<tr${bg}>
-        <td style="${tdKeyStyle}">${label}</td>
-        <td style="${tdValStyle}">${teethStr}</td>
+  // ── Sección de hallazgos con colores ADA ───────────────────────────────────
+  const hallazgosRows = activeStates.map(state => {
+    const group = teeth.filter(t => t.state === state);
+    const color = STATE_COLORS[state];
+    const label = STATE_LABELS[state];
+    const teethStr = group.map(t => {
+      const surf = formatSurfaces(t.surfaces);
+      return surf ? `OD ${t.id} (${surf})` : `OD ${t.id}`;
+    }).join(', ');
+    return `
+      <tr>
+        <td style="padding:5px 8px 5px 0;white-space:nowrap">
+          <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${color}">
+            <span style="width:7px;height:7px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block"></span>
+            ${label}
+          </span>
+        </td>
+        <td style="padding:5px 0;font-size:12px;color:#374151">${teethStr}</td>
       </tr>`;
-    }).join('');
-
-    hallazgosHTML = `
-      <table style="width:100%;border-collapse:collapse;margin-bottom:12px">
-        <tbody>${rows}</tbody>
-      </table>
-    `;
-  }
-
-  // ── Sección de Diagnósticos (CIE-10) ───────────────────────────────────────
-  const diagRows = diagnoses.map((d, i) => {
-    const bg = i % 2 !== 0 ? ' style="background:#f9fafb;"' : '';
-    return `<tr${bg}>
-      <td style="${tdKeyStyle}">${d.code}</td>
-      <td style="${tdValStyle}">${d.description}</td>
-    </tr>`;
   }).join('');
 
-  // ── Plan de tratamiento por fases (3B) ─────────────────────────────────────
-  const renderPhase = (items: TreatmentItem[], phaseName: string): string => {
+  // ── Plan de tratamiento por fases ──────────────────────────────────────────
+  const phase1 = plan.filter(p => p.phase === 1);
+  const phase2 = plan.filter(p => p.phase === 2);
+  const phase3 = plan.filter(p => p.phase === 3);
+
+  const phaseColors = {
+    1: { bg: '#FEF2F2', border: '#EA4335', label: 'FASE I — Urgencia', color: '#EA4335' },
+    2: { bg: '#EFF6FF', border: '#1A73E8', label: 'FASE II — Rehabilitadora', color: '#1A73E8' },
+    3: { bg: '#F0FDF4', border: '#1D9E75', label: 'FASE III — Mantenimiento', color: '#1D9E75' },
+  };
+
+  const renderPhase = (items: TreatmentItem[], phaseNum: 1 | 2 | 3): string => {
     if (items.length === 0) return '';
-    
-    const thStyle = "font-family:'DM Mono',monospace;font-size:10px;font-weight:600;letter-spacing:0.08em;color:#6b7280;text-transform:uppercase;padding:8px 12px 8px 0;text-align:left;";
+    const { bg, border, label, color } = phaseColors[phaseNum];
     const rows = items.map(i => `
-      <tr style="border-bottom:1px solid #f3f4f6;">
-        <td style="font-size:13px;font-weight:500;color:#374151;padding:10px 12px 10px 0;vertical-align:top;">OD ${i.tooth}</td>
-        <td style="font-size:13px;font-weight:300;color:#6b7280;padding:10px 0 10px 12px;vertical-align:top;">${i.procedure}</td>
-        <td style="font-size:13px;font-weight:300;color:#6b7280;padding:10px 0 10px 12px;vertical-align:top;">${i.priority}</td>
-        <td style="font-size:13px;font-weight:300;color:#6b7280;padding:10px 0 10px 12px;vertical-align:top;">${i.estimatedTime}</td>
+      <tr>
+        <td style="padding:4px 8px;font-size:11px;color:#374151;font-weight:600">OD ${i.tooth}</td>
+        <td style="padding:4px 8px;font-size:11px;color:#374151">${i.procedure}</td>
+        <td style="padding:4px 8px;font-size:10px;color:${i.priority === 'Alta' ? '#EA4335' : i.priority === 'Media' ? '#F9AB00' : '#1D9E75'};font-weight:700">${i.priority}</td>
+        <td style="padding:4px 8px;font-size:10px;color:#9CA3AF">${i.estimatedTime}</td>
       </tr>`).join('');
-      
     return `
-      <div style="margin-bottom:16px;">
-        <p style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;color:#374151;margin-bottom:8px;">${phaseName}</p>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px;">
+      <div style="margin-bottom:10px;border-radius:8px;overflow:hidden;border-left:3px solid ${border};background:${bg}">
+        <div style="padding:6px 10px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${color}">${label}</div>
+        <table style="width:100%;border-collapse:collapse">
           <thead>
-            <tr style="border-bottom:2px solid #e5e7eb;">
-              <th style="${thStyle}">OD</th>
-              <th style="${thStyle}">Procedimiento</th>
-              <th style="${thStyle}">Prioridad</th>
-              <th style="${thStyle}">Tiempo</th>
+            <tr style="background:rgba(0,0,0,0.03)">
+              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#9CA3AF;text-align:left;font-weight:600">OD</th>
+              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#9CA3AF;text-align:left;font-weight:600">Procedimiento</th>
+              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#9CA3AF;text-align:left;font-weight:600">Prioridad</th>
+              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#9CA3AF;text-align:left;font-weight:600">Tiempo</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -413,32 +404,38 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
       </div>`;
   };
 
-  const phase1 = renderPhase(plan.filter(p => p.phase === 1), 'FASE I — Urgencia / Control de Infección');
-  const phase2 = renderPhase(plan.filter(p => p.phase === 2), 'FASE II — Rehabilitadora / Quirúrgica');
-  const phase3 = renderPhase(plan.filter(p => p.phase === 3), 'FASE III — Mantenimiento / Prevención');
+  // ── Diagnóstico ────────────────────────────────────────────────────────────
+  const diagRows = diagnoses.map(d => `
+    <tr>
+      <td style="padding:4px 0;font-size:11px;font-weight:700;color:#7B4FA8;white-space:nowrap;padding-right:12px">${d.code}</td>
+      <td style="padding:4px 0;font-size:12px;color:#374151">${d.description}</td>
+    </tr>`).join('');
 
   // ── HTML final ─────────────────────────────────────────────────────────────
-  return `<div style="font-family:ui-sans-serif,system-ui,sans-serif;padding:8px 0;">
+  return `<div style="font-family:inherit">
 
-  <div style="margin-bottom:24px;">
-    <p style="font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#9CA3AF;margin:0 0 12px">VII · ODONTOGRAMA</p>
-    ${hallazgosHTML}
-    <p style="font-size:14px;font-weight:300;color:#3a3a3a;line-height:1.6;margin:0;">${clinicalText}</p>
+  <div style="margin-bottom:16px;padding:14px 16px;border-radius:10px;background:#ffffff;border:1px solid #e5e7eb">
+    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin:0 0 10px">VII · ODONTOGRAMA</p>
+    ${activeStates.length > 0 ? `
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px">
+      <tbody>${hallazgosRows}</tbody>
+    </table>` : ''}
+    <p style="font-size:12px;color:#374151;line-height:1.7;margin:0;border-top:${activeStates.length > 0 ? '1px solid #f3f4f6' : 'none'};padding-top:${activeStates.length > 0 ? '10px' : '0'}">${clinicalText}</p>
   </div>
 
-  <div style="margin-bottom:24px;">
-    <p style="font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#9CA3AF;margin:0 0 12px">VIII · DIAGNÓSTICO PRESUNTIVO</p>
-    <table style="width:100%;border-collapse:collapse;">
+  <div style="margin-bottom:16px;padding:14px 16px;border-radius:10px;background:#ffffff;border:1px solid #e5e7eb">
+    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin:0 0 10px">VIII · DIAGNÓSTICO PRESUNTIVO</p>
+    <table style="width:100%;border-collapse:collapse">
       <tbody>${diagRows}</tbody>
     </table>
   </div>
 
   ${plan.length > 0 ? `
-  <div style="margin-bottom:24px;">
-    <p style="font-size:11px;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:#9CA3AF;margin:0 0 12px">IX · PLAN DE TRATAMIENTO</p>
-    ${phase1}
-    ${phase2}
-    ${phase3}
+  <div style="margin-bottom:16px;padding:14px 16px;border-radius:10px;background:#ffffff;border:1px solid #e5e7eb">
+    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin:0 0 10px">IX · PLAN DE TRATAMIENTO</p>
+    ${renderPhase(phase1, 1)}
+    ${renderPhase(phase2, 2)}
+    ${renderPhase(phase3, 3)}
   </div>` : ''}
 
 </div>`;
