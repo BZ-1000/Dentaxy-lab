@@ -16,10 +16,10 @@ const PisoBocaSection: React.FC<PisoBocaSectionProps> = ({ data, onChange }) => 
   };
 
   return (
-    <div className="space-y-4 p-4 bg-purple-50/30 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+    <div className="space-y-4 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
       <div className="flex items-center gap-2 mb-4">
-        <Mountain className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-        <h3 className="text-lg font-semibold text-purple-900 dark:text-purple-100">Piso de Boca</h3>
+        <Mountain className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Piso de Boca</h3>
       </div>
 
       <div className="flex items-center gap-2 mb-4">

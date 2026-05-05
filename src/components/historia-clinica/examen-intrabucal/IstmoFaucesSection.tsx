@@ -16,10 +16,10 @@ const IstmoFaucesSection: React.FC<IstmoFaucesSectionProps> = ({ data, onChange 
   };
 
   return (
-    <div className="space-y-4 p-4 bg-teal-50/30 dark:bg-teal-950/20 rounded-lg border border-teal-200 dark:border-teal-800">
+    <div className="space-y-4 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
       <div className="flex items-center gap-2 mb-4">
-        <Shapes className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-        <h3 className="text-lg font-semibold text-teal-900 dark:text-teal-100">Istmo de las Fauces</h3>
+        <Shapes className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Istmo de las Fauces</h3>
       </div>
 
       <div className="flex items-center gap-2 mb-4">

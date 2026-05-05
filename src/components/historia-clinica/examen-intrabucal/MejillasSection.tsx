@@ -16,10 +16,10 @@ const MejillasSection: React.FC<MejillasSectionProps> = ({ data, onChange }) => 
   };
 
   return (
-    <div className="space-y-4 p-4 bg-blue-50/30 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+    <div className="space-y-4 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
       <div className="flex items-center gap-2 mb-4">
-        <SmilePlus className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-        <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">Mejillas</h3>
+        <SmilePlus className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Mejillas</h3>
       </div>
 
       <div className="flex items-center gap-2 mb-4">

@@ -16,10 +16,10 @@ const LenguaSection: React.FC<LenguaSectionProps> = ({ data, onChange }) => {
   };
 
   return (
-    <div className="space-y-4 p-4 bg-pink-50/30 dark:bg-pink-950/20 rounded-lg border border-pink-200 dark:border-pink-800">
+    <div className="space-y-4 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
       <div className="flex items-center gap-2 mb-4">
-        <Waves className="w-5 h-5 text-pink-600 dark:text-pink-400" />
-        <h3 className="text-lg font-semibold text-pink-900 dark:text-pink-100">Lengua</h3>
+        <Waves className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Lengua</h3>
       </div>
 
       <div className="flex items-center gap-2 mb-4">

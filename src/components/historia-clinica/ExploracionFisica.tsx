@@ -67,25 +67,43 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
   };
 
   const generarRedaccion = () => {
-    // Generate simple redaction
-    const signos = formData.exploracionFisica?.signosVitales || {};
-    let content = "EXPLORACIÓN FÍSICA Y SIGNOS VITALES:\n\n";
-    content += `Peso: ${signos.peso || 'No registrado'} kg\n`;
-    content += `Talla: ${signos.talla || 'No registrada'} m\n`;
-    content += `IMC: ${imc} (${getIMCCategory(imc).label})\n`;
-    content += `Presión Arterial: ${signos.ta || 'No registrada'} mmHg\n`;
-    content += `Pulso: ${signos.pulso || 'No registrado'} ppm\n`;
-    content += `Frecuencia Cardíaca: ${signos.fc || 'No registrada'} lpm\n`;
-    content += `Temperatura: ${signos.temperatura || 'No registrada'} °C\n`;
+    const sv = formData.exploracionFisica?.signosVitales || {} as any;
+    const bpVals = sv.ta ? (() => {
+      const [s, d] = sv.ta.split('/').map(Number);
+      return { systolic: s || 0, diastolic: d || 0 };
+    })() : null;
+    const bpCat = bpVals ? getBPCategory(bpVals.systolic, bpVals.diastolic) : null;
+    const imcCat = getIMCCategory(imc);
 
-    setRedaccionContent(content);
-    if (onRedaccionGenerada) {
-      onRedaccionGenerada(content);
-    }
+    // ── Filas de la tabla ────────────────────────────────────────────────────
+    const rows: { param: string; valor: string; unidad: string; categoria?: string }[] = [
+      { param: 'Tensión arterial',      valor: sv.ta           || '—', unidad: 'mmHg', categoria: bpCat?.label },
+      { param: 'Pulso',                 valor: sv.pulso        || '—', unidad: 'ppm'  },
+      { param: 'Frecuencia cardíaca',   valor: sv.fc           || '—', unidad: 'lpm'  },
+      { param: 'Frecuencia respiratoria',valor: sv.fr         || '—', unidad: 'rpm'  },
+      { param: 'Temperatura',           valor: sv.temperatura  || '—', unidad: '°C'   },
+      { param: 'Peso',                  valor: sv.peso         || '—', unidad: 'kg'   },
+      { param: 'Talla',                 valor: sv.talla        || '—', unidad: 'm'    },
+      { param: 'IMC',                   valor: imc > 0 ? imc.toFixed(1) : '—', unidad: 'kg/m²', categoria: imcCat.label },
+    ];
+
+    // ── Filas de la tabla estilo Datos Generales ─────────────────────────────
+    const filas = rows.map((f, i) => {
+      const bg = i % 2 !== 0 ? ' style="background:#f9fafb;"' : '';
+      const displayVal = `${f.valor} ${f.unidad} ${f.categoria ? `(${f.categoria})` : ''}`;
+      return `<tr${bg}>
+        <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;color:#888;text-transform:uppercase;width:38%;padding:11px 16px 11px 0;vertical-align:top;border-bottom:1px solid #e5e7eb;">${f.param}</td>
+        <td style="font-size:14px;font-weight:300;color:#3a3a3a;padding:11px 0 11px 16px;vertical-align:top;border-bottom:1px solid #e5e7eb;">${displayVal}</td>
+      </tr>`;
+    }).join('');
+
+    const html = `<table style="width:100%;border-collapse:collapse;">
+      <tbody>${filas}</tbody>
+    </table>`;
+
+    setRedaccionContent(html);
+    if (onRedaccionGenerada) onRedaccionGenerada(html);
     setActiveTab('redaccion');
-    if (onToggleViewMode) {
-      onToggleViewMode();
-    }
   };
 
   return (

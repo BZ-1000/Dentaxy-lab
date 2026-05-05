@@ -29,10 +29,13 @@ const isMaxilar = (id: number) => {
 const STROKE_NORMAL   = '#9CA3AF'; // gray-400 — visible pero suave
 const STROKE_ACTIVE   = '#6B7280'; // gray-500 — un poco más oscuro cuando hay color
 const STROKE_W        = 1.5;
+const HOVER_COLOR     = '#DBEAFE'; // azul claro en hover (blue-100)
+const HOVER_STROKE    = '#3B82F6'; // azul en hover (blue-500)
 
 export const ToothBox: React.FC<ToothBoxProps> = ({ id, state, onClickFace, onClickExtracted }) => {
   const { top, bottom, left, right, center, isExtracted } = state;
   const white = '#ffffff';
+  const [hoverFace, setHoverFace] = React.useState<ToothFace | null>(null);
 
   // ¿Alguna cara tiene color ADA (no es blanca)?
   const hasColor = [top, bottom, left, right, center].some(c => c && c !== white);
@@ -40,10 +43,10 @@ export const ToothBox: React.FC<ToothBoxProps> = ({ id, state, onClickFace, onCl
 
   const numberOnTop    = isMaxilar(id);
   const labelStyle: React.CSSProperties = {
-    fontSize: 8,
-    fontWeight: 700,
-    fontFamily: 'ui-monospace, monospace',
-    color: '#374151',      // gray-700 — bien visible
+    fontSize: 9,
+    fontWeight: 600,
+    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+    color: '#6B7280',      // gray-500 — más elegante
     lineHeight: 1,
     userSelect: 'none',
     letterSpacing: '-0.3px',
@@ -83,66 +86,66 @@ export const ToothBox: React.FC<ToothBoxProps> = ({ id, state, onClickFace, onCl
         {/* Top — Vestibular */}
         <path
           d="M 10,10 L 90,10 L 75,25 L 25,25 Z"
-          fill={top || white}
-          stroke={stroke}
-          strokeWidth={STROKE_W}
+          fill={hoverFace === 'top' ? HOVER_COLOR : (top || white)}
+          stroke={hoverFace === 'top' ? HOVER_STROKE : stroke}
+          strokeWidth={hoverFace === 'top' ? 2 : STROKE_W}
           strokeLinejoin="round"
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', transition: 'fill 0.12s, stroke 0.12s' }}
+          onMouseEnter={() => setHoverFace('top')}
+          onMouseLeave={() => setHoverFace(null)}
           onClick={() => onClickFace?.('top')}
-        >
-          <title>Vestibular</title>
-        </path>
+        ><title>Vestibular</title></path>
 
         {/* Bottom — Palatino/Lingual */}
         <path
           d="M 10,90 L 90,90 L 75,75 L 25,75 Z"
-          fill={bottom || white}
-          stroke={stroke}
-          strokeWidth={STROKE_W}
+          fill={hoverFace === 'bottom' ? HOVER_COLOR : (bottom || white)}
+          stroke={hoverFace === 'bottom' ? HOVER_STROKE : stroke}
+          strokeWidth={hoverFace === 'bottom' ? 2 : STROKE_W}
           strokeLinejoin="round"
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', transition: 'fill 0.12s, stroke 0.12s' }}
+          onMouseEnter={() => setHoverFace('bottom')}
+          onMouseLeave={() => setHoverFace(null)}
           onClick={() => onClickFace?.('bottom')}
-        >
-          <title>Lingual/Palatino</title>
-        </path>
+        ><title>Lingual/Palatino</title></path>
 
-        {/* Left — según cuadrante puede ser Mesial o Distal */}
+        {/* Left */}
         <path
           d="M 10,10 L 25,25 L 25,75 L 10,90 Z"
-          fill={left || white}
-          stroke={stroke}
-          strokeWidth={STROKE_W}
+          fill={hoverFace === 'left' ? HOVER_COLOR : (left || white)}
+          stroke={hoverFace === 'left' ? HOVER_STROKE : stroke}
+          strokeWidth={hoverFace === 'left' ? 2 : STROKE_W}
           strokeLinejoin="round"
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', transition: 'fill 0.12s, stroke 0.12s' }}
+          onMouseEnter={() => setHoverFace('left')}
+          onMouseLeave={() => setHoverFace(null)}
           onClick={() => onClickFace?.('left')}
-        >
-          <title>Mesial/Distal</title>
-        </path>
+        ><title>Mesial/Distal</title></path>
 
         {/* Right */}
         <path
           d="M 90,10 L 75,25 L 75,75 L 90,90 Z"
-          fill={right || white}
-          stroke={stroke}
-          strokeWidth={STROKE_W}
+          fill={hoverFace === 'right' ? HOVER_COLOR : (right || white)}
+          stroke={hoverFace === 'right' ? HOVER_STROKE : stroke}
+          strokeWidth={hoverFace === 'right' ? 2 : STROKE_W}
           strokeLinejoin="round"
-          style={{ cursor: 'pointer' }}
+          style={{ cursor: 'pointer', transition: 'fill 0.12s, stroke 0.12s' }}
+          onMouseEnter={() => setHoverFace('right')}
+          onMouseLeave={() => setHoverFace(null)}
           onClick={() => onClickFace?.('right')}
-        >
-          <title>Distal/Mesial</title>
-        </path>
+        ><title>Distal/Mesial</title></path>
 
         {/* Center — Oclusal/Incisal */}
         <rect
           x="25" y="25" width="50" height="50"
-          fill={center || white}
-          stroke={stroke}
-          strokeWidth={STROKE_W}
-          style={{ cursor: 'pointer' }}
+          fill={hoverFace === 'center' ? HOVER_COLOR : (center || white)}
+          stroke={hoverFace === 'center' ? HOVER_STROKE : stroke}
+          strokeWidth={hoverFace === 'center' ? 2 : STROKE_W}
+          style={{ cursor: 'pointer', transition: 'fill 0.12s, stroke 0.12s' }}
+          onMouseEnter={() => setHoverFace('center')}
+          onMouseLeave={() => setHoverFace(null)}
           onClick={() => onClickFace?.('center')}
-        >
-          <title>Oclusal/Incisal</title>
-        </rect>
+        ><title>Oclusal/Incisal</title></rect>
       </svg>
 
       {/* Número FDI — abajo para mandibulares */}

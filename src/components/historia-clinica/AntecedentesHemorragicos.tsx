@@ -1,7 +1,4 @@
-
-import React, { useState } from 'react';
-import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Sparkles } from "lucide-react";
+import React from 'react';
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { VoiceInput } from "@/components/ui/voice-input";
@@ -13,146 +10,208 @@ interface AntecedentesHemorragicosProps {
   onToggleViewMode?: () => void;
 }
 
+// ── Botón Sí/No reutilizable ──────────────────────────────────────────────────
+const BoolBtn = ({ active, label, onClick }: { active: boolean; label: string; onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+      active
+        ? 'bg-zinc-800 text-white shadow-sm'
+        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'
+    }`}
+  >
+    {label}
+  </button>
+);
+
+// ── Fila de pregunta ──────────────────────────────────────────────────────────
+const PreguntaYN = ({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: boolean | undefined;
+  onChange: (v: boolean) => void;
+}) => (
+  <div>
+    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{label}</h3>
+    <div className="flex gap-3">
+      <BoolBtn active={value === true}  label="Sí" onClick={() => onChange(true)}  />
+      <BoolBtn active={value === false} label="No" onClick={() => onChange(false)} />
+    </div>
+  </div>
+);
+
 const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
   formData,
   handleAntecedenteHemorragicoChange,
   onRedaccionGenerada,
-  onToggleViewMode
+  onToggleViewMode,
 }) => {
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [isMaximized, setIsMaximized] = useState(false);
-  const [activeTab, setActiveTab] = useState('formulario');
-  const [redaccionContent, setRedaccionContent] = useState('');
-  const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
+  const h = formData.antecedentesHemorragicos;
 
-  const handleMinimize = () => {
-    setIsMinimized(!isMinimized);
-    setIsMaximized(false);
-  };
-  const handleMaximize = () => {
-    setIsMaximized(!isMaximized);
-    setIsMinimized(false);
-  };
-  const handleClose = () => {
-    setIsMinimized(false);
-    setIsMaximized(false);
-  };
-  const handleTextChange = (field: string, value: string) => {
+  const set = (field: string, value: any) =>
     handleAntecedenteHemorragicoChange(field, value);
+
+  const handleVoice = (field: string) => (text: string) => {
+    const current = (h as any)[field] || '';
+    set(field, current ? `${current} ${text}` : text);
   };
-  const handleBooleanChange = (field: string, value: boolean) => {
-    handleAntecedenteHemorragicoChange(field, value);
-  };
-  const handleVoiceInput = (field: string) => (text: string) => {
-    const currentValue = formData.antecedentesHemorragicos[field] || "";
-    handleAntecedenteHemorragicoChange(field, currentValue ? `${currentValue} ${text}` : text);
-  };
+
+  // ── Motor de redacción determinista ──────────────────────────────────────
   const generateRedaccion = () => {
-    setIsGeneratingRedaccion(true);
-    // Remove timeout
-    let content = "";
+    let parts: string[] = [];
 
-    if (formData.antecedentesHemorragicos.transfusiones === 'si' || formData.antecedentesHemorragicos.transfusionPrevia) {
-      content += "El paciente ha recibido transfusiones sanguíneas o derivados. ";
-      if (formData.antecedentesHemorragicos.motivoTransfusion) {
-        content += `Motivo de la transfusión: ${formData.antecedentesHemorragicos.motivoTransfusion}. `;
-      }
-      if (formData.antecedentesHemorragicos.fechaTransfusion) {
-        content += `Fecha de la transfusión: ${formData.antecedentesHemorragicos.fechaTransfusion}. `;
-      }
+    // Transfusiones
+    if (h.transfusionPrevia === true) {
+      let t = 'El paciente refiere haber recibido transfusiones sanguíneas o hemoderivados.';
+      if (h.motivoTransfusion)  t += ` Motivo: ${h.motivoTransfusion}.`;
+      if (h.fechaTransfusion)   t += ` Fecha aproximada: ${h.fechaTransfusion}.`;
+      parts.push(t);
     } else {
-      content += "El paciente niega antecedentes de transfusiones sanguíneas. ";
+      parts.push('El paciente niega antecedentes de transfusiones sanguíneas o hemoderivados.');
     }
 
-    if (formData.antecedentesHemorragicos.sangradoProlongado === 'si') {
-      content += "<br/>Refiere episodios de sangrado prolongado. ";
+    // Sangrado prolongado
+    if (h.sangradoProlongado === true) {
+      parts.push('Refiere episodios de sangrado prolongado ante heridas o procedimientos, lo que puede ser indicativo de alteración en la hemostasia primaria o secundaria.');
+    } else {
+      parts.push('Niega episodios de sangrado prolongado ante heridas o procedimientos.');
     }
-    if (formData.antecedentesHemorragicos.hematomas === 'si') {
-      content += "Presenta tendencia a desarrollar hematomas. ";
-    }
-    if (formData.antecedentesHemorragicos.hemorragiasEspontaneas === 'si') {
-      content += "Ha experimentado hemorragias espontáneas. ";
-    }
-    if (formData.antecedentesHemorragicos.detallesAdicionales) {
-      content += `<br/><br/>Detalles adicionales: ${formData.antecedentesHemorragicos.detallesAdicionales}`;
-    }
-    setRedaccionContent(content);
-    if (onRedaccionGenerada) {
-      onRedaccionGenerada(content);
-    }
-    setIsGeneratingRedaccion(false);
-    setActiveTab('redaccion');
 
-    if (onToggleViewMode) {
-      onToggleViewMode();
+    // Hematomas
+    if (h.hematomas === true) {
+      parts.push('Presenta tendencia a desarrollar hematomas sin causa aparente o ante traumatismos menores, hallazgo clínicamente relevante previo a cualquier procedimiento invasivo.');
+    } else {
+      parts.push('Niega tendencia a desarrollar hematomas espontáneos o ante traumatismos menores.');
     }
+
+    // Hemorragias espontáneas
+    if (h.hemorragiasEspontaneas === true) {
+      parts.push('Ha experimentado hemorragias espontáneas (epistaxis, sangrado gingival, etc.) sin causa aparente.');
+    } else {
+      parts.push('Niega hemorragias espontáneas de mucosas u otras localizaciones.');
+    }
+
+    // Coagulopatía
+    if ((h as any).coagulopatia === true) {
+      parts.push('Cuenta con diagnóstico de trastorno de la coagulación (hemofilia, enfermedad de Von Willebrand u otro). Se requiere protocolo especial de hemostasia previo al procedimiento dental.');
+    } else {
+      parts.push('Niega diagnóstico de coagulopatía o trastorno de la coagulación.');
+    }
+
+    // Detalles adicionales
+    if (h.detallesAdicionales) {
+      parts.push(`Información adicional relevante: ${h.detallesAdicionales}`);
+    }
+
+    const content = parts.join(' ');
+    onRedaccionGenerada?.(content);
   };
 
-  return <div className={`max-w-4xl mx-auto transition-all duration-300 ${isMaximized ? "fixed inset-4 z-50" : ""}`} data-section-redaction="true" data-section-name="antecedentesHemorragicos" data-formulario-section="antecedentes-hemorragicos">
-    <div className="w-full bg-transparent">
+  // Auto-generar redacción al cambiar datos
+  React.useEffect(() => {
+    generateRedaccion();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    h.transfusionPrevia, h.motivoTransfusion, h.fechaTransfusion,
+    h.sangradoProlongado, h.hematomas, h.hemorragiasEspontaneas,
+    (h as any).coagulopatia, h.detallesAdicionales,
+  ]);
 
-      {!isMinimized && <>
-        {activeTab === 'formulario' ? <div className="p-6">
-          <div className="space-y-6">
+  return (
+    <div
+      className="max-w-4xl mx-auto"
+      data-section-name="antecedentesHemorragicos"
+      data-formulario-section="antecedentes-hemorragicos"
+    >
+      <div className="p-6 space-y-6">
+
+        {/* 1. Transfusiones */}
+        <PreguntaYN
+          label="Transfusiones — ¿Le han transfundido sangre o algún derivado de la misma?"
+          value={h.transfusionPrevia}
+          onChange={(v) => set('transfusionPrevia', v)}
+        />
+
+        {h.transfusionPrevia === true && (
+          <div className="pl-4 border-l-2 border-gray-100 space-y-3">
             <div>
-              <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">¿Le han transfundido sangre o algún derivado de la misma?</h3>
-              <div className="flex gap-2 sm:gap-4">
-                <button className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesHemorragicos.transfusionPrevia ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`} onClick={() => handleBooleanChange('transfusionPrevia', true)}>
-                  Sí
-                </button>
-                <button className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesHemorragicos.transfusionPrevia === false ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`} onClick={() => handleBooleanChange('transfusionPrevia', false)}>
-                  No
-                </button>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Motivo de la transfusión</label>
+              <div className="flex items-center gap-2">
+                <Textarea
+                  value={h.motivoTransfusion || ''}
+                  onChange={e => set('motivoTransfusion', e.target.value)}
+                  placeholder="Especifique el motivo"
+                  className="min-h-[60px] flex-1"
+                />
+                <VoiceInput onTranscriptionComplete={handleVoice('motivoTransfusion')} />
               </div>
             </div>
-
-            {formData.antecedentesHemorragicos.transfusionPrevia && (
-              <>
-                <div className="relative">
-                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Motivo de la transfusión:</label>
-                  <div className="flex items-center gap-2 sm:gap-4">
-                    <Textarea value={formData.antecedentesHemorragicos.motivoTransfusion || ''} onChange={e => handleTextChange('motivoTransfusion', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
-                    <div className="h-8 sm:h-10">
-                      <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTransfusion')} />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Fecha de la transfusión:</label>
-                  <div className="flex items-center gap-2 sm:gap-4">
-                    <Textarea value={formData.antecedentesHemorragicos.fechaTransfusion || ''} onChange={e => handleTextChange('fechaTransfusion', e.target.value)} placeholder="DD/MM/AAAA o especifique aproximadamente" className="min-h-[60px] flex-1" />
-                    <div className="h-8 sm:h-10">
-                      <VoiceInput onTranscriptionComplete={handleVoiceInput('fechaTransfusion')} />
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-
-            <div className="relative">
-              <label className="block text-sm font-medium mb-1">Detalles adicionales sobre antecedentes hemorrágicos:</label>
-              <div className="flex items-center gap-2 sm:gap-4">
-                <Textarea value={formData.antecedentesHemorragicos.detallesAdicionales || ''} onChange={e => handleTextChange('detallesAdicionales', e.target.value)} placeholder="Proporcione cualquier otra información relevante" className="min-h-[80px] flex-1" />
-                <div className="h-8 sm:h-10">
-                  <VoiceInput onTranscriptionComplete={handleVoiceInput('detallesAdicionales')} />
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-600 mb-1">Fecha aproximada</label>
+              <div className="flex items-center gap-2">
+                <Textarea
+                  value={h.fechaTransfusion || ''}
+                  onChange={e => set('fechaTransfusion', e.target.value)}
+                  placeholder="DD/MM/AAAA o aproximadamente"
+                  className="min-h-[50px] flex-1"
+                />
+                <VoiceInput onTranscriptionComplete={handleVoice('fechaTransfusion')} />
               </div>
             </div>
+          </div>
+        )}
 
-            <div className="flex justify-end items-center gap-3 pt-6 mt-6 border-t border-gray-100 dark:border-gray-700/50">
-            </div>
+        {/* 2. Sangrado prolongado */}
+        <PreguntaYN
+          label="Sangrado prolongado — ¿Presenta episodios de sangrado prolongado ante heridas o procedimientos?"
+          value={h.sangradoProlongado as unknown as boolean}
+          onChange={(v) => set('sangradoProlongado', v)}
+        />
+
+        {/* 3. Hematomas */}
+        <PreguntaYN
+          label="Hematomas espontáneos — ¿Tiene tendencia a desarrollar hematomas sin causa aparente o ante traumatismos menores?"
+          value={h.hematomas as unknown as boolean}
+          onChange={(v) => set('hematomas', v)}
+        />
+
+        {/* 4. Hemorragias espontáneas */}
+        <PreguntaYN
+          label="Hemorragias espontáneas — ¿Ha experimentado sangrados sin causa aparente (nariz, encías, etc.)?"
+          value={h.hemorragiasEspontaneas as unknown as boolean}
+          onChange={(v) => set('hemorragiasEspontaneas', v)}
+        />
+
+        {/* 5. Coagulopatía */}
+        <PreguntaYN
+          label="Coagulopatía diagnosticada — ¿Tiene diagnóstico de algún trastorno de la coagulación (hemofilia, Von Willebrand, etc.)?"
+          value={(h as any).coagulopatia}
+          onChange={(v) => set('coagulopatia', v)}
+        />
+
+        {/* Información adicional */}
+        <div>
+          <label className="block text-sm font-medium text-gray-600 mb-1">
+            Información adicional sobre antecedentes hemorrágicos
+          </label>
+          <div className="flex items-center gap-2">
+            <Textarea
+              value={h.detallesAdicionales || ''}
+              onChange={e => set('detallesAdicionales', e.target.value)}
+              placeholder="Proporcione cualquier otra información relevante"
+              className="min-h-[70px] flex-1"
+            />
+            <VoiceInput onTranscriptionComplete={handleVoice('detallesAdicionales')} />
           </div>
-        </div> : <div className="p-6">
-          <div className="bg-transparent dark:bg-gray-900 rounded-lg p-4 min-h-[200px] whitespace-pre-wrap" style={{
-            whiteSpace: 'pre-wrap'
-          }} data-redaction-content>
-            {redaccionContent || "No se ha generado redacción aún. Utilice el botón 'Generar Redacción IA' en la pestaña de Formulario."}
-          </div>
-        </div>}
-      </>}
+        </div>
+
+      </div>
     </div>
-  </div>;
+  );
 };
 
 export default AntecedentesHemorragicos;

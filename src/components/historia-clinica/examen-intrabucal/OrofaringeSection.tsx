@@ -16,10 +16,10 @@ const OrofaringeSection: React.FC<OrofaringeSectionProps> = ({ data, onChange })
   };
 
   return (
-    <div className="space-y-4 p-4 bg-yellow-50/30 dark:bg-yellow-950/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+    <div className="space-y-4 p-4 bg-white dark:bg-gray-900 rounded-lg border border-gray-100 dark:border-gray-800">
       <div className="flex items-center gap-2 mb-4">
-        <Circle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-        <h3 className="text-lg font-semibold text-yellow-900 dark:text-yellow-100">Orofaringe</h3>
+        <Circle className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Orofaringe</h3>
       </div>
 
       <div className="flex items-center gap-2 mb-4">

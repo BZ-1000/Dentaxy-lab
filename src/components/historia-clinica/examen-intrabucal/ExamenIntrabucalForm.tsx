@@ -50,9 +50,9 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
 
       {!redaccionComun && (
         <Accordion type="multiple" className="w-full space-y-3">
-          <AccordionItem value="mejillas" className="border rounded-lg overflow-hidden">
-            <AccordionTrigger className="px-4 hover:no-underline bg-blue-50/30 dark:bg-blue-950/20">
-              <span className="font-semibold">1. Mejillas</span>
+          <AccordionItem value="mejillas" className="border border-gray-100 rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-white dark:bg-gray-900">
+              <span className="font-semibold text-gray-800 dark:text-gray-200">1. Mejillas</span>
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-4">
               <MejillasSection 
@@ -62,9 +62,9 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="lengua" className="border rounded-lg overflow-hidden">
-            <AccordionTrigger className="px-4 hover:no-underline bg-pink-50/30 dark:bg-pink-950/20">
-              <span className="font-semibold">2. Lengua</span>
+          <AccordionItem value="lengua" className="border border-gray-100 rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-white dark:bg-gray-900">
+              <span className="font-semibold text-gray-800 dark:text-gray-200">2. Lengua</span>
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-4">
               <LenguaSection 
@@ -74,9 +74,9 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="pisoBoca" className="border rounded-lg overflow-hidden">
-            <AccordionTrigger className="px-4 hover:no-underline bg-purple-50/30 dark:bg-purple-950/20">
-              <span className="font-semibold">3. Piso de Boca</span>
+          <AccordionItem value="pisoBoca" className="border border-gray-100 rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-white dark:bg-gray-900">
+              <span className="font-semibold text-gray-800 dark:text-gray-200">3. Piso de Boca</span>
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-4">
               <PisoBocaSection 
@@ -86,9 +86,9 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="encias" className="border rounded-lg overflow-hidden">
-            <AccordionTrigger className="px-4 hover:no-underline bg-red-50/30 dark:bg-red-950/20">
-              <span className="font-semibold">4. Encías</span>
+          <AccordionItem value="encias" className="border border-gray-100 rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-white dark:bg-gray-900">
+              <span className="font-semibold text-gray-800 dark:text-gray-200">4. Encías</span>
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-4">
               <EnciasSection 
@@ -98,9 +98,9 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="paladar" className="border rounded-lg overflow-hidden">
-            <AccordionTrigger className="px-4 hover:no-underline bg-green-50/30 dark:bg-green-950/20">
-              <span className="font-semibold">5. Paladar Duro y Blando</span>
+          <AccordionItem value="paladar" className="border border-gray-100 rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-white dark:bg-gray-900">
+              <span className="font-semibold text-gray-800 dark:text-gray-200">5. Paladar Duro y Blando</span>
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-4">
               <PaladarSection 
@@ -110,9 +110,9 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="orofaringe" className="border rounded-lg overflow-hidden">
-            <AccordionTrigger className="px-4 hover:no-underline bg-yellow-50/30 dark:bg-yellow-950/20">
-              <span className="font-semibold">6. Orofaringe</span>
+          <AccordionItem value="orofaringe" className="border border-gray-100 rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-white dark:bg-gray-900">
+              <span className="font-semibold text-gray-800 dark:text-gray-200">6. Orofaringe</span>
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-4">
               <OrofaringeSection 
@@ -122,9 +122,9 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="regionRetromolar" className="border rounded-lg overflow-hidden">
-            <AccordionTrigger className="px-4 hover:no-underline bg-cyan-50/30 dark:bg-cyan-950/20">
-              <span className="font-semibold">7. Región Retromolar</span>
+          <AccordionItem value="regionRetromolar" className="border border-gray-100 rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-white dark:bg-gray-900">
+              <span className="font-semibold text-gray-800 dark:text-gray-200">7. Región Retromolar</span>
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-4">
               <RegionRetromolarSection 
@@ -134,9 +134,9 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
             </AccordionContent>
           </AccordionItem>
 
-          <AccordionItem value="istmoFauces" className="border rounded-lg overflow-hidden">
-            <AccordionTrigger className="px-4 hover:no-underline bg-teal-50/30 dark:bg-teal-950/20">
-              <span className="font-semibold">8. Istmo de las Fauces</span>
+          <AccordionItem value="istmoFauces" className="border border-gray-100 rounded-lg overflow-hidden">
+            <AccordionTrigger className="px-4 hover:no-underline bg-white dark:bg-gray-900">
+              <span className="font-semibold text-gray-800 dark:text-gray-200">8. Istmo de las Fauces</span>
             </AccordionTrigger>
             <AccordionContent className="px-4 pt-4">
               <IstmoFaucesSection 
@@ -151,7 +151,7 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
       <div className="flex gap-3 pt-4">
         <Button
           onClick={handleGenerarRedaccion}
-          className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+          className="flex-1 bg-zinc-800 hover:bg-zinc-700 text-white"
         >
           <Sparkles className="w-4 h-4 mr-2" />
           Generar Redacción IA
