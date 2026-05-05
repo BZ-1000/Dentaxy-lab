@@ -1,0 +1,151 @@
+/**
+ * EcosystemPage.css
+ * CSS compartido para todas las páginas del ecosistema Dentaxy
+ * (Lab, Club, News, Aura, Space, MyLana)
+ */
+
+/* ─── Temas por Producto ──────────────────────────────────────────────── */
+
+/* LAB — Púrpura */
+.lab-theme {
+  --eco-primary: 263 70% 50%;
+  --eco-primary-rgb: 124, 58, 237;
+  --eco-gradient-from: #7C3AED;
+  --eco-gradient-to: #5B21B6;
+  --eco-accent-text: hsl(263, 70%, 50%);
+  --eco-glow: rgba(124, 58, 237, 0.35);
+  --eco-glow-light: rgba(124, 58, 237, 0.12);
+  --eco-bg-pill: rgba(124, 58, 237, 0.08);
+  --eco-border: rgba(124, 58, 237, 0.2);
+}
+
+/* CLUB — Naranja */
+.club-theme {
+  --eco-primary: 24 95% 50%;
+  --eco-primary-rgb: 249, 115, 22;
+  --eco-gradient-from: #F97316;
+  --eco-gradient-to: #EA580C;
+  --eco-accent-text: hsl(24, 95%, 50%);
+  --eco-glow: rgba(249, 115, 22, 0.35);
+  --eco-glow-light: rgba(249, 115, 22, 0.12);
+  --eco-bg-pill: rgba(249, 115, 22, 0.08);
+  --eco-border: rgba(249, 115, 22, 0.2);
+}
+
+/* NEWS — Cielo (Sky) */
+.news-theme {
+  --eco-primary: 199 89% 48%;
+  --eco-primary-rgb: 14, 165, 233;
+  --eco-gradient-from: #0EA5E9;
+  --eco-gradient-to: #0284C7;
+  --eco-accent-text: hsl(199, 89%, 48%);
+  --eco-glow: rgba(14, 165, 233, 0.35);
+  --eco-glow-light: rgba(14, 165, 233, 0.12);
+  --eco-bg-pill: rgba(14, 165, 233, 0.08);
+  --eco-border: rgba(14, 165, 233, 0.2);
+}
+
+/* AURA — Dorado */
+.aura-theme {
+  --eco-primary: 38 92% 50%;
+  --eco-primary-rgb: 245, 158, 11;
+  --eco-gradient-from: #F59E0B;
+  --eco-gradient-to: #D97706;
+  --eco-accent-text: hsl(38, 92%, 50%);
+  --eco-glow: rgba(245, 158, 11, 0.35);
+  --eco-glow-light: rgba(245, 158, 11, 0.12);
+  --eco-bg-pill: rgba(245, 158, 11, 0.08);
+  --eco-border: rgba(245, 158, 11, 0.2);
+}
+
+/* SPACE — Rosa */
+.space-theme {
+  --eco-primary: 336 80% 58%;
+  --eco-primary-rgb: 236, 72, 153;
+  --eco-gradient-from: #EC4899;
+  --eco-gradient-to: #DB2777;
+  --eco-accent-text: hsl(336, 80%, 58%);
+  --eco-glow: rgba(236, 72, 153, 0.35);
+  --eco-glow-light: rgba(236, 72, 153, 0.12);
+  --eco-bg-pill: rgba(236, 72, 153, 0.08);
+  --eco-border: rgba(236, 72, 153, 0.2);
+}
+
+/* MYLANA — Lima */
+.mylana-theme {
+  --eco-primary: 84 81% 44%;
+  --eco-primary-rgb: 101, 163, 13;
+  --eco-gradient-from: #65A30D;
+  --eco-gradient-to: #4D7C0F;
+  --eco-accent-text: hsl(84, 81%, 44%);
+  --eco-glow: rgba(101, 163, 13, 0.35);
+  --eco-glow-light: rgba(101, 163, 13, 0.12);
+  --eco-bg-pill: rgba(101, 163, 13, 0.08);
+  --eco-border: rgba(101, 163, 13, 0.2);
+}
+
+/* ─── Clases compartidas ──────────────────────────────────────────────── */
+
+.eco-accent-text {
+  color: var(--eco-accent-text);
+}
+
+.eco-gradient-text {
+  background: linear-gradient(to right, var(--eco-gradient-from), var(--eco-gradient-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.eco-glow-box {
+  box-shadow: 0 8px 48px -12px var(--eco-glow), 0 4px 16px -8px var(--eco-glow-light);
+}
+
+.eco-glass-card {
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(24px);
+  border: 1px solid hsl(var(--border, 214 10% 90%));
+}
+
+.eco-problem-item {
+  background-color: var(--eco-bg-pill);
+  border: 1px solid var(--eco-border);
+}
+
+.eco-cta-btn {
+  background: linear-gradient(to right, var(--eco-gradient-from), var(--eco-gradient-to));
+  box-shadow: 0 0 30px var(--eco-glow-light);
+}
+
+.eco-cta-btn:hover {
+  box-shadow: 0 0 50px var(--eco-glow);
+  transform: scale(1.03);
+}
+
+.eco-hero-btn {
+  background: linear-gradient(135deg, var(--eco-gradient-from), var(--eco-gradient-to));
+  box-shadow: 0 0 30px var(--eco-glow);
+}
+
+.eco-icon-gradient {
+  background: linear-gradient(135deg, var(--eco-gradient-from), var(--eco-gradient-to));
+}
+
+@keyframes eco-glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px var(--eco-glow-light); }
+  50% { box-shadow: 0 0 40px var(--eco-glow); }
+}
+
+.eco-animate-glow {
+  animation: eco-glow-pulse 3s infinite;
+}
+
+/* Scroll Indicator */
+.eco-scroll-dot {
+  background: var(--eco-gradient-from);
+}
+
+/* Border highlight sutil en las tarjetas de feature */
+.eco-highlight-border {
+  border-left: 2px solid var(--eco-gradient-from);
+}

@@ -1,0 +1,2 @@
+"/**\n * OdontogramaInteractivo.tsx — Odontograma SVG Interactivo DentaXy\n *\n * Estándar FDI (11-48) para México y Latinoamérica.\n * Colores ADA internacionales. Motor determinista — costo $0.\n * Sin librerías 3D ni canvas. SVG puro en React.\n
+<truncated 11865 bytes>

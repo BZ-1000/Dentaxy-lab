@@ -1,0 +1,2 @@
+"import React, { useState } from 'react';\nimport { FormDataState } from '../types/historiaClinica';\nimport ExamenIntrabucalForm from './examen-intrabucal/ExamenIntrabucalForm';\nimport RedaccionIntrabucalIA from './examen-intrabucal/RedaccionIntrabucalIA
+<truncated 1880 bytes>

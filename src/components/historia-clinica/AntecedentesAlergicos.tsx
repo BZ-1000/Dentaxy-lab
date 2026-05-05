@@ -85,7 +85,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
         alergiasText += `Específicamente a: ${formData.antecedentesAlergicos.cualesAlergias}. `;
       }
       if (formData.antecedentesAlergicos.especificacionAlergias) {
-        alergiasText += `Se manifiesta como: ${formData.antecedentesAlergicos.especificacionAlergias}. `;
+        alergiasText += `La reacción se presenta en forma de ${formData.antecedentesAlergicos.especificacionAlergias}. `;
       }
     } else {
       alergiasText += "El paciente no refiere antecedentes de alergias. ";
@@ -178,7 +178,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
               ].map(item => (
                 <button
                   key={item.value}
-                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${formData.antecedentesAlergicos.tiposAlergias?.[item.value] ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_8px_rgba(52,211,153,0.45)]' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${formData.antecedentesAlergicos.tiposAlergias?.[item.value] ? 'bg-zinc-800 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                   onClick={() => handleToggleAllergyType(item.value as any)}
                 >
                   {item.label}
@@ -205,14 +205,19 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
               </div>
 
               <div className="relative mt-4">
-                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">¿A qué específicamente?</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">¿Cómo se manifiesta?</label>
                 <div className="flex items-center">
-                  <Textarea
-                    value={formData.antecedentesAlergicos.especificacionAlergias || ''}
-                    onChange={e => handleTextChange('especificacionAlergias', e.target.value)}
-                    placeholder="Describa específicamente la alergia"
-                    className="min-h-[80px] flex-1"
-                  />
+                  <div className="flex flex-1 items-center border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+                    <span className="px-3 py-2 text-sm text-gray-400 bg-gray-50 dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 whitespace-nowrap flex-shrink-0">
+                      La reacción se presenta en forma de
+                    </span>
+                    <Textarea
+                      value={formData.antecedentesAlergicos.especificacionAlergias || ''}
+                      onChange={e => handleTextChange('especificacionAlergias', e.target.value)}
+                      placeholder="urticaria, angioedema, anafilaxia..."
+                      className="min-h-[50px] border-0 shadow-none focus-visible:ring-0 flex-1 resize-none"
+                    />
+                  </div>
                   <div className="ml-2">
                     <VoiceInput onTranscriptionComplete={handleVoiceInput('especificacionAlergias')} />
                   </div>
@@ -228,13 +233,13 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
             <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">¿Le han administrado anestesia general y/o local?</h3>
             <div className="flex gap-4">
               <button
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.administradoAnestesia === true ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_12px_rgba(52,211,153,0.55)]' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-300'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.administradoAnestesia === true ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}
                 onClick={() => handleToggleButton('administradoAnestesia')}
               >
                 Sí
               </button>
               <button
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.administradoAnestesia === false ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_12px_rgba(52,211,153,0.55)]' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-300'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.administradoAnestesia === false ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}
                 onClick={() => handleToggleButton('administradoAnestesia')}
               >
                 No
@@ -263,13 +268,13 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
             <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">¿Tuvo alguna reacción adversa a la anestesia?</h3>
             <div className="flex gap-4">
               <button
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.reaccionAnestesia === true ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_12px_rgba(52,211,153,0.55)]' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-300'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.reaccionAnestesia === true ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}
                 onClick={() => handleToggleButton('reaccionAnestesia')}
               >
                 Sí
               </button>
               <button
-                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.reaccionAnestesia === false ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_12px_rgba(52,211,153,0.55)]' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-emerald-300'}`}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${formData.antecedentesAlergicos.reaccionAnestesia === false ? 'bg-zinc-800 text-white shadow-sm' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 hover:border-gray-400'}`}
                 onClick={() => handleToggleButton('reaccionAnestesia')}
               >
                 No
@@ -307,7 +312,7 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
               ].map(item => (
                 <button
                   key={item.value}
-                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${formData.antecedentesAlergicos.adicciones?.[item.value] ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-[0_0_8px_rgba(52,211,153,0.45)]' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                  className={`px-3 py-1 text-xs font-medium rounded-full transition-all ${formData.antecedentesAlergicos.adicciones?.[item.value] ? 'bg-zinc-800 text-white shadow-sm' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                   onClick={() => handleToggleAddiction(item.value as any)}
                 >
                   {item.label}

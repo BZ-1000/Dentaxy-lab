@@ -1,0 +1,2 @@
+"import React, { useEffect, useRef } from 'react';\nimport { FormDataState, GanglioLinfatico } from '../types/historiaClinica';\nimport { Label } from \"@/components/ui/label\";\nimport { Button } from \"@/components/ui/button\";\nimport { Textarea } from 
+<truncated 14797 bytes>

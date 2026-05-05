@@ -1,0 +1,2 @@
+"/**\n * Odontograma.tsx — Odontograma DentaXy completo\n * · Diseño original ToothBox (5 caras SVG) restaurado\n * · 12 estados ADA con colores normativos por cara\n * · Grado de caries I-IV para diagnóstico preciso\n * · Dentición Permanente / P
+<truncated 29445 bytes>

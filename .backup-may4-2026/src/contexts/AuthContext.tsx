@@ -1,0 +1,262 @@
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { Session, User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { securityLogger } from '@/utils/securityLogger';
+import { UserStorage } from '@/utils/userStorage';
+
+interface SubscriptionData {
+  subscribed: boolean;
+  subscription_tier: string | null;
+  subscription_end: string | null;
+  loading: boolean;
+}
+
+interface AuthContextType {
+  session: Session | null;
+  user: User | null;
+  loading: boolean;
+  subscription: SubscriptionData;
+  checkSubscription: () => Promise<void>;
+  signOut: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [subscription, setSubscription] = useState<SubscriptionData>({
+    subscribed: false,
+    subscription_tier: null,
+    subscription_end: null,
+    loading: false,
+  });
+  const { toast } = useToast();
+
+  const checkSubscription = async () => {
+    if (!session) return;
+
+    try {
+      setSubscription(prev => ({ ...prev, loading: true }));
+
+      console.log('Checking subscription for user:', session.user.email);
+
+      // Check if user is admin - admins get full access without subscription check
+      const userRole = session.user.app_metadata?.role || session.user.user_metadata?.role;
+
+      if (userRole === 'admin') {
+        console.log('User is admin, granting full access');
+        setSubscription({
+          subscribed: true,
+          subscription_tier: 'admin',
+          subscription_end: null,
+          loading: false,
+        });
+        return;
+      }
+
+      // For non-admin users, try to check subscription via Edge Function
+      const { data, error } = await supabase.functions.invoke('check-subscription', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('Error checking subscription:', error);
+        console.error('Full error details:', JSON.stringify(error, null, 2));
+
+        // If Edge Function doesn't exist or fails, deny access for non-admin users
+        toast({
+          title: "Error de configuración",
+          description: "No se pudo verificar el estado de la suscripción. Contacta a soporte.",
+          variant: "destructive",
+        });
+        setSubscription({
+          subscribed: false,
+          subscription_tier: null,
+          subscription_end: null,
+          loading: false,
+        });
+        return;
+      }
+
+      console.log('Subscription check result:', data);
+      setSubscription({
+        subscribed: data.subscribed || false,
+        subscription_tier: data.subscription_tier || null,
+        subscription_end: data.subscription_end || null,
+        loading: false,
+      });
+    } catch (error) {
+      console.error('Error in checkSubscription:', error);
+      setSubscription(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const signOut = async () => {
+    const userId = session?.user?.id;
+    const currentUser = session?.user;
+
+    try {
+      // Limpiar solo datos del usuario actual
+      if (currentUser) {
+        UserStorage.clearUserData(currentUser);
+      }
+
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+
+      // Clear global session storage
+      localStorage.removeItem('userSession');
+
+      // Reset subscription state
+      setSubscription({
+        subscribed: false,
+        subscription_tier: null,
+        subscription_end: null,
+        loading: false,
+      });
+
+      securityLogger.logAuthEvent('signout', userId);
+
+      toast({
+        title: "Sesión cerrada",
+        description: "Has cerrado sesión exitosamente",
+      });
+    } catch (error) {
+      securityLogger.logError('Signout failed', 'AuthContext');
+      console.error('Error signing out:', error);
+
+      // Force logout even if there's an error
+      if (currentUser) {
+        UserStorage.clearUserData(currentUser);
+      }
+      localStorage.removeItem('userSession');
+
+      setSession(null);
+      setSubscription({
+        subscribed: false,
+        subscription_tier: null,
+        subscription_end: null,
+        loading: false,
+      });
+
+      toast({
+        title: "Sesión cerrada",
+        description: "Tu sesión ha sido cerrada",
+      });
+    }
+  };
+
+  useEffect(() => {
+    let mounted = true;
+
+    const initializeAuth = async () => {
+      try {
+        // Get initial session
+        const { data: { session }, error } = await supabase.auth.getSession();
+
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+
+        if (mounted) {
+          setSession(session);
+          if (session) {
+            localStorage.setItem('userSession', JSON.stringify(session));
+          } else {
+            localStorage.removeItem('userSession');
+          }
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('Error in initializeAuth:', error);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    // Listen for auth changes
+    const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (!mounted) return;
+
+        console.log('Auth state changed:', event, session?.user?.email);
+
+        // Log security events
+        if (event === 'SIGNED_IN') {
+          securityLogger.logAuthEvent('signin', session?.user?.id);
+        } else if (event === 'SIGNED_OUT') {
+          securityLogger.logAuthEvent('signout', session?.user?.id);
+        } else if (event === 'TOKEN_REFRESHED') {
+          securityLogger.logAuthEvent('token_refresh', session?.user?.id);
+        }
+
+        setSession(session);
+
+        if (session) {
+          localStorage.setItem('userSession', JSON.stringify(session));
+          // Check subscription status when user logs in
+          if (event === 'SIGNED_IN') {
+            setTimeout(() => {
+              if (mounted) {
+                checkSubscription();
+              }
+            }, 1000);
+          }
+        } else {
+          localStorage.removeItem('userSession');
+          setSubscription({
+            subscribed: false,
+            subscription_tier: null,
+            subscription_end: null,
+            loading: false,
+          });
+        }
+
+        setLoading(false);
+      }
+    );
+
+    // Initialize auth
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+      authSubscription.unsubscribe();
+    };
+  }, []);
+
+  // Check subscription when session changes
+  useEffect(() => {
+    if (session) {
+      checkSubscription();
+    }
+  }, [session]);
+
+  const value = {
+    session,
+    user: session?.user || null,
+    loading,
+    subscription,
+    checkSubscription,
+    signOut,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};

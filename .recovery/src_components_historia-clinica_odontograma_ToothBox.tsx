@@ -1,0 +1,2 @@
+"import React from 'react';\n\nexport type ToothFace = 'top' | 'bottom' | 'left' | 'right' | 'center';\n\nexport interface ToothState {\n  top?: string; // Color ADA, ej. '#EA4335' para rojo (Caries)\n  bottom?: string;\n  left?: string;\n  right?: string;
+<truncated 3087 bytes>

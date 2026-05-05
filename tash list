@@ -1,0 +1,30 @@
+[33m6fa532e52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{0}: reset: moving to HEAD~1
+[33m036c20c17[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{1}: commit: feat: estandarización visual clínica Total White y optimización de redacciones IA
+[33m6fa532e52[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{2}: commit: fix: apply recent UI and animation fixes
+[33m70cfc73ce[m HEAD@{3}: commit: fix: forzar limpieza de caché en dispositivos
+[33ma431b58a7[m HEAD@{4}: commit: feat(seed): implementar generador de tokens dinamicos y fix validacion de acceso a preventa 24hrs
+[33m5aa2bb28c[m HEAD@{5}: reset: moving to 5aa2bb2
+[33m87b6429ea[m HEAD@{6}: reset: moving to 87b6429
+[33m5aa2bb28c[m HEAD@{7}: commit: fix(ai-demo): resolver crash TypeError por undefined en la comprobacion previa de seccionesActivas
+[33mcf919fcd8[m HEAD@{8}: commit: feat(ai-demo): reingenieria a pantalla dividida, layout desktop inmersivo y limpieza en movil
+[33m87b6429ea[m HEAD@{9}: commit: feat(seed): especialidades dentales, Gemini AI, preview IA, SeedManager admin panel + ruta /admin/seed
+[33ma7effa1eb[m HEAD@{10}: commit: feat(seed): login multistep con código PREVENTA + Google OAuth + onboarding checkout Stripe
+[33mf60c7230b[m HEAD@{11}: commit: feat(academico): implementar ciclo completo sandbox (administrativo -> alumno -> docente) en tiempo real
+[33md9930ddde[m HEAD@{12}: commit: fix(academico): restaurar jerarquia - administrativo crea pacientes, alumno solo lee
+[33m8b7414e44[m HEAD@{13}: commit: feat(academico): integracion de Realtime Sandbox en vista de Alumno
+[33m4005030b1[m HEAD@{14}: commit: feat(academico): sandbox context y esquema base de datos (Phase 2)
+[33mb995a9952[m HEAD@{15}: commit: feat(academico): rediseño premium UI selector de roles (Phase 1)
+[33m1bccbd54f[m HEAD@{16}: commit: fix(academico): prevencion de redireccion externa en modulo UAO Sync
+[33mbf4454cd7[m HEAD@{17}: commit: feat(academico): tokens efimeros y extracción robusta de URL
+[33m72c9f80f6[m HEAD@{18}: commit: fix(demo-creator): dialog scrollable — max-h 90vh + overflow-y-auto interno
+[33med3f1b566[m HEAD@{19}: commit: feat(demo-engine): GeoFence v2 — tokens geo-restringidos + GeoMap CRUD + UAO Sync Supabase
+[33m87f65d11b[m HEAD@{20}: commit: perf(hub): animación instantánea en cards + optimización térmica del canvas
+[33m2f65233e7[m HEAD@{21}: commit: chore: limpieza profunda y optimización de assets
+[33m113589c23[m HEAD@{22}: commit: feat(academico): implementar Zero-State en demo, actualizar logo UAO UAZ y corregir editor admin
+[33m0c5ec9025[m HEAD@{23}: commit: DEMO UAZ
+[33mda3d4842e[m HEAD@{24}: commit: fix(waitlist): allow googleusercontent in CSP for Apps Script redirects
+[33m86e25a4be[m HEAD@{25}: commit (amend): Deploy: Actualización completa del ecosistema (navegación, páginas nuevas y manual técnico V2.0)
+[33m1dcef20ac[m HEAD@{26}: commit (amend): Deploy: Actualización completa del ecosistema (navegación, páginas nuevas y manual técnico V2.0)
+[33m249b87e8d[m HEAD@{27}: commit: Deploy: Actualización completa del ecosistema (navegación, páginas nuevas y manual técnico V2.0)
+[33m40efe102c[m HEAD@{28}: commit: fix: Añadir archivos de ecosystem faltantes
+[33me046a11e3[m HEAD@{29}: commit: feat: Waitlist v2.1 — todos los módulos, GAS v3.0, panel admin /admin/waitlist

@@ -1,0 +1,512 @@
+
+import { FormDataState } from '@/types/historiaClinica';
+
+export const getInitialFormState = (): FormDataState => ({
+  datosGenerales: {
+    nombreCompleto: '',
+    fechaNacimiento: '',
+    sexo: '',
+    estadoCivil: '',
+    ocupacion: '',
+    domicilio: '',
+    telefono: '',
+    correo: '',
+    contactoEmergencia: ''
+  },
+  padecimientoActual: {
+    sinSintomas: false,
+    motivoConsulta: '',
+    historiaPadecimiento: '',
+    dolor: {
+      fechaInicio: '',
+      condicionAparicion: '',
+      frecuencia: '',
+      caracter: '',
+      intensidad: '',
+      localizacion: {
+        tipo: '',
+        descripcion: ''
+      },
+      atenuacion: ''
+    }
+  },
+  antecedentesHeredoFamiliares: {
+    padre: getInitialFamiliarState(),
+    madre: getInitialFamiliarState(),
+    abueloPaterno: getInitialFamiliarState(),
+    abuelaPaterna: getInitialFamiliarState(),
+    abueloMaterno: getInitialFamiliarState(),
+    abuelaMaterna: getInitialFamiliarState()
+  },
+  antecedentesPersonalesNoPatologicos: {
+    tipoVivienda: "",
+    materialVivienda: "",
+    servicios: [],
+    condicionCalle: "",
+    iluminacionCalle: "",
+    frecuenciaLimpieza: "",
+    cambioRopaCama: "",
+    hacinamiento: "",
+    promiscuidad: "",
+    mascotas: "",
+    manejoResiduos: "",
+    frecuenciaBano: "",
+    lavadoManos: [],
+    cambioRopa: "",
+    frecuenciaCepillado: "",
+    tecnicaCepillado: "",
+    auxiliaresBucales: [],
+    ultimaVisitaOdontologo: "",
+    problemasBucales: [],
+    alimentosConsumidos: [],
+    frecuenciaFrutasVerduras: "",
+    frecuenciaBebidasAzucaradas: "",
+    frecuenciaComidaChatarra: "",
+    consumoAgua: "",
+    numeroComidas: "",
+    horarioComidas: {
+      desayuno: "",
+      almuerzo: "",
+      cena: ""
+    },
+    ayunoProlongado: ""
+  },
+  antecedentesPersonalesPatologicos: {
+    sinPatologia: false,
+    nutricionales: {
+      anorexia: false,
+      bulimia: false,
+      sobrepeso: false,
+      obesidad: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    cardiacos: {
+      enfermedadCoronaria: false,
+      arritmias: false,
+      defectosCardiacosCongenitos: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    hepaticos: {
+      hepatitisA: false,
+      hepatitisB: false,
+      hepatitisC: false,
+      higadoGraso: false,
+      cirrosis: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    enfermedadesTransmisionSexual: {
+      vih: false,
+      sifilis: false,
+      gonorrea: false,
+      herpesGenital: false,
+      vph: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    enfermedadesEruptivas: {
+      sarampion: false,
+      rubeola: false,
+      escarlatina: false,
+      varicela: false,
+      paperas: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    pulmonares: {
+      neumonia: false,
+      bronquitis: false,
+      asma: false,
+      epoc: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    infecciosasParasitarias: {
+      fiebreTifoidea: false,
+      tuberculosis: false,
+      amibiasis: false,
+      giardiasis: false,
+      ascariasis: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    },
+    otrosPadecimientos: {
+      especificar: false,
+      ninguna: false,
+      otra: false,
+      otraDescripcion: ""
+    }
+  },
+  antecedentesAlergicos: {
+    medicamentos: {
+      es_alergico: false,
+      cuales: "",
+      tipo_reaccion: "",
+      severidad: ""
+    },
+    alimentos: {
+      es_alergico: false,
+      cuales: ""
+    },
+    latex: {
+      es_alergico: false,
+      descripcion_reaccion: ""
+    },
+    tiposAlergias: {
+      medicamentos: false,
+      alimentos: false,
+      ambiente: false
+    },
+    cualesAlergias: "",
+    especificacionAlergias: "",
+    administradoAnestesia: false,
+    tipoAnestesia: "",
+    reaccionAnestesia: false,
+    descripcionReaccion: "",
+    adicciones: {
+      tabaco: false,
+      alcohol: false,
+      drogas: false
+    },
+    detallesAdicciones: ""
+  },
+  antecedentesQuirurgicos: {
+    sinQuirurgicos: false,
+    cirugiasRealizadas: [],
+    hospitalizacionesPrevias: "",
+    complicacionesAnestesicas: "",
+    tratamientoReciente: false,
+    motivoTratamiento: "",
+    hospitalizacionReciente: false,
+    motivoHospitalizacion: "",
+    tomaMedicamentos: false,
+    cualesMedicamentos: "",
+    motivoMedicamentos: ""
+  },
+  antecedentesHemorragicos: {
+    sinHemorragicos: false,
+    sangradoProlongado: "no",
+    hematomas: "no",
+    hemorragiasEspontaneas: "no",
+    transfusiones: "no",
+    detallesAdicionales: "",
+    transfusionPrevia: false,
+    motivoTransfusion: "",
+    fechaTransfusion: ""
+  },
+  antecedentesGinecoObstetricos: {
+    embarazos: 0,
+    partos: 0,
+    cesareas: 0,
+    abortos: 0,
+    complicaciones: ""
+  },
+  interrogatorioSistemas: {
+    cardiovascular: "",
+    respiratorio: "",
+    digestivo: "",
+    urinario: "",
+    musculoEsqueletico: "",
+    nervioso: "",
+    endocrino: "",
+    tegumentario: ""
+  },
+  exploracionFisica: {
+    signosVitales: {
+      ta: "",
+      fc: "",
+      fr: "",
+      temperatura: "",
+      peso: "",
+      talla: "",
+      imc: ""
+    },
+    exploracion: {
+      cabeza: "",
+      cuello: "",
+      torax: "",
+      abdomen: "",
+      extremidades: ""
+    }
+  },
+  examenCabeza: {
+    sinHallazgos: false,
+    craneo: "",
+    cara: "",
+    ojos: "",
+    oidos: "",
+    nariz: "",
+    boca: "",
+    atm: ""
+  },
+  // Add new sections
+  articulacionCraneomandibular: {
+    sinHallazgos: false,
+    aperturaBucal: "",
+    movimientoLateral: "",
+    chasquidos: false,
+    crepitacion: false,
+    dolor: false,
+    observaciones: ""
+  },
+  examenCuello: {
+    sinHallazgos: false,
+    cervicales: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    },
+    submaxilares: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    },
+    submentonianos: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    },
+    parotideos: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    },
+    preauriculares: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    },
+    auricularesPosteriores: {
+      palpacion: '',
+      consistencia: '',
+      dolor: '',
+      movilidad: '',
+      localizacion: '',
+      tamano: '',
+      observaciones: ''
+    }
+  },
+  examenIntrabucal: {
+    sinHallazgos: false,
+    mejillas: {
+      sinHallazgos: false,
+      color: "",
+      textura: "",
+      superficie: "",
+      lesionesPresentes: "",
+      ubicacion: "",
+      simetria: "",
+      secrecionSalival: "",
+      observaciones: ""
+    },
+    lengua: {
+      sinHallazgos: false,
+      tamanio: "",
+      color: "",
+      superficieDorsal: "",
+      bordesLaterales: "",
+      caraVentral: "",
+      movilidad: "",
+      lesiones: "",
+      sensacionReferida: "",
+      simetria: "",
+      observaciones: ""
+    },
+    pisoBoca: {
+      sinHallazgos: false,
+      color: "",
+      textura: "",
+      superficie: "",
+      secrecionSalival: "",
+      movilidadFrenillo: "",
+      lesiones: "",
+      simetria: "",
+      observaciones: ""
+    },
+    encias: {
+      sinHallazgos: false,
+      color: "",
+      contorno: "",
+      consistencia: "",
+      textura: "",
+      margenGingival: "",
+      sangrado: false,
+      placaCalculo: "",
+      lesiones: "",
+      simetria: "",
+      observaciones: ""
+    },
+    paladar: {
+      sinHallazgos: false,
+      color: "",
+      textura: "",
+      superficie: "",
+      movilidad: "",
+      lesiones: "",
+      simetria: "",
+      observaciones: ""
+    },
+    orofaringe: {
+      sinHallazgos: false,
+      color: "",
+      superficie: "",
+      amigdalas: "",
+      arcos: "",
+      dolor: false,
+      lesiones: "",
+      simetria: "",
+      observaciones: ""
+    },
+    regionRetromolar: {
+      sinHallazgos: false,
+      color: "",
+      textura: "",
+      superficie: "",
+      lesiones: "",
+      simetria: "",
+      dolorPalpacion: false,
+      observaciones: ""
+    },
+    istmoFauces: {
+      sinHallazgos: false,
+      amplitud: "",
+      colorMucosa: "",
+      uvula: "",
+      pilares: "",
+      reflejoNauseoso: "",
+      simetria: "",
+      inflamacion: false,
+      observaciones: ""
+    }
+  },
+  glandulasSalivales: {
+    sinHallazgos: false,
+    parotida: "",
+    submaxilar: "",
+    sublingual: "",
+    secrecion: "",
+    observaciones: ""
+  },
+  oclusion: {
+    sinHallazgos: false,
+    clasificacionAngle: "",
+    overjet: "",
+    overbite: "",
+    mordidaCruzada: false,
+    mordidaAbierta: false,
+    observaciones: ""
+  },
+  relacionDientes: {
+    sinHallazgos: false,
+    relacionMolar: "",
+    relacionCanina: "",
+    apiñamiento: false,
+    diastemas: false,
+    observaciones: ""
+  },
+  lineaMedia: {
+    sinHallazgos: false,
+    coincidente: false,
+    desviacion: "",
+    observaciones: ""
+  },
+  frenillos: {
+    sinHallazgos: false,
+    labialSuperior: "",
+    labialInferior: "",
+    lingual: "",
+    observaciones: ""
+  },
+  diagnostico: {
+    principal: "",
+    secundarios: "",
+    observaciones: ""
+  },
+  pronostico: {
+    general: "",
+    particular: "",
+    observaciones: ""
+  },
+  odontograma: {},
+  serviciosDomiciliarios: '',
+  pisosVivienda: '',
+  materialVivienda: '',
+  materialPiso: '',
+  ventilacion: '',
+  frecuenciaLimpieza: '',
+  hacinamiento: '',
+  frecuenciaBano: '',
+  higieneBucal: {
+    frecuenciaCepillado: '',
+    usoHiloDental: '',
+    tipoCerdas: '',
+    cantidadPasta: '',
+    marcaPasta: '',
+  },
+  alimentacion: {
+    tipoDieta: '',
+    frecuenciaComidas: '',
+    tiposAlimentos: '',
+    saltaComidas: '',
+    consumoNutritivo: '',
+  },
+  grupoSanguineo: '',
+  factorRh: '',
+  inmunizaciones: '',
+  peso: '',
+  imc: '',
+  talla: '',
+  presionArterial: '',
+  pulso: '',
+  frecuenciaCardiaca: '',
+  frecuenciaRespiratoria: '',
+  temperatura: '',
+  diagnosticos: '',
+  pronosticos: '',
+});
+
+const getInitialFamiliarState = () => ({
+  finado: false,
+  causaMuerte: '',
+  condiciones: {
+    diabetesMellitus: false,
+    hipertensionArterial: false,
+    osteoporosis: false,
+    artritisReumatoide: false,
+    parkinson: false,
+    alzheimer: false,
+    asma: false,
+    cancer: false,
+    anemia: false,
+    otras: ''
+  }
+});

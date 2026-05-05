@@ -1,0 +1,283 @@
+@import url("https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@100;300;400;500;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background: 0 0% 100%;
+        --foreground: 240 10% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 240 10% 3.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 240 10% 3.9%;
+        --primary: 240 5.9% 10%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 240 4.8% 95.9%;
+        --secondary-foreground: 240 5.9% 10%;
+        --muted: 240 4.8% 95.9%;
+        --muted-foreground: 240 3.8% 46.1%;
+        --accent: 240 4.8% 95.9%;
+        --accent-foreground: 240 5.9% 10%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 240 5.9% 90%;
+        --input: 240 5.9% 90%;
+        --ring: 240 10% 3.9%;
+        --radius: 0.5rem;
+    }
+
+    .dark {
+        --background: 240 10% 3.9%;
+        --foreground: 0 0% 98%;
+        --card: 240 10% 3.9%;
+        --card-foreground: 0 0% 98%;
+        --popover: 240 10% 3.9%;
+        --popover-foreground: 0 0% 98%;
+        --primary: 0 0% 98%;
+        --primary-foreground: 240 5.9% 10%;
+        --secondary: 240 3.7% 15.9%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 240 3.7% 15.9%;
+        --muted-foreground: 240 5% 64.9%;
+        --accent: 240 3.7% 15.9%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 240 3.7% 15.9%;
+        --input: 240 3.7% 15.9%;
+        --ring: 240 4.9% 83.9%;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+
+    /* Google/Apple Style Inputs */
+    input,
+    textarea {
+        @apply rounded-xl border-transparent bg-secondary/30 backdrop-blur-sm transition-all duration-300;
+    }
+
+    input:focus,
+    textarea:focus {
+        @apply shadow-lg ring-2 ring-primary/5 scale-[1.01];
+        outline: none;
+    }
+
+    /* Chat Bubble Labels */
+    label {
+        @apply text-sm font-medium text-muted-foreground ml-1 mb-1.5 block;
+    }
+}
+
+@layer utilities {
+    .glass {
+        @apply bg-white/5 backdrop-blur-lg border border-white/10;
+    }
+
+    .card-border {
+        @apply border border-white/10 bg-white/5 backdrop-blur-md;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05),
+            0 4px 6px -1px rgba(0, 0, 0, 0.1),
+            0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .gradient-border {
+        position: relative;
+        border-radius: 0.75rem;
+        /* rounded-xl */
+        background: linear-gradient(var(--card-bg, rgba(0, 0, 0, 0.5)), var(--card-bg, rgba(0, 0, 0, 0.5))) padding-box,
+            linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05), transparent) border-box;
+        border: 1px solid transparent;
+    }
+
+    .inner-glow {
+        box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02);
+    }
+
+    .animate-float {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+}
+/* ============================================================
+   DENTAXY — SCROLLBAR FANTASMA (ultra-tenue, no roba atención)
+   ============================================================ */
+.dentaxy-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 185, 129, 0.15) transparent;
+}
+
+.dentaxy-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dentaxy-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.dentaxy-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.18);
+  border-radius: 999px;
+  transition: background 0.3s ease;
+}
+
+.dentaxy-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(16, 185, 129, 0.38);
+}
+
+/* Scrollbar global de paneles de formulario — gris muy tenue */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160, 160, 160, 0.12) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(160, 160, 160, 0.15);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 160, 160, 0.3);
+}
+
+/* ============================================================
+   DENTAXY — TIPOGRAFÍA UNIFICADA (estilo DatosGenerales)
+   ============================================================ */
+[data-formulario-section] label,
+[data-section-redaction] label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: rgb(161 161 170);   /* zinc-400 */
+}
+
+[data-formulario-section] h3,
+[data-section-redaction] h3 {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgb(63 63 70);      /* zinc-700 */
+  letter-spacing: 0;
+}
+
+[data-formulario-section] input:not([type='checkbox']):not([type='radio']):not([type='range']),
+[data-formulario-section] select,
+[data-formulario-section] textarea,
+[data-section-redaction] input:not([type='checkbox']):not([type='radio']):not([type='range']),
+[data-section-redaction] textarea {
+  font-size: 14px;
+  font-weight: 300;
+  color: rgb(39 39 42);      /* zinc-800 */
+}
+
+/* ============================================================
+   DENTAXY — COLORES VIBRANTES Y CONSISTENTES
+   ============================================================ */
+
+/* Toggle activo: verde brillante */
+.dentaxy-toggle-active {
+  background: linear-gradient(135deg, #34d399, #10b981);
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.5), 0 0 4px rgba(16, 185, 129, 0.3);
+  color: white;
+  border: none;
+}
+
+/* Toggle inactivo */
+.dentaxy-toggle-inactive {
+  background: white;
+  color: rgb(113 113 122);
+  border: 1px solid rgb(228 228 231);
+}
+
+.dentaxy-toggle-inactive:hover {
+  border-color: #34d399;
+}
+
+/* Chip activo */
+.dentaxy-chip-active {
+  background: linear-gradient(135deg, #34d399, #10b981);
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.4);
+  color: white;
+}
+
+/* Chip inactivo */
+.dentaxy-chip-inactive {
+  background: rgb(244 244 245);
+  color: rgb(113 113 122);
+}
+
+.dentaxy-chip-inactive:hover {
+  background: rgb(228 228 231);
+}
+
+/* ============================================================
+   DENTAXY — SHADCN SCROLLAREA FANTASMA
+   ============================================================ */
+[data-radix-scroll-area-viewport] {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(16, 185, 129, 0.12) transparent;
+}
+
+[data-radix-scroll-area-viewport]::-webkit-scrollbar {
+  width: 3px;
+}
+
+[data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.15);
+  border-radius: 999px;
+}
+
+[data-radix-scroll-area-viewport]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Barra vertical del scroll Radix (ScrollBar) ultra-tenue */
+[data-radix-scroll-area-scrollbar] {
+  width: 3px !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+[data-radix-scroll-area-thumb] {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border-radius: 999px !important;
+}
+
+[data-radix-scroll-area-thumb]:hover {
+  background: rgba(16, 185, 129, 0.35) !important;
+}
+
+/* Panel de formularios — fondo blanco, sin el gris oscuro del formulario sidebar */
+.sidebar-body-dentaxy,
+[class*="SidebarBody"] {
+  background: white !important;
+}

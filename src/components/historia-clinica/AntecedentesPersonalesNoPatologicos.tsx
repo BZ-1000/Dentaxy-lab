@@ -3,7 +3,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Minus, Maximize2, X, Eraser, Copy, CheckCircle, Sparkles } from "lucide-react";
+import { Minus, Maximize2, X, Eraser, Copy, CheckCircle, Sparkles, Clock } from "lucide-react";
+import { TimePickerDentaxy } from '@/components/ui/TimePickerDentaxy';
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { AnimatedTextarea } from "@/components/ui/animated-textarea";
@@ -200,7 +201,7 @@ ${alimentacion}
     let alimentosText = alimentosConsumidos.length > 0 ? alimentosConsumidos.join(', ') : '[no especificado]';
     let horarios = '';
     if (horarioComidas) {
-      horarios = `Desayuno: ${formatTime12Hour(horarioComidas.desayuno)}<br/>Almuerzo: ${formatTime12Hour(horarioComidas.almuerzo)}<br/>Cena: ${formatTime12Hour(horarioComidas.cena)}`;
+      horarios = `Almuerzo: ${formatTime12Hour(horarioComidas.desayuno)}<br/>Comida: ${formatTime12Hour(horarioComidas.almuerzo)}<br/>Cena: ${formatTime12Hour(horarioComidas.cena)}`;
     }
     return `El paciente tiene una alimentación basada en ${alimentosText}, lo que influye en su estado nutricional y salud general. El consumo de frutas y verduras es ${frecuenciaFrutasVerduras || '[no especificada]'}, mientras que la ingesta de bebidas azucaradas ocurre ${frecuenciaBebidasAzucaradas || '[no especificada]'} y el consumo de comida chatarra ${frecuenciaComidaChatarra || '[no especificada]'}, factores determinantes en el riesgo de enfermedades metabólicas y caries dental. La cantidad de agua ingerida diariamente es de aproximadamente ${consumoAgua || '[no especificado]'}, contribuyendo a la hidratación y función renal. Realiza ${numeroComidas || '[no especificado]'} comidas al día, con los siguientes horarios reportados:<br/><br/>${horarios}`;
   };
@@ -650,30 +651,33 @@ ${alimentacion}
               </Select>
             </div>
             <div>
-              <Label>Horario de Desayuno</Label>
-              <input
-                type="time"
+              <Label className="flex items-center gap-1.5">
+                <Clock className="w-3 h-3 text-gray-400" />
+                Horario de Almuerzo
+              </Label>
+              <TimePickerDentaxy
                 value={formDataLocal.horarioComidas.desayuno}
-                onChange={(e) => handleFormChange('horarioComidas', { ...formDataLocal.horarioComidas, desayuno: e.target.value })}
-                className="w-full p-2 border rounded-md"
+                onChange={(val) => handleFormChange('horarioComidas', { ...formDataLocal.horarioComidas, desayuno: val })}
               />
             </div>
             <div>
-              <Label>Horario de Almuerzo</Label>
-              <input
-                type="time"
+              <Label className="flex items-center gap-1.5">
+                <Clock className="w-3 h-3 text-gray-400" />
+                Horario de Comida
+              </Label>
+              <TimePickerDentaxy
                 value={formDataLocal.horarioComidas.almuerzo}
-                onChange={(e) => handleFormChange('horarioComidas', { ...formDataLocal.horarioComidas, almuerzo: e.target.value })}
-                className="w-full p-2 border rounded-md"
+                onChange={(val) => handleFormChange('horarioComidas', { ...formDataLocal.horarioComidas, almuerzo: val })}
               />
             </div>
             <div>
-              <Label>Horario de Cena</Label>
-              <input
-                type="time"
+              <Label className="flex items-center gap-1.5">
+                <Clock className="w-3 h-3 text-gray-400" />
+                Horario de Cena
+              </Label>
+              <TimePickerDentaxy
                 value={formDataLocal.horarioComidas.cena}
-                onChange={(e) => handleFormChange('horarioComidas', { ...formDataLocal.horarioComidas, cena: e.target.value })}
-                className="w-full p-2 border rounded-md"
+                onChange={(val) => handleFormChange('horarioComidas', { ...formDataLocal.horarioComidas, cena: val })}
               />
             </div>
           </div>

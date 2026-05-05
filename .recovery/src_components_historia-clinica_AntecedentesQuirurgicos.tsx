@@ -1,0 +1,2 @@
+"\nimport React from 'react';\nimport { FormDataState } from '@/types/historiaClinica';\nimport { Textarea } from '@/components/ui/textarea';\nimport { VoiceInput } from '@/components/ui/voice-input';\n\ninterface AntecedentesQuirurgicosProps {\n  formData
+<truncated 12187 bytes>
