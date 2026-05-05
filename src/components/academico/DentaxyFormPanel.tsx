@@ -38,7 +38,7 @@ import { FrenillosCard } from './sections/FrenillosCard';
 import { DiagnosticoCard } from './sections/DiagnosticoCard';
 import { PronosticoCard } from './sections/PronosticoCard';
 import { DatosGeneralesCard } from './sections/DatosGeneralesCard';
-import OdontogramaInteractivo from '../../core/packages/clinical-form/components/OdontogramaInteractivo';
+import { Odontograma } from '../historia-clinica/Odontograma';
 
 interface DentaxyFormPanelProps {
   onGeneracionCompleta?: (datos: Record<string, string>, formData?: FormDataState) => void;
@@ -333,12 +333,10 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
           {...commonProps}
         />;
       case 'odontograma': {
-        const { onSeccionGenerada: _ignored, ...restCommon } = commonProps;
-        return <OdontogramaInteractivo
+        return <Odontograma
           formData={formData}
           handleOdontogramaChange={handleOdontogramaChange}
           onRedaccionGenerada={(content: string) => handleContentGenerated('odontograma', content)}
-          {...restCommon}
         />;
       }
       case 'salivales':
