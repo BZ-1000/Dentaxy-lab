@@ -23,10 +23,10 @@ export const ProgressLine = React.memo<ProgressLineProps>(({
     stepNames,
     onStepClick,
     stepStatuses,
-    isScrolled: parentIsScrolled = false
+    isScrolled: _parentIsScrolled = false // ignored
 }) => {
-    const isMobile = useIsMobile();
-    const isScrolled = isMobile ? true : parentIsScrolled;
+    // Always use the compact/minimalist scrolled version for all screens
+    const isScrolled = true;
     // Dimensions
     const ITEM_WIDTH = 28; // w-7
     const GAP_WIDTH = 8;   // gap-2
