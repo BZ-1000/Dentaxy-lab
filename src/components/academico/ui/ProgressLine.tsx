@@ -14,6 +14,8 @@ interface ProgressLineProps {
     isScrolled?: boolean;
 }
 
+import { useIsMobile } from '@/hooks/use-mobile';
+
 export const ProgressLine = React.memo<ProgressLineProps>(({
     totalSteps,
     currentStep,
@@ -21,8 +23,10 @@ export const ProgressLine = React.memo<ProgressLineProps>(({
     stepNames,
     onStepClick,
     stepStatuses,
-    isScrolled = false
+    isScrolled: parentIsScrolled = false
 }) => {
+    const isMobile = useIsMobile();
+    const isScrolled = isMobile ? true : parentIsScrolled;
     // Dimensions
     const ITEM_WIDTH = 28; // w-7
     const GAP_WIDTH = 8;   // gap-2

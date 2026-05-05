@@ -16,6 +16,7 @@ interface FreeAccessBannerProps {
     accentColor?: string;
     onDismiss: () => void;
 }
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const FreeAccessBanner: React.FC<FreeAccessBannerProps> = ({
     message,
@@ -23,9 +24,12 @@ export const FreeAccessBanner: React.FC<FreeAccessBannerProps> = ({
     accentColor = '#10B981',
     onDismiss,
 }) => {
+    const isMobile = useIsMobile();
     const [visible, setVisible] = useState(true);
     const [progress, setProgress] = useState(100);
     const AUTO_CLOSE_MS = 5000;
+
+    if (isMobile) return null;
 
     useEffect(() => {
         const startTime = Date.now();

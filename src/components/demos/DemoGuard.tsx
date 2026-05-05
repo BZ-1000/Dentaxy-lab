@@ -45,33 +45,5 @@ export const DemoGuard: React.FC<DemoGuardProps> = ({ children, moduleName }) =>
         return null;
     }
 
-    return (
-        <>
-            <AnimatePresence>
-                {isFreeAccess && (
-                    <motion.div
-                        initial={{ y: -50, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        className="fixed top-4 left-1/2 -translate-x-1/2 z-[70] pointer-events-none"
-                    >
-                        <div className="bg-emerald-500/10 backdrop-blur-md border border-emerald-500/20 px-4 py-2 rounded-full flex items-center gap-3 shadow-2xl shadow-emerald-500/10">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-tighter">
-                                Modo Beta: Libre Acceso
-                            </span>
-                            {accessMessage && (
-                                <div className="h-3 w-px bg-emerald-500/20" />
-                            )}
-                            {accessMessage && (
-                                <span className="text-[10px] text-emerald-200/80 font-medium">
-                                    {accessMessage}
-                                </span>
-                            )}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-            {children}
-        </>
-    );
+    return <>{children}</>;
 };

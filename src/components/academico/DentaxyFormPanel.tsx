@@ -106,6 +106,44 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   const [isDocumentOpen, setIsDocumentOpen] = useState(false);
   const [isDocumentExpanded, setIsDocumentExpanded] = useState(false);
 
+  // Resize state
+  const [leftWidth, setLeftWidth] = useState<number>(55); // 55%
+  const [isResizing, setIsResizing] = useState(false);
+
+  React.useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return;
+      const newWidthPercentage = (e.clientX / window.innerWidth) * 100;
+      // Limits between 30% and 70%
+      if (newWidthPercentage > 30 && newWidthPercentage < 70) {
+        setLeftWidth(newWidthPercentage);
+      }
+    };
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+    
+    if (isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      // Change body cursor
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    } else {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizing]);
+
   // Filter sections based on gender
   const seccionesActivas = seccionesGenerables.filter(s => s.id !== 'ginecoObstetricos' || esMujer);
   const currentSectionInfo = seccionesActivas[currentStep];
@@ -147,8 +185,10 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   const handleContentGenerated = (seccionId: string, contenido: any, textoPlano?: string) => {
     setGenerations(prev => ({ ...prev, [seccionId]: contenido }));
 
-    // Show toast
-    toast.success('Se redactó correctamente el apartado');
+    // Show toast solo en desktop (en mobile estorba)
+    if (!isMobile) {
+      toast.success('Se redactó correctamente el apartado');
+    }
 
     // Open split panel on Desktop
     if (!isMobile) {
@@ -424,12 +464,15 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
     <div className="flex w-full h-full bg-white dark:bg-zinc-950 overflow-hidden relative">
 
       {/* Left Panel: Form View */}
-      <div className={cn(
-        "flex flex-col relative h-full transition-[width] duration-500 ease-out-back will-change-[width]",
-        (isDocumentOpen && !isMobile) ? (isDocumentExpanded ? "w-1/2" : "w-2/3 flex-1") : "w-full"
-      )}>
-        {/* 1. Global Navigation: Progress Line (Sticky Top) */}
-        <div className="w-full sticky top-0 z-50 bg-white dark:bg-zinc-950 transition-all">
+      <div 
+        className={cn(
+          "flex flex-col relative h-full will-change-[width]",
+          (!isDocumentOpen || isDocumentExpanded || isMobile) ? "transition-[width] duration-500 ease-out-back" : ""
+        )}
+        style={{ width: (isDocumentOpen && !isMobile && !isDocumentExpanded) ? `${leftWidth}%` : '100%' }}
+      >
+        {/* 1. Global Navigation: Progress Line (Sticky Top) — z-10 para no sobreponerse al panel derecho */}
+        <div className="w-full sticky top-0 z-10 bg-white dark:bg-zinc-950 transition-all">
           <ProgressLine
             totalSteps={seccionesActivas.length}
             currentStep={currentStep}
@@ -512,15 +555,86 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
         )}
       </div>
 
-      {/* Right Panel: Split Document View */}
+      {/* Burbuja Flotante Dentaxy — aparece cuando el doc está cerrado o en móvil */}
       <AnimatePresence>
-        {isDocumentOpen && !isMobile && (
+        {(!isDocumentOpen || isMobile) && Object.keys(generations).length > 0 && !isDocumentExpanded && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.94 }}
+            onClick={() => {
+              setIsDocumentOpen(true);
+              if (isMobile) setIsDocumentExpanded(true);
+            }}
+            className="fixed bottom-24 right-5 z-[60] w-14 h-14 rounded-full flex items-center justify-center"
+            style={{
+              background: '#0f0f0f',
+              boxShadow: isGenerating
+                ? '0 0 0 0 rgba(52,211,153,0.7)'
+                : '0 4px 24px rgba(0,0,0,0.35)',
+            }}
+          >
+            {/* Anillo exterior pulsante cuando está redactando */}
+            {isGenerating && (
+              <>
+                <motion.span
+                  className="absolute inset-0 rounded-full border-2 border-emerald-400"
+                  animate={{ scale: [1, 1.6], opacity: [0.7, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: 'easeOut' }}
+                />
+                <motion.span
+                  className="absolute inset-0 rounded-full border border-emerald-300"
+                  animate={{ scale: [1, 1.35], opacity: [0.5, 0] }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: 'easeOut', delay: 0.3 }}
+                />
+              </>
+            )}
+            <img
+              src="/brand/dentaxy-icon-solid.png"
+              alt="Ver documento"
+              className="w-7 h-7 object-contain"
+              style={{ filter: 'invert(1) brightness(2)' }}
+            />
+            {/* Punto verde vivo en esquina superior derecha */}
+            <span
+              className={cn(
+                "absolute top-1 right-1 w-2.5 h-2.5 rounded-full border-2 border-[#0f0f0f]",
+                isGenerating ? "bg-emerald-400 animate-pulse" : "bg-emerald-500"
+              )}
+            />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* Resize Handle */}
+      {isDocumentOpen && !isMobile && !isDocumentExpanded && (
+        <div
+          onMouseDown={() => setIsResizing(true)}
+          className="w-1.5 h-full cursor-col-resize hover:bg-emerald-400/50 active:bg-emerald-500 transition-colors z-50 flex items-center justify-center shrink-0"
+        >
+          <div className="h-10 w-0.5 bg-zinc-300 rounded-full" />
+        </div>
+      )}
+
+      {/* Right Panel: Split Document View or Maximized Modal */}
+      <AnimatePresence>
+        {(isDocumentOpen && (!isMobile || isDocumentExpanded)) && (
           <DocumentWriterPanel
             formData={formData}
             generations={generations}
             seccionesActivas={seccionesActivas}
-            onClose={() => setIsDocumentOpen(false)}
+            onClose={() => {
+              if (isMobile || isDocumentExpanded) {
+                setIsDocumentExpanded(false);
+                if (isMobile) setIsDocumentOpen(false);
+              } else {
+                setIsDocumentOpen(false);
+              }
+            }}
             isExpanded={isDocumentExpanded}
+            isMaximized={isDocumentExpanded}
             onToggleExpand={() => setIsDocumentExpanded(!isDocumentExpanded)}
           />
         )}

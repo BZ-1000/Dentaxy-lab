@@ -14,6 +14,7 @@ interface DocumentWriterPanelProps {
   onClose: () => void;
   isExpanded: boolean;
   onToggleExpand: () => void;
+  isMaximized?: boolean;
 }
 
 export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
@@ -22,7 +23,8 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
   seccionesActivas,
   onClose,
   isExpanded,
-  onToggleExpand
+  onToggleExpand,
+  isMaximized = false
 }) => {
   // Datos reactivos del paciente
   const nombrePaciente = formData?.datosGenerales?.nombreCompleto || '______________________';
@@ -61,8 +63,8 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
       exit={{ x: '100%', opacity: 0 }}
       transition={{ type: 'spring', stiffness: 300, damping: 30 }}
       className={cn(
-        "h-full bg-white border-l border-zinc-100 relative flex flex-col shadow-2xl z-40 transition-all duration-500 will-change-[width]",
-        isExpanded ? "w-1/2" : "w-[45%] min-w-[500px]"
+        "h-full bg-white border-l border-zinc-100 relative flex flex-col shadow-2xl transition-all duration-500 will-change-[width]",
+        isMaximized ? "fixed inset-0 z-[100] w-full" : "z-40 flex-1 min-w-[300px]"
       )}
     >
       {/* System Header */}
@@ -72,7 +74,7 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
         </div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" onClick={onToggleExpand} className="h-7 w-7 text-zinc-300 hover:text-zinc-700">
-            {isExpanded ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+            {isMaximized ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </Button>
           <Button variant="ghost" size="icon" onClick={onClose} className="h-7 w-7 text-zinc-300 hover:text-red-400">
             <X className="w-4 h-4" />
@@ -183,16 +185,10 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
                       </h2>
                     </div>
 
-                    {/* Contenido de la redacción */}
+                    {/* Contenido de la redacción — directo sin animación para scroll fluido */}
                     <div className="prose max-w-none text-[15px] leading-relaxed text-zinc-700 text-justify font-mplus">
                       {typeof content === 'string' ? (
-                        seccion.id === 'odontograma' ? (
-                          <div className="overflow-x-auto">{parse(content)}</div>
-                        ) : (
-                          <AppleTypewriter speed={0.8} delay={0.2}>
-                            {parse(content)}
-                          </AppleTypewriter>
-                        )
+                        <div className="overflow-x-auto">{parse(content)}</div>
                       ) : (
                         <>{content}</>
                       )}

@@ -31,7 +31,7 @@ export const CommandDock: React.FC<CommandDockProps> = ({
     // We treat the "Dock" as the button container from the snippet.
 
     return (
-        <div className="absolute bottom-0 left-0 w-full z-[80] p-6 pb-12 pointer-events-none flex flex-col items-center justify-end bg-gradient-to-t from-white via-white/90 to-transparent dark:from-black dark:via-black/90 h-40">
+        <div className="absolute bottom-0 left-0 w-full z-[80] p-4 pb-6 pointer-events-none flex flex-col items-center justify-end bg-gradient-to-t from-white via-white/90 to-transparent dark:from-black dark:via-black/90 h-36">
 
             <div className="pointer-events-auto flex items-center gap-3 w-full max-w-lg">
 
