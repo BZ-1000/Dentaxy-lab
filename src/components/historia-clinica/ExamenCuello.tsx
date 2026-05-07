@@ -3,7 +3,6 @@ import { FormDataState, GanglioLinfatico } from '@/types/historiaClinica';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { VoiceInput } from "@/components/ui/voice-input";
 
 interface ExamenCuelloProps {
   formData: FormDataState;
@@ -68,13 +67,8 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
     handleExamenCuelloChange(tipo, nuevo);
   };
 
-  const handleVoice = (tipo: string, field: string) => (text: string) => {
-    const current = getGanglio(tipo)[field as keyof GanglioLinfatico] || '';
-    setGanglio(tipo, field, current ? `${current} ${text}` : text);
-  };
-
-  // Motor determinista silencioso
-  useEffect(() => {
+  // Motor determinista bajo demanda
+  const generateRedaccion = () => {
     let parts: string[] = [];
     
     SECTIONS.forEach(({ key, label }) => {
@@ -101,8 +95,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
     });
 
     onRedaccionGenerada?.(parts.join(' '));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.examenCuello]);
+  };
 
   return (
     <div className="max-w-4xl mx-auto" data-formulario-section="examen-cuello">
@@ -181,7 +174,6 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
                         placeholder="Observaciones adicionales..."
                         className="min-h-[60px] bg-white flex-1"
                       />
-                      <VoiceInput onTranscriptionComplete={handleVoice(key, 'observaciones')} />
                     </div>
                   </div>
                 </div>
@@ -189,6 +181,7 @@ const ExamenCuello: React.FC<ExamenCuelloProps> = ({
             </div>
           );
         })}
+        <button className="hidden" onClick={generateRedaccion}>Generar redacción</button>
       </div>
     </div>
   );

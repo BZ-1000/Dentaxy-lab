@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Minus, Maximize2, X, ThermometerSun, HeartPulse, Scale, Ruler, Activity, Heart, Copy, Sparkles } from "lucide-react";
+import { Minus, Maximize2, X, ThermometerSun, HeartPulse, Scale, Ruler, Activity, Heart, Copy, Sparkles, Wind } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { calculateIMC, getIMCCategory, getBPCategory, vitalSignRanges } from '@/utils/medicalRanges';
 import { Button } from '@/components/ui/button';
@@ -279,6 +279,34 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     </div>
                     <div className="text-sm text-gray-500">
                       Rango normal: {vitalSignRanges[ageRange].heartRate.min}-{vitalSignRanges[ageRange].heartRate.max} lpm
+                    </div>
+                  </div>
+
+                  {/* Respiratory Rate */}
+                  <div className="space-y-2">
+                    <Label htmlFor="fr" className="flex items-center gap-2">
+                      <Wind className="w-4 h-4" style={{ color: '#06B6D4', strokeWidth: 2 }} />
+                      Frecuencia respiratoria
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="fr"
+                        type="number"
+                        value={formData.exploracionFisica?.signosVitales?.fr || ''}
+                        onChange={(e) => handleExploracionFisicaChange('signosVitales.fr', e.target.value)}
+                        className="pr-24"
+                      />
+                      <span className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500">rpm</span>
+                      <button
+                        type="button"
+                        onClick={() => navigator.clipboard.writeText(formData.exploracionFisica?.signosVitales?.fr || '')}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-gray-500" />
+                      </button>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Rango normal: {vitalSignRanges[ageRange].respiratoryRate.min}-{vitalSignRanges[ageRange].respiratoryRate.max} rpm
                     </div>
                   </div>
 

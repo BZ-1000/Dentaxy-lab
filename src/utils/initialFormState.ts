@@ -194,10 +194,10 @@ export const getInitialFormState = (): FormDataState => ({
   },
   antecedentesHemorragicos: {
     sinHemorragicos: false,
-    sangradoProlongado: "no",
-    hematomas: "no",
-    hemorragiasEspontaneas: "no",
-    transfusiones: "no",
+    sangradoProlongado: false,
+    hematomas: false,
+    hemorragiasEspontaneas: false,
+    transfusiones: false,
     detallesAdicionales: "",
     transfusionPrevia: false,
     motivoTransfusion: "",
@@ -261,7 +261,7 @@ export const getInitialFormState = (): FormDataState => ({
   examenCuello: {
     sinHallazgos: false,
     cervicales: {
-      palpacion: '',
+      palpacion: 'no_palpan',
       consistencia: '',
       dolor: '',
       movilidad: '',
@@ -270,7 +270,7 @@ export const getInitialFormState = (): FormDataState => ({
       observaciones: ''
     },
     submaxilares: {
-      palpacion: '',
+      palpacion: 'no_palpan',
       consistencia: '',
       dolor: '',
       movilidad: '',
@@ -279,7 +279,7 @@ export const getInitialFormState = (): FormDataState => ({
       observaciones: ''
     },
     submentonianos: {
-      palpacion: '',
+      palpacion: 'no_palpan',
       consistencia: '',
       dolor: '',
       movilidad: '',
@@ -288,7 +288,7 @@ export const getInitialFormState = (): FormDataState => ({
       observaciones: ''
     },
     parotideos: {
-      palpacion: '',
+      palpacion: 'no_palpan',
       consistencia: '',
       dolor: '',
       movilidad: '',
@@ -297,7 +297,7 @@ export const getInitialFormState = (): FormDataState => ({
       observaciones: ''
     },
     preauriculares: {
-      palpacion: '',
+      palpacion: 'no_palpan',
       consistencia: '',
       dolor: '',
       movilidad: '',
@@ -306,7 +306,7 @@ export const getInitialFormState = (): FormDataState => ({
       observaciones: ''
     },
     auricularesPosteriores: {
-      palpacion: '',
+      palpacion: 'no_palpan',
       consistencia: '',
       dolor: '',
       movilidad: '',

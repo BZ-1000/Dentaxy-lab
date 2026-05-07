@@ -1,11 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Sparkles } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { VoiceInput } from "@/components/ui/voice-input";
 
 interface AntecedentesGinecoObstetricosProps {
   formData: FormDataState;
@@ -50,10 +48,6 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
       const numValue = parseInt(value, 10);
       handleAntecedenteGinecoObstetricoChange(field, isNaN(numValue) ? 0 : numValue);
     }
-  };
-  const handleVoiceInput = (field: string) => (text: string) => {
-    const currentValue = formData.antecedentesGinecoObstetricos?.[field] || "";
-    handleAntecedenteGinecoObstetricoChange(field, currentValue ? `${currentValue} ${text}` : text);
   };
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
@@ -174,9 +168,6 @@ const AntecedentesGinecoObstetricos: React.FC<AntecedentesGinecoObstetricosProps
                       placeholder="Describa cualquier complicación durante embarazos o partos"
                       className="min-h-[80px] flex-1 resize-y"
                     />
-                    <div className="h-8 sm:h-10">
-                      <VoiceInput onTranscriptionComplete={handleVoiceInput("complicaciones")} />
-                    </div>
                   </div>
                 </div>
 
