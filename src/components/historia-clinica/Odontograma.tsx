@@ -11,6 +11,8 @@ import React, { useState, useCallback } from 'react';
 import { FormDataState } from '../../types/historiaClinica';
 import { ToothBox, ToothFace, ToothState as BoxState } from './odontograma/ToothBox';
 import { ToothPanel } from '../odontograma/ToothPanel';
+import { VoiceSelectorModal } from '../odontograma/VoiceSelectorModal';
+import { useVoiceSelector } from '@/hooks/useVoiceSelector';
 import {
   ToothData, ToothState, TOOTH_COLORS,
   PERMANENT_TEETH_IDS, DECIDUOUS_TEETH_IDS,
@@ -295,9 +297,13 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
     });
   }, [onRedaccionGenerada]);
 
+  const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const { selectedVoiceURI } = useVoiceSelector();
+
   const { isListening, toggleListening, feedback, transcript } = useOdontogramaVoice({
     onCommand: handleVoice,
-    onPendingTooth: setPendingToothId, // Resaltado en tiempo real
+    onPendingTooth: setPendingToothId,
+    preferredVoiceURI: selectedVoiceURI || undefined,
   });
 
   // ── Render de UN diente ────────────────────────────────────────────────────
@@ -398,43 +404,7 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
     );
   };
 
-  const [showVoiceModal, setShowVoiceModal] = useState(false);
 
-  const startVoiceWithTTS = () => {
-    setShowVoiceModal(false);
-    const greetingText = 'De acuerdo doctor, Dentaxi está listo. Puede comenzar a dictar el odontograma.';
-
-    const utter = new SpeechSynthesisUtterance(greetingText);
-    utter.lang = 'es-MX';
-    utter.rate = 1.0;
-    utter.pitch = 1.0;
-    utter.volume = 0.95;
-
-    const loadAndSpeak = () => {
-      const voices = window.speechSynthesis.getVoices();
-      const maleVoice = voices.find(v =>
-        v.lang.includes('es') && (
-          v.name.toLowerCase().includes('pablo') ||
-          v.name.toLowerCase().includes('jorge') ||
-          v.name.toLowerCase().includes('male') ||
-          v.name.toLowerCase().includes('google es')
-        )
-      ) || voices.find(v => v.lang.includes('es'));
-      if (maleVoice) utter.voice = maleVoice;
-
-      utter.onend = () => {
-        if (!isListening) toggleListening(); 
-      };
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(utter);
-    };
-
-    if (window.speechSynthesis.getVoices().length === 0) {
-      window.speechSynthesis.onvoiceschanged = loadAndSpeak;
-    } else {
-      loadAndSpeak();
-    }
-  };
 
   const handleVoiceButtonClick = () => {
     if (isListening) {
@@ -442,6 +412,21 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
     } else {
       setShowVoiceModal(true);
     }
+  };
+
+  const handleVoiceConfirm = (voiceURI: string) => {
+    setShowVoiceModal(false);
+    // Iniciar con TTS de saludo usando la voz seleccionada
+    const utter = new SpeechSynthesisUtterance('De acuerdo doctor, Dentaxi está listo. Puede comenzar a dictar el odontograma.');
+    utter.lang = 'es-MX';
+    utter.rate = 1.0;
+    utter.volume = 0.95;
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v => v.voiceURI === voiceURI);
+    if (preferred) utter.voice = preferred;
+    utter.onend = () => { if (!isListening) toggleListening(); };
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
   };
 
   return (
@@ -576,41 +561,10 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
       </div>
 
       {showVoiceModal && (
-        <>
-          <div className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm" onClick={() => setShowVoiceModal(false)} />
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-            <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full pointer-events-auto border border-purple-100">
-              <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mb-4 mx-auto">
-                <Mic className="w-6 h-6 text-purple-600" />
-              </div>
-              <h3 className="text-center text-lg font-bold text-gray-800 mb-2">Asistente Clínico DentaXy</h3>
-              <p className="text-center text-xs text-gray-500 mb-4 leading-relaxed">
-                Para disminuir errores y garantizar una precisión del 100% en el diagnóstico y plan de tratamiento:
-              </p>
-              <ul className="text-xs text-gray-600 mb-6 space-y-2 bg-gray-50 p-3 rounded-lg border border-gray-100">
-                <li className="flex gap-2"><span>1.</span> Hable claro y fuerte.</li>
-                <li className="flex gap-2"><span>2.</span> Mantenga el micrófono cerca.</li>
-                <li className="flex gap-2"><span>3.</span> Sea preciso. Ejemplo: <i>"OD 46 caries grado 2 distal"</i>.</li>
-              </ul>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowVoiceModal(false)}
-                  className="flex-1 py-2.5 bg-gray-100 text-gray-600 text-xs font-bold rounded-xl hover:bg-gray-200 transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="button"
-                  onClick={startVoiceWithTTS}
-                  className="flex-1 py-2.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-bold rounded-xl shadow-md hover:opacity-90 transition-opacity"
-                >
-                  Estoy listo
-                </button>
-              </div>
-            </div>
-          </div>
-        </>
+        <VoiceSelectorModal
+          onConfirm={handleVoiceConfirm}
+          onCancel={() => setShowVoiceModal(false)}
+        />
       )}
 
       {selectedId !== null && (

@@ -8,7 +8,6 @@ import { DentaxyFormPanel } from '@/components/academico/DentaxyFormPanel';
 /* ─── FONTS + RESPONSIVE SYSTEM ─── */
 const FontLoader = () => (
   <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@400;500;600&family=Inter:wght@200;300;400;500&display=swap');
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     body{background:#030712;overflow:hidden}
     @keyframes float1{0%,100%{transform:translateY(0)translateX(0)}50%{transform:translateY(-28px)translateX(12px)}}

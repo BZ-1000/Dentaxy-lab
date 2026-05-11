@@ -8,12 +8,17 @@ import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 
 // UI Components
 import { ProgressLine } from './ui/ProgressLine';
-import { CommandDock } from './ui/CommandDock';
+import { AppleStyleDock } from '@/components/AppleStyleDock';
 import { DocumentWriterPanel } from './ui/DocumentWriterPanel';
 import { SectionCard, ViewMode } from './ui/SectionCard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from '@/components/ui/resizable';
 
 // Section Card Imports (Wrappers with Visual Styling)
 import { PadecimientoCard } from './sections/PadecimientoCard';
@@ -35,8 +40,6 @@ import { OclusionCard } from './sections/OclusionCard';
 import { RelacionDientesCard } from './sections/RelacionDientesCard';
 import { LineaMediaCard } from './sections/LineaMediaCard';
 import { FrenillosCard } from './sections/FrenillosCard';
-import { DiagnosticoCard } from './sections/DiagnosticoCard';
-import { PronosticoCard } from './sections/PronosticoCard';
 import { DatosGeneralesCard } from './sections/DatosGeneralesCard';
 import { Odontograma } from '../historia-clinica/Odontograma';
 
@@ -91,8 +94,6 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
     { id: 'relacionDientes', nombre: '19. Relación de Dientes' },
     { id: 'lineaMedia', nombre: '20. Línea Media' },
     { id: 'frenillos', nombre: '21. Frenillos' },
-    { id: 'diagnostico', nombre: '22. Diagnóstico' },
-    { id: 'pronostico', nombre: '23. Pronóstico' },
   ];
 
   const [esMujer] = useState(false);
@@ -105,6 +106,8 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   const isMobile = useIsMobile();
   const [isDocumentOpen, setIsDocumentOpen] = useState(false);
   const [isDocumentExpanded, setIsDocumentExpanded] = useState(false);
+  const [docWidth, setDocWidth] = useState(50); // New state for dynamic resizing
+  const [isDraggingSplit, setIsDraggingSplit] = useState(false); // State to disable animations while dragging
 
   // Filter sections based on gender
   const seccionesActivas = seccionesGenerables.filter(s => s.id !== 'ginecoObstetricos' || esMujer);
@@ -146,9 +149,6 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
 
   const handleContentGenerated = (seccionId: string, contenido: any, textoPlano?: string) => {
     setGenerations(prev => ({ ...prev, [seccionId]: contenido }));
-
-    // Show toast
-    toast.success('Se redactó correctamente el apartado');
 
     // Open split panel on Desktop
     if (!isMobile) {
@@ -369,18 +369,6 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
           handleFrenillosChange={handleFrenillosChange}
           {...commonProps}
         />;
-      case 'diagnostico':
-        return <DiagnosticoCard
-          formData={formData}
-          handleDiagnosticoChange={handleDiagnosticoChange}
-          {...commonProps}
-        />;
-      case 'pronostico':
-        return <PronosticoCard
-          formData={formData}
-          handlePronosticoChange={handlePronosticoChange}
-          {...commonProps}
-        />;
       default:
         return null;
     }
@@ -424,21 +412,31 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
     <div className="flex w-full h-full bg-white dark:bg-zinc-950 overflow-hidden relative">
 
       {/* Left Panel: Form View */}
-      <div className={cn(
-        "flex flex-col relative h-full transition-[width] duration-500 ease-out-back will-change-[width]",
-        (isDocumentOpen && !isMobile) ? (isDocumentExpanded ? "w-1/2" : "w-2/3 flex-1") : "w-full"
-      )}>
+      <motion.div 
+        initial={false}
+        animate={{ 
+          width: (isDocumentOpen && !isMobile) ? (isDocumentExpanded ? "0%" : `${100 - docWidth}%`) : "100%",
+          opacity: (isDocumentOpen && !isMobile && isDocumentExpanded) ? 0 : 1 
+        }}
+        transition={isDraggingSplit ? { duration: 0 } : { type: 'spring', stiffness: 350, damping: 30 }}
+        className={cn(
+          "flex flex-col relative h-full overflow-hidden shrink-0 will-change-[width]",
+          isDocumentOpen && isMobile && "hidden"
+        )}
+      >
         {/* 1. Global Navigation: Progress Line (Sticky Top) */}
-        <div className="w-full sticky top-0 z-50 bg-white dark:bg-zinc-950 transition-all">
-          <ProgressLine
-            totalSteps={seccionesActivas.length}
-            currentStep={currentStep}
-            isGenerating={isGenerating}
-            stepNames={seccionesActivas.map(s => s.nombre)}
-            onStepClick={handleStepClick}
-            stepStatuses={getStepStatuses() as any}
-            isScrolled={isScrolled}
-          />
+        <div className="w-full sticky top-0 z-[9999] bg-transparent transition-all border-b border-transparent pointer-events-none">
+          <div className="pointer-events-auto">
+            <ProgressLine
+              totalSteps={seccionesActivas.length}
+              currentStep={currentStep}
+              isGenerating={isGenerating}
+              stepNames={seccionesActivas.map(s => s.nombre)}
+              onStepClick={handleStepClick}
+              stepStatuses={getStepStatuses() as any}
+              isScrolled={isScrolled}
+            />
+          </div>
         </div>
 
         {/* Main Content Area */}
@@ -482,16 +480,14 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
         </div>
 
         {/* 3. Command Dock: Bottom Control Center */}
-        <CommandDock
+        <AppleStyleDock
           onNext={handleNext}
           onPrev={handlePrev}
           onGenerate={handleGenerateCurrent}
-          currentStep={currentStep}
-          totalSteps={seccionesActivas.length}
-          nextLabel={seccionesActivas[currentStep + 1]?.nombre?.split('. ')[1] || 'Finalizar'}
           isGenerating={isGenerating}
           canGoNext={currentStep < seccionesActivas.length - 1}
           canGoPrev={currentStep > 0}
+          onOpenFormularios={(forceOpen) => setIsDocumentOpen(prev => forceOpen === true ? true : !prev)}
         />
 
         {/* Floating Automation Status Overlay */}
@@ -510,11 +506,44 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
             </motion.div>
           </div>
         )}
-      </div>
+      </motion.div>
+
+      {/* Resizable Split Bar (Desktop only, when split view is active) */}
+      {isDocumentOpen && !isMobile && !isDocumentExpanded && (
+        <div
+          className="w-1.5 cursor-col-resize hover:bg-emerald-500/50 active:bg-emerald-500 bg-zinc-100 dark:bg-zinc-800 z-40 h-full relative group transition-colors shadow-sm flex-shrink-0"
+          onMouseDown={(e) => {
+             e.preventDefault();
+             setIsDraggingSplit(true);
+             const startX = e.clientX;
+             const startWidth = docWidth;
+             const onMouseMove = (moveEvent: MouseEvent) => {
+                const deltaX = startX - moveEvent.clientX; // Moving left increases right panel docWidth
+                const totalWidth = window.innerWidth;
+                const newWidth = Math.max(30, Math.min(70, startWidth + (deltaX / totalWidth) * 100));
+                setDocWidth(newWidth);
+             };
+             const onMouseUp = () => {
+                setIsDraggingSplit(false);
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+             };
+             document.addEventListener('mousemove', onMouseMove);
+             document.addEventListener('mouseup', onMouseUp);
+          }}
+        >
+          {/* Grip lines */}
+          <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 flex items-center justify-center rounded-sm border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm w-3 h-6 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg width="6" height="10" viewBox="0 0 6 10" fill="none" className="text-zinc-400">
+              <path d="M1 1.5V8.5M5 1.5V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </div>
+        </div>
+      )}
 
       {/* Right Panel: Split Document View */}
       <AnimatePresence>
-        {isDocumentOpen && !isMobile && (
+        {isDocumentOpen && (
           <DocumentWriterPanel
             formData={formData}
             generations={generations}
@@ -522,6 +551,9 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
             onClose={() => setIsDocumentOpen(false)}
             isExpanded={isDocumentExpanded}
             onToggleExpand={() => setIsDocumentExpanded(!isDocumentExpanded)}
+            onNext={handleNext}
+            canGoNext={currentStep < seccionesActivas.length - 1}
+            width={docWidth}
           />
         )}
       </AnimatePresence>

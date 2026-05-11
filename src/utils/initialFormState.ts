@@ -446,16 +446,6 @@ export const getInitialFormState = (): FormDataState => ({
     lingual: "",
     observaciones: ""
   },
-  diagnostico: {
-    principal: "",
-    secundarios: "",
-    observaciones: ""
-  },
-  pronostico: {
-    general: "",
-    particular: "",
-    observaciones: ""
-  },
   odontograma: {},
   serviciosDomiciliarios: '',
   pisosVivienda: '',
@@ -490,8 +480,7 @@ export const getInitialFormState = (): FormDataState => ({
   frecuenciaCardiaca: '',
   frecuenciaRespiratoria: '',
   temperatura: '',
-  diagnosticos: '',
-  pronosticos: '',
+  temperatura: '',
 });
 
 const getInitialFamiliarState = () => ({

@@ -1,3 +1,5 @@
+// OK
+// AIDemoFormPanel — Versión Gemini 3.1 Pro
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
@@ -11,7 +13,7 @@ import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 
 // UI Components
 import { ProgressLine, StepStatus } from '@/components/academico/ui/ProgressLine';
-import { CommandDock } from '@/components/academico/ui/CommandDock';
+import { AppleStyleDock } from '@/components/AppleStyleDock';
 import { SectionCard, ViewMode } from '@/components/academico/ui/SectionCard';
 
 // Section Components
@@ -174,20 +176,28 @@ export const AIDemoFormPanel: React.FC = () => {
         }
     }, [currentStep]);
 
-    // Trigger Local Generation Logic
+    // Disparar la lógica de generación del componente activo
     const handleGenerateCurrent = useCallback(async () => {
         const currentSectionId = seccionesActivas[currentStep].id;
-        // Query the DOM for the local button to ensure consistent behavior with the inner component
         const sectionContainer = document.querySelector(`div[data-section="${currentSectionId}"]`);
-        if (sectionContainer) {
-            const buttons = Array.from(sectionContainer.querySelectorAll('button'));
-            const generateButton = buttons.find(btn => {
-                const text = btn.textContent?.toLowerCase() || '';
-                return text.includes('generar redacción') || text.includes('redactar') || text.includes('generar') || text.includes('ver redacción');
-            });
-            if (generateButton) {
-                (generateButton as HTMLButtonElement).click();
-            }
+        if (!sectionContainer) return;
+
+        // Primero intentar con el botón oculto dedicado (data-trigger-generation),
+        // usado por secciones como Examen Intrabucal que ya no tienen botón visible.
+        const hiddenTrigger = sectionContainer.querySelector('button.data-trigger-generation') as HTMLButtonElement | null;
+        if (hiddenTrigger) {
+            hiddenTrigger.click();
+            return;
+        }
+
+        // Fallback: buscar botón de "generar" por texto (para los demás módulos)
+        const buttons = Array.from(sectionContainer.querySelectorAll('button'));
+        const generateButton = buttons.find(btn => {
+            const text = btn.textContent?.toLowerCase() || '';
+            return text.includes('generar redacción') || text.includes('redactar') || text.includes('generar') || text.includes('ver redacción');
+        });
+        if (generateButton) {
+            (generateButton as HTMLButtonElement).click();
         }
     }, [currentStep, seccionesActivas]);
 
@@ -338,7 +348,6 @@ export const AIDemoFormPanel: React.FC = () => {
                 return <ExamenIntrabucal
                     formData={formData}
                     handleExamenIntrabucalChange={handleExamenIntrabucalChange}
-                    onToggleViewMode={() => setViewMode(prev => prev === 'form' ? 'redaction' : 'form')}
                     {...commonProps}
                 />;
             case 'salivales':
@@ -471,17 +480,14 @@ export const AIDemoFormPanel: React.FC = () => {
                 </div>
             </div>
 
-            {/* 3. Command Dock: Bottom Control Center */}
-            <CommandDock
+            <AppleStyleDock
                 onNext={handleNext}
                 onPrev={handlePrev}
                 onGenerate={handleGenerateCurrent}
-                currentStep={currentStep}
-                totalSteps={seccionesActivas.length}
-                nextLabel={seccionesActivas[currentStep + 1]?.nombre.split('. ')[1] || 'Finalizar'}
                 isGenerating={isGenerating}
                 canGoNext={currentStep < seccionesActivas.length - 1}
                 canGoPrev={currentStep > 0}
+                onOpenFormularios={() => {}} // Redacciones toggle
             />
 
             {/* 4. Automation Status Overlay */}

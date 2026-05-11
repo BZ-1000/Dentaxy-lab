@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Sparkles, Eraser } from "lucide-react";
+import { Eraser } from "lucide-react";
 import { FormDataState } from '../../../types/historiaClinica';
 import RedaccionComunToggle from './RedaccionComunToggle';
 import MejillasSection from './MejillasSection';
@@ -16,13 +16,11 @@ import IstmoFaucesSection from './IstmoFaucesSection';
 interface ExamenIntrabucalFormProps {
   formData: FormDataState;
   handleExamenIntrabucalChange: (part: string, value: any) => void;
-  onGenerate: () => void;
 }
 
 const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
   formData,
   handleExamenIntrabucalChange,
-  onGenerate,
 }) => {
   const [redaccionComun, setRedaccionComun] = useState(false);
 
@@ -34,18 +32,15 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
     setRedaccionComun(false);
   };
 
-  const handleGenerarRedaccion = () => {
-    // Guardar preferencia de redacción común a nivel del módulo
-    handleExamenIntrabucalChange('sinHallazgos', redaccionComun);
-    // Notificar al padre para cambiar a la vista IA y disparar la animación
-    onGenerate();
-  };
-
   return (
     <div className="space-y-6">
       <RedaccionComunToggle 
         isActive={redaccionComun}
-        onChange={setRedaccionComun}
+        onChange={(val) => {
+          setRedaccionComun(val);
+          // Sincronizar con formData para que la generación del Siguiente lo tome en cuenta
+          handleExamenIntrabucalChange('sinHallazgos', val);
+        }}
       />
 
       {!redaccionComun && (
@@ -150,16 +145,9 @@ const ExamenIntrabucalForm: React.FC<ExamenIntrabucalFormProps> = ({
 
       <div className="flex gap-3 pt-4">
         <Button
-          onClick={handleGenerarRedaccion}
-          className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-        >
-          <Sparkles className="w-4 h-4 mr-2" />
-          Generar Redacción IA
-        </Button>
-        <Button
           onClick={handleLimpiarFormulario}
           variant="outline"
-          className="flex-1"
+          className="w-full"
         >
           <Eraser className="w-4 h-4 mr-2" />
           Limpiar Formulario

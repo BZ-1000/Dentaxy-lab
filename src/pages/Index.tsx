@@ -36,7 +36,7 @@ function IndexContent() {
         </div>
       </div>
 
-        <AppleStyleDock onOpenFormularios={() => setFormSidebarOpen(true)} />
+        <AppleStyleDock onOpenFormularios={() => setFormSidebarOpen(prev => !prev)} />
         <div className="h-16 sm:h-24" />
       </div>
     </div>;

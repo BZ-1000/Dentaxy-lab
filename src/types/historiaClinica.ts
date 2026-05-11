@@ -482,20 +482,6 @@ export interface Frenillos {
   [key: string]: boolean | string | undefined;
 }
 
-export interface Diagnostico {
-  principal?: string;
-  secundarios?: string;
-  observaciones?: string;
-  [key: string]: string | undefined;
-}
-
-export interface Pronostico {
-  general?: string;
-  particular?: string;
-  observaciones?: string;
-  [key: string]: string | undefined;
-}
-
 export interface HigieneBucal {
   frecuenciaCepillado: string;
   usoHiloDental: string;
@@ -544,8 +530,6 @@ export interface FormDataState {
   lineaMedia: LineaMedia;
   frenillos: Frenillos;
   odontograma: Record<number, "sano" | "caries" | "obturado" | "corona" | "ausente">;
-  diagnostico: Diagnostico;
-  pronostico: Pronostico;
   serviciosDomiciliarios: string;
   pisosVivienda: string;
   materialVivienda: string;
@@ -567,6 +551,5 @@ export interface FormDataState {
   frecuenciaCardiaca: string;
   frecuenciaRespiratoria: string;
   temperatura: string;
-  diagnosticos: string;
-  pronosticos: string;
+  temperatura: string;
 }
