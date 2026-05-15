@@ -1,9 +1,3 @@
-/**
- * ToothBox.tsx — v5 Hyper-Realista
- * Muestra la imagen real del diente (vista oclusal) como base.
- * Superpone colores de estado clínico con opacity controlada.
- * Símbolos normativos FDI/OPS en capa superior.
- */
 import React from 'react';
 
 export type ToothFace = 'top' | 'bottom' | 'left' | 'right' | 'center';
@@ -14,221 +8,409 @@ export interface ToothState {
   left?: string;
   right?: string;
   center?: string;
-  isExtracted?: boolean;
   clinicalState?: string;
-  mobility?: 1 | 2 | 3;
-  pulpLabel?: string;
+  mobility?: string;
   crownType?: string;
-  materialType?: string;
+  pulpLabel?: string;
 }
-
-const AZUL  = '#1A73E8';
-const ROJO  = '#EA4335';
-const WHITE = '#ffffff';
-const SURFACE_STATES = new Set(['C', 'O', 'SE', 'S']);
-const OUTLINE_STATES = new Set(['RT']);
 
 interface ToothBoxProps {
   id: number;
   state: ToothState;
+  isUpper: boolean;
+  viewMode?: 'images' | 'boxes';
   onClickFace?: (face: ToothFace) => void;
-  onClickExtracted?: () => void;
+  onClickTooth?: () => void;
 }
 
-// ── Utilidad: determina si el diente es maxilar ───────────────────────────────
-const isMaxilar = (id: number) => {
-  const q = Math.floor(id / 10);
-  return q === 1 || q === 2 || q === 5 || q === 6;
+const IMAGE_SYMBOL_STATES = new Set(['A', 'X', 'CR', 'MC', 'P', 'I']);
+const SQUARE_STATES       = new Set(['C', 'O', 'SE', 'RT', 'S']);
+
+const ROJO  = '#EF4444';
+const AZUL  = '#3B82F6';
+const WHITE = '#FFFFFF';
+
+// ── Símbolo normativo ─────────────────────────────────────────────────────────
+const ImageSymbol: React.FC<{
+  cs: string; mobility?: string; crownType?: string; pulpLabel?: string;
+}> = ({ cs, mobility, crownType, pulpLabel }) => {
+  if (cs === 'X') return (
+    <g stroke={ROJO} strokeWidth="8" strokeLinecap="round">
+      <line x1="20" y1="20" x2="80" y2="80" />
+      <line x1="80" y1="20" x2="20" y2="80" />
+    </g>
+  );
+  if (cs === 'CR') return <circle cx="50" cy="50" r="35" fill="none" stroke={AZUL} strokeWidth="6" />;
+  if (cs === 'MC') return <circle cx="50" cy="50" r="35" fill="none" stroke={ROJO} strokeWidth="6" />;
+  if (cs === 'P') return (
+    <g stroke={AZUL} strokeWidth="6" strokeLinecap="round">
+      <line x1="20" y1="50" x2="80" y2="50" />
+      <line x1="20" y1="30" x2="20" y2="70" />
+      <line x1="80" y1="30" x2="80" y2="70" />
+    </g>
+  );
+  if (cs === 'I') return <text x="50" y="65" fontSize="45" fontWeight="bold" fill={AZUL} textAnchor="middle">I</text>;
+  if (mobility)  return <text x="50" y="65" fontSize="30" fontWeight="bold" fill={ROJO} textAnchor="middle">{mobility}</text>;
+  if (crownType) return <text x="50" y="65" fontSize="30" fontWeight="bold" fill={AZUL} textAnchor="middle">{crownType}</text>;
+  if (pulpLabel) return <text x="50" y="65" fontSize="30" fontWeight="bold" fill={AZUL} textAnchor="middle">{pulpLabel}</text>;
+  return null;
 };
 
-// ── Color dominante del estado (para overlay) ─────────────────────────────────
-const stateOverlayColor = (cs: string): string | null => {
-  const map: Record<string, string> = {
-    C: ROJO, EI: ROJO, F: ROJO, RR: ROJO, RT: ROJO,
-    O: AZUL, A: AZUL, CR: AZUL, E: AZUL, PC: AZUL,
-    PP: AZUL, IM: AZUL, SE: AZUL, PU: AZUL, MOV: '#FF6D00',
-  };
-  return map[cs] ?? null;
-};
+// ── Cuadrito FDI con glassmorphism grisáceo ───────────────────────────────────
+interface FaceSquareProps {
+  id: number;
+  faceColors: Record<ToothFace, string | undefined>;
+  clinicalState: string;
+  onClickFace: (face: ToothFace) => void;
+}
 
-// ── Símbolo SVG normativo ─────────────────────────────────────────────────────
-const NormSymbol: React.FC<{ cs: string; mobility?: number; crownType?: string }> = ({ cs, mobility, crownType }) => {
-  switch (cs) {
-    case 'A':   return <><line x1="10" y1="10" x2="90" y2="90" stroke={AZUL} strokeWidth="10" strokeLinecap="round"/><line x1="90" y1="10" x2="10" y2="90" stroke={AZUL} strokeWidth="10" strokeLinecap="round"/></>;
-    case 'EI':  return <><line x1="10" y1="10" x2="90" y2="90" stroke={ROJO} strokeWidth="8" strokeLinecap="round" strokeDasharray="12 6"/><line x1="90" y1="10" x2="10" y2="90" stroke={ROJO} strokeWidth="8" strokeLinecap="round" strokeDasharray="12 6"/></>;
-    case 'CR':  return <><ellipse cx="50" cy="50" rx="44" ry="44" fill="none" stroke={AZUL} strokeWidth="6"/>{crownType && <text x="50" y="57" textAnchor="middle" fill={AZUL} fontSize="20" fontWeight="bold" fontFamily="system-ui,sans-serif">{crownType}</text>}</>;
-    case 'E': case 'PC': case 'PP': { const lbl = cs === 'E' ? 'TC' : cs; return <><line x1="50" y1="20" x2="50" y2="95" stroke={AZUL} strokeWidth="6" strokeLinecap="round"/><text x="50" y="17" textAnchor="middle" fill={AZUL} fontSize="18" fontWeight="bold" fontFamily="system-ui,sans-serif">{lbl}</text></>; }
-    case 'IM':  return <text x="50" y="58" textAnchor="middle" fill={AZUL} fontSize="20" fontWeight="bold" fontFamily="system-ui,sans-serif">IMP</text>;
-    case 'F':   return <line x1="20" y1="5" x2="80" y2="95" stroke={ROJO} strokeWidth="7" strokeLinecap="round"/>;
-    case 'MOV': return <text x="50" y="60" textAnchor="middle" fill="#FF6D00" fontSize="24" fontWeight="bold" fontFamily="system-ui,sans-serif">M{typeof mobility === 'number' ? mobility : 1}</text>;
-    case 'RR':  return <text x="50" y="60" textAnchor="middle" fill={ROJO} fontSize="26" fontWeight="bold" fontFamily="system-ui,sans-serif">RR</text>;
-    case 'SI':  return <text x="50" y="60" textAnchor="middle" fill={AZUL} fontSize="26" fontWeight="bold" fontFamily="system-ui,sans-serif">SI</text>;
-    case 'SN':  return <><circle cx="50" cy="50" r="42" fill="none" stroke={AZUL} strokeWidth="6"/><text x="50" y="60" textAnchor="middle" fill={AZUL} fontSize="30" fontWeight="bold" fontFamily="system-ui,sans-serif">S</text></>;
-    case 'DES': return <text x="50" y="58" textAnchor="middle" fill={AZUL} fontSize="20" fontWeight="bold" fontFamily="system-ui,sans-serif">DES</text>;
-    case 'DIS': return <text x="50" y="58" textAnchor="middle" fill={AZUL} fontSize="20" fontWeight="bold" fontFamily="system-ui,sans-serif">DIS</text>;
-    case 'ECT': return <text x="50" y="62" textAnchor="middle" fill={AZUL} fontSize="32" fontWeight="bold" fontFamily="system-ui,sans-serif">E</text>;
-    case 'CLV': return <polygon points="50,5 93,92 7,92" fill="none" stroke={AZUL} strokeWidth="6" strokeLinejoin="round"/>;
-    case 'EXT': return <><line x1="50" y1="88" x2="50" y2="15" stroke={AZUL} strokeWidth="5" strokeLinecap="round"/><polyline points="32,34 50,10 68,34" fill="none" stroke={AZUL} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/></>;
-    case 'INT': return <><line x1="50" y1="12" x2="50" y2="85" stroke={AZUL} strokeWidth="5" strokeLinecap="round"/><polyline points="32,66 50,90 68,66" fill="none" stroke={AZUL} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/></>;
-    case 'GF':  return <><circle cx="32" cy="50" r="30" fill="none" stroke={AZUL} strokeWidth="5"/><circle cx="68" cy="50" r="30" fill="none" stroke={AZUL} strokeWidth="5"/></>;
-    case 'GV':  return <><path d="M 20,50 Q 50,12 80,50" fill="none" stroke={AZUL} strokeWidth="5" strokeLinecap="round"/><polyline points="66,32 80,50 64,58" fill="none" stroke={AZUL} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/></>;
-    case 'MIG': return <><line x1="10" y1="50" x2="82" y2="50" stroke={AZUL} strokeWidth="5" strokeLinecap="round"/><polyline points="66,32 86,50 66,68" fill="none" stroke={AZUL} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/></>;
-    case 'PU':  return <><line x1="2" y1="80" x2="98" y2="80" stroke={AZUL} strokeWidth="6" strokeLinecap="round"/><line x1="50" y1="38" x2="50" y2="80" stroke={AZUL} strokeWidth="4"/></>;
-    case 'TR':  return <><path d="M 12,26 Q 50,62 88,26" fill="none" stroke={AZUL} strokeWidth="5" strokeLinecap="round"/><path d="M 12,74 Q 50,38 88,74" fill="none" stroke={AZUL} strokeWidth="5" strokeLinecap="round"/></>;
-    case 'AOF': return <><rect x="25" y="25" width="50" height="50" fill="none" stroke={AZUL} strokeWidth="5"/><line x1="25" y1="25" x2="75" y2="75" stroke={AZUL} strokeWidth="4"/><line x1="75" y1="25" x2="25" y2="75" stroke={AZUL} strokeWidth="4"/></>;
-    case 'AOR': return <polyline points="5,72 20,44 35,72 50,44 65,72 80,44 95,72" fill="none" stroke={AZUL} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round"/>;
-    case 'DIA': return <><text x="28" y="62" textAnchor="middle" fill={AZUL} fontSize="32" fontWeight="bold" fontFamily="system-ui,sans-serif">)</text><text x="72" y="62" textAnchor="middle" fill={AZUL} fontSize="32" fontWeight="bold" fontFamily="system-ui,sans-serif">(</text></>;
-    default:    return null;
-  }
-};
+const FaceSquare: React.FC<FaceSquareProps> = ({ id, faceColors, clinicalState, onClickFace }) => {
+  const [hover, setHover] = React.useState<ToothFace | null>(null);
+  const isOutline = clinicalState === 'RT';
 
-// ── Zonas interactivas sobre la imagen ───────────────────────────────────────
-// Dividimos el área de la imagen en 5 regiones clickeables con overlay
-const FaceOverlay: React.FC<{
-  face: ToothFace;
-  color: string | undefined;
-  isSurface: boolean;
-  isOutline: boolean;
-  isHover: boolean;
-  onEnter: () => void;
-  onLeave: () => void;
-  onClick: () => void;
-}> = ({ face, color, isSurface, isOutline, isHover, onEnter, onLeave, onClick }) => {
-  const hasColor = color && color !== WHITE;
-
-  // Posición de cada zona en % del contenedor
-  const pos: Record<ToothFace, React.CSSProperties> = {
-    top:    { top: '0%',    left: '5%',   width: '90%',  height: '25%' },
-    bottom: { top: '75%',  left: '5%',   width: '90%',  height: '25%' },
-    left:   { top: '25%',  left: '0%',   width: '28%',  height: '50%' },
-    right:  { top: '25%',  left: '72%',  width: '28%',  height: '50%' },
-    center: { top: '25%',  left: '28%',  width: '44%',  height: '50%' },
+  // Tono plateado-perla que coincide con el color natural de los dientes SVG
+  const GLASS: Record<ToothFace, { base: string; lit: string }> = {
+    top:    { base: 'rgba(168, 176, 190, 0.38)', lit: 'rgba(220, 228, 238, 0.80)' },
+    bottom: { base: 'rgba(155, 163, 176, 0.32)', lit: 'rgba(210, 218, 230, 0.75)' },
+    left:   { base: 'rgba(145, 153, 168, 0.28)', lit: 'rgba(205, 213, 225, 0.70)' },
+    right:  { base: 'rgba(145, 153, 168, 0.28)', lit: 'rgba(205, 213, 225, 0.70)' },
+    center: { base: 'rgba(178, 186, 200, 0.42)', lit: 'rgba(225, 232, 242, 0.82)' },
   };
 
-  let bg = 'transparent';
-  if (isHover && isSurface) bg = 'rgba(59,130,246,0.35)';
-  else if (hasColor && isSurface) bg = color + 'AA';
-  else if (hasColor && isOutline) bg = 'transparent';
+  const DIVIDER    = 'rgba(130, 140, 158, 0.55)';
+  const HOVER_EDGE = '#6B7A90';
 
-  let border = 'none';
-  if (isOutline && hasColor) border = `2px solid ${ROJO}`;
-  else if (isHover && isSurface) border = '2px solid #3B82F6';
+  const getFill = (face: ToothFace): string => {
+    const color    = faceColors[face];
+    const hasColor = !!(color && color.toUpperCase() !== WHITE);
+    if (hasColor) return isOutline ? `${ROJO}66` : color!;
+    return hover === face ? GLASS[face].lit : GLASS[face].base;
+  };
 
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        ...pos[face],
-        background: bg,
-        border,
-        borderRadius: face === 'center' ? '4px' : '2px',
-        cursor: isSurface ? 'pointer' : 'default',
-        transition: 'background 0.12s',
-        boxSizing: 'border-box',
-      }}
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
-      onClick={e => { e.stopPropagation(); isSurface && onClick(); }}
+  const getEdge = (face: ToothFace): string => {
+    if (hover === face) return HOVER_EDGE;
+    const hasColor = !!(faceColors[face] && faceColors[face]?.toUpperCase() !== WHITE);
+    if (isOutline && hasColor) return ROJO;
+    return DIVIDER;
+  };
+
+  const getEdgeW = (face: ToothFace): number => hover === face ? 2.5 : 1.3;
+
+  const Face = ({ face, d }: { face: ToothFace; d: string }) => (
+    <path
+      d={d}
+      fill={getFill(face)}
+      stroke={getEdge(face)}
+      strokeWidth={getEdgeW(face)}
+      strokeLinejoin="round"
+      style={{ cursor: 'pointer', transition: 'fill 0.15s ease' }}
+      onMouseEnter={() => setHover(face)}
+      onMouseLeave={() => setHover(null)}
+      onClick={(e) => { e.stopPropagation(); onClickFace(face); }}
     />
   );
-};
 
-// ── Componente principal ──────────────────────────────────────────────────────
-export const ToothBox: React.FC<ToothBoxProps> = ({ id, state, onClickFace, onClickExtracted }) => {
-  const { top, bottom, left, right, center, clinicalState, mobility, crownType, pulpLabel } = state;
-  const [hover, setHover] = React.useState<ToothFace | null>(null);
-
-  const cs = clinicalState ?? 'S';
-  const isSurface = SURFACE_STATES.has(cs);
-  const isOutline = OUTLINE_STATES.has(cs);
-  const isSymbol  = !isSurface && !isOutline;
-
-  const upper     = isMaxilar(id);
-  const imgSrc    = `/teeth/oclusal/${id}.png`;
-  const overlayColor = stateOverlayColor(cs);
-
-  const labelStyle: React.CSSProperties = {
-    fontSize: 8, fontWeight: 700, fontFamily: 'ui-sans-serif,system-ui,sans-serif',
-    color: '#9CA3AF', lineHeight: 1, userSelect: 'none',
-  };
-
-  // Tamaño de render del diente — molares más anchos, incisivos estrechos
-  const pos = id % 10;
-  const toothW = pos >= 6 ? 44 : pos >= 4 ? 38 : pos === 3 ? 32 : pos <= 2 ? 28 : 30;
-  const toothH = 48;
-
-  const faces: ToothFace[] = ['top', 'bottom', 'left', 'right', 'center'];
-  const faceColors: Record<ToothFace, string | undefined> = { top, bottom, left, right, center };
+  const FaceRect = ({ face }: { face: ToothFace }) => (
+    <rect
+      x="25" y="25" width="50" height="50"
+      fill={getFill(face)}
+      stroke={getEdge(face)}
+      strokeWidth={getEdgeW(face)}
+      style={{ cursor: 'pointer', transition: 'fill 0.15s ease' }}
+      onMouseEnter={() => setHover(face)}
+      onMouseLeave={() => setHover(null)}
+      onClick={(e) => { e.stopPropagation(); onClickFace(face); }}
+    />
+  );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: toothW }}>
-      {upper && <span style={labelStyle}>{id}</span>}
-
-      {/* Contenedor del diente */}
-      <div
-        style={{ position: 'relative', width: toothW, height: toothH, cursor: 'pointer' }}
-        onClick={() => { if (isSymbol) { onClickExtracted?.(); onClickFace?.('center'); } }}
+    <div 
+      onMouseLeave={() => setHover(null)}
+      style={{
+        width: 42, height: 42, borderRadius: 8,
+        // Degradado plateado-perla que imita el esmalte dental de los SVGs
+        background: 'linear-gradient(145deg, rgba(200,208,220,0.60) 0%, rgba(168,178,195,0.40) 50%, rgba(185,194,210,0.50) 100%)',
+        backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+        border: '1px solid rgba(160,170,186,0.55)',
+        boxShadow: [
+          '0 2px 8px rgba(100,110,130,0.10)',
+          '0 1px 2px rgba(80,90,110,0.08)',
+          'inset 0 1px 2px rgba(255,255,255,0.70)',
+          'inset 0 -1px 2px rgba(100,110,130,0.12)',
+        ].join(', '),
+        overflow: 'hidden', flexShrink: 0,
+      }}
+    >
+      <svg 
+        viewBox="0 0 100 100" 
+        style={{ width: '100%', height: '100%', display: 'block' }}
+        onMouseLeave={() => setHover(null)}
       >
-        {/* Imagen real del diente */}
-        <img
-          src={imgSrc}
-          alt={`OD ${id}`}
-          style={{
-            width: '100%',
-            height: '100%',
-            objectFit: 'contain',
-            objectPosition: 'center',
-            display: 'block',
-            userSelect: 'none',
-            pointerEvents: 'none',
-          }}
+        <Face face="top"    d="M 10,10 L 90,10 L 75,25 L 25,25 Z" />
+        <Face face="bottom" d="M 10,90 L 90,90 L 75,75 L 25,75 Z" />
+        <Face face="left"   d="M 10,10 L 25,25 L 25,75 L 10,90 Z" />
+        <Face face="right"  d="M 90,10 L 75,25 L 75,75 L 90,90 Z" />
+        <FaceRect face="center" />
+        
+        {/* Número FDI como marca de agua interna */}
+        <text 
+          x="50" y="52"
+          fontSize="15" 
+          fontWeight="900" 
+          fill="rgba(70, 80, 100, 0.55)" 
+          textAnchor="middle" 
+          dominantBaseline="middle"
+          pointerEvents="none"
+          style={{ userSelect: 'none', fontFamily: 'ui-sans-serif, system-ui, sans-serif', letterSpacing: '-1px' }}
+        >
+          {id}
+        </text>
+        <line x1="13" y1="11.5" x2="87" y2="11.5"
+          stroke="rgba(255,255,255,0.75)" strokeWidth="1.8" strokeLinecap="round"
+          pointerEvents="none"
         />
-
-        {/* Overlay global de estado (para estados no-superficie) */}
-        {isSymbol && overlayColor && cs !== 'A' && cs !== 'EI' && (
-          <div
-            style={{
-              position: 'absolute', inset: 0,
-              background: overlayColor + '30',
-              borderRadius: 4,
-              pointerEvents: 'none',
-            }}
-          />
-        )}
-
-        {/* Overlays interactivos por zona (modo superficie) */}
-        {(isSurface || isOutline) && faces.map(face => (
-          <FaceOverlay
-            key={face}
-            face={face}
-            color={faceColors[face]}
-            isSurface={isSurface}
-            isOutline={isOutline}
-            isHover={hover === face}
-            onEnter={() => isSurface && setHover(face)}
-            onLeave={() => setHover(null)}
-            onClick={() => onClickFace?.(face)}
-          />
-        ))}
-
-        {/* Símbolo SVG normativo */}
-        {(isSymbol || isOutline) && (
-          <svg
-            viewBox="0 0 100 100"
-            style={{
-              position: 'absolute', inset: 0,
-              width: '100%', height: '100%',
-              pointerEvents: 'none',
-            }}
-          >
-            <NormSymbol cs={cs} mobility={mobility} crownType={crownType} />
-          </svg>
-        )}
-      </div>
-
-      {!upper && <span style={labelStyle}>{id}</span>}
+        <circle cx="12" cy="12" r="3" fill="rgba(255,255,255,0.35)" pointerEvents="none" />
+      </svg>
     </div>
   );
 };
 
-export default ToothBox;
+// ── Componente principal ToothBox ─────────────────────────────────────────────
+export const ToothBox: React.FC<ToothBoxProps> = ({
+  id, state, isUpper, viewMode = 'images', onClickFace, onClickTooth,
+}) => {
+  const cs           = state.clinicalState ?? 'S';
+  const isGlobalSymbol = IMAGE_SYMBOL_STATES.has(cs) || !!state.mobility || !!state.crownType || !!state.pulpLabel;
+  const isSquareMode = SQUARE_STATES.has(cs);
+
+  const faceColors: Record<ToothFace, string | undefined> = {
+    top: state.top, bottom: state.bottom,
+    left: state.left, right: state.right, center: state.center,
+  };
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: 10, fontWeight: 600,
+    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+    color: '#6B7280', lineHeight: 1, userSelect: 'none',
+    letterSpacing: '-0.3px',
+    height: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
+  };
+
+  const isUpperWisdom = id === 18 || id === 28;
+  const isMolar = [6, 7, 8].includes(id % 10) && !isUpperWisdom;
+
+  const imgWidth = isUpperWisdom ? 50 : isMolar ? 62 : 52;
+  const imgMaxHeight = isUpperWisdom ? 95 : isMolar ? 115 : 100;
+  const containerWidth = isUpperWisdom ? 39 : isMolar ? 49 : 41;
+
+  // ── Lógica de estilos para la vista de imágenes (Mapeo de Caras) ───────
+  
+  // Palatino/Lingual (Sombra exterior por detrás del diente)
+  const backColor = isUpper ? faceColors.bottom : faceColors.top;
+  const isBackActive = backColor && backColor.toUpperCase() !== WHITE;
+
+  // Vestibular (Centro de la corona)
+  const centerColor = isUpper ? faceColors.top : faceColors.bottom;
+  const isCenterActive = centerColor && centerColor.toUpperCase() !== WHITE;
+
+  // Oclusal/Incisal (Borde)
+  const oclusalColor = faceColors.center;
+  const isOclusalActive = oclusalColor && oclusalColor.toUpperCase() !== WHITE;
+
+  // Mesial/Distal (Bordes Laterales)
+  const leftColor = faceColors.left;
+  const isLeftActive = leftColor && leftColor.toUpperCase() !== WHITE;
+  const rightColor = faceColors.right;
+  const isRightActive = rightColor && rightColor.toUpperCase() !== WHITE;
+
+  // Máscara de gradiente para limitar el color interno solo a la corona (oculta la raíz)
+  const maskGradient = isUpper 
+    ? 'linear-gradient(to bottom, transparent 35%, black 65%)' 
+    : 'linear-gradient(to top, transparent 35%, black 65%)';
+
+  // Imagen individual del diente por ID (Preparado para formato SVG)
+  const toothImg = (
+    <img
+      src={`/teeth/${id}.svg`}
+      alt={`Diente ${id}`}
+      draggable={false}
+      style={{
+        width: imgWidth,
+        height: 'auto',
+        maxHeight: imgMaxHeight,
+        objectFit: 'contain',
+        objectPosition: isUpper ? 'bottom center' : 'top center',
+        userSelect: 'none',
+        pointerEvents: 'none',
+        display: 'block',
+        flexShrink: 0,
+        filter: 'drop-shadow(0px 3px 6px rgba(15, 25, 45, 0.25))', // Solo sombra natural
+        transition: 'all 0.15s ease-out',
+        position: 'relative',
+        zIndex: 5,
+      }}
+    />
+  );
+
+  // ── VISTA: solo imágenes anatomías (Simple, Vectorial) ────────────
+  if (viewMode === 'images') {
+    return (
+      <div 
+        // Efecto tipo Dock hiper-rápido: animaciones snappy
+        className="relative flex flex-col items-center transition-all duration-100 ease-out hover:scale-[1.15] hover:-translate-y-2 hover:z-50"
+        style={{ width: containerWidth, cursor: 'pointer' }}
+        onClick={(e) => { e.stopPropagation(); onClickTooth?.(); }}
+      >
+        {/* Capa de Sombra Lingual/Palatina (Brillo vibrante SÓLO detrás de la corona) */}
+        {isBackActive && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            pointerEvents: 'none',
+            zIndex: 1,
+            // Aplicamos el drop-shadow al contenedor para que la sombra desborde libremente
+            filter: `drop-shadow(0px 0px 4px ${backColor}) drop-shadow(0px 0px 10px ${backColor})`,
+          }}>
+            {/* Aplicamos la máscara a la imagen para cortar la raíz, así la sombra solo nace de la corona */}
+            <img
+              src={`/teeth/${id}.svg`}
+              alt=""
+              style={{
+                width: '100%', height: '100%',
+                objectFit: 'contain',
+                objectPosition: isUpper ? 'bottom center' : 'top center',
+                WebkitMaskImage: maskGradient,
+                maskImage: maskGradient,
+              }}
+            />
+          </div>
+        )}
+
+        {toothImg}
+
+        {/* Capas de gradientes superpuestos estrictamente en la corona del diente */}
+        {(isCenterActive || isOclusalActive || isLeftActive || isRightActive) && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            WebkitMaskImage: maskGradient,
+            maskImage: maskGradient,
+            pointerEvents: 'none',
+            zIndex: 10
+          }}>
+            <div style={{
+              position: 'absolute', inset: 0,
+              WebkitMaskImage: `url(/teeth/${id}.svg)`,
+              maskImage: `url(/teeth/${id}.svg)`,
+              WebkitMaskSize: 'contain',
+              maskSize: 'contain',
+              WebkitMaskPosition: isUpper ? 'bottom center' : 'top center',
+              maskPosition: isUpper ? 'bottom center' : 'top center',
+              WebkitMaskRepeat: 'no-repeat',
+              maskRepeat: 'no-repeat',
+            }}>
+              {/* 1. Capa Oclusal/Incisal (Borde inferior/superior muy reducido) */}
+              {isOclusalActive && (
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: isUpper 
+                    ? `linear-gradient(to top, ${oclusalColor} 0%, transparent 20%)` 
+                    : `linear-gradient(to bottom, ${oclusalColor} 0%, transparent 20%)`,
+                  opacity: 0.75 // Colores vivos y claros, sin "multiply" para no oscurecer
+                }} />
+              )}
+              {/* 2. Capa Izquierda (Mesial/Distal muy reducido) */}
+              {isLeftActive && (
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: `linear-gradient(to right, ${leftColor} 0%, transparent 25%)`,
+                  opacity: 0.75
+                }} />
+              )}
+              {/* 3. Capa Derecha (Mesial/Distal muy reducido) */}
+              {isRightActive && (
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: `linear-gradient(to left, ${rightColor} 0%, transparent 25%)`,
+                  opacity: 0.75
+                }} />
+              )}
+              {/* 4. Capa Vestibular (Centro / Barriga de la corona) */}
+              {isCenterActive && (
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: `radial-gradient(ellipse at 50% ${isUpper ? '85%' : '15%'}, ${centerColor} 0%, transparent 60%)`,
+                  opacity: 0.75
+                }} />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Símbolo clínico global superpuesto en la corona */}
+        {isGlobalSymbol && (
+          <div style={{
+            position: 'absolute', 
+            top: isUpper ? '70%' : '5%',
+            left: '25%',
+            width: '50%', 
+            height: '25%',
+            pointerEvents: 'none', 
+            zIndex: 20,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            // Se elimina el drop-shadow para evitar que números y textos tengan "fondo" cuadrado
+          }}>
+            <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%' }}>
+              <ImageSymbol cs={cs} mobility={state.mobility} crownType={state.crownType} pulpLabel={state.pulpLabel} />
+            </svg>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // ── VISTA: solo cuadros diagnósticos FDI (sin imágenes) ───────────
+  return (
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      width: 46,
+      gap: 1,
+    }}>
+
+      {/* Cuadro interactivo */}
+      <div
+        style={{ flexShrink: 0, position: 'relative' }}
+        onClick={(e) => { e.stopPropagation(); if (!isSquareMode) onClickTooth?.(); }}
+      >
+        <FaceSquare
+          id={id}
+          faceColors={faceColors}
+          clinicalState={cs}
+          onClickFace={(face) => onClickFace?.(face)}
+        />
+
+        {/* Estado ausente */}
+        {cs === 'A' && (
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: `${AZUL}1A`, borderRadius: 8, pointerEvents: 'none',
+          }}/>
+        )}
+
+        {/* Símbolo clínico */}
+        {isGlobalSymbol && (
+          <svg viewBox="0 0 100 100" style={{
+            position: 'absolute', inset: -4,
+            width: 'calc(100% + 8px)', height: 'calc(100% + 8px)',
+            pointerEvents: 'none',
+          }}>
+            <ImageSymbol cs={cs} mobility={state.mobility} crownType={state.crownType} pulpLabel={state.pulpLabel} />
+          </svg>
+        )}
+      </div>
+
+    </div>
+  );
+};
