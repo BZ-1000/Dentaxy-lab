@@ -40,19 +40,27 @@ interface ExtState extends BoxState {
   clinicalState: ToothState;
   mobility?: 1 | 2 | 3;
   cariesGrade?: 1 | 2 | 3 | 4;
+  crownType?: string;    // tipo de corona p.ej. CC, CF, CMC…
+  pulpLabel?: string;    // etiqueta pulpar TC, PC, PP
+  materialType?: string; // material restaurador AM, R, IV…
 }
 
 const ADA = TOOTH_COLORS;
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Colores por grado de caries (variaciones del rojo ADA)
+// Colores por grado de caries — solo variaciones del ROJO normativo (EA4335)
+// La norma 1.3 dice: "pintada con color rojo"
 // ─────────────────────────────────────────────────────────────────────────────
 const CARIES_GRADE_COLORS: Record<1|2|3|4, string> = {
-  1: '#FFAB91', // Esmalte — rojo claro
-  2: '#EF6C50', // Dentina superficial — naranja-rojo
-  3: '#E53935', // Dentina profunda — rojo ADA estándar
+  1: '#EF9A9A', // Esmalte — rojo pálido (lesión incipiente)
+  2: '#EF5350', // Dentina superficial — rojo medio
+  3: '#EA4335', // Dentina profunda — rojo normativo estándar
   4: '#B71C1C', // Compromiso pulpar — rojo oscuro
 };
+
+// Estados que usan colores de superficie (caras pintadas)
+const SURFACE_STATES = new Set(['C', 'O', 'SE', 'S']);
+const OUTLINE_STATES = new Set(['RT']); // Contorno rojo sin relleno
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Layout de arcos (orden visual, norma FDI)
@@ -99,50 +107,57 @@ const getFaceMap = (id: number): FaceMap => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Construir el BoxState desde el ExtState
+// buildBox v3 — Convierte ExtState → BoxState para ToothBox v3
+// Tres modos de renderizado:
+//   1. Superficie (C, O, SE): colorea caras por superficie seleccionada
+//   2. Contorno (RT): caras blancas con borde rojo en superficies afectadas
+//   3. Símbolo (todos los demás): caras blancas + clinicalState para dibujar el símbolo normativo
 // ─────────────────────────────────────────────────────────────────────────────
-const buildBox = (ext: ExtState, id: number): BoxState => {
-  const s = ext.clinicalState;
-  // Color base del estado; para caries usa el color por grado
+const buildBox = (ext: ExtState, _id: number): BoxState => {
+  const s     = ext.clinicalState;
+  const white = '#ffffff';
   const color = s === 'C' && ext.cariesGrade
     ? CARIES_GRADE_COLORS[ext.cariesGrade]
-    : ADA[s] ?? '#ffffff';
-  const white = '#ffffff';
+    : ADA[s] ?? white;
 
-  switch (s) {
-    case 'S':
-      return { top: white, bottom: white, left: white, right: white, center: white };
-    case 'A':
-      return { top: white, bottom: white, left: white, right: white, center: white, isExtracted: true };
-    case 'EI':
-      return { top: white, bottom: white, left: white, right: white, center: white };
-    case 'CR':
-    case 'PU':
-      return { top: color, bottom: color, left: color, right: color, center: color };
-    case 'E':
-      return { top: white, bottom: white, left: white, right: white, center: color };
-    case 'IM':
-      return { top: '#ECEFF1', bottom: '#ECEFF1', left: '#ECEFF1', right: '#ECEFF1', center: '#607D8B' };
-    case 'F':
-      return { top: white, bottom: white, left: white, right: white, center: color };
-    case 'MOV':
-      return { top: white, bottom: white, left: white, right: white, center: '#FFF3E0' };
-    case 'C':
-    case 'O':
-    case 'SE': {
-      // Usar superficies guardadas si existen
-      const hasFaces = ['top','bottom','left','right','center'].some(
-        f => (ext as any)[f] && (ext as any)[f] !== white
-      );
-      if (hasFaces) {
-        return { top: ext.top ?? white, bottom: ext.bottom ?? white, left: ext.left ?? white, right: ext.right ?? white, center: ext.center ?? white };
-      }
-      // Fallback: colorear oclusal/centro
-      return { top: white, bottom: white, left: white, right: white, center: color };
+  // ─ 1. Sano ────────────────────────────────────────────────────────────────────────
+  if (s === 'S') return { top: white, bottom: white, left: white, right: white, center: white, clinicalState: 'S' };
+
+  // ─ 2. Estados de superficie: pintar caras (C rojo, O azul, SE azul) ───────────
+  if (SURFACE_STATES.has(s)) {
+    const hasFaces = ['top','bottom','left','right','center'].some(
+      f => (ext as any)[f] && (ext as any)[f] !== white
+    );
+    if (hasFaces) {
+      return { top: ext.top ?? white, bottom: ext.bottom ?? white,
+               left: ext.left ?? white, right: ext.right ?? white,
+               center: ext.center ?? white, clinicalState: s };
     }
-    default:
-      return { top: white, bottom: white, left: white, right: white, center: white };
+    return { top: white, bottom: white, left: white, right: white, center: color, clinicalState: s };
   }
+
+  // ─ 3. Restauración Temporal (RT): contorno rojo sin relleno ─────────────────
+  if (OUTLINE_STATES.has(s)) {
+    const hasFaces = ['top','bottom','left','right','center'].some(
+      f => (ext as any)[f] && (ext as any)[f] !== white
+    );
+    if (hasFaces) {
+      return { top: ext.top ?? white, bottom: ext.bottom ?? white,
+               left: ext.left ?? white, right: ext.right ?? white,
+               center: ext.center ?? white, clinicalState: 'RT' };
+    }
+    return { top: white, bottom: white, left: white, right: white, center: color, clinicalState: 'RT' };
+  }
+
+  // ─ 4. Todos los demás: símbolo normativo SVG ─────────────────────────────────
+  // Caras blancas + clinicalState para que ToothBox dibuje el símbolo
+  return {
+    top: white, bottom: white, left: white, right: white, center: white,
+    clinicalState: s,
+    mobility: ext.mobility,
+    crownType: ext.crownType,
+    pulpLabel: ext.pulpLabel,
+  };
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -162,18 +177,26 @@ const initTeeth = (ids: number[]): Record<number, ExtState> => {
 // ─────────────────────────────────────────────────────────────────────────────
 // Leyenda ADA
 // ─────────────────────────────────────────────────────────────────────────────
-const LEGEND: { state: ToothState; label: string }[] = [
-  { state: 'C',   label: 'Caries' },
-  { state: 'O',   label: 'Obturado' },
-  { state: 'A',   label: 'Ausente' },
-  { state: 'EI',  label: 'Extrac. Ind.' },
-  { state: 'E',   label: 'Endodoncia' },
-  { state: 'CR',  label: 'Corona' },
-  { state: 'PU',  label: 'Puente' },
-  { state: 'IM',  label: 'Implante' },
-  { state: 'SE',  label: 'Sellador' },
-  { state: 'F',   label: 'Fractura' },
-  { state: 'MOV', label: 'Movilidad' },
+// Leyenda: AZUL (#1A73E8) para tratamientos, ROJO (#EA4335) para patologías
+const AZUL_N = '#1A73E8';
+const ROJO_N = '#EA4335';
+
+const LEGEND: { state: ToothState; label: string; color: string }[] = [
+  { state: 'C',   label: 'Caries',          color: ROJO_N },
+  { state: 'O',   label: 'Restaurado',       color: AZUL_N },
+  { state: 'RT',  label: 'Rest. Temporal',   color: ROJO_N },
+  { state: 'A',   label: 'Ausente',          color: AZUL_N },
+  { state: 'EI',  label: 'Extrac. Indicada', color: ROJO_N },
+  { state: 'CR',  label: 'Corona',           color: AZUL_N },
+  { state: 'PU',  label: 'Puente',           color: AZUL_N },
+  { state: 'E',   label: 'T. Conductos',     color: AZUL_N },
+  { state: 'PC',  label: 'Pulpectomía',      color: AZUL_N },
+  { state: 'PP',  label: 'Pulpotomía',       color: AZUL_N },
+  { state: 'IM',  label: 'Implante',         color: AZUL_N },
+  { state: 'SE',  label: 'Sellador',         color: AZUL_N },
+  { state: 'F',   label: 'Fractura',         color: ROJO_N },
+  { state: 'MOV', label: 'Movilidad',        color: AZUL_N },
+  { state: 'RR',  label: 'Rem. Radicular',   color: ROJO_N },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -195,7 +218,9 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
     state: ToothState,
     surfaces: Record<string, boolean>,
     mobility?: 1 | 2 | 3,
-    cariesGrade?: 1 | 2 | 3 | 4
+    cariesGrade?: 1 | 2 | 3 | 4,
+    materialType?: string,   // AM | R | IV | IM | IE  (solo O, RT)
+    crownType?: string,      // CC | CF | CMC | CJ | CV | CP  (solo CR)
   ) => {
     if (selectedId === null) return;
     const id = selectedId;
@@ -209,6 +234,8 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
       clinicalState: state,
       mobility,
       cariesGrade,
+      crownType,      // preservar tipo de corona para ToothBox v3
+      materialType,   // preservar material para redacción
       top: white, bottom: white, left: white, right: white, center: white,
     };
 
@@ -241,12 +268,16 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
     setTeeth(prev => {
       const updated = { ...prev, [id]: next };
       if (onRedaccionGenerada) {
-        const arrForEngine = Object.values(updated).map((v, i) => ({
-          id: Object.keys(updated)[i] ? parseInt(Object.keys(updated)[i]) : 0,
+        // ✅ Usar Object.entries() para garantizar correlación ID ↔ estado
+        const arrForEngine = Object.entries(updated).map(([key, v]) => ({
+          id: parseInt(key),
           state: v.clinicalState,
           surfaces: {},
           mobility: v.mobility,
           cariesGrade: v.cariesGrade,
+          crownType: v.crownType,
+          pulpLabel: v.pulpLabel,
+          materialType: v.materialType,
         }));
         onRedaccionGenerada(generateOdontogramHTML(arrForEngine as any));
       }
@@ -284,12 +315,16 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
     setTeeth(prev => {
       const updated = {...prev, [id]: next};
       if (onRedaccionGenerada) {
-        const arr = Object.values(updated).map((v, i) => ({
-          id: Object.keys(updated)[i] ? parseInt(Object.keys(updated)[i]) : 0,
+        // ✅ Usar Object.entries() para garantizar correlación ID ↔ estado
+        const arr = Object.entries(updated).map(([key, v]) => ({
+          id: parseInt(key),
           state: v.clinicalState,
           surfaces: {},
           mobility: v.mobility,
           cariesGrade: v.cariesGrade,
+          crownType: v.crownType,
+          pulpLabel: v.pulpLabel,
+          materialType: v.materialType,
         }));
         onRedaccionGenerada(generateOdontogramHTML(arr as any));
       }
@@ -310,38 +345,42 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
   const renderTooth = (id: number) => {
     const ext = teeth[id] ?? blank(id);
     const box = buildBox(ext, id);
-    const isPending = pendingToothId === id; 
+    const isPending = pendingToothId === id;
+    const q = Math.floor(id / 10);
+    const isUpper = q === 1 || q === 2 || q === 5 || q === 6;
     return (
-      <div key={id} className="flex flex-col items-center relative">
-        {/* Anillo de espera "listening" */}
+      <div
+        key={id}
+        className="relative"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          // Superiores se alinean por la base, inferiores por arriba
+          justifyContent: isUpper ? 'flex-end' : 'flex-start',
+          minHeight: 60,
+        }}
+      >
         {isPending && (
           <div
             style={{
-              position: 'absolute',
-              inset: '-4px',
-              borderRadius: '10px',
+              position: 'absolute', inset: '-3px', borderRadius: '8px',
               background: 'linear-gradient(135deg, #34d399, #059669)',
-              opacity: 0.7,
+              opacity: 0.6,
               animation: 'dtx-pulse 1.2s ease-in-out infinite alternate',
               zIndex: 0,
             }}
           />
         )}
-        {/* Movilidad */}
-        {ext.clinicalState === 'MOV' && ext.mobility && (
-          <span className="text-[8px] font-black absolute -top-3 z-10 leading-none" style={{ color: '#FF6D00' }}>
-            {['I','II','III'][ext.mobility - 1]}
-          </span>
-        )}
-        {/* Extracción indicada */}
-        {ext.clinicalState === 'EI' && (
-          <span className="text-[9px] font-black absolute -top-3 z-10 leading-none" style={{ color: '#7B4FA8' }}>✕</span>
-        )}
-        {/* Grado de caries */}
         {ext.clinicalState === 'C' && ext.cariesGrade && (
           <span
-            className="text-[7px] font-black absolute -top-3 z-10 leading-none px-0.5 rounded"
-            style={{ color: CARIES_GRADE_COLORS[ext.cariesGrade], background: `${CARIES_GRADE_COLORS[ext.cariesGrade]}18` }}
+            className="text-[7px] font-black absolute z-10 leading-none px-0.5 rounded"
+            style={{
+              top: isUpper ? undefined : '-12px',
+              bottom: isUpper ? '-12px' : undefined,
+              color: CARIES_GRADE_COLORS[ext.cariesGrade],
+              background: `${CARIES_GRADE_COLORS[ext.cariesGrade]}22`,
+            }}
           >
             G{['I','II','III','IV'][ext.cariesGrade - 1]}
           </span>
@@ -358,32 +397,35 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
     );
   };
 
-  const renderArch = (left: number[], right: number[]) => (
-    <div className="flex justify-center items-center gap-0">
-      <div className="flex items-center gap-1 flex-row-reverse">
-        {left.map(renderTooth)}
+  const renderArch = (left: number[], right: number[], alignBottom = true) => {
+    const alignItems = alignBottom ? 'flex-end' : 'flex-start';
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems, gap: 0 }}>
+        <div style={{ display: 'flex', alignItems, gap: 1, flexDirection: 'row-reverse' }}>
+          {left.map(renderTooth)}
+        </div>
+        <div style={{ width: 1, height: 52, background: '#E5E7EB', margin: '0 4px', borderRadius: 1, flexShrink: 0, alignSelf: 'center' }} />
+        <div style={{ display: 'flex', alignItems, gap: 1 }}>
+          {right.map(renderTooth)}
+        </div>
       </div>
-      <div style={{ width: 1, height: 52, background: '#E5E7EB', margin: '0 6px', borderRadius: 1, flexShrink: 0 }} />
-      <div className="flex items-center gap-1">
-        {right.map(renderTooth)}
-      </div>
-    </div>
-  );
+    );
+  };
 
   const renderDentition = () => {
     if (dentition === 'permanent') return (
       <>
-        {renderArch(PERM_Q1, PERM_Q2)}
-        <div style={{ height: 1, background: 'linear-gradient(90deg,transparent,#E5E7EB 20%,#E5E7EB 80%,transparent)', margin: '8px 0' }} />
-        {renderArch(PERM_Q4, PERM_Q3)}
+        {renderArch(PERM_Q1, PERM_Q2, true)}
+        <div style={{ height: 6, background: 'linear-gradient(90deg,transparent,#E5E7EB 20%,#E5E7EB 80%,transparent)', margin: '4px 0' }} />
+        {renderArch(PERM_Q4, PERM_Q3, false)}
       </>
     );
 
     if (dentition === 'pediatric') return (
       <>
-        {renderArch(DEC_Q5, DEC_Q6)}
-        <div style={{ height: 1, background: 'linear-gradient(90deg,transparent,#E5E7EB 20%,#E5E7EB 80%,transparent)', margin: '8px 0' }} />
-        {renderArch(DEC_Q8, DEC_Q7)}
+        {renderArch(DEC_Q5, DEC_Q6, true)}
+        <div style={{ height: 6, background: 'linear-gradient(90deg,transparent,#E5E7EB 20%,#E5E7EB 80%,transparent)', margin: '4px 0' }} />
+        {renderArch(DEC_Q8, DEC_Q7, false)}
       </>
     );
 
@@ -484,10 +526,11 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
         </button>
       </div>
 
+      {/* Leyenda normativa: solo azul y rojo */}
       <div className="flex flex-wrap gap-x-3 gap-y-1 mb-3">
-        {LEGEND.map(({ state, label }) => (
-          <span key={state} className="flex items-center gap-1 text-[9px] font-semibold" style={{ color: ADA[state] }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: ADA[state], display: 'inline-block' }} />
+        {LEGEND.map(({ state, label, color }) => (
+          <span key={state} className="flex items-center gap-1 text-[9px] font-semibold" style={{ color }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, display: 'inline-block' }} />
             {label}
           </span>
         ))}

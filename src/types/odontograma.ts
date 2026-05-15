@@ -117,40 +117,49 @@ export interface OdontogramData {
 // Rojo = patología activa / temporal / mal estado
 // Azul = tratamiento definitivo / buen estado
 // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+// Colores normativos — Norma Técnica del Odontograma (FDI/OPS/MINSA)
+// SOLO se usan dos colores: ROJO y AZUL.
+// Rojo (#EA4335) = patología activa, temporal, mal estado
+// Azul (#1A73E8) = tratamiento definitivo, buen estado
+// ─────────────────────────────────────────────────────────────────────────────
+export const AZUL_NORMA = '#1A73E8'; // Tratamientos definitivos / buen estado
+export const ROJO_NORMA = '#EA4335'; // Patologías activas / temporal / mal estado
+
 export const TOOTH_COLORS: Record<ToothState, string> = {
-  // Originales
-  S:   '#FFFFFF',
-  C:   '#EA4335', // Rojo — patología activa
-  O:   '#1A73E8', // Azul — restauración definitiva
-  EI:  '#7B4FA8', // Morado — extracción indicada
-  A:   '#EA4335', // Rojo — ausente
-  CR:  '#FF6D00', // Naranja — corona
-  PU:  '#FF6D00', // Naranja — puente
-  E:   '#1A73E8', // Azul — endodoncia (tratamiento definitivo)
-  IM:  '#607D8B', // Gris — implante
-  SE:  '#F9AB00', // Amarillo — sellador
-  F:   '#EA4335', // Rojo — fractura
-  MOV: '#FF6D00', // Naranja — movilidad
-  // Nuevos
-  AOF: '#1A73E8', // Azul (buen estado) / rojo (mal estado) — se evalúa en runtime
-  AOR: '#1A73E8',
-  DES: '#795548', // Café — desgaste
-  DIA: '#1A73E8', // Azul — diastema
-  DIS: '#9C27B0', // Morado — discromía
-  ECT: '#1A73E8', // Azul — ectópico
-  CLV: '#1A73E8', // Azul — en clavija
-  EXT: '#1A73E8', // Azul — extrusión
-  INT: '#1A73E8', // Azul — intrusión
-  GF:  '#1A73E8', // Azul — geminación/fusión
-  GV:  '#1A73E8', // Azul — giroversión
-  MIG: '#1A73E8', // Azul — migración
-  RR:  '#EA4335', // Rojo — remanente radicular
-  RT:  '#EA4335', // Rojo — restauración temporal
-  SI:  '#1A73E8', // Azul — semi-impactación
-  SN:  '#1A73E8', // Azul — supernumerario
-  TR:  '#1A73E8', // Azul — transposición
-  PC:  '#1A73E8', // Azul — pulpectomía
-  PP:  '#1A73E8', // Azul — pulpotomía
+  // ── Básicos ──────────────────────────────────────────────────────────────
+  S:   '#FFFFFF',        // Sano — sin marcar
+  C:   ROJO_NORMA,       // Caries — rojo (patología activa)
+  O:   AZUL_NORMA,       // Restauración definitiva — azul
+  EI:  ROJO_NORMA,       // Extracción indicada — rojo (patología)
+  A:   AZUL_NORMA,       // Ausente — aspa AZUL (norma 1.8)
+  CR:  AZUL_NORMA,       // Corona definitiva — círculo AZUL (norma 1.4)
+  PU:  AZUL_NORMA,       // Prótesis fija (puente) — línea AZUL (norma 1.24)
+  E:   AZUL_NORMA,       // Tratamiento de conductos — línea vertical AZUL (norma 1.33)
+  IM:  AZUL_NORMA,       // Implante — siglas 'IMP' en AZUL (norma 1.19)
+  SE:  AZUL_NORMA,       // Sellador de fosetas — AZUL (tratamiento preventivo definitivo)
+  F:   ROJO_NORMA,       // Fractura — línea ROJA (norma 1.15)
+  MOV: AZUL_NORMA,       // Movilidad — 'M' + grado en AZUL (norma 1.23)
+  // ── Nuevos — Norma Técnica OPS ───────────────────────────────────────────
+  AOF: AZUL_NORMA,       // Ap. ortodóntico fijo — cuadrado+cruz AZUL / rojo si mal estado
+  AOR: AZUL_NORMA,       // Ap. ortodóntico removible — zigzag AZUL / rojo si mal estado
+  DES: AZUL_NORMA,       // Desgaste oclusal — 'DES' en AZUL (norma 1.6)
+  DIA: AZUL_NORMA,       // Diastema — paréntesis ')(' en AZUL (norma 1.7)
+  DIS: AZUL_NORMA,       // Diente discrómica — 'DIS' en AZUL (norma 1.9)
+  ECT: AZUL_NORMA,       // Diente ectópico — 'E' en AZUL (norma 1.10)
+  CLV: AZUL_NORMA,       // Diente en clavija — triángulo AZUL (norma 1.11)
+  EXT: AZUL_NORMA,       // Diente extruido — flecha AZUL hacia oclusal (norma 1.12)
+  INT: AZUL_NORMA,       // Diente intruido — flecha AZUL hacia ápice (norma 1.13)
+  GF:  AZUL_NORMA,       // Geminación/fusión — dos circunferencias AZULES (norma 1.16)
+  GV:  AZUL_NORMA,       // Giroversión — flecha curva AZUL (norma 1.17)
+  MIG: AZUL_NORMA,       // Migración — flecha horizontal AZUL (norma 1.22)
+  RR:  ROJO_NORMA,       // Remanente radicular — 'RR' en ROJO (norma 1.27)
+  RT:  ROJO_NORMA,       // Restauración temporal — contorno ROJO (norma 1.29)
+  SI:  AZUL_NORMA,       // Semi-impactación — 'SI' en AZUL (norma 1.30)
+  SN:  AZUL_NORMA,       // Supernumerario — 'S' en círculo AZUL (norma 1.31)
+  TR:  AZUL_NORMA,       // Transposición — flechas cruzadas AZULES (norma 1.32)
+  PC:  AZUL_NORMA,       // Pulpectomía — línea vertical AZUL + 'PC' (norma 1.33)
+  PP:  AZUL_NORMA,       // Pulpotomía — línea vertical AZUL + 'PP' (norma 1.33)
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
