@@ -8,12 +8,17 @@ import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 
 // UI Components
 import { ProgressLine } from './ui/ProgressLine';
-import { CommandDock } from './ui/CommandDock';
+import { AppleStyleDock } from '@/components/AppleStyleDock';
 import { DocumentWriterPanel } from './ui/DocumentWriterPanel';
 import { SectionCard, ViewMode } from './ui/SectionCard';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from '@/components/ui/resizable';
 
 // Section Card Imports (Wrappers with Visual Styling)
 import { PadecimientoCard } from './sections/PadecimientoCard';
@@ -35,8 +40,6 @@ import { OclusionCard } from './sections/OclusionCard';
 import { RelacionDientesCard } from './sections/RelacionDientesCard';
 import { LineaMediaCard } from './sections/LineaMediaCard';
 import { FrenillosCard } from './sections/FrenillosCard';
-import { DiagnosticoCard } from './sections/DiagnosticoCard';
-import { PronosticoCard } from './sections/PronosticoCard';
 import { DatosGeneralesCard } from './sections/DatosGeneralesCard';
 import { Odontograma } from '../historia-clinica/Odontograma';
 
@@ -91,8 +94,6 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
     { id: 'relacionDientes', nombre: '19. Relación de Dientes' },
     { id: 'lineaMedia', nombre: '20. Línea Media' },
     { id: 'frenillos', nombre: '21. Frenillos' },
-    { id: 'diagnostico', nombre: '22. Diagnóstico' },
-    { id: 'pronostico', nombre: '23. Pronóstico' },
   ];
 
   const [esMujer] = useState(false);
@@ -105,44 +106,8 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   const isMobile = useIsMobile();
   const [isDocumentOpen, setIsDocumentOpen] = useState(false);
   const [isDocumentExpanded, setIsDocumentExpanded] = useState(false);
-
-  // Resize state
-  const [leftWidth, setLeftWidth] = useState<number>(55); // 55%
-  const [isResizing, setIsResizing] = useState(false);
-
-  React.useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!isResizing) return;
-      const newWidthPercentage = (e.clientX / window.innerWidth) * 100;
-      // Limits between 30% and 70%
-      if (newWidthPercentage > 30 && newWidthPercentage < 70) {
-        setLeftWidth(newWidthPercentage);
-      }
-    };
-    const handleMouseUp = () => {
-      setIsResizing(false);
-    };
-    
-    if (isResizing) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      // Change body cursor
-      document.body.style.cursor = 'col-resize';
-      document.body.style.userSelect = 'none';
-    } else {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    }
-    
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
-  }, [isResizing]);
+  const [docWidth, setDocWidth] = useState(50); // New state for dynamic resizing
+  const [isDraggingSplit, setIsDraggingSplit] = useState(false); // State to disable animations while dragging
 
   // Filter sections based on gender
   const seccionesActivas = seccionesGenerables.filter(s => s.id !== 'ginecoObstetricos' || esMujer);
@@ -184,11 +149,6 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
 
   const handleContentGenerated = (seccionId: string, contenido: any, textoPlano?: string) => {
     setGenerations(prev => ({ ...prev, [seccionId]: contenido }));
-
-    // Show toast solo en desktop (en mobile estorba)
-    if (!isMobile) {
-      toast.success('Se redactó correctamente el apartado');
-    }
 
     // Open split panel on Desktop
     if (!isMobile) {
@@ -409,18 +369,6 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
           handleFrenillosChange={handleFrenillosChange}
           {...commonProps}
         />;
-      case 'diagnostico':
-        return <DiagnosticoCard
-          formData={formData}
-          handleDiagnosticoChange={handleDiagnosticoChange}
-          {...commonProps}
-        />;
-      case 'pronostico':
-        return <PronosticoCard
-          formData={formData}
-          handlePronosticoChange={handlePronosticoChange}
-          {...commonProps}
-        />;
       default:
         return null;
     }
@@ -464,24 +412,31 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
     <div className="flex w-full h-full bg-white dark:bg-zinc-950 overflow-hidden relative">
 
       {/* Left Panel: Form View */}
-      <div 
+      <motion.div 
+        initial={false}
+        animate={{ 
+          width: (isDocumentOpen && !isMobile) ? (isDocumentExpanded ? "0%" : `${100 - docWidth}%`) : "100%",
+          opacity: (isDocumentOpen && !isMobile && isDocumentExpanded) ? 0 : 1 
+        }}
+        transition={isDraggingSplit ? { duration: 0 } : { type: 'spring', stiffness: 350, damping: 30 }}
         className={cn(
-          "flex flex-col relative h-full will-change-[width]",
-          (!isDocumentOpen || isDocumentExpanded || isMobile) ? "transition-[width] duration-500 ease-out-back" : ""
+          "flex flex-col relative h-full overflow-hidden shrink-0 will-change-[width]",
+          isDocumentOpen && isMobile && "hidden"
         )}
-        style={{ width: (isDocumentOpen && !isMobile && !isDocumentExpanded) ? `${leftWidth}%` : '100%' }}
       >
-        {/* 1. Global Navigation: Progress Line (Sticky Top) — z-10 para no sobreponerse al panel derecho */}
-        <div className="w-full sticky top-0 z-10 bg-white dark:bg-zinc-950 transition-all">
-          <ProgressLine
-            totalSteps={seccionesActivas.length}
-            currentStep={currentStep}
-            isGenerating={isGenerating}
-            stepNames={seccionesActivas.map(s => s.nombre)}
-            onStepClick={handleStepClick}
-            stepStatuses={getStepStatuses() as any}
-            isScrolled={isScrolled}
-          />
+        {/* 1. Global Navigation: Progress Line (Sticky Top) */}
+        <div className="w-full sticky top-0 z-[9999] bg-transparent transition-all border-b border-transparent pointer-events-none">
+          <div className="pointer-events-auto">
+            <ProgressLine
+              totalSteps={seccionesActivas.length}
+              currentStep={currentStep}
+              isGenerating={isGenerating}
+              stepNames={seccionesActivas.map(s => s.nombre)}
+              onStepClick={handleStepClick}
+              stepStatuses={getStepStatuses() as any}
+              isScrolled={isScrolled}
+            />
+          </div>
         </div>
 
         {/* Main Content Area */}
@@ -525,16 +480,14 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
         </div>
 
         {/* 3. Command Dock: Bottom Control Center */}
-        <CommandDock
+        <AppleStyleDock
           onNext={handleNext}
           onPrev={handlePrev}
           onGenerate={handleGenerateCurrent}
-          currentStep={currentStep}
-          totalSteps={seccionesActivas.length}
-          nextLabel={seccionesActivas[currentStep + 1]?.nombre?.split('. ')[1] || 'Finalizar'}
           isGenerating={isGenerating}
           canGoNext={currentStep < seccionesActivas.length - 1}
           canGoPrev={currentStep > 0}
+          onOpenFormularios={(forceOpen) => setIsDocumentOpen(prev => forceOpen === true ? true : !prev)}
         />
 
         {/* Floating Automation Status Overlay */}
@@ -553,89 +506,54 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
             </motion.div>
           </div>
         )}
-      </div>
+      </motion.div>
 
-      {/* Burbuja Flotante Dentaxy — aparece cuando el doc está cerrado o en móvil */}
-      <AnimatePresence>
-        {(!isDocumentOpen || isMobile) && Object.keys(generations).length > 0 && !isDocumentExpanded && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.94 }}
-            onClick={() => {
-              setIsDocumentOpen(true);
-              if (isMobile) setIsDocumentExpanded(true);
-            }}
-            className="fixed bottom-24 right-5 z-[60] w-14 h-14 rounded-full flex items-center justify-center"
-            style={{
-              background: '#0f0f0f',
-              boxShadow: isGenerating
-                ? '0 0 0 0 rgba(52,211,153,0.7)'
-                : '0 4px 24px rgba(0,0,0,0.35)',
-            }}
-          >
-            {/* Anillo exterior pulsante cuando está redactando */}
-            {isGenerating && (
-              <>
-                <motion.span
-                  className="absolute inset-0 rounded-full border-2 border-emerald-400"
-                  animate={{ scale: [1, 1.6], opacity: [0.7, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.2, ease: 'easeOut' }}
-                />
-                <motion.span
-                  className="absolute inset-0 rounded-full border border-emerald-300"
-                  animate={{ scale: [1, 1.35], opacity: [0.5, 0] }}
-                  transition={{ repeat: Infinity, duration: 1.2, ease: 'easeOut', delay: 0.3 }}
-                />
-              </>
-            )}
-            <img
-              src="/brand/dentaxy-icon-solid.png"
-              alt="Ver documento"
-              className="w-7 h-7 object-contain"
-              style={{ filter: 'invert(1) brightness(2)' }}
-            />
-            {/* Punto verde vivo en esquina superior derecha */}
-            <span
-              className={cn(
-                "absolute top-1 right-1 w-2.5 h-2.5 rounded-full border-2 border-[#0f0f0f]",
-                isGenerating ? "bg-emerald-400 animate-pulse" : "bg-emerald-500"
-              )}
-            />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
-      {/* Resize Handle */}
+      {/* Resizable Split Bar (Desktop only, when split view is active) */}
       {isDocumentOpen && !isMobile && !isDocumentExpanded && (
         <div
-          onMouseDown={() => setIsResizing(true)}
-          className="w-1.5 h-full cursor-col-resize hover:bg-emerald-400/50 active:bg-emerald-500 transition-colors z-50 flex items-center justify-center shrink-0"
+          className="w-1.5 cursor-col-resize hover:bg-emerald-500/50 active:bg-emerald-500 bg-zinc-100 dark:bg-zinc-800 z-40 h-full relative group transition-colors shadow-sm flex-shrink-0"
+          onMouseDown={(e) => {
+             e.preventDefault();
+             setIsDraggingSplit(true);
+             const startX = e.clientX;
+             const startWidth = docWidth;
+             const onMouseMove = (moveEvent: MouseEvent) => {
+                const deltaX = startX - moveEvent.clientX; // Moving left increases right panel docWidth
+                const totalWidth = window.innerWidth;
+                const newWidth = Math.max(30, Math.min(70, startWidth + (deltaX / totalWidth) * 100));
+                setDocWidth(newWidth);
+             };
+             const onMouseUp = () => {
+                setIsDraggingSplit(false);
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+             };
+             document.addEventListener('mousemove', onMouseMove);
+             document.addEventListener('mouseup', onMouseUp);
+          }}
         >
-          <div className="h-10 w-0.5 bg-zinc-300 rounded-full" />
+          {/* Grip lines */}
+          <div className="absolute top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 flex items-center justify-center rounded-sm border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm w-3 h-6 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+            <svg width="6" height="10" viewBox="0 0 6 10" fill="none" className="text-zinc-400">
+              <path d="M1 1.5V8.5M5 1.5V8.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+          </div>
         </div>
       )}
 
-      {/* Right Panel: Split Document View or Maximized Modal */}
+      {/* Right Panel: Split Document View */}
       <AnimatePresence>
-        {(isDocumentOpen && (!isMobile || isDocumentExpanded)) && (
+        {isDocumentOpen && (
           <DocumentWriterPanel
             formData={formData}
             generations={generations}
             seccionesActivas={seccionesActivas}
-            onClose={() => {
-              if (isMobile || isDocumentExpanded) {
-                setIsDocumentExpanded(false);
-                if (isMobile) setIsDocumentOpen(false);
-              } else {
-                setIsDocumentOpen(false);
-              }
-            }}
+            onClose={() => setIsDocumentOpen(false)}
             isExpanded={isDocumentExpanded}
-            isMaximized={isDocumentExpanded}
             onToggleExpand={() => setIsDocumentExpanded(!isDocumentExpanded)}
+            onNext={handleNext}
+            canGoNext={currentStep < seccionesActivas.length - 1}
+            width={docWidth}
           />
         )}
       </AnimatePresence>

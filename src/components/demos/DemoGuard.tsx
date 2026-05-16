@@ -45,5 +45,9 @@ export const DemoGuard: React.FC<DemoGuardProps> = ({ children, moduleName }) =>
         return null;
     }
 
-    return <>{children}</>;
+    return (
+        <>
+            {children}
+        </>
+    );
 };

@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Minus, Maximize2, X, Sparkles } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
-import { VoiceInput } from "@/components/ui/voice-input";
 
 interface AntecedentesQuirurgicosProps {
   formData: FormDataState;
@@ -24,7 +22,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
   const [activeTab, setActiveTab] = useState('formulario');
   const [redaccionContent, setRedaccionContent] = useState('');
   const [isGeneratingRedaccion, setIsGeneratingRedaccion] = useState(false);
-  // ... existing functions (handleMinimize, etc) ... keeping them via loose replacement if possible, but safer to keeping structure
 
   const handleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -44,15 +41,10 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
   const handleBooleanChange = (field: string, value: boolean) => {
     handleAntecedenteQuirurgicoChange(field, value);
   };
-  const handleVoiceInput = (field: string) => (text: string) => {
-    const currentValue = formData.antecedentesQuirurgicos[field] || "";
-    handleAntecedenteQuirurgicoChange(field, currentValue ? `${currentValue} ${text}` : text);
-  };
   const generateRedaccion = () => {
     setIsGeneratingRedaccion(true);
     const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-400 mt-4 mb-1">${title}</span>`;
     
-    // Remove timeout for snappy UX or keep it small
     let content = "";
 
     if (formData.antecedentesQuirurgicos.tratamientoReciente) {
@@ -98,7 +90,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
       onRedaccionGenerada(content);
     }
     setIsGeneratingRedaccion(false);
-    // activeTab override not needed if onToggleViewMode is used, but keeping for compatibility
     setActiveTab('redaccion');
 
     if (onToggleViewMode) {
@@ -129,9 +120,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                 <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Motivo del tratamiento:</label>
                 <div className="flex items-center gap-2 sm:gap-4">
                   <Textarea value={formData.antecedentesQuirurgicos.motivoTratamiento || ''} onChange={e => handleTextChange('motivoTratamiento', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
-                  <div className="h-8 sm:h-10">
-                    <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoTratamiento')} />
-                  </div>
                 </div>
               </div>
             )}
@@ -153,9 +141,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                 <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Motivo de la hospitalización:</label>
                 <div className="flex items-center gap-2 sm:gap-4">
                   <Textarea value={formData.antecedentesQuirurgicos.motivoHospitalizacion || ''} onChange={e => handleTextChange('motivoHospitalizacion', e.target.value)} placeholder="Especifique el motivo" className="min-h-[80px] flex-1" />
-                  <div className="h-8 sm:h-10">
-                    <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoHospitalizacion')} />
-                  </div>
                 </div>
               </div>
             )}
@@ -178,9 +163,6 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                   <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">¿Cuál o cuáles?:</label>
                   <div className="flex items-center gap-2 sm:gap-4">
                     <Textarea value={formData.antecedentesQuirurgicos.cualesMedicamentos || ''} onChange={e => handleTextChange('cualesMedicamentos', e.target.value)} placeholder="Liste los medicamentos" className="min-h-[80px] flex-1" />
-                    <div className="h-8 sm:h-10">
-                      <VoiceInput onTranscriptionComplete={handleVoiceInput('cualesMedicamentos')} />
-                    </div>
                   </div>
                 </div>
 
@@ -188,15 +170,13 @@ const AntecedentesQuirurgicos: React.FC<AntecedentesQuirurgicosProps> = ({
                   <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Motivo por el cual toma estos medicamentos:</label>
                   <div className="flex items-center gap-2 sm:gap-4">
                     <Textarea value={formData.antecedentesQuirurgicos.motivoMedicamentos || ''} onChange={e => handleTextChange('motivoMedicamentos', e.target.value)} placeholder="Explique por qué toma estos medicamentos" className="min-h-[80px] flex-1" />
-                    <div className="h-8 sm:h-10">
-                      <VoiceInput onTranscriptionComplete={handleVoiceInput('motivoMedicamentos')} />
-                    </div>
                   </div>
                 </div>
               </>
             )}
 
             <div className="flex justify-center mt-6">
+              <button className="hidden" onClick={generateRedaccion}>Generar redacción</button>
             </div>
           </div>
         </div> : <div className="p-6">

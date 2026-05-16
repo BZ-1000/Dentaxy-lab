@@ -1,0 +1,495 @@
+NORMA TÉCNICA DEL ODONTOGRAMA
+
+I.
+
+FINALIDAD:
+Mejorar la gestión del Odontograma con el fin de poder disponer de
+información estandarizada, proteger los interese legales de los usuarios y
+delimitar las responsabilidades de los profesionales de la salud y de los
+establecimientos prestadores de servicios odontológicos.
+
+II.
+
+OBJETIVOS:
+1. Estandarizar el gráfico y la nomenclatura básica para el registro de
+hallazgos en el odontograma, lo que permitirá a los odontólogos
+manejar la misma información.
+2. Establecer los criterios de registro de datos sobre las anomalías y
+patologías de los dientes; así como el uso y manejo del Odontograma,
+en las diferentes unidades productoras de servicios odontológicos,
+pudiendo ser utilizado en aspectos clínicos, legales, forenses,
+estadísticos, de investigación o docencia.
+
+III.
+
+AMBITO DE APLICACIÓN:
+La presente norma técnica es de aplicación obligatoria para los
+odontólogos de las instituciones públicas y privadas, así como de la
+consulta particular en todo el territorio nacional.
+
+IV.
+
+BASE LEGAL:
+ Constitución Política del Perú 1993.
+ Ley Nº 26842, Ley General de Salud.
+ Ley Nº 27604, que modifica la Ley General de Salud en sus artículos 3
+y 39.
+ Decreto Supremo Nº 014-2002-SA que aprobó el Reglamento de la Ley
+General de Salud.
+ Ley Nº 27604, Ley del Ministerio de Salud.
+ Decreto Supremo Nº 023-2005-SA que aprobó el Reglamento de
+Organización y Funciones del Ministerio de Salud.
+ Resolución Ministerial Nº 776-2004/MINSA que aprobó Norma Técnica
+de la Historia Clínica de los Establecimientos de Salud del Sector
+Público y Privado.
+
+ Ley N° 27878, Ley del Trabajo del Cirujano Dentista.
+ Decreto Supremo N° 016-2005-SA que aprobó el Reglamento de la Ley
+del Cirujano Dentista.
+ Código de Ética y Profesional y Deontológico del Colegio Odontológico
+del Perú.
+V.
+
+DISPOSICIONES GENERALES:
+1. El odontograma debe formar parte de la Ficha Estomatológica y de la
+Historia Clínica.
+2. El sistema numérico para el odontograma debe ser el sistema digito
+dos o binario propuesto por la Federación Dental Internacional y
+aceptada por la Organización Mundial de la Salud.
+3. El odontograma se debe desarrollar individualmente para cada
+paciente, durante la primera cita odontológica y será inalterable.
+4. Paralelamente se debe desarrollar un odontograma que registre la
+evolución de los tratamientos dentales.
+5. En el odontograma inicial sólo se debe registrar lo observado en el
+momento del examen y no debe registrarse el plan de tratamiento.
+6. Cada registro que se haga en el odontograma debe respetar
+proporcionalmente el tamaño, ubicación y forma de los hallazgos.
+7. Para el registro de hallazgos en el odontograma solo se utilizará los
+colores rojo y azul.
+8. En los recuadros correspondientes a las piezas dentarias en donde se
+especifique el tipo de tratamiento se registrará las siglas en color azul
+cuando el tratamiento se encuentra en buen estado y en color rojo
+cuando se encuentra en mal estado. Asimismo, los tratamientos
+temporales se registrarán de color rojo.
+9. En el rubro de especificaciones se debe explicar, determinar, aclarar
+con individualidad los hallazgos que no pueden ser registrados
+gráficamente.
+10.En el caso de que una pieza dentaria presente más de una anomalía,
+estas se deben registrar en el item de especificaciones.
+11.Los hallazgos radiográficos deben ser consignados en el odontograma.
+12.El gráfico del odontograma establecido en la presente norma será
+único, y debe ser impreso en color negro. La corona debe tener como
+mínimo un centímetro cuadrado y la raíz será proporcional a esta. (ver
+anexo II).
+13.El odontograma debe ser llenado sin enmendaduras ni tachaduras. En
+el caso que se produjera alguna modificación por tratamiento el
+profesional responsable debe registrar y firmar la modificación realizada
+en el item de especificaciones.
+
+14. Las
+especialidades
+odontológicas
+podrán
+adicionar
+otras
+nomenclaturas relacionadas a su campo, mas no así modificar o
+contradecir las establecidas por la presente norma.
+15. El odontograma debe ser desarrollado en un tiempo máximo de 10
+minutos.
+
+VI.
+
+DISPOSICIONES ESPECÍFICAS:
+1. El registro de los hallazgos será realizado a través de la siguiente
+nomenclatura:
+
+1.1. APARATO ORTODONTICO FIJO
+Se dibujarán cuadrados con una cruz en su interior, a nivel de los
+ápices de las piezas dentarias que corresponden a los extremos del
+aparato ortodóntico, uniendo ambos cuadrados con una línea recta.
+El dibujo será en color azul cuando el aparato se encuentre en buen
+estado y en color rojo cuando se encuentre en mal estado. Se detallará
+en especificaciones el tipo de aparatología encontrada.
+
+1.2. APARATO ORTODONTICO REMOVIBLE
+Se dibujará una línea en zig-zag de color azul a la altura de los ápices
+de las piezas dentarias del maxilar en tratamiento y este debe ser de
+color rojo cuando el aparato se encuentre en mal estado. Se detallará
+en especificaciones el tipo de aparatología encontrada.
+
+1.3. CARIES
+Se debe dibujar la lesión cariosa siguiendo su forma en las superficies
+dentarias comprometidas y será totalmente pintada con color rojo.
+
+1.4. CORONA DEFINITIVA
+Se dibujará una circunferencia de color azul, que encierre la corona de
+la pieza dentaria que presenta este tratamiento. En el recuadro
+correspondiente se anotará las siglas del tipo de corona en letras
+mayúsculas y de color azul.
+Corona Completa
+=
+CC (Sólo Coronas Metálicas)
+Corona Fenestrada
+=
+CF
+Corona Metal Cerámica =
+CMC (Corona metálica revestida
+completamente con material estético)
+Corona Parcial
+=
+3/4, 4/5, 7/8 (Sólo
+corona
+parcial
+metálica)
+Corona Veneer
+=
+CV
+(Corona metálica con frente
+estético)
+Corona Jacket
+=
+CJ
+(Corona estética libre de metal)
+En especificaciones se debe registrar el color del metal de la corona,
+dorada o plateada.
+
+1.5. CORONA TEMPORAL
+Se dibujará una circunferencia de color rojo, que encierre la corona de
+la pieza dentaria que presente este tratamiento.
+
+1.6. DESGASTE OCLUSAL/INCISAL
+.
+Se registrará con las letras “DES” en mayúsculas, de color azul, en el
+recuadro que corresponde a la pieza dentaria que presenta esta
+característica.
+
+1.7. DIASTEMA
+Se dibujará el signo del paréntesis invertido de color azul, entre las
+piezas dentarias que se presentan esta característica.
+
+1.8. DIENTE AUSENTE
+Se dibujará un aspa de color azul sobre la figura de la pieza dentaria
+que no se observa.
+
+1.9. DIENTE DISCROMICO
+Se registrará con las letras “DIS” en mayúscula, de color azul, en el
+recuadro correspondiente a la pieza dentaria que presenta esta
+característica.
+
+1.10. DIENTE ECTOPICO
+Se registrará con la letra “E” en mayúscula, de color azul, dentro del
+recuadro correspondiente a la pieza dentaria que presenta esta
+característica.
+
+1.11. DIENTE EN CLAVIJA
+Se dibujará un triángulo de color azul circunscribiendo el número que
+corresponde a la pieza dentaria que presenta esta característica.
+
+1.12. DIENTE EXTRUIDO
+Se dibujará una flecha de color azul, dirigida hacia el plano oclusal de
+la pieza dentaria que presenta esta característica.
+
+1.13. DIENTE INTRUIDO
+Se dibujará una flecha recta vertical de color azul, dirigida hacia el
+ápice de la pieza dentaria que presenta esta característica.
+
+1.14. EDENTULO TOTAL
+Se dibujara una línea recta horizontal de color azul sobre las coronas
+de las piezas dentarias ausentes del maxilar edéntulo.
+
+1.15. FRACTURA
+Se dibujará una línea recta de color rojo, en el sentido de la fractura
+sobre la figura de la corona y/o la raíz según sea el caso.
+
+1.16. GEMINACION/FUSIÓN
+Se dibujará dos circunferencias interceptadas de color azul, encerrando
+los números que corresponden a las piezas dentarias que presentan
+estas características.
+
+1.17. GIROVERSION
+Se dibujará, una flecha curva de color azul siguiendo el sentido de la
+giroversión, a nivel del plano oclusal.
+
+1.18. IMPACTACIÓN:
+Se registrará la letra “I” en mayúscula, de color azul, en el recuadro
+correspondiente a la pieza dentaria que presenta esta característica.
+
+1.19. IMPLANTE
+Se registrará las letras “IMP” en mayúscula, de color azul, en el
+recuadro correspondiente a la pieza dentaria reemplazada.
+
+1.20. MACRODONCIA
+Se registrará con las letras “MAC” en mayúscula, de color azul, en el
+recuadro que corresponde a la pieza dentaria que presenta esta
+característica.
+
+1.21. MICRODONCIA
+Se registrará con las letras “MIC” en mayúscula, de color azul, en el
+recuadro que corresponde a la pieza dentaria que presenta esta
+característica.
+
+1.22. MIGRACION
+Se dibujará, una flecha recta horizontal de color azul siguiendo el
+sentido de la migración, a nivel del plano oclusal.
+
+1.23. MOVILIDAD
+Se registrará en color azul, con la letra “M” en mayúscula, seguida del
+número arábigo que representará el grado de movilidad dentaria, en el
+recuadro correspondiente a la pieza dentaria que presenta esta
+característica. En especificaciones se anotará el tipo de clasificación
+utilizada.
+
+1.24. PROTESIS FIJA
+Se dibujará una línea recta horizontal de color azul que indica la
+extensión del puente, con líneas verticales sobre los pilares. Estará
+graficado a nivel de los ápices de las piezas dentarias comprometidas.
+Cuando la prótesis se encuentre en mal estado será dibujado en color
+rojo.
+
+1.25. PROTESIS REMOVIBLE
+Se dibujará en color azul dos líneas horizontales paralelas a nivel de
+los ápices de las piezas dentarias reemplazadas. Si la prótesis esta en
+mal estado se dibujara en color rojo. El tipo de material será registrado
+en el item de especificaciones.
+
+1.26. PROTESIS TOTAL
+Se dibujara dos líneas rectas paralelas y horizontales de color azul
+sobre las coronas de las piezas dentarias del maxilar que presenta este
+tratamiento. Si la prótesis esta en mal estado se dibujara en color rojo.
+El tipo de material será registrado en el item de especificaciones.
+
+1.27. REMANENTE RADICULAR
+Se registrará con las letras “RR” mayúscula, de color rojo, sobre la raíz
+de la pieza dentaria correspondiente.
+
+1.28. RESTAURACIÓN:
+Se debe dibujar la restauración siguiendo su forma en las superficies
+comprometidas y será totalmente pintado con color azul. En el recuadro
+correspondiente se anotará las siglas del tipo de material empleado, en
+letras mayúsculas y de color azul.
+Amalgama
+=
+AM
+Resina
+=
+R
+Ionómero de Vidrio
+=
+IV
+Incrustación Metálica
+=
+IM
+Incrustación Estética
+=
+IE
+
+1.29. RESTAURACIÓN TEMPORAL
+Se debe dibujar en rojo el contorno de la restauración siguiendo su
+forma en las superficies comprometidas.
+
+1.30. SEMI-IMPACTACIÓN:
+Se registrarán las letras “SI” en mayúscula, de color azul, en el
+recuadro correspondiente a la pieza dentaria que presenta esta
+característica.
+
+1.31. SUPERNUMERARIO
+Se registrará con la letra “S” mayúscula encerrada en una
+circunferencia de color azul, localizada entre los ápices de las piezas
+dentarias adyacentes al diente supernumerario.
+.
+
+1.32. TRANSPOSICION
+Se dibujará dos flechas curvas de color azul entrecruzadas, a la altura
+de los números de las piezas dentarias que presentan esta
+característica.
+
+1.33. TRATAMIENTO PULPAR
+Se dibujara una línea recta vertical de color azul, en la representación
+gráfica de la raíz de la pieza dentaria que presenta este tratamiento.
+En el recuadro correspondiente se anotará las siglas del tipo de
+tratamiento pulpar, en letras mayúsculas y de color azul.
+TC
+=
+Tratamiento de conductos.
+PC =
+Pulpectomia.
+PP
+=
+Pulpotomía.
+
+2.
+
+El gráfico del Odontograma debe ser de la siguiente manera:
+
+VII.
+
+RESPONSABILIDADES:
+1. El Nivel Central a través de la Dirección General de Salud de las
+Personas, se encargará de la difusión y supervisión del cumplimiento
+de la mencionada Norma Técnica.
+2. Las DISAS y DIRESAS, como autoridades sanitarias regionales, serán
+las encargadas de implementar, operativizar, monitorear y supervisar la
+aplicación de la Norma Técnica del Odontograma.
+3. Los odontólogos de las diferentes unidades productoras de servicios
+odontológicos serán los responsables del registro y uso adecuado del
+Odontograma.
+
+VIII.
+
+DISPOSICIONES FINALES:
+1. Las instituciones deben difundir la presente norma a través de sus
+respectivos representantes, que participaron en la elaboración del
+Odontograma.
+2. La implementación de la presente norma debe ser acompañada por
+actividades de capacitación e información al personal de los
+establecimientos prestadores de servicios odontológicos.
+3. El incumplimiento de las disposiciones establecidas en la presente
+norma será sancionado de acuerdo a las disposiciones administrativas
+existentes, a la Ley General de Salud y al Código de Ética y
+Deontología del Colegio Odontológico, sin perjuicio de las acciones
+civiles o penales a que hubiera lugar.
+4. El proceso de implementación de la presente norma será progresiva
+hasta seis meses después de haberse aprobado.
+
+IX.
+
+ANEXOS
+
+ANEXO I
+DEFINICIÓN DE TÉRMINOS
+AMALGAMA.- Aleación de mercurio con uno o más metales que cuando
+está recién preparada es una pasta blanda plateada que endurece
+posteriormente constituyéndose en una estructura cristalina. Se utiliza para
+rellenar o restaurar las piezas dentarias preparadas.
+ANOMALIAS. Estado contrario a lo natural. Alteraciones de tamaño,
+forma, color, estructura, erupción y número de los dientes.
+CARIES.- Enfermedad destructiva que se caracteriza por la disolución del
+componente orgánico y la desmineralización del componente inorgánico de
+los tejidos duros del diente.
+CORONAS.-
+
+En términos terapéuticos son fundas que recubren los
+
+dientes, simulando toda la anatomía coronaria, después de que estos han
+sido tallados.
+CORONA COMPLETA (CC).- La que cubre completamente el muñón. Se
+considerará como CC a las coronas completas solamente metálicas.
+CORONA FENESTRADA (CF).- Corona metálica con ventana vestibular.
+CORONA JACKET (CJ).- Corona estética libre de metal.
+
+CORONA METAL CERAMICA (CMC).- Corona con núcleo metálico
+revestido completamente con material estético.
+CORONA PARCIAL.- Bajo este rubro se considerará a las coronas 3/4,
+4/5, 7/8.
+CORONA TEMPORAL.- Corona que se instala de manera provisoria.
+CORONA VENEER.- Corona completa con frente estético.
+DESGASTE OCLUSAL / INCISAL.- Es toda pérdida de estructura dentaria
+a nivel oclusal o incisal producida de forma gradual, apareciendo
+superficies de aspecto liso, pulidas. Las causas pueden ser variadas, entre
+ellas la abrasión atrición, etc.
+DIASTEMA.- Espacio libre o separación entre dos piezas dentarias
+correlativas.
+DIENTE AUSENTE.- Pieza que no se encuentra presente por haber sido
+extraída, por agenesia o por estar impactada.
+DIENTE ECTOPICO.- Diente que erupcionado fuera del lugar que le
+corresponde.
+DISCROMIA DENTARIA.- Alteraciones de color del diente.
+EDENTULO (Desdentado).- Individuo con ausencia parcial o total de
+piezas dentarias.
+
+ESPECIFICAR: Explicar, declarar con individualidad una cosa.
+EXTRUSIÓN.- Sobre erupción de un diente hacia el arco antagonista, sin
+que sus estructuras de soporte lo acompañen en el movimiento .
+FRACTURA.-
+
+Ruptura de la pieza dentaria producida traumática o
+
+espontáneamente.
+FUSIÓN.- Unión de dos piezas dentarias o gérmenes en desarrollo en una
+sola estructura.
+GEMINACION.- De un solo órgano del esmalte se forman dos piezas
+dentarias o intentan formarse.
+GIROVERSIÓN.- Rotación de una pieza dentaria sobre su eje longitudinal.
+IMPACTACIÓN.- Pieza dentaria que no erupcionó por alguna barrera
+física interpuesta durante la erupción y que no tiene comunicación con la
+cavidad bucal.
+
+IMPLANTE.- Se trata de un dispositivo mecánico que se instala en el
+hueso para sustituir a una raíz dentaria perdida y de este modo retener y
+sustentar una prótesis o diente artificial.
+INCRUSTACIÓN.- Restauración que consiste en el reemplazo parcial de la
+corona de una pieza dentaria - por método directo o indirecto- en exacta
+correspondencia con la cavidad tallada por el operador, siendo luego
+probada y cementada.
+
+INTRUSIÓN.- Condición en la que se encuentra aquella pieza dentaria que
+habiendo alcanzado el plano oclusal se ha alterado quedando por debajo
+de él.
+MACRODONCIA.- Anomalía de volumen en la que la pieza dentaría esta
+aumentada en relación a su volumen normal.
+MICRODONCIA.- Anomalía de volumen en la que la pieza dentaría esta
+disminuida en relación a su volumen normal.
+MIGRACION.- Desplazamientos espontáneo de una pieza dentaria,
+después de la erupción, en cualquier dirección del plano horizontal.
+MOVILIDAD PATOLOGICA.- Desplazamiento de la pieza dentaria en su
+alveolo.
+PULPECTOMIA.- Terapia pulpar que involucra la remoción de la pulpa
+coronal y radicular infectadas con el fin de conservar el diente realizando la
+desinfección, debridación, y relleno de los conductos con un material
+reabsorbible.
+PULPOTOMIA.- Terapia pulpar en pieza caduca, que consiste en la
+extirpación de la pulpa cameral.
+PRÓTESIS FIJA.- Restituye los dientes perdidos o ausentes, por medio de
+restauraciones cementadas sobre pilares.
+PRÓTESIS REMOVIBLE.- Restituye los dientes perdidos o ausentes, en
+desdentados parciales y que puede ser retirado de su lugar.
+
+REMANENTE RADICULAR.- Fragmento radicular que se encuentra en el
+alveolo dentario.
+RESINA COMPUESTA.- Material restaurador estético compuesto por una
+matriz orgánica, un relleno inorgánico y un agente de unión entre ellos.
+RESTAURACIÓN.- Tratamiento que consiste en la reconstrucción de la
+corona de una pieza dentaria.
+SEMI-IMPACTACIÓN.- Pieza dentaria que no erupcionó totalmente por
+alguna barrera física interpuesta durante la erupción.
+SUPERNUMERARIO.- Anomalía de número, consistente en el aumento
+del número de piezas dentarias que normalmente se presentan el arco.
+TRANSPOSICIÓN DENTARIA.- Cambio de dos piezas dentarias cuando
+erupcionan uno en sitio del otro.
+TRATAMIENTO PULPAR.- Terapia de toda o parte de la pulpa dentaria,
+en piezas cáducas o permanentes.
+TRATAMIENTO
+permanentes.
+
+DE
+
+CONDUCTO.-
+
+Tratamiento
+
+pulpar
+
+en
+
+piezas
+
+ANEXO II
+PARTES DEL ODONTOGRAMA
+
+Recuadro
+de piezas
+dentarias
+
+Número
+de piezas
+dentarias
+Zona
+Oclusal
+
+Zona
+Apical
+
+Item
+Especificaciones
+
+

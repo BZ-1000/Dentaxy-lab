@@ -1,9 +1,7 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { VoiceInput } from "@/components/ui/voice-input";
 import { BookOpen, Lightbulb } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -260,22 +258,6 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
                 </div>
               )}
             </div>
-            <div className="mt-2">
-              <VoiceInput
-                onTranscriptionComplete={text => {
-                  const newValue = text;
-                  let finalText = newValue;
-                  if (!finalText.startsWith(defaultLocalizacion)) {
-                    finalText = `${defaultLocalizacion} ${finalText}`;
-                  }
-                  setLocalizacionText(finalText);
-                  onDolorChange("localizacion", JSON.stringify({
-                    tipo: dolor.localizacion?.tipo || "",
-                    descripcion: finalText
-                  }));
-                }}
-              />
-            </div>
           </div>
         </div>
       )}
@@ -289,9 +271,6 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
             placeholder="Describe que empeora el dolor (frío, caliente,) o que lo disminuye (analgésicos)"
             className="min-h-[100px] max-h-[200px] w-full resize-y text-justify"
           />
-          <div className="mt-2">
-            <VoiceInput onTranscriptionComplete={text => onDolorChange('atenuacion', text)} />
-          </div>
         </div>
       </div>
 
@@ -319,19 +298,6 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
                   />
                 </div>
               )}
-            </div>
-            <div className="mt-2">
-              <VoiceInput
-                onTranscriptionComplete={text => {
-                  const newValue = text;
-                  let finalText = newValue;
-                  if (!finalText.startsWith(defaultCausaProvocado)) {
-                    finalText = `${defaultCausaProvocado} ${finalText}`;
-                  }
-                  setCausaProvocadoText(finalText);
-                  onDolorChange('causaProvocado', finalText);
-                }}
-              />
             </div>
           </div>
         </div>

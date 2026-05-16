@@ -1,8 +1,6 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { VoiceInput } from "@/components/ui/voice-input";
 
 interface InformacionPrincipalProps {
   fechaAparicion: string;
@@ -11,7 +9,6 @@ interface InformacionPrincipalProps {
   onFechaChange: (value: string) => void;
   onEvolucionChange: (value: string) => void;
   onEstadoChange: (value: string) => void;
-  onVoiceTranscription: (text: string) => void;
 }
 
 const InformacionPrincipal = ({
@@ -20,8 +17,7 @@ const InformacionPrincipal = ({
   estadoActual,
   onFechaChange,
   onEvolucionChange,
-  onEstadoChange,
-  onVoiceTranscription
+  onEstadoChange
 }: InformacionPrincipalProps) => {
   return (
     <div className="space-y-6" data-formulario-section="info-principal">
@@ -44,9 +40,6 @@ const InformacionPrincipal = ({
             placeholder="Describa el estado actual de los síntomas"
             className="min-h-[135px] max-h-[135px] w-[75%]"
           />
-          <div className="h-8 sm:h-10">
-            <VoiceInput onTranscriptionComplete={onVoiceTranscription} />
-          </div>
         </div>
       </div>
 
@@ -59,9 +52,6 @@ const InformacionPrincipal = ({
             placeholder="Describa la evolución de los síntomas"
             className="min-h-[135px] max-h-[135px] w-[75%]"
           />
-          <div className="h-8 sm:h-10">
-            <VoiceInput onTranscriptionComplete={(text) => onEstadoChange(text)} />
-          </div>
         </div>
       </div>
     </div>

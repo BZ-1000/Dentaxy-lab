@@ -481,26 +481,6 @@ export const useHistoriaClinica = () => {
     }));
   };
 
-  const handleDiagnosticoChange = (part: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      diagnostico: {
-        ...prev.diagnostico,
-        [part]: value
-      }
-    }));
-  };
-
-  const handlePronosticoChange = (part: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      pronostico: {
-        ...prev.pronostico,
-        [part]: value
-      }
-    }));
-  };
-
   const generarResumen = async () => {
     try {
       setIsGenerating(true);
@@ -662,8 +642,6 @@ export const useHistoriaClinica = () => {
     handleLineaMediaChange,
     handleFrenillosChange,
     handleOdontogramaChange,
-    handleDiagnosticoChange,
-    handlePronosticoChange,
     toggleService,
     generarResumen,
     guardarFormulario,

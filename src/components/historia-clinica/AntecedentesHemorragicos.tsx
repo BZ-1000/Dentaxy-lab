@@ -1,7 +1,17 @@
 import React from 'react';
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
-import { VoiceInput } from "@/components/ui/voice-input";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface AntecedentesHemorragicosProps {
   formData: FormDataState;
@@ -55,11 +65,6 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
   const set = (field: string, value: any) =>
     handleAntecedenteHemorragicoChange(field, value);
 
-  const handleVoice = (field: string) => (text: string) => {
-    const current = (h as any)[field] || '';
-    set(field, current ? `${current} ${text}` : text);
-  };
-
   // ── Motor de redacción determinista ──────────────────────────────────────
   const generateRedaccion = () => {
     let parts: string[] = [];
@@ -68,7 +73,20 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
     if (h.transfusionPrevia === true) {
       let t = 'El paciente refiere haber recibido transfusiones sanguíneas o hemoderivados.';
       if (h.motivoTransfusion)  t += ` Motivo: ${h.motivoTransfusion}.`;
-      if (h.fechaTransfusion)   t += ` Fecha aproximada: ${h.fechaTransfusion}.`;
+      if (h.fechaTransfusion) {
+        try {
+          const dateObj = new Date(h.fechaTransfusion);
+          // Si es una fecha válida, formatearla. Si no, dejar el texto original (ej. si vino de voz)
+          if (!isNaN(dateObj.getTime())) {
+            const formattedDate = format(dateObj, "PPP", { locale: es });
+            t += ` Fecha aproximada: ${formattedDate}.`;
+          } else {
+            t += ` Fecha aproximada: ${h.fechaTransfusion}.`;
+          }
+        } catch (e) {
+          t += ` Fecha aproximada: ${h.fechaTransfusion}.`;
+        }
+      }
       parts.push(t);
     } else {
       parts.push('El paciente niega antecedentes de transfusiones sanguíneas o hemoderivados.');
@@ -111,16 +129,6 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
     onRedaccionGenerada?.(content);
   };
 
-  // Auto-generar redacción al cambiar datos
-  React.useEffect(() => {
-    generateRedaccion();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    h.transfusionPrevia, h.motivoTransfusion, h.fechaTransfusion,
-    h.sangradoProlongado, h.hematomas, h.hemorragiasEspontaneas,
-    (h as any).coagulopatia, h.detallesAdicionales,
-  ]);
-
   return (
     <div
       className="max-w-4xl mx-auto"
@@ -147,19 +155,38 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
                   placeholder="Especifique el motivo"
                   className="min-h-[60px] flex-1"
                 />
-                <VoiceInput onTranscriptionComplete={handleVoice('motivoTransfusion')} />
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Fecha aproximada</label>
               <div className="flex items-center gap-2">
-                <Textarea
-                  value={h.fechaTransfusion || ''}
-                  onChange={e => set('fechaTransfusion', e.target.value)}
-                  placeholder="DD/MM/AAAA o aproximadamente"
-                  className="min-h-[50px] flex-1"
-                />
-                <VoiceInput onTranscriptionComplete={handleVoice('fechaTransfusion')} />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal h-12 bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800",
+                        !h.fechaTransfusion && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {h.fechaTransfusion ? (
+                        format(new Date(h.fechaTransfusion), "PPP", { locale: es })
+                      ) : (
+                        <span>Seleccione una fecha</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={h.fechaTransfusion ? new Date(h.fechaTransfusion) : undefined}
+                      onSelect={(date) => set('fechaTransfusion', date ? date.toISOString() : '')}
+                      initialFocus
+                      locale={es}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>
@@ -205,10 +232,12 @@ const AntecedentesHemorragicos: React.FC<AntecedentesHemorragicosProps> = ({
               placeholder="Proporcione cualquier otra información relevante"
               className="min-h-[70px] flex-1"
             />
-            <VoiceInput onTranscriptionComplete={handleVoice('detallesAdicionales')} />
           </div>
         </div>
 
+        <button type="button" className="hidden" onClick={generateRedaccion}>
+          Generar redacción
+        </button>
       </div>
     </div>
   );

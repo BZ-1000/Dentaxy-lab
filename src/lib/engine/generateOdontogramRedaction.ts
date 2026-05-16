@@ -39,9 +39,28 @@ const STATE_LABELS: Record<ToothState, string> = {
   SE:  'Sellador',
   F:   'Fractura',
   MOV: 'Movilidad',
+  AOF: 'Ap. Ortodóntico Fijo',
+  AOR: 'Ap. Ortodóntico Removible',
+  DES: 'Desgaste Oclusal',
+  DIA: 'Diastema',
+  DIS: 'Discromía',
+  ECT: 'Diente Ectópico',
+  CLV: 'Diente en Clavija',
+  EXT: 'Extrusión',
+  INT: 'Intrusión',
+  GF:  'Geminación/Fusión',
+  GV:  'Giroversión',
+  MIG: 'Migración',
+  RR:  'Remanente Radicular',
+  RT:  'Rest. Temporal',
+  SI:  'Semi-impactación',
+  SN:  'Supernumerario',
+  TR:  'Transposición',
+  PC:  'Pulpectomía',
+  PP:  'Pulpotomía',
 };
 
-/** Colores ADA para badges en el HTML */
+/** Colores por estado — Rojo=patología, Azul=tratamiento definitivo */
 const STATE_COLORS: Record<ToothState, string> = {
   S:   '#1D9E75',
   C:   '#EA4335',
@@ -50,11 +69,30 @@ const STATE_COLORS: Record<ToothState, string> = {
   A:   '#EA4335',
   CR:  '#FF6D00',
   PU:  '#FF6D00',
-  E:   '#EA4335',
+  E:   '#1A73E8',
   IM:  '#607D8B',
   SE:  '#F9AB00',
   F:   '#EA4335',
   MOV: '#FF6D00',
+  AOF: '#1A73E8',
+  AOR: '#1A73E8',
+  DES: '#795548',
+  DIA: '#1A73E8',
+  DIS: '#9C27B0',
+  ECT: '#607D8B',
+  CLV: '#607D8B',
+  EXT: '#FF6D00',
+  INT: '#FF6D00',
+  GF:  '#607D8B',
+  GV:  '#607D8B',
+  MIG: '#FF6D00',
+  RR:  '#EA4335',
+  RT:  '#EA4335',
+  SI:  '#F9AB00',
+  SN:  '#9C27B0',
+  TR:  '#607D8B',
+  PC:  '#1A73E8',
+  PP:  '#1A73E8',
 };
 
 /** Formatea las superficies de un diente para redacción */
@@ -100,17 +138,36 @@ export const generateOdontogramText = (teeth: ToothData[]): string => {
     return 'Dentición permanente completa sin hallazgos patológicos aparentes al examen visual.';
   }
 
-  const caries     = filterByState(teeth, 'C');
-  const obturados  = filterByState(teeth, 'O');
-  const ausentes   = filterByState(teeth, 'A');
+  const caries      = filterByState(teeth, 'C');
+  const obturados   = filterByState(teeth, 'O');
+  const ausentes    = filterByState(teeth, 'A');
   const endodoncias = filterByState(teeth, 'E');
-  const coronas    = filterByState(teeth, 'CR');
-  const puentes    = filterByState(teeth, 'PU');
-  const ei         = filterByState(teeth, 'EI');
-  const implantes  = filterByState(teeth, 'IM');
-  const selladores = filterByState(teeth, 'SE');
-  const fracturas  = filterByState(teeth, 'F');
-  const movilidad  = filterByState(teeth, 'MOV');
+  const coronas     = filterByState(teeth, 'CR');
+  const puentes     = filterByState(teeth, 'PU');
+  const ei          = filterByState(teeth, 'EI');
+  const implantes   = filterByState(teeth, 'IM');
+  const selladores  = filterByState(teeth, 'SE');
+  const fracturas   = filterByState(teeth, 'F');
+  const movilidad   = filterByState(teeth, 'MOV');
+  const pulpect     = filterByState(teeth, 'PC');
+  const pulpot      = filterByState(teeth, 'PP');
+  const temporales  = filterByState(teeth, 'RT');
+  const remanentes  = filterByState(teeth, 'RR');
+  const semiImp     = filterByState(teeth, 'SI');
+  const supern      = filterByState(teeth, 'SN');
+  const desgaste    = filterByState(teeth, 'DES');
+  const diastema    = filterByState(teeth, 'DIA');
+  const discrm      = filterByState(teeth, 'DIS');
+  const ectopico    = filterByState(teeth, 'ECT');
+  const clavija     = filterByState(teeth, 'CLV');
+  const extrusion   = filterByState(teeth, 'EXT');
+  const intrusion   = filterByState(teeth, 'INT');
+  const gemin       = filterByState(teeth, 'GF');
+  const girov       = filterByState(teeth, 'GV');
+  const migr        = filterByState(teeth, 'MIG');
+  const aof         = filterByState(teeth, 'AOF');
+  const aor         = filterByState(teeth, 'AOR');
+  const transpos    = filterByState(teeth, 'TR');
 
   const parts: string[] = [];
 
@@ -186,6 +243,65 @@ export const generateOdontogramText = (teeth: ToothData[]): string => {
     parts.push(`Se registra movilidad dental en: ${movStr}.`);
   }
 
+  // ── Estados nuevos norma técnica ────────────────────────────────────────────
+  if (pulpect.length > 0) {
+    parts.push(`Pulpectomía registrada en: ${formatTeethList(pulpect)}.`);
+  }
+  if (pulpot.length > 0) {
+    parts.push(`Pulpotomía registrada en: ${formatTeethList(pulpot)}.`);
+  }
+  if (temporales.length > 0) {
+    parts.push(`Restauración${temporales.length > 1 ? 'es' : ''} temporal${temporales.length > 1 ? 'es' : ''} en: ${formatTeethList(temporales)}. Requiere tratamiento definitivo.`);
+  }
+  if (remanentes.length > 0) {
+    parts.push(`Remanente${remanentes.length > 1 ? 's' : ''} radicular${remanentes.length > 1 ? 'es' : ''} en: ${formatTeethList(remanentes)}. Se indica exodoncia.`);
+  }
+  if (semiImp.length > 0) {
+    parts.push(`Semi-impactación en: ${formatTeethList(semiImp)}. Se requiere valoración quirúrgica.`);
+  }
+  if (supern.length > 0) {
+    parts.push(`Diente${supern.length > 1 ? 's' : ''} supernumerario${supern.length > 1 ? 's' : ''} en: ${formatTeethList(supern)}.`);
+  }
+  if (desgaste.length > 0) {
+    parts.push(`Desgaste oclusal/incisal por atrición o abrasión en: ${formatTeethList(desgaste)}.`);
+  }
+  if (diastema.length > 0) {
+    parts.push(`Se observa diastema en: ${formatTeethList(diastema)}.`);
+  }
+  if (discrm.length > 0) {
+    parts.push(`Discromía dental en: ${formatTeethList(discrm)}.`);
+  }
+  if (ectopico.length > 0) {
+    parts.push(`Diente${ectopico.length > 1 ? 's' : ''} ectópico${ectopico.length > 1 ? 's' : ''}: ${formatTeethList(ectopico)}.`);
+  }
+  if (clavija.length > 0) {
+    parts.push(`Diente${clavija.length > 1 ? 's' : ''} conoide${clavija.length > 1 ? 's' : ''} (en clavija) en: ${formatTeethList(clavija)}.`);
+  }
+  if (extrusion.length > 0) {
+    parts.push(`Extrusión dentaria en: ${formatTeethList(extrusion)}.`);
+  }
+  if (intrusion.length > 0) {
+    parts.push(`Intrusión dentaria en: ${formatTeethList(intrusion)}.`);
+  }
+  if (gemin.length > 0) {
+    parts.push(`Geminación o fusión dentaria en: ${formatTeethList(gemin)}.`);
+  }
+  if (girov.length > 0) {
+    parts.push(`Giroversión en: ${formatTeethList(girov)}.`);
+  }
+  if (migr.length > 0) {
+    parts.push(`Migración dentaria patológica en: ${formatTeethList(migr)}.`);
+  }
+  if (transpos.length > 0) {
+    parts.push(`Transposición dentaria en: ${formatTeethList(transpos)}.`);
+  }
+  if (aof.length > 0) {
+    parts.push(`Aparatología ortodóntica fija registrada en: ${formatTeethList(aof)}.`);
+  }
+  if (aor.length > 0) {
+    parts.push(`Aparatología ortodóntica removible en: ${formatTeethList(aor)}.`);
+  }
+
   parts.push('El resto de la dentición se observa clínicamente dentro de parámetros normales.');
 
   return parts.join(' ');
@@ -245,6 +361,52 @@ export const generateDiagnosis = (teeth: ToothData[]): DiagnosisItem[] => {
   }
   if (has('IM')) {
     diagnoses.push({ code: 'Z96.5', description: 'Presencia de implante dental oseointegrado' });
+  }
+  // Nuevos estados norma técnica
+  if (has('DES')) {
+    diagnoses.push({ code: 'K03.0', description: 'Desgaste excesivo de dientes — atrición/abrasión' });
+  }
+  if (has('RR')) {
+    diagnoses.push({ code: 'K08.3', description: 'Raíz dental retenida — remanente radicular' });
+  }
+  if (has('SI')) {
+    diagnoses.push({ code: 'K01.1', description: 'Semi-impactación dentaria' });
+  }
+  if (has('SN')) {
+    diagnoses.push({ code: 'K00.1', description: 'Supernumerario — hiperodoncia' });
+  }
+  if (has('GF')) {
+    diagnoses.push({ code: 'K00.2', description: 'Anomalía de forma dentaria — geminación/fusión' });
+  }
+  if (has('CLV')) {
+    diagnoses.push({ code: 'K00.2', description: 'Diente conoide (en clavija)' });
+  }
+  if (has('MIG')) {
+    diagnoses.push({ code: 'K08.2', description: 'Migración dentaria patológica' });
+  }
+  if (has('EXT') || has('INT')) {
+    diagnoses.push({ code: 'K07.3', description: 'Anomalía de posición dentaria — extrusión/intrusión' });
+  }
+  if (has('TR')) {
+    diagnoses.push({ code: 'K07.3', description: 'Transposición dentaria' });
+  }
+  if (has('DIS')) {
+    diagnoses.push({ code: 'K00.8', description: 'Discromía dentaria' });
+  }
+  if (has('AOF')) {
+    diagnoses.push({ code: 'Z46.4', description: 'Portador de aparatología ortodóntica fija' });
+  }
+  if (has('AOR')) {
+    diagnoses.push({ code: 'Z46.4', description: 'Portador de aparatología ortodóntica removible' });
+  }
+  if (has('PC')) {
+    diagnoses.push({ code: 'K04.0', description: 'Pulpectomía realizada — tratamiento pulpar radical' });
+  }
+  if (has('PP')) {
+    diagnoses.push({ code: 'K04.0', description: 'Pulpotomía realizada — tratamiento pulpar coronario' });
+  }
+  if (has('RT')) {
+    diagnoses.push({ code: 'Z98.8', description: 'Restauración temporal presente — requiere tratamiento definitivo' });
   }
   if (diagnoses.length === 0) {
     diagnoses.push({ code: '—', description: 'Dentición sin diagnósticos patológicos activos al examen clínico' });
@@ -319,6 +481,52 @@ export const generateTreatmentPlan = (teeth: ToothData[]): TreatmentItem[] => {
         break;
       case 'IM':
         plan.push({ tooth: tooth.id, procedure: 'Mantenimiento peri-implantario y control radiográfico', priority: 'Baja', phase: 3, estimatedTime: '20 min' });
+        break;
+      // ── Nuevos estados norma técnica ─────────────────────────────────────────
+      case 'PC':
+        plan.push({ tooth: tooth.id, procedure: 'Pulpectomía — Tratamiento pulpar radical completo', priority: 'Alta', phase: 1, estimatedTime: '60 min' });
+        break;
+      case 'PP':
+        plan.push({ tooth: tooth.id, procedure: 'Pulpotomía — Amputación pulpar + protección', priority: 'Alta', phase: 1, estimatedTime: '45 min' });
+        break;
+      case 'RT':
+        plan.push({ tooth: tooth.id, procedure: 'Sustitución de restauración temporal por definitiva', priority: 'Media', phase: 1, estimatedTime: '45 min' });
+        break;
+      case 'RR':
+        plan.push({ tooth: tooth.id, procedure: 'Exodoncia de remanente radicular', priority: 'Alta', phase: 1, estimatedTime: '30 min' });
+        break;
+      case 'SI':
+        plan.push({ tooth: tooth.id, procedure: 'Valoración quirúrgica para exposición / tracción ortodóntica', priority: 'Media', phase: 2, estimatedTime: 'Consulta' });
+        break;
+      case 'SN':
+        plan.push({ tooth: tooth.id, procedure: 'Extracción de diente supernumerario', priority: 'Alta', phase: 1, estimatedTime: '45 min' });
+        break;
+      case 'DES':
+        plan.push({ tooth: tooth.id, procedure: 'Confección de Guarda Oclusal / Pulido y ajuste oclusal', priority: 'Media', phase: 2, estimatedTime: '60 min' });
+        break;
+      case 'GF':
+        plan.push({ tooth: tooth.id, procedure: 'Valoración ortodóntica / Odontoplastia', priority: 'Baja', phase: 2, estimatedTime: 'Consulta' });
+        break;
+      case 'MIG':
+        plan.push({ tooth: tooth.id, procedure: 'Valoración para reposicionamiento ortodóntico', priority: 'Baja', phase: 2, estimatedTime: 'Consulta' });
+        break;
+      case 'AOF':
+        plan.push({ tooth: tooth.id, procedure: 'Control y ajuste de aparatología ortodóntica fija', priority: 'Baja', phase: 3, estimatedTime: '20 min' });
+        break;
+      case 'AOR':
+        plan.push({ tooth: tooth.id, procedure: 'Control y ajuste de aparatología ortodóntica removible', priority: 'Baja', phase: 3, estimatedTime: '20 min' });
+        break;
+      case 'ECT':
+        plan.push({ tooth: tooth.id, procedure: 'Valoración ortodóntica para reubicación de diente ectópico', priority: 'Media', phase: 2, estimatedTime: 'Consulta' });
+        break;
+      case 'EXT':
+        plan.push({ tooth: tooth.id, procedure: 'Valoración para intrusión ortodóntica / Ajuste oclusal', priority: 'Media', phase: 2, estimatedTime: 'Consulta' });
+        break;
+      case 'INT':
+        plan.push({ tooth: tooth.id, procedure: 'Valoración para extrusión ortodóntica', priority: 'Media', phase: 2, estimatedTime: 'Consulta' });
+        break;
+      case 'DIS':
+        plan.push({ tooth: tooth.id, procedure: 'Blanqueamiento dental / Carillas estéticas', priority: 'Baja', phase: 3, estimatedTime: 'Consulta' });
         break;
     }
   });

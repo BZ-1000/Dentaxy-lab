@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Minus, Maximize2, X, ThermometerSun, HeartPulse, Scale, Ruler, Activity, Heart, Copy, Sparkles } from "lucide-react";
+import { Minus, Maximize2, X, ThermometerSun, HeartPulse, Scale, Ruler, Activity, Heart, Copy, Sparkles, Wind } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { calculateIMC, getIMCCategory, getBPCategory, vitalSignRanges } from '@/utils/medicalRanges';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 interface ExploracionFisicaProps {
   formData: FormDataState;
   handleExploracionFisicaChange: (field: string, value: any) => void;
-  onRedaccionGenerada?: (text: string) => void;
+  onRedaccionGenerada?: (text: string | React.ReactNode, plainText?: string) => void;
   onToggleViewMode?: () => void;
 }
 
@@ -26,7 +26,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
   const [ageRange, setAgeRange] = useState<keyof typeof vitalSignRanges>('adult');
   const [imc, setIMC] = useState(0);
   const [activeTab, setActiveTab] = useState('formulario'); // Added activeTab state
-  const [redaccionContent, setRedaccionContent] = useState('');
+  const [redaccionContent, setRedaccionContent] = useState<React.ReactNode>('');
 
   useEffect(() => {
     const weight = parseFloat(formData.exploracionFisica?.signosVitales?.peso || '0');
@@ -75,8 +75,7 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
     const bpCat = bpVals ? getBPCategory(bpVals.systolic, bpVals.diastolic) : null;
     const imcCat = getIMCCategory(imc);
 
-    // ── Filas de la tabla ────────────────────────────────────────────────────
-    const rows: { param: string; valor: string; unidad: string; categoria?: string }[] = [
+    const rows = [
       { param: 'Tensión arterial',      valor: sv.ta           || '—', unidad: 'mmHg', categoria: bpCat?.label },
       { param: 'Pulso',                 valor: sv.pulso        || '—', unidad: 'ppm'  },
       { param: 'Frecuencia cardíaca',   valor: sv.fc           || '—', unidad: 'lpm'  },
@@ -87,22 +86,39 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
       { param: 'IMC',                   valor: imc > 0 ? imc.toFixed(1) : '—', unidad: 'kg/m²', categoria: imcCat.label },
     ];
 
-    // ── Filas de la tabla estilo Datos Generales ─────────────────────────────
-    const filas = rows.map((f, i) => {
-      const bg = i % 2 !== 0 ? ' style="background:#f9fafb;"' : '';
-      const displayVal = `${f.valor} ${f.unidad} ${f.categoria ? `(${f.categoria})` : ''}`;
-      return `<tr${bg}>
-        <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;color:#888;text-transform:uppercase;width:38%;padding:11px 16px 11px 0;vertical-align:top;border-bottom:1px solid #e5e7eb;">${f.param}</td>
-        <td style="font-size:14px;font-weight:300;color:#3a3a3a;padding:11px 0 11px 16px;vertical-align:top;border-bottom:1px solid #e5e7eb;">${displayVal}</td>
-      </tr>`;
-    }).join('');
+    const reactContent = (
+      <div className="w-full animate-in fade-in slide-in-from-bottom-2 duration-500">
+        <table className="w-full border-collapse">
+          <tbody>
+            {rows.map((f, i) => (
+              <tr key={i} className={i % 2 !== 0 ? 'bg-gray-50/50 dark:bg-white/5' : ''}>
+                <td className="w-[38%] py-3 pr-4 align-top border-b border-gray-200 dark:border-white/10 font-mono text-[11px] font-medium tracking-wider text-gray-500 uppercase">
+                  {f.param}
+                </td>
+                <td className="py-3 pl-4 align-top border-b border-gray-200 dark:border-white/10 text-[14px] font-light text-gray-800 dark:text-gray-200">
+                  {f.valor} {f.unidad} {f.categoria ? <span className="opacity-70">({f.categoria})</span> : ''}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
 
-    const html = `<table style="width:100%;border-collapse:collapse;">
-      <tbody>${filas}</tbody>
+    // Also support string version for plain text/copy if needed by other systems
+    const htmlString = `<table style="width:100%;border-collapse:collapse;">
+      <tbody>${rows.map((f, i) => {
+        const bg = i % 2 !== 0 ? ' style="background:#f9fafb;"' : '';
+        const displayVal = `${f.valor} ${f.unidad} ${f.categoria ? `(${f.categoria})` : ''}`;
+        return `<tr${bg}>
+          <td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.04em;color:#888;text-transform:uppercase;width:38%;padding:11px 16px 11px 0;vertical-align:top;border-bottom:1px solid #e5e7eb;">${f.param}</td>
+          <td style="font-size:14px;font-weight:300;color:#3a3a3a;padding:11px 0 11px 16px;vertical-align:top;border-bottom:1px solid #e5e7eb;">${displayVal}</td>
+        </tr>`;
+      }).join('')}</tbody>
     </table>`;
 
-    setRedaccionContent(html);
-    if (onRedaccionGenerada) onRedaccionGenerada(html);
+    setRedaccionContent(reactContent as any);
+    if (onRedaccionGenerada) onRedaccionGenerada(reactContent as any, htmlString);
     setActiveTab('redaccion');
   };
 
@@ -279,6 +295,34 @@ const ExploracionFisica: React.FC<ExploracionFisicaProps> = ({
                     </div>
                     <div className="text-sm text-gray-500">
                       Rango normal: {vitalSignRanges[ageRange].heartRate.min}-{vitalSignRanges[ageRange].heartRate.max} lpm
+                    </div>
+                  </div>
+
+                  {/* Respiratory Rate */}
+                  <div className="space-y-2">
+                    <Label htmlFor="fr" className="flex items-center gap-2">
+                      <Wind className="w-4 h-4" style={{ color: '#06B6D4', strokeWidth: 2 }} />
+                      Frecuencia respiratoria
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="fr"
+                        type="number"
+                        value={formData.exploracionFisica?.signosVitales?.fr || ''}
+                        onChange={(e) => handleExploracionFisicaChange('signosVitales.fr', e.target.value)}
+                        className="pr-24"
+                      />
+                      <span className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-500">rpm</span>
+                      <button
+                        type="button"
+                        onClick={() => navigator.clipboard.writeText(formData.exploracionFisica?.signosVitales?.fr || '')}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-gray-500" />
+                      </button>
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      Rango normal: {vitalSignRanges[ageRange].respiratoryRate.min}-{vitalSignRanges[ageRange].respiratoryRate.max} rpm
                     </div>
                   </div>
 

@@ -19,25 +19,29 @@ export const vitalSignRanges = {
     label: 'Niño (2-12 años)',
     pulse: { min: 60, max: 120 },
     heartRate: { min: 60, max: 120 },
-    temperature: { min: 36.5, max: 37.5 }
+    temperature: { min: 36.5, max: 37.5 },
+    respiratoryRate: { min: 20, max: 30 }
   },
   teen: {
     label: 'Adolescente (13-18 años)',
     pulse: { min: 60, max: 100 },
     heartRate: { min: 60, max: 100 },
-    temperature: { min: 36.5, max: 37.5 }
+    temperature: { min: 36.5, max: 37.5 },
+    respiratoryRate: { min: 12, max: 20 }
   },
   adult: {
     label: 'Adulto (19-65 años)',
     pulse: { min: 60, max: 100 },
     heartRate: { min: 60, max: 100 },
-    temperature: { min: 36.5, max: 37.5 }
+    temperature: { min: 36.5, max: 37.5 },
+    respiratoryRate: { min: 12, max: 20 }
   },
   elder: {
     label: 'Adulto mayor (>65 años)',
     pulse: { min: 60, max: 90 },
     heartRate: { min: 60, max: 90 },
-    temperature: { min: 36.5, max: 37.5 }
+    temperature: { min: 36.5, max: 37.5 },
+    respiratoryRate: { min: 12, max: 16 }
   }
 };
 

@@ -167,6 +167,25 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
     const cara = caraData as CaraState;
     let redaccion = "Al examen de cabeza, ";
 
+    const formatLabel = (val: string) => {
+      const map: Record<string, string> = {
+        'pequeno': 'pequeño',
+        'pequena': 'pequeña',
+        'marron-claro': 'marrón claro',
+        'marron-oscuro': 'marrón oscuro',
+        'tercio-superior': 'tercio superior',
+        'tercio-medio': 'tercio medio',
+        'tercio-inferior': 'tercio inferior',
+        'lado-derecho': 'lado derecho',
+        'lado-izquierdo': 'lado izquierdo',
+        'mejilla-derecha': 'mejilla derecha',
+        'mejilla-izquierda': 'mejilla izquierda',
+        'menton': 'mentón',
+        'parpados': 'párpados'
+      };
+      return map[val] || val.replace(/-/g, ' ');
+    };
+
     // 1. Cráneo y Perfil
     if (tipoCraneo) {
       const craneoLabel = {
@@ -207,8 +226,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
       if (cara.lunares?.presente) {
         let descLunares = "se observan lunares";
         const detallesLunares = [];
-        if (cara.lunares.tamanio) detallesLunares.push(`de tamaño ${cara.lunares.tamanio}`);
-        if (cara.lunares.color) detallesLunares.push(`de color ${cara.lunares.color}`);
+        if (cara.lunares.tamanio) detallesLunares.push(`de tamaño ${formatLabel(cara.lunares.tamanio)}`);
+        if (cara.lunares.color) detallesLunares.push(`de color ${formatLabel(cara.lunares.color)}`);
         if (cara.lunares.detalles) detallesLunares.push(`descritos como: "${cara.lunares.detalles}"`);
 
         if (detallesLunares.length > 0) {
@@ -223,13 +242,13 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
       if (cara.cicatrices?.presente) {
         let descCicatrices = "presenta cicatrices";
         const detallesCicatrices = [];
-        if (cara.cicatrices.localizacion) detallesCicatrices.push(`localizadas en ${cara.cicatrices.localizacion}`);
-        if (cara.cicatrices.tamanio) detallesCicatrices.push(`de tamaño ${cara.cicatrices.tamanio}`);
-        if (cara.cicatrices.bordes) detallesCicatrices.push(`con bordes ${cara.cicatrices.bordes}`);
+        if (cara.cicatrices.localizacion) detallesCicatrices.push(`localizadas en ${formatLabel(cara.cicatrices.localizacion)}`);
+        if (cara.cicatrices.tamanio) detallesCicatrices.push(`de tamaño ${formatLabel(cara.cicatrices.tamanio)}`);
+        if (cara.cicatrices.bordes) detallesCicatrices.push(`con bordes ${formatLabel(cara.cicatrices.bordes)}`);
         if (cara.cicatrices.detalles) detallesCicatrices.push(`descritas como: "${cara.cicatrices.detalles}"`);
 
         if (detallesCicatrices.length > 0) {
-          descCicatrices += ` ${detallesCicatrices.join(' ')}`;
+          descCicatrices += ` ${detallesCicatrices.join(', ')}`;
         }
         detallesCara.push(descCicatrices);
       } else {
@@ -240,8 +259,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
       if (cara.asimetriasFaciales?.presente) {
         let descAsimetrias = "se detecta asimetría facial";
         const detallesAsimetrias = [];
-        if (cara.asimetriasFaciales.tipo) detallesAsimetrias.push(`de tipo ${cara.asimetriasFaciales.tipo}`);
-        if (cara.asimetriasFaciales.zonaAfectada) detallesAsimetrias.push(`en el ${cara.asimetriasFaciales.zonaAfectada}`);
+        if (cara.asimetriasFaciales.tipo) detallesAsimetrias.push(`de tipo ${formatLabel(cara.asimetriasFaciales.tipo)}`);
+        if (cara.asimetriasFaciales.zonaAfectada) detallesAsimetrias.push(`en el ${formatLabel(cara.asimetriasFaciales.zonaAfectada)}`);
         if (cara.asimetriasFaciales.descripcion) detallesAsimetrias.push(`descrita como: "${cara.asimetriasFaciales.descripcion}"`);
 
         if (detallesAsimetrias.length > 0) {
@@ -257,8 +276,8 @@ const ExamenCabeza = ({ formData, handleExamenCabezaChange, onRedaccionGenerada,
         let descEdema = "se evidencia edema";
         const detallesEdema = [];
         if (cara.edema.grado) detallesEdema.push(`de grado ${cara.edema.grado}`);
-        if (cara.edema.localizacion) detallesEdema.push(`con localización en ${cara.edema.localizacion}`);
-        if (cara.edema.consistencia) detallesEdema.push(`de consistencia ${cara.edema.consistencia}`);
+        if (cara.edema.localizacion) detallesEdema.push(`con localización en ${formatLabel(cara.edema.localizacion)}`);
+        if (cara.edema.consistencia) detallesEdema.push(`de consistencia ${formatLabel(cara.edema.consistencia)}`);
         if (cara.edema.descripcion) detallesEdema.push(`descrito como: "${cara.edema.descripcion}"`);
 
         if (detallesEdema.length > 0) {

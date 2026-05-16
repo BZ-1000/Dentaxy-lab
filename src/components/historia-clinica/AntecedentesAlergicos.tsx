@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sparkles, Eraser } from "lucide-react";
 import { FormDataState } from '@/types/historiaClinica';
 import { Textarea } from "@/components/ui/textarea";
-import { VoiceInput } from "@/components/ui/voice-input";
 
 interface AntecedentesAlergicosProps {
   formData: FormDataState;
@@ -45,13 +43,6 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
   const handleTextChange = (field: string, value: string) => {
     if (handleAntecedenteAlergicoChange) {
       handleAntecedenteAlergicoChange(field, value);
-    }
-  };
-
-  const handleVoiceInput = (field: string) => (text: string) => {
-    if (handleAntecedenteAlergicoChange) {
-      const currentValue = formData.antecedentesAlergicos[field] || "";
-      handleAntecedenteAlergicoChange(field, currentValue ? `${currentValue} ${text}` : text);
     }
   };
 
@@ -198,9 +189,6 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                     placeholder="Especifique qué medicamentos, alimentos o elementos ambientales"
                     className="min-h-[80px] flex-1"
                   />
-                  <div className="ml-2">
-                    <VoiceInput onTranscriptionComplete={handleVoiceInput('cualesAlergias')} />
-                  </div>
                 </div>
               </div>
 
@@ -217,9 +205,6 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                       placeholder="urticaria, angioedema, anafilaxia..."
                       className="min-h-[50px] border-0 shadow-none focus-visible:ring-0 flex-1 resize-none"
                     />
-                  </div>
-                  <div className="ml-2">
-                    <VoiceInput onTranscriptionComplete={handleVoiceInput('especificacionAlergias')} />
                   </div>
                 </div>
               </div>
@@ -257,9 +242,6 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                   placeholder="Tipo de anestesia y procedimiento"
                   className="min-h-[80px] flex-1"
                 />
-                <div className="ml-2">
-                  <VoiceInput onTranscriptionComplete={handleVoiceInput('tipoAnestesia')} />
-                </div>
               </div>
             </div>
           )}
@@ -292,9 +274,6 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                   placeholder="Descripción de la reacción adversa"
                   className="min-h-[80px] flex-1"
                 />
-                <div className="ml-2">
-                  <VoiceInput onTranscriptionComplete={handleVoiceInput('descripcionReaccion')} />
-                </div>
               </div>
             </div>
           )}
@@ -333,9 +312,6 @@ const AntecedentesAlergicos: React.FC<AntecedentesAlergicosProps> = ({
                     placeholder="Detalles sobre adicciones"
                     className="min-h-[80px] flex-1"
                   />
-                  <div className="ml-2">
-                    <VoiceInput onTranscriptionComplete={handleVoiceInput('detallesAdicciones')} />
-                  </div>
                 </div>
               </div>
             )}

@@ -17,6 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import WaitlistMasterModal from '@/components/waitlist/WaitlistMasterModal';
 import { supabase } from '@/integrations/supabase/client';
+import { useGoogleLogin } from '@react-oauth/google';
+import { useAuthStore, DoctorProfile } from '@/store/useAuthStore';
 import "./Seed.css";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -37,11 +39,7 @@ const scaleIn = { hidden: { opacity: 0, scale: 0.93 }, visible: { opacity: 1, sc
 // GOOGLE USER MOCK TYPE
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface GoogleUser {
-  name: string;
-  email: string;
-  picture: string;
-}
+interface GoogleUser extends DoctorProfile {}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 1 — CÓDIGO DE ACCESO
@@ -182,25 +180,37 @@ const StepCodigo: React.FC<{ onNext: () => void }> = ({ onNext }) => {
 const StepGoogle: React.FC<{ onNext: (user: GoogleUser) => void }> = ({ onNext }) => {
   const [loading, setLoading] = useState(false);
 
-  // Ejecutamos login real con Supabase + Google
-  const handleGoogle = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          // Solicitamos acceso a Drive para poder organizar los expedientes
-          scopes: 'https://www.googleapis.com/auth/drive.file',
-          redirectTo: window.location.origin + '/seed/overview',
-        }
-      });
-      if (error) throw error;
-      // Nota: signInWithOAuth redirige la página a Google, 
-      // por lo que el código posterior no se ejecuta en esta sesión.
-    } catch (err) {
-      console.error('Error con Google Sign-In:', err);
+  const login = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const userInfo = await userInfoResponse.json();
+        
+        const user: GoogleUser = {
+          name: userInfo.name || userInfo.given_name,
+          email: userInfo.email,
+          picture: userInfo.picture,
+          googleAccessToken: tokenResponse.access_token
+        };
+        
+        onNext(user);
+      } catch (err) {
+        console.error('Error fetching user info:', err);
+        setLoading(false);
+      }
+    },
+    onError: (error) => {
+      console.error('Google Sign-In Error:', error);
       setLoading(false);
-    }
+    },
+    scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',
+  });
+
+  const handleGoogle = () => {
+    setLoading(true);
+    login();
   };
 
   return (
@@ -404,9 +414,13 @@ export default function SeedLogin() {
     setStep('bienvenida');
   }, []);
 
+  const authLogin = useAuthStore(state => state.login);
+
   const handleEnter = () => {
-    // Guardamos en sessionStorage para que el landing sepa que el usuario está autenticado
-    if (user) sessionStorage.setItem('seed_user', JSON.stringify(user));
+    if (user) {
+      sessionStorage.setItem('seed_user', JSON.stringify(user));
+      authLogin(user); // Guardar en el store global de Zustand
+    }
     navigate('/seed/overview', { replace: true });
   };
 
