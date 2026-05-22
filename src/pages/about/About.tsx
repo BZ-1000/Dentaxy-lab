@@ -212,10 +212,10 @@ const About = () => {
 
         {/* Footer info */}
         <div className="text-center bg-gray-100 rounded-xl p-6">
-          <p className="text-sm text-gray-600 font-medium">© 2025 Dentaxy.com - Todos los derechos reservados
+          <p className="text-sm text-gray-600 font-medium">© 2026 Dentaxy.com - Todos los derechos reservados
 
 DENTAXY Technologies<br />
-            © 2025 Dentaxy.ai - Todos los derechos reservados<br />
+            © 2026 Dentaxy.ai - Todos los derechos reservados<br />
             <span className="font-semibold">DENTAXY Technologies</span>
           </p>
         </div>

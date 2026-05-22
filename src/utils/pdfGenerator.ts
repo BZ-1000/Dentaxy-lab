@@ -82,10 +82,6 @@ export const generatePDF = (
   doc.setFontSize(16);
   doc.text('HISTORIA CLÍNICA', pageWidth / 2, 50, { align: 'center' });
 
-  // Agregar texto "Dental Basics Academy"
-  doc.setFontSize(12);
-  doc.text('Dental Basics Academy', pageWidth / 2, 58, { align: 'center' });
-
   // Agregar nombre del paciente si está disponible
   if (nombrePaciente) {
     doc.setFontSize(12);

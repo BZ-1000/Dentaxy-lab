@@ -1,7 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import HeroAnimation from "@/components/seed/HeroAnimation";
 import "./Seed.css";
 
 /* ── Variantes framer-motion ── */
@@ -38,6 +37,19 @@ export default function SeedLanding() {
   const navigate = useNavigate();
   const observerRef = useRef<IntersectionObserver | null>(null);
 
+  // --- MODO CANVA ---
+  const [editMode, setEditMode] = useState(false);
+  const [sizes, setSizes] = useState({
+    tooth: 220,
+    humanHand: 55, // vw
+    robotHand: 55, // vw
+    textWidth: 580 // px
+  });
+  
+  const handleSizeChange = (key: string, value: number) => {
+    setSizes(prev => ({ ...prev, [key]: value }));
+  };
+
   useEffect(() => {
     observerRef.current = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -60,12 +72,213 @@ export default function SeedLanding() {
       {/* ══════════════════════════════════════════════
           1. HERO SECTION — Dark Futuristic Animated
           ══════════════════════════════════════════════ */}
-      <HeroAnimation
-        dienteImg="/Seed/diente.png"
-        manoHumanaImg="/Seed/mano-humano.png"
-        manoRobotImg="/Seed/mano-robot.png"
+      <section
         className="seed-section hero-dark-section"
-      />
+        style={{ paddingTop: 0, position: 'relative' }}
+      >
+
+
+        {/* ── NAVBAR (aparece después de la animación) ── */}
+        <motion.nav
+          className="hero-dark-nav"
+          variants={navV}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Logo */}
+          <div className="logo-dark">
+            DENTAXY
+            <span className="logo-seed-badge-dark">SEED</span>
+          </div>
+
+          {/* Links centrales */}
+          <div className="hidden md:flex items-center gap-6">
+            {["Sistema", "Módulos", "Flujo", "Ecosistema", "Precios"].map(item => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                className="nav-link-dark"
+              >
+                {item}
+              </a>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <button
+            onClick={() => navigate('/seed/login')}
+            className="btn-dark-primary"
+            style={{ padding: '10px 24px', fontSize: '11px' }}
+          >
+            Obtener acceso →
+          </button>
+        </motion.nav>
+
+        {/* ── CAPA VISUAL: Diente Central ── */}
+        <motion.div
+          className="hero-tooth-wrap"
+          variants={editMode ? {} : toothV}
+          initial={editMode ? "visible" : "hidden"}
+          animate="visible"
+          drag={editMode}
+          dragMomentum={false}
+          style={{ cursor: editMode ? 'grab' : 'auto' }}
+        >
+          <div className="tooth-glow-anim" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <img src="/Seed/diente.png" alt="Diente flotante" style={{ width: editMode ? `${sizes.tooth}px` : 'clamp(140px, 20vw, 220px)', objectFit: 'contain', pointerEvents: editMode ? 'none' : 'auto' }} />
+          </div>
+        </motion.div>
+
+        {/* ── CAPA VISUAL: Mano Humana (izquierda → centro) ── */}
+        <motion.img
+          src="/Seed/mano-humano.png"
+          alt="Mano humana"
+          className="hero-hand-human"
+          variants={editMode ? {} : humanHandV}
+          initial={editMode ? "visible" : "hidden"}
+          animate="visible"
+          drag={editMode}
+          dragMomentum={false}
+          style={{ 
+            translateY: "-50%", 
+            mixBlendMode: "screen", 
+            width: editMode ? `${sizes.humanHand}vw` : undefined,
+            cursor: editMode ? 'grab' : 'auto',
+            pointerEvents: editMode ? 'auto' : 'none'
+          }}
+        />
+
+        {/* ── CAPA VISUAL: Mano Robótica (derecha → centro) ── */}
+        <motion.img
+          src="/Seed/mano-robot.png"
+          alt="Mano robótica"
+          className="hero-hand-robot"
+          variants={editMode ? {} : robotHandV}
+          initial={editMode ? "visible" : "hidden"}
+          animate="visible"
+          drag={editMode}
+          dragMomentum={false}
+          style={{ 
+            translateY: "-50%", 
+            mixBlendMode: "screen",
+            width: editMode ? `${sizes.robotHand}vw` : undefined,
+            cursor: editMode ? 'grab' : 'auto',
+            pointerEvents: editMode ? 'auto' : 'none'
+          }}
+        />
+
+        {/* ── CONTENIDO: Texto principal (aparece al final) ── */}
+        <motion.div
+          className="hero-dark-content"
+          variants={editMode ? {} : contentV}
+          initial={editMode ? "visible" : "hidden"}
+          animate="visible"
+          drag={editMode}
+          dragMomentum={false}
+          style={{ cursor: editMode ? 'grab' : 'auto', pointerEvents: editMode ? 'auto' : 'none' }}
+        >
+          {/* Eyebrow monospace */}
+          <div style={{
+            fontFamily: "'DM Mono', monospace",
+            fontSize: '10px',
+            letterSpacing: '0.20em',
+            textTransform: 'uppercase',
+            color: '#10b981',
+            marginBottom: '14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+          }}>
+            <span style={{ width: 20, height: 1, background: '#10b981', display: 'inline-block' }} />
+            Software clínico · Powered by Google Workspace
+          </div>
+
+          {/* Título futurista monoespaciado */}
+          <h1 className="hero-title-mono" style={{ marginBottom: '16px' }}>
+            EL SOFTWARE DENTAL<br />
+            QUE <span className="accent-green">PIENSA</span> POR TI.
+          </h1>
+
+          {/* Subtítulo */}
+          <p className="hero-subtitle-mono" style={{ maxWidth: editMode ? `${sizes.textWidth}px` : '580px', marginBottom: '28px' }}>
+            Llenas el formulario — Seed redacta la historia clínica,<br />
+            agenda citas y guarda en tu Google Drive. Sin instalar nada.
+          </p>
+
+          {/* Botones */}
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '28px' }}>
+            <button
+              onClick={() => navigate('/seed/login')}
+              className="btn-dark-primary"
+            >
+              Obtener mi Seed →
+            </button>
+            <button className="btn-dark-ghost">
+              Ver cómo funciona
+            </button>
+          </div>
+
+          {/* Chips glassmorphism blanco */}
+          <motion.div
+            style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}
+            variants={chipContainerV}
+            initial="hidden"
+            animate="visible"
+          >
+            {[
+              { icon: "◈", text: "HISTORIA AUTOMÁTICA" },
+              { icon: "◈", text: "AGENDA GOOGLE" },
+              { icon: "◈", text: "DRIVE SYNC" },
+              { icon: "◈", text: "CERO DATOS" },
+              { icon: "◈", text: "SIN INSTALAR" },
+            ].map((chip, i) => (
+              <motion.div key={i} className="glass-chip-dark" variants={chipV}>
+                <span style={{ color: '#10b981', fontSize: '11px' }}>{chip.icon}</span>
+                {chip.text}
+              </motion.div>
+            ))}
+          </motion.div>
+        </motion.div>
+
+        {/* ── PANEL MODO CANVA ── */}
+        <button 
+          onClick={() => setEditMode(!editMode)}
+          style={{ position: 'absolute', top: 20, right: 20, zIndex: 9999, background: editMode ? '#EA4335' : '#10b981', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'monospace', fontSize: 12 }}
+        >
+          {editMode ? "Cerrar Modo Canva" : "Modo Canva"}
+        </button>
+
+        {editMode && (
+          <div style={{ position: 'absolute', top: 60, right: 20, zIndex: 9999, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', border: '1px solid #333', padding: '20px', borderRadius: '12px', color: '#fff', fontFamily: 'monospace', fontSize: 11, width: 280, display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <h3 style={{ margin: 0, color: '#10b981', fontSize: 14 }}>Ajuste de Tamaños</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <label style={{ display: 'flex', justifyContent: 'space-between' }}><span>Diente (px)</span> <span>{sizes.tooth}px</span></label>
+              <input type="range" min="50" max="400" value={sizes.tooth} onChange={(e) => handleSizeChange('tooth', parseInt(e.target.value))} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <label style={{ display: 'flex', justifyContent: 'space-between' }}><span>Mano Humana (vw)</span> <span>{sizes.humanHand}vw</span></label>
+              <input type="range" min="20" max="100" value={sizes.humanHand} onChange={(e) => handleSizeChange('humanHand', parseInt(e.target.value))} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <label style={{ display: 'flex', justifyContent: 'space-between' }}><span>Mano Robot (vw)</span> <span>{sizes.robotHand}vw</span></label>
+              <input type="range" min="20" max="100" value={sizes.robotHand} onChange={(e) => handleSizeChange('robotHand', parseInt(e.target.value))} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              <label style={{ display: 'flex', justifyContent: 'space-between' }}><span>Ancho Texto (px)</span> <span>{sizes.textWidth}px</span></label>
+              <input type="range" min="300" max="900" value={sizes.textWidth} onChange={(e) => handleSizeChange('textWidth', parseInt(e.target.value))} />
+            </div>
+            
+            <p style={{ margin: 0, color: '#888', fontStyle: 'italic', marginTop: '10px' }}>
+              Arrastra directamente las manos y el diente en la pantalla para moverlos.
+            </p>
+          </div>
+        )}
+      </section>
+
 
 
       {/* ── 2. ¿QUÉ ES? ── */}

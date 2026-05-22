@@ -14,7 +14,7 @@ export const SidebarHeader = () => {
     }} whileTap={{
       scale: 0.95
     }} className="w-8 h-8 flex-shrink-0">
-        <img src="/lovable-uploads/47756bd5-fe5d-45cf-bbb4-f61daf4a38cd.png" alt="Dental Basics Academy" className="w-full h-full object-contain" />
+        <img src="/lovable-uploads/47756bd5-fe5d-45cf-bbb4-f61daf4a38cd.png" alt="DentaXy" className="w-full h-full object-contain" />
       </motion.div>
       <div className="flex-1 min-w-0">
         <h2 className="text-sm font-semibold text-foreground leading-tight">DENTAXY</h2>

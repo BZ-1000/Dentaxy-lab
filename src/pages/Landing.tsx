@@ -65,7 +65,7 @@ const Landing = () => {
                   <h3 className="text-lg font-semibold text-foreground">DENTAXY Technologies</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">Innovación odontológica mexicana</p>
-                <p className="text-xs text-muted-foreground/70">© 2025 Dentaxy.com Todos los derechos reservados.</p>
+                <p className="text-xs text-muted-foreground/70">© 2026 Dentaxy.com Todos los derechos reservados.</p>
                 <p className="text-xs text-neutral-600">Founded by Braulio Zavala Uribe</p>
               </div>
 

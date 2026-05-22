@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
         <div className="text-center mb-10">
           <span className="inline-block bg-emerald-50 text-emerald-700 text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full mb-4">Documento Legal</span>
           <h1 className="text-4xl font-bold text-gray-900">Política de Privacidad</h1>
-          <p className="text-gray-400 mt-2 text-sm">Fecha de última actualización: 15 de mayo de 2025</p>
+          <p className="text-gray-400 mt-2 text-sm">Fecha de última actualización: 15 de mayo de 2026</p>
         </div>
 
         <div className="prose prose-lg mx-auto space-y-2">

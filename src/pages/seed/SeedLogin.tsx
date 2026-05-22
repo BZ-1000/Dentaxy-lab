@@ -19,6 +19,8 @@ import WaitlistMasterModal from '@/components/waitlist/WaitlistMasterModal';
 import { supabase } from '@/integrations/supabase/client';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuthStore, DoctorProfile } from '@/store/useAuthStore';
+import { toast } from 'sonner';
+import SeedEcosystemLoader from '@/components/seed/SeedEcosystemLoader';
 import "./Seed.css";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -42,136 +44,8 @@ const scaleIn = { hidden: { opacity: 0, scale: 0.93 }, visible: { opacity: 1, sc
 interface GoogleUser extends DoctorProfile {}
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STEP 1 — CÓDIGO DE ACCESO
+// (StepCodigo removed as per user request)
 // ─────────────────────────────────────────────────────────────────────────────
-
-const StepCodigo: React.FC<{ onNext: () => void }> = ({ onNext }) => {
-  const [code, setCode] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    // 1. Verificar tokens dinámicos de preventa en la base de datos
-    try {
-      // Buscamos el token. Usamos una búsqueda exacta. 
-      // Si el usuario generó un token corto, será en mayúsculas.
-      const { data, error } = await supabase
-        .from('demo_links')
-        .select('*')
-        .eq('token', code.trim().toUpperCase())
-        .eq('is_revoked', false)
-        .gte('expires_at', new Date().toISOString())
-        .maybeSingle();
-
-      if (error) throw error;
-
-      if (data) {
-        const modules = data.allowed_modules || [];
-        // Permitimos acceso si tiene el módulo 'seed_preventa' O si es un acceso general que incluya 'academico'
-        if (modules.includes('seed_preventa') || modules.includes('academico')) {
-          // Verificar si ya se usó (si es single-use)
-          if (data.max_uses && data.current_uses >= data.max_uses) {
-            setError('Este código ya ha sido utilizado.');
-          } else {
-            // Token válido — lo marcamos como usado inmediatamente
-            const { error: updateError } = await supabase
-              .from('demo_links')
-              .update({ current_uses: (data.current_uses || 0) + 1 })
-              .eq('id', data.id);
-
-            if (updateError) console.error('Error updating usage:', updateError);
-            
-            onNext();
-          }
-        } else {
-          setError('Este código no tiene permisos para Dentaxy Seed.');
-        }
-      } else {
-        // Si no se encontró en mayúsculas, probamos tal cual se escribió (por si es un token largo de sistema)
-        const { data: dataRaw, error: errorRaw } = await supabase
-          .from('demo_links')
-          .select('*')
-          .eq('token', code.trim())
-          .eq('is_revoked', false)
-          .gte('expires_at', new Date().toISOString())
-          .maybeSingle();
-
-        if (dataRaw && (dataRaw.allowed_modules?.includes('seed_preventa') || dataRaw.allowed_modules?.includes('academico'))) {
-            // Repetir lógica de validación para el token raw
-            if (dataRaw.max_uses && dataRaw.current_uses >= dataRaw.max_uses) {
-                setError('Este código ya ha sido utilizado.');
-            } else {
-                await supabase.from('demo_links').update({ current_uses: (dataRaw.current_uses || 0) + 1 }).eq('id', dataRaw.id);
-                onNext();
-            }
-        } else {
-            setError('Código no válido o expirado.');
-        }
-      }
-    } catch (err) {
-      console.error('Error validating preventa token:', err);
-      setError('Error al validar acceso. Intenta de nuevo.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <motion.div
-      initial="hidden" animate="visible" exit={{ opacity: 0, y: -16 }}
-      variants={stagger}
-      className="space-y-8 flex flex-col items-center text-center max-w-md w-full"
-    >
-      {/* Icono */}
-      <motion.div variants={fadeUp} className="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center shadow-xl shadow-blue-600/30">
-        <KeyRound className="w-10 h-10 text-white" />
-      </motion.div>
-
-      {/* Texto */}
-      <motion.div variants={fadeUp} className="space-y-3">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-          Dentaxy <span className="seed-text">Seed</span>
-        </h1>
-        <p className="text-blue-600 font-semibold tracking-widest text-xs uppercase">Acceso Exclusivo · Preventa</p>
-        <p className="text-gray-500 text-base max-w-sm">
-          Ingresa el código que recibiste para acceder a tu espacio de preventa de Dentaxy Seed.
-        </p>
-      </motion.div>
-
-      {/* Formulario */}
-      <motion.form variants={fadeUp} onSubmit={handleSubmit} className="w-full space-y-4">
-        <Input
-          placeholder="PREVENTA"
-          value={code}
-          onChange={e => setCode(e.target.value)}
-          className="h-16 text-center text-xl font-mono tracking-[0.3em] uppercase rounded-2xl border-2 border-neutral-200 focus:border-blue-500 focus:ring-0 bg-white shadow-sm"
-        />
-        <AnimatePresence>
-          {error && (
-            <motion.p
-              initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-              className="text-sm text-red-600 font-medium bg-red-50 py-2.5 rounded-xl border border-red-100"
-            >
-              {error}
-            </motion.p>
-          )}
-        </AnimatePresence>
-        <Button
-          type="submit" disabled={loading || code.length < 3}
-          className="w-full h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold text-base shadow-lg shadow-blue-500/30 transition-all"
-        >
-          {loading
-            ? <><Loader2 className="w-5 h-5 animate-spin mr-2" />Verificando...</>
-            : <><ShieldCheck className="w-5 h-5 mr-2" />Acceder con mi código</>}
-        </Button>
-      </motion.form>
-    </motion.div>
-  );
-};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // STEP 2 — GOOGLE SIGN IN
@@ -203,6 +77,12 @@ const StepGoogle: React.FC<{ onNext: (user: GoogleUser) => void }> = ({ onNext }
     },
     onError: (error) => {
       console.error('Google Sign-In Error:', error);
+      toast.error('Error al conectar con Google', { description: 'Revisa tu conexión o intenta nuevamente.' });
+      setLoading(false);
+    },
+    onNonOAuthError: (error) => {
+      console.error('Google Non-OAuth Error (e.g. popup closed):', error);
+      toast.error('Autenticación cancelada', { description: 'El panel de Google fue cerrado o bloqueado por el navegador.' });
       setLoading(false);
     },
     scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',
@@ -219,13 +99,7 @@ const StepGoogle: React.FC<{ onNext: (user: GoogleUser) => void }> = ({ onNext }
       variants={stagger}
       className="space-y-8 flex flex-col items-center text-center max-w-md w-full"
     >
-      {/* Icono Check */}
-      <motion.div variants={fadeUp} className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-        </div>
-        <span className="text-sm font-semibold text-emerald-700">Código de preventa verificado</span>
-      </motion.div>
+      {/* Eliminado el check de preventa verificado */}
 
       {/* Google Logo + Texto */}
       <motion.div variants={fadeUp} className="space-y-3">
@@ -317,7 +191,7 @@ const StepBienvenida: React.FC<{ user: GoogleUser; onEnter: () => void }> = ({ u
         Bienvenido, <span className="seed-text">{user.name.split(' ')[0]}</span>
       </h2>
       <p className="text-sm text-gray-500">
-        {user.email} · Acceso de Preventa Activo
+        {user.email}
       </p>
     </motion.div>
 
@@ -400,14 +274,13 @@ const AdminModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 
-type Step = 'codigo' | 'google' | 'bienvenida';
+type Step = 'google' | 'bienvenida' | 'loading';
 
 export default function SeedLogin() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<Step>('codigo');
+  const [step, setStep] = useState<Step>('google');
   const [user, setUser] = useState<GoogleUser | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
-  const [waitlistOpen, setWaitlistOpen] = useState(false);
 
   const handleGoogleSuccess = useCallback((u: GoogleUser) => {
     setUser(u);
@@ -421,12 +294,25 @@ export default function SeedLogin() {
       sessionStorage.setItem('seed_user', JSON.stringify(user));
       authLogin(user); // Guardar en el store global de Zustand
     }
-    navigate('/seed/overview', { replace: true });
+    setStep('loading');
   };
+
+  const handleLoaderComplete = () => {
+    navigate('/seed', { replace: true });
+  };
+
+  // Si estamos en el step 'loading', renderizamos solo el loader a pantalla completa
+  if (step === 'loading') {
+    return (
+      <SeedEcosystemLoader
+        onComplete={handleLoaderComplete}
+        userName={user?.name}
+      />
+    );
+  }
 
   return (
     <div className="seed-theme min-h-screen w-full bg-white flex flex-col overflow-hidden selection:bg-blue-500/20">
-      <WaitlistMasterModal isOpen={waitlistOpen} onClose={() => setWaitlistOpen(false)} preselectedModule="Seed" />
       <AnimatePresence>
         {showAdmin && <AdminModal onClose={() => setShowAdmin(false)} />}
       </AnimatePresence>
@@ -456,10 +342,10 @@ export default function SeedLogin() {
 
       {/* Indicador de pasos */}
       <div className="fixed top-16 left-0 right-0 flex justify-center gap-2 pt-4 z-30">
-        {(['codigo', 'google', 'bienvenida'] as Step[]).map((s, i) => (
+        {(['google', 'bienvenida'] as Step[]).map((s, i) => (
           <motion.div
             key={s}
-            animate={{ width: step === s ? 24 : 8, opacity: i <= ['codigo', 'google', 'bienvenida'].indexOf(step) ? 1 : 0.3 }}
+            animate={{ width: step === s ? 24 : 8, opacity: i <= ['google', 'bienvenida'].indexOf(step) ? 1 : 0.3 }}
             className={`h-2 rounded-full transition-all ${step === s ? 'bg-blue-600' : 'bg-blue-200'}`}
           />
         ))}
@@ -468,36 +354,6 @@ export default function SeedLogin() {
       {/* Área de contenido centrada */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-24">
         <AnimatePresence mode="wait">
-          {step === 'codigo' && (
-            <motion.div key="codigo" className="w-full flex flex-col items-center">
-              <StepCodigo onNext={() => setStep('google')} />
-              {/* Link lista de espera */}
-              <motion.button
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }}
-                onClick={() => setWaitlistOpen(true)}
-                className="mt-8 flex items-center gap-2 text-sm text-gray-400 hover:text-blue-500 transition-colors group"
-              >
-                <Users className="w-4 h-4" />
-                ¿No tienes código?
-                <span className="text-blue-500 font-medium group-hover:underline">Únete a la lista de espera</span>
-                <ChevronRight className="w-3.5 h-3.5 text-blue-400" />
-              </motion.button>
-
-              {/* Counter pill */}
-              <motion.div
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
-                className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 bg-neutral-50 border border-neutral-100 rounded-full"
-              >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
-                </span>
-                <span className="text-xs text-neutral-500">
-                  <strong className="text-neutral-900">{WAITLIST_COUNT}</strong> doctores en lista de espera
-                </span>
-              </motion.div>
-            </motion.div>
-          )}
 
           {step === 'google' && (
             <motion.div key="google" className="w-full flex items-center justify-center">

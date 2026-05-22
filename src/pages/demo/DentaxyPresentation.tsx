@@ -230,32 +230,32 @@ const DonutChart = () => {
 
 /* ─── HISTORIAL DE AVANCES POR AÑO (2022 - 2026) ─── */
 const DATOS_HISTORIAL: Record<string, string[]> = {
-  "2022": [
+  "2023": [
     "Drafts de arquitectura & Prototipos UAZ",
     "Recopilación de dataset anatómico",
     "Estándar UX/UI (Base de 21 secciones)",
     "Pruebas de viabilidad Generativa"
   ],
-  "2023": [
+  "2024": [
     "Scaffold de componentes React Core",
     "Sistema de Diseño Glassmorfismo Base",
     "Lógica base de Progressive Disclosure",
     "Motor local de redacción clínica en Alpha"
   ],
-  "2024": [
+  "2025": [
     "Dentaxy Form Panel & State Management",
     "Integración temprana DICOM Viewer",
     "Optimización de Providers globales",
     "Testing de carga cognitiva y rediseño UI"
   ],
-  "2025": [
+  "2026": [
     "Dentaxy Shop MVP & Stripe Checkout",
     "Modelos de Suscripción & ROI Tracker",
     "DentaxyGPT (DeepSeek-R1) & Luma Loaders",
     "Mejoras de performance e Historial Clínico",
     "Passkeys, WebAuthn & Notificaciones P2P"
   ],
-  "2026": [
+  "2027": [
     "Optimización Caché & Apple-style animations",
     "Global DemoGuard & Advanced Auth Control",
     "Zero-Latency Inline Word-Stream",
@@ -267,17 +267,17 @@ const DATOS_HISTORIAL: Record<string, string[]> = {
 /* ─── LINE CHART EXPONENCIAL (2022 - 2026) ─── */
 const LineChartExponencial = ({ onNodeClick, activeNode }: { onNodeClick?: (year: string) => void, activeNode?: string | null }) => {
   // Puntos basados en el impacto de commits, reestructuración y duplicación:
-  // 2022 (bajo/lineal), 2023 (subida leve), 2024 (inflexión), 2025 (exponencial), 2026 (momento cero al cielo)
+  // 2023 (bajo/lineal), 2024 (subida leve), 2025 (inflexión), 2026 (exponencial), 2027 (momento cero al cielo)
   const pts = [[15, 178], [115, 170], [215, 140], [315, 65], [415, 10]];
   const d = pts.map(([x, y], i) => `${i === 0 ? "M" : "L"}${x},${y}`).join(" ");
   const area = d + " L415,190 L15,190 Z";
 
   const hitos = [
-    { y: "2022", note: "Bases de Dentaxy" },
-    { y: "2023", note: "Primeros Modelos" },
-    { y: "2024", note: "Dentaxy Core" },
-    { y: "2025", note: "Crecimiento de Módulos" },
-    { y: "2026", note: "El Despliegue Oficial" }
+    { y: "2023", note: "Bases de Dentaxy" },
+    { y: "2024", note: "Primeros Modelos" },
+    { y: "2025", note: "Dentaxy Core" },
+    { y: "2026", note: "Crecimiento de Módulos" },
+    { y: "2027", note: "El Despliegue Oficial" }
   ];
 
   return (
@@ -842,7 +842,7 @@ const ESTUDIOS_TIMING = [
   {
     num: "01",
     titulo: "Sequoia Capital: AI's Act Two",
-    dato: "Advierte que tras la fase inicial de experimentación (2023-2024), el 'Act Two' (2025-2026) exige que los sistemas resuelvan flujos de trabajo cerrados punta a punta (como el clínico) y ofrezcan resultados deterministas. Es el momento donde la AI pasa de 'Copiloto' a motor central productivo.",
+    dato: "Advierte que tras la fase inicial de experimentación (2025-2026), el 'Act Two' (2026-2027) exige que los sistemas resuelvan flujos de trabajo cerrados punta a punta (como el clínico) y ofrezcan resultados deterministas. Es el momento donde la AI pasa de 'Copiloto' a motor central productivo.",
     estudio: "Generative AI’s Act Two",
     link: "https://www.sequoiacap.com/article/generative-ai-act-two/",
     linkLabel: "Ver artículo profundo de Sequoia Capital",
@@ -859,8 +859,8 @@ const ESTUDIOS_TIMING = [
   },
   {
     num: "03",
-    titulo: "Gartner Hype Cycle 2025-2026",
-    dato: "Pronóstica que los 'Domain-Specific AI Models' (modelos especializados con interfaces cerradas como Dentaxy) atravesarán el Valle de la Desilusión y alcanzarán la 'Planicie de Productividad' (Plateau of Productivity) precisamente durante 2025-2026.",
+    titulo: "Gartner Hype Cycle 2026-2027",
+    dato: "Pronóstica que los 'Domain-Specific AI Models' (modelos especializados con interfaces cerradas como Dentaxy) atravesarán el Valle de la Desilusión y alcanzarán la 'Planicie de Productividad' (Plateau of Productivity) precisamente durante 2026-2027.",
     estudio: "Hype Cycle for Emerging Tech and specialized AI",
     link: "https://www.gartner.com/en/articles/what-s-new-in-the-2023-gartner-hype-cycle-for-emerging-technologies",
     linkLabel: "Ver análisis prospectivo de Gartner",

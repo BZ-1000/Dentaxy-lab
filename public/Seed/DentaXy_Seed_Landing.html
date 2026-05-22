@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DentaXy Seed — Software Dental Completo</title>
+<meta name="description" content="DentaXy Seed: software dental completo que redacta historias clínicas automáticamente y guarda todo en tu Google Drive. Diseñado para el consultorio mexicano.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200;12..96,300;12..96,400;12..96,500;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+
+/* ═══════════════════════════════════════════════
+   VARIABLES — Paleta Futurista Blanca + Glass
+═══════════════════════════════════════════════ */
+:root {
+  --white: #FFFFFF;
+  --bone: #F7F4EF;
+  --bone2: #EDE8DF;
+  --glass-bg: rgba(255,255,255,0.72);
+  --glass-border: rgba(255,255,255,0.88);
+  --glass-shadow: 0 8px 32px rgba(31,38,135,0.07);
+  --ink: #0D0D12;
+  --ink2: #2E2E3A;
+  --ink3: #6B6B7E;
+  --ink4: #ADADBE;
+  --green: #1D9E75;
+  --green-d: #157A5A;
+  --green-l: #E6F4EE;
+  --green-glow: rgba(29,158,117,0.18);
+  --green-glow2: rgba(29,158,117,0.08);
+  --blue: #4A90E2;
+  --blue-l: #E8F0FE;
+  --blue-d: #1557B0;
+  --blue-glow: rgba(74,144,226,0.12);
+  --yellow: #F9AB00;
+  --yellow-l: #FEF7E0;
+  --red: #EA4335;
+  --red-l: #FCE8E6;
+  --purple: #7B4FA8;
+  --purple-l: #F3E5F5;
+  --orange: #FF6D00;
+  --orange-l: #FFF3E0;
+  --teal: #00897B;
+  --teal-l: #E0F2F1;
+  --border: rgba(0,0,0,0.08);
+  --border-glass: rgba(255,255,255,0.6);
+  /* Timing */
+  --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
+  --ease-out: cubic-bezier(0.16,1,0.3,1);
+}
+
+/* ═══ RESET ═══ */
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+
+body {
+  background: var(--white);
+  color: var(--ink);
+  font-family: "Bricolage Grotesque", sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Manchas de color suaves para que el glass tenga algo contra qué contrastar */
+body::before {
+  content: "";
+  position: fixed;
+  top: -20vh; left: -20vw;
+  width: 60vw; height: 60vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(29,158,117,0.06) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: "";
+  position: fixed;
+  bottom: -20vh; right: -15vw;
+  width: 55vw; height: 55vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(74,144,226,0.07) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
+
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:var(--bone)}
+::-webkit-scrollbar-thumb{background:var(--green);border-radius:2px}
+
+
+/* ═══════════════════════════════════════════════
+   NAV — Glass premium sobre blanco
+═══════════════════════════════════════════════ */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.05);
+  height: 58px; display: flex; align-items: center;
+  padding: 0 48px; gap: 0;
+}
+.nav-logo {
+  font-size: 16px; font-weight: 800; letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--ink) 0%, var(--green) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-right: 40px; flex-shrink: 0;
+  display: flex; align-items: center; gap: 6px;
+}
+.nav-logo .seed {
+  -webkit-text-fill-color: transparent;
+  background: linear-gradient(135deg, var(--green) 0%, #0CC78A 100%);
+  -webkit-background-clip: text; background-clip: text;
+}
+.nav-links{display:flex;gap:0;flex:1;overflow-x:auto}
+.nl {
+  background: none; border: none; cursor: pointer;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 12px; font-weight: 500; color: var(--ink3);
+  padding: 0 16px; height: 58px;
+  white-space: nowrap; letter-spacing: 0.2px;
+  transition: color 0.2s; text-decoration: none;
+  display: flex; align-items: center;
+  position: relative;
+}
+.nl::after {
+  content: ""; position: absolute; bottom: 0; left: 16px; right: 16px;
+  height: 2px; background: var(--green); border-radius: 2px;
+  transform: scaleX(0); transition: transform 0.2s var(--ease-spring);
+}
+.nl:hover{color:var(--ink)}.nl:hover::after{transform:scaleX(1)}
+.nav-cta {
+  margin-left: auto; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--green) 0%, #0CC78A 100%);
+  color: white; font-size: 12px; font-weight: 600; letter-spacing: 0.3px;
+  padding: 8px 20px; border-radius: 20px; border: none;
+  cursor: pointer; transition: all 0.25s var(--ease-spring);
+  font-family: "Bricolage Grotesque", sans-serif;
+  box-shadow: 0 4px 16px var(--green-glow);
+}
+.nav-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px var(--green-glow);
+}
+
+
+/* ═══════════════════════════════════════════════
+   HERO — Aquarium centrado, texto flotante
+═══════════════════════════════════════════════ */
+.hero-section {
+  position: relative; min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  overflow: hidden; padding: 80px 48px 48px;
+}
+
+/* Canvas de partículas */
+#hero-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; z-index: 1;
+}
+
+/* Contenedor del aquarium */
+#hero-aquarium {
+  position: relative; z-index: 3;
+  width: min(520px, 80vw);
+  aspect-ratio: 3/4;
+  border-radius: 48px;
+  background: rgba(255,255,255,0.55);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1.5px solid rgba(255,255,255,0.85);
+  box-shadow:
+    0 0 0 1px rgba(29,158,117,0.08),
+    0 24px 80px rgba(31,38,135,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+  overflow: hidden;
+  animation: aquariumPulse 4s ease infinite;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Overlay de agua */
+#hero-aquarium::before {
+  content: "";
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 45%;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(74,144,226,0.06) 40%,
+    rgba(29,158,117,0.1) 100%
+  );
+  animation: waterWave 6s ease-in-out infinite alternate;
+  z-index: 1;
+}
+
+/* Shimmer de luz */
+#hero-aquarium::after {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    135deg,
+    transparent 30%,
+    rgba(255,255,255,0.18) 50%,
+    transparent 70%
+  );
+  animation: shimmerLight 5s ease infinite;
+  z-index: 2;
+}
+
+/* SVG de la planta/pecera */
+.aquarium-svg {
+  width: 88%; height: 88%; object-fit: contain;
+  position: relative; z-index: 3;
+  animation: plantGrow 8s ease-in-out infinite alternate;
+  filter: drop-shadow(0 8px 24px rgba(29,158,117,0.2));
+}
+
+/* Texto hero ARRIBA del aquarium */
+.hero-text-top {
+  position: relative; z-index: 4;
+  text-align: center; max-width: 680px;
+  margin-bottom: 40px;
+}
+.hero-label {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(29,158,117,0.1);
+  border: 1px solid rgba(29,158,117,0.2);
+  border-radius: 20px; padding: 5px 16px 5px 10px;
+  font-size: 11px; font-weight: 600; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--green);
+  margin-bottom: 28px;
+  backdrop-filter: blur(8px);
+}
+.hero-label-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); animation: pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+
+.hero-h {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: clamp(44px, 6.5vw, 88px);
+  font-weight: 800; line-height: 1.0;
+  letter-spacing: -3px; color: var(--ink);
+  margin-bottom: 0;
+}
+.hero-h em {
+  font-style: italic;
+  background: linear-gradient(135deg, var(--green) 0%, #0CC78A 60%, var(--blue) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: "Instrument Serif", serif;
+  font-weight: 400;
+}
+
+/* Texto hero ABAJO del aquarium */
+.hero-text-bottom {
+  position: relative; z-index: 4;
+  text-align: center; max-width: 560px;
+  margin-top: 40px;
+}
+.hero-p {
+  font-size: 16px; font-weight: 300; color: var(--ink2);
+  line-height: 1.85; margin-bottom: 12px;
+}
+.hero-p strong{color:var(--ink);font-weight:600}
+.hero-guarantee {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-size: 11.5px; color: var(--ink3); margin-bottom: 32px;
+  font-family: "DM Mono", monospace;
+}
+.hero-guarantee::before{content:"🔒";font-size:13px}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+
+/* Botones */
+.btn-main {
+  background: linear-gradient(135deg, var(--green) 0%, #0CC78A 100%);
+  color: white; font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 13px; font-weight: 700;
+  border: none; padding: 15px 36px; border-radius: 40px;
+  cursor: pointer; transition: all 0.3s var(--ease-spring);
+  box-shadow: 0 8px 28px var(--green-glow);
+  letter-spacing: 0.2px;
+}
+.btn-main:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 40px var(--green-glow);
+}
+.btn-ghost {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(12px);
+  color: var(--ink); font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 13px; font-weight: 500;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  padding: 15px 30px; border-radius: 40px;
+  cursor: pointer; transition: all 0.25s;
+}
+.btn-ghost:hover{border-color:var(--green);color:var(--green)}
+
+/* ── Keyframes Hero ── */
+@keyframes aquariumPulse {
+  0%,100%{box-shadow:0 0 0 1px rgba(29,158,117,.08),0 24px 80px rgba(31,38,135,.1),inset 0 1px 0 rgba(255,255,255,.9)}
+  50%{box-shadow:0 0 0 3px rgba(29,158,117,.12),0 32px 100px rgba(31,38,135,.14),inset 0 1px 0 rgba(255,255,255,.9),0 0 60px rgba(29,158,117,.08)}
+}
+@keyframes waterWave {
+  0%{transform:translateY(0) scaleX(1)}
+  100%{transform:translateY(-8px) scaleX(1.02)}
+}
+@keyframes shimmerLight {
+  0%{transform:translateX(-100%) translateY(-100%)}
+  100%{transform:translateX(200%) translateY(200%)}
+}
+@keyframes plantGrow {
+  0%{transform:scaleY(0.94) translateY(3%)}
+  100%{transform:scaleY(1) translateY(0)}
+}
+
+
+/* ═══════════════════════════════════════════════
+   TRUST BAR
+═══════════════════════════════════════════════ */
+.trust {
+  display: flex; justify-content: center; gap: 32px; flex-wrap: wrap;
+  padding: 28px 48px;
+  background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  position: relative; z-index: 2;
+}
+.trust-item {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 12.5px; font-weight: 500; color: var(--ink2);
+  transition: color 0.2s;
+}
+.trust-item span{font-size:18px}
+.trust-item:hover{color:var(--green)}
+
+/* ═══ SECCIONES COMPARTIDAS ═══ */
+.sec{padding:88px 48px;max-width:1120px;margin:0 auto;position:relative;z-index:2}
+.sec-glass {
+  padding:88px 0;
+  background: linear-gradient(180deg, rgba(247,244,239,0.6) 0%, rgba(255,255,255,0) 100%);
+  position: relative; z-index: 2;
+}
+.sec-glass-inner{max-width:1120px;margin:0 auto;padding:0 48px}
+
+.eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--green);
+  margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+  font-family: "DM Mono", monospace;
+}
+.eyebrow::before{content:"";width:20px;height:2px;background:var(--green);border-radius:1px;flex-shrink:0}
+
+.sec-h {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: clamp(32px, 4vw, 54px); font-weight: 800;
+  line-height: 1.05; letter-spacing: -2px;
+  color: var(--ink); margin-bottom: 12px;
+}
+.sec-h em {
+  font-style: italic; font-family: "Instrument Serif", serif; font-weight: 400;
+  background: linear-gradient(135deg, var(--green) 0%, #0CC78A 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.sec-p{font-size:15px;font-weight:300;color:var(--ink2);line-height:1.85;max-width:560px;margin-bottom:52px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 48px;position:relative;z-index:2}
+
+/* ═══ QUÉ ES ═══ */
+.what-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  margin-bottom: 32px;
+}
+.what-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 24px; padding: 36px;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.3s var(--ease-spring), box-shadow 0.3s;
+}
+.what-card:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,0.1)}
+.what-bad{border-color:rgba(234,67,53,0.12);background:rgba(255,255,255,0.8)}
+.what-good{border-color:rgba(29,158,117,0.2);background:rgba(230,244,238,0.4)}
+.wc-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 4px 14px; border-radius: 20px;
+  margin-bottom: 18px; font-family: "DM Mono", monospace;
+}
+.badge-bad{background:rgba(234,67,53,0.08);color:var(--red);border:1px solid rgba(234,67,53,0.15)}
+.badge-good{background:rgba(29,158,117,0.1);color:var(--green);border:1px solid rgba(29,158,117,0.2)}
+.wc-title{font-size:18px;font-weight:700;color:var(--ink);margin-bottom:14px;letter-spacing:-0.5px}
+.wc-list{list-style:none}
+.wc-list li{font-size:13.5px;color:var(--ink2);line-height:2;padding-left:22px;position:relative}
+.wc-list li::before{position:absolute;left:0;top:2px;font-size:13px}
+.wc-list.no li::before{content:"✗";color:var(--red);opacity:.55}
+.wc-list.yes li::before{content:"✓";color:var(--green);font-weight:700}
+
+/* Quote */
+.qblock {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-left: 3px solid var(--green);
+  border-radius: 0 20px 20px 0;
+  padding: 28px 32px; font-size: 15px; font-style: italic;
+  color: var(--ink2); line-height: 1.75; margin-bottom: 52px;
+  border-top: 1px solid var(--glass-border);
+  border-right: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+.qblock em{color:var(--green);font-style:normal;font-weight:600}
+
+/* ═══ MÓDULOS ═══ */
+.modules-grid {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  gap: 14px; margin-bottom: 40px;
+}
+.mod-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 20px; padding: 28px;
+  position: relative; overflow: hidden;
+  transition: all 0.3s var(--ease-spring);
+  box-shadow: var(--glass-shadow);
+}
+.mod-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+  border-color: rgba(255,255,255,0.95);
+}
+.mod-top-bar{position:absolute;top:0;left:0;right:0;height:3px;border-radius:3px 3px 0 0}
+.mod-icon{font-size:28px;margin-bottom:14px}
+.mod-name{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:8px;letter-spacing:-0.3px}
+.mod-desc{font-size:12.5px;color:var(--ink2);line-height:1.7;margin-bottom:14px}
+.mod-features{list-style:none}
+.mod-features li{font-size:12px;color:var(--ink3);padding-left:14px;position:relative;line-height:1.85}
+.mod-features li::before{content:"·";position:absolute;left:3px;color:var(--green);font-weight:700;font-size:16px;top:-1px}
+
+/* ═══ CÓMO FUNCIONA ═══ */
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:0;position:relative;margin-bottom:48px}
+.flow-line {
+  position: absolute; top: 32px; left: 10%; right: 10%; height: 2px;
+  background: linear-gradient(90deg,var(--green),var(--blue),var(--purple),var(--orange),var(--yellow));
+  z-index: 0; border-radius: 2px;
+  box-shadow: 0 0 12px rgba(29,158,117,0.3);
+}
+.flow-step{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 12px;position:relative;z-index:1}
+.fs-num {
+  width: 64px; height: 64px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 16px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.3s var(--ease-spring);
+}
+.fs-num:hover{transform:scale(1.15)}
+.fs-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:5px;letter-spacing:-0.3px}
+.fs-desc{font-size:11.5px;color:var(--ink2);line-height:1.65}
+
+/* ═══ GOOGLE ECOSYSTEM ═══ */
+.goog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.goog-grid-2{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:40px}
+.gc {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 18px; padding: 24px;
+  transition: all 0.25s var(--ease-spring);
+  box-shadow: var(--glass-shadow);
+}
+.gc:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,0,0,0.09);border-color:rgba(255,255,255,0.95)}
+.gc-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.gc-logo{font-size:24px}
+.gc-name{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:-0.3px}
+.gc-use{font-size:12px;color:var(--ink3);line-height:1.65;margin-bottom:12px}
+.gc-chip {
+  display: inline-block; font-size: 10px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 20px;
+  font-family: "DM Mono", monospace;
+}
+
+/* ═══ DATOS ═══ */
+.data-block {
+  background: linear-gradient(135deg, var(--ink) 0%, #1a1a2e 100%);
+  color: var(--bone); border-radius: 28px; padding: 56px;
+  margin-bottom: 40px; position: relative; overflow: hidden;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.2);
+}
+.data-block::before {
+  content: ""; position: absolute; top: -80px; right: -80px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(29,158,117,0.2) 0%, transparent 70%);
+}
+.data-block::after {
+  content: ""; position: absolute; bottom: -60px; left: -60px;
+  width: 250px; height: 250px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(74,144,226,0.15) 0%, transparent 70%);
+}
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;position:relative;z-index:1}
+.data-h {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: clamp(26px,3.5vw,42px); font-weight: 800;
+  line-height: 1.08; letter-spacing: -2px; margin-bottom: 16px; color: var(--white);
+}
+.data-h em{font-style:italic;font-family:"Instrument Serif",serif;font-weight:400;color:var(--green)}
+.data-p{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.85;margin-bottom:28px}
+.data-points{list-style:none}
+.data-points li{font-size:13.5px;color:rgba(255,255,255,0.82);line-height:1.9;padding-left:22px;position:relative}
+.data-points li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+.data-visual {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 18px; padding: 28px;
+  font-family: "DM Mono", monospace;
+}
+.dv-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:16px}
+.dv-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.06);font-size:12px}
+.dv-row:last-child{border-bottom:none}
+.dv-key{color:rgba(255,255,255,0.4)}
+.dv-val-green{color:#0CC78A;font-weight:600}
+.dv-val-red{color:#FF6B6B;font-weight:600}
+
+/* ═══ PRICING ═══ */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:48px}
+.pc {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 24px; padding: 32px; position: relative;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.3s var(--ease-spring), box-shadow 0.3s;
+}
+.pc:hover{transform:translateY(-4px);box-shadow:0 24px 64px rgba(0,0,0,0.1)}
+.pc.featured {
+  border-color: rgba(29,158,117,0.35);
+  background: rgba(230,244,238,0.5);
+  box-shadow: 0 0 0 3px rgba(29,158,117,0.1), var(--glass-shadow);
+  transform: scale(1.03);
+}
+.pc.featured:hover{transform:scale(1.03) translateY(-4px)}
+.pc-badge {
+  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--green) 0%, #0CC78A 100%);
+  color: white; font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 5px 18px; border-radius: 20px;
+  white-space: nowrap; box-shadow: 0 4px 16px var(--green-glow);
+  font-family: "DM Mono", monospace;
+}
+.pc-name{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;font-family:"DM Mono",monospace}
+.pc-price {
+  font-family: "Instrument Serif", serif;
+  font-size: 54px; font-weight: 400; line-height: 1; color: var(--ink); margin-bottom: 4px;
+}
+.pc-price sub{font-size:22px;font-family:"Bricolage Grotesque",sans-serif;font-weight:500;vertical-align:text-top;margin-top:10px;display:inline-block}
+.pc-period{font-size:12px;color:var(--ink3);margin-bottom:22px;font-family:"DM Mono",monospace}
+.pc-features{list-style:none;margin-bottom:24px}
+.pc-features li{font-size:13px;color:var(--ink2);line-height:2.1;padding-left:20px;position:relative}
+.pc-features li::before{content:"✓";position:absolute;left:0;font-size:11px;font-weight:700;color:var(--green);top:4px}
+.pc-features li.dim{color:var(--ink4)}.pc-features li.dim::before{content:"—";color:var(--ink4)}
+.pc-btn {
+  width: 100%; padding: 14px; border-radius: 40px;
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 13px; font-weight: 700; cursor: pointer; border: none;
+  transition: all 0.25s var(--ease-spring);
+}
+.pc-btn.main{background:linear-gradient(135deg,var(--green) 0%,#0CC78A 100%);color:white;box-shadow:0 8px 24px var(--green-glow)}
+.pc-btn.main:hover{transform:translateY(-2px);box-shadow:0 16px 40px var(--green-glow)}
+.pc-btn.sec{background:rgba(255,255,255,0.7);color:var(--ink);border:1.5px solid var(--border);backdrop-filter:blur(8px)}
+.pc-btn.sec:hover{border-color:var(--green);color:var(--green)}
+
+/* ═══ CTA FINAL ═══ */
+.cta-block {
+  background: linear-gradient(135deg, var(--green) 0%, #0F7A5A 50%, #0a5c44 100%);
+  border-radius: 32px; padding: 72px 56px; text-align: center;
+  position: relative; overflow: hidden; margin-bottom: 0;
+  box-shadow: 0 32px 80px rgba(29,158,117,0.3);
+}
+.cta-block::before {
+  content: ""; position: absolute; top: -80px; left: -80px;
+  width: 280px; height: 280px; border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+}
+.cta-block::after {
+  content: ""; position: absolute; bottom: -60px; right: -60px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+}
+/* Shimmer animado sobre CTA */
+.cta-shimmer {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.07) 50%, transparent 70%);
+  animation: shimmerLight 4s ease infinite;
+}
+.cta-block * {position:relative;z-index:1}
+.cta-h {
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: clamp(32px,4.5vw,58px); font-weight: 800;
+  line-height: 1.05; letter-spacing: -2.5px;
+  color: white; margin-bottom: 18px;
+}
+.cta-h em{font-style:italic;font-family:"Instrument Serif",serif;font-weight:400;opacity:.8}
+.cta-p{font-size:15px;color:rgba(255,255,255,0.72);line-height:1.8;max-width:520px;margin:0 auto 40px}
+.cta-btn {
+  display: inline-block;
+  background: white; color: var(--green);
+  font-family: "Bricolage Grotesque", sans-serif;
+  font-size: 14px; font-weight: 800;
+  border: none; padding: 18px 48px; border-radius: 40px;
+  cursor: pointer; transition: all 0.3s var(--ease-spring);
+  margin-bottom: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  letter-spacing: -0.3px;
+}
+.cta-btn:hover{transform:translateY(-3px);box-shadow:0 20px 48px rgba(0,0,0,0.25)}
+.cta-fine{font-size:12px;color:rgba(255,255,255,0.5);font-family:"DM Mono",monospace}
+
+/* ═══ DEMO CARD (hero right original → integrada como feature) ═══ */
+.demo-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border: 1.5px solid var(--glass-border);
+  border-radius: 20px; overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.09);
+}
+.demo-bar {
+  background: rgba(247,244,239,0.8); padding: 12px 16px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.demo-dot{width:10px;height:10px;border-radius:50%}
+.demo-title-bar{flex:1;text-align:center;font-size:11px;font-weight:500;color:var(--ink3);font-family:"DM Mono",monospace}
+.demo-screen{padding:20px}
+.demo-field{margin-bottom:14px}
+.demo-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink4);margin-bottom:5px;font-family:"DM Mono",monospace}
+.demo-input{background:rgba(247,244,239,0.8);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--ink);width:100%}
+.demo-ai-row{background:rgba(29,158,117,0.07);border:1px solid rgba(29,158,117,0.15);border-radius:12px;padding:14px;margin-bottom:14px}
+.demo-ai-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.demo-ai-text{font-size:12px;color:var(--ink2);line-height:1.65}
+.typing{display:inline-block}.typing::after{content:"|";animation:blink .8s infinite;color:var(--green)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.demo-save{width:100%;background:linear-gradient(135deg,var(--green),#0CC78A);color:white;border:none;border-radius:10px;padding:12px;font-family:"Bricolage Grotesque",sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 16px var(--green-glow)}
+.demo-drive-note{margin-top:8px;text-align:center;font-size:10px;color:var(--ink3);font-family:"DM Mono",monospace}
+
+/* ═══ FOOTER ═══ */
+footer {
+  background: linear-gradient(180deg, rgba(247,244,239,0.8) 0%, rgba(237,232,223,0.9) 100%);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 56px 0 36px;
+  position: relative; z-index: 2;
+}
+.foot-inner{max-width:1120px;margin:0 auto;padding:0 48px}
+.foot-top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.foot-brand{font-size:16px;font-weight:800;color:var(--ink);margin-bottom:10px;letter-spacing:-0.5px}
+.foot-brand span{color:var(--green)}
+.foot-tagline{font-size:12px;color:var(--ink3);line-height:1.75;max-width:240px}
+.foot-h{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--ink4);margin-bottom:14px;font-family:"DM Mono",monospace}
+.foot-ul{list-style:none}
+.foot-ul li{margin-bottom:8px}
+.foot-ul a{font-size:13px;color:var(--ink3);text-decoration:none;transition:color 0.15s}
+.foot-ul a:hover{color:var(--green)}
+.foot-bottom{border-top:1px solid var(--border);padding-top:24px;display:flex;justify-content:space-between;align-items:center}
+.foot-copy{font-size:12px;color:var(--ink4)}
+.foot-right{font-size:11px;font-family:"DM Mono",monospace;color:var(--ink4)}
+
+/* ═══ FADE ANIMATION ═══ */
+.fade{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease-out),transform .7s var(--ease-out)}
+.fade.in{opacity:1;transform:none}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:768px){
+  .hero-h{letter-spacing:-1.5px}
+  .what-grid,.modules-grid,.goog-grid,.goog-grid-2,.price-grid{grid-template-columns:1fr}
+  .data-grid{grid-template-columns:1fr;gap:32px}
+  .flow{grid-template-columns:1fr;gap:24px}
+  .flow-line{display:none}
+  .foot-top{grid-template-columns:1fr 1fr;gap:24px}
+  .sec,.sec-glass-inner{padding-left:24px;padding-right:24px}
+  .nav{padding:0 24px}
+  .hero-section{padding:60px 24px 40px}
+  .pc.featured{transform:none}
+  .cta-block{padding:48px 28px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">DentaXy <span class="seed">Seed</span></div>
+  <div class="nav-links">
+    <a class="nl" href="#que-es">¿Qué es?</a>
+    <a class="nl" href="#modulos">Módulos</a>
+    <a class="nl" href="#como-funciona">Cómo funciona</a>
+    <a class="nl" href="#google">Google Ecosystem</a>
+    <a class="nl" href="#datos">Tus datos</a>
+    <a class="nl" href="#precios">Precios</a>
+  </div>
+  <button class="nav-cta">Obtener acceso</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero-section">
+  <canvas id="hero-canvas"></canvas>
+
+  <!-- Texto superior -->
+  <div class="hero-text-top fade">
+    <div class="hero-label"><div class="hero-label-dot"></div>Preventa activa · Cupos limitados</div>
+    <h1 class="hero-h">El software dental<br>que piensa,<br><em>escribe y organiza</em><br>por ti.</h1>
+  </div>
+
+  <!-- Aquarium SVG -->
+  <div id="hero-aquarium">
+    <img class="aquarium-svg" src="seed-hero.svg" alt="DentaXy Seed — Planta digital creciendo en pecera" onerror="this.style.display='none'">
+  </div>
+
+  <!-- Texto inferior -->
+  <div class="hero-text-bottom fade">
+    <p class="hero-p">DentaXy Seed es un <strong>software dental completo</strong> diseñado para el consultorio mexicano. Llenas el formulario — Seed redacta la historia clínica sola, agenda tus citas, organiza a tus pacientes y guarda todo en tu propia nube de Google. <strong>Ningún dato tuyo toca nuestros servidores.</strong></p>
+    <p class="hero-guarantee">Tus expedientes viven en tu Google Drive, no en el nuestro.</p>
+    <div class="hero-btns">
+      <button class="btn-main">Obtener mi DentaXy Seed →</button>
+      <button class="btn-ghost">Ver cómo funciona</button>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST BAR -->
+<div class="trust">
+  <div class="trust-item"><span>📋</span> Historia clínica que se redacta sola</div>
+  <div class="trust-item"><span>📅</span> Agenda con Google Calendar</div>
+  <div class="trust-item"><span>💾</span> Todo guardado en tu Google Drive</div>
+  <div class="trust-item"><span>🔒</span> Cero datos en servidores DentaXy</div>
+  <div class="trust-item"><span>🌐</span> Sin instalar nada</div>
+</div>
+
+<div class="divider" style="margin-top:0"></div>
+
+<!-- QUÉ ES -->
+<section class="sec" id="que-es">
+  <div class="eyebrow">¿Qué es DentaXy Seed?</div>
+  <h2 class="sec-h">No es una plantilla.<br><em>Es tu consultorio digital.</em></h2>
+  <p class="sec-p">La mayoría del software dental es complicado, caro o guarda tus datos donde tú no puedes verlos. DentaXy Seed es diferente: es simple como un formulario, inteligente como un asistente, y transparente como el espejo de tu consultorio.</p>
+
+  <div class="what-grid fade">
+    <div class="what-card what-bad">
+      <div class="wc-badge badge-bad">❌ El problema hoy</div>
+      <div class="wc-title">Lo que vive en tu consultorio ahora</div>
+      <ul class="wc-list no">
+        <li>Historias clínicas escritas a mano o en Word</li>
+        <li>Las mismas frases repetidas consulta tras consulta</li>
+        <li>Expedientes en carpetas o cuadernos imposibles de buscar</li>
+        <li>Citas en papel, WhatsApp o en tu cabeza</li>
+        <li>Software que guarda datos en nubes que no controlas</li>
+        <li>Sistemas que tardaste semanas en aprender</li>
+        <li>Ninguna continuidad si cambias de dispositivo</li>
+      </ul>
+    </div>
+    <div class="what-card what-good">
+      <div class="wc-badge badge-good">✓ Con DentaXy Seed</div>
+      <div class="wc-title">Tu consultorio después del primer día</div>
+      <ul class="wc-list yes">
+        <li>La historia clínica se redacta automáticamente al llenar el formulario</li>
+        <li>Expedientes organizados y búsqueda instantánea</li>
+        <li>Agenda integrada con Google Calendar — sin abrir otra app</li>
+        <li>Todo guardado en tu Google Drive, organizado por folio y paciente</li>
+        <li>Cero datos en nuestros servidores — soberanía total</li>
+        <li>Listo en minutos, sin instalaciones ni configuraciones técnicas</li>
+        <li>Acceso desde cualquier dispositivo con tu cuenta de Google</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="qblock fade">
+    "El doctor llena el formulario. <em>DentaXy Seed hace la redacción.</em> El expediente aparece en tu Drive. Eso es todo."
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MÓDULOS -->
+<div class="sec-glass" id="modulos">
+<div class="sec-glass-inner">
+  <div class="eyebrow">Software completo</div>
+  <h2 class="sec-h">Todo lo que necesita<br><em>tu consultorio,</em> en uno.</h2>
+  <p class="sec-p">DentaXy Seed no es una sola función. Es un software dental completo que cubre cada parte de tu práctica clínica diaria, desde la llegada del paciente hasta el cobro.</p>
+
+  <div class="modules-grid fade">
+    <div class="mod-card">
+      <div class="mod-top-bar" style="background:var(--blue)"></div>
+      <div class="mod-icon">📋</div>
+      <div class="mod-name">Historia Clínica Automática</div>
+      <div class="mod-desc">El corazón de Seed. Llevas el formulario clínico sección por sección — Seed genera la redacción profesional completa en tiempo real, lista para expediente.</div>
+      <ul class="mod-features">
+        <li>22 secciones clínicas estructuradas</li>
+        <li>Redacción con lenguaje médico-dental profesional</li>
+        <li>Odontograma digital interactivo</li>
+        <li>Planeación de tratamiento generada automáticamente</li>
+        <li>Notas de evolución por consulta</li>
+      </ul>
+    </div>
+    <div class="mod-card">
+      <div class="mod-top-bar" style="background:var(--green)"></div>
+      <div class="mod-icon">📁</div>
+      <div class="mod-name">Expediente Digital</div>
+      <div class="mod-desc">Cada paciente tiene su expediente completo, organizado y buscable. El historial de todas sus consultas, en un lugar, siempre a la mano.</div>
+      <ul class="mod-features">
+        <li>Listado de pacientes con búsqueda instantánea</li>
+        <li>Historial completo por paciente</li>
+        <li>Expediente en formato PDF descargable</li>
+        <li>Adjuntar radiografías e imágenes clínicas</li>
+        <li>Folio único por expediente</li>
+      </ul>
+    </div>
+    <div class="mod-card">
+      <div class="mod-top-bar" style="background:var(--red)"></div>
+      <div class="mod-icon">📅</div>
+      <div class="mod-name">Agenda Clínica</div>
+      <div class="mod-desc">Crea y gestiona citas sin salir de DentaXy. Se sincroniza con tu Google Calendar y envía recordatorios automáticos a tus pacientes.</div>
+      <ul class="mod-features">
+        <li>Vista semanal de citas dentro de Seed</li>
+        <li>Citas sincronizadas con Google Calendar</li>
+        <li>Recordatorios automáticos al paciente</li>
+        <li>Historial de citas por paciente</li>
+        <li>Bloqueo de horarios de descanso</li>
+      </ul>
+    </div>
+    <div class="mod-card">
+      <div class="mod-top-bar" style="background:#34A853"></div>
+      <div class="mod-icon">💰</div>
+      <div class="mod-name">Control Financiero <span style="font-size:10px;color:var(--ink3);font-weight:400">(Semana 3)</span></div>
+      <div class="mod-desc">Registra cobros, saldos pendientes y genera un resumen financiero mensual de tu consultorio, integrado con Google Sheets.</div>
+      <ul class="mod-features">
+        <li>Cobro por consulta o tratamiento</li>
+        <li>Saldo pendiente por paciente</li>
+        <li>Resumen mensual automático en Sheets</li>
+        <li>Reporte de ingresos descargable</li>
+      </ul>
+    </div>
+    <div class="mod-card">
+      <div class="mod-top-bar" style="background:var(--purple)"></div>
+      <div class="mod-icon">📝</div>
+      <div class="mod-name">Formularios Pre-consulta <span style="font-size:10px;color:var(--ink3);font-weight:400">(Semana 4)</span></div>
+      <div class="mod-desc">El paciente llena su ficha de identificación y antecedentes desde su teléfono antes de llegar. Llega a la consulta con su expediente ya iniciado.</div>
+      <ul class="mod-features">
+        <li>Link personalizado para cada paciente</li>
+        <li>Datos se importan al expediente automáticamente</li>
+        <li>Ficha de identificación y antecedentes médicos</li>
+        <li>Sin papel, sin duplicar información</li>
+      </ul>
+    </div>
+    <div class="mod-card">
+      <div class="mod-top-bar" style="background:var(--orange)"></div>
+      <div class="mod-icon">🎤</div>
+      <div class="mod-name">Asistente de Voz <span style="font-size:10px;color:var(--ink3);font-weight:400">(Semana 5)</span></div>
+      <div class="mod-desc">Opera DentaXy con la voz mientras tienes las manos ocupadas. Dictado automático de notas clínicas en tiempo real, modo manos libres total.</div>
+      <ul class="mod-features">
+        <li>"DentaXy, nueva consulta para María"</li>
+        <li>Dictado de motivo de consulta y notas</li>
+        <li>Modo manos libres durante procedimientos</li>
+        <li>Sin costo adicional — nativo en el navegador</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="divider" style="margin:0"></div>
+
+<!-- CÓMO FUNCIONA -->
+<section class="sec" id="como-funciona">
+  <div class="eyebrow">Cómo funciona</div>
+  <h2 class="sec-h">De la llegada del paciente<br><em>al expediente guardado.</em></h2>
+  <p class="sec-p">Cinco pasos. Todo en un mismo lugar. Sin abrir otras apps, sin copiar y pegar, sin repetir lo mismo dos veces.</p>
+
+  <div class="flow fade" style="margin-bottom:48px">
+    <div class="flow-line"></div>
+    <div class="flow-step">
+      <div class="fs-num" style="background:var(--blue-l)">🔑</div>
+      <div class="fs-title">Entras a tu espacio</div>
+      <div class="fs-desc">tu-consultorio<br>.dentaxy.com<br>Solo tú y tu equipo</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="background:var(--green-l)">👤</div>
+      <div class="fs-title">Seleccionas o creas el paciente</div>
+      <div class="fs-desc">Busca en historial<br>o inicia ficha nueva<br>en segundos</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="background:var(--purple-l)">✏️</div>
+      <div class="fs-title">Llevas el formulario clínico</div>
+      <div class="fs-desc">Sección por sección.<br>Seed redacta todo<br>en tiempo real</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="background:var(--orange-l)">📄</div>
+      <div class="fs-title">El expediente está listo</div>
+      <div class="fs-desc">Historia clínica completa,<br>redactada y profesional.<br>En minutos.</div>
+    </div>
+    <div class="flow-step">
+      <div class="fs-num" style="background:var(--yellow-l)">☁️</div>
+      <div class="fs-title">Se guarda en tu Drive</div>
+      <div class="fs-desc">Automático. En tu carpeta.<br>Organizado por folio.<br>Para siempre tuyo.</div>
+    </div>
+  </div>
+
+  <div class="qblock fade">
+    "Nunca tocas Google Drive manualmente. <em>Seed lo hace invisible.</em> Tú solo ves tu consultorio — los expedientes aparecen solos donde deben estar."
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- GOOGLE ECOSYSTEM -->
+<div class="sec-glass" id="google">
+<div class="sec-glass-inner">
+  <div class="eyebrow">Ecosistema Google</div>
+  <h2 class="sec-h">Google trabaja para ti.<br><em>Sin que lo veas.</em></h2>
+  <p class="sec-p">DentaXy Seed está construido sobre el ecosistema de Google Workspace. Tú interactúas con Seed — Google opera invisiblemente en segundo plano para que tus datos sean tuyos, estén seguros y sean accesibles desde cualquier lugar.</p>
+
+  <div class="goog-grid fade">
+    <div class="gc">
+      <div class="gc-top">
+        <div class="gc-logo">📁</div>
+        <div><div class="gc-name">Google Drive</div><span class="gc-chip" style="background:var(--blue-l);color:var(--blue)">Almacenamiento principal</span></div>
+      </div>
+      <div class="gc-use">Todos tus expedientes se guardan automáticamente en tu propio Google Drive bajo la carpeta <span style="font-family:'DM Mono',monospace;font-size:11px">Dentaxy Seed/Expedientes/</span>. Tú eres el propietario absoluto.</div>
+    </div>
+    <div class="gc">
+      <div class="gc-top">
+        <div class="gc-logo">📅</div>
+        <div><div class="gc-name">Google Calendar</div><span class="gc-chip" style="background:var(--red-l);color:var(--red)">Agenda integrada</span></div>
+      </div>
+      <div class="gc-use">Creas citas desde Seed — aparecen solas en tu Google Calendar. Recordatorios automáticos al paciente. Sin abrir Calendar, sin configurar nada.</div>
+    </div>
+    <div class="gc">
+      <div class="gc-top">
+        <div class="gc-logo">📊</div>
+        <div><div class="gc-name">Google Sheets</div><span class="gc-chip" style="background:var(--green-l);color:var(--green)">Finanzas del consultorio</span></div>
+      </div>
+      <div class="gc-use">Tus cobros, saldos y resúmenes financieros se generan automáticamente en una hoja de Google Sheets en tu Drive. Sin formulas manuales.</div>
+    </div>
+  </div>
+  <div class="goog-grid-2 fade">
+    <div class="gc">
+      <div class="gc-top">
+        <div class="gc-logo">📝</div>
+        <div><div class="gc-name">Google Docs</div><span class="gc-chip" style="background:rgba(66,133,244,.1);color:#4285F4">Expediente editable</span></div>
+      </div>
+      <div class="gc-use">Opcionalmente, cada expediente se genera como Google Doc editable en tu Drive — puedes abrirlo, editarlo o compartirlo con un especialista al que referencias.</div>
+    </div>
+    <div class="gc">
+      <div class="gc-top">
+        <div class="gc-logo">📋</div>
+        <div><div class="gc-name">Google Forms</div><span class="gc-chip" style="background:var(--purple-l);color:var(--purple)">Pre-consulta digital</span></div>
+      </div>
+      <div class="gc-use">Envías un formulario al paciente antes de su cita. Llena sus datos desde su teléfono. Al llegar, su expediente ya está iniciado en Seed automáticamente.</div>
+    </div>
+    <div class="gc">
+      <div class="gc-top">
+        <div class="gc-logo">🔐</div>
+        <div><div class="gc-name">Google OAuth</div><span class="gc-chip" style="background:var(--yellow-l);color:var(--yellow)">Autenticación segura</span></div>
+      </div>
+      <div class="gc-use">Entras a DentaXy Seed con tu cuenta de Google. Sin crear contraseñas nuevas. La seguridad de Google protege tu consultorio digital.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- DATOS -->
+<section class="sec" id="datos" style="padding-bottom:40px">
+  <div class="eyebrow">Soberanía de datos</div>
+  <h2 class="sec-h">Tus expedientes son tuyos.<br><em>Siempre lo serán.</em></h2>
+  <p class="sec-p">Esta es la promesa más importante que hacemos. No es un detalle técnico — es la razón de ser de DentaXy Seed.</p>
+
+  <div class="data-block fade">
+    <div class="data-grid">
+      <div>
+        <h3 class="data-h">Ningún dato de tus pacientes<br>toca <em>nuestros servidores.</em></h3>
+        <p class="data-p">DentaXy Seed es el motor y la interfaz. El almacén eres tú. Todo lo que generas — expedientes, notas, planes de tratamiento, imágenes — se va directamente a tu Google Drive. Nosotros nunca lo vemos, nunca lo tocamos, nunca lo almacenamos.</p>
+        <ul class="data-points">
+          <li>Los expedientes se generan en tu dispositivo y se guardan en tu Drive</li>
+          <li>Si cancelas tu suscripción, tus datos siguen siendo tuyos en tu Drive</li>
+          <li>No puedes perder tus expedientes por una falla de nuestro lado</li>
+          <li>Cumplimiento con la Ley Federal de Protección de Datos (LFPDPPP)</li>
+          <li>El doctor es el controlador único de sus datos clínicos</li>
+        </ul>
+      </div>
+      <div>
+        <div class="data-visual">
+          <div class="dv-label">Flujo de datos DentaXy Seed</div>
+          <div class="dv-row"><span class="dv-key">Doctor llena formulario</span><span class="dv-val-green">Tu dispositivo</span></div>
+          <div class="dv-row"><span class="dv-key">Redacción generada</span><span class="dv-val-green">Tu dispositivo</span></div>
+          <div class="dv-row"><span class="dv-key">Expediente guardado</span><span class="dv-val-green">Tu Google Drive</span></div>
+          <div class="dv-row"><span class="dv-key">Cita registrada</span><span class="dv-val-green">Tu Google Calendar</span></div>
+          <div class="dv-row"><span class="dv-key">Finanzas</span><span class="dv-val-green">Tu Google Sheets</span></div>
+          <div class="dv-row"><span class="dv-key">Servidores DentaXy</span><span class="dv-val-red">0 datos clínicos</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PRICING -->
+<section class="sec" id="precios">
+  <div class="eyebrow">Precios de preventa</div>
+  <h2 class="sec-h">Elige el plan que va<br><em>con tu consultorio.</em></h2>
+  <p class="sec-p">Precios de preventa especiales mientras construimos junto a nuestros primeros doctores. Una vez que el precio sube, es permanente para los de preventa.</p>
+
+  <div class="price-grid fade">
+    <div class="pc">
+      <div class="pc-name">Solo</div>
+      <div class="pc-price"><sub>$</sub>149</div>
+      <div class="pc-period">MXN al mes · Preventa</div>
+      <ul class="pc-features">
+        <li>Historia clínica automática completa</li>
+        <li>Expedientes en tu Google Drive</li>
+        <li>Agenda con Google Calendar</li>
+        <li>1 usuario (el doctor)</li>
+        <li>Tu subdominio .dentaxy.com</li>
+        <li class="dim">Asistente de voz</li>
+        <li class="dim">Control financiero (Sheets)</li>
+        <li class="dim">Formularios pre-consulta</li>
+      </ul>
+      <button class="pc-btn sec">Obtener Solo</button>
+    </div>
+    <div class="pc featured">
+      <div class="pc-badge">Más popular</div>
+      <div class="pc-name">Clínica</div>
+      <div class="pc-price"><sub>$</sub>249</div>
+      <div class="pc-period">MXN al mes · Preventa</div>
+      <ul class="pc-features">
+        <li>Todo lo del plan Solo</li>
+        <li>Asistente de voz integrado</li>
+        <li>Control financiero (Google Sheets)</li>
+        <li>Formularios pre-consulta (Google Forms)</li>
+        <li>3 usuarios (doctor + asistentes)</li>
+        <li>Recordatorios automáticos al paciente</li>
+        <li>Soporte prioritario por WhatsApp</li>
+        <li class="dim">Módulo de imágenes intraorales</li>
+      </ul>
+      <button class="pc-btn main">Obtener Clínica →</button>
+    </div>
+    <div class="pc">
+      <div class="pc-name">Pro</div>
+      <div class="pc-price"><sub>$</sub>349</div>
+      <div class="pc-period">MXN al mes · Preventa</div>
+      <ul class="pc-features">
+        <li>Todo lo del plan Clínica</li>
+        <li>Módulo de imágenes intraorales</li>
+        <li>Múltiples usuarios ilimitados</li>
+        <li>Teleconsulta con Google Meet</li>
+        <li>Perfil verificado en Aura (directorio)</li>
+        <li>Exportación masiva de expedientes</li>
+        <li>Onboarding personalizado 1:1</li>
+        <li>Acceso anticipado a nuevos módulos</li>
+      </ul>
+      <button class="pc-btn sec">Obtener Pro</button>
+    </div>
+  </div>
+
+  <div style="text-align:center;font-size:12.5px;color:var(--ink3);line-height:1.8">
+    ✓ Sin contrato de permanencia &nbsp;·&nbsp; ✓ Cancela cuando quieras &nbsp;·&nbsp; ✓ Tus datos siempre en tu Drive &nbsp;·&nbsp; ✓ Configuración personalizada incluida
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="sec" style="padding-top:0">
+  <div class="cta-block">
+    <div class="cta-shimmer"></div>
+    <h2 class="cta-h">Tu consultorio merece<br>un sistema que trabaje<br><em>tan duro como tú.</em></h2>
+    <p class="cta-p">Únete a los primeros doctores que están transformando su práctica clínica con DentaXy Seed. Preventa activa — cupos limitados.</p>
+    <button class="cta-btn">Obtener mi DentaXy Seed</button>
+    <div class="cta-fine">Precio de preventa · Configuración personalizada incluida · Sin tarjeta requerida para empezar</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-top">
+      <div>
+        <div class="foot-brand">DentaXy <span>Seed</span></div>
+        <div class="foot-tagline">Software dental completo con historia clínica que se redacta sola y ecosistema Google invisible. Tus datos, tu nube, siempre. Una obra de VanGox · Zacatecas, México.</div>
+      </div>
+      <div>
+        <div class="foot-h">El software</div>
+        <ul class="foot-ul">
+          <li><a href="#">Historia clínica automática</a></li>
+          <li><a href="#">Expediente digital</a></li>
+          <li><a href="#">Agenda clínica</a></li>
+          <li><a href="#">Control financiero</a></li>
+          <li><a href="#">Asistente de voz</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-h">Google Ecosystem</div>
+        <ul class="foot-ul">
+          <li><a href="#">Google Drive sync</a></li>
+          <li><a href="#">Google Calendar</a></li>
+          <li><a href="#">Google Sheets</a></li>
+          <li><a href="#">Google Forms</a></li>
+          <li><a href="#">Google Meet</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="foot-h">DentaXy</div>
+        <ul class="foot-ul">
+          <li><a href="#">Precios</a></li>
+          <li><a href="#">hola@dentaxy.com</a></li>
+          <li><a href="#">VanGox</a></li>
+          <li><a href="#">Aviso de privacidad</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div class="foot-copy">© 2026 DentaXy · Una obra de VanGox · Zacatecas, México</div>
+      <div class="foot-right">El que define la categoría no compite. Dicta las reglas.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ─── Intersection Observer (fade in) ─── */
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("in") })
+}, { threshold: 0.08 });
+document.querySelectorAll(".fade").forEach(el => io.observe(el));
+
+/* ─── Canvas Partículas Hero ─── */
+(function() {
+  const canvas = document.getElementById("hero-canvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  const COLORS = [
+    "rgba(29,158,117,",   // verde
+    "rgba(74,144,226,",   // azul
+    "rgba(12,199,138,",   // verde claro
+    "rgba(255,255,255,"   // blanco
+  ];
+
+  function mkParticle() {
+    return {
+      x: Math.random() * W,
+      y: H + Math.random() * 60,
+      r: 1.5 + Math.random() * 4,
+      speed: 0.4 + Math.random() * 0.8,
+      drift: (Math.random() - 0.5) * 0.4,
+      alpha: 0.15 + Math.random() * 0.55,
+      alphaDir: Math.random() > 0.5 ? 1 : -1,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      phase: Math.random() * Math.PI * 2
+    };
+  }
+
+  for (let i = 0; i < 55; i++) {
+    const p = mkParticle();
+    p.y = Math.random() * H; // iniciar distribuidas
+    particles.push(p);
+  }
+
+  function tick(t) {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      // Movimiento sinusoidal
+      p.x += p.drift + Math.sin(t * 0.0008 + p.phase) * 0.3;
+      p.y -= p.speed;
+      p.alpha += p.alphaDir * 0.004;
+      if (p.alpha > 0.72) p.alphaDir = -1;
+      if (p.alpha < 0.1) p.alphaDir = 1;
+
+      if (p.y < -10) {
+        Object.assign(p, mkParticle());
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + p.alpha + ")";
+      ctx.fill();
+    });
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ─── Typing animation (demo card) ─── */
+const texts = [
+  "pulpitis irreversible",
+  "proceso periapical crónico",
+  "caries de dentina profunda",
+  "gingivitis asociada a placa",
+  "maloclusión clase II división 1"
+];
+let ti = 0, ci = 0, del = false;
+const typingEl = document.querySelector(".typing");
+if (typingEl) {
+  setInterval(() => {
+    const t = texts[ti];
+    if (!del) {
+      typingEl.textContent = t.slice(0, ++ci);
+      if (ci === t.length) { del = true; }
+    } else {
+      typingEl.textContent = t.slice(0, --ci);
+      if (ci === 0) { del = false; ti = (ti + 1) % texts.length; }
+    }
+  }, del ? 40 : 80);
+}
+</script>
+</body>
+</html>

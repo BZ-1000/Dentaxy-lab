@@ -78,7 +78,7 @@ export function BiometricLockScreen({ onUnlock }: BiometricLockScreenProps) {
         setError('');
 
         try {
-            if (password === 'SINGULARIDAD.1000') {
+            if (password === 'Singularidad.1000') {
                 toast.success('Panel desbloqueado exitosamente');
                 unlock();
                 onUnlock();

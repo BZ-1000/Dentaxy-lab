@@ -214,9 +214,9 @@ function App() {
                   {/* Dentaxy Singularity Workspace */}
                   <Route path="/singularity" element={<SingularityPage />} />
 
-                  {/* Dentaxy Seed */}
-                  <Route path="/seed" element={<SeedLogin />} />
-                  <Route path="/seed/overview" element={<SeedLanding />} />
+                  {/* Dentaxy Seed — Landing pública directa, sin código de preventa */}
+                  <Route path="/seed" element={<SeedLanding />} />
+                  <Route path="/seed/login" element={<SeedLogin />} />
 
                   {/* Dentaxy Ecosistema — Páginas de cada producto */}
                   <Route path="/lab" element={<LabPage />} />
