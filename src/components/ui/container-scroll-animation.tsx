@@ -88,7 +88,7 @@ export const Card = ({
         boxShadow:
           "0 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05), 0 12px 24px rgba(0, 0, 0, 0.05)",
       }}
-      className="max-w-[1350px] md:-mt-36 -mt-16 mx-auto h-[32rem] md:h-[52rem] w-full relative z-20"
+      className="max-w-[1350px] md:-mt-36 -mt-16 mx-auto h-[26rem] md:h-[38rem] w-full relative z-20"
     >
       {/* Texto "POWERED BY Google" al estilo de SEED */}
       <div 
