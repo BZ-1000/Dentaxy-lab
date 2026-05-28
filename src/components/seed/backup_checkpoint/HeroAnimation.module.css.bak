@@ -1,0 +1,212 @@
+/* ══════════════════════════════════════════════════
+   HERO ANIMATION — DentaXy Seed (Aceternity Custom)
+   Fondo negro, título monumental detrás de las manos
+   Glow neón en el tercio inferior derecho
+   ══════════════════════════════════════════════════ */
+
+.container {
+  width: 100vw;
+  background: #000000;
+  position: relative;
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── EFECTO LUMÍNICO NEÓN (Debajo de las manos y texto) ── */
+.neonGlowAtmosphere {
+  display: none; /* Eliminado por requerimiento del usuario */
+  position: absolute;
+  inset: 0;
+  z-index: 1; /* Encima de fondo negro, debajo de imágenes/texto */
+  pointer-events: none;
+  background: 
+    radial-gradient(
+      ellipse 30% 25% at 78% 95%,
+      rgba(34, 197, 94, 0.6) 0%,
+      rgba(34, 197, 94, 0.0) 100%
+    ),
+    radial-gradient(
+      ellipse 60% 50% at 65% 100%,
+      rgba(34, 197, 94, 0.35) 0%,
+      rgba(0, 0, 0, 0) 70%
+    );
+  mix-blend-mode: screen;
+  opacity: 0.95;
+}
+
+/* ── NAVBAR ── */
+.navbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 32px 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 30;
+}
+
+.navLinks {
+  display: flex;
+  gap: 48px;
+}
+
+.navLink {
+  font-family: 'Cooper Hewitt', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.navLink:hover {
+  color: #ffffff;
+}
+
+/* ── ALIGNMENT WRAPPER ── */
+.alignmentWrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  min-width: 900px;
+  max-width: 1920px;
+  transform: translate(-50%, -46%);
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  pointer-events: none;
+  container-type: inline-size;
+}
+
+/* ── TÍTULO CENTRAL (DETRÁS de las manos) ── */
+.centralTitleWrapper {
+  position: relative;
+  text-align: center;
+  z-index: 2; /* Por debajo de las manos (z:5) */
+  width: 100%;
+  pointer-events: none;
+  margin-top: -25.5cqw; /* Ajustado un poco hacia abajo */
+  left: 0.8cqw; /* Ajustado levemente a la derecha */
+}
+
+.mainTitle {
+  font-family: var(--s-font-display, 'Orbitron', sans-serif);
+  font-size: 13.5cqw; /* Aumentado para hacerlo más monumental */
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 0.95;
+  letter-spacing: 0.05em;
+  margin: 0;
+  position: relative;
+  top: -1.2cqw; /* Ajustado levemente hacia abajo */
+}
+
+.subTitle {
+  font-family: var(--s-font-display, 'Orbitron', sans-serif);
+  font-size: 2.9cqw; /* Ajuste fino (antes 3.1cqw) */
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: 0.5em;
+  margin-top: 1.3cqw; /* Ajustado un poco hacia abajo */
+  text-indent: 0.5em;
+  position: relative;
+  left: -1.6cqw; /* Ajustado muy poco a la derecha */
+}
+
+/* ── Manos 1920x1080 (Pantalla Completa) ── */
+.handHumanBase {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 5;
+  pointer-events: none;
+  transform: translateY(-12%);
+  filter: none;
+}
+
+.handHumanShadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 4;
+  pointer-events: none;
+  transform: translateY(-12%);
+  filter: drop-shadow(0 -10px 8px rgba(0, 0, 0, 0.9));
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 65%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 65%, transparent 100%);
+}
+
+.handRobotBase {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 5;
+  pointer-events: none;
+  transform: translateY(-12%);
+  filter: none;
+}
+
+.handRobotShadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  z-index: 4;
+  pointer-events: none;
+  transform: translateY(-12%);
+  filter: drop-shadow(0 -10px 8px rgba(0, 0, 0, 0.9));
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 65%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 0%, black 50%, transparent 65%, transparent 100%);
+}
+
+/* ── "POWERED BY Google" ── */
+.poweredByRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  position: absolute;
+  bottom: 4vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 12;
+}
+
+.poweredByText {
+  font-family: var(--s-font-display, 'Orbitron', sans-serif);
+  font-size: clamp(10px, 1.2vw, 14px);
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+/* ── Responsivo ── */
+@media (max-width: 1024px) {
+  .navbar { padding: 24px; }
+  .navLinks { display: none; }
+}
+
+@media (max-width: 768px) {
+  /* Let the typography scale with container queries for perfect alignment */
+}

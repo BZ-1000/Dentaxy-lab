@@ -161,12 +161,10 @@ export const SeedDemoMockup: React.FC = () => {
       <style>{`
         @keyframes glowPulseNeon {
           0% {
-            opacity: 0.7;
-            transform: translateX(-50%) scaleX(0.95);
+            opacity: 0.6;
           }
           100% {
             opacity: 1;
-            transform: translateX(-50%) scaleX(1.05);
           }
         }
       `}</style>

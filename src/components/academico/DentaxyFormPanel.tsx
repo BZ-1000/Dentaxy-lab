@@ -420,23 +420,21 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
         }}
         transition={isDraggingSplit ? { duration: 0 } : { type: 'spring', stiffness: 350, damping: 30 }}
         className={cn(
-          "flex flex-col relative h-full overflow-hidden shrink-0 will-change-[width]",
+          "flex flex-col relative h-full shrink-0 will-change-[width]", /* CLAVE: quitamos overflow-hidden para que position:sticky del ProgressLine funcione */
           isDocumentOpen && isMobile && "hidden"
         )}
       >
-        {/* 1. Global Navigation: Progress Line (Sticky Top) */}
-        <div className="w-full sticky top-0 z-[9999] bg-transparent transition-all border-b border-transparent pointer-events-none">
-          <div className="pointer-events-auto">
-            <ProgressLine
-              totalSteps={seccionesActivas.length}
-              currentStep={currentStep}
-              isGenerating={isGenerating}
-              stepNames={seccionesActivas.map(s => s.nombre)}
-              onStepClick={handleStepClick}
-              stepStatuses={getStepStatuses() as any}
-              isScrolled={isScrolled}
-            />
-          </div>
+        {/* 1. Global Navigation: Progress Line (Fixed Top) */}
+        <div className="w-full relative z-50 bg-transparent transition-all border-b border-transparent pointer-events-auto">
+          <ProgressLine
+            totalSteps={seccionesActivas.length}
+            currentStep={currentStep}
+            isGenerating={isGenerating}
+            stepNames={seccionesActivas.map(s => s.nombre)}
+            onStepClick={handleStepClick}
+            stepStatuses={getStepStatuses() as any}
+            isScrolled={isScrolled}
+          />
         </div>
 
         {/* Main Content Area */}

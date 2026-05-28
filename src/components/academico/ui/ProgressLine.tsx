@@ -56,7 +56,7 @@ export const ProgressLine = React.memo<ProgressLineProps>(({
 
     return (
         <motion.div
-            className="w-full bg-transparent flex flex-col items-center justify-center select-none z-[9999] transition-colors will-change-[height]"
+            className="w-full bg-transparent flex flex-col items-center justify-center select-none z-50 transition-colors will-change-[height] pointer-events-auto"
             animate={{
                 // REMOVED ALL BORDERS -> Clean floating look
                 height: isScrolled ? 24 : 96, // Compact (24px) vs Full (96px)

@@ -5,9 +5,11 @@ import { useScroll, useTransform, motion, MotionValue } from "framer-motion";
 export const ContainerScroll = ({
   titleComponent,
   children,
+  cardClassName,
 }: {
   titleComponent: string | React.ReactNode;
   children: React.ReactNode;
+  cardClassName?: string;
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -49,9 +51,14 @@ export const ContainerScroll = ({
         }}
       >
         <Header translate={translate} titleComponent={titleComponent} />
-        <Card rotate={rotate} translate={translate} scale={scale}>
-          {children}
-        </Card>
+        <div
+          className="w-full relative z-20 pointer-events-none"
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          <Card rotate={rotate} translate={translate} scale={scale} className={`${cardClassName || ''} pointer-events-auto`}>
+            {children}
+          </Card>
+        </div>
       </div>
     </div>
   );
@@ -62,8 +69,9 @@ export const Header = ({ translate, titleComponent }: any) => {
     <motion.div
       style={{
         translateY: translate,
+        pointerEvents: "none"
       }}
-      className="max-w-7xl mx-auto text-center relative z-30"
+      className="max-w-7xl mx-auto text-center relative z-30 pointer-events-none"
     >
       {titleComponent}
     </motion.div>
@@ -73,22 +81,28 @@ export const Header = ({ translate, titleComponent }: any) => {
 export const Card = ({
   rotate,
   scale,
+  translate,
   children,
+  className,
 }: {
   rotate: MotionValue<number>;
   scale: MotionValue<number>;
   translate: MotionValue<number>;
   children: React.ReactNode;
+  className?: string;
 }) => {
   return (
     <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 1.5, duration: 4.0, ease: "easeOut" }}
       style={{
         rotateX: rotate, // rotate in X
         scale,
         boxShadow:
           "0 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05), 0 12px 24px rgba(0, 0, 0, 0.05)",
       }}
-      className="max-w-[1350px] md:-mt-36 -mt-16 mx-auto h-[26rem] md:h-[38rem] w-full relative z-20"
+      className={`max-w-[1350px] md:-mt-36 -mt-16 mx-auto h-[26rem] md:h-[38rem] w-full relative z-20 ${className || ''}`}
     >
       {/* Texto "POWERED BY Google" al estilo de SEED */}
       <div 
@@ -121,27 +135,48 @@ export const Card = ({
       {/* ── EFECTO DE LUZ NEÓN DUAL (NÚCLEO BLANCO INTENSO CON AURA VERDE DE ALTO CONTRASTE) ── */}
       
       {/* A. Capas de Brillo Verde de Alto Contraste (Alrededor del Blanco, desvanecido lateral suave) */}
+      
+      {/* @keyframes — padre único, solo opacity, rango estrecho (sin rayas) */}
+      <style>{`
+        @keyframes neonGroupBreathe {
+          0%            { opacity: 0.65; }
+          25%, 75%      { opacity: 1.00; }
+          100%          { opacity: 0.65; }
+        }
+      `}</style>
+
+      {/* Padre animado: los 3 glows verdes pulsan como UNA sola unidad.
+          Sin desfase entre capas → sin interferencia → sin rayas de tigre */}
+      <div
+        className="absolute pointer-events-none z-[-2]"
+        style={{
+          inset: 0,
+          animation: "neonGroupBreathe 12s ease-in-out 0s infinite",
+          willChange: "opacity",
+        }}
+      >
       {/* 1. Halo verde gigante exterior difuso (Desvanecimiento lateral orgánico) */}
       <div 
-        className="absolute -top-[160px] left-1/2 -translate-x-1/2 w-[120%] max-w-[1600px] h-[300px] pointer-events-none z-[-2] blur-[70px] opacity-100 rounded-full"
+        className="absolute -top-[160px] left-1/2 -translate-x-1/2 w-[120%] max-w-[1600px] h-[300px] pointer-events-none blur-[70px] opacity-100 rounded-full"
         style={{
           background: "radial-gradient(ellipse at center bottom, rgba(52, 211, 153, 1) 0%, rgba(16, 185, 129, 0.95) 35%, rgba(52, 211, 153, 0.3) 70%, rgba(0, 0, 0, 0) 100%)"
         }}
       />
       {/* 2. Aura verde brillante intermedia de alta densidad */}
       <div 
-        className="absolute -top-[90px] left-1/2 -translate-x-1/2 w-[95%] max-w-[1250px] h-[160px] pointer-events-none z-[-2] blur-[30px] opacity-90 rounded-full"
+        className="absolute -top-[90px] left-1/2 -translate-x-1/2 w-[95%] max-w-[1250px] h-[160px] pointer-events-none blur-[30px] opacity-90 rounded-full"
         style={{
           background: "radial-gradient(ellipse at center bottom, rgba(52, 211, 153, 1) 0%, rgba(16, 185, 129, 0.8) 45%, rgba(0, 0, 0, 0) 90%)"
         }}
       />
       {/* 3. Domo Verde Central Estirado (Exclusivo en el centro hacia arriba, sin ensanchar los bordes) */}
       <div 
-        className="absolute -top-[210px] left-1/2 -translate-x-1/2 w-[45%] max-w-[600px] h-[320px] pointer-events-none z-[-2] blur-[50px] opacity-100 rounded-full"
+        className="absolute -top-[210px] left-1/2 -translate-x-1/2 w-[45%] max-w-[600px] h-[320px] pointer-events-none blur-[50px] opacity-100 rounded-full"
         style={{
           background: "radial-gradient(ellipse at center bottom, rgba(52, 211, 153, 1) 0%, rgba(16, 185, 129, 0.75) 45%, rgba(0, 0, 0, 0) 85%)"
         }}
       />
+      </div>
 
       {/* B. Capas de Luz Blanca Central Superior (Restauradas a blanco puro original) */}
       {/* 1. Núcleo blanco brillante principal (Más ancho a los lados) */}
