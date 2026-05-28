@@ -223,27 +223,27 @@
 }
 
 .mainTitle {
-  font-family: var(--s-font-display, 'Orbitron', sans-serif);
-  font-size: 13.5cqw; /* Aumentado para hacerlo más monumental */
-  font-weight: 900;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13.5cqw; /* Restaurado para Orbitron */
+  font-weight: 900; /* Orbitron se ve imponente en 900 */
   color: #ffffff;
   line-height: 0.95;
   letter-spacing: 0.05em;
   margin: 0;
   position: relative;
-  top: -1.2cqw; /* Ajustado levemente hacia abajo */
+  top: -1.2cqw;
 }
 
 .subTitle {
-  font-family: var(--s-font-display, 'Orbitron', sans-serif);
-  font-size: 2.9cqw; /* Ajuste fino (antes 3.1cqw) */
+  font-family: 'Orbitron', sans-serif;
+  font-size: 2.9cqw; /* Restaurado para Orbitron */
   font-weight: 500;
   color: #ffffff;
   letter-spacing: 0.5em;
-  margin-top: 1.3cqw; /* Ajustado un poco hacia abajo */
+  margin-top: 1.3cqw;
   text-indent: 0.5em;
   position: relative;
-  left: -1.6cqw; /* Ajustado muy poco a la derecha */
+  left: -1.6cqw;
 }
 
 /* ── Manos 1920x1080 (Pantalla Completa) ── */

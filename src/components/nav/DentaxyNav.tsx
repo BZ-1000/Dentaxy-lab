@@ -138,10 +138,10 @@ const MegaMenuItem: React.FC<{ item: NavSubItem; onClose: () => void }> = ({ ite
   <Link
     to={item.href}
     onClick={onClose}
-    className="group flex items-start gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-all duration-200"
+    className="group flex items-start gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-all duration-75"
   >
     {/* Ícono */}
-    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${item.iconBg} group-hover:scale-110 transition-transform duration-300`}>
+    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${item.iconBg} group-hover:scale-110 transition-transform duration-100`}>
       {item.icon}
     </div>
 
@@ -157,17 +157,17 @@ const MegaMenuItem: React.FC<{ item: NavSubItem; onClose: () => void }> = ({ ite
     </div>
 
     {/* Arrow */}
-    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 group-hover:translate-x-1 transition-all duration-200 mt-1 shrink-0" />
+    <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-gray-500 group-hover:translate-x-1 transition-all duration-100 mt-1 shrink-0" />
   </Link>
 );
 
 // ─── Sub-componente: Mega-menú desplegable ────────────────────────────────────
 const MegaMenu: React.FC<{ onClose: () => void }> = ({ onClose }) => (
   <motion.div
-    initial={{ opacity: 0, y: 8, scale: 0.98 }}
+    initial={{ opacity: 0, y: 4, scale: 0.99 }}
     animate={{ opacity: 1, y: 0, scale: 1 }}
-    exit={{ opacity: 0, y: 8, scale: 0.98 }}
-    transition={{ duration: 0.2, ease: "easeOut" }}
+    exit={{ opacity: 0, y: 4, scale: 0.99 }}
+    transition={{ duration: 0.1, ease: "easeOut" }}
     className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-[780px] max-w-[calc(100vw-2rem)] bg-white/95 backdrop-blur-xl border border-gray-100 rounded-3xl shadow-2xl shadow-black/10 overflow-hidden z-50"
   >
     {/* Cabecera del menú */}

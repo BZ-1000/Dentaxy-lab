@@ -12,6 +12,7 @@ interface ProgressLineProps {
     onStepClick: (index: number) => void;
     stepStatuses: StepStatus[];
     isScrolled?: boolean;
+    disableAutoScroll?: boolean;
 }
 
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,7 +24,8 @@ export const ProgressLine = React.memo<ProgressLineProps>(({
     stepNames,
     onStepClick,
     stepStatuses,
-    isScrolled: isScrolled = false
+    isScrolled: isScrolled = false,
+    disableAutoScroll = false
 }) => {
     // Dimensions
     const ITEM_WIDTH = 28; // w-7
@@ -41,7 +43,7 @@ export const ProgressLine = React.memo<ProgressLineProps>(({
     const activeStepRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
-        if (activeStepRef.current && scrollContainerRef.current) {
+        if (!disableAutoScroll && activeStepRef.current && scrollContainerRef.current) {
             // Check if scrolling is needed (mobile)
             const container = scrollContainerRef.current;
             if (container.scrollWidth > container.clientWidth) {

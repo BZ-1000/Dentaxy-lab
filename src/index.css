@@ -118,8 +118,17 @@
     }
 }
 /* ============================================================
-   DENTAXY — SCROLLBAR FANTASMA (ultra-tenue, no roba atención)
+   DENTAXY — SCROLLBAR FANTASMA (oculto en navegador principal, ultra-tenue en componentes)
    ============================================================ */
+/* Ocultar barra de scroll del navegador a nivel global */
+html::-webkit-scrollbar {
+  display: none !important;
+}
+html {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important;  /* IE/Edge */
+}
+
 .dentaxy-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: rgba(16, 185, 129, 0.15) transparent;

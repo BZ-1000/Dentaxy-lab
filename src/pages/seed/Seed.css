@@ -4,7 +4,7 @@
    Paleta: Blanco puro · Verde vibrante · Tinta oscura
    ════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Stalinist+One&family=Audiowide&family=Syncopate:wght@400;700&family=Orbitron:wght@400;500;700;900&display=swap');
 
 /* ── TOKENS ── */
 :root {
@@ -110,10 +110,10 @@
   z-index: 1; /* Por encima de los blobs */
 }
 
-/* Para la sección que sigue al Hero, agregar un ligero margen superior para solape natural */
+/* Para la sección que sigue al Hero, asegurar que no corte el demo interactivo */
 .seed-section.first-after-hero {
-  margin-top: -15vh;
-  padding-top: 25vh;
+  margin-top: 5vh; /* Cambiado a positivo para que el demo respire y no se vea cortado */
+  padding-top: 10vh;
   z-index: 2;
   border-top-left-radius: 40px;
   border-top-right-radius: 40px;

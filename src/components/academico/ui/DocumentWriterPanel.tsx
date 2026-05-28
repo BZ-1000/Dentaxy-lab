@@ -52,9 +52,11 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
       if (activeIds.length > 0) {
         const lastId = activeIds[activeIds.length - 1];
         const el = document.getElementById(`doc-section-${lastId}`);
-        if (el) {
+        const container = scrollContainerRef.current;
+        if (el && container) {
           setTimeout(() => {
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const topPos = el.getBoundingClientRect().top - container.getBoundingClientRect().top + container.scrollTop;
+            container.scrollTo({ top: topPos - 40, behavior: 'smooth' });
           }, 100);
         }
       }
