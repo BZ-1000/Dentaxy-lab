@@ -1,0 +1,32 @@
+<h2>Especificación de Diseño de Animaciones: Dentaxy Seed</h2>
+<p class="subtitle">Estructura técnica de movimiento interactivo y transiciones ultra-limpias (Cero Bugs)</p>
+
+<div class="section">
+  <h3>1. Landing Page (Bento Grid y Secciones Inferiores)</h3>
+  <p><strong>Restricción: El Hero Section permanece 100% intacto.</strong></p>
+  <ul>
+    <li><strong>Aparición en Scroll (Staggered Fade-Up):</strong> Las tarjetas Bento no aparecen todas a la vez; se revelan una a una en cascada rápida con un desfase de 0.08 segundos y un desplazamiento vertical de apenas 15px, dando una sensación de fluidez y ligereza.</li>
+    <li><strong>Hover Táctil Elástico (Cards):</strong> Al pasar el mouse por encima de cualquier Bento Card, se aplica un resorte amortiguado de baja amplitud (<code>scale: 1.015</code>), un cambio suave del borde hacia un tono verde oliva/neón muy apagado y un resplandor translúcido.</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>2. Demo Clínico Interactivo (Componente de Llenado de Fichas)</h3>
+  <ul>
+    <li><strong>Shared Layout Transitions (Pestañas):</strong> Usaremos la potente propiedad <code>layoutId</code> de Framer Motion en el indicador de la pestaña activa (p. ej., "Antecedentes", "Odontograma"). Cuando el usuario cambia de sección, la línea de selección se deslizará físicamente entre las opciones como si fuera líquida, igual que en <em>factory.ai</em>.</li>
+    <li><strong>Redacción de Texto Fluida:</strong> La simulación del autocompletado de la historia clínica se presentará palabra por palabra con desvanecimiento de opacidad progresivo, en lugar de aparecer bruscamente, simulando un flujo orgánico y técnico.</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h3>3. Login & Onboarding (Conexión de Cuentas y Carga)</h3>
+  <ul>
+    <li><strong>Carrusel de Pasos Horizontal:</strong> El cambio de pasos en el login (Código a Google, y de Google a Bienvenida) se animará con deslizamientos laterales elásticos y desvanecimiento cruzado coordinado.</li>
+    <li><strong>Estabilidad en Carga de Órbitas:</strong> Las órbitas y absorción de los iconos de Google se optimizarán para que utilicen aceleración directa de GPU en los ejes de renderizado, evitando cualquier micro-salto o bug en pantallas de alta frecuencia (120Hz).</li>
+  </ul>
+</div>
+
+<div class="section" style="margin-top: 30px; text-align: center;">
+  <h3>¿Qué opinas de esta estructura de animaciones?</h3>
+  <p class="subtitle">Puedes elegir proceder con este plan exacto o solicitar algún ajuste aquí en la terminal.</p>
+</div>

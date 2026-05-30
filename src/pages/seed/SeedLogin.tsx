@@ -95,34 +95,70 @@ const StepGoogle: React.FC<{ onNext: (user: GoogleUser) => void }> = ({ onNext }
 
   return (
     <motion.div
-      initial="hidden" animate="visible" exit={{ opacity: 0, y: -16 }}
+      initial="hidden" animate="visible" exit={{ opacity: 0, y: -20, scale: 0.95 }}
       variants={stagger}
       className="space-y-8 flex flex-col items-center text-center max-w-md w-full"
     >
-      {/* Eliminado el check de preventa verificado */}
-
       {/* Google Logo + Texto */}
       <motion.div variants={fadeUp} className="space-y-3">
-        <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 tracking-tight">
           Conecta tu <span className="gradient-text">Google Account</span>
         </h2>
-        <p className="text-gray-500 max-w-sm text-sm leading-relaxed">
+        <p className="text-gray-500 max-w-sm text-sm leading-relaxed mx-auto">
           Tu cuenta de Google es el corazón de tu Dentaxy Seed. Tus expedientes se organizarán
-          automáticamente en <strong className="text-blue-600">tu propia Google Drive</strong>, con total privacidad y soberanía de tus datos.
+          automáticamente en <strong>tu propia Google Drive</strong>, con total privacidad y soberanía de tus datos.
         </p>
       </motion.div>
 
-      {/* Permisos que pedimos explicados */}
+      {/* Grid del Ecosistema de Google - Iconos grandes con nombres al lado */}
+      <motion.div 
+        variants={fadeUp} 
+        className="grid grid-cols-2 gap-3.5 w-full mt-2"
+      >
+        <div className="flex items-center gap-3 bg-neutral-50/70 hover:bg-neutral-50 p-3 rounded-2xl border border-neutral-100 hover:scale-[1.02] hover:shadow-md hover:shadow-neutral-200/50 transition-all duration-300 group">
+          <img src="/logos/google-drive.png" alt="Google Drive" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
+          <div className="text-left leading-tight">
+            <p className="text-sm font-bold text-gray-800">Google Drive</p>
+            <p className="text-[10px] text-gray-400 font-medium">Expedientes Clínicos</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 bg-neutral-50/70 hover:bg-neutral-50 p-3 rounded-2xl border border-neutral-100 hover:scale-[1.02] hover:shadow-md hover:shadow-neutral-200/50 transition-all duration-300 group">
+          <img src="/logos/google-calendar.png" alt="Google Calendar" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
+          <div className="text-left leading-tight">
+            <p className="text-sm font-bold text-gray-800">Google Calendar</p>
+            <p className="text-[10px] text-gray-400 font-medium">Agenda de Citas</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 bg-neutral-50/70 hover:bg-neutral-50 p-3 rounded-2xl border border-neutral-100 hover:scale-[1.02] hover:shadow-md hover:shadow-neutral-200/50 transition-all duration-300 group">
+          <img src="/logos/gmail.png" alt="Google Gmail" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
+          <div className="text-left leading-tight">
+            <p className="text-sm font-bold text-gray-800">Google Gmail</p>
+            <p className="text-[10px] text-gray-400 font-medium">Notificaciones</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 bg-neutral-50/70 hover:bg-neutral-50 p-3 rounded-2xl border border-neutral-100 hover:scale-[1.02] hover:shadow-md hover:shadow-neutral-200/50 transition-all duration-300 group">
+          <img src="/logos/google-sheets.png" alt="Google Sheets" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
+          <div className="text-left leading-tight">
+            <p className="text-sm font-bold text-gray-800">Google Sheets</p>
+            <p className="text-[10px] text-gray-400 font-medium">Estadísticas Clínicas</p>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Permisos requeridos explicados de forma premium */}
       <motion.div variants={fadeUp} className="w-full space-y-2">
         {[
-          { label: 'Tu nombre y foto de perfil', sub: 'Para personalizar tu espacio de trabajo' },
-          { label: 'Acceso a archivos de Drive (solo los de Dentaxy)', sub: 'Nunca vemos archivos de tu Drive previos' },
+          { label: 'Tu identidad y perfil básico', sub: 'Personalización inmediata de tu consultorio' },
+          { label: 'Acceso exclusivo a la carpeta Dentaxy', sub: 'Privacidad absoluta en tu propia nube' },
         ].map((item, i) => (
-          <div key={i} className="flex items-start gap-3 text-left px-4 py-3 rounded-xl bg-blue-50/60 border border-blue-100">
-            <CheckCircle2 className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
+          <div key={i} className="flex items-start gap-3 text-left px-4 py-3 rounded-2xl bg-blue-50/50 border border-blue-100/50">
+            <CheckCircle2 className="w-4.5 h-4.5 text-blue-500 mt-0.5 shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-gray-900">{item.label}</p>
-              <p className="text-xs text-gray-500">{item.sub}</p>
+              <p className="text-xs font-bold text-gray-800">{item.label}</p>
+              <p className="text-[11px] text-gray-500">{item.sub}</p>
             </div>
           </div>
         ))}
@@ -133,14 +169,14 @@ const StepGoogle: React.FC<{ onNext: (user: GoogleUser) => void }> = ({ onNext }
         <button
           onClick={handleGoogle}
           disabled={loading}
-          className="w-full h-14 rounded-2xl bg-white border-2 border-neutral-200 hover:border-blue-400 hover:shadow-lg hover:shadow-blue-100 text-gray-700 font-bold text-base flex items-center justify-center gap-3 transition-all duration-300"
+          className="w-full h-14 rounded-2xl bg-white border-2 border-neutral-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 text-gray-700 font-bold text-base flex items-center justify-center gap-3 transition-all duration-300 group"
         >
           {loading ? (
             <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
           ) : (
             <>
-              {/* Google SVG Logo */}
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
+              {/* Google Ecosistema SVG Logo */}
+              <svg className="w-5 h-5 group-hover:scale-105 transition-transform" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
@@ -164,7 +200,7 @@ const StepGoogle: React.FC<{ onNext: (user: GoogleUser) => void }> = ({ onNext }
 
 const StepBienvenida: React.FC<{ user: GoogleUser; onEnter: () => void }> = ({ user, onEnter }) => (
   <motion.div
-    initial="hidden" animate="visible"
+    initial="hidden" animate="visible" exit={{ opacity: 0, y: -20, scale: 0.95 }}
     variants={stagger}
     className="space-y-8 flex flex-col items-center text-center max-w-md w-full"
   >
@@ -187,7 +223,7 @@ const StepBienvenida: React.FC<{ user: GoogleUser; onEnter: () => void }> = ({ u
       >
         🌱
       </motion.div>
-      <h2 className="text-3xl font-bold text-gray-900">
+      <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
         Bienvenido, <span className="seed-text">{user.name.split(' ')[0]}</span>
       </h2>
       <p className="text-sm text-gray-500">
@@ -195,14 +231,14 @@ const StepBienvenida: React.FC<{ user: GoogleUser; onEnter: () => void }> = ({ u
       </p>
     </motion.div>
 
-    <motion.p variants={fadeUp} className="text-gray-500 text-sm max-w-xs">
+    <motion.p variants={fadeUp} className="text-gray-500 text-sm max-w-xs leading-relaxed">
       Tu espacio Dentaxy Seed está listo para explorarse. Descubre cómo transformaremos tu práctica clínica.
     </motion.p>
 
     <motion.div variants={fadeUp} className="w-full">
       <Button
         onClick={onEnter}
-        className="w-full h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold text-base shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
+        className="w-full h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold text-base shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 hover:shadow-blue-500/40 transform hover:-translate-y-0.5 transition-all duration-300"
       >
         <Sparkles className="w-5 h-5" />
         Entrar a Dentaxy Seed
@@ -276,14 +312,44 @@ const AdminModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
 type Step = 'google' | 'bienvenida' | 'loading';
 
+const loginSlideVariants = {
+  enter: (dir: number) => ({
+    x: dir > 0 ? 120 : -120,
+    opacity: 0,
+    scale: 0.96
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    scale: 1,
+    transition: {
+      x: { type: "spring", stiffness: 140, damping: 15 },
+      scale: { type: "spring", stiffness: 140, damping: 15 },
+      opacity: { duration: 0.25 }
+    }
+  },
+  exit: (dir: number) => ({
+    x: dir < 0 ? 120 : -120,
+    opacity: 0,
+    scale: 0.96,
+    transition: {
+      x: { duration: 0.25, ease: "easeIn" },
+      scale: { duration: 0.25, ease: "easeIn" },
+      opacity: { duration: 0.15 }
+    }
+  })
+};
+
 export default function SeedLogin() {
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>('google');
   const [user, setUser] = useState<GoogleUser | null>(null);
   const [showAdmin, setShowAdmin] = useState(false);
+  const [direction, setDirection] = useState(1);
 
   const handleGoogleSuccess = useCallback((u: GoogleUser) => {
     setUser(u);
+    setDirection(1);
     setStep('bienvenida');
   }, []);
 
@@ -294,6 +360,7 @@ export default function SeedLogin() {
       sessionStorage.setItem('seed_user', JSON.stringify(user));
       authLogin(user); // Guardar en el store global de Zustand
     }
+    setDirection(1);
     setStep('loading');
   };
 
@@ -311,8 +378,10 @@ export default function SeedLogin() {
     );
   }
 
+  const currentStepIndex = ['google', 'bienvenida'].indexOf(step);
+
   return (
-    <div className="seed-theme min-h-screen w-full bg-white flex flex-col overflow-hidden selection:bg-blue-500/20">
+    <div className="seed-theme min-h-screen w-full bg-white flex flex-col overflow-hidden selection:bg-blue-500/20 relative">
       <AnimatePresence>
         {showAdmin && <AdminModal onClose={() => setShowAdmin(false)} />}
       </AnimatePresence>
@@ -340,29 +409,52 @@ export default function SeedLogin() {
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-50/40 rounded-full blur-3xl" />
       </div>
 
-      {/* Indicador de pasos */}
+      {/* Indicador de pasos con resorte elástico */}
       <div className="fixed top-16 left-0 right-0 flex justify-center gap-2 pt-4 z-30">
-        {(['google', 'bienvenida'] as Step[]).map((s, i) => (
-          <motion.div
-            key={s}
-            animate={{ width: step === s ? 24 : 8, opacity: i <= ['google', 'bienvenida'].indexOf(step) ? 1 : 0.3 }}
-            className={`h-2 rounded-full transition-all ${step === s ? 'bg-blue-600' : 'bg-blue-200'}`}
-          />
-        ))}
+        {(['google', 'bienvenida'] as Step[]).map((s, i) => {
+          const isActive = step === s;
+          return (
+            <motion.div
+              key={s}
+              layout
+              animate={{ 
+                width: isActive ? 24 : 8, 
+                opacity: i <= currentStepIndex ? 1 : 0.3 
+              }}
+              transition={{ type: "spring", stiffness: 220, damping: 18 }}
+              className={`h-2 rounded-full ${isActive ? 'bg-blue-600' : 'bg-blue-200'}`}
+            />
+          );
+        })}
       </div>
 
       {/* Área de contenido centrada */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-24">
-        <AnimatePresence mode="wait">
-
+        <AnimatePresence mode="wait" custom={direction}>
           {step === 'google' && (
-            <motion.div key="google" className="w-full flex items-center justify-center">
+            <motion.div 
+              key="google" 
+              custom={direction}
+              variants={loginSlideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="w-full flex items-center justify-center transform-gpu will-change-transform"
+            >
               <StepGoogle onNext={handleGoogleSuccess} />
             </motion.div>
           )}
 
           {step === 'bienvenida' && user && (
-            <motion.div key="bienvenida" className="w-full flex items-center justify-center">
+            <motion.div 
+              key="bienvenida" 
+              custom={direction}
+              variants={loginSlideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="w-full flex items-center justify-center transform-gpu will-change-transform"
+            >
               <StepBienvenida user={user} onEnter={handleEnter} />
             </motion.div>
           )}

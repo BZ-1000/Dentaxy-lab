@@ -147,8 +147,8 @@ export const DriveSyncPulse: React.FC = () => {
       />
       
       {/* Icono central de Drive */}
-      <div className="relative z-10 flex items-center justify-center w-14 h-14 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md shadow-2xl text-[24px]">
-        📂
+      <div className="relative z-10 flex items-center justify-center w-14 h-14 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md shadow-2xl">
+        <img src="/logos/google-drive.png" className="w-8 h-8 object-contain" alt="Google Drive" />
       </div>
     </div>
   );

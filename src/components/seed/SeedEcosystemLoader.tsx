@@ -23,74 +23,14 @@ const TRUST_PHRASES = [
   { icon: '🛡️', text: 'Dentaxy nunca almacena datos médicos en nuestros servidores' },
 ];
 
-// ── SVG Íconos Google (sin fondos, solo el ícono limpio) ─────────────────────
-const DriveIcon = () => (
-  <svg viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-    <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
-    <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
-    <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
-    <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
-    <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
-    <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 27h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
-  </svg>
-);
-
-const CalendarIcon = () => (
-  <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-    <rect x="4" y="8" width="40" height="36" rx="4" fill="#fff" stroke="#e0e0e0" strokeWidth="1"/>
-    <rect x="4" y="8" width="40" height="12" rx="4" fill="#1A73E8"/>
-    <rect x="4" y="16" width="40" height="4" fill="#1A73E8"/>
-    <text x="24" y="38" textAnchor="middle" fill="#1A73E8" fontSize="16" fontFamily="sans-serif" fontWeight="bold">31</text>
-    <rect x="14" y="4" width="4" height="8" rx="2" fill="#1A73E8"/>
-    <rect x="30" y="4" width="4" height="8" rx="2" fill="#1A73E8"/>
-  </svg>
-);
-
-const DocsIcon = () => (
-  <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-    <path d="M30 4H10C7.8 4 6 5.8 6 8v32c0 2.2 1.8 4 4 4h28c2.2 0 4-1.8 4-4V18L30 4z" fill="#4285F4"/>
-    <path d="M30 4l12 14H30V4z" fill="#1A6DDB"/>
-    <rect x="14" y="26" width="20" height="2.5" rx="1.25" fill="white"/>
-    <rect x="14" y="32" width="20" height="2.5" rx="1.25" fill="white"/>
-    <rect x="14" y="38" width="13" height="2.5" rx="1.25" fill="white"/>
-  </svg>
-);
-
-const SheetsIcon = () => (
-  <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-    <path d="M30 4H10C7.8 4 6 5.8 6 8v32c0 2.2 1.8 4 4 4h28c2.2 0 4-1.8 4-4V18L30 4z" fill="#0F9D58"/>
-    <path d="M30 4l12 14H30V4z" fill="#0A7C42"/>
-    <rect x="12" y="24" width="24" height="2.5" rx="1" fill="white" opacity="0.9"/>
-    <rect x="12" y="30" width="24" height="2.5" rx="1" fill="white" opacity="0.9"/>
-    <rect x="12" y="36" width="24" height="2.5" rx="1" fill="white" opacity="0.9"/>
-    <line x1="24" y1="24" x2="24" y2="38.5" stroke="white" strokeWidth="1" opacity="0.5"/>
-  </svg>
-);
-
-const MeetIcon = () => (
-  <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-    <rect width="48" height="48" rx="10" fill="#00BFA5"/>
-    <path d="M8 18h22c1.1 0 2 .9 2 2v8c0 1.1-.9 2-2 2H8c-1.1 0-2-.9-2-2v-8c0-1.1.9-2 2-2z" fill="white"/>
-    <path d="M32 22l10-8v20l-10-8v-4z" fill="white"/>
-  </svg>
-);
-
-const GmailIcon = () => (
-  <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-    <path d="M6 10h36c1.1 0 2 .9 2 2v24c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V12c0-1.1.9-2 2-2z" fill="#fff" stroke="#e0e0e0" strokeWidth="1"/>
-    <path d="M4 12l20 14L44 12" fill="none" stroke="#EA4335" strokeWidth="3"/>
-    <path d="M4 12v24h40V12L24 26 4 12z" fill="white"/>
-    <path d="M4 12l20 14L44 12" stroke="#EA4335" strokeWidth="2.5" fill="none"/>
-  </svg>
-);
-
+// ── Íconos Google reales desde el directorio public ──────────────────────────
 const GOOGLE_ICONS = [
-  { id: 'drive',    label: 'Drive',    Icon: DriveIcon,    delay: 0    },
-  { id: 'calendar', label: 'Calendar', Icon: CalendarIcon, delay: 1.1  },
-  { id: 'docs',     label: 'Docs',     Icon: DocsIcon,     delay: 2.2  },
-  { id: 'sheets',   label: 'Sheets',   Icon: SheetsIcon,   delay: 3.3  },
-  { id: 'meet',     label: 'Meet',     Icon: MeetIcon,     delay: 4.4  },
-  { id: 'gmail',    label: 'Gmail',    Icon: GmailIcon,    delay: 5.5  },
+  { id: 'drive',    label: 'Drive',    imgSrc: '/logos/google-drive.png',    delay: 0    },
+  { id: 'calendar', label: 'Calendar', imgSrc: '/logos/google-calendar.png', delay: 1.1  },
+  { id: 'docs',     label: 'Docs',     imgSrc: '/logos/google-docs.png',     delay: 2.2  },
+  { id: 'sheets',   label: 'Sheets',   imgSrc: '/logos/google-sheets.png',   delay: 3.3  },
+  { id: 'slides',   label: 'Slides',   imgSrc: '/logos/google-slides.png',   delay: 4.4  },
+  { id: 'gmail',    label: 'Gmail',    imgSrc: '/logos/gmail.png',           delay: 5.5  },
 ];
 
 // Posiciones radiales fijas alrededor del centro
@@ -268,11 +208,11 @@ export default function SeedEcosystemLoader({ onComplete, userName }: Props) {
                           transition: { delay: i * 0.12, duration: 0.55, type: 'spring', stiffness: 140 }
                         }
                   }
-                  className="absolute flex flex-col items-center gap-1"
+                  className="absolute flex flex-col items-center gap-1 transform-gpu will-change-transform"
                   style={{ left: '50%', top: '50%', marginLeft: -28, marginTop: -28 }}
                 >
                   <div className="w-14 h-14">
-                    <icon.Icon />
+                    <img src={icon.imgSrc} alt={icon.label} className="w-full h-full object-contain" />
                   </div>
                   <span className="text-[10px] text-gray-400 font-medium">{icon.label}</span>
                 </motion.div>
@@ -312,7 +252,7 @@ export default function SeedEcosystemLoader({ onComplete, userName }: Props) {
 
             {/* Anillo de glow alrededor del logo */}
             <motion.div
-              className="absolute rounded-full"
+              className="absolute rounded-full transform-gpu will-change-[width,height,margin-left,margin-top]"
               style={{
                 width: logoSize + 40,
                 height: logoSize + 40,
@@ -333,7 +273,7 @@ export default function SeedEcosystemLoader({ onComplete, userName }: Props) {
 
             {/* Logo Dentaxy — crece al absorber */}
             <motion.div
-              className="absolute z-10"
+              className="absolute z-10 transform-gpu will-change-[width,height,margin-left,margin-top]"
               style={{ left: '50%', top: '50%' }}
               animate={{
                 width: logoSize,
@@ -354,7 +294,7 @@ export default function SeedEcosystemLoader({ onComplete, userName }: Props) {
             {act === 3 && (
               <>
                 <motion.div
-                  className="absolute rounded-full border border-blue-200/60"
+                  className="absolute rounded-full border border-blue-200/60 transform-gpu will-change-[width,height,margin-left,margin-top,opacity]"
                   style={{ left: '50%', top: '50%' }}
                   animate={{
                     width: [logoSize + 20, logoSize + 70, logoSize + 20],
@@ -366,7 +306,7 @@ export default function SeedEcosystemLoader({ onComplete, userName }: Props) {
                   transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
                 />
                 <motion.div
-                  className="absolute rounded-full border border-blue-100/40"
+                  className="absolute rounded-full border border-blue-100/40 transform-gpu will-change-[width,height,margin-left,margin-top,opacity]"
                   style={{ left: '50%', top: '50%' }}
                   animate={{
                     width: [logoSize + 40, logoSize + 100, logoSize + 40],
@@ -432,9 +372,7 @@ export default function SeedEcosystemLoader({ onComplete, userName }: Props) {
         {/* Mini íconos del ecosistema */}
         <div className="flex items-center gap-4">
           {GOOGLE_ICONS.map((icon) => (
-            <div key={icon.id} className="w-5 h-5 opacity-25">
-              <icon.Icon />
-            </div>
+            <img key={icon.id} src={icon.imgSrc} alt={icon.label} className="w-5 h-5 opacity-25 object-contain" />
           ))}
         </div>
       </div>

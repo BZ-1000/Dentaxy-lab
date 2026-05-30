@@ -1,0 +1,62 @@
+<h2>Direcciones Estéticas para las Animaciones en Dentaxy Seed</h2>
+<p class="subtitle">Basado en la experiencia cinemática de precisión ultra-limpia de <strong>factory.ai</strong></p>
+
+<div class="options">
+  <div class="option" data-choice="enfoque-a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Micro-interacciones y Staggered Entrances (Enfoque Recomendado)</h3>
+      <p>Estilo puramente Factory.ai. Los elementos flotan, se revelan en cascada con retrasos sutiles (staggered) de 0.05s y se mueven levemente en el eje Y (de 15px a 0px). Incluye transiciones de hover elásticas (spring) de bajo impacto visual pero de alta fidelidad táctil.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="enfoque-b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Revelados de Máscara (Clip-Path) y Líneas Bioluminiscentes</h3>
+      <p>Estilo técnico e industrial. Los componentes se revelan mediante máscaras deslizantes (clip-path de izquierda a derecha), simulando un escaneo láser. Los bordes se encienden con líneas de luz neón azul y verde cuando entran al campo de visión del usuario.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="enfoque-c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Giro 3D Interactivo en Tarjetas y Contenedores</h3>
+      <p>Estilo tridimensional. Los Bento Grids y la demostración clínica reaccionan levemente a la inclinación del mouse (efecto paralaje en 3D), dando una profundidad física a la pantalla blanca del consultorio.</p>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Comparación de los Enfoques de Animación</h3>
+  <table class="table" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+    <thead>
+      <tr style="border-bottom: 2px solid #e4e4e7; text-align: left;">
+        <th style="padding: 10px;">Enfoque</th>
+        <th style="padding: 10px;">Rendimiento de CPU</th>
+        <th style="padding: 10px;">Sensación del Dentista</th>
+        <th style="padding: 10px;">Complejidad de Mantenimiento</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom: 1px solid #f4f4f5;">
+        <td style="padding: 10px; font-weight: bold;">A (Micro-interacciones)</td>
+        <td style="padding: 10px; color: #16a34a;">Excelente (Aceleración por GPU)</td>
+        <td style="padding: 10px;">Fluidez táctil y velocidad instantánea</td>
+        <td style="padding: 10px; color: #16a34a;">Baja (React y Framer estándar)</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #f4f4f5;">
+        <td style="padding: 10px; font-weight: bold;">B (Clip-Path & Neón)</td>
+        <td style="padding: 10px; color: #ca8a04;">Medio (Redibujado SVG continuo)</td>
+        <td style="padding: 10px;">Estética "CTO" altamente tecnológica</td>
+        <td style="padding: 10px; color: #ca8a04;">Media (SVG dinámicos)</td>
+      </tr>
+      <tr>
+        <td style="padding: 10px; font-weight: bold;">C (Paralaje 3D)</td>
+        <td style="padding: 10px; color: #dc2626;">Pesado (Cálculos de Mouse en Layout)</td>
+        <td style="padding: 10px;">Súper interactivo e innovador</td>
+        <td style="padding: 10px; color: #dc2626;">Alta (Controladores de coordenadas)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

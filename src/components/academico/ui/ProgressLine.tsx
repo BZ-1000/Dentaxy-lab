@@ -101,7 +101,10 @@ export const ProgressLine = React.memo<ProgressLineProps>(({
                                     width: ((currentStep + 1) * ITEM_WIDTH) + (currentStep * GAP_WIDTH) + 16,
                                     height: isScrolled ? 4 : 32
                                 }}
-                                transition={heightTransition}
+                                transition={{
+                                    height: heightTransition,
+                                    width: { type: "spring", stiffness: 150, damping: 14 }
+                                }}
                             >
                                 {/* Shimmer Effect */}
                                 {isGenerating && (

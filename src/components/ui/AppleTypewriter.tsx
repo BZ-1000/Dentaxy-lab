@@ -26,6 +26,11 @@ export const AppleTypewriter: React.FC<AppleTypewriterProps> = ({
                 return parts.map((part, i) => {
                     if (part.length === 0) return null;
 
+                    const isSpace = /^\s+$/.test(part);
+                    if (isSpace) {
+                        return <span key={i}>{part}</span>;
+                    }
+
                     const myDelay = currentDelay;
                     // Mantener velocidad original para tablas, aumentar velocidad para texto normal
                     const increment = isTableContext ? (speed * 0.05) : (speed * 0.015);
@@ -34,9 +39,12 @@ export const AppleTypewriter: React.FC<AppleTypewriterProps> = ({
                     return (
                         <span
                             key={i}
+                            className="inline-block will-change-[transform,opacity,filter]"
                             style={{
                                 opacity: 0,
-                                animation: `apple-word-reveal 0.3s ease-out forwards ${myDelay}s`
+                                filter: 'blur(6px)',
+                                transform: 'translateY(6px)',
+                                animation: `apple-word-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards ${myDelay}s`
                             }}
                         >
                             {part}
@@ -78,7 +86,7 @@ export const AppleTypewriter: React.FC<AppleTypewriterProps> = ({
         setIsFinished(false);
         const timer = setTimeout(() => {
             setIsFinished(true);
-        }, (maxDelay + 0.3) * 1000);
+        }, (maxDelay + 0.6) * 1000);
         return () => clearTimeout(timer);
     }, [maxDelay]);
 
@@ -93,13 +101,22 @@ export const AppleTypewriter: React.FC<AppleTypewriterProps> = ({
     return (
         <Component className={cn("leading-relaxed", className)}>
             <style>{`
-        @keyframes apple-word-reveal {
-          0% { opacity: 0; }
-          100% { opacity: 1; }
-        }
-      `}</style>
+                @keyframes apple-word-reveal {
+                    0% {
+                        opacity: 0;
+                        filter: blur(6px);
+                        transform: translateY(6px);
+                    }
+                    100% {
+                        opacity: 1;
+                        filter: blur(0px);
+                        transform: translateY(0px);
+                    }
+                }
+            `}</style>
 
             {Array.isArray(processedChildren) ? processedChildren : [processedChildren]}
         </Component>
     );
 };
+
