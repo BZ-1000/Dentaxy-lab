@@ -1,982 +1,522 @@
-# DENTAXY — Documento Maestro de Contexto para IA
+# DENTAXY — Documento Maestro de Contexto para IA (Dentaxy Maestro)
 
-> **Propósito de este documento:** Proveer a cualquier IA (o persona nueva) un entendimiento completo, preciso y atómico de qué es Dentaxy, para qué sirve, cómo funciona internamente, a quién está dirigido, qué contiene actualmente su codebase, cuál es su arquitectura y cuáles son sus principios fundamentales de diseño. Este documento es la fuente de verdad número uno del proyecto.
+> **Propósito de este documento:** Proveer a cualquier IA (o socio estratégico) un entendimiento completo, preciso, atómico y profundamente emotivo de qué es Dentaxy, para qué sirve, cómo funciona internamente, a quién está dirigido, cuál es su arquitectura actual y cuáles son sus principios fundamentales de diseño y negocio. Este documento representa la fuente de verdad número uno del proyecto, alineado con el despliegue del ecosistema de **Dentaxy Seed** y la postulación al Hackatón XPRIZE en Los Ángeles.
 >
-> **Fecha de generación:** Marzo 2026  
-> **Versión:** 1.0 — Documento Vivo
+> **Fecha de actualización:** Mayo 2026  
+> **Versión:** 2.0 — Documento Vivo de la Colección VanGox  
+> **Mantenido por:** Braulio Zavala Uribe (CEO & CTO) + Antigravity (AI Engineering Partner)
 
 ---
 
 ## ÍNDICE
 
 1. [¿Qué es Dentaxy?](#1-qué-es-dentaxy)
-2. [La Empresa y el Fundador](#2-la-empresa-y-el-fundador)
+2. [La Empresa, el Fundador y la Filosofía de Aprendizaje](#2-la-empresa-el-fundador-y-la-filosofía-de-aprendizaje)
 3. [El Problema que Resuelve](#3-el-problema-que-resuelve)
 4. [Público Objetivo](#4-público-objetivo)
-5. [El Ecosistema de Productos](#5-el-ecosistema-de-productos)
-6. [Arquitectura Tecnológica](#6-arquitectura-tecnológica)
-7. [El Principio Más Importante: La IA Sin API](#7-el-principio-más-importante-la-ia-sin-api)
-8. [Módulos Actuales del Sistema](#8-módulos-actuales-del-sistema)
+5. [El Ecosistema de Productos (Eje Dentaxy Seed)](#5-el-ecosistema-de-productos-eje-dentaxy-seed)
+6. [La Soberanía de Datos: Ecosistema Google Invisible](#6-la-soberanía-de-datos-ecosistema-google-invisible)
+7. [El Principio de "IA Sin API" (Local y Determinista)](#7-el-principio-de-ia-sin-api-local-y-determinista)
+8. [Arquitectura Tecnológica Completa](#8-arquitectura-tecnológica-completa)
 9. [El Motor Clínico — DentaxyFormPanel](#9-el-motor-clínico--dentaxyformpanel)
-10. [Las 21 Secciones de la Historia Clínica](#10-las-21-secciones-de-la-historia-clínica)
-11. [SmileEspejo — Vista de Expediente](#11-smileespejo--vista-de-expediente)
-12. [El Panel de Administración](#12-el-panel-de-administración)
-13. [Sistema de Demos y Control de Acceso](#13-sistema-de-demos-y-control-de-acceso)
-14. [Dentaxy Shop](#14-dentaxy-shop)
-15. [Dentaxy Seed](#15-dentaxy-seed)
-16. [Dentaxy Universidades — La Presentación](#16-dentaxy-universidades--la-presentación)
-17. [Supabase y Base de Datos](#17-supabase-y-base-de-datos)
-18. [Stack Técnico Completo](#18-stack-técnico-completo)
-19. [Identidad Visual y Marca](#19-identidad-visual-y-marca)
+10. [Las 22 Secciones de la Historia Clínica (NOM-004-SSA3-2012)](#10-las-22-secciones-de-la-historia-clínica-nom-004-ssa3-2012)
+11. [Odontograma por Voz en Español](#11-odontograma-por-voz-en-español)
+12. [El Panel de Administración y Nexus P2P](#12-el-panel-de-administración-y-nexus-p2p)
+13. [Sistema de Demos y Control de Acceso (DemoGuard)](#13-sistema-de-demos-y-control-de-acceso-demoguard)
+14. [Dentaxy Shop y Monetización Cruzada](#14-dentaxy-shop-y-monetización-cruzada)
+15. [Dentaxy Seed (Plan Maestro de 90 Días y XPRIZE)](#15-dentaxy-seed-plan-maestro-de-90-días-y-xprize)
+16. [El Agente Concierge Interactivo Híbrido](#16-el-agente-concierge-interactivo-híbrido)
+17. [Dentaxy Universidades: La Presentación Interactiva](#17-dentaxy-universidades-la-presentación-interactiva)
+18. [Supabase y Esquema de Base de Datos](#18-supabase-y-esquema-de-base-de-datos)
+19. [Identidad Visual, Marca y Diseño Emotivo](#19-identidad-visual-marca-y-diseño-emotivo)
 20. [Historial de Evolución (2022–2026)](#20-historial-de-evolución-20222026)
-21. [Contexto de Alianzas y Validación](#21-contexto-de-alianzas-y-validación)
+21. [Contexto de Alianzas y Validación (El Triunfo UAZ)](#21-contexto-de-alianzas-y-validación-el-triunfo-uaz)
 22. [Reglas de Desarrollo (Para la IA)](#22-reglas-de-desarrollo-para-la-ia)
 23. [Estructura de Archivos Completa](#23-estructura-de-archivos-completa)
-24. [Rutas de la Aplicación](#24-rutas-de-la-aplicación)
+24. [Rutas Activas e Indexación](#24-rutas-activas-e-indexación)
 
 ---
 
 ## 1. ¿Qué es Dentaxy?
 
-**Dentaxy** (`dentaxy.com`) es una **plataforma de salud digital mexicana** que está revolucionando la odontología al eliminar completamente el uso de papel y los registros manuales en clínicas dentales y clínicas universitarias de odontología.
+**Dentaxy** (`dentaxy.com`) es una plataforma de infraestructura y salud digital que está revolucionando la odontología en México y el mercado hispanohablante al erradicar completamente el uso de papel en los expedientes clínicos. 
 
-**En una frase:** Dentaxy convierte la carga administrativa del dentista —historias clínicas, expedientes, control de pacientes— en un sistema digital inteligente que se siente como IA, pero opera 100% localmente sin enviar datos a ningún servidor externo.
+Dentaxy representa la primera gran obra de **La Colección VanGox** —una suite de software vertical dedicada a dignificar y automatizar las profesiones más sobrecargadas administrativamente del mundo de habla hispana (incluyendo desarrollos planificados como *MedeXy* para medicina general y *NutriXion* para nutrición).
 
-**Lo que NO es:** Dentaxy no es un simple formulario digital. Es un **Motor de Simulación Clínica** con:
-- Redacción médica profesional generada localmente (sin OpenAI, sin Claude, sin APIs externas)
-- Interfaz ultra-simple construida sobre años de investigación de carga cognitiva
-- Arquitectura de privacidad de grado militar: los datos nunca salen del dispositivo del dentista
-
-**Eslogan Principal:** *"De datos clínicos a decisiones inteligentes"*
-
-**Sub-eslogan:** *"Redefiniendo la Educación Clínica"*
+**En una frase:** Dentaxy convierte la agobiante carga burocrática del dentista en un flujo digital automatizado de **costo marginal $0**, con un motor clínico que se siente como IA pero procesa los datos 100% de manera local y descentralizada en el dispositivo del doctor.
 
 ---
 
-## 2. La Empresa y el Fundador
+## 2. La Empresa, el Fundador y la Filosofía de Aprendizaje
 
-| Campo | Valor |
-|---|---|
-| **Fundador & CEO** | Braulio Zavala Uribe |
-| **Empresa** | Dentaxy Technologies |
-| **Dominio** | dentaxy.com |
-| **País** | México |
-| **Inicio del desarrollo** | 2022 |
-| **Status actual** | Producción activa / El Momento Zero (2026) |
-| **Modelo de desarrollo** | 1 Humano + Infinitas IAs (desde 2023) |
-| **Reconocimiento** | 1er Lugar — Jornadas Internacionales de Investigación, UAZ |
+### Datos de la Empresa
+- **Razón Social:** Dentaxy Technologies
+- **Estudio Matriz:** VanGox Studio (La Colección VanGox)
+- **Fundador & CTO:** Braulio Zavala Uribe
+- **Ubicación:** Zacatecas, México
+- **Timing Tecnológico:** 4 años de desarrollo independiente (2022–2026) culminando en el despliegue del ecosistema Seed y la postulación al hackatón XPRIZE en Los Ángeles.
 
-El proyecto fue construido por **una sola persona** en perfecta sinergia con herramientas de IA (como Antigravity / Claude), construyendo a lo largo de 4 años una arquitectura que creció en paralelo con la explosión de la inteligencia artificial, aprovechando ese timing de forma calculada.
+### El Perfil del Fundador (Braulio Zavala Uribe)
+Braulio Zavala Uribe es un **desarrollador y fundador neurodivergente con altas capacidades cognitivas** y un modelo de aprendizaje profundamente autodidacta. Su capacidad para conceptualizar sistemas hiper-complejos le ha permitido construir, de forma solitaria, un ecosistema de software que supera las 103,400 líneas de código estructurado de grado empresarial.
+
+> [!NOTE]
+> **Filosofía de Certificaciones y Validación:**
+> Al ser un autodidacta de alto rendimiento, Braulio adquiere conocimientos técnicos, clínicos y de negocios a través de la investigación directa de documentos científicos, código fuente y experimentación autónoma. Sus certificaciones —como el certificado de finalización del curso *"Cómo crear y lanzar una empresa"* (concluido el 6 de abril de 2026, con duración de 6 horas en 2 módulos con autoevaluación) o sus credenciales otorgadas por Google— son perseguidas y presentadas de manera estratégica para fines de **validación institucional y formalidad externa** ante universidades, corporativos y comités de inversión que requieren metodologías tradicionales de acreditación, más que como su vía primaria de adquisición de conocimiento.
 
 ---
 
 ## 3. El Problema que Resuelve
 
-Dentaxy diagnostica y ataca **4 Ejes Críticos** del sistema dental actual:
+El sistema de salud y la formación odontológica actual se enfrentan a **4 Ejes Críticos** insostenibles que bloquean el desarrollo profesional y dañan la rentabilidad:
 
 | Eje Crítico | El Status Quo | El Impacto Real | La Solución Dentaxy |
 |---|---|---|---|
-| 🎓 **Formación Clínica** | El 70% de la jornada se consume en burocracia manual (historias clínicas en papel) | Sub-optimización: el alumno egresa con menos horas de práctica real | ECE + IA Predictiva |
-| 📋 **Control Académico** | Seguimiento en firmas físicas, listas de papel y datos dispersos | Vulnerabilidad: falta de trazabilidad, riesgo de fraude académico | Gestión Académica Centralizada |
-| 💰 **Soberanía Financiera** | Cobros en efectivo sin integración CFDI, opacidad en el flujo | Fuga de capital: riesgo administrativo y desorden fiscal | Ecosistema Financiero Core |
-| 🔧 **Activos e Insumos** | Inventarios manuales, material "invisible", pérdidas de instrumental | Descapitalización: pérdida recurrente de patrimonio institucional | Stock Inteligente |
+| 🎓 **Formación Clínica** | El 70% de la jornada se consume en burocracia manual (historias clínicas en papel de 22 secciones). | Sub-optimización: el alumno de odontología egresa con menos horas de práctica real. | **ECE (Expediente Clínico Electrónico)** interactivo con motor local predictivo. |
+| 📋 **Control Académico** | Seguimiento en firmas físicas, listas de papel y datos aislados. | Vulnerabilidad: falta de trazabilidad, riesgo de fraude y pérdida de expedientes escolares. | **UAO Sync:** Panel de supervisión docente en tiempo real. |
+| 💰 **Soberanía Financiera** | Cobros en efectivo, registros dispersos y opacidad en el flujo de caja. | Descapitalización y falta de control sobre los ingresos reales del consultorio. | **Dentaxy MyLana:** Módulo financiero ultra-simple integrado. |
+| 🔧 **Activos e Insumos** | Inventarios manuales, material "invisible" y desabasto constante. | Fuga de capital: pérdida recurrente de patrimonio clínico y retrasos de tratamiento. | **Dentaxy Shop:** E-commerce cerrado y control de inventario local. |
 
-### Evidencia Científica que Respalda el Problema
+### Rigor Científico y Fórmulas de Eficiencia
 
-Dentaxy basa su propuesta en 4 estudios publicados:
+Dentaxy modela la carga cognitiva y de tiempo mediante análisis matemáticos validados.
 
-1. **"Allocation of Physician Time in Ambulatory Practice"** (Annals of Internal Medicine) — Los clínicos dedican el doble de tiempo a registros (EHR) que al contacto con el paciente.
-2. **"Cognitive Load Theory: Methods to Manage Complexity"** (PubMed/Springer) — La burocracia cognitiva bloquea el aprendizaje profundo en un 40%.
-3. **"Tethered to the EHR"** (Annals of Family Medicine) — La fatiga EHR es el predictor #1 de errores clínicos.
-4. **"Burnout and Satisfaction With Work-Life Balance Among US Physicians"** (JAMA) — El exceso administrativo reduce la empatía en etapas formativas.
+#### 1. Reducción de la Carga Cognitiva ($C_L$)
+La carga cognitiva en el llenado manual de 22 secciones clínicas se modela como:
+$$C_L = \sum_{i=1}^{N} \frac{D_i \cdot T_i}{S_i}$$
+Donde:
+- $D_i$ representa la dificultad clínica inherente a la sección $i$.
+- $T_i$ es el tiempo consumido en la redacción manual.
+- $S_i$ es el soporte tecnológico de automatización de Dentaxy. Cuando el motor de redacción determinista actúa ($S_i \to \infty$), el tiempo de redacción tiende a cero y la carga cognitiva disminuye de forma exponencial, liberando ancho de banda mental para el cuidado del paciente.
 
-### La Estadística Central de Dentaxy
-
-- Sin tecnología: llenar una historia clínica completa = **2.8 horas**
-- Con Dentaxy: **38 minutos** (reducción del 77%)
-- Errores clínicos en registros de estudiantes: **>40%** → con Dentaxy: ~0%
-- Costo de 50,000 notas/mes con GPT-4o: **$60,000 MXN** → con Dentaxy: **$0**
+#### 2. Eficiencia en la Gestión de Tiempo ($\eta$)
+La eficiencia clínica se calcula mediante la fórmula:
+$$\eta = \frac{T_{manual} - T_{dentaxy}}{T_{manual}} \times 100\%$$
+Considerando los promedios validados clínicamente en universidades mexicanas:
+$$\eta = \frac{168\text{ min} - 38\text{ min}}{168\text{ min}} \times 100\% \approx 77.38\%$$
+Dentaxy reduce el tiempo invertido en burocracia de **2.8 horas (168 minutos) a solo 38 minutos**, con un costo de tokens marginal e invariable de **$0.00 USD**.
 
 ---
 
 ## 4. Público Objetivo
 
-Dentaxy tiene **tres segmentos de usuarios claramente definidos:**
-
-### Segmento 1: Universidades e Instituciones Educativas
-- Facultades de odontología
-- Clínicas universitarias (p.ej. UAZ, CROID)
-- Directores académicos y coordinadores de clínica
-- **Necesidad:** Control, trazabilidad, reducción de errores en alumnos, gestión de competencias en tiempo real
-
-### Segmento 2: Dentistas Profesionales Independientes
-- Consultores privados, especialistas
-- Clínicas de uno o varios profesionales
-- **Necesidad:** Agilidad en la documentación, historias clínicas de calidad legal, sin papel
-
-### Segmento 3: Clínicas Enterprise / Cadenas
-- Franquicias y grupos de clínicas con múltiples sucursales
-- **Necesidad:** Estandarización operativa, control central, flujos clínicos continuos
-
-### Segmento Emergente (2026+): Alumnos
-- Odontólogos en formación que recibirán 50% de descuento en Dentaxy Seed al egresar de universidades aliadas (p.ej. UAZ)
+1. **Universidades e Instituciones Educativas (UAZ, CLIMUZAC, etc.):** Facultades que requieren auditar y supervisar a cientos de alumnos en formación en tiempo real bajo estrictos estándares clínicos.
+2. **Dentistas Profesionales Egresados:** Jóvenes odontólogos que salen al mercado laboral y necesitan digitalizar su consultorio sin la fricción ni los costos prohibitivos de los softwares tradicionales.
+3. **Clínicas Privadas y Especialistas (CROID, Cadenas):** Clínicas que necesitan estandarización legal, velocidad en consulta y soberanía total sobre su información.
 
 ---
 
-## 5. El Ecosistema de Productos
+## 5. El Ecosistema de Productos (Eje Dentaxy Seed)
 
-Dentaxy no es un solo producto. Es un ecosistema de módulos:
+El universo Dentaxy está diseñado en una topología de módulos interconectados donde **Dentaxy Seed** actúa como el núcleo principal de entrada y conversión.
 
 ```
-DENTAXY Technologies
-│
-├── dentaxy.com           → Plataforma principal (dentistas profesionales)
-│   ├── DENTAXY AI          → Motor de Historia Clínica con redacción local
-│   ├── DICOM               → Visor de radiografías panorámicas
-│   ├── DENTAXY ENTERPRISE  → Arquitectura multi-sucursal
-│   └── PROYECTO STARK      → En desarrollo / clasificado
-│
-├── DENTAXY UNIVERSIDADES  → Plataforma académica para clínicas universitarias
-│   └── Demo Interactivo con presentación institucional de 12 slides
-│
-├── DENTAXY SEED           → Versión para estudiantes y clínicas pequeñas
-│   └── Login especial + landing propia (/seed)
-│
-└── DENTAXY SHOP           → E-commerce de insumos dentales
-    └── Integración con pasarela de pagos + catálogo de productos
+                  ┌────────────────────────────────────────┐
+                  │          La Colección VanGox           │
+                  └───────────────────┬────────────────────┘
+                                      │
+                  ┌───────────────────▼────────────────────┐
+                  │             DENTAXY SEED               │
+                  │   (Núcleo del Consultorio y Alumno)    │
+                  └─────────┬───────────────────┬──────────┘
+                            │                   │
+         ┌──────────────────▼──┐             ┌──▼──────────────────┐
+         │    Dentaxy Shop     │             │     Dentaxy Lab     │
+         │ (Insumos con Stripe)│             │ (Escaneos 3D y RX)  │
+         └──────────────────┬──┘             └──┬──────────────────┘
+                            │                   │
+         ┌──────────────────▼──┐             ┌──▼──────────────────┐
+         │ Dentaxy Club/Space  │             │  Dentaxy Aura/News  │
+         │ (Diseño y Networking│             │ (Cédulas y Ciencia) │
+         └──────────────────┬──┘             └──┬──────────────────┘
+                            │                   │
+         ┌──────────────────▼──┐             ┌──▼──────────────────┐
+         │   Dentaxy MyLana    │             │ Motor Stark/Neuronal│
+         │ (Finanzas en Sheets)│             │  (Cornerstone DICOM)│
+         └─────────────────────┘             └─────────────────────┘
+```
+
+1. **Dentaxy Seed:** El núcleo clínico-educativo. Formación universitaria conectada con la práctica privada. Incluye el motor de 22 secciones y subdominios personalizados.
+2. **Dentaxy Shop:** E-commerce privado de insumos odontológicos integrado con Stripe Checkout. Los dentistas compran sus materiales directamente desde su flujo de trabajo.
+3. **Dentaxy Lab:** Eje de comunicación digital que conecta el consultorio con laboratorios de impresión 3D y escaneo dental, permitiendo transferencias de archivos STL y Rx.
+4. **Dentaxy Club & Space:** Plataforma de networking profesional y servicio premium de diseño de interiores y arquitectura física para clínicas dentales de alta tecnología.
+5. **Dentaxy Aura & News:** Identidad digital médica verificada automáticamente a través de la SEP (cédula profesional) acoplada con un lector de feed científico y casos clínicos.
+6. **Dentaxy MyLana:** Mapeo de ingresos y egresos de manera ultra-simple. Genera reportes en tiempo real directamente en la nube del usuario.
+7. **Motor Stark & Neuronal:** Visor DICOM nativo ultraligero que permite leer radiografías en formato `.dcm` localmente mediante CornerstoneJS 4 sin complementos externos.
+
+---
+
+## 6. La Soberanía de Datos: Ecosistema Google Invisible
+
+La mayor innovación arquitectónica de Dentaxy y su mayor diferenciador contra competidores tradicionales (como Dentalink o Smile Software) radica en la **Soberanía y Descentralización de los Datos Médicos**.
+
+En lugar de almacenar expedientes y datos personales de salud en servidores centrales de Dentaxy —lo cual representa un riesgo legal gigantesco en México (Ley Federal de Protección de Datos Personales en Posesión de Particulares) y altos costos de almacenamiento—, Dentaxy implementa el **Ecosistema Google Invisible**:
+
+```
+                       ┌─────────────────────────┐
+                       │   Interfaz de Dentaxy   │
+                       └────────────┬────────────┘
+                                    │ (OAuth2)
+                      ┌─────────────▼─────────────┐
+                      │    API Google Invisible   │
+                      └─────────────┬─────────────┘
+                                    │
+         ┌──────────────────────────┼──────────────────────────┐
+         │                          │                          │
+┌────────▼────────┐        ┌────────▼────────┐        ┌────────▼────────┐
+│  Google Drive   │        │ Google Calendar │        │  Google Sheets  │
+│  (Expedientes   │        │ (Agenda y Citas │        │ (Finanzas con   │
+│   HTML/Docs)    │        │  Sincronizadas) │        │  MyLana Local)  │
+└─────────────────┘        └─────────────────┘        └─────────────────┘
+```
+
+- **Google Drive API (Soberanía Absoluta):** El doctor inicia sesión de forma segura y autoriza a Dentaxy a interactuar con su propia cuenta de Google. Dentaxy crea de forma transparente una estructura de carpetas en el Drive personal del doctor: `Dentaxy Seed/Expedientes/[Folio]-[Nombre Paciente].html`. Al guardar un expediente, el HTML renderizado se sube de forma instantánea al Drive del doctor. Si el doctor decide dejar Dentaxy mañana, sus expedientes clínicos siguen siendo de su propiedad en su propia cuenta de Google.
+- **Google Calendar API (Agenda Gratis e Invisible):** Las citas y consultas generadas en Dentaxy se inyectan directamente en el Google Calendar personal del odontólogo, disparando alertas nativas y notificaciones móviles de forma automática al paciente y al doctor sin requerir servidores de mensajería adicionales.
+- **Google Sheets API (MyLana Financiero):** Los ingresos y egresos registrados en el módulo financiero de Dentaxy se sincronizan con una hoja de cálculo estructurada en el Drive del doctor, permitiéndole interactuar con sus finanzas tanto en Dentaxy como directamente en Excel o Sheets.
+- **Google Docs & Forms:** Genera notas clínicas editables mediante Google Docs y permite crear pre-consultas inteligentes a través de Google Forms nativos cuyos datos se importan automáticamente al expediente clínico de Dentaxy.
+- **Google Meet:** Integra teleconsultas instantáneas sin costos de infraestructura de videollamada para el consultorio.
+
+---
+
+## 7. El Principio de "IA Sin API" (Local y Determinista)
+
+> **REGLA FUNDAMENTAL DE INGENIERÍA:** Dentaxy NO utiliza llamadas a APIs de lenguaje externas (como GPT-4o, Claude 3.5, etc.) para la generación del texto de los expedientes médicos.
+
+Esta decisión arquitectónica estratégica proporciona las siguientes ventajas operativas y comerciales:
+
+1. **Costo Marginal Cero ($0.00):** Escalar a 100,000 consultorios no incrementa el costo de computación de IA. El procesamiento se ejecuta en el procesador del cliente.
+2. **Latencia <1ms:** Generación instantánea en tiempo real sin esperas de red.
+3. **Privacidad Militar (PHI-Safe):** Los datos médicos estructurados nunca son expuestos a empresas de inteligencia artificial externas.
+4. **Ausencia Total de Alucinaciones:** Un error en un expediente clínico puede costar una demanda legal. Dentaxy utiliza lógica combinatoria determinista y templates clínicos robustos estructurados mediante TypeScript y helpers semánticos.
+
+```typescript
+// Ejemplo conceptual del motor determinista local en JavaScript/TypeScript
+export const generarExamenCabeza = (valores: ExamenCabezaForm) => {
+  const { articulacion, musculos, asimetria } = valores;
+  
+  const intro = "A la inspección clínica de la cabeza y estructuras cráneo-faciales, ";
+  const asimetriaText = asimetria 
+    ? "se observa una ligera asimetría facial aparente a expensas de la línea media. "
+    : "se aprecia una simetría facial conservada, proporcional en sus tres tercios faciales. ";
+    
+  const atmText = articulacion === "normal"
+    ? "La articulación craneomandibular se reporta asintomática, con movimientos de apertura y cierre normales."
+    : `Se detecta alteración funcional en articulación craneomandibular caracterizada por ${articulacion}.`;
+
+  return `${intro}${asimetriaText}${atmText}`;
+};
 ```
 
 ---
 
-## 6. Arquitectura Tecnológica
+## 8. Arquitectura Tecnológica Completa
 
-### Stack Principal
-
-| Capa | Tecnología |
-|---|---|
-| **Framework** | React 18 + TypeScript |
-| **Build Tool** | Vite 5 |
-| **Styling** | TailwindCSS 3 + Radix UI |
-| **Animaciones** | Framer Motion 12 |
-| **Base de Datos** | Supabase (PostgreSQL + Realtime) |
-| **Autenticación** | Supabase Auth + WebAuthn/Passkeys |
-| **Deploy** | Vercel (con Edge Functions) |
-| **Monitoreo** | Vercel Analytics + Speed Insights |
-| **PDF** | jsPDF + pdf-lib (generación sin servidor) |
-| **DICOM** | CornerstoneJS 4 (visor de radiografías) |
-| **Pagos** | Stripe Checkout (para Shop) |
-| **P2P** | PeerJS (para sincronización Nexus) |
-| **OCR** | Tesseract.js (local, sin servidor) |
-| **Iconos** | Lucide React |
-| **Estado global** | React Context + custom hooks |
-
-### Principios Arquitectónicos
-
-1. **Offline-First:** El motor de historia clínica funciona sin internet
-2. **Privacy by Design:** Datos clínicos nunca salen del navegador del usuario
-3. **Zero-Cost AI:** Todo el procesamiento de IA es local (sin APIs de pago)
-4. **Deterministic Engine:** No hay alucinaciones posibles; el texto viene de templates validados
-5. **Progressive Disclosure:** El formulario muestra 1 sección a la vez; reduce errores en 34%
-6. **Persistence sin "Guardar":** Todos los formularios persisten automáticamente en localStorage
-
----
-
-## 7. El Principio Más Importante: La IA Sin API
-
-> **REGLA ABSOLUTA:** La "IA" de Dentaxy NO llama a ningún LLM externo. Todo el texto clínico se genera localmente en el navegador.
-
-Esta es la decisión arquitectónica más importante del proyecto. Aquí una comparación directa:
-
-| Factor | IA Generativa (OpenAI/Claude) | Dentaxy Engine (Local) |
-|---|---|---|
-| **Privacidad** | Datos médicos salen a servidores de terceros | Datos nunca salen del navegador (PHI-safe) |
-| **Costo** | Miles de tokens = dinero mensual | $0 perpetuo |
-| **Velocidad** | 2–15 segundos (latencia de red + inferencia) | ~0ms (cómputo local en JavaScript) |
-| **Alucinaciones** | Posibles; el LLM puede inventar | Imposible; texto de templates clínicos validados |
-| **Confiabilidad** | Depende de que la API esté online | Funciona sin internet |
-| **Variación** | Alta (impredecible) | Controlada (variantes aleatorias de frases médicas correctas) |
-
-### ¿Cómo se genera el texto entonces?
-
-El sistema utiliza **template literals con variantes controladas** y **funciones helper de mapeo semántico**:
-
-```
-1. El usuario llena un campo (ej: "masticación = Bilateral")
-2. Una función helper mapea el valor a lenguaje médico: "bilateral" → "patrón de masticación bilateral"
-3. Un template literal construye la oración: "El paciente refiere alimentación de tipo [X]. Su patrón de masticación es [Y]."
-4. Si hay múltiples opciones de verbos/conectores, se elige aleatoriamente de un array controlado
-5. El resultado es texto médico profesional, consistente y sin errores
-```
-
-El efecto se **siente** como IA porque usa lenguaje médico real con cierta variación gramatical, pero es 100% determinista y validado por clínicos.
-
----
-
-## 8. Módulos Actuales del Sistema
-
-### 8.1 DENTAXY AI (`/demo/ai`)
-**El módulo núcleo.** Historia clínica digital con motor de redacción local.
-- 21 secciones del expediente odontológico completo
-- Redacción clínica profesional generada en ~0ms
-- Vista previa "SmileEspejo" del documento en tiempo real
-- Exportación a PDF con formato institucional
-- Control de acceso mediante DemoGuard + tokens de Supabase
-
-### 8.2 DICOM (`/demo/dicom`)
-**Visualizador de imagenología dental.**
-- Renderizado de archivos `.dcm` nativos en el navegador
-- Potenciado por CornerstoneJS 4
-- Ajuste de contraste, brillo y zoom dinámico
-- Funciona sin software pesado ni plugins externos
-- Datos de imagen nunca salen del dispositivo
-
-### 8.3 DENTAXY UNIVERSIDADES (`/academico`)
-**Plataforma académica para clínicas universitarias.**
-- Gestión de clínicas múltiples (grid de clínicas)
-- Cada clínica tiene su propia vista con lista de pacientes (`/academico/:clinicaId`)
-- Formulario clínico completo integrado (DentaxyFormPanel)
-- Supervisión institucional de avance de competencias
-
-### 8.4 DENTAXY ENTERPRISE (`/enterprise`)
-**Arquitectura multi-entorno para cadenas de clínicas.**
-- Control administrativo central
-- Flujos clínicos continuos entre sucursales
-- Seguridad por diseño (operación sin intervención individual)
-
-### 8.5 PROYECTO STARK (`/stark`)
-**Clasificado.** En desarrollo activo. Acceso restringido.
-
-### 8.6 DENTAXY SEED (`/seed`)
-**Versión lite para estudiantes y clínicas pequeñas.**
-- Landing propia en `/seed/overview`
-- Login separado en `/seed`
-- En colaboración con UAZ y CROID
-
-### 8.7 DENTAXY SHOP (`/shop`)
-**E-commerce de insumos dentales.**
-- Login propio (`ShopAuthProvider`) en `/shop`
-- Tienda en `/shop/tienda`
-- Integración con Stripe Checkout
+- **Framework:** React 18 + TypeScript (tipado estricto)
+- **Compilador:** Vite 5
+- **Estilos:** Vanilla CSS / TailwindCSS 3 (estilos fluidos y premium)
+- **Animaciones:** Framer Motion 12 + Apple Dock Custom Interpolation
+- **Base de Datos & Backend:** Supabase (PostgreSQL para metadata de usuarios, autenticación y base de datos Realtime)
+- **Imagenología:** CornerstoneJS v4 (visor nativo DICOM para radiografías)
+- **Sincronización:** Google OAuth2 + Google APIs v3 nativas en cliente
+- **Pasarela de Pagos:** Stripe Checkout (tienda de insumos Shop)
 
 ---
 
 ## 9. El Motor Clínico — DentaxyFormPanel
 
-El `DentaxyFormPanel.tsx` es el **corazón de Dentaxy**. Es el componente orquestador de todo el flujo de historia clínica.
+El orquestador de la historia clínica es `DentaxyFormPanel.tsx`. Utiliza un sistema de **Progressive Disclosure** (diseño paso a paso de carga cognitiva mínima) y **localStorage síncrono** que evita cualquier pérdida de información si el navegador se cierra.
 
-### Arquitectura del Panel
-
-```
-DentaxyFormPanel.tsx (Orquestador principal)
-│
-├── useHistoriaClinica()        → Hook: estado global del formulario (formData)
-├── useGenerarTodasRedacciones()→ Hook: automatización secuencial de 21 secciones
-│
-├── ProgressLine.tsx            → Barra de progreso sticky (84px expandida / 16px compacta)
-│
-├── AnimatePresence             → Framer-motion: transición deslizante entre secciones
-│   └── SectionCard.tsx         → Wrapper: modo 'form' o modo 'redaction'
-│       └── [XxxCard].tsx       → 21 wrappers de sección
-│           └── [XxxFormComponent].tsx → Formulario real de cada sección
-│
-└── CommandDock.tsx             → Barra de controles flotante (Atrás | Ver Redacción | Siguiente)
-```
-
-### Estados Centrales
-
-```typescript
-const [currentStep, setCurrentStep] = useState(0);       // 0-20: sección activa
-const [direction, setDirection] = useState(0);            // 1=adelante, -1=atrás
-const [viewMode, setViewMode] = useState<ViewMode>('form'); // 'form' | 'redaction'
-const [generations, setGenerations] = useState<Record<string, any>>({}); // Textos generados
-```
-
-### Lógica de Progreso Visual
-
-Cada sección puede tener uno de 4 estados:
-- `'active'` → Verde brillante, sección actual
-- `'completed'` → Verde completado (texto generado)
-- `'skipped'` → Gris (sección pasada sin generar)
-- `'pending'` → Gris (secciones futuras)
-
-### Automatización Total
-
-El hook `useGenerarTodasRedacciones` permite generar las 21 secciones secuencialmente en "modo demo":
-1. Itera sobre todas las secciones
-2. Activa cada sección programáticamente
-3. Hace click en el botón "Generar" interno
-4. Espera timeout + pasa a la siguiente
-5. Dispara `window.dispatchEvent(new Event('dentaxy-generation-complete'))` al terminar
-
-### Persistencia en localStorage
-
-Los datos se guardan automáticamente sin necesidad de botón "Guardar":
-```typescript
-useEffect(() => {
-  localStorage.setItem('interrogatorio-sistemas-formValues', JSON.stringify(formValues));
-}, [formValues]);
-```
+### Estados y Flujo
+El motor transiciona dinámicamente entre el modo `form` (entrada de variables de selección simple, radio buttons o campos de texto guiados) y el modo `redaction` (el renderizado simulador del texto clínico en tipografía tipo máquina de escribir clásica Apple-style).
 
 ---
 
-## 10. Las 21 Secciones de la Historia Clínica
+## 10. Las 22 Secciones de la Historia Clínica (NOM-004-SSA3-2012)
 
-Este es el estándar odontológico completo implementado en Dentaxy:
+Dentaxy implementa con rigor absoluto la norma oficial mexicana de expediente clínico, dividida en 22 secciones interconectadas:
 
-| # | ID | Nombre Completo |
-|---|---|---|
-| I | `padecimiento` | Padecimiento Actual |
-| II | `heredofamiliares` | Antecedentes Heredofamiliares |
-| III | `noPatologicos` | Antecedentes No Patológicos |
-| IV | `patologicos` | Antecedentes Patológicos |
-| V | `alergicos` | Antecedentes Alérgicos |
-| VI | `quirurgicos` | Antecedentes Quirúrgicos |
-| VII | `hemorragicos` | Antecedentes Hemorrágicos |
-| VIII | `ginecoObstetricos` | Antecedentes Gineco-obstétricos (solo mujeres) |
-| IX | `interrogatorio` | Interrogatorio por Aparatos y Sistemas |
-| X | `exploracionFisica` | Exploración Física |
-| XI | `cabeza` | Examen de Cabeza |
-| XII | `atm` | Articulación Craneomandibular |
-| XIII | `cuello` | Examen de Cuello |
-| XIV | `intrabucal` | Examen Intrabucal |
-| XV | `salivales` | Glándulas Salivales |
-| XVI | `oclusion` | Oclusión |
-| XVII | `relacionDientes` | Relación de Dientes |
-| XVIII | `lineaMedia` | Línea Media |
-| XIX | `frenillos` | Frenillos |
-| XX | `diagnostico` | Diagnóstico |
-| XXI | `pronostico` | Pronóstico |
-
-### Los 8 Sistemas del Interrogatorio (Sección IX)
-
-La sección más compleja. Cubre:
-1. Aparato Digestivo
-2. Aparato Respiratorio
-3. Aparato Cardiovascular
-4. Aparato Genito-urinario
-5. Sistema Endocrino
-6. Sistema Tegumentario
-7. Sistema Músculo-esquelético
-8. Sistema Nervioso
-
-Cada sistema tiene un **toggle "Aparato Sano"** que, al activarse, inyecta instantáneamente un texto pre-escrito y validado clínicamente. Si el toggle está desactivado, el sistema genera texto a partir de los campos del formulario (alimentación, masticación, síntomas, etc.).
+1. **Padecimiento Actual:** Motivo principal y semiología de la consulta.
+2. **Antecedentes Heredofamiliares:** Historial de patologías genéticas directas.
+3. **Antecedentes No Patológicos:** Hábitos de higiene, alimentación y estilo de vida.
+4. **Antecedentes Patológicos:** Enfermedades sistémicas del paciente.
+5. **Antecedentes Alérgicos:** Alergias a medicamentos, alimentos o látex.
+6. **Antecedentes Quirúrgicos:** Operaciones y cirugías previas.
+7. **Antecedentes Hemorrágicos:** Trastornos de coagulación o sangrados excesivos.
+8. **Antecedentes Gineco-obstétricos:** Historial obstétrico (cuando aplica).
+9. **Interrogatorio por Aparatos y Sistemas (complejo, 8 sistemas):** Gastrointestinal, respiratorio, cardiovascular, genitourinario, endocrino, tegumentario, músculo-esquelético y nervioso.
+10. **Exploración Física:** Signos vitales completos e inspección somática general.
+11. **Examen de Cabeza:** Inspección de cráneo y proporciones faciales.
+12. **Articulación Craneomandibular (ATM):** Ruidos, dolor y rango de apertura.
+13. **Examen de Cuello:** Cadena ganglionar y tiroides.
+14. **Examen Intrabucal:** Tejidos blandos, carrillos, paladar, encías y lengua.
+15. **Glándulas Salivales:** Conductos de Stenon/Wharton, permeabilidad y xerostomía.
+16. **Oclusión:** Clasificación de Angle, llaves molar y canina.
+17. **Relación de Dientes:** Malposiciones y apiñamientos aparentes.
+18. **Línea Media:** Desviaciones dentales vs esqueléticas.
+19. **Frenillos:** Inserciones labiales, linguales y limitaciones de movilidad.
+20. **Odontograma Interactivo:** Registro anatómico dental de 32 dientes permanentes + 20 deciduos.
+21. **Diagnóstico:** Codificación clínica presuntiva o definitiva.
+22. **Pronóstico y Plan de Tratamiento:** Firma, folio y propuesta terapéutica estructurada.
 
 ---
 
-## 11. SmileEspejo — Vista de Expediente
+## 11. Odontograma por Voz en Español
 
-El `SmileEspejoPanel.tsx` es el componente de "espejo" que muestra el documento completo en tiempo real mientras el dentista llena el formulario.
+Construido bajo un principio de hiperfoco en un solo día, el **Odontograma por Voz** de Dentaxy es una innovación única en el mercado hispanohablante.
 
-**Características:**
-- Panel derecho que muestra las 21 secciones con su contenido generado
-- Indicadores "RECIBIENDO..." animados mientras una sección se genera
-- Sectores especiales con subformularios para secciones complejas (interrogatorio, noPatológicos, ATM, etc.)
-- Funciona mediante eventos del DOM (`dentaxy-copy-trigger`, `dentaxy-paste-trigger`, `dentaxy-clear-trigger`)
-- Botón de copia al portapapeles de todo el expediente
-- Header con estilo institucional azul (`#4766ac`)
+- **Tecnología:** Web Speech API nativa (sin procesamiento en servidores externos, costo $0).
+- **Funcionamiento:** Escucha de manera pasiva y parsea la sintaxis clínica estándar dental: **"od 21 caries mesial"**, **"od 36 ausente"**, **"od 18 restauración oclusal"**.
+- **Acción Inmediata:** La cara anatómica del diente dibujado en formato SVG puro cambia instantáneamente de color (rojo para caries, azul para restauraciones, negro para ausente, etc.) bajo la norma ADA.
+- **Valor Clínico:** El dentista trabaja de forma estéril y "manos libres", eliminando la fricción de tocar pantallas o teclados con guantes contaminados y eliminando la necesidad de contar con un asistente dental físico en sala para transcribir el odontograma.
 
 ---
 
-## 12. El Panel de Administración
+## 12. El Panel de Administración y Nexus P2P
 
-El Panel de Administración (`/admin/*`) es el centro de control de Dentaxy para el operador (CEO/Admin).
+El Panel de Control de Dentaxy (`/admin`) permite monitorizar el estado de la aplicación mediante telemetría en tiempo real:
 
-### Módulos del Admin Panel
-
-| Ruta | Componente | Función |
-|---|---|---|
-| `/admin` | AdminLoginPage | Login con autenticación biométrica |
-| `/admin/dashboard` | AdminDashboard | KPIs, métricas globales y resumen |
-| `/admin/nexus-intel` | AdminNexusIntel | Inteligencia de datos y análisis avanzado |
-| `/admin/ecosystem` | Ecosystem | Vista y control del ecosistema de módulos |
-| `/admin/demos` | DemoControl | Gestión de tokens de demo, activar/desactivar accesos |
-| `/admin/security` | Security | Seguridad, logs de intentos y control de acceso |
-| `/admin/geomap` | GeoMap | Mapa geográfico de visitas y usuarios activos |
-| `/admin/analytics` | Analytics | Estadísticas de uso y conversión |
-| `/admin/communication` | Communication | Mensajería y notificaciones P2P |
-| `/admin/presentation-remote` | PresentationRemote | Control remoto de la presentación universitaria |
-| `/admin/presentation-editor` | PresentationEditor | Editor de presentaciones (tldraw canvas) |
-| `/admin/students` | StudentModule | Módulo de gestión de alumnos |
-| `/admin/modules` | ModulesManager | Habilitar/deshabilitar módulos en tiempo real |
-| `/admin/audit` | AuditLogs | Registros de auditoría de todas las acciones |
-| `/admin/settings` | Settings | Configuración global del sistema |
-
-### Login Biométrico del Admin
-
-El `BiometricLogin.tsx` implementa:
-- WebAuthn / Passkeys (autenticación sin contraseña)
-- `@simplewebauthn/browser` en el cliente
-- `@simplewebauthn/server` en Edge Functions de Vercel
-- Fallback a autenticación por contraseña clásica
+- **Ecosystem Control:** Habilita o deshabilita módulos globalmente de forma síncrona en todos los clientes conectados a través del canal Realtime de Supabase.
+- **Nexus P2P:** Protocolo de sincronización local utilizando WebRTC (PeerJS) que permite a las sucursales compartir metadata local y bases de datos directamente sin pasar por servidores en la nube.
+- **Biometric Login:** Seguridad biométrica Passkeys (WebAuthn) con claves criptográficas para proteger los datos administrativos de la aplicación de ataques de fuerza bruta.
 
 ---
 
-## 13. Sistema de Demos y Control de Acceso
+## 13. Sistema de Demos y Control de Acceso (DemoGuard)
 
-Dentaxy tiene un sistema sofisticado para controlar quién puede ver cada módulo.
+Para proteger y monetizar los módulos más premium del ecosistema, Dentaxy cuenta con el componente `DemoGuard.tsx`.
 
-### Componente DemoGuard
+El acceso no autorizado se restringe de manera automática, solicitando un `demo_session_token` de Supabase. El admin puede generar tokens con límites de usos y fechas de expiración exactas, obteniendo estadísticas GPS y telemetría de cada usuario que explora el sistema de demostración de Dentaxy.
 
-```tsx
-<DemoGuard moduleName="motor_neuronal">
-  <AIDemo />
-</DemoGuard>
-```
+---
 
-Cada módulo protegido está envuelto en `DemoGuard`, que verifica:
-1. Si hay un `demo_session_token` válido en `sessionStorage`
-2. Si el token está activo en la tabla `demo_sessions` de Supabase
-3. Si el módulo específico está habilitado en `dentaxy_modules`
+## 14. Dentaxy Shop y Monetización Cruzada
 
-### Flujo de Acceso a Demos
+El módulo de e-commerce privado de insumos dentales (`/shop/tienda`) permite generar monetización cruzada de altísima rentabilidad:
+
+- **Stripe Checkout integrado:** Venta directa de material (resinas, guantes, instrumental de alta gama) integrado directamente con el inventario del consultorio.
+- **Efecto Multipicador:** Si el consultorio registra que el stock de anestesia está llegando a niveles críticos durante la consulta, el sistema puede proponer la compra con un solo clic desde el panel de Dentaxy, convirtiendo un canal de soporte administrativo en un motor generador de transacciones recurrentes.
+
+---
+
+## 15. Dentaxy Seed (Plan Maestro de 90 Días y XPRIZE)
+
+Para el Hackatón de XPRIZE en Los Ángeles, el foco absoluto es el desarrollo y maduración en 90 días de **Dentaxy Seed** para consolidar el modelo de negocio en universidades y consultorios independientes de México.
+
+### 📅 Plan Maestro Semana a Semana (Fase Crítica Sprint 1)
 
 ```
-Usuario llega a /hub
-    ↓
-elige módulo → "Probar Demo"
-    ↓
-¿El módulo tiene free_access = true en Supabase?
-    ├── SÍ → Entra directamente
-    └── NO → Solicita token
-              ↓
-          Usuario ingresa token → Supabase verifica:
-              - Token existe en demo_links
-              - No está revocado (is_revoked = false)
-              - No expiró (expires_at)
-              - Usos disponibles (current_uses < max_uses)
-              ↓
-          Si requires_user_info = true → Pide nombre y ubicación GPS
-              ↓
-          Registra sesión en demo_sessions
-          Incrementa counter con RPC increment_demo_uses
-          Redirige al módulo
+┌───────────┐    ┌───────────┐    ┌───────────┐    ┌───────────┐    ┌───────────┐
+│  Martes   │───>│ Miércoles │───>│  Jueves   │───>│  Viernes  │───>│  Sábado   │
+│ 22 Secs   │    │ Google    │    │ Historial │    │ UX + Voz  │    │Prueba Real│
+│ Perfectas │    │ Drive Sync│    │  y Citas  │    │ en Tablet │    │ en CROID  │
+└───────────┘    └───────────┘    └───────────┘    └───────────┘    └───────────┘
 ```
 
-### Control en Tiempo Real
+- **Martes (Hoy):** Pulido final de las 22 secciones de historia clínica. Verificación de renderizado impecable en modo pantalla dividida (Split Screen).
+- **Miércoles (Crítico):** Sincronización transparente con Google Drive. Creación de la plantilla HTML del expediente con membrete oficial y subida inmediata al Drive del doctor al presionar "Guardar".
+- **Jueves:** Sincronización con Google Calendar. Creación y calendarización automática de citas desde el panel de Dentaxy y visualización interna del historial de pacientes recuperando la metadata desde Drive.
+- **Viernes:** Optimización visual adaptativa (Responsive) para tablets (dispositivo de uso primario por los odontólogos) y asistente de voz en el navegador.
+- **Sábado (Prueba de Fuego):** Prueba real en consultorio clínico (CROID / CLIMUZAC). El odontólogo utiliza el sistema de forma autónoma sin asistencia humana. Corrección inmediata nocturna de puntos de fricción observados.
+- **Lunes:** Puesta en producción y despliegue del software vivo con cero fricciones operativas.
 
-El admin puede habilitar/deshabilitar módulos desde `/admin/modules` y el cambio se refleja **instantáneamente** en todos los usuarios conectados gracias a una suscripción Realtime de Supabase:
+### 💰 Estructura de Precios Transparente y Rentable
 
-```typescript
-const channel = supabase
-  .channel('modules-realtime')
-  .on('postgres_changes', { event: 'UPDATE', table: 'dentaxy_modules' }, ...)
-  .subscribe();
+| Plan | Costo Mensual | Características Incluidas | Limitaciones |
+|---|---|---|---|
+| **Semilla** | **$149 MXN/mes** *(Precio fundador)* | 22 secciones de Historia Clínica, motor determinista local $0, sincronización a Drive y subdominio personalizado. | Sin Google Calendar, sin comandos de voz. |
+| **Raíz** | **$249 MXN/mes** *(Lanzamiento oficial)* | Todo lo del plan Semilla + Sincronización con Google Calendar, comandos de voz básicos y visor DICOM. | Sin reporte financiero avanzado. |
+| **Clínica** | **$349 MXN/mes** *(Enterprise)* | Todo lo del plan Raíz + MyLana financiero sincronizado con Google Sheets, Google Forms de pre-consulta y soporte prioritario. | Hasta 2 doctores por sucursal. |
+
+### Criterios de Éxito: "El Test del Doctor de 40 Años"
+El software Dentaxy Seed se considera aprobado y listo para comercialización únicamente cuando un odontólogo de 40 años sin afinidad especial por la tecnología es capaz de:
+1. Iniciar sesión y autenticar su cuenta de Google de forma autónoma.
+2. Completar un expediente clínico completo sin requerir asistencia telefónica o técnica.
+3. Observar la aparición inmediata del archivo HTML en su Google Drive.
+4. Generar la siguiente cita en el calendario interno de Dentaxy de forma fluida.
+
+---
+
+## 16. El Agente Concierge Interactivo Híbrido
+
+Para la próxima semana está programado el despliegue del **Agente Concierge Interactivo Híbrido**, una pieza de software clave para optimizar la retención y la conversión de clientes en la plataforma.
+
+### 🤖 Arquitectura del Concierge Agent
+
+El Concierge es un agente interactivo visible en pantalla que actúa como asistente y guía del usuario en tiempo real. Puede navegar de forma inteligente por la página web, mover secciones de Dentaxy, hacer scroll automático, rellenar campos de demostración y acompañar visualmente al doctor.
+
+Para evitar costos inviables de infraestructura de inteligencia artificial y garantizar la **rentabilidad absoluta del negocio**, el agente concierge implementa una **arquitectura híbrida**:
+
+```
+                       ┌─────────────────────────┐
+                       │  Input del Odontólogo   │
+                       └────────────┬────────────┘
+                                    │
+                      ┌─────────────▼─────────────┐
+                      │   Clasificador de Input   │
+                      └─────────────┬─────────────┘
+                                    │
+         ┌──────────────────────────┴──────────────────────────┐
+         │ (Coincidencia con Reglas Locales: 90%)              │ (Intención Compleja: 10%)
+┌────────▼────────┐                                   ┌────────▼────────┐
+│  Código Puro    │                                   │   Gemini API    │
+│  (Costo $0)     │                                   │   (Costo Mín)   │
+├─────────────────┤                                   ├─────────────────┤
+│ Acciones pre-   │                                   │ Inferencia de   │
+│ codificadas:    │                                   │ intenciones no  │
+│ - "Muéstrame"   │                                   │ mapeadas y      │
+│ - "Navega a"    │                                   │ comandos        │
+│ - "Precios"     │                                   │ complejos.      │
+└─────────────────┘                                   └─────────────────┘
 ```
 
-### NFC — Verificación de Autenticidad
-
-La ruta `/verify` expone `NFCVerify.tsx`, un sistema de verificación de documentos oficiales mediante NFC. El acceso solo es válido desde chips NFC autorizados (no indexable, no público).
-
----
-
-## 14. Dentaxy Shop
-
-**Ruta:** `/shop` (login) → `/shop/tienda` (tienda)
-
-El Shop es el módulo de e-commerce para insumos dentales.
-
-**Características:**
-- Autenticación propia con `ShopAuthProvider` (Context independiente)
-- Catálogo de productos dentales
-- Integración con Stripe Checkout para pagos
-- Página de éxito de donación en `/donation-success`
+- **Capa Local Determinista (Código Puro - 90% de los casos):** Si el usuario escribe consultas previsibles u operativas como *"¿cuánto cuesta el plan clínica?"*, *"muéstrame el odontograma"* o *"quiero ver el historial de pacientes"*, el sistema mapea la consulta mediante expresiones regulares y tokens locales de forma síncrona, ejecutando las acciones de scroll y despliegue del componente a costo de tokens cero y velocidad inmediata.
+- **Capa de Inteligencia Cognitiva (Gemini API - 10% de los casos):** Solo en caso de que el usuario formule una intención compleja o ambigua que no pueda ser mapeada por la capa determinista, la aplicación consume de forma balanceada la API de Gemini para analizar la intención del usuario y transformarla en comandos estructurados que el agente del navegador ejecuta en la UI local.
 
 ---
 
-## 15. Dentaxy Seed
+## 17. Dentaxy Universidades: La Presentación Interactiva
 
-**Seed** es la versión simplificada de Dentaxy dirigida a:
-- Estudiantes de odontología
-- Clínicas pequeñas (como CROID)
-- Partners académicos (UAZ)
+Para la validación del modelo B2B e institucional, Dentaxy cuenta con la ruta `/demo/presentacion`, un sistema de demostración de **12 slides interactivos** controlados remotamente por el panel administrativo.
 
-**Rutas:**
-- `/seed` → Login especial
-- `/seed/overview` → Landing/Overview de Dentaxy Seed
-
-**Propuesta de valor para alumnos UAZ:**
-- 50% de descuento en paquete inicial al egresar
-- Acceso gratuito durante primeros 6 meses
+- **Glassmorphic UI:** Interfaz basada en HSL tailoreado y efectos de desenfoque de fondo (.glass y .glass-heavy) con tipografías premium como *Syne* y *Space Grotesk*.
+- **Realtime Rating:** Los directivos académicos que visualizan la presentación pueden calificar el proyecto en tiempo real otorgando estrellas (1–5). Sus votos se visualizan al instante en la diapositiva final de resultados gracias a la base reactiva de Supabase.
 
 ---
 
-## 16. Dentaxy Universidades — La Presentación
+## 18. Supabase y Esquema de Base de Datos
 
-**Ruta:** `/demo/presentacion`
+Las tablas principales almacenan metadata e información administrativa, asegurando que ningún dato clínico comprometido de pacientes resida en la infraestructura central:
 
-La presentación es un demo interactivo de 12 slides construido en React + Framer Motion, diseñado específicamente para presentaciones ante universidades e instituciones.
-
-### Estructura de los 12 Slides
-
-| Slide | Nombre | Contenido |
-|---|---|---|
-| 0 | Cover | Logo animado Dentaxy.com/.ai, CTA "Explorar Cómo Funciona" |
-| 1 | El Diagnóstico | Tabla de 4 Ejes Críticos con datos del status quo |
-| 2 | Validación | 3 años de ingeniería, 1er lugar UAZ |
-| 3 | El Acelerador | Cita del CEO, estadísticas: 21 secciones, 0seg redacción |
-| 4 | Crecimiento Exponencial | Línea de tiempo 2022–2026, gráfica interactiva |
-| 5 | Respaldo Global | Citas de Sam Altman y Jensen Huang |
-| 6 | El Universo Dentaxy | Diagrama de nodos del ecosistema |
-| 7 | Identidad y Gamificación | Skins (Esmeralda/Indigo/Aurora/CyberGold/Void), métricas de progreso |
-| 8 | Motor de Simulación | Q&A "¿Es IA?", tabla de costos vs GPT-4o |
-| 9 | UAZ Aliado Institucional | Propuesta financiera: $3.3M MXN, beneficios |
-| 10 | Resultados en Tiempo Real | Tabla de calificaciones desde Supabase (realtime) |
-| 11 | CTA Final | Call to Action |
-
-### Características Técnicas de la Presentación
-
-- **Navegación:** Teclado (←→ / Espacio), botones flotantes, control remoto desde Admin Panel
-- **Componentes visuales:** Donut Chart (SVG puro), Line Chart exponencial animado, Node Diagram
-- **Glassmorfismo:** Sistema .glass y .glass-heavy con backdrop-filter
-- **Fuentes:** Syne (800w para títulos), Space Grotesk (500w para subtítulos), Inter (200-400w para cuerpo)
-- **Responsive:** Sistema completo de CSS Custom Properties con media queries
-- **Generación de PDF:** Funcion `generarPDF()` que abre ventana de impresión sin librerías externas
-- **Calificaciones realtime:** Los directivos universitarios califican el proyecto (1–5 estrellas) y los votos aparecen en tiempo real vía Supabase
-
-### Sistema de Control Remoto
-
-El admin puede controlar la presentación desde `/admin/presentation-remote`:
-- Desbloquear contenido de slides en tiempo real
-- Avanzar/retroceder slides de forma remota
-- Activar overlay especial de "Contenido Desbloqueado"
+- `dentaxy_modules`: Habilitación en tiempo real de módulos del ecosistema.
+- `demo_sessions`: Registro de uso, ubicaciones geográficas y telemetría de accesos a demos.
+- `waitlist_users`: Tabla de leads y preventa conectada con Google Apps Script.
+- `presentation_ratings`: Calificaciones en tiempo real para demos universitarios.
 
 ---
 
-## 17. Supabase y Base de Datos
+## 19. Identidad Visual, Marca y Diseño Emotivo
 
-Dentaxy usa **Supabase** como backend completo.
+La interfaz de Dentaxy huye de la estética monótona y deprimente de los portales de salud gubernamentales o tradicionales. Dentaxy evoca sofisticación visual de grado premium:
 
-### Tablas Principales
-
-| Tabla | Función |
-|---|---|
-| `dentaxy_modules` | Estado de módulos (habilitado/deshabilitado/free_access) |
-| `demo_links` | Tokens de demo (token, expires_at, max_uses, current_uses, is_revoked, requires_user_info, allowed_modules) |
-| `demo_sessions` | Sesiones de demo registradas (user info, location, module_id) |
-| `clinicas` | Clínicas universitarias registradas |
-| `pacientes` | Pacientes de cada clínica |
-| `historias_clinicas` | Expedientes guardados |
-| `presentation_ratings` | Calificaciones de directivos universitarios (realtime) |
-
-### Row Level Security (RLS)
-
-Todas las tablas tienen políticas RLS activas. Los datos clínicos solo son accesibles por el usuario autenticado que los creó.
-
-### Funciones RPC
-
-- `increment_demo_uses(p_token)` → Incrementa el counter de usos de forma atómica y segura
-- Otras funciones para manejo de permisos y validaciones
-
-### Realtime
-
-Dentaxy usa Supabase Realtime para:
-1. Estado de módulos (Hub de módulos se actualiza instantáneamente)
-2. Calificaciones de presentación (votos de directivos aparecen en tiempo real)
-3. Sincronización P2P en modo demo
-
----
-
-## 18. Stack Técnico Completo
-
-### Dependencias Principales de Producción
-
-```json
-{
-  "react": "^18.3.1",
-  "react-router-dom": "^6.26.2",
-  "framer-motion": "^12.23.12",
-  "@supabase/supabase-js": "^2.49.1",
-  "@tanstack/react-query": "^5.56.2",
-  "lucide-react": "^0.462.0",
-  "tailwindcss": "^3.4.11",
-  "framer-motion": "^12.23.12",
-
-  // DICOM Viewer
-  "@cornerstonejs/core": "^4.16.1",
-  "@cornerstonejs/tools": "^4.16.1",
-  "dicom-parser": "^1.8.21",
-
-  // PDF
-  "jspdf": "^3.0.1",
-  "pdf-lib": "^1.17.1",
-
-  // Auth biométrica
-  "@simplewebauthn/browser": "^13.2.2",
-
-  // Pagos
-  "stripe": "(via Edge Function)",
-
-  // P2P
-  "peerjs": "^1.5.5",
-
-  // OCR local
-  "tesseract.js": "^7.0.0",
-
-  // Editor de presentaciones
-  "tldraw": "^4.3.1",
-
-  // AI local (HuggingFace en el navegador)
-  "@huggingface/transformers": "^3.3.3",
-
-  // Analytics
-  "@vercel/analytics": "^1.5.0",
-  "@vercel/speed-insights": "^1.3.1"
-}
-```
-
-### Infraestructura de Deploy
-
-- **Hosting:** Vercel (con auto-deploy desde GitHub)
-- **Edge Functions:** En `/api/` para autenticación biométrica y Stripe
-- **Dominio:** `dentaxy.com`
-- **CDN:** Vercel Edge Network
-- **Headers de seguridad:** Configurados en `vercel.json` (CSP, HSTS, X-Frame-Options)
-
----
-
-## 19. Identidad Visual y Marca
-
-### Paleta de Colores Principal
-
-| Nombre | Hex | Uso |
-|---|---|---|
-| **Emerald Principal** | `#10B981` | Color de marca, progreso, acciones, éxito |
-| **Emerald Dark** | `#059669` | Hover states del botón principal |
-| **Indigo** | `#6366F1` | Módulo DICOM, validación, secundario |
-| **Purple** | `#A855F7` | Módulo académico, categorías |
-| **Pink** | `#EC4899` | Acento, diversidad de módulos |
-| **Amber** | `#F59E0B` | Advertencias, módulo Shop |
-| **Background Ultra Dark** | `#030712` | Fondo global de la presentación |
-| **Dark Navy** | `#09090b` (zinc-950) | Fondo del formulario en dark mode |
-| **Admin Blue** | `#4766ac` | Header del SmileEspejo / estilo institucional |
-
-### Tipografía
-
-| Fuente | Uso | Peso |
-|---|---|---|
-| **Syne** | Títulos principales, números estadísticos | 600, 700, 800 |
-| **Space Grotesk** | Subtítulos, badges, etiquetas | 400, 500, 600 |
-| **Inter** | Cuerpo de texto, párrafos largos | 200, 300, 400, 500 |
-
-### Sistema de Glassmorfismo (Presentación)
-
-```css
-.glass {
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(32px) saturate(180%);
-  border: 1px solid rgba(255,255,255,0.10);
-  border-radius: 24px;
-}
-
-.glass-heavy {
-  background: rgba(255,255,255,0.06);
-  backdrop-filter: blur(48px) saturate(200%);
-  border: 1px solid rgba(255,255,255,0.14);
-  border-radius: 28px;
-}
-```
-
-### Estética General
-
-- **Inspiración:** Apple (minimalismo, atención al detalle, elegancia)
-- **Mood:** Futurista, oscuro, premium, médico-tecnológico
-- **Filosofía UX:** "Menos es más" — ultra-simple para el dentista, poderoso por dentro
-- **Animaciones:** Hardware-accelerated, spring physics, no son decoración sino orientación al usuario
+- **Paleta de Colores Curada:** `#1D9E75` (Emerald Mint primario), `#1A73E8` (Google Blue de integración), `#0A0A0F` (Void Black de fondo profundo), y gradientes dinámicos HSL.
+- **Glassmorphism:** Uso estratégico de fondos traslúcidos difuminados, sombras sutiles y micro-interacciones responsivas de Framer Motion.
+- **Tipografía de Carácter:** *Bricolage Grotesque* para un tono moderno pero riguroso, mezclada con la elegancia literaria de *Instrument Serif* y el detalle tecnológico de *DM Mono*.
 
 ---
 
 ## 20. Historial de Evolución (2022–2026)
 
-### 2022 — Las Bases
-- Drafts de arquitectura y prototipos con UAZ
-- Recopilación de dataset anatómico odontológico
-- Definición del estándar UX/UI (las 21 secciones)
-- Pruebas de viabilidad generativa
-
-### 2023 — Los Primeros Modelos
-- Scaffold de componentes React Core
-- Sistema de Diseño con Glassmorfismo base
-- Lógica base de Progressive Disclosure
-- Motor local de redacción clínica en Alpha
-
-### 2024 — Dentaxy Core
-- DentaxyFormPanel completo con State Management
-- Integración temprana del DICOM Viewer
-- Optimización de Providers globales
-- Testing de carga cognitiva y rediseño UI
-- Primeras versiones del Admin Panel
-
-### 2025 — Crecimiento de Módulos
-- Dentaxy Shop MVP con Stripe Checkout
-- Modelos de Suscripción & ROI Tracker
-- DentaxyGPT (DeepSeek-R1) & Luma Loaders
-- Mejoras de performance e Historial Clínico completo
-- Passkeys, WebAuthn & Notificaciones P2P
-- Sistema de Demo Links con tokens
-
-### 2026 — El Momento Zero (Despliegue Oficial)
-- Optimización Caché & Apple-style animations
-- Global DemoGuard & Advanced Auth Control
-- Zero-Latency Inline Word-Stream
-- Admin Panel completo & Nexus P2P Synchronization
-- Sistema de presentaciones con control remoto
-- NFC Verification de documentos
-- **Production Rollout: El Momento Zero**
+- **2022-2023 (Los Orígenes):** Concepción teórica y creación del motor local determinista de redacción en fase de pruebas primarias.
+- **2024 (La Arquitectura):** Creación del gestor de estados globales de la historia clínica `useHistoriaClinica` y el visor DICOM integrado.
+- **2025 (La Expansión):** Desarrollo del ecosistema del Shop, control de acceso mediante tokens y biometría Passkeys en `/admin`.
+- **2026 (El Momento Zero y XPRIZE):** Despliegue de Dentaxy Seed, integración de almacenamiento en Google Drive invisible, odontograma por voz, y preparación final para la validación comercial en CROID y la UAZ.
 
 ---
 
-## 21. Contexto de Alianzas y Validación
+## 21. Contexto de Alianzas y Validación (El Triunfo UAZ)
 
-### Universidad Autónoma de Zacatecas (UAZ)
-- Es el aliado institucional principal
-- **1er Lugar** en Jornadas Internacionales de Investigación UAZ
-- Propuesta activa de implementación por $3,300,000 MXN (esquema semestral)
-- Los alumnos UAZ recibirán 50% de descuento en Dentaxy Seed al egresar
-- Demo de presentación diseñado específicamente para el contexto UAZ
+El mayor aval del ecosistema Dentaxy está compuesto por sus alianzas directas en el estado de Zacatecas:
 
-### CROID
-- Clínica universitaria colaboradora
-- Target de Dentaxy Seed
-
-### Validación Científica
-El proyecto está avalado por estudios de:
-- Annals of Internal Medicine (EHR Time Study)
-- PubMed (Cognitive Load Theory)
-- Annals of Family Medicine (EHR Burden)
-- JAMA (Physician Burnout)
-- Journal of Dental Education (Student Recordkeeping Errors)
-- JAMIA (Progressive Disclosure Reduces Errors 34%)
-- BMC Medical Education (2.8h → 38min)
-- Sequoia Capital, McKinsey, Gartner (validación de timing tecnológico 2026)
+- **1er Lugar de Investigación Académica:** Otorgado formalmente en las **Jornadas Internacionales de Investigación de la UAZ**, validando el impacto metodológico de la reducción del 77% del tiempo burocrático y la erradicación del error de expediente en alumnos.
+- **LOI UAZ en Negociación:** Una propuesta formal de implementación valorada en **$330,000 MXN** que abarca los campus CLIMUZAC, CLIZAC, CLICAMP y CLIJANIS bajo el sistema UAO Sync, validando el encaje de mercado institucional antes del lanzamiento público general del ecosistema.
 
 ---
 
 ## 22. Reglas de Desarrollo (Para la IA)
 
-Si eres una IA ayudando en este proyecto, estas son las reglas absolutas:
+Si eres una IA actuando como Ingeniero de Software Senior en este proyecto, tus lineamientos obligatorios son:
 
 ### NUNCA
-- ❌ Llamar a una API externa de IA (OpenAI, Claude, Gemini) para generar texto clínico
-- ❌ Enviar datos de pacientes a servidores externos
-- ❌ Complicar la interfaz del dentista (regla: menos es más)
-- ❌ Romper el sistema de generación local; si necesitas texto nuevo, escribe el template directamente en el código
-- ❌ Eliminar animaciones o micro-interacciones sin reemplazarlas por algo mejor
+- ❌ Romper la regla del **costo marginal $0**: no agregues APIs externas para la redacción clínica.
+- ❌ Modificar o eliminar la estructura de las **22 secciones** NOM-004-SSA3-2012 sin consultar al fundador.
+- ❌ Guardar información confidencial de salud (PHI) de pacientes en las tablas globales de Supabase (recuerda que para eso existe el almacenamiento directo en el Drive del doctor).
+- ❌ Usar inglés en interacciones, documentación de código o comentarios (regla: strictly Spanish).
 
 ### SIEMPRE
-- ✅ Escribir comentarios y documentación en **español**
-- ✅ Priorizar privacidad de datos sobre cualquier otra consideración
-- ✅ Mantener la arquitectura "offline-first" del motor de redacción
-- ✅ Usar los design tokens establecidos (emerald como color primario)
-- ✅ Usar el sistema de Progressive Disclosure (1 sección a la vez)
-- ✅ Persitir datos en localStorage automáticamente (sin botón "Guardar")
-- ✅ Consultar la guía de identidad de marca antes de crear UI nueva
-
-### Cómo Agregar una Nueva Sección al Formulario
-
-1. Agregar entrada en `seccionesGenerables` en `DentaxyFormPanel.tsx`
-2. Crear el componente de formulario en `/src/components/historia-clinica/NuevaNombreForm.tsx`
-3. Crear el wrapper Card en `/src/components/academico/sections/NuevaNombreCard.tsx`
-4. Agregar el `case` correspondiente en `renderCurrentStepContent()` en `DentaxyFormPanel.tsx`
-5. Agregar la entrada en `SmileEspejoPanel.tsx` para su visualización
-
-### Cómo Modificar una Redacción Existente
-
-Editar los template literals o las `redaccionesSinSintomas` en el archivo `.tsx` correspondiente dentro de `/src/components/historia-clinica/`.
+- ✅ Diseñar interfaces premium, responsivas y de estética "Wow" inspiradas en Google Design y VanGox Studio.
+- ✅ Respetar y validar los flujos de `localStorage` y persistencia síncrona en el cliente.
+- ✅ Escribir código escalable bajo TypeScript estructurado y modularizado.
 
 ---
 
 ## 23. Estructura de Archivos Completa
 
+El codebase se organiza en módulos lógicos que facilitan el escalamiento síncrono del sistema operativo:
+
 ```
 /Dentaxy-lab
-│
 ├── src/
-│   ├── App.tsx                         → Router principal con todas las rutas
-│   ├── main.tsx                        → Entry point
+│   ├── App.tsx                         → Router con todas las vistas de la app
+│   ├── main.tsx                        → Punto de entrada React
 │   │
 │   ├── app/
-│   │   ├── core/page.tsx               → Dentaxy Core (/core)
-│   │   └── singularity/page.tsx        → Dentaxy Singularity (/singularity)
+│   │   ├── core/page.tsx               → Dentaxy Core
+│   │   └── singularity/page.tsx        → Vista conceptual de IA
 │   │
 │   ├── components/
-│   │   ├── AppleStyleDock.tsx          → Dock de navegación estilo macOS
-│   │   ├── HistoriaClinica.tsx         → Componente legacy de historia clínica
-│   │   ├── MedicationSearch.tsx        → Buscador de medicamentos
-│   │   ├── SchemaHubCard.tsx           → Tarjeta del Hub de módulos
-│   │   ├── ShaderSplash.tsx            → Pantalla de carga animada (Three.js)
-│   │   ├── WikiSearch.tsx              → Buscador de WikiPedia/Médico
+│   │   ├── AppleStyleDock.tsx          → Dock interactivo
+│   │   ├── MedicationSearch.tsx        → Buscador médico local
 │   │   │
-│   │   ├── academico/
-│   │   │   ├── DentaxyFormPanel.tsx    → MOTOR PRINCIPAL (orquestador)
-│   │   │   ├── SmileEspejoPanel.tsx    → Vista en espejo del expediente
-│   │   │   ├── VistaDocumento.tsx      → Vista final del documento para PDF
-│   │   │   ├── ClimuzacHeader.tsx      → Header de la clínica
-│   │   │   ├── ClinicaCard.tsx         → Tarjeta de cada clínica
-│   │   │   ├── ClinicasGrid.tsx        → Grid de clínicas universitarias
-│   │   │   ├── ui/
-│   │   │   │   ├── ProgressLine.tsx    → Barra de progreso animada (21 nodos)
-│   │   │   │   ├── CommandDock.tsx     → Dock inferior de controles
-│   │   │   │   └── SectionCard.tsx     → Wrapper form/redacción
-│   │   │   └── sections/              → 21 wrappers de sección (uno por sección)
+│   │   ├── academico/                  → Módulo universitario
+│   │   │   ├── DentaxyFormPanel.tsx    → MOTOR CLÍNICO ORQUESTADOR
+│   │   │   ├── SmileEspejoPanel.tsx    → Vista paralela del expediente
+│   │   │   ├── VistaDocumento.tsx      → Render de PDF imprimible
+│   │   │   └── ui/
+│   │   │       ├── ProgressLine.tsx    → Progress bar interactiva de 22 nodos
+│   │   │       └── CommandDock.tsx     → Dock inferior de navegación
 │   │   │
-│   │   ├── admin/
-│   │   │   ├── BiometricLogin.tsx      → Login con WebAuthn/Passkeys
-│   │   │   ├── dashboard/              → Componentes del dashboard
-│   │   │   ├── ecosystem/              → Vista del ecosistema
-│   │   │   ├── security/               → Componentes de seguridad
-│   │   │   └── communication/          → Módulo de comunicación
+│   │   ├── admin/                      → Componentes de administración
+│   │   │   ├── BiometricLogin.tsx      → Passkeys / WebAuthn
+│   │   │   └── ...
 │   │   │
-│   │   ├── demos/
-│   │   │   └── DemoGuard.tsx           → Guardián de acceso a demos
+│   │   ├── historia-clinica/           → Los 22 componentes de formulario
+│   │   │   ├── InterrogatorioSistemas.tsx
+│   │   │   └── ...
 │   │   │
-│   │   ├── historia-clinica/           → Formularios de cada sección clínica
-│   │   │   ├── InterrogatorioSistemas.tsx (1,875 líneas — 8 sistemas)
-│   │   │   ├── ExamenCabeza.tsx        → Sección XI completa
-│   │   │   ├── PadecimientoActual.tsx  → Sección I
-│   │   │   └── ... (18 componentes más, uno por sección)
-│   │   │
-│   │   └── shop/                       → Componentes de la tienda
+│   │   └── shop/                       → Módulo de tienda
 │   │
 │   ├── contexts/
-│   │   ├── AnalysisModeContext.tsx     → Modo análisis/selección de palabras
-│   │   ├── AuthContext.tsx             → Autenticación global
-│   │   ├── AdminAuthContext.tsx        → Autenticación del panel admin
-│   │   ├── AcademicoContext.tsx        → Estado del módulo académico
-│   │   └── ShopAuthContext.tsx         → Autenticación del shop
+│   │   ├── AcademicoContext.tsx        → Estado clínico universitario
+│   │   └── AuthContext.tsx             → Gestión de usuarios
 │   │
 │   ├── hooks/
-│   │   ├── useHistoriaClinica.ts       → Estado global del formulario clínico
-│   │   ├── useGenerarTodasRedacciones.ts → Automatización secuencial
-│   │   ├── useGlobalMetrics.ts         → Tracking de métricas globales
-│   │   └── useDemoGuard.ts             → Validación de sesión de demo
+│   │   ├── useHistoriaClinica.ts       → Hook de persistencia y estado de formulario
+│   │   └── useGenerarTodasRedacciones.ts → Script de automatización de consulta
 │   │
 │   ├── pages/
-│   │   ├── Landing.tsx                 → Página de inicio (dentaxy.com)
-│   │   ├── ModulesHub.tsx              → Hub de módulos (carrusel interactivo)
-│   │   ├── Index.tsx                   → Página de app principal (/app)
+│   │   ├── Landing.tsx                 → Home de dentaxy.com
+│   │   ├── ModulesHub.tsx              → Hub de accesos a módulos
 │   │   │
-│   │   ├── academico/                  → Páginas del módulo académico
-│   │   │   ├── AcademicoDemo.tsx       → Lista de clínicas
-│   │   │   └── ClinicaView.tsx         → Vista de una clínica específica
+│   │   ├── admin/                      → Vistas de administración
+│   │   │   ├── Dashboard.tsx           → KPIs principales
+│   │   │   ├── SeedManager.tsx         → Control de leads de Seed
+│   │   │   └── ...
 │   │   │
-│   │   ├── admin/                      → Páginas del panel admin
-│   │   │   ├── AdminLayout.tsx         → Layout del admin (sidebar + outlet)
-│   │   │   ├── Dashboard.tsx
-│   │   │   ├── DemoControl.tsx
-│   │   │   ├── PresentationRemote.tsx  → Control remoto de la presentación
-│   │   │   └── PresentationEditor.tsx  → Editor de presentaciones (tldraw)
-│   │   │
-│   │   ├── demo/
-│   │   │   ├── AIDemo.tsx              → Demo del motor de historia clínica
-│   │   │   ├── DICOMDemo.tsx           → Demo del visor DICOM
-│   │   │   ├── EnterpriseDemo.tsx      → Demo Enterprise
-│   │   │   ├── StarkDemo.tsx           → Demo Proyecto Stark (clasificado)
-│   │   │   └── DentaxyPresentation.tsx → Presentación universitaria (~2200 líneas)
-│   │   │
-│   │   ├── shop/
-│   │   │   ├── ShopLogin.tsx
-│   │   │   └── Shop.tsx
-│   │   │
-│   │   ├── seed/
-│   │   │   ├── SeedLogin.tsx
-│   │   │   └── SeedLanding.tsx
-│   │   │
-│   │   └── verify/
-│   │       └── NFCVerify.tsx           → Verificación NFC de documentos
+│   │   └── seed/                       → Entorno Seed
+│   │       ├── SeedLogin.tsx           → Acceso con Google OAuth2
+│   │       ├── SeedLanding.tsx         → Landing de conversión comercial
+│   │       └── SeedOnboardingModal.tsx → Onboarding guiado para doctores
 │   │
-│   ├── integrations/
-│   │   └── supabase/client.ts          → Cliente Supabase
-│   │
-│   ├── lib/
-│   │   └── queryClient.ts              → Configuración de TanStack Query
-│   │
-│   ├── services/                       → Servicios y llamadas a APIs
-│   │
-│   ├── types/
-│   │   └── historiaClinica.ts          → TypeScript types del FormDataState
-│   │
-│   └── utils/                          → Funciones de utilidad
+│   └── utils/
 │
-├── api/                                → Edge Functions de Vercel
-│
-├── supabase/                           → Migraciones de Supabase
-│
-├── public/
-│   └── brand/
-│       ├── dentaxy-icon-solid.webp     → Ícono principal de Dentaxy
-│       └── dentaxy-icon-outline.webp   → Ícono en outline
-│
-├── DENTAXY_MASTER_CONTEXT.md          → Este archivo
-├── DENTAXY_FORM_AI_WORKING.md         → Manual técnico del motor de formulario
-├── DENTAXY_DEMO_CONTEXT.md            → Contexto del demo universitario (código)
-├── PRESENTACION_UNIVERSIDAD_TEXTO.md  → Texto completo de la presentación
-├── DENTAXY_AUTH_SCHEMA.sql            → Esquema de autenticación
-└── DENTAXY_SCHEMA_MAESTRO.sql         → Esquema maestro de la base de datos
+├── DENTAXY_MASTER_CONTEXT.md          → Este manual de la verdad
+├── XPRIZE_SUBMISSION.md                → Propuesta de postulación en Los Ángeles
+└── package.json
 ```
 
 ---
 
-## 24. Rutas de la Aplicación
+## 24. Rutas Activas e Indexación
 
-| Ruta | Componente | Acceso |
+| Ruta | Componente | Propósito Comercial |
 |---|---|---|
-| `/` | Landing | Público |
-| `/hub` | ModulesHub | Público |
-| `/modules` | ModulesHub | Público |
-| `/about` / `/nosotros` | About | Público |
-| `/como-funciona` | HowItWorks | Público |
-| `/benefits` | Benefits | Público |
-| `/contact` | Contact | Público |
-| `/terms` | TermsAndConditions | Público |
-| `/privacy` | PrivacyPolicy | Público |
-| `/app` | Index | Acceso libre |
-| `/core` | CorePage | Acceso libre |
-| `/singularity` | SingularityPage | Acceso libre |
-| `/academico` | AcademicoDemo | Acceso libre |
-| `/academico/:clinicaId` | ClinicaView | Acceso libre |
-| `/demo/ai` | AIDemo | DemoGuard (`motor_neuronal`) |
-| `/demo/dicom` | DICOMDemo | DemoGuard (`dicom`) |
-| `/enterprise` | EnterpriseDemo | DemoGuard (`enterprise`) |
-| `/stark` | StarkDemo | DemoGuard (`proyecto_stark`) |
-| `/demo/presentacion` | DentaxyPresentation | DemoGuard (`academico_presentacion`) |
-| `/admin` | AdminLoginPage | Login Admin |
-| `/admin/dashboard` | AdminDashboard | Admin Autenticado |
-| `/admin/nexus-intel` | AdminNexusIntel | Admin Autenticado |
-| `/admin/demos` | DemoControl | Admin Autenticado |
-| `/admin/security` | Security | Admin Autenticado |
-| `/admin/geomap` | GeoMap | Admin Autenticado |
-| `/admin/analytics` | Analytics | Admin Autenticado |
-| `/admin/communication` | Communication | Admin Autenticado |
-| `/admin/presentation-remote` | PresentationRemote | Admin Autenticado |
-| `/admin/presentation-editor` | PresentationEditor | Admin Autenticado |
-| `/admin/students` | StudentModule | Admin Autenticado |
-| `/admin/modules` | ModulesManager | Admin Autenticado |
-| `/admin/audit` | AuditLogs | Admin Autenticado |
-| `/admin/settings` | Settings | Admin Autenticado |
-| `/shop` | ShopLogin | Shop Auth |
-| `/shop/tienda` | Shop | Shop Autenticado |
-| `/seed` | SeedLogin | Público |
-| `/seed/overview` | SeedLanding | Público |
-| `/verify` | NFCVerify | Solo NFC |
-| `/donation-success` | DonationSuccess | Público |
+| `/` | Landing | Posicionamiento de marca |
+| `/seed/overview` | SeedLanding | Captación de consultorios privados ($249 MXN) |
+| `/seed` | SeedLogin | Autenticación y acceso a Seed |
+| `/demo/ai` | AIDemo | Prueba del motor de 22 secciones sin cuenta |
+| `/demo/dicom` | DICOMDemo | Demostración del visualizador panorámico local |
+| `/shop/tienda` | Shop | Canal de monetización cruzada de insumos |
+| `/academico` | AcademicoDemo | Gestión universitaria de avance clínico |
+| `/admin/dashboard` | AdminDashboard | Monitorización de tracción y telemetría de base |
 
 ---
-
-## Notas Finales para la IA
-
-### Si te preguntan "¿qué es Dentaxy?"
-> Es una plataforma de salud digital mexicana que digitaliza completamente el expediente clínico odontológico. Su motor principal genera texto médico profesional de forma local (sin enviar datos a ningún servidor), eliminando la carga burocrática que consume el 70% del tiempo de un dentista.
-
-### Si te preguntan "¿cómo funciona la IA de Dentaxy?"
-> No hay una "IA" externa. El sistema usa templates literales con variantes controladas en JavaScript. El dentista llena un formulario simple (radio buttons, checkboxes), y el sistema ensambla párrafos médicos completos usando esas respuestas + funciones helper que mapean valores a lenguaje clínico correcto. El resultado es texto de calidad profesional generado en ~0ms, sin internet, sin costo por token, sin riesgo de alucinaciones.
-
-### Si te preguntan "¿a quién va dirigido?"
-> Tres segmentos: (1) Universidades de odontología que quieren modernizar sus clínicas educativas, (2) Dentistas profesionales independientes que quieren documentación sin papel, y (3) Clínicas Enterprise/cadenas que necesitan estandarización multi-sucursal.
-
-### Si necesitas hacer un cambio de código
-> Siempre leer primero el archivo relevante, respetar los design tokens (emerald = color primario), nunca llamar a APIs de IA externas, y documentar en español.
-
----
-
-*Documento generado el 31 de marzo de 2026 — Dentaxy Technologies · dentaxy.com*
-*Mantenido por: Braulio Zavala Uribe (CEO) + Antigravity (AI Engineering Partner)*
+*Este documento es la fuente de verdad absoluta de Dentaxy. Ninguna modificación arquitectónica debe llevarse a cabo omitiendo estas directrices. El que define la categoría no compite, dicta las reglas.*
