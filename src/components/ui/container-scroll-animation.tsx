@@ -32,7 +32,7 @@ export const ContainerScroll = ({
     return isMobile ? [0.8, 0.95] : [1.05, 1];
   };
 
-  const rotate = useTransform(scrollYProgress, [0, 1], [15, 0]);
+  const rotate = useTransform(scrollYProgress, [0, 1], [24, 0]);
   const scale = useTransform(scrollYProgress, [0, 1], scaleDimensions());
   const translate = useTransform(scrollYProgress, [0, 1], [0, -100]);
 
@@ -103,47 +103,66 @@ export const Card = ({
           "0 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05), 0 12px 24px rgba(0, 0, 0, 0.05)",
         willChange: "transform",
       }}
-      className={`max-w-[1600px] md:-mt-36 -mt-16 mx-auto h-[30rem] md:h-[42rem] w-full relative z-20 ${className || ''}`}
+      className={`max-w-[1600px] md:-mt-52 -mt-24 mx-auto h-[32rem] md:h-[45rem] w-full relative z-20 ${className || ''}`}
     >
-      {/* Texto "POWERED BY Google" al estilo de SEED */}
-      <div 
-        className="absolute -top-[28px] left-1/2 -translate-x-1/2 text-center pointer-events-none select-none z-30 whitespace-nowrap flex items-center justify-center"
-        style={{
-          fontFamily: "var(--s-font-display, 'Orbitron', sans-serif)",
-          fontSize: "10px",
-          fontWeight: 500,
-          color: "#71717a", /* Un gris medio refinado, suave y perfectamente legible */
-        }}
-      >
-        <span style={{ letterSpacing: "0.3em", textIndent: "0.3em", marginRight: "2px" }}>POWERED BY</span>
-        <span style={{
-          fontFamily: "var(--s-font-display, 'Orbitron', sans-serif)",
-          fontSize: "12px", /* Ajuste óptico (12px) para igualar visualmente la altura de las mayúsculas */
-          fontWeight: 500,
-          letterSpacing: "0.02em",
-          display: "inline-flex",
-          gap: "1px",
-          verticalAlign: "middle"
-        }}>
-          <span style={{ color: "#3b82f6", textShadow: "0 0 2px rgba(59, 130, 246, 0.4)" }}>G</span>
-          <span style={{ color: "#ef4444", textShadow: "0 0 2px rgba(239, 68, 68, 0.4)" }}>o</span>
-          <span style={{ color: "#f59e0b", textShadow: "0 0 2px rgba(245, 158, 11, 0.4)" }}>o</span>
-          <span style={{ color: "#3b82f6", textShadow: "0 0 2px rgba(59, 130, 246, 0.4)" }}>g</span>
-          <span style={{ color: "#10b981", textShadow: "0 0 2px rgba(16, 185, 129, 0.4)" }}>l</span>
-          <span style={{ color: "#ef4444", textShadow: "0 0 2px rgba(239, 68, 68, 0.4)" }}>e</span>
-        </span>
-      </div>
-      {/* ── CUERPO SÓLIDO DEL DEMO (Efectos de luz verde eliminados) ── */}
+      {/* ── CUERPO DEL DEMO EN CRISTAL PURO TEMPLADO HIPER-TRANSPARENTE ── */}
       <div
         style={{
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.55)",
           transform: "translate3d(0,0,0)",
           backfaceVisibility: "hidden",
           WebkitBackfaceVisibility: "hidden" as any,
         }}
-        className="h-full w-full p-2 md:p-[14px] bg-[#1C1C26]/85 backdrop-blur-md rounded-[24px] shadow-2xl relative z-10 overflow-hidden"
+        className="h-full w-full p-6 pt-5 bg-gradient-to-br from-white/[0.07] via-white/[0.02] to-transparent backdrop-blur-[24px] border border-white/[0.12] rounded-[24px] shadow-[0_35px_60px_-15px_rgba(0,0,0,0.95),inset_0_1px_2px_rgba(255,255,255,0.20),inset_0_-1px_1px_rgba(0,0,0,0.4)] relative z-10 overflow-hidden flex flex-col"
       >
-        <div className="h-full w-full overflow-hidden rounded-2xl bg-[#12121A] md:rounded-2xl">
+        {/* Capa de reflejo de luz diagonal de cristal liso y pulido */}
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.01] to-white/[0.08] pointer-events-none z-0" />
+
+        {/* Cabecera del Cristal al estilo Mac (Idéntica a la consola) */}
+        <div className="relative z-20 flex items-center justify-between border-b border-zinc-900/[0.10] pb-4 mb-4 w-full">
+          {/* Botones de Mac */}
+          <div className="flex gap-1.5 flex-1 items-center">
+            <div className="w-3 h-3 rounded-full bg-[#FF5F56] shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)] opacity-95 hover:opacity-100 transition-opacity"></div>
+            <div className="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)] opacity-95 hover:opacity-100 transition-opacity"></div>
+            <div className="w-3 h-3 rounded-full bg-[#27C93F] shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)] opacity-95 hover:opacity-100 transition-opacity"></div>
+          </div>
+
+          {/* POWERED BY Google en el Centro */}
+          <div className="flex-1 flex justify-center items-center">
+            <div 
+              className="text-center pointer-events-none select-none whitespace-nowrap flex items-center justify-center"
+              style={{
+                fontFamily: "var(--s-font-display, 'Orbitron', sans-serif)",
+                fontSize: "10px",
+                fontWeight: 500,
+                color: "rgba(255, 255, 255, 0.95)",
+              }}
+            >
+              <span style={{ letterSpacing: "0.3em", textIndent: "0.3em", marginRight: "2px" }}>POWERED BY</span>
+              <span style={{
+                fontFamily: "var(--s-font-display, 'Orbitron', sans-serif)",
+                fontSize: "12px",
+                fontWeight: 500,
+                letterSpacing: "0.02em",
+                display: "inline-flex",
+                gap: "1px",
+                verticalAlign: "middle"
+              }}>
+                <span style={{ color: "#3b82f6", textShadow: "0 0 2px rgba(59, 130, 246, 0.4)" }}>G</span>
+                <span style={{ color: "#ef4444", textShadow: "0 0 2px rgba(239, 68, 68, 0.4)" }}>o</span>
+                <span style={{ color: "#f59e0b", textShadow: "0 0 2px rgba(245, 158, 11, 0.4)" }}>o</span>
+                <span style={{ color: "#3b82f6", textShadow: "0 0 2px rgba(59, 130, 246, 0.4)" }}>g</span>
+                <span style={{ color: "#10b981", textShadow: "0 0 2px rgba(16, 185, 129, 0.4)" }}>l</span>
+                <span style={{ color: "#ef4444", textShadow: "0 0 2px rgba(239, 68, 68, 0.4)" }}>e</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Info de Motor a la Derecha */}
+          <div className="font-mono text-[10px] text-white/85 font-bold flex-1 text-right">engine_v2.0.4 // LOCAL_MODE</div>
+        </div>
+
+        {/* Contenedor del Cuerpo */}
+        <div className="flex-1 w-full overflow-hidden rounded-2xl bg-[#12121A] md:rounded-2xl relative z-10">
           {children}
         </div>
       </div>

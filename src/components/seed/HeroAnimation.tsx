@@ -4,6 +4,7 @@ import styles from './HeroAnimation.module.css';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { AnalysisModeProvider } from '@/contexts/AnalysisModeContext';
 import { DentaxyFormPanel } from '@/components/academico/DentaxyFormPanel';
+import { AppleDockHover } from '@/components/ui/AppleDockHover';
 
 interface HeroAnimationProps {
   dienteImg?: string;
@@ -174,59 +175,38 @@ export default function HeroAnimation({
               <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center', pointerEvents: 'none' }}>
                 <div className={styles.centralTitleWrapper}>
                   
-                  {/* Wrapper para DENTAXY (Mantiene la estructura 100% original intacta) */}
-                  <motion.div
-                    whileHover={{ scale: 1.06 }}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 220,
-                      damping: 24,
-                    }}
-                    style={{
-                      pointerEvents: 'auto',
-                      cursor: 'pointer',
-                      width: 'fit-content',
-                      margin: '0 auto',
-                    }}
-                  >
-                    <motion.h1 
-                      className={styles.mainTitle}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 1.5, duration: 4, ease: "easeInOut" }}
-                    >
-                      DENTAXY
-                    </motion.h1>
-                  </motion.div>
+                  {/* Wrapper para DENTAXY con la animación elástica de resorte Apple Dock */}
+                  <div style={{ pointerEvents: 'auto', width: 'fit-content', margin: '0 auto' }}>
+                    <AppleDockHover hoverScale={1.06} hoverY={-12}>
+                      <motion.h1 
+                        className={styles.mainTitle}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 1.5, duration: 4, ease: "easeInOut" }}
+                        style={{ margin: 0 }}
+                      >
+                        DENTAXY
+                      </motion.h1>
+                    </AppleDockHover>
+                  </div>
 
-                  {/* Wrapper para SEED (Restaura la estructura, espaciado y margins originales al 100%) */}
-                  <motion.div
-                    whileHover={{ scale: 1.06 }}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 220,
-                      damping: 24,
-                    }}
-                    style={{
-                      pointerEvents: 'auto',
-                      cursor: 'pointer',
-                      width: 'fit-content',
-                      margin: '0 auto',
-                    }}
-                  >
-                    <div className={styles.subTitle}>
-                      {"SEED".split("").map((char, index) => (
-                        <motion.span
-                          key={index}
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.5 + (index * 0.15), duration: 0.1 }}
-                        >
-                          {char}
-                        </motion.span>
-                      ))}
-                    </div>
-                  </motion.div>
+                  {/* Wrapper para SEED con la animación elástica de resorte Apple Dock */}
+                  <div style={{ pointerEvents: 'auto', width: 'fit-content', margin: '0 auto' }}>
+                    <AppleDockHover hoverScale={1.06} hoverY={-12}>
+                      <div className={styles.subTitle}>
+                        {"SEED".split("").map((char, index) => (
+                          <motion.span
+                            key={index}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.5 + (index * 0.15), duration: 0.1 }}
+                          >
+                            {char}
+                          </motion.span>
+                        ))}
+                      </div>
+                    </AppleDockHover>
+                  </div>
                   
                 </div>
               </div>
@@ -246,7 +226,7 @@ export default function HeroAnimation({
                     height: '65%',
                     zIndex: 35,
                     pointerEvents: 'auto',
-                    cursor: 'pointer',
+                    cursor: 'default',
                   }}
                 />
 
@@ -254,11 +234,13 @@ export default function HeroAnimation({
                 <motion.div
                   animate={{
                     scale: isHumanHovered ? 1.06 : 1.0,
+                    y: isHumanHovered ? -12 : 0,
                   }}
                   transition={{
                     type: 'spring',
-                    stiffness: 220,
-                    damping: 24,
+                    mass: 0.1,
+                    stiffness: 150,
+                    damping: 12,
                   }}
                   style={{
                     position: 'absolute',
@@ -304,7 +286,7 @@ export default function HeroAnimation({
                     height: '65%',
                     zIndex: 35,
                     pointerEvents: 'auto',
-                    cursor: 'pointer',
+                    cursor: 'default',
                   }}
                 />
 
@@ -312,11 +294,13 @@ export default function HeroAnimation({
                 <motion.div
                   animate={{
                     scale: isRobotHovered ? 1.06 : 1.0,
+                    y: isRobotHovered ? -12 : 0,
                   }}
                   transition={{
                     type: 'spring',
-                    stiffness: 220,
-                    damping: 24,
+                    mass: 0.1,
+                    stiffness: 150,
+                    damping: 12,
                   }}
                   style={{
                     position: 'absolute',

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import HeroAnimation from "@/components/seed/HeroAnimation";
 import AnimatedDemoUI from "@/components/seed/AnimatedDemoUI";
+import { AppleDockHover } from "@/components/ui/AppleDockHover";
 import "./Seed.css";
 import {
   CircleX, CircleCheck, FileText, FolderOpen, CalendarDays,
@@ -40,17 +41,233 @@ const BentoCard = ({ className = "", children, delay = 0, ...props }: any) => (
   </motion.div>
 );
 
+const ScrollIntroSection = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"]
+  });
+
+  // Tarjeta contenedor
+  const cardScale   = useTransform(scrollYProgress, [0, 0.45], [0.93, 1.0]);
+  const cardOpacity = useTransform(scrollYProgress, [0, 0.4, 0.75, 0.95], [0, 1, 1, 0]);
+
+  // Frase (primer plano - movimiento rápido)
+  const phraseY       = useTransform(scrollYProgress, [0, 0.35, 0.65], [120, 0, -180]);
+  const phraseOpacity = useTransform(scrollYProgress, [0, 0.25, 0.42, 0.65], [0, 1, 1, 0]);
+
+  // Marca DENTAXY (fondo - movimiento lento, sin blur)
+  const dentaxyY       = useTransform(scrollYProgress, [0.38, 0.68, 0.95], [160, 0, -60]);
+  const dentaxyScale   = useTransform(scrollYProgress, [0.38, 0.68, 0.95], [0.85, 1.0, 1.05]);
+  const dentaxyOpacity = useTransform(scrollYProgress, [0.38, 0.58, 0.9], [0, 1, 0.85]);
+
+  return (
+    <div 
+      ref={containerRef} 
+      className="w-full h-[100vh] bg-black flex items-center justify-center py-12 md:py-24 px-4 md:px-8 overflow-visible relative z-10"
+    >
+      <motion.div
+        style={{ scale: cardScale, opacity: cardOpacity }}
+        className="w-full max-w-[1400px] h-full rounded-[32px] md:rounded-[48px] border border-zinc-800/40 bg-zinc-950 overflow-hidden relative flex items-center justify-center shadow-2xl"
+      >
+        {/* Glow verde Dentaxy */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,201,128,0.03)_0%,transparent_70%)] pointer-events-none" />
+
+        {/* Frase del pasado */}
+        <motion.div
+          style={{ y: phraseY, opacity: phraseOpacity }}
+          className="absolute text-center px-6 max-w-4xl z-10 pointer-events-none"
+        >
+          <p className="text-xl sm:text-2xl md:text-3xl font-mono tracking-wide text-zinc-300 font-light leading-relaxed">
+            Ayer era papel, hoy es software, el futuro es...
+          </p>
+        </motion.div>
+
+        {/* Marca DENTAXY */}
+        <motion.div
+          style={{ y: dentaxyY, scale: dentaxyScale, opacity: dentaxyOpacity }}
+          className="absolute text-center w-full z-0 pointer-events-none flex flex-col items-center justify-center"
+        >
+          <h1
+            style={{
+              fontFamily: "'Bruno Ace SC', sans-serif",
+              WebkitFontSmoothing: "antialiased",
+              MozOsxFontSmoothing: "grayscale",
+              fontSize: "clamp(72px, 15vw, 200px)",
+              fontWeight: 700,
+              color: "#ffffff",
+              lineHeight: 1,
+              letterSpacing: "-0.02em",
+              userSelect: "none",
+            }}
+          >
+            DENTAXY
+          </h1>
+        </motion.div>
+      </motion.div>
+    </div>
+  );
+};
+
+const ThreeCardsShowcase = () => {
+  const cardsData = [
+    {
+      phase: "PASADO",
+      title: "Papel (Ayer)",
+      points: [
+        "Archivo físico voluminoso e imposible de escalar.",
+        "Búsqueda manual que consume minutos por paciente.",
+        "Riesgo permanente de pérdida por daño, robo o desastre.",
+        "Sin respaldo: si se destruye, desaparece para siempre.",
+        "Ilegible, inconsistente entre dentistas.",
+        "Imposible compartir o auditar clínicamente."
+      ],
+      footer: "Total dependencia de procesos manuales.",
+      themeColor: "text-red-600",
+      badgeClass: "bg-red-100 text-red-700 border-red-200/80 font-bold",
+      bulletIcon: "✖",
+      bulletClass: "text-red-600 text-[15px] leading-none select-none mt-0.5"
+    },
+    {
+      phase: "PRESENTE",
+      title: "Software Estándar (Hoy)",
+      points: [
+        "Introducción manual de datos en cada campo.",
+        "Interfaces fragmentadas: un módulo por tarea, sin cohesión.",
+        "Copias de seguridad manuales, en silos desconectados.",
+        "Sin inteligencia clínica: el sistema no te guía, solo almacena.",
+        "Redacción libre = errores, omisiones y textos inconsistentes.",
+        "Análisis de datos prácticamente nulo o externo al flujo clínico.",
+        "Aprendizaje lento: cada consultorio lo usa diferente."
+      ],
+      footer: "Digital, pero propenso a errores de entrada y curvas de aprendizaje lentas.",
+      themeColor: "text-blue-650",
+      badgeClass: "bg-blue-100 text-blue-700 border-blue-200/80 font-bold",
+      bulletIcon: "✖",
+      bulletClass: "text-blue-600 text-[15px] leading-none select-none mt-0.5"
+    },
+    {
+      phase: "FUTURO",
+      title: "DENTAXY",
+      points: [
+        "Flujo clínico guiado en 20 pasos: estructurado, predecible y sin omisiones.",
+        "Motor de redacción sofisticado y determinista: texto clínico profesional generado automáticamente, sin improvisaciones.",
+        "Odontograma digital con 33+ hallazgos clínicos codificados en FDI.",
+        "Diagnóstico y plan de tratamiento redactados en segundos desde los datos reales del paciente.",
+        "Cero ambigüedad: cada expediente sigue la misma lógica clínica rigurosa.",
+        "Respaldo automático, seguro y accesible desde cualquier dispositivo.",
+        "Diseñado por y para dentistas mexicanos desde el primer día."
+      ],
+      footer: "Flujo de trabajo inteligente y verificado, libre de errores.",
+      themeColor: "text-[#00a86b]",
+      badgeClass: "bg-[#00C980]/15 text-[#00a86b] border-[#00C980]/40 font-bold",
+      bulletIcon: "✔",
+      bulletClass: "text-[#00C980] text-[15px] leading-none select-none mt-0.5"
+    }
+  ];
+
+  return (
+    <section className="bg-black pt-20 md:pt-36 pb-16 md:pb-28 mt-0 relative z-10 w-full overflow-hidden">
+      <div className="max-w-[1200px] w-full mx-auto px-6">
+        {/* Título de sección sutil y premium */}
+        <RevealDiv className="text-center mb-16 md:mb-24">
+          <span className="font-mono text-[10px] font-bold tracking-[0.2em] text-[#00C980] uppercase mb-3 block">
+            Tres eras. Una sola dirección.
+          </span>
+          <h2 className="text-3xl md:text-5xl font-sans font-bold tracking-tighter text-white leading-tight">
+            El expediente clínico evolucionó. ¿Tu consultorio también?
+          </h2>
+        </RevealDiv>
+
+        {/* Grid de las tres tarjetas estilo móviles (alto adaptado a aspect-[9/16.9] para el texto expandido) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 justify-center items-stretch">
+          {cardsData.map((card, idx) => (
+            <RevealDiv 
+              key={idx} 
+              delay={idx + 1}
+              className="relative w-full max-w-[360px] mx-auto flex"
+            >
+              {/* Animación física de resorte Apple Dock para un hover ultra-fluido y elástico */}
+              <AppleDockHover hoverScale={1.035} hoverY={-12} className="relative flex w-full">
+                {/* Tarjeta externa que simula el borde físico del teléfono */}
+                <div 
+                  className="w-full aspect-[9/17] rounded-[40px] md:rounded-[48px] bg-zinc-950 p-3 shadow-2xl relative border border-zinc-800/40 flex flex-col hover:shadow-[0_30px_60px_rgba(0,201,128,0.06)] transition-shadow duration-500"
+                  style={{
+                    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255,255,255,0.05)"
+                  }}
+                >
+                  {/* Pantalla interna (Card original en blanco bg-[#f4f4f5] optimizada para alta densidad) */}
+                  <div className="w-full h-full rounded-[32px] md:rounded-[40px] bg-[#f4f4f5] relative overflow-hidden flex flex-col justify-between p-5 pt-6 pb-5">
+                    
+                    {/* Speaker Notch / Dynamic Island del smartphone */}
+                    <div className="absolute top-3 left-1/2 -translate-x-1/2 w-24 h-4 bg-zinc-950 rounded-full flex items-center justify-center z-30 shadow-inner">
+                      <div className="w-1.5 h-1.5 rounded-full bg-zinc-850 absolute right-4"></div>
+                    </div>
+
+                    {/* Cabecera / Status Bar */}
+                    <div className="w-full flex justify-between items-center mt-1 z-10 text-[10px] font-mono text-zinc-500 font-medium px-1">
+                      <span>9:41</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-4 h-2 bg-zinc-900 rounded-sm"></span>
+                      </div>
+                    </div>
+
+                    {/* Contenido Principal */}
+                    <div className="w-full flex-1 flex flex-col justify-start z-10 pt-6 pb-2">
+                      
+                      {/* Badge de Fase (PASADO / PRESENTE / FUTURO) */}
+                      <div className="mb-3">
+                        <span className={`inline-block font-mono text-[9px] font-bold tracking-widest px-2.5 py-0.5 rounded-full border ${card.badgeClass}`}>
+                          {card.phase}
+                        </span>
+                      </div>
+
+                      {/* Título de la tarjeta (Letras ultra visibles) */}
+                      <h3 className="text-base md:text-lg font-sans font-bold tracking-tight text-zinc-950 mb-4">
+                        {card.title}
+                      </h3>
+
+                      {/* Lista de Puntos (Textos negros en tamaño compacto de alta legibilidad y alineación compacta) */}
+                      <ul className="space-y-2.5 text-left overflow-y-auto max-h-[340px] pr-1 scrollbar-thin">
+                        {card.points.map((point, pIdx) => (
+                          <li key={pIdx} className="flex items-start gap-2.5">
+                            <span className={`flex-shrink-0 ${card.bulletClass}`}>
+                              {card.bulletIcon}
+                            </span>
+                            <span className="text-[10.5px] md:text-[11.5px] text-black leading-relaxed font-sans font-normal">
+                              {point}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Pie de Pantalla / Texto Inferior (Letras negras limpias) */}
+                    <div className="w-full z-10 pt-3 border-t border-zinc-200/80 pb-2">
+                      <p className="text-[10px] md:text-[11px] text-black font-sans font-normal leading-normal">
+                        {card.footer}
+                      </p>
+                    </div>
+
+                    {/* Barra de inicio inferior física */}
+                    <div className="w-28 h-1 bg-zinc-950 rounded-full mx-auto mt-0.5 z-10 opacity-40"></div>
+                  </div>
+                </div>
+              </AppleDockHover>
+            </RevealDiv>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 export default function SeedLanding() {
   const navigate = useNavigate();
 
-
-
   const [demoTrigger, setDemoTrigger] = useState(0);
   const [demoComplete, setDemoComplete] = useState(false);
-
-  // Estados para la calculadora de aversión a la pérdida (Removidos temporalmente)
-  // const [horasPerdidas, setHorasPerdidas] = useState(4.5);
-  // const [costoHora, setCostoHora] = useState(500);
 
   // Estado para las FAQ
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -58,9 +275,6 @@ export default function SeedLanding() {
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
-
-  // const perdidaMensual = Math.round(horasPerdidas * 4 * costoHora);
-  // const perdidaAnual = Math.round(perdidaMensual * 12);
 
   return (
     <div className="seed-v2 relative overflow-x-hidden w-full">
@@ -77,11 +291,13 @@ export default function SeedLanding() {
       {/* ══════════════════════════════════════════════
           2.0 SECCIÓN NEGRA PANTALLA COMPLETA
           ══════════════════════════════════════════════ */}
-      <section className="relative z-10 w-full bg-black h-screen" />
+      <ScrollIntroSection />
 
       {/* ══════════════════════════════════════════════
-          2. ¿QUÉ ES? — Factory.ai Light Theme
+          2.1 TRES TARJETAS EN BLANCO (ESTILO PANTALLAS MÓVILES)
           ══════════════════════════════════════════════ */}
+      <ThreeCardsShowcase />
+
       <section id="que-es" className="bg-black relative z-10 w-full pb-20 pt-16">
         <div className="max-w-[1200px] w-full mx-auto px-6">
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
@@ -92,7 +308,7 @@ export default function SeedLanding() {
                 DentaXy Seed
               </div>
               <h2 className="text-4xl sm:text-5xl font-sans font-light tracking-tighter text-white leading-[1.1] mb-6">
-                Tu <strong className="font-bold text-white">consultorio</strong> lleva años con un <strong className="font-bold text-white">problema</strong> que ya tiene <strong className="font-bold text-white">solución</strong>.
+                Tu consultorio lleva años con un problema que ya tiene solución.
               </h2>
               <p className="font-mono text-base text-zinc-400 leading-relaxed mb-8">
                 Mientras el papel te roba tiempo, Seed redacta, organiza y guarda. 
@@ -117,29 +333,85 @@ export default function SeedLanding() {
             {/* Columna Derecha: Consola */}
             <RevealDiv delay={1} className="relative group lg:col-span-7">
               <div className="relative w-full lg:w-[130%] max-w-[calc(100vw-2rem)] lg:max-w-[calc(100vw-3rem)] lg:translate-x-6 z-20">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#00C980]/5 to-[#3B82F6]/5 rounded-2xl blur opacity-50 group-hover:opacity-80 transition duration-1000 group-hover:duration-200"></div>
-                <div className="relative bg-[#0d0d0d] border border-[rgba(255,255,255,0.08)] rounded-xl p-6 overflow-hidden h-[600px] flex flex-col">
-                {/* Header Consola */}
-                <div className="flex items-center justify-between border-b border-[rgba(255,255,255,0.08)] pb-4 mb-4">
-                  <div className="flex gap-1.5 flex-1">
-                    <div className="w-3 h-3 rounded-full bg-zinc-300"></div>
-                    <div className="w-3 h-3 rounded-full bg-zinc-300"></div>
-                    <div className="w-3 h-3 rounded-full bg-zinc-300"></div>
-                  </div>
+                {/* ── ELEMENTOS TRASEROS CROMADOS Y DE CONTRASTE HIPER-BRILLANTES CON PULSO TRASERO ── */}
+                
+                {/* Luz Azul/Blanca superior: Pulso diagonal profundo original desde la esquina */}
+                <motion.div 
+                  className="absolute -top-20 -right-20 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-white/35 via-[#3B82F6]/35 to-transparent blur-[60px] pointer-events-none z-0"
+                  animate={{
+                    x: [0, -140, 0],
+                    y: [0, 140, 0],
+                    scale: [1, 1.15, 1],
+                    opacity: [0.8, 1.0, 0.8]
+                  }}
+                  transition={{
+                    duration: 10,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0.5
+                  }}
+                />
+
+                {/* Luz Azul/Blanca inferior: Pulso diagonal hacia el centro */}
+                <motion.div 
+                  className="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-white/30 via-[#3B82F6]/25 to-transparent blur-[60px] pointer-events-none z-0"
+                  animate={{
+                    x: [0, 140, 0],
+                    y: [0, -140, 0],
+                    scale: [1, 1.15, 1],
+                    opacity: [0.8, 1.0, 0.8]
+                  }}
+                  transition={{
+                    duration: 9,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+
+                {/* Luz Central izquierda: Pulso sutil */}
+                <motion.div 
+                  className="absolute top-[30%] left-[10%] w-80 h-80 rounded-full bg-gradient-to-r from-[#3B82F6]/15 via-white/10 to-transparent blur-[70px] pointer-events-none z-0"
+                  animate={{
+                    x: [0, 70, 0],
+                    y: [0, -40, 0],
+                    scale: [1, 1.08, 1],
+                    opacity: [0.6, 0.85, 0.6]
+                  }}
+                  transition={{
+                    duration: 8,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: 0.5
+                  }}
+                />
+                
+                {/* ── GLASSMORPHIC CONTAINER (Cristal esmerilado blanco ultra-realista con biseles reflectantes y acabado pulido liso) ── */}
+                <div className="relative z-10 bg-gradient-to-br from-white/[0.24] via-white/[0.06] to-white/[0.02] backdrop-blur-[40px] border border-white/[0.28] rounded-xl p-6 overflow-hidden h-[600px] flex flex-col shadow-[0_35px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_3px_rgba(255,255,255,0.55),inset_0_-1px_1px_rgba(0,0,0,0.2)]">
+                  
+                  {/* Capa de reflejo de luz diagonal de cristal liso y pulido */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.01] to-white/[0.08] pointer-events-none z-0" />
+                  
+                  {/* Header Consola */}
+                  <div className="relative z-10 flex items-center justify-between border-b border-zinc-900/[0.10] pb-4 mb-4">
+                    <div className="flex gap-1.5 flex-1">
+                      <div className="w-3 h-3 rounded-full bg-[#FF5F56] shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)] opacity-95 hover:opacity-100 transition-opacity"></div>
+                      <div className="w-3 h-3 rounded-full bg-[#FFBD2E] shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)] opacity-95 hover:opacity-100 transition-opacity"></div>
+                      <div className="w-3 h-3 rounded-full bg-[#27C93F] shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)] opacity-95 hover:opacity-100 transition-opacity"></div>
+                    </div>
                   
                   <div className="flex-1 flex justify-center">
                     {demoComplete && (
                       <button 
                         onClick={() => { setDemoComplete(false); setDemoTrigger(t => t + 1); }}
-                        className="font-mono text-xs tracking-widest uppercase text-zinc-500 hover:text-white transition-colors active:scale-95 flex items-center gap-2"
+                        className="font-mono text-xs tracking-widest uppercase text-white/95 hover:text-white transition-colors active:scale-95 flex items-center gap-2 font-bold"
                       >
-                        <RefreshCw className="w-3.5 h-3.5" />
+                        <RefreshCw className="w-3.5 h-3.5 text-white/95 hover:text-white" />
                         Repetir Animación
                       </button>
                     )}
                   </div>
 
-                  <div className="font-mono text-[10px] text-[#00C980] flex-1 text-right">engine_v2.0.4 // LOCAL_MODE</div>
+                  <div className="font-mono text-[10px] text-white/85 font-bold flex-1 text-right">engine_v2.0.4 // LOCAL_MODE</div>
                 </div>
                 
                 {/* Body Consola Animado */}
