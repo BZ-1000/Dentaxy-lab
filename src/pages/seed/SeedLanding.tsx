@@ -305,7 +305,7 @@ export default function SeedLanding() {
             <RevealDiv className="max-w-xl lg:col-span-5">
               <div className="font-mono text-[10px] sm:text-xs font-bold tracking-widest text-[#00C980] uppercase mb-4 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#00C980] animate-pulse"></span>
-                DentaXy Seed
+                <span style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}>DentaXy Seed</span>
               </div>
               <h2 className="text-4xl sm:text-5xl font-sans font-light tracking-tighter text-white leading-[1.1] mb-6">
                 Tu consultorio lleva años con un problema que ya tiene solución.

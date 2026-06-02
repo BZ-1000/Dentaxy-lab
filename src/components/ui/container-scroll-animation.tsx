@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { useScroll, useTransform, motion, MotionValue } from "framer-motion";
 
 export const ContainerScroll = ({
@@ -91,8 +91,20 @@ export const Card = ({
   children: React.ReactNode;
   className?: string;
 }) => {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [glowActive, setGlowActive] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => setGlowActive(window.scrollY < 80);
+    // Estado inicial
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <motion.div
+      ref={cardRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 1.5, duration: 4.0, ease: "easeOut" }}
@@ -105,6 +117,135 @@ export const Card = ({
       }}
       className={`max-w-[1600px] md:-mt-52 -mt-24 mx-auto h-[32rem] md:h-[45rem] w-full relative z-20 ${className || ''}`}
     >
+      {/* Estilos CSS inyectados para el haz de luz pulsátil perimetral (SVG Path Flow) */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes emerald-dash-flow {
+          0% {
+            stroke-dashoffset: 100;
+          }
+          100% {
+            stroke-dashoffset: 0;
+          }
+        }
+        @keyframes glow-pulse {
+          0%, 100% {
+            opacity: 0.65;
+            stroke-width: 14;
+          }
+          50% {
+            opacity: 0.95;
+            stroke-width: 22;
+          }
+        }
+        @keyframes env-pulse {
+          0%, 100% {
+            opacity: 0.20;
+          }
+          50% {
+            opacity: 0.45;
+          }
+        }
+        @keyframes card-glow-breath {
+          0%, 100% {
+            opacity: 0;
+          }
+          50% {
+            opacity: 1;
+          }
+        }
+
+        .emerald-flow-pulse {
+          animation: emerald-dash-flow 8s linear infinite;
+          animation-play-state: inherit;
+        }
+        .emerald-flow-pulse.shadow-glow {
+          animation: emerald-dash-flow 8s linear infinite, glow-pulse 4s ease-in-out infinite;
+          animation-play-state: inherit;
+        }
+        .emerald-flow-pulse.environmental-glow {
+          animation: emerald-dash-flow 8s linear infinite, env-pulse 5s ease-in-out infinite;
+          animation-play-state: inherit;
+        }
+      `}} />
+
+      {/* ── EFECTO DE LUZ PULSÁTIL PERIMETRAL DE PRECISIÓN (Capa trasera z-0 con respiración de opacidad cero) ── */}
+      <div 
+        className="absolute inset-[-10px] z-0 pointer-events-none overflow-visible select-none"
+        style={{
+          animation: "card-glow-breath 9s ease-in-out infinite",
+          animationPlayState: glowActive ? "running" : "paused",
+          opacity: glowActive ? undefined : 0,
+          willChange: "opacity",
+        }}
+      >
+        <svg className="w-full h-full" style={{ overflow: "visible" }}>
+          <defs>
+            {/* Gradiente de luz: Verde Esmeralda Suave -> Verde Vibrante -> Blanco Esmeralda Brillante -> Emerald -> Verde Suave */}
+            <linearGradient id="emerald-pulse-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.55" />
+              <stop offset="30%" stopColor="#00f5a0" stopOpacity="0.9" />
+              <stop offset="50%" stopColor="#e6fff4" stopOpacity="1" /> {/* Blanco Esmeralda Brillante */}
+              <stop offset="70%" stopColor="#00f5a0" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0.55" />
+            </linearGradient>
+          </defs>
+          
+          {/* HACES QUE CORREN POR EL PERÍMETRO (Solidificados y continuos) */}
+          {/* Haz 1 - Línea de contorno base y ráfaga de precisión */}
+          <rect
+            x="10"
+            y="10"
+            width="calc(100% - 20px)"
+            height="calc(100% - 20px)"
+            rx="24"
+            fill="none"
+            stroke="url(#emerald-pulse-grad)"
+            strokeWidth="5.5"
+            pathLength="100"
+            className="emerald-flow-pulse"
+            style={{
+              willChange: "stroke-dashoffset",
+            }}
+          />
+
+          {/* Haz 1 - Difuminación y halo de pulso brillante */}
+          <rect
+            x="10"
+            y="10"
+            width="calc(100% - 20px)"
+            height="calc(100% - 20px)"
+            rx="24"
+            fill="none"
+            stroke="url(#emerald-pulse-grad)"
+            strokeWidth="18"
+            pathLength="100"
+            className="emerald-flow-pulse shadow-glow"
+            style={{
+              filter: "blur(12px)",
+              willChange: "stroke-dashoffset, opacity, stroke-width",
+            }}
+          />
+
+          {/* Aura Ambiental perimetral suave de color verde esmeralda */}
+          <rect
+            x="10"
+            y="10"
+            width="calc(100% - 20px)"
+            height="calc(100% - 20px)"
+            rx="24"
+            fill="none"
+            stroke="#00f5a0"
+            strokeWidth="30"
+            pathLength="100"
+            className="emerald-flow-pulse environmental-glow"
+            style={{
+              filter: "blur(32px)",
+              willChange: "stroke-dashoffset, opacity",
+            }}
+          />
+        </svg>
+      </div>
+
       {/* ── CUERPO DEL DEMO EN CRISTAL PURO TEMPLADO HIPER-TRANSPARENTE ── */}
       <div
         style={{

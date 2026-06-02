@@ -26,7 +26,7 @@ export const HeroSection = ({
         transition={{ duration: 0.8 }} 
         className="text-center w-full max-w-3xl relative z-10 px-4"
       >
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black tracking-tight text-foreground mb-4">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black tracking-tight text-foreground mb-4" style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}>
           DENTAXY
           <SyncedTypewriter className="text-blue-500" />
         </h1>
