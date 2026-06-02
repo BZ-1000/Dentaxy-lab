@@ -480,7 +480,6 @@ export const getInitialFormState = (): FormDataState => ({
   frecuenciaCardiaca: '',
   frecuenciaRespiratoria: '',
   temperatura: '',
-  temperatura: '',
 });
 
 const getInitialFamiliarState = () => ({

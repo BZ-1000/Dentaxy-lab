@@ -4,20 +4,20 @@
    Paleta: Blanco puro · Verde vibrante · Tinta oscura
    ════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Bruno+Ace+SC&family=Montserrat:wght@300;400;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Stalinist+One&family=Audiowide&family=Syncopate:wght@400;700&family=Orbitron:wght@400;500;700;900&display=swap');
 
 /* ── TOKENS ── */
 :root {
   /* Fondos */
-  --s-bg:         #000000;
-  --s-bg-alt:     #0d0d0d;
-  --s-bg-card:    #111111;
+  --s-bg:         #FFFFFF;
+  --s-bg-alt:     #F7F8FA;
+  --s-bg-card:    #FFFFFF;
 
   /* Tinta */
-  --s-ink:        #ffffff;
-  --s-ink2:       #e4e4e7;
-  --s-ink3:       #a1a1aa;
-  --s-ink4:       #71717a;
+  --s-ink:        #09090F;
+  --s-ink2:       #3A3A4A;
+  --s-ink3:       #72728A;
+  --s-ink4:       #A8A8BC;
 
   /* Verde Vibrante */
   --s-green:      #00C980;
@@ -35,8 +35,8 @@
   --s-red-l:      rgba(239,68,68,0.10);
 
   /* Bordes */
-  --s-border:     rgba(255,255,255,0.08);
-  --s-border-md:  rgba(255,255,255,0.12);
+  --s-border:     rgba(0,0,0,0.07);
+  --s-border-md:  rgba(0,0,0,0.12);
 
   /* Sombras */
   --s-shadow-xs:  0 1px 3px rgba(0,0,0,0.06);
@@ -53,14 +53,14 @@
   --r-pill: 999px;
 
   /* Tipografía */
-  --s-font:    'Bruno Ace SC', sans-serif;
+  --s-font:    'Plus Jakarta Sans', system-ui, sans-serif;
   --s-body:    'Inter', system-ui, sans-serif;
   --s-mono:    'JetBrains Mono', 'Fira Code', monospace;
 }
 
 /* ── RESET SEED ── */
 .seed-v2 {
-  background: #000000;
+  background: var(--s-bg);
   color: var(--s-ink);
   font-family: var(--s-body);
   -webkit-font-smoothing: antialiased;
@@ -117,8 +117,8 @@
   z-index: 2;
   border-top-left-radius: 40px;
   border-top-right-radius: 40px;
-  background: #000000;
-  backdrop-filter: none;
+  background: rgba(255, 255, 255, 0.85); /* Glass base */
+  backdrop-filter: blur(40px);
 }
 
 /* ── HERO (mantiene negro del HeroAnimation) ── */
@@ -214,16 +214,16 @@
 
 /* ════ CARDS (GLASSMORPHISM PREMIUM) ════ */
 .card-premium {
-  background: #0d0d0d;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: var(--r-lg);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.8);
   transition: box-shadow 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .card-premium:hover {
-  box-shadow: 0 12px 40px rgba(0,201,128,0.10), inset 0 1px 0 rgba(255,255,255,0.04);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
   transform: translateY(-4px) scale(1.01);
 }
 
@@ -328,11 +328,11 @@
 }
 .btn-ghost {
   background: transparent;
-  color: #e4e4e7;
-  border: 1.5px solid rgba(255,255,255,0.15);
+  color: var(--s-ink2);
+  border: 1.5px solid var(--s-border-md);
 }
 .btn-ghost:hover {
-  background: rgba(255,255,255,0.06);
+  background: var(--s-bg-alt);
   border-color: var(--s-ink4);
 }
 .btn-green-outline {
@@ -391,7 +391,7 @@
   color: var(--s-red);
 }
 .icon-wrap-ink {
-  background: rgba(255,255,255,0.06);
+  background: rgba(9,9,15,0.06);
   color: var(--s-ink2);
 }
 .icon-wrap-circle {
@@ -407,7 +407,7 @@
 
 /* ════ QUOTE BLOCK ════ */
 .quote-block {
-  background: #0d0d0d;
+  background: var(--s-bg-alt);
   border-left: 3px solid var(--s-green);
   border-radius: 0 var(--r-md) var(--r-md) 0;
   padding: 20px 24px;
@@ -795,9 +795,9 @@
 .glass-card-apple {
   position: relative;
   overflow: hidden;
-  background: #0d0d0d !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.4) !important;
+  background: #fcfcfd !important; /* Fondo sólido muy limpio */
+  border: 1px solid rgba(9, 9, 15, 0.06) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.02) !important;
   
   /* Renderizado de texto súper nítido sin forzar capas GPU rasterizadas */
   -webkit-font-smoothing: subpixel-antialiased;
@@ -820,8 +820,8 @@
 .glass-card-apple-red {
   position: relative;
   overflow: hidden;
-  background: #110000 !important;
-  border: 1px solid rgba(239,68,68,0.20) !important;
+  background: #fff8f8 !important; /* Fondo rojo sólido muy suave */
+  border: 1px solid rgba(239, 68, 68, 0.12) !important;
   box-shadow: 0 8px 30px rgba(239, 68, 68, 0.01) !important;
   
   /* Renderizado de texto súper nítido sin forzar capas GPU rasterizadas */
@@ -850,9 +850,9 @@
   margin-top: 40px;
 }
 .spec-card-landing {
-  background: #0d0d0d;
-  backdrop-filter: none;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: var(--r-md);
   padding: 24px;
   transition: all 0.3s ease;
@@ -861,8 +861,8 @@
 }
 .spec-card-landing:hover {
   transform: translateY(-4px);
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
-  background: #111111;
+  box-shadow: var(--s-shadow-sm);
+  background: rgba(255, 255, 255, 0.85);
 }
 .spec-icon-box {
   font-size: 28px;
@@ -890,8 +890,8 @@
   margin-top: 40px;
 }
 .core-card-landing {
-  background: #0d0d0d;
-  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: var(--r-md);
   padding: 18px;
   display: flex;
@@ -899,8 +899,8 @@
   transition: all 0.25s ease;
 }
 .core-card-landing:hover {
-  background: #111111;
-  border-color: rgba(0,201,128,0.25);
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 201, 128, 0.2);
 }
 .core-num-landing {
   font-family: var(--s-mono);
@@ -943,15 +943,15 @@
   gap: 12px;
 }
 .faq-item-landing {
-  background: #0d0d0d;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: var(--r-md);
   overflow: hidden;
   transition: all 0.25s ease;
 }
 .faq-item-landing.active {
-  background: #0a1a14;
-  border-color: rgba(0,201,128,0.30);
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 201, 128, 0.25);
   box-shadow: var(--s-shadow-sm);
 }
 .faq-trigger-landing {
@@ -1009,64 +1009,3 @@
   .core-grid-landing { grid-template-columns: 1fr; }
 }
 
-
-
-
-/* ── ESTILOS FUTURISTAS PREMIUM PARA TÍTULOS ── */
-.display-xl, .display-lg, .display-md, .calc-title, .spec-title-landing, .core-title-landing, #faq h2 {
-  font-family: var(--s-font) !important;
-  text-transform: uppercase;
-  letter-spacing: 0.05em !important;
-  font-weight: 400 !important; /* Bruno Ace SC tiene un peso regular icónico */
-}
-
-.display-xl {
-  font-size: clamp(42px, 8vw, 120px) !important; /* Responsivo, hasta 120px en desktop */
-  line-height: 1.05 !important;
-}
-
-.display-lg {
-  font-size: clamp(26px, 3.8vw, 48px) !important;
-  line-height: 1.15 !important;
-}
-
-.display-md {
-  font-size: clamp(20px, 2.4vw, 32px) !important;
-  line-height: 1.2 !important;
-}
-
-/* Modificadores para texto destacado futurista - Blanco Puro y Sin Cursiva */
-.display-xl em, .display-lg em, .display-md em,
-.display-xl strong, .display-lg strong, .display-md strong,
-.calc-title strong, .spec-title-landing strong, .core-title-landing strong {
-  font-family: var(--s-font) !important;
-  font-style: normal !important;
-  font-weight: 400 !important;
-  color: #ffffff !important;
-  text-shadow: none !important;
-  letter-spacing: 0.05em !important;
-}
-
-/* ── ESTILOS PARA LAS FRASES DE SCROLL INTERACTIVO ── */
-.font-montserrat-light {
-  font-family: 'Montserrat', sans-serif !important;
-  font-weight: 300 !important;
-  color: #a1a1aa !important; /* zinc-400 */
-  letter-spacing: 0.05em !important;
-  font-size: clamp(3.5rem, 11vw, 9.5rem) !important;
-  line-height: 1.2 !important;
-  text-align: center;
-  font-style: italic;
-}
-
-.font-montserrat-heavy {
-  font-family: 'Montserrat', sans-serif !important;
-  font-weight: 900 !important;
-  color: #ffffff !important;
-  letter-spacing: 0.08em !important;
-  font-size: clamp(3.5rem, 11vw, 9.5rem) !important;
-  line-height: 1.3 !important;
-  text-align: center;
-  text-transform: uppercase;
-  text-shadow: 0 0 40px rgba(255,255,255,0.08);
-}
