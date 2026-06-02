@@ -101,6 +101,7 @@ export const Card = ({
         scale,
         boxShadow:
           "0 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05), 0 12px 24px rgba(0, 0, 0, 0.05)",
+        willChange: "transform",
       }}
       className={`max-w-[1600px] md:-mt-36 -mt-16 mx-auto h-[30rem] md:h-[42rem] w-full relative z-20 ${className || ''}`}
     >
@@ -132,159 +133,13 @@ export const Card = ({
           <span style={{ color: "#ef4444", textShadow: "0 0 2px rgba(239, 68, 68, 0.4)" }}>e</span>
         </span>
       </div>
-      {/* ── EFECTO DE LUZ NEÓN DUAL (NÚCLEO BLANCO INTENSO CON AURA VERDE DE ALTO CONTRASTE) ── */}
-      
-      {/* A. Capas de Brillo Verde de Alto Contraste (Alrededor del Blanco, desvanecido lateral suave) */}
-      
-      {/* @keyframes — padre único, solo opacity, rango estrecho (sin rayas) */}
-      <style>{`
-        @keyframes neonGroupBreathe {
-          0%            { opacity: 0.65; }
-          25%, 75%      { opacity: 1.00; }
-          100%          { opacity: 0.65; }
-        }
-      `}</style>
-
-      {/* Padre animado: los 3 glows verdes pulsan como UNA sola unidad.
-          Sin desfase entre capas → sin interferencia → sin rayas de tigre */}
+      {/* ── CUERPO SÓLIDO DEL DEMO (Efectos de luz verde eliminados) ── */}
       <div
-        className="absolute pointer-events-none z-[-2]"
         style={{
-          inset: 0,
-          animation: "neonGroupBreathe 12s ease-in-out 0s infinite",
-          willChange: "opacity",
-        }}
-      >
-      {/* 1. Halo verde gigante exterior difuso (Desvanecimiento lateral orgánico) */}
-      <div 
-        className="absolute -top-[160px] left-1/2 -translate-x-1/2 w-[120%] max-w-[1600px] h-[300px] pointer-events-none blur-[70px] opacity-100 rounded-full"
-        style={{
-          background: "radial-gradient(ellipse at center bottom, rgba(52, 211, 153, 1) 0%, rgba(16, 185, 129, 0.95) 35%, rgba(52, 211, 153, 0.3) 70%, rgba(0, 0, 0, 0) 100%)"
-        }}
-      />
-      {/* 2. Aura verde brillante intermedia de alta densidad */}
-      <div 
-        className="absolute -top-[90px] left-1/2 -translate-x-1/2 w-[95%] max-w-[1250px] h-[160px] pointer-events-none blur-[30px] opacity-90 rounded-full"
-        style={{
-          background: "radial-gradient(ellipse at center bottom, rgba(52, 211, 153, 1) 0%, rgba(16, 185, 129, 0.8) 45%, rgba(0, 0, 0, 0) 90%)"
-        }}
-      />
-      {/* 3. Domo Verde Central Estirado (Exclusivo en el centro hacia arriba, sin ensanchar los bordes) */}
-      <div 
-        className="absolute -top-[210px] left-1/2 -translate-x-1/2 w-[45%] max-w-[600px] h-[320px] pointer-events-none blur-[50px] opacity-100 rounded-full"
-        style={{
-          background: "radial-gradient(ellipse at center bottom, rgba(52, 211, 153, 1) 0%, rgba(16, 185, 129, 0.75) 45%, rgba(0, 0, 0, 0) 85%)"
-        }}
-      />
-      </div>
-
-      {/* B. Capas de Luz Blanca Central Superior (Restauradas a blanco puro original) */}
-      {/* 1. Núcleo blanco brillante principal (Más ancho a los lados) */}
-      <div 
-        className="absolute -top-[60px] left-1/2 -translate-x-1/2 w-[100%] max-w-[1350px] h-[100px] pointer-events-none z-[-1] blur-[20px] opacity-100 rounded-full"
-        style={{
-          background: "radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.95) 40%, rgba(255, 255, 255, 0.5) 75%, rgba(255, 255, 255, 0) 100%)"
-        }}
-      />
-      {/* 2. Haz de luz blanca pura de alta potencia central (Más ancho a los lados) */}
-      <div 
-        className="absolute -top-[35px] left-1/2 -translate-x-1/2 w-[80%] max-w-[1100px] h-[60px] pointer-events-none z-[-1] blur-[12px] opacity-100 rounded-full"
-        style={{
-          background: "radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.9) 50%, rgba(255, 255, 255, 0) 90%)"
-        }}
-      />
-      {/* 3. Domo Blanco Central Estirado (Exclusivo en el centro hacia arriba, sin ensanchar los bordes) */}
-      <div 
-        className="absolute -top-[120px] left-1/2 -translate-x-1/2 w-[35%] max-w-[480px] h-[180px] pointer-events-none z-[-1] blur-[22px] opacity-100 rounded-full"
-        style={{
-          background: "radial-gradient(ellipse at center bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 45%, rgba(255, 255, 255, 0) 85%)"
-        }}
-      />
-
-      {/* ── C. DISECCIÓN DE LUZ VERDE NEÓN EN LA ESQUINA SUPERIOR DERECHA (Debajo de la Mano de Robot, por fuera del demo) ── */}
-      {/* 1. Núcleo ultra-brillante neón en la esquina superior derecha (destello de alta energía) */}
-      <div 
-        className="absolute -top-[50px] -right-[40px] w-[200px] h-[200px] pointer-events-none z-[-2] blur-[15px] opacity-100 rounded-full"
-        style={{
-          background: "radial-gradient(circle, rgba(52, 211, 153, 1) 0%, rgba(16, 185, 129, 0.95) 40%, rgba(16, 185, 129, 0) 80%)"
-        }}
-      />
-      {/* 2. Aura verde intermedia concentrada de alta densidad en la esquina superior derecha */}
-      <div 
-        className="absolute -top-[90px] -right-[80px] w-[380px] h-[380px] pointer-events-none z-[-2] blur-[30px] opacity-95 rounded-full"
-        style={{
-          background: "radial-gradient(circle, rgba(52, 211, 153, 1) 0%, rgba(16, 185, 129, 0.8) 50%, rgba(16, 185, 129, 0.15) 75%, transparent 100%)"
-        }}
-      />
-      {/* 3. Halo verde gigante expansivo exterior en la esquina superior derecha */}
-      <div 
-        className="absolute -top-[140px] -right-[150px] w-[550px] h-[550px] pointer-events-none z-[-2] blur-[60px] opacity-90 rounded-full"
-        style={{
-          background: "radial-gradient(circle, rgba(52, 211, 153, 0.9) 0%, rgba(16, 185, 129, 0.6) 45%, rgba(0, 0, 0, 0) 85%)"
-        }}
-      />
-
-      {/* ── D. DISECCIÓN DE LUZ VERDE NEÓN EN LA ESQUINA SUPERIOR IZQUIERDA (Debajo de la Mano Humana, por fuera del demo) ── */}
-      {/* 1. Núcleo ultra-brillante neón en la esquina superior izquierda (destello de alta energía) */}
-      <div 
-        className="absolute -top-[50px] -left-[40px] w-[200px] h-[200px] pointer-events-none z-[-2] blur-[15px] opacity-100 rounded-full"
-        style={{
-          background: "radial-gradient(circle, rgba(52, 211, 153, 1) 0%, rgba(16, 185, 129, 0.95) 40%, rgba(16, 185, 129, 0) 80%)"
-        }}
-      />
-      {/* 2. Aura verde intermedia concentrada de alta densidad en la esquina superior izquierda */}
-      <div 
-        className="absolute -top-[90px] -left-[80px] w-[380px] h-[380px] pointer-events-none z-[-2] blur-[30px] opacity-95 rounded-full"
-        style={{
-          background: "radial-gradient(circle, rgba(52, 211, 153, 1) 0%, rgba(16, 185, 129, 0.8) 50%, rgba(16, 185, 129, 0.15) 75%, transparent 100%)"
-        }}
-      />
-      {/* 3. Halo verde gigante expansivo exterior en la esquina superior izquierda */}
-      <div 
-        className="absolute -top-[140px] -left-[150px] w-[550px] h-[550px] pointer-events-none z-[-2] blur-[60px] opacity-90 rounded-full"
-        style={{
-          background: "radial-gradient(circle, rgba(52, 211, 153, 0.9) 0%, rgba(16, 185, 129, 0.6) 45%, rgba(0, 0, 0, 0) 85%)"
-        }}
-      />
-
-      {/* ── C. EFECTO DE BRILLO VERTICAL LATERAL (ESTIRA EL DEGRADADO HACIA ABAJO POR LOS COSTADOS) ── */}
-      {/* LATERAL IZQUIERDO */}
-      {/* 1. Halo verde brillante lateral izquierdo */}
-      <div 
-        className="absolute top-0 -left-[45px] w-[90px] h-[420px] pointer-events-none z-[-2] blur-[35px] opacity-100"
-        style={{
-          background: "linear-gradient(to bottom, rgba(52, 211, 153, 1) 0%, rgba(52, 211, 153, 0.95) 30%, rgba(16, 185, 129, 0.35) 65%, rgba(0, 0, 0, 0) 100%)"
-        }}
-      />
-      {/* 2. Núcleo blanco/verde neón concentrado lateral izquierdo (Ancho reducido a 18px con transición ultra-rápida) */}
-      <div 
-        className="absolute top-0 -left-[9px] w-[18px] h-[260px] pointer-events-none z-[-1] blur-[10px] opacity-95"
-        style={{
-          background: "linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.8) 4%, rgba(52, 211, 153, 1) 15%, rgba(16, 185, 129, 0.6) 55%, rgba(0, 0, 0, 0) 100%)"
-        }}
-      />
-
-      {/* LATERAL DERECHO (Debajo de la Mano del Robot) */}
-      {/* 1. Halo verde brillante lateral derecho */}
-      <div 
-        className="absolute top-0 -right-[45px] w-[90px] h-[420px] pointer-events-none z-[-2] blur-[35px] opacity-100"
-        style={{
-          background: "linear-gradient(to bottom, rgba(52, 211, 153, 1) 0%, rgba(16, 185, 129, 0.8) 35%, rgba(16, 185, 129, 0.25) 70%, rgba(0, 0, 0, 0) 100%)"
-        }}
-      />
-      {/* 2. Núcleo blanco/verde neón concentrado lateral derecho */}
-      <div 
-        className="absolute top-0 -right-[20px] w-[40px] h-[260px] pointer-events-none z-[-1] blur-[16px] opacity-95"
-        style={{
-          background: "linear-gradient(to bottom, rgba(255, 255, 255, 1) 0%, rgba(52, 211, 153, 0.95) 35%, rgba(16, 185, 129, 0.5) 65%, rgba(0, 0, 0, 0) 100%)"
-        }}
-      />
-
-
-      {/* ── CUERPO SÓLIDO DEL DEMO (Escudo z-10 que cubre los brillos por completo) ── */}
-      <div 
-        style={{
-          boxShadow: "0 0 50px rgba(16, 185, 129, 0.15), 0 25px 50px -12px rgba(0, 0, 0, 0.5)"
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.55)",
+          transform: "translate3d(0,0,0)",
+          backfaceVisibility: "hidden",
+          WebkitBackfaceVisibility: "hidden" as any,
         }}
         className="h-full w-full p-2 md:p-[14px] bg-[#1C1C26]/85 backdrop-blur-md rounded-[24px] shadow-2xl relative z-10 overflow-hidden"
       >

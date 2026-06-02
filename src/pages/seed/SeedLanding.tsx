@@ -63,26 +63,15 @@ export default function SeedLanding() {
   return (
     <div className="seed-v2 relative overflow-x-hidden w-full">
 
-      {/* ════ ORBES DE LUZ (BLOBS DE FONDO) ════ */}
-      <div className="blob-container">
-        {/* Blobs superiores (Cian y Verde) */}
-        <div className="blob blob-cyan" style={{ width: '600px', height: '600px', top: '10%', left: '-10%' }} />
-        <div className="blob blob-emerald" style={{ width: '500px', height: '500px', top: '25%', right: '-5%' }} />
-        
-        {/* Blobs centrales */}
-        <div className="blob blob-cyan" style={{ width: '700px', height: '700px', top: '50%', right: '-15%' }} />
-        <div className="blob blob-emerald" style={{ width: '400px', height: '400px', top: '65%', left: '10%' }} />
-        
-        {/* Blobs inferiores */}
-        <div className="blob blob-emerald" style={{ width: '800px', height: '800px', bottom: '-10%', left: '20%' }} />
-      </div>
+      {/* Blobs de luz eliminados por requerimiento */}
+
 
       {/* ══════════════════════════════════════════════
           1. HERO SECTION — Dark Futuristic
           ══════════════════════════════════════════════ */}
       <HeroAnimation
         dienteImg="/Seed/diente.png"
-        manoHumanaImg="/Seed/mano-humano.png"
+        manoHumanaImg="/Seed/hand2.png"
         manoRobotImg="/Seed/mano-robot.png"
         className="seed-section hero-dark-section"
       />
