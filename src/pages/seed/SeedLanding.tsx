@@ -304,6 +304,9 @@ export default function SeedLanding() {
   // Estado para las FAQ
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
+  // Estado para la sección interactiva de infraestructura y reconocimientos
+  const [activeValidationIdx, setActiveValidationIdx] = useState<number>(0);
+
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
@@ -582,10 +585,10 @@ export default function SeedLanding() {
               isGoogle: true,
               illustration: (
                 <div className="w-full h-32 bg-blue-500/10 rounded-xl flex items-center justify-center relative overflow-hidden border border-blue-500/20">
-                  <svg className="w-12 h-12 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <svg className="w-12 h-12 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-.778.099-1.533.284-2.253" />
                   </svg>
-                  <div className="absolute top-2 right-2 font-mono text-[8px] text-blue-400 bg-blue-950 px-1 py-0.5 rounded font-bold border border-blue-500/30">CLOUD</div>
+                  <div className="absolute top-2 right-2 font-mono text-[8px] text-blue-700 bg-blue-200 px-1 py-0.5 rounded font-bold border border-blue-300">CLOUD</div>
                 </div>
               )
             },
@@ -593,21 +596,21 @@ export default function SeedLanding() {
               phase: "Investigación Científica",
               title: "XXII Jornadas de Investigación Internacional de Odontología 2025",
               badgeText: "Primer Lugar 🏆",
-              badgeClass: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+              badgeClass: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
               description: "Ganador del primer lugar en el certamen científico de la Universidad Autónoma de Zacatecas (UAZ). Premio otorgado por el impacto clínico, la descentralización digital del expediente y la propuesta tecnológica de Seed frente a jurados internacionales.",
               footerLeft: "UAZ • Comité Evaluador 2025",
               footerRight: "Zacatecas, México",
-              rightBg: "bg-[#a7f3d0]", // Soft emerald
-              rightBorder: "border-emerald-300",
+              rightBg: "bg-[#fef08a]", // Soft yellow/gold (previously green)
+              rightBorder: "border-yellow-300",
               rightRotation: "lg:rotate-[-2deg]",
               rightPosition: "lg:left-[130px] lg:top-[50px] z-[12]",
               isGoogle: false,
               illustration: (
-                <div className="w-full h-32 bg-emerald-500/10 rounded-xl flex items-center justify-center relative overflow-hidden border border-emerald-500/20">
-                  <svg className="w-12 h-12 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <div className="w-full h-32 bg-yellow-500/10 rounded-xl flex items-center justify-center relative overflow-hidden border border-yellow-500/20">
+                  <svg className="w-12 h-12 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 013 3h-15a3 3 0 013-3m9 0v-3.375c0-.621-.504-1.125-1.125-1.125h-.75V8.25h1.875c.621 0 1.125-.504 1.125-1.125V3.75h-9v3.375c0 .621.504 1.125 1.125 1.125h1.875v5.25h-.75c-.621 0-1.125.504-1.125 1.125v3.375m9 0h-9M9 3.75h6" />
                   </svg>
-                  <div className="absolute top-2 right-2 font-mono text-[8px] text-emerald-400 bg-emerald-950 px-1 py-0.5 rounded font-bold border border-emerald-500/30">PREMIO</div>
+                  <div className="absolute top-2 right-2 font-mono text-[8px] text-yellow-700 bg-yellow-200 px-1 py-0.5 rounded font-bold border border-yellow-300">PREMIO</div>
                 </div>
               )
             },
@@ -615,21 +618,21 @@ export default function SeedLanding() {
               phase: "Aceleración Tecnológica",
               title: "Tech Talk con Google México & POSIBLE",
               badgeText: "Top 25 Nacional ⚡",
-              badgeClass: "bg-yellow-500/15 text-yellow-400 border-yellow-500/30",
+              badgeClass: "bg-pink-500/15 text-pink-400 border-pink-500/30",
               description: "Seleccionado a nivel nacional dentro de los 25 mejores proyectos de alto impacto tecnológico en el programa POSIBLE. Presentación oficial en el foro de tecnología y salud celebrado en las oficinas centrales de Google México en la CDMX.",
               footerLeft: "Google México • POSIBLE",
               footerRight: "CDMX, México",
-              rightBg: "bg-[#fef08a]", // Soft gold
-              rightBorder: "border-yellow-300",
+              rightBg: "bg-[#fbcfe8]", // Soft pink (previously yellow)
+              rightBorder: "border-pink-300",
               rightRotation: "lg:rotate-[4deg]",
               rightPosition: "lg:left-[240px] lg:top-[10px] z-[13]",
               isGoogle: false,
               illustration: (
-                <div className="w-full h-32 bg-yellow-500/10 rounded-xl flex items-center justify-center relative overflow-hidden border border-yellow-500/20">
-                  <svg className="w-12 h-12 text-yellow-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <div className="w-full h-32 bg-pink-500/10 rounded-xl flex items-center justify-center relative overflow-hidden border border-pink-500/20">
+                  <svg className="w-12 h-12 text-pink-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                   </svg>
-                  <div className="absolute top-2 right-2 font-mono text-[8px] text-yellow-400 bg-yellow-950 px-1 py-0.5 rounded font-bold border border-yellow-500/30">TECH TALK</div>
+                  <div className="absolute top-2 right-2 font-mono text-[8px] text-pink-700 bg-pink-200 px-1 py-0.5 rounded font-bold border border-pink-300">TECH TALK</div>
                 </div>
               )
             }
@@ -642,130 +645,97 @@ export default function SeedLanding() {
               
               <div className="grid lg:grid-cols-12 gap-16 items-center justify-center">
                 
-                {/* Columna Izquierda: Detalle de Validación (Card Principal) */}
-                <div className="lg:col-span-6 flex justify-center items-center w-full">
-                  <div className="w-full max-w-[540px]">
+                {/* Columna Izquierda: Detalle de Validación (Card Principal) - Más ancha y alta */}
+                <div className="lg:col-span-7 flex justify-center items-center w-full">
+                  <div className="w-full max-w-[620px]">
                     <motion.div
                       key={activeValidationIdx}
                       initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, ease: "easeOut" }}
-                      className="bg-zinc-900/30 border border-zinc-800/80 rounded-3xl p-8 md:p-10 flex flex-col justify-between relative overflow-hidden group shadow-xl min-h-[460px]"
+                      className={`${selectedCard.rightBg} border ${selectedCard.rightBorder} rounded-3xl p-8 md:p-10 flex flex-col justify-between relative overflow-hidden group shadow-xl min-h-[520px] text-zinc-950`}
                     >
-                      {/* Glow de color dinámico de fondo */}
-                      <div className={`absolute -top-20 -right-20 w-80 h-80 ${
-                        activeValidationIdx === 0 ? "bg-blue-500/10" : 
-                        activeValidationIdx === 1 ? "bg-emerald-500/10" : 
-                        "bg-yellow-500/10"
-                      } rounded-full blur-3xl pointer-events-none transition-all duration-500`} />
+                      {/* Glow sutil de color dinámico */}
+                      <div className="absolute -top-20 -right-20 w-80 h-80 bg-white/30 rounded-full blur-3xl pointer-events-none transition-all duration-500" />
                       
                       <div>
-                        <span className={`font-mono text-[9px] font-bold tracking-[0.2em] uppercase mb-3 block ${
-                          activeValidationIdx === 0 ? "text-[#3B82F6]" : 
-                          activeValidationIdx === 1 ? "text-[#00C980]" : 
-                          "text-yellow-500"
-                        }`}>
+                        <span className="font-mono text-[9px] font-bold tracking-[0.2em] uppercase mb-3 block text-zinc-600">
                           {selectedCard.phase}
                         </span>
                         
                         <div className="flex flex-col gap-2 mb-4">
-                          <h3 className="text-2xl md:text-3xl font-bold text-white leading-tight font-sans">
+                          <h3 className="text-2xl md:text-3xl font-bold text-zinc-950 leading-tight font-sans">
                             {selectedCard.title}
                           </h3>
                           <div>
-                            <span className={`inline-block font-mono text-[9.5px] font-bold px-2.5 py-0.5 rounded border ${selectedCard.badgeClass}`}>
+                            <span className="inline-block font-mono text-[9.5px] font-bold px-2.5 py-0.5 rounded bg-zinc-950 text-white">
                               {selectedCard.badgeText}
                             </span>
                           </div>
                         </div>
 
-                        <p className="font-mono text-xs sm:text-sm text-zinc-300 leading-relaxed mb-8">
+                        <p className="font-mono text-xs sm:text-sm text-zinc-800 leading-relaxed mb-8">
                           {selectedCard.description}
                         </p>
                       </div>
 
                       {/* Detalle específico según tarjeta */}
                       {selectedCard.isGoogle ? (
-                        /* Iconos de Google Workspace */
-                        <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-4 relative overflow-hidden flex items-center justify-around gap-2 shadow-inner mt-auto">
+                        /* Iconos de Google Workspace con logos reales */
+                        <div className="bg-white/40 border border-black/10 rounded-2xl p-4 relative overflow-hidden flex items-center justify-around gap-2 shadow-inner mt-auto">
                           {/* Drive */}
                           <div className="flex flex-col items-center gap-1.5">
-                            <div className="w-10 h-10 rounded-xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center">
-                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-                                <path d="M8.5 4.5L2.5 15L5.5 20L11.5 9.5L8.5 4.5Z" fill="#0066DA" />
-                                <path d="M15.5 4.5L8.5 16.5L11.5 21.5L18.5 9.5L15.5 4.5Z" fill="#00AA47" />
-                                <path d="M12.5 13.5L5.5 13.5L2.5 18.5L21.5 18.5L18.5 13.5L12.5 13.5Z" fill="#FFBA00" />
-                              </svg>
+                            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center shadow-sm p-1.5">
+                              <img src="/logos/google-drive.png" alt="Google Drive" className="w-full h-full object-contain" />
                             </div>
-                            <span className="text-[8px] font-mono text-zinc-500 font-bold uppercase tracking-wider">Drive</span>
+                            <span className="text-[8px] font-mono text-zinc-700 font-bold uppercase tracking-wider">Drive</span>
                           </div>
 
                           {/* Calendar */}
                           <div className="flex flex-col items-center gap-1.5">
-                            <div className="w-10 h-10 rounded-xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center">
-                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="#EA4335" fill="rgba(234,67,53,0.1)" />
-                                <line x1="16" y1="2" x2="16" y2="6" stroke="#EA4335" />
-                                <line x1="8" y1="2" x2="8" y2="6" stroke="#EA4335" />
-                                <line x1="3" y1="10" x2="21" y2="10" stroke="#EA4335" />
-                                <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke="#EA4335" />
-                              </svg>
+                            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center shadow-sm p-1.5">
+                              <img src="/logos/google-calendar.png" alt="Google Calendar" className="w-full h-full object-contain" />
                             </div>
-                            <span className="text-[8px] font-mono text-zinc-500 font-bold uppercase tracking-wider">Calendar</span>
+                            <span className="text-[8px] font-mono text-zinc-700 font-bold uppercase tracking-wider">Calendar</span>
                           </div>
 
                           {/* Sheets */}
                           <div className="flex flex-col items-center gap-1.5">
-                            <div className="w-10 h-10 rounded-xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center">
-                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <rect x="3" y="3" width="18" height="18" rx="2" fill="rgba(52,168,83,0.1)" stroke="#34A853" />
-                                <line x1="3" y1="9" x2="21" y2="9" stroke="#34A853" />
-                                <line x1="3" y1="15" x2="21" y2="15" stroke="#34A853" />
-                                <line x1="9" y1="3" x2="9" y2="21" stroke="#34A853" />
-                                <line x1="15" y1="3" x2="15" y2="21" stroke="#34A853" />
-                              </svg>
+                            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center shadow-sm p-1.5">
+                              <img src="/logos/google-sheets.png" alt="Google Sheets" className="w-full h-full object-contain" />
                             </div>
-                            <span className="text-[8px] font-mono text-zinc-500 font-bold uppercase tracking-wider">Sheets</span>
+                            <span className="text-[8px] font-mono text-zinc-700 font-bold uppercase tracking-wider">Sheets</span>
                           </div>
 
                           {/* Cloud */}
                           <div className="flex flex-col items-center gap-1.5">
-                            <div className="w-10 h-10 rounded-xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center">
-                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-                                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="#4285F4" />
-                              </svg>
+                            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center shadow-sm p-1.5">
+                              <img src="/logos/google-cloud.png" alt="Google Cloud" className="w-full h-full object-contain" />
                             </div>
-                            <span className="text-[8px] font-mono text-zinc-500 font-bold uppercase tracking-wider">Cloud</span>
+                            <span className="text-[8px] font-mono text-zinc-700 font-bold uppercase tracking-wider">Cloud</span>
                           </div>
 
-                          {/* Google */}
+                          {/* Gmail */}
                           <div className="flex flex-col items-center gap-1.5">
-                            <div className="w-10 h-10 rounded-xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center">
-                              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.62-.63-1.07-1.37-1.18-2.63z" fill="#FBBC05" />
-                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
-                              </svg>
+                            <div className="w-10 h-10 rounded-xl bg-white border border-black/10 flex items-center justify-center shadow-sm p-1.5">
+                              <img src="/logos/gmail.png" alt="Gmail" className="w-full h-full object-contain" />
                             </div>
-                            <span className="text-[8px] font-mono text-zinc-500 font-bold uppercase tracking-wider">Google</span>
+                            <span className="text-[8px] font-mono text-zinc-700 font-bold uppercase tracking-wider">Gmail</span>
                           </div>
                         </div>
                       ) : (
                         /* Metadatos de Certamen UAZ o POSIBLE */
-                        <div className="border-t border-zinc-800/80 pt-4 mt-auto flex items-center justify-between">
-                          <span className="text-[10px] font-mono text-zinc-500">{selectedCard.footerLeft}</span>
-                          <span className={`text-xs font-bold ${
-                            activeValidationIdx === 1 ? "text-[#00C980]" : "text-yellow-500"
-                          }`}>{selectedCard.footerRight}</span>
+                        <div className="border-t border-black/10 pt-4 mt-auto flex items-center justify-between">
+                          <span className="text-[10px] font-mono text-zinc-600">{selectedCard.footerLeft}</span>
+                          <span className="text-xs font-bold text-zinc-950">{selectedCard.footerRight}</span>
                         </div>
                       )}
                     </motion.div>
                   </div>
                 </div>
 
-                {/* Lado Derecho: Selector de 3 Secciones Diagonales Overlapping (Inspirado en la Imagen de Referencia) */}
-                <div className="lg:col-span-6 flex justify-center items-center w-full min-h-[380px] lg:min-h-[460px] relative">
+                {/* Lado Derecho: Selector de 3 Secciones Diagonales Overlapping - Con AppleDockHover y alto contraste */}
+                <div className="lg:col-span-5 flex justify-center items-center w-full min-h-[380px] lg:min-h-[460px] relative">
                   
                   {/* Contenedor Responsivo para Móviles y Escritorio */}
                   <div className="flex flex-col md:flex-row lg:block gap-6 w-full max-w-[480px] relative lg:h-[420px] items-center justify-center">
@@ -782,52 +752,53 @@ export default function SeedLanding() {
                           key={idx}
                           onClick={() => setActiveValidationIdx(idx)}
                           className={`
-                            w-[245px] rounded-3xl p-5 border cursor-pointer select-none transition-all duration-500
-                            ${card.rightBg} ${isActive ? 'border-zinc-950 shadow-2xl scale-105 ring-4 ring-black/10' : 'border-zinc-400/30 opacity-75 scale-95 hover:opacity-95'}
-                            ${card.rightRotation} ${card.rightPosition} ${zIndexClass}
+                            w-[245px] ${card.rightRotation} ${card.rightPosition} ${zIndexClass}
                             relative lg:absolute
                           `}
-                          style={{
-                            boxShadow: isActive ? "0 20px 40px -10px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)" : "0 10px 20px -10px rgba(0,0,0,0.1)",
-                          }}
-                          whileHover={{ 
-                            scale: isActive ? 1.07 : 1.02,
-                            zIndex: 40,
-                            rotate: 0,
-                            transition: { duration: 0.2 }
-                          }}
                         >
-                          {/* Contenido Card Derecho */}
-                          <div className="flex flex-col h-full justify-between">
-                            {/* Ilustración de la Card */}
-                            {card.illustration}
-                            
-                            {/* Información */}
-                            <div className="mt-2">
-                              <span className="font-mono text-[9px] font-bold tracking-wider text-zinc-650 uppercase">
-                                {card.phase}
-                              </span>
-                              <h4 className="text-sm font-bold text-zinc-950 leading-tight mt-1 mb-1 font-sans">
-                                {card.badgeText}
-                              </h4>
-                              <p className="text-[10px] text-zinc-850 leading-normal font-sans font-medium line-clamp-3">
-                                {card.description}
-                              </p>
+                          <AppleDockHover hoverScale={isActive ? 1.07 : 1.03} hoverY={isActive ? -8 : -4}>
+                            <div
+                              className={`
+                                w-full rounded-3xl p-5 border cursor-pointer select-none transition-all duration-500 text-zinc-950
+                                ${card.rightBg} ${isActive ? 'border-zinc-950 shadow-2xl ring-4 ring-black/10' : 'border-zinc-400/35 shadow-md'}
+                              `}
+                              style={{
+                                boxShadow: isActive ? "0 20px 40px -10px rgba(0,0,0,0.15), 0 0 0 1px rgba(0,0,0,0.05)" : "0 10px 20px -10px rgba(0,0,0,0.1)",
+                              }}
+                            >
+                              {/* Contenido Card Derecho */}
+                              <div className="flex flex-col h-full justify-between">
+                                {/* Ilustración de la Card */}
+                                {card.illustration}
+                                
+                                {/* Información */}
+                                <div className="mt-2 text-zinc-950">
+                                  <span className="font-mono text-[9px] font-bold tracking-wider text-zinc-600 uppercase">
+                                    {card.phase}
+                                  </span>
+                                  <h4 className="text-sm font-bold text-zinc-950 leading-tight mt-1 mb-1 font-sans">
+                                    {card.badgeText}
+                                  </h4>
+                                  <p className="text-[10px] text-zinc-800 leading-normal font-sans font-medium line-clamp-3">
+                                    {card.description}
+                                  </p>
+                                </div>
+                                
+                                {/* Indicador de Activo */}
+                                <div className="flex justify-end items-center mt-3 pt-2 border-t border-black/10">
+                                  {isActive ? (
+                                    <span className="text-[9px] font-mono font-bold text-zinc-950 flex items-center gap-1">
+                                      Seleccionado <span className="w-1.5 h-1.5 rounded-full bg-zinc-950 animate-ping"></span>
+                                    </span>
+                                  ) : (
+                                    <span className="text-[9px] font-mono text-zinc-550">
+                                      Click para ver
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                            
-                            {/* Indicador de Activo */}
-                            <div className="flex justify-end items-center mt-3 pt-2 border-t border-black/10">
-                              {isActive ? (
-                                <span className="text-[9px] font-mono font-bold text-zinc-950 flex items-center gap-1">
-                                  Seleccionado <span className="w-1.5 h-1.5 rounded-full bg-zinc-950 animate-ping"></span>
-                                </span>
-                              ) : (
-                                <span className="text-[9px] font-mono text-zinc-500">
-                                  Click para ver
-                                </span>
-                              )}
-                            </div>
-                          </div>
+                          </AppleDockHover>
                         </motion.div>
                       );
                     })}
