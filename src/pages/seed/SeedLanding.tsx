@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import HeroAnimation from "@/components/seed/HeroAnimation";
 import AnimatedDemoUI from "@/components/seed/AnimatedDemoUI";
+import { WorkflowSection } from "@/components/seed/WorkflowSection";
 import { AppleDockHover } from "@/components/ui/AppleDockHover";
 import "./Seed.css";
 import {
@@ -40,6 +41,37 @@ const BentoCard = ({ className = "", children, delay = 0, ...props }: any) => (
     {children}
   </motion.div>
 );
+
+const LightBentoCard = ({ className = "", children, delay = 0, ...props }: any) => {
+  const classes = className.split(" ");
+  const colSpanClass = classes.find(c => c.includes("col-span")) || "";
+  const groupClass = classes.find(c => c === "group") || "";
+  const remainingClasses = classes.filter(c => !c.includes("col-span") && c !== "group").join(" ");
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: false, margin: "0px 0px -10% 0px" }}
+      transition={{ type: "spring", stiffness: 100, damping: 20, delay: delay * 0.1 }}
+      className={`relative h-full ${colSpanClass} ${groupClass}`}
+    >
+      <AppleDockHover hoverScale={1.015} hoverY={-4} className="h-full">
+        <div
+          className={`h-full bg-zinc-50 border border-zinc-200/60 rounded-2xl p-6 hover:bg-white hover:border-[#00C980]/40 hover:shadow-[0_12px_30px_rgba(0,201,128,0.06)] transition-all duration-300 antialiased ${remainingClasses}`}
+          style={{ 
+            backfaceVisibility: "hidden", 
+            transform: "translateZ(0)",
+            WebkitFontSmoothing: "antialiased"
+          }}
+          {...props}
+        >
+          {children}
+        </div>
+      </AppleDockHover>
+    </motion.div>
+  );
+};
 
 const ScrollIntroSection = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -277,7 +309,7 @@ export default function SeedLanding() {
   };
 
   return (
-    <div className="seed-v2 relative overflow-x-hidden w-full">
+    <div className="seed-v2 relative overflow-x-clip w-full">
       {/* ══════════════════════════════════════════════
           1. HERO SECTION — Dark Futuristic
           ══════════════════════════════════════════════ */}
@@ -433,306 +465,98 @@ export default function SeedLanding() {
       {/* ══════════════════════════════════════════════
           3. MÓDULOS — Bento Grid Light
           ══════════════════════════════════════════════ */}
-      <section id="software" className="bg-black relative z-10 w-full py-20 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-[1200px] w-full mx-auto px-6">
-          <RevealDiv className="mb-12">
-            <h2 className="text-3xl font-light tracking-tighter text-white mb-4 font-sans">
-              <strong className="font-bold text-white">Software completo</strong>. <br/>Cero distracciones.
-            </h2>
-            <p className="font-mono text-base text-zinc-400 leading-relaxed max-w-xl">
-              Diseñado estructuralmente como módulos independientes que corren directamente en tu navegador.
-            </p>
-          </RevealDiv>
+      <section id="software" className="bg-black relative z-10 w-full py-12">
+        <div className="max-w-[1400px] w-full mx-auto px-6">
+          <RevealDiv className="w-full bg-white rounded-[32px] md:rounded-[48px] border border-zinc-200/80 shadow-[0_24px_80px_rgba(0,0,0,0.06)] p-6 md:py-12 md:px-12 relative overflow-hidden bg-[radial-gradient(circle_at_center,rgba(0,201,128,0.015)_0%,transparent_70%)]">
+            
+            <div className="mb-8 md:mb-12">
+              <h2 className="text-3xl font-light tracking-tighter text-zinc-900 mb-4 font-sans leading-tight">
+                <strong className="font-bold text-zinc-950">Software completo</strong>. <br/>Cero distracciones.
+              </h2>
+              <p className="font-mono text-base text-zinc-700 leading-relaxed max-w-xl">
+                Diseñado estructuralmente como módulos independientes que corren directamente en tu navegador.
+              </p>
+            </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {/* Bento 1: Privacidad */}
-            <BentoCard delay={1} className="md:col-span-2 group">
-              <div className="flex flex-col md:flex-row gap-8 h-full">
-                <div className="flex-1">
-                  <Lock size={20} className="text-white mb-6" />
-                  <h3 className="text-xl font-light tracking-tight text-white mb-2 font-sans"><strong className="font-bold text-white">Privacidad</strong> Absoluta</h3>
-                  <p className="font-mono text-sm text-zinc-400 leading-relaxed mb-6 mt-1">
-                    DentaXy no envía tus datos a servidores externos. Todo el procesamiento de texto clínico se hace mediante un motor determinista dentro del código local de tu página.
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Bento 1: Privacidad */}
+              <LightBentoCard delay={1} className="md:col-span-2 group">
+                <div className="flex flex-col md:flex-row gap-8 h-full">
+                  <div className="flex-1">
+                    <Lock size={20} className="text-zinc-900 mb-6" />
+                    <h3 className="text-xl font-light tracking-tight text-zinc-900 mb-2 font-sans"><strong className="font-bold text-zinc-950">Privacidad</strong> Absoluta</h3>
+                    <p className="font-mono text-sm text-zinc-700 leading-relaxed mb-6 mt-1">
+                      DentaXy no envía tus datos a servidores externos. Todo el procesamiento de texto clínico se hace mediante un motor determinista dentro del código local de tu página.
+                    </p>
+                    <div className="inline-flex items-center gap-2 font-mono text-[10px] uppercase px-3 py-1 bg-zinc-100 border border-zinc-200/80 rounded-full text-zinc-700 font-sans font-light">
+                      <Shield size={12} className="text-zinc-500"/> Cumplimiento <strong className="font-bold text-[#00C980]">LFPDPPP</strong>
+                    </div>
+                  </div>
+                  <div className="flex-shrink-0 w-full md:w-48 bg-zinc-950 border border-zinc-900 rounded-lg p-4 font-mono text-[10px] text-zinc-400">
+                    <div className="mb-2 text-[#00C980] font-bold">NETWORK TRAFFIC</div>
+                    <div className="flex justify-between border-b border-zinc-900 py-1"><span>api.openai.com</span><span className="text-[#00C980]">0 B</span></div>
+                    <div className="flex justify-between border-b border-zinc-900 py-1"><span>api.anthropic.com</span><span className="text-[#00C980]">0 B</span></div>
+                    <div className="flex justify-between py-1 font-bold text-white"><span>local_engine</span><span className="text-[#00C980]">ACTIVE</span></div>
+                  </div>
+                </div>
+              </LightBentoCard>
+
+              {/* Bento 2: Expediente */}
+              <LightBentoCard delay={2} className="flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center gap-3 mb-6">
+                    <img src="/logos/google-drive.png" className="w-10 h-10 object-contain" alt="Google Drive" />
+                    <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-600 font-bold">Google Drive</span>
+                  </div>
+                  <h3 className="text-xl font-light tracking-tight text-zinc-900 mb-2 font-sans"><strong className="font-bold text-zinc-950">Drive</strong> Sync</h3>
+                  <p className="font-mono text-sm text-zinc-700 leading-relaxed mt-1">
+                    Cada paciente tiene su expediente completo guardado directamente en tu Google Drive.
                   </p>
-                  <div className="inline-flex items-center gap-2 font-mono text-[10px] uppercase px-3 py-1 bg-zinc-900 border border-[rgba(255,255,255,0.08)] rounded-full text-zinc-300 font-sans font-light">
-                    <Shield size={12}/> Cumplimiento <strong className="font-bold text-[#00C980]">LFPDPPP</strong>
-                  </div>
                 </div>
-                <div className="flex-shrink-0 w-full md:w-48 bg-black border border-[rgba(255,255,255,0.06)] rounded-lg p-4 font-mono text-[10px] text-zinc-400">
-                  <div className="mb-2 text-[#00C980] font-bold">NETWORK TRAFFIC</div>
-                  <div className="flex justify-between border-b border-[rgba(255,255,255,0.05)] py-1"><span>api.openai.com</span><span className="text-[#00C980]">0 B</span></div>
-                  <div className="flex justify-between border-b border-[rgba(255,255,255,0.05)] py-1"><span>api.anthropic.com</span><span className="text-[#00C980]">0 B</span></div>
-                  <div className="flex justify-between py-1 font-bold text-white"><span>local_engine</span><span className="text-[#00C980]">ACTIVE</span></div>
-                </div>
-              </div>
-            </BentoCard>
+                <div className="text-4xl font-light text-zinc-400 mt-6 font-mono">∞</div>
+              </LightBentoCard>
 
-            {/* Bento 2: Expediente */}
-            <BentoCard delay={2} className="flex flex-col justify-between">
-              <div>
+              {/* Bento 3: Agenda */}
+              <LightBentoCard delay={3}>
                 <div className="flex items-center gap-3 mb-6">
-                  <img src="/logos/google-drive.png" className="w-10 h-10 object-contain" alt="Google Drive" />
-                  <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-500 font-bold">Google Drive</span>
+                  <img src="/logos/google-calendar.png" className="w-10 h-10 object-contain" alt="Google Calendar" />
+                  <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-600 font-bold">Google Calendar</span>
                 </div>
-                <h3 className="text-xl font-light tracking-tight text-white mb-2 font-sans"><strong className="font-bold text-white">Drive</strong> Sync</h3>
-                <p className="font-mono text-sm text-zinc-400 leading-relaxed mt-1">
-                  Cada paciente tiene su expediente completo guardado directamente en tu Google Drive.
+                <h3 className="text-xl font-light tracking-tight text-zinc-900 mb-2 font-sans"><strong className="font-bold text-zinc-950">Agenda</strong> Inteligente</h3>
+                <p className="font-mono text-sm text-zinc-700 leading-relaxed mt-1">
+                  Sincronización en tiempo real con Google Calendar. Sin duplicar trabajo.
                 </p>
-              </div>
-              <div className="text-4xl font-light text-zinc-300 mt-6 font-mono">∞</div>
-            </BentoCard>
+              </LightBentoCard>
 
-            {/* Bento 3: Agenda */}
-            <BentoCard delay={3}>
-              <div className="flex items-center gap-3 mb-6">
-                <img src="/logos/google-calendar.png" className="w-10 h-10 object-contain" alt="Google Calendar" />
-                <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-500 font-bold">Google Calendar</span>
-              </div>
-              <h3 className="text-xl font-light tracking-tight text-white mb-2 font-sans"><strong className="font-bold text-white">Agenda</strong> Inteligente</h3>
-              <p className="font-mono text-sm text-zinc-400 leading-relaxed mt-1">
-                Sincronización en tiempo real con Google Calendar. Sin duplicar trabajo.
-              </p>
-            </BentoCard>
+              {/* Bento 4: Finanzas */}
+              <LightBentoCard delay={4}>
+                <div className="flex items-center gap-3 mb-6">
+                  <img src="/logos/google-sheets.png" className="w-10 h-10 object-contain" alt="Google Sheets" />
+                  <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-600 font-bold">Google Sheets</span>
+                </div>
+                <h3 className="text-xl font-light tracking-tight text-zinc-900 mb-2 font-sans"><strong className="font-bold text-zinc-950">Finanzas</strong> Locales</h3>
+                <p className="font-mono text-sm text-zinc-700 leading-relaxed mt-1">
+                  Control de cobros integrado directamente con Google Sheets.
+                </p>
+              </LightBentoCard>
 
-            {/* Bento 4: Finanzas */}
-            <BentoCard delay={4}>
-              <div className="flex items-center gap-3 mb-6">
-                <img src="/logos/google-sheets.png" className="w-10 h-10 object-contain" alt="Google Sheets" />
-                <span className="font-mono text-[11px] uppercase tracking-wider text-zinc-500 font-bold">Google Sheets</span>
-              </div>
-              <h3 className="text-xl font-light tracking-tight text-white mb-2 font-sans"><strong className="font-bold text-white">Finanzas</strong> Locales</h3>
-              <p className="font-mono text-sm text-zinc-400 leading-relaxed mt-1">
-                Control de cobros integrado directamente con Google Sheets.
-              </p>
-            </BentoCard>
+              {/* Bento 5: Asistente */}
+              <LightBentoCard delay={5}>
+                <Mic size={20} className="text-zinc-900 mb-6" />
+                <h3 className="text-xl font-light tracking-tight text-zinc-900 mb-2 font-sans"><strong className="font-bold text-zinc-950">Comandos</strong> de Voz</h3>
+                <p className="font-mono text-sm text-zinc-700 leading-relaxed mt-1">
+                  Navega y llena secciones críticas sin tocar el teclado.
+                </p>
+              </LightBentoCard>
+            </div>
 
-            {/* Bento 5: Asistente */}
-            <BentoCard delay={5}>
-              <Mic size={20} className="text-white mb-6" />
-              <h3 className="text-xl font-light tracking-tight text-white mb-2 font-sans"><strong className="font-bold text-white">Comandos</strong> de Voz</h3>
-              <p className="font-mono text-sm text-zinc-400 leading-relaxed mt-1">
-                Navega y llena secciones críticas sin tocar el teclado.
-              </p>
-            </BentoCard>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════
-          3.5 DETALLE CLÍNICO: 8 Especialidades & 21 Secciones CORE (Paso 3)
-          ══════════════════════════════════════════════ */}
-      <section id="clinico" className="bg-black relative z-10 w-full py-24 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-[1200px] w-full mx-auto px-6">
-          <RevealDiv className="text-center mb-16">
-            <span className="eyebrow">Poder Clínico Sin Precedentes</span>
-            <h2 className="display-lg mb-4 font-sans font-light text-white">Un <strong className="font-bold text-white">motor</strong>, todas las <strong className="font-bold text-white">especialidades</strong></h2>
-            <p className="font-mono text-base text-zinc-400 leading-relaxed max-w-2xl mx-auto">
-              DentaXy Seed no es un editor de texto genérico. Cuenta con módulos hiper-especializados y un sistema que cumple estrictamente con el marco legal mexicano.
-            </p>
           </RevealDiv>
-
-          {/* Grid de 8 Especialidades */}
-          <div className="mb-20">
-            <div className="flex justify-between items-end mb-8 border-b border-[rgba(255,255,255,0.08)] pb-4">
-              <div>
-                <span className="label-sm font-bold text-zinc-500">Especialidades Integradas</span>
-                <h3 className="display-md mt-1 font-sans font-light text-white"><strong className="font-bold text-white">Cero costo</strong> adicional</h3>
-              </div>
-              <span className="chip chip-green font-mono">8 Especialidades CORE</span>
-            </div>
-
-            <div className="spec-grid-landing">
-              {[
-                {
-                  emoji: "🦷",
-                  titlePre: "Odontología ",
-                  titleBold: "General",
-                  desc: "Ficha de identificación, motivo de consulta, examen intraoral/extraoral y ATM.",
-                  color: "#00E676",
-                  glowColor: "#00FF87"
-                },
-                {
-                  emoji: "🔬",
-                  titlePre: "",
-                  titleBold: "Endodoncia",
-                  desc: "Pruebas de sensibilidad térmica/mecánica, conductometría e historial pulpar detallado.",
-                  color: "#00B0FF",
-                  glowColor: "#00E5FF"
-                },
-                {
-                  emoji: "📏",
-                  titlePre: "",
-                  titleBold: "Ortodoncia",
-                  desc: "Análisis de oclusión, perfiles faciales, modelos de yeso y trazos cefalométricos interactivos.",
-                  color: "#FFAB00",
-                  glowColor: "#FFD600"
-                },
-                {
-                  emoji: "🩸",
-                  titlePre: "",
-                  titleBold: "Periodoncia",
-                  desc: "Periodontograma interactivo por voz, registro de bolsas, movilidad, recesión y sangrado.",
-                  color: "#FF1744",
-                  glowColor: "#FF5252"
-                },
-                {
-                  emoji: "👶",
-                  titlePre: "",
-                  titleBold: "Odontopediatría",
-                  desc: "Control de conducta, mapa dental deciduo infantil, control de crecimiento y prevención.",
-                  color: "#D500F9",
-                  glowColor: "#F50057"
-                },
-                {
-                  emoji: "🔪",
-                  titlePre: "Cirugía ",
-                  titleBold: "Maxilofacial",
-                  desc: "Evaluación de riesgo quirúrgico (ASA), tiempos de coagulación y notas quirúrgicas detalladas.",
-                  color: "#FF4081",
-                  glowColor: "#FF80AB"
-                },
-                {
-                  emoji: "🔩",
-                  titlePre: "",
-                  titleBold: "Implantología",
-                  desc: "Planeación de pilares, implantes guiados por radiografía, marca/lote y torque de inserción.",
-                  color: "#1DE9B6",
-                  glowColor: "#64FFDA"
-                },
-                {
-                  emoji: "👑",
-                  titlePre: "",
-                  titleBold: "Prostodoncia",
-                  desc: "Prótesis fija, removible o total, registros de mordida, colorímetro y pruebas de laboratorio.",
-                  color: "#00E5FF",
-                  glowColor: "#80DEEA"
-                }
-              ].map((spec, i) => (
-                <div 
-                  key={i} 
-                  className="spec-card-landing group"
-                  style={{ "--s-accent": spec.color } as React.CSSProperties}
-                >
-                  {/* Barra de Luz Superior Vibrante (LED) */}
-                  <div 
-                    className="absolute top-0 left-0 right-0 h-[5px] transition-all duration-300 group-hover:h-[7px]"
-                    style={{ 
-                      background: `linear-gradient(90deg, ${spec.color} 0%, ${spec.glowColor} 100%)`,
-                      boxShadow: `0 1px 6px ${spec.color}40`
-                    }}
-                  />
-
-                  <div className="spec-icon-box">{spec.emoji}</div>
-                  <h4 className="spec-title-landing font-sans font-light text-white">
-                    {spec.titlePre}<strong className="font-bold text-white">{spec.titleBold}</strong>
-                  </h4>
-                  <p className="spec-desc-landing font-mono text-[13px] text-zinc-400 leading-relaxed mt-1">{spec.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 21 Secciones de la Historia Clínica CORE */}
-          <div>
-            <div className="flex justify-between items-end mb-8 border-b border-[rgba(255,255,255,0.08)] pb-4">
-              <div>
-                <span className="label-sm font-bold text-zinc-500">Marco de Trabajo Legal</span>
-                <h3 className="display-md mt-1 font-sans font-light text-white">Cumplimiento <strong className="font-bold text-white">estricto NOM-004</strong></h3>
-              </div>
-              <div className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-[#00C980] bg-[#00C980]/10 px-3 py-1 rounded-full border border-[#00C980]/20">
-                <Shield size={12}/> Expediente Clínico Mexicano
-              </div>
-            </div>
-
-            <div className="core-grid-landing">
-              {[
-                { num: "01", titlePre: "", titleBold: "Ficha de Identificación", desc: "Datos generales del paciente y contactos de emergencia." },
-                { num: "02", titlePre: "", titleBold: "Motivo de Consulta", desc: "Redacción exacta de la queja principal del paciente." },
-                { num: "03", titlePre: "Antecedentes ", titleBold: "Heredofamiliares", desc: "Mapa de riesgos y patologías genéticas familiares." },
-                { num: "04", titlePre: "Antecedentes ", titleBold: "No Patológicos", desc: "Hábitos de higiene oral, alimentación y estilo de vida." },
-                { num: "05", titlePre: "Antecedentes ", titleBold: "Patológicos", desc: "Alergias, enfermedades crónicas y cirugías previas." },
-                { num: "06", titlePre: "Interrogatorio por ", titleBold: "Sistemas", desc: "Revisión cardiovascular, respiratoria e inmunológica." },
-                { num: "07", titlePre: "", titleBold: "Signos Vitales", desc: "Presión arterial, temperatura, frecuencia cardíaca y respiratoria." },
-                { num: "08", titlePre: "Exploración ", titleBold: "Extraoral", desc: "Análisis de ATM, contorno facial, ganglios y cuello." },
-                { num: "09", titlePre: "Exploración ", titleBold: "Intraoral", desc: "Estado de mucosas, carrillos, lengua y paladar." },
-                { num: "10", titlePre: "Odontograma ", titleBold: "SVG 3D", desc: "Esquema interactivo para marcar caries, restauraciones y ausencias." },
-                { num: "11", titlePre: "Periodontograma por ", titleBold: "Voz", desc: "Dictado manos libres para registrar bolsas y movilidad." },
-                { num: "12", titlePre: "Interpretación de ", titleBold: "Rayos X", desc: "Lectura estructurada de radiografías periapicales y panorámicas." },
-                { num: "13", titlePre: "Visor ", titleBold: "DICOM Integrado", desc: "Carga radiografías en alta definición local sin servidores." },
-                { num: "14", titlePre: "Diagnóstico Clínico ", titleBold: "(CIE-10)", desc: "Codificación estándar internacional de patologías orales." },
-                { num: "15", titlePre: "Pronóstico de ", titleBold: "Evolución", desc: "Juicio clínico sobre el futuro de las piezas y tratamiento." },
-                { num: "16", titlePre: "Plan de ", titleBold: "Tratamiento", desc: "Fases ordenadas de intervención médica y dental." },
-                { num: "17", titlePre: "Presupuesto ", titleBold: "Vinculado", desc: "Generación de cobros asociados a las fases de tratamiento." },
-                { num: "18", titlePre: "", titleBold: "Consentimiento Informado", desc: "Firma biométrica del paciente conforme a la NOM-004." },
-                { num: "19", titlePre: "Nota de Evolución ", titleBold: "SOAP", desc: "Seguimiento subjetivo, objetivo, análisis y plan por sesión." },
-                { num: "20", titlePre: "Recetario ", titleBold: "Inteligente", desc: "Emisión de recetas impresas o PDF listas para SAT." },
-                { num: "21", titlePre: "Alta Médica y ", titleBold: "Seguimiento", desc: "Cierre de expediente por éxito de tratamiento y control posterior." }
-              ].map((item, i) => (
-                <div key={i} className="core-card-landing">
-                  <div className="core-num-landing">{item.num}</div>
-                  <div className="core-content-landing">
-                    <h4 className="core-title-landing font-sans font-light text-white">
-                      {item.titlePre}<strong className="font-bold text-white">{item.titleBold}</strong>
-                    </h4>
-                    <p className="core-desc-landing font-mono text-[11px] text-zinc-400 leading-normal mt-0.5">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════
-          4. CÓMO FUNCIONA — Pestañas Interactivas
-          ══════════════════════════════════════════════ */}
-      <section id="como-funciona" className="bg-black relative z-10 w-full py-20 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-[1200px] w-full mx-auto px-6">
-          <RevealDiv className="mb-12">
-            <h2 className="text-3xl font-light tracking-tighter text-white mb-4 font-sans">
-              Un <strong className="font-bold text-white">flujo de trabajo</strong> optimizado.
-            </h2>
-          </RevealDiv>
 
-          <div className="flex flex-col md:flex-row gap-8 min-h-[400px]">
-            {/* Menú Vertical */}
-            <div className="w-full md:w-1/3 flex flex-col gap-2">
-              {[
-                { id: "01", title: "Llegada del Paciente", desc: "Formulario móvil o tablet" },
-                { id: "02", title: "Consulta Rápida", desc: "Selección en interfaz clínica" },
-                { id: "03", title: "Motor de Redacción", desc: "Ensamblaje determinista local" },
-                { id: "04", title: "Archivo en Drive", desc: "Expediente listo y seguro" },
-              ].map((tab, idx) => (
-                <div key={idx} className={`p-4 border-l-2 cursor-pointer transition-colors ${idx === 2 ? 'border-[#00C980] bg-[#00C980]/5' : 'border-[rgba(255,255,255,0.08)] hover:bg-[#0d0d0d]'}`}>
-                  <div className="font-mono text-[10px] text-zinc-400 mb-1">Paso {tab.id}</div>
-                  <div className="font-bold text-sm text-white">{tab.title}</div>
-                  <div className="font-mono text-base text-zinc-400 leading-relaxed mt-1">{tab.desc}</div>
-                </div>
-              ))}
-            </div>
 
-            {/* Ventana Dinámica (Estado Estático para demostración) */}
-            <div className="w-full md:w-2/3 bg-[#0d0d0d] border border-[rgba(255,255,255,0.08)] rounded-xl p-8 flex items-center justify-center relative overflow-hidden">
-              {/* Contenido mock del Paso 3 */}
-              <div className="w-full max-w-md bg-white border border-zinc-200 rounded shadow-sm p-5 relative z-10">
-                <div className="font-mono text-[10px] text-[#00C980] border-b border-[rgba(255,255,255,0.05)] pb-2 mb-4 uppercase">
-                  engine_output.txt
-                </div>
-                <div className="space-y-3">
-                  <div className="h-2 w-full bg-[rgba(255,255,255,0.05)] rounded"></div>
-                  <div className="h-2 w-5/6 bg-[rgba(255,255,255,0.05)] rounded"></div>
-                  <div className="h-2 w-full bg-[rgba(255,255,255,0.05)] rounded"></div>
-                  <div className="h-2 w-3/4 bg-[rgba(255,255,255,0.08)] rounded mt-4"></div>
-                  <div className="p-3 bg-[#0d0d0d] border border-[rgba(255,255,255,0.05)] font-mono text-base text-zinc-300 leading-relaxed mt-4 rounded">
-                    El paciente refiere dolor punzante en zona molar inferior derecha desde hace 3 días. No responde a analgésicos comunes.
-                  </div>
-                </div>
-              </div>
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] h-32 bg-gradient-to-r from-transparent via-[#00C980]/5 to-transparent rotate-12 blur-xl"></div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <WorkflowSection />
 
       {/* ══════════════════════════════════════════════
           4.2 PRUEBA SOCIAL Y ALIANZAS (Paso 4)

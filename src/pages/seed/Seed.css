@@ -66,7 +66,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
   /* Eliminado: scroll-snap y height estricto para un flujo libre continuo */
   scroll-behavior: smooth;
   position: relative;
@@ -1069,4 +1069,45 @@
   text-align: center;
   text-transform: uppercase;
   text-shadow: 0 0 40px rgba(255,255,255,0.08);
+}
+
+/* ── WORKFLOW SCROLL-PINNED LAYOUT OVERRIDES ── */
+.workflow-scroll-container {
+  position: relative !important;
+  width: 100% !important;
+  background: #FAFAFA !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  overflow: visible !important;
+  height: 400vh !important;
+  min-height: 400vh !important;
+}
+
+.workflow-sticky-wrapper {
+  position: sticky !important;
+  top: 0 !important;
+  height: 100vh !important;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  z-index: 10 !important;
+}
+
+@media (max-width: 768px) {
+  .workflow-scroll-container {
+    height: auto !important;
+    min-height: auto !important;
+    padding-top: 4rem !important;
+    padding-bottom: 4rem !important;
+  }
+  
+  .workflow-sticky-wrapper {
+    position: relative !important;
+    top: auto !important;
+    height: auto !important;
+    display: block !important;
+    overflow: visible !important;
+  }
 }
