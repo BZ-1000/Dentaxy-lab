@@ -559,84 +559,162 @@ export default function SeedLanding() {
       <WorkflowSection />
 
       {/* ══════════════════════════════════════════════
-          4.2 PRUEBA SOCIAL Y ALIANZAS (Paso 4)
+          4.2 PATROCINIO GOOGLE Y RECONOCIMIENTOS (Paso 4)
           ══════════════════════════════════════════════ */}
-      <section className="bg-black relative z-10 w-full py-20 border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-[1200px] w-full mx-auto px-6">
-          <div className="text-center mb-16">
-            <span className="eyebrow">Validación de la Industria</span>
-            <h2 className="display-lg mb-4 font-sans font-light text-white">Respaldado por las <strong className="font-bold text-white">mejores instituciones</strong></h2>
-            <p className="font-mono text-base text-zinc-400 leading-relaxed max-w-xl mx-auto">
-              Estudiantes, catedráticos y clínicas de alta especialidad ya confían en la infraestructura digital descentralizada de DentaXy.
-            </p>
-          </div>
+      <section className="bg-zinc-950 relative z-10 w-full py-24 border-t border-[rgba(255,255,255,0.06)] overflow-hidden">
+        {/* Luz de fondo sutil */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[radial-gradient(circle,rgba(255,255,255,0.015)_0%,transparent_70%)] pointer-events-none z-0" />
+        
+        <div className="max-w-[1200px] w-full mx-auto px-6 relative z-10">
+          
+          <div className="grid lg:grid-cols-12 gap-12 items-stretch">
+            
+            {/* Columna Izquierda: Patrocinio Google & Infraestructura */}
+            <div className="lg:col-span-6 bg-zinc-900/30 border border-zinc-800/80 rounded-3xl p-8 md:p-10 flex flex-col justify-between relative overflow-hidden group shadow-xl">
+              {/* Glow azul/blanco interno al hacer hover */}
+              <div className="absolute -top-20 -right-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/15 transition-all duration-500" />
+              
+              <div>
+                <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-[#3B82F6] uppercase mb-3 block">
+                  Infraestructura Oficial
+                </span>
+                <h3 className="text-3xl font-light text-white leading-tight mb-4 font-sans">
+                  Patrocinado por <strong className="font-bold text-white">Google</strong>
+                </h3>
+                <p className="font-mono text-sm text-zinc-400 leading-relaxed mb-8">
+                  DentaXy es una plataforma patrocinada tecnológicamente por Google. Con base en esta alianza y buscando la máxima fiabilidad, decidimos que todo el poder interno del ecosistema DentaXy se apoye en los servicios y tecnologías de Google. Almacenamiento, base de datos federada y control de agenda corren sobre la infraestructura en la que todos confían, garantizando soberanía de datos y seguridad absoluta.
+                </p>
+              </div>
 
-          {/* Logos/Insignias */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-items-center mb-16 opacity-85">
-            <div className="flex flex-col items-center bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] px-6 py-4 rounded-xl hover:border-[#00C980]/30 transition-all">
-              <span className="font-bold text-lg text-white tracking-wider">UAZ</span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-zinc-400 mt-1">Univ. Autónoma de Zacatecas</span>
-            </div>
-            <div className="flex flex-col items-center bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] px-6 py-4 rounded-xl hover:border-[#00C980]/30 transition-all">
-              <span className="font-bold text-lg text-white tracking-wider">CROID</span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-zinc-400 mt-1">Clínica de Especialidades</span>
-            </div>
-            <div className="flex flex-col items-center bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] px-6 py-4 rounded-xl hover:border-[#00C980]/30 transition-all">
-              <span className="font-bold text-lg text-white tracking-wider">NOM-004</span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-[#00C980] mt-1 font-bold">100% CUMPLIMIENTO</span>
-            </div>
-            <div className="flex flex-col items-center bg-[#0d0d0d] border border-[rgba(255,255,255,0.06)] px-6 py-4 rounded-xl hover:border-[#00C980]/30 transition-all">
-              <span className="font-bold text-lg text-white tracking-wider">LFPDPPP</span>
-              <span className="font-mono text-[9px] uppercase tracking-widest text-[#00C980] mt-1 font-bold">DATOS PROTEGIDOS</span>
-            </div>
-          </div>
-
-          {/* Testimonios */}
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                stars: 5,
-                text: "Como estudiante de la UAZ, llenar expedientes clínicos a mano me tomaba hasta 40 minutos por paciente. Con Seed, realizo el odontograma por voz en 3 minutos y el expediente se redacta solo en mi Google Drive.",
-                author: "Dr. Carlos Medina",
-                role: "Estudiante de Odontología UAZ",
-                avatar: "👨‍⚕️"
-              },
-              {
-                stars: 5,
-                text: "En CROID manejamos un flujo constante de pacientes. DentaXy nos dio la seguridad que ningún otro software en la nube pudo dar: la soberanía de nuestros datos médicos en nuestra propia cuenta corporativa de Drive.",
-                author: "Dra. Sofía Alatorre",
-                role: "Directora Clínica CROID",
-                avatar: "👩‍⚕️"
-              },
-              {
-                stars: 5,
-                text: "La simulación de redacción clínica es asombrosa. Funciona al instante y sin conexión a internet. Ya no dependemos de que falle la red a mitad de consulta para tener la nota SOAP lista.",
-                author: "Dr. Miguel Ángel Ortiz",
-                role: "Docente y Cirujano Dentista",
-                avatar: "👨‍⚕️"
-              }
-            ].map((test, i) => (
-              <div key={i} className="card-premium p-8 flex flex-col justify-between">
-                <div>
-                  <div className="flex gap-1 mb-4">
-                    {Array.from({ length: test.stars }).map((_, s) => (
-                      <Star key={s} size={14} className="fill-[#00C980] text-[#00C980]" />
-                    ))}
+              {/* Iconos de Google en fondo gris minimalista e iluminados */}
+              <div className="bg-zinc-900/90 border border-zinc-800/80 rounded-2xl p-6 relative overflow-hidden flex items-center justify-around gap-2 shadow-inner">
+                {/* 1. Google Drive */}
+                <div className="flex flex-col items-center gap-2 group/icon">
+                  <div className="w-12 h-12 rounded-xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center shadow-md group-hover/icon:border-blue-500 group-hover/icon:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-300">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
+                      <path d="M8.5 4.5L2.5 15L5.5 20L11.5 9.5L8.5 4.5Z" fill="#0066DA" />
+                      <path d="M15.5 4.5L8.5 16.5L11.5 21.5L18.5 9.5L15.5 4.5Z" fill="#00AA47" />
+                      <path d="M12.5 13.5L5.5 13.5L2.5 18.5L21.5 18.5L18.5 13.5L12.5 13.5Z" fill="#FFBA00" />
+                    </svg>
                   </div>
-                  <p className="font-mono text-base text-zinc-300 leading-relaxed italic mb-6">
-                    "{test.text}"
-                  </p>
+                  <span className="text-[9px] font-mono text-zinc-500 font-bold uppercase tracking-wider">Drive</span>
                 </div>
-                <div className="flex items-center gap-3 border-t border-[rgba(255,255,255,0.06)] pt-4">
-                  <span className="text-2xl">{test.avatar}</span>
-                  <div>
-                    <div className="font-bold text-sm text-white">{test.author}</div>
-                    <div className="font-mono text-[10px] text-zinc-500">{test.role}</div>
+
+                {/* 2. Google Calendar */}
+                <div className="flex flex-col items-center gap-2 group/icon">
+                  <div className="w-12 h-12 rounded-xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center shadow-md group-hover/icon:border-red-500 group-hover/icon:shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all duration-300">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="#EA4335" fill="rgba(234,67,53,0.1)" />
+                      <line x1="16" y1="2" x2="16" y2="6" stroke="#EA4335" />
+                      <line x1="8" y1="2" x2="8" y2="6" stroke="#EA4335" />
+                      <line x1="3" y1="10" x2="21" y2="10" stroke="#EA4335" />
+                      <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke="#EA4335" />
+                    </svg>
                   </div>
+                  <span className="text-[9px] font-mono text-zinc-500 font-bold uppercase tracking-wider">Calendar</span>
+                </div>
+
+                {/* 3. Google Sheets */}
+                <div className="flex flex-col items-center gap-2 group/icon">
+                  <div className="w-12 h-12 rounded-xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center shadow-md group-hover/icon:border-emerald-500 group-hover/icon:shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all duration-300">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2" fill="rgba(52,168,83,0.1)" stroke="#34A853" />
+                      <line x1="3" y1="9" x2="21" y2="9" stroke="#34A853" />
+                      <line x1="3" y1="15" x2="21" y2="15" stroke="#34A853" />
+                      <line x1="9" y1="3" x2="9" y2="21" stroke="#34A853" />
+                      <line x1="15" y1="3" x2="15" y2="21" stroke="#34A853" />
+                    </svg>
+                  </div>
+                  <span className="text-[9px] font-mono text-zinc-500 font-bold uppercase tracking-wider">Sheets</span>
+                </div>
+
+                {/* 4. Google Cloud Platform */}
+                <div className="flex flex-col items-center gap-2 group/icon">
+                  <div className="w-12 h-12 rounded-xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center shadow-md group-hover/icon:border-blue-500 group-hover/icon:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-300">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
+                      <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="#4285F4" />
+                    </svg>
+                  </div>
+                  <span className="text-[9px] font-mono text-zinc-500 font-bold uppercase tracking-wider">Cloud</span>
+                </div>
+
+                {/* 5. Google Workspace */}
+                <div className="flex flex-col items-center gap-2 group/icon">
+                  <div className="w-12 h-12 rounded-xl bg-zinc-800/40 border border-zinc-700/50 flex items-center justify-center shadow-md group-hover/icon:border-yellow-500 group-hover/icon:shadow-[0_0_15px_rgba(234,179,8,0.3)] transition-all duration-300">
+                    <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
+                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22c-.62-.63-1.07-1.37-1.18-2.63z" fill="#FBBC05" />
+                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335" />
+                    </svg>
+                  </div>
+                  <span className="text-[9px] font-mono text-zinc-500 font-bold uppercase tracking-wider">Google</span>
                 </div>
               </div>
-            ))}
+
+            </div>
+            
+            {/* Columna Derecha: Reconocimientos y Premios */}
+            <div className="lg:col-span-6 flex flex-col gap-6 justify-between">
+              
+              {/* Card Premio 1: UAZ 2025 */}
+              <div className="bg-zinc-900/30 border border-zinc-800/80 rounded-3xl p-6 md:p-8 relative overflow-hidden group shadow-xl flex-1 flex flex-col justify-between">
+                <div className="absolute -top-20 -right-20 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-emerald-500/15 transition-all duration-500" />
+                
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-[#00C980] uppercase">
+                      Investigación Científica
+                    </span>
+                    <span className="bg-[#00C980]/15 text-[#00a86b] border border-[#00C980]/30 font-mono text-[9.5px] font-bold px-2.5 py-0.5 rounded">
+                      Primer Lugar 🏆
+                    </span>
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-2 font-sans">
+                    XXII Jornadas de Investigación Internacional de Odontología 2025
+                  </h4>
+                  <p className="font-mono text-xs text-zinc-400 leading-relaxed">
+                    Ganador del primer lugar en el certamen científico de la Universidad Autónoma de Zacatecas (UAZ). Premio otorgado por el impacto clínico, la descentralización digital del expediente y la propuesta tecnológica de Seed.
+                  </p>
+                </div>
+                
+                <div className="border-t border-zinc-800/80 pt-4 mt-4 flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-zinc-500">UAZ • Comité Evaluador 2025</span>
+                  <span className="text-xs text-[#00C980] font-bold">Zacatecas, México</span>
+                </div>
+              </div>
+              
+              {/* Card Premio 2: POSIBLE & Google Mexico Tech Talk */}
+              <div className="bg-zinc-900/30 border border-zinc-800/80 rounded-3xl p-6 md:p-8 relative overflow-hidden group shadow-xl flex-1 flex flex-col justify-between">
+                <div className="absolute -top-20 -right-20 w-60 h-60 bg-blue-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-500/15 transition-all duration-500" />
+                
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="font-mono text-[9px] font-bold tracking-[0.2em] text-[#3B82F6] uppercase">
+                      Aceleración Tecnológica
+                    </span>
+                    <span className="bg-blue-500/15 text-[#3B82F6] border border-blue-500/30 font-mono text-[9.5px] font-bold px-2.5 py-0.5 rounded">
+                      Top 25 Nacional ⚡
+                    </span>
+                  </div>
+                  <h4 className="text-xl font-bold text-white mb-2 font-sans">
+                    Tech Talk con Google México & POSIBLE
+                  </h4>
+                  <p className="font-mono text-xs text-zinc-400 leading-relaxed">
+                    Seleccionado a nivel nacional dentro de los 25 mejores proyectos de alto impacto tecnológico en el programa POSIBLE. Presentación oficial en el foro de tecnología y salud celebrado en las oficinas centrales de Google México.
+                  </p>
+                </div>
+                
+                <div className="border-t border-zinc-800/80 pt-4 mt-4 flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-zinc-500">Google México • POSIBLE</span>
+                  <span className="text-xs text-[#3B82F6] font-bold">CDMX, México</span>
+                </div>
+              </div>
+
+            </div>
+            
           </div>
+          
         </div>
       </section>
 
