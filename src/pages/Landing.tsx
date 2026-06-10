@@ -36,7 +36,7 @@ const Landing = () => {
         {/* Main Content - Snap Scroll */}
         <main ref={mainRef} className="flex-1 overflow-y-auto snap-y snap-mandatory scroll-smooth relative">
           <HeroSection onExplore={handleExplore} />
-          <InsightsSection />
+          <InsightsSection mainRef={mainRef} />
         </main>
       </div>
     </TypewriterSyncProvider>

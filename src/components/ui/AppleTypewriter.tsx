@@ -32,8 +32,8 @@ export const AppleTypewriter: React.FC<AppleTypewriterProps> = ({
                     }
 
                     const myDelay = currentDelay;
-                    // Mantener velocidad original para tablas, aumentar velocidad para texto normal
-                    const increment = isTableContext ? (speed * 0.05) : (speed * 0.015);
+                    // Mantener velocidad original para tablas, aumentar velocidad para texto normal (más pausado y premium)
+                    const increment = isTableContext ? (speed * 0.05) : (speed * 0.038);
                     currentDelay += increment;
 
                     return (
