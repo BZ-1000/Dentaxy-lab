@@ -42,9 +42,9 @@ export const AppleTypewriter: React.FC<AppleTypewriterProps> = ({
                             className="inline-block will-change-[transform,opacity,filter]"
                             style={{
                                 opacity: 0,
-                                filter: 'blur(6px)',
-                                transform: 'translateY(6px)',
-                                animation: `apple-word-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards ${myDelay}s`
+                                filter: 'blur(3px)',
+                                transform: 'translateY(2px) scale(0.98)',
+                                animation: `apple-word-reveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards ${myDelay}s`
                             }}
                         >
                             {part}
@@ -86,7 +86,7 @@ export const AppleTypewriter: React.FC<AppleTypewriterProps> = ({
         setIsFinished(false);
         const timer = setTimeout(() => {
             setIsFinished(true);
-        }, (maxDelay + 0.6) * 1000);
+        }, (maxDelay + 0.5) * 1000);
         return () => clearTimeout(timer);
     }, [maxDelay]);
 
@@ -104,13 +104,13 @@ export const AppleTypewriter: React.FC<AppleTypewriterProps> = ({
                 @keyframes apple-word-reveal {
                     0% {
                         opacity: 0;
-                        filter: blur(6px);
-                        transform: translateY(6px);
+                        filter: blur(3px);
+                        transform: translateY(2px) scale(0.98);
                     }
                     100% {
                         opacity: 1;
                         filter: blur(0px);
-                        transform: translateY(0px);
+                        transform: translateY(0px) scale(1);
                     }
                 }
             `}</style>

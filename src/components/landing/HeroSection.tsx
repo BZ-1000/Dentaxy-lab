@@ -9,7 +9,7 @@ export const HeroSection = ({
   onExplore
 }: HeroSectionProps) => {
   return (
-    <section className="relative h-screen w-full max-w-full flex flex-col items-center justify-center bg-background px-4 sm:px-6 snap-start overflow-hidden">
+    <section className="relative h-[calc(100vh-4rem)] w-full max-w-full flex flex-col items-center justify-center bg-background px-4 sm:px-6 snap-start overflow-hidden">
       <motion.div 
         initial={{ opacity: 0, y: 30 }} 
         animate={{ opacity: 1, y: 0 }} 
