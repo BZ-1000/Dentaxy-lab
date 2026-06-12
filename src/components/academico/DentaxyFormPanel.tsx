@@ -48,6 +48,7 @@ interface DentaxyFormPanelProps {
   onSeccionGenerada?: (seccionId: string, contenido: any) => void;
   onGeneracionIniciada?: (seccionId: string) => void;
   onGeneratingChange?: (generating: boolean) => void;
+  disableProgressLineAnimation?: boolean;
 }
 
 const variants = {
@@ -69,7 +70,8 @@ const variants = {
 
 export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
   onSeccionGenerada,
-  onGeneratingChange
+  onGeneratingChange,
+  disableProgressLineAnimation = false
 }) => {
 
   const seccionesGenerables = [
@@ -433,7 +435,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
             stepNames={seccionesActivas.map(s => s.nombre)}
             onStepClick={handleStepClick}
             stepStatuses={getStepStatuses() as any}
-            isScrolled={isScrolled}
+            isScrolled={disableProgressLineAnimation ? false : isScrolled}
           />
         </div>
 
@@ -551,7 +553,7 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
             onToggleExpand={() => setIsDocumentExpanded(!isDocumentExpanded)}
             onNext={handleNext}
             canGoNext={currentStep < seccionesActivas.length - 1}
-            width={docWidth}
+            width={isMobile ? 100 : docWidth}
           />
         )}
       </AnimatePresence>

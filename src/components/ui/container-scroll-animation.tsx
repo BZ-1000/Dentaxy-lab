@@ -35,13 +35,14 @@ export const ContainerScroll = ({
   const rotate = useTransform(scrollYProgress, [0, 1], [24, 0]);
   const scale = useTransform(scrollYProgress, [0, 1], scaleDimensions());
   const translate = useTransform(scrollYProgress, [0, 1], [0, -100]);
+  const translateMobile = useTransform(scrollYProgress, [0, 1], [0, -50]);
 
   return (
     <div
       className="w-full flex items-center justify-center relative p-2 md:p-6 overflow-visible"
       ref={containerRef}
       style={{
-        minHeight: "140vh",
+        minHeight: isMobile ? "120vh" : "140vh",
       }}
     >
       <div
@@ -55,7 +56,7 @@ export const ContainerScroll = ({
           className="w-full relative z-20 pointer-events-none"
           style={{ transformStyle: "preserve-3d" }}
         >
-          <Card rotate={rotate} translate={translate} scale={scale} className={`${cardClassName || ''} pointer-events-auto`}>
+          <Card rotate={rotate} translate={isMobile ? translateMobile : translate} scale={scale} isMobile={isMobile} className={`${cardClassName || ''} pointer-events-auto`}>
             {children}
           </Card>
         </div>
@@ -82,12 +83,14 @@ export const Card = ({
   rotate,
   scale,
   translate,
+  isMobile,
   children,
   className,
 }: {
   rotate: MotionValue<number>;
   scale: MotionValue<number>;
   translate: MotionValue<number>;
+  isMobile?: boolean;
   children: React.ReactNode;
   className?: string;
 }) => {
@@ -110,12 +113,13 @@ export const Card = ({
       transition={{ delay: 1.5, duration: 4.0, ease: "easeOut" }}
       style={{
         rotateX: rotate, // rotate in X
-        scale,
+        scale: scale,
+        translateY: translate,
         boxShadow:
           "0 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.05), 0 12px 24px rgba(0, 0, 0, 0.05)",
         willChange: "transform",
       }}
-      className={`max-w-[1600px] md:-mt-52 -mt-24 mx-auto h-[32rem] md:h-[45rem] w-full relative z-20 ${className || ''}`}
+      className={`max-w-[1600px] md:-mt-52 -mt-10 mx-auto h-[88vh] md:h-[90vh] w-full relative z-20 ${className || ''}`}
     >
       {/* Estilos CSS inyectados para el haz de luz pulsátil perimetral (SVG Path Flow) */}
       <style dangerouslySetInnerHTML={{__html: `

@@ -55,6 +55,7 @@
   gap: 12px;
   text-decoration: none;
   margin-left: 32px;
+  flex-shrink: 0;
 }
 
 .navLinks {
@@ -221,17 +222,17 @@
   z-index: 2; /* Por debajo de las manos (z:5) */
   width: 100%;
   pointer-events: none;
-  margin-top: -25.5cqw; /* Ajustado un poco hacia abajo */
-  left: 0.8cqw; /* Ajustado levemente a la derecha */
+  margin-top: -26.7cqw; /* Movido muy poco más hacia arriba */
+  left: 0; /* Centrado perfecto sin desplazamiento horizontal */
 }
 
 .mainTitle {
   font-family: 'Bruno Ace SC', sans-serif;
-  font-size: 13.5cqw; /* Restaurado para Orbitron */
+  font-size: 16.5cqw; /* Mismo tamaño que en el landing principal (16.5vw) */
   font-weight: 900; /* Orbitron se ve imponente en 900 */
   color: #ffffff;
   line-height: 0.95;
-  letter-spacing: 0.05em;
+  letter-spacing: -0.05em; /* Mismo tracking-tighter que en el landing principal */
   margin: 0;
   position: relative;
   top: -1.2cqw;
@@ -243,10 +244,10 @@
   font-weight: 500;
   color: #ffffff;
   letter-spacing: 0.5em;
-  margin-top: 1.3cqw;
+  margin-top: 0.8cqw; /* Reducido para mover SEED un poco más arriba */
   text-indent: 0.5em;
   position: relative;
-  left: -1.6cqw;
+  left: -0.4cqw; /* Movido un poco más a la derecha */
 }
 
 /* ── Manos 1920x1080 (Pantalla Completa) — Optimizadas para GPU y Renderizado ── */
@@ -336,4 +337,36 @@
 
 @media (max-width: 768px) {
   /* Let the typography scale with container queries for perfect alignment */
+  .alignmentWrapper {
+    min-width: 100vw;
+    aspect-ratio: auto;
+    height: 100%;
+    transform: translate3d(-50%, -38%, 0);
+  }
+
+  .centralTitleWrapper {
+    margin-top: -14cqw !important;
+  }
+
+  .navbar {
+    padding: 12px 16px !important;
+  }
+
+  .navLogo {
+    margin-left: 0 !important;
+  }
+
+  .navActions {
+    gap: 8px !important;
+  }
+
+  .navBtnLogin {
+    padding: 8px 12px !important;
+    font-size: 10px !important;
+  }
+
+  .navBtnGet {
+    padding: 8px 14px !important;
+    font-size: 10px !important;
+  }
 }

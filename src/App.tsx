@@ -11,6 +11,7 @@ import Landing from './pages/Landing';
 import ModulesHub from './pages/ModulesHub';
 import NotFound from './pages/NotFound';
 import { Toaster } from './components/ui/sonner';
+import { GlobalDexBubble } from './components/landing/GlobalDexBubble';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useGlobalMetrics } from './hooks/useGlobalMetrics';
 import { AuthProvider } from './contexts/AuthContext';
@@ -235,6 +236,7 @@ function App() {
                   {/* 404 - No encontrado */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
+                <GlobalDexBubble />
               </Router>
               <VercelAnalytics />
               <SpeedInsights />

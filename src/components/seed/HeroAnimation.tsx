@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import styles from './HeroAnimation.module.css';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { AnalysisModeProvider } from '@/contexts/AnalysisModeContext';
 import { DentaxyFormPanel } from '@/components/academico/DentaxyFormPanel';
-import { AppleDockHover } from '@/components/ui/AppleDockHover';
 
 interface HeroAnimationProps {
   dienteImg?: string;
@@ -21,8 +20,24 @@ export default function HeroAnimation({
   manoRobotImg,
   className,
 }: HeroAnimationProps) {
-  const [isRobotHovered, setIsRobotHovered] = useState(false);
-  const [isHumanHovered, setIsHumanHovered] = useState(false);
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  const yHumana = isMobile ? '3%' : '-5%';
+  
+  const xRobotInitial = isMobile ? '60vw' : '50vw';
+  const xRobotAnimate = isMobile ? '34vw' : '28vw';
+  const yRobot = isMobile ? '-2%' : '-12%';
+  const scaleRobotInitial = isMobile ? 0.65 : 0.75;
+  const scaleRobotAnimate = isMobile ? 0.85 : 1;
 
   return (
     <div className={`${styles.container} ${className || ''}`}>
@@ -48,7 +63,7 @@ export default function HeroAnimation({
             <img
               src="/Seed/diente.png"
               alt="Dentaxy"
-              className="h-8 w-8"
+              className="h-8 w-8 shrink-0 object-contain"
               decoding="async"
               loading="eager"
             />
@@ -159,7 +174,7 @@ export default function HeroAnimation({
       {/* ── 2. CONTENEDOR 3D SCROLL ANIMATION (Aceternity) ── */}
       <ContainerScroll
         titleComponent={
-          <div className="relative w-full h-[88vh] flex flex-col justify-center items-center overflow-visible select-none pointer-events-none">
+          <div className="relative w-full h-[50vh] sm:h-[60vh] md:h-[88vh] flex flex-col justify-center items-center overflow-visible select-none pointer-events-none">
             {/* ── EFECTO LUMÍNICO NEÓN DUAL (Encima de negro, debajo de imágenes/texto) ── */}
             <motion.div 
               className={styles.neonGlowAtmosphere}
@@ -175,37 +190,33 @@ export default function HeroAnimation({
               <div style={{ position: 'absolute', inset: 0, zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center', pointerEvents: 'none' }}>
                 <div className={styles.centralTitleWrapper}>
                   
-                  {/* Wrapper para DENTAXY con la animación elástica de resorte Apple Dock */}
+                  {/* DENTAXY estático */}
                   <div style={{ pointerEvents: 'auto', width: 'fit-content', margin: '0 auto' }}>
-                    <AppleDockHover hoverScale={1.06} hoverY={-12}>
-                      <motion.h1 
-                        className={styles.mainTitle}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ delay: 1.5, duration: 4, ease: "easeInOut" }}
-                        style={{ margin: 0 }}
-                      >
-                        DENTAXY
-                      </motion.h1>
-                    </AppleDockHover>
+                    <motion.h1 
+                      className={styles.mainTitle}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 1.5, duration: 4, ease: "easeInOut" }}
+                      style={{ margin: 0 }}
+                    >
+                      DENTAXY
+                    </motion.h1>
                   </div>
 
-                  {/* Wrapper para SEED con la animación elástica de resorte Apple Dock */}
+                  {/* SEED estático */}
                   <div style={{ pointerEvents: 'auto', width: 'fit-content', margin: '0 auto' }}>
-                    <AppleDockHover hoverScale={1.06} hoverY={-12}>
-                      <div className={styles.subTitle}>
-                        {"SEED".split("").map((char, index) => (
-                          <motion.span
-                            key={index}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ delay: 0.5 + (index * 0.15), duration: 0.1 }}
-                          >
-                            {char}
-                          </motion.span>
-                        ))}
-                      </div>
-                    </AppleDockHover>
+                    <div className={styles.subTitle}>
+                      {"SEED".split("").map((char, index) => (
+                        <motion.span
+                          key={index}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.5 + (index * 0.15), duration: 0.1 }}
+                        >
+                          {char}
+                        </motion.span>
+                      ))}
+                    </div>
                   </div>
                   
                 </div>
@@ -214,125 +225,53 @@ export default function HeroAnimation({
               {/* CAPA 2: MANOS (SIEMPRE AL FRENTE) */}
               <div style={{ position: 'absolute', inset: 0, zIndex: 20, pointerEvents: 'none' }}>
 
-                {/* ── ZONA DE HOVER EXCLUSIVA Y LOCALIZADA PARA LA MANO HUMANA (HAND-2) ── */}
-                <div
-                  onMouseEnter={() => setIsHumanHovered(true)}
-                  onMouseLeave={() => setIsHumanHovered(false)}
-                  style={{
-                    position: 'absolute',
-                    top: '25%',
-                    left: '8%',
-                    width: '28%',
-                    height: '65%',
-                    zIndex: 35,
-                    pointerEvents: 'auto',
-                    cursor: 'default',
-                  }}
+                {/* Mano Humana — Base sólida */}
+                <motion.img
+                  src={manoHumanaImg}
+                  alt="Mano Humana"
+                  className={styles.handHumanBase}
+                  initial={{ x: "-30vw", opacity: 0, y: yHumana, scale: 0.75 }}
+                  animate={{ x: "-2vw", opacity: 1, y: yHumana, scale: 1 }}
+                  transition={{ delay: 1.5, duration: 2.8, ease: 'easeOut' }}
+                  decoding="async"
+                  loading="eager"
+                />
+                {/* Mano Humana — Capa de Sombra Enmascarada */}
+                <motion.img
+                  src={manoHumanaImg}
+                  alt=""
+                  aria-hidden="true"
+                  className={styles.handHumanShadow}
+                  initial={{ x: "-30vw", opacity: 0, y: yHumana, scale: 0.75 }}
+                  animate={{ x: "-2vw", opacity: 1, y: yHumana, scale: 1 }}
+                  transition={{ delay: 1.5, duration: 2.8, ease: 'easeOut' }}
+                  decoding="async"
+                  loading="eager"
                 />
 
-                {/* ── MANO HUMANA (HAND-2): Wrapper de animación reactivo a su zona de detección ── */}
-                <motion.div
-                  animate={{
-                    scale: isHumanHovered ? 1.06 : 1.0,
-                    y: isHumanHovered ? -12 : 0,
-                  }}
-                  transition={{
-                    type: 'spring',
-                    mass: 0.1,
-                    stiffness: 150,
-                    damping: 12,
-                  }}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    pointerEvents: 'none',
-                    transformOrigin: 'left center',
-                  }}
-                >
-                  {/* Mano Humana — Base sólida */}
-                  <motion.img
-                    src={manoHumanaImg}
-                    alt="Mano Humana"
-                    className={styles.handHumanBase}
-                    initial={{ x: "-30vw", opacity: 0, y: "-5%", scale: 0.75 }}
-                    animate={{ x: "-2vw", opacity: 1, y: "-5%", scale: 1 }}
-                    transition={{ delay: 1.5, duration: 2.8, ease: 'easeOut' }}
-                    decoding="async"
-                    loading="eager"
-                  />
-                  {/* Mano Humana — Capa de Sombra Enmascarada */}
-                  <motion.img
-                    src={manoHumanaImg}
-                    alt=""
-                    aria-hidden="true"
-                    className={styles.handHumanShadow}
-                    initial={{ x: "-30vw", opacity: 0, y: "-5%", scale: 0.75 }}
-                    animate={{ x: "-2vw", opacity: 1, y: "-5%", scale: 1 }}
-                    transition={{ delay: 1.5, duration: 2.8, ease: 'easeOut' }}
-                    decoding="async"
-                    loading="eager"
-                  />
-                </motion.div>
-
-                {/* ── ZONA DE HOVER EXCLUSIVA Y LOCALIZADA PARA LA MANO DE ROBOT ── */}
-                <div
-                  onMouseEnter={() => setIsRobotHovered(true)}
-                  onMouseLeave={() => setIsRobotHovered(false)}
-                  style={{
-                    position: 'absolute',
-                    top: '25%',
-                    right: '8%',
-                    width: '28%',
-                    height: '65%',
-                    zIndex: 35,
-                    pointerEvents: 'auto',
-                    cursor: 'default',
-                  }}
+                {/* Mano Robótica — Base sólida */}
+                <motion.img
+                  src={manoRobotImg}
+                  alt="Mano Robótica"
+                  className={styles.handRobotBase}
+                  initial={{ x: xRobotInitial, opacity: 0, y: yRobot, scale: scaleRobotInitial }}
+                  animate={{ x: xRobotAnimate, opacity: 1, y: yRobot, scale: scaleRobotAnimate }}
+                  transition={{ delay: 1.5, duration: 2.8, ease: 'easeOut' }}
+                  decoding="async"
+                  loading="eager"
                 />
-
-                {/* ── MANO ROBÓTICA: Wrapper de animación reactivo a su zona de detección ── */}
-                <motion.div
-                  animate={{
-                    scale: isRobotHovered ? 1.06 : 1.0,
-                    y: isRobotHovered ? -12 : 0,
-                  }}
-                  transition={{
-                    type: 'spring',
-                    mass: 0.1,
-                    stiffness: 150,
-                    damping: 12,
-                  }}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    pointerEvents: 'none',
-                    transformOrigin: 'right center',
-                  }}
-                >
-                  {/* Mano Robótica — Base sólida */}
-                  <motion.img
-                    src={manoRobotImg}
-                    alt="Mano Robótica"
-                    className={styles.handRobotBase}
-                    initial={{ x: "50vw", opacity: 0, y: "-12%", scale: 0.75 }}
-                    animate={{ x: "28vw", opacity: 1, y: "-12%", scale: 1 }}
-                    transition={{ delay: 1.5, duration: 2.8, ease: 'easeOut' }}
-                    decoding="async"
-                    loading="eager"
-                  />
-                  {/* Mano Robótica — Capa de Sombra Enmascarada */}
-                  <motion.img
-                    src={manoRobotImg}
-                    alt=""
-                    aria-hidden="true"
-                    className={styles.handRobotShadow}
-                    initial={{ x: "50vw", opacity: 0, y: "-12%", scale: 0.75 }}
-                    animate={{ x: "28vw", opacity: 1, y: "-12%", scale: 1 }}
-                    transition={{ delay: 1.5, duration: 2.8, ease: 'easeOut' }}
-                    decoding="async"
-                    loading="eager"
-                  />
-                </motion.div>
+                {/* Mano Robótica — Capa de Sombra Enmascarada */}
+                <motion.img
+                  src={manoRobotImg}
+                  alt=""
+                  aria-hidden="true"
+                  className={styles.handRobotShadow}
+                  initial={{ x: xRobotInitial, opacity: 0, y: yRobot, scale: scaleRobotInitial }}
+                  animate={{ x: xRobotAnimate, opacity: 1, y: yRobot, scale: scaleRobotAnimate }}
+                  transition={{ delay: 1.5, duration: 2.8, ease: 'easeOut' }}
+                  decoding="async"
+                  loading="eager"
+                />
 
               </div>
 
@@ -347,7 +286,7 @@ export default function HeroAnimation({
         >
           <AnalysisModeProvider>
             <div className="w-full h-full bg-background relative z-50 select-text pointer-events-auto" style={{ pointerEvents: 'auto' }}>
-              <DentaxyFormPanel />
+              <DentaxyFormPanel disableProgressLineAnimation={true} />
             </div>
           </AnalysisModeProvider>
         </div>

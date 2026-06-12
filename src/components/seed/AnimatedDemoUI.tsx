@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { DocumentWriterPanel } from '@/components/academico/ui/DocumentWriterPanel';
 import { RefreshCw } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const stepNames = [
   '1. Datos Generales',
@@ -26,6 +27,7 @@ const variants = {
 };
 
 function AutomatedDentaxyForm({ animationTrigger, onAnimationComplete }: { animationTrigger: number, onAnimationComplete?: () => void }) {
+  const isMobile = useIsMobile();
   const [formData, setFormData] = useState(getInitialFormState());
   const [currentStep, setCurrentStep] = useState(0);
   const [isDocumentOpen, setIsDocumentOpen] = useState(false);
@@ -277,7 +279,10 @@ function AutomatedDentaxyForm({ animationTrigger, onAnimationComplete }: { anima
   return (
     <div className="flex flex-col w-full h-full bg-white dark:bg-zinc-950 overflow-hidden relative rounded-xl demo-readonly-container">
       <div className="flex w-full flex-1 overflow-hidden">
-        <div className={cn("flex flex-col relative h-full shrink-0 transition-all duration-300", isDocumentOpen ? "w-[50%]" : "w-full")}>
+        <div className={cn(
+          "flex flex-col relative h-full shrink-0 transition-all duration-300", 
+          isDocumentOpen ? "w-0 md:w-[50%] overflow-hidden opacity-0 pointer-events-none md:opacity-100 md:pointer-events-auto" : "w-full"
+        )}>
           <div className="w-full relative z-50 bg-transparent transition-all border-b border-transparent">
           <ProgressLine
             totalSteps={stepNames.length}
@@ -348,7 +353,7 @@ function AutomatedDentaxyForm({ animationTrigger, onAnimationComplete }: { anima
             onToggleExpand={() => {}}
             onNext={() => {}}
             canGoNext={false}
-            width={50}
+            width={isMobile ? 100 : 50}
           />
         )}
       </AnimatePresence>
@@ -366,6 +371,7 @@ function AutomatedDentaxyForm({ animationTrigger, onAnimationComplete }: { anima
  * Usamos CSS inyectado para bloquear inputs, selects, textareas y botones excepto el de replay.
  */
 export default function AnimatedDemoUI({ animationTrigger = 0, onAnimationComplete }: { animationTrigger?: number, onAnimationComplete?: () => void }) {
+  const isMobile = useIsMobile();
   return (
     <div className="w-full h-full bg-white rounded-lg overflow-hidden flex flex-col font-sans relative">
       <style>{`
@@ -378,7 +384,14 @@ export default function AnimatedDemoUI({ animationTrigger = 0, onAnimationComple
       `}</style>
       <AnalysisModeProvider>
         <div className="w-full h-full bg-background relative z-50 overflow-hidden transform-gpu">
-          <div className="origin-top-left w-full h-full" style={{ transform: 'scale(0.85)', width: '117.64%', height: '117.64%' }}>
+          <div 
+            className="origin-top-left w-full h-full" 
+            style={
+              isMobile 
+                ? { transform: 'scale(1.0)', width: '100%', height: '100%' } 
+                : { transform: 'scale(0.85)', width: '117.64%', height: '117.64%' }
+            }
+          >
             <div className="w-full h-full">
                <AutomatedDentaxyForm animationTrigger={animationTrigger} onAnimationComplete={onAnimationComplete} />
             </div>

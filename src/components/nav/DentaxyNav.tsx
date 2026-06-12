@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import WaitlistMasterModal from "@/components/waitlist/WaitlistMasterModal";
 import { motion, AnimatePresence } from "framer-motion";
+import { FutureButton } from "@/components/ui/FutureButton";
+
 import {
   Sprout,
   ShoppingBag,
@@ -221,104 +223,106 @@ export const DentaxyNav: React.FC = () => {
     <>
       <WaitlistMasterModal isOpen={waitlistOpen} onClose={() => setWaitlistOpen(false)} />
       {/* ─── Navbar Desktop ─────────────────────────────────────────────────── */}
-      <header className="sticky top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-100/80 shadow-sm">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      {/* ─── Navbar Desktop ─────────────────────────────────────────────────── */}
+      <header className="sticky top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl">
+        <div className="max-w-[1440px] mx-auto px-6 lg:pl-6 lg:pr-3 h-16 flex items-center justify-between lg:grid lg:grid-cols-3">
 
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400 }}
-            >
-              <img
-                src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png"
-                alt="Dentaxy"
-                className="h-8 w-8"
-              />
-            </motion.div>
-            <div className="flex flex-col leading-none">
-              <span className="text-[13px] font-black tracking-tight text-gray-900 group-hover:text-emerald-600 transition-colors">
-                DENTAXY
-              </span>
-              <span className="text-[9px] font-medium text-gray-400 tracking-widest uppercase">
-                Technologies
-              </span>
-            </div>
-          </Link>
-
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {/* Productos — trigger del mega-menú */}
-            <div className="relative">
-              <button
-                onMouseEnter={() => setMenuOpen(true)}
-                onMouseLeave={() => setMenuOpen(false)}
-                onClick={() => setMenuOpen((v) => !v)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
-                  menuOpen
-                    ? "bg-gray-50 text-gray-900"
-                    : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                }`}
+          <div className="flex justify-start">
+            <Link to="/" className="flex items-center gap-2 group">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 400 }}
               >
-                Productos
-                <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`}
+                <img
+                  src="/lovable-uploads/3236de6d-a3e4-4b81-9c83-b32690d4212d.png"
+                  alt="Dentaxy"
+                  className="h-8 w-8"
                 />
-              </button>
-
-              {/* Mega-menú con hover */}
-              <div
-                onMouseEnter={() => setMenuOpen(true)}
-                onMouseLeave={() => setMenuOpen(false)}
-              >
-                <AnimatePresence>
-                  {menuOpen && <MegaMenu onClose={() => setMenuOpen(false)} />}
-                </AnimatePresence>
+              </motion.div>
+              <div className="flex flex-col leading-none">
+                <span className="text-[13px] font-black tracking-tight text-gray-900 group-hover:text-emerald-600 transition-colors">
+                  DENTAXY
+                </span>
+                <span className="text-[9px] font-medium text-gray-400 tracking-widest uppercase">
+                  Technologies
+                </span>
               </div>
-            </div>
-
-            {[
-              { label: "Nosotros", href: "/about" },
-              { label: "Tecnologías", href: "/how-it-works" },
-              { label: "Beneficios", href: "/benefits" },
-              { label: "Contacto", href: "/contact" },
-            ].map((item) => (
-              <Link
-                key={item.label}
-                to={item.href}
-                className="px-4 py-2 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* CTA Buttons */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Link
-              to="/seed"
-              className="px-4 py-2 rounded-xl text-sm font-semibold text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200"
-            >
-              Acceso Doctores
             </Link>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <button
-                onClick={() => setWaitlistOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 shadow-lg shadow-emerald-200 transition-all duration-200"
-              >
-                <Sparkles className="w-3.5 h-3.5" />
-                Unirse a la Lista de Espera
-              </button>
-            </motion.div>
           </div>
 
-          {/* Mobile Hamburger */}
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="lg:hidden p-2 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors"
-          >
-            <Menu className="w-5 h-5" />
-          </button>
+          {/* Desktop Nav */}
+          <div className="hidden lg:flex justify-center">
+            <nav className="flex items-center gap-1">
+              {/* Productos — trigger del mega-menú */}
+              <div className="relative">
+                <button
+                  onMouseEnter={() => setMenuOpen(true)}
+                  onMouseLeave={() => setMenuOpen(false)}
+                  onClick={() => setMenuOpen((v) => !v)}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                    menuOpen
+                      ? "bg-gray-50 text-gray-900"
+                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                  }`}
+                >
+                  Productos
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                {/* Mega-menú con hover */}
+                <div
+                  onMouseEnter={() => setMenuOpen(true)}
+                  onMouseLeave={() => setMenuOpen(false)}
+                >
+                  <AnimatePresence>
+                    {menuOpen && <MegaMenu onClose={() => setMenuOpen(false)} />}
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              {[
+                { label: "Nosotros", href: "/about" },
+                { label: "Tecnologías", href: "/how-it-works" },
+                { label: "Beneficios", href: "/benefits" },
+                { label: "Contacto", href: "/contact" },
+              ].map((item) => (
+                <Link
+                  key={item.label}
+                  to={item.href}
+                  className="px-4 py-2 rounded-xl text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-50 transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          {/* Iniciar sesión & Guíame al futuro / Mobile Hamburger */}
+          <div className="flex justify-end items-center gap-4">
+            <Link
+              to="/login"
+              className="hidden lg:inline-flex items-center justify-center text-sm font-semibold text-gray-600 hover:text-black border border-gray-200 hover:border-black rounded-full px-4 h-10 transition-all duration-200 bg-white"
+            >
+              Iniciar sesión
+            </Link>
+            
+            <FutureButton 
+              onClick={() => setWaitlistOpen(true)} 
+              size="sm"
+              label="Crear cuenta"
+              className="hidden lg:flex" 
+            />
+
+            <button
+              onClick={() => setMobileOpen(true)}
+              className="lg:hidden p-2 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -365,7 +369,7 @@ export const DentaxyNav: React.FC = () => {
               </div>
 
               {/* Drawer body */}
-              <div className="overflow-y-auto h-full pb-32">
+              <div className="overflow-y-auto h-full pb-8">
                 {navGroups.map((group) => (
                   <div key={group.label} className="px-4 pt-5">
                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 mb-2">
@@ -411,27 +415,6 @@ export const DentaxyNav: React.FC = () => {
                     </Link>
                   ))}
                 </div>
-              </div>
-
-              {/* Drawer Footer CTA */}
-              <div className="absolute bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-100 space-y-2">
-                <Link
-                  to="/seed"
-                  onClick={() => setMobileOpen(false)}
-                  className="block w-full py-3 rounded-xl text-sm font-semibold text-center text-gray-700 border border-gray-200 hover:bg-gray-50 transition-colors"
-                >
-                  Acceso Doctores
-                </Link>
-                <button
-                  onClick={() => {
-                    setMobileOpen(false);
-                    setWaitlistOpen(true);
-                  }}
-                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 border-none"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  Lista de Espera
-                </button>
               </div>
             </motion.div>
           </>

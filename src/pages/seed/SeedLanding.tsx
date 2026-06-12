@@ -367,7 +367,7 @@ export default function SeedLanding() {
 
             {/* Columna Derecha: Consola */}
             <RevealDiv delay={1} className="relative group lg:col-span-7">
-              <div className="relative w-full lg:w-[130%] max-w-[calc(100vw-2rem)] lg:max-w-[calc(100vw-3rem)] lg:translate-x-6 z-20">
+              <div className="relative -mx-6 w-[calc(100%+3rem)] sm:-mx-6 sm:w-[calc(100%+3rem)] md:mx-0 md:w-full lg:w-[130%] max-w-[100vw] md:max-w-[calc(100vw-2rem)] lg:max-w-[calc(100vw-3rem)] lg:translate-x-6 z-20">
                 {/* ── ELEMENTOS TRASEROS CROMADOS Y DE CONTRASTE HIPER-BRILLANTES CON PULSO TRASERO ── */}
                 
                 {/* Luz Azul/Blanca superior: Pulso diagonal profundo original desde la esquina */}
@@ -421,7 +421,7 @@ export default function SeedLanding() {
                 />
                 
                 {/* ── GLASSMORPHIC CONTAINER (Cristal esmerilado blanco ultra-realista con biseles reflectantes y acabado pulido liso) ── */}
-                <div className="relative z-10 bg-gradient-to-br from-white/[0.24] via-white/[0.06] to-white/[0.02] backdrop-blur-[40px] border border-white/[0.28] rounded-xl p-6 overflow-hidden h-[600px] flex flex-col shadow-[0_35px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_3px_rgba(255,255,255,0.55),inset_0_-1px_1px_rgba(0,0,0,0.2)]">
+                <div className="relative z-10 bg-gradient-to-br from-white/[0.24] via-white/[0.06] to-white/[0.02] backdrop-blur-[40px] border border-white/[0.28] rounded-xl p-3 sm:p-6 overflow-hidden h-[80vh] md:h-[82vh] lg:h-[80vh] flex flex-col shadow-[0_35px_60px_-15px_rgba(0,0,0,0.9),inset_0_1px_3px_rgba(255,255,255,0.55),inset_0_-1px_1px_rgba(0,0,0,0.2)]">
                   
                   {/* Capa de reflejo de luz diagonal de cristal liso y pulido */}
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.01] to-white/[0.08] pointer-events-none z-0" />
