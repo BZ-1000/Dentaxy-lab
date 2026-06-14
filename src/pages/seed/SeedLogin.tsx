@@ -20,7 +20,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useAuthStore, DoctorProfile } from '@/store/useAuthStore';
 import { toast } from 'sonner';
-import SeedEcosystemLoader from '@/components/seed/SeedEcosystemLoader';
 import "./Seed.css";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -248,58 +247,6 @@ const StepGoogle: React.FC<{ onNext: (user: GoogleUser) => void }> = ({ onNext }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STEP 3 — BIENVENIDA PERSONALIZADA
-// ─────────────────────────────────────────────────────────────────────────────
-
-const StepBienvenida: React.FC<{ user: GoogleUser; onEnter: () => void }> = ({ user, onEnter }) => (
-  <motion.div
-    initial="hidden" animate="visible" exit={{ opacity: 0, y: -20 }}
-    variants={stagger}
-    className="space-y-8 flex flex-col items-center text-center max-w-md w-full"
-  >
-    {/* Avatar */}
-    <motion.div variants={scaleIn} className="relative">
-      <img
-        src={user.picture}
-        alt={user.name}
-        className="w-24 h-24 rounded-3xl border-4 border-white shadow-2xl shadow-blue-200 object-cover"
-      />
-      <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center">
-        <CheckCircle2 className="w-4 h-4 text-white" />
-      </div>
-    </motion.div>
-
-    <motion.div variants={fadeUp} className="space-y-2">
-      <motion.div
-        animate={{ scale: [1, 1.1, 1] }} transition={{ duration: 0.6, delay: 0.3 }}
-        className="text-4xl"
-      >
-        🌱
-      </motion.div>
-      <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
-        Bienvenido, <span className="seed-text">{user.name.split(' ')[0]}</span>
-      </h2>
-      <p className="text-sm text-gray-500">
-        {user.email}
-      </p>
-    </motion.div>
-
-    <motion.p variants={fadeUp} className="text-gray-500 text-sm max-w-xs leading-relaxed">
-      Tu espacio Dentaxy Seed está listo para explorarse. Descubre cómo transformaremos tu práctica clínica.
-    </motion.p>
-
-    <motion.div variants={fadeUp} className="w-full">
-      <Button
-        onClick={onEnter}
-        className="w-full h-14 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white font-bold text-base shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 hover:shadow-blue-500/40 transform hover:-translate-y-0.5 transition-all duration-300"
-      >
-        <Sparkles className="w-5 h-5" />
-        Entrar a Dentaxy Seed
-        <ArrowRight className="w-5 h-5" />
-      </Button>
-    </motion.div>
-  </motion.div>
-);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MODAL ADMIN
@@ -363,7 +310,7 @@ const AdminModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 // MAIN COMPONENT
 // ─────────────────────────────────────────────────────────────────────────────
 
-type Step = 'google' | 'bienvenida' | 'loading';
+type Step = 'google';
 
 const loginSlideVariants = {
   enter: (dir: number) => ({
@@ -395,36 +342,14 @@ export default function SeedLogin() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [direction, setDirection] = useState(1);
 
-  const handleGoogleSuccess = useCallback((u: GoogleUser) => {
-    setUser(u);
-    setDirection(1);
-    setStep('bienvenida');
-  }, []);
-
   const authLogin = useAuthStore(state => state.login);
 
-  const handleEnter = () => {
-    if (user) {
-      sessionStorage.setItem('seed_user', JSON.stringify(user));
-      authLogin(user); // Guardar en el store global de Zustand
-    }
-    setDirection(1);
-    setStep('loading');
-  };
-
-  const handleLoaderComplete = () => {
-    navigate('/seed', { replace: true });
-  };
-
-  // Si estamos en el step 'loading', renderizamos solo el loader a pantalla completa
-  if (step === 'loading') {
-    return (
-      <SeedEcosystemLoader
-        onComplete={handleLoaderComplete}
-        userName={user?.name}
-      />
-    );
-  }
+  const handleGoogleSuccess = useCallback((u: GoogleUser) => {
+    setUser(u);
+    sessionStorage.setItem('seed_user', JSON.stringify(u));
+    authLogin(u); // Guardar en el store global de Zustand
+    navigate('/seed/app', { replace: true });
+  }, [authLogin, navigate]);
 
   const currentStepIndex = ['google', 'bienvenida'].indexOf(step);
 
@@ -459,25 +384,6 @@ export default function SeedLogin() {
 
       {/* Área de contenido centrada */}
       <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-24">
-        {/* Indicador de pasos con resorte elástico */}
-        <div className="flex justify-center gap-2 mb-8 z-30">
-          {(['google', 'bienvenida'] as Step[]).map((s, i) => {
-            const isActive = step === s;
-            return (
-              <motion.div
-                key={s}
-                layout
-                animate={{ 
-                  width: isActive ? 24 : 8, 
-                  opacity: i <= currentStepIndex ? 1 : 0.3 
-                }}
-                transition={{ type: "spring", stiffness: 220, damping: 18 }}
-                className={`h-2 rounded-full ${isActive ? 'bg-blue-600' : 'bg-blue-200'}`}
-              />
-            );
-          })}
-        </div>
-
         <AnimatePresence mode="wait" custom={direction}>
           {step === 'google' && (
             <motion.div 
@@ -490,20 +396,6 @@ export default function SeedLogin() {
               className="w-full flex items-center justify-center"
             >
               <StepGoogle onNext={handleGoogleSuccess} />
-            </motion.div>
-          )}
-
-          {step === 'bienvenida' && user && (
-            <motion.div 
-              key="bienvenida" 
-              custom={direction}
-              variants={loginSlideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="w-full flex items-center justify-center"
-            >
-              <StepBienvenida user={user} onEnter={handleEnter} />
             </motion.div>
           )}
         </AnimatePresence>
