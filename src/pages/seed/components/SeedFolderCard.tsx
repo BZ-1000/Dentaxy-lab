@@ -3,7 +3,7 @@ import { FileText, ChevronRight } from 'lucide-react';
 
 export default function SeedFolderCard() {
   return (
-    <div className="relative w-full h-full flex flex-col justify-end pt-12 pb-2 px-2">
+    <div className="relative w-full h-full flex flex-col justify-end pb-2 px-2">
       
       {/* --- DEFINICIONES DE CLIP PATHS PARA LAS CARPETAS --- */}
       <svg width="0" height="0" className="absolute pointer-events-none">
@@ -24,43 +24,7 @@ export default function SeedFolderCard() {
                      C 0.02,1, 0,0.96, 0,0.92 
                      Z" />
           </clipPath>
-          {/* 2. Carpeta Vender (Pestaña centro-izquierda, hombro a Y=18%) */}
-          <clipPath id="folder-clip-mid-left" clipPathUnits="objectBoundingBox">
-            <path d="M 0,0.92 
-                     L 0,0.18 
-                     L 0.16,0.18 
-                     C 0.18,0.18, 0.20,0.14, 0.22,0.10 
-                     C 0.24,0.06, 0.26,0.06, 0.29,0.06 
-                     L 0.52,0.06 
-                     C 0.55,0.06, 0.57,0.06, 0.59,0.10 
-                     C 0.61,0.14, 0.63,0.18, 0.65,0.18 
-                     L 0.95,0.18 
-                     C 0.98,0.18, 1,0.22, 1,0.26 
-                     L 1,0.92 
-                     C 1,0.96, 0.98,1, 0.95,1 
-                     L 0.05,1 
-                     C 0.02,1, 0,0.96, 0,0.92 
-                     Z" />
-          </clipPath>
-          {/* 3. Carpeta QPA (Pestaña centro-derecha, hombro a Y=18%) */}
-          <clipPath id="folder-clip-mid-right" clipPathUnits="objectBoundingBox">
-            <path d="M 0,0.92 
-                     L 0,0.18 
-                     L 0.30,0.18 
-                     C 0.32,0.18, 0.34,0.14, 0.36,0.10 
-                     C 0.38,0.06, 0.40,0.06, 0.43,0.06 
-                     L 0.66,0.06 
-                     C 0.69,0.06, 0.71,0.06, 0.73,0.10 
-                     C 0.75,0.14, 0.77,0.18, 0.79,0.18 
-                     L 0.95,0.18 
-                     C 0.98,0.18, 1,0.22, 1,0.26 
-                     L 1,0.92 
-                     C 1,0.96, 0.98,1, 0.95,1 
-                     L 0.05,1 
-                     C 0.02,1, 0,0.96, 0,0.92 
-                     Z" />
-          </clipPath>
-          {/* 4. Solapa delantera (Borde superior recto a Y=28% de la altura, esquinas redondeadas) */}
+          {/* 2. Solapa delantera (Borde superior recto a Y=28% de la altura, esquinas redondeadas) */}
           <clipPath id="folder-front-clip-left" clipPathUnits="objectBoundingBox">
             <path d="M 0,0.92 
                      L 0,0.34 
@@ -75,89 +39,6 @@ export default function SeedFolderCard() {
           </clipPath>
         </defs>
       </svg>
-
-      {/* --- CARPETAS DE FONDO EN CASCADA --- */}
-
-      {/* 1. Simatent (Al fondo, izquierda) */}
-      <div 
-        className="absolute top-[-10px] left-0 w-full h-[360px] opacity-40 scale-[0.88] origin-bottom -z-30 select-none pointer-events-none transition-all duration-300"
-        style={{
-          clipPath: 'url(#folder-clip-left)',
-          background: 'var(--seed-folder-bg-1)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-        }}
-      >
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path 
-            d="M 0.5,91.5 L 0.5,17.5 C 0.5,11.5 2.5,5.5 5.5,5.5 L 29.5,5.5 C 32.5,5.5 35.5,9.5 37.5,13.5 C 39.5,17.5 41.5,17.5 44.5,17.5 L 94.5,17.5 C 97.5,17.5 99.5,21.5 99.5,25.5 L 99.5,91.5 C 99.5,96.5 97.5,99.5 94.5,99.5 L 5.5,99.5 C 2.5,99.5 0.5,96.5 0.5,91.5 Z" 
-            fill="none" stroke="var(--seed-folder-stroke-1)" strokeWidth="1" vectorEffect="non-scaling-stroke" 
-          />
-        </svg>
-        <div className="absolute left-6 top-[34px] text-[12px] font-medium tracking-wider" style={{ color: 'var(--seed-text-muted)' }}>
-          Simatent
-        </div>
-      </div>
-
-      {/* 2. Vender (En medio, centro-izquierda) */}
-      <div 
-        className="absolute top-[5px] left-0 w-full h-[360px] opacity-60 scale-[0.93] origin-bottom -z-20 select-none pointer-events-none transition-all duration-300"
-        style={{
-          clipPath: 'url(#folder-clip-mid-left)',
-          background: 'var(--seed-folder-bg-2)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-        }}
-      >
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path 
-            d="M 0.5,91.5 L 0.5,17.5 L 15.5,17.5 C 17.5,17.5 19.5,13.5 21.5,9.5 C 23.5,5.5 25.5,5.5 28.5,5.5 L 51.5,5.5 C 54.5,5.5 56.5,5.5 58.5,9.5 C 60.5,13.5 62.5,17.5 65.5,17.5 L 94.5,17.5 C 97.5,17.5 99.5,21.5 99.5,25.5 L 99.5,91.5 C 99.5,95.5 97.5,99.5 94.5,99.5 L 5.5,99.5 C 2.5,99.5 0.5,95.5 0.5,91.5 Z" 
-            fill="none" stroke="var(--seed-folder-stroke-2)" strokeWidth="1" vectorEffect="non-scaling-stroke" 
-          />
-        </svg>
-        <div className="absolute left-[92px] top-[34px] text-[12px] font-medium tracking-wider" style={{ color: 'var(--seed-text-muted)' }}>
-          Vender
-        </div>
-        <div className="absolute left-[92px] top-[74px] text-[10px] font-medium" style={{ color: 'var(--seed-text-light)' }}>
-          Approved Auto
-        </div>
-        <div className="absolute left-[92px] top-[88px] text-[13px] font-semibold tracking-wide" style={{ color: 'var(--seed-text-muted)' }}>
-          Onestry
-        </div>
-      </div>
-
-      {/* 3. QPA (Adelante de las de fondo, centro-derecha) */}
-      <div 
-        className="absolute top-[20px] left-0 w-full h-[360px] opacity-85 scale-[0.97] origin-bottom -z-10 select-none pointer-events-none transition-all duration-300"
-        style={{
-          clipPath: 'url(#folder-clip-mid-right)',
-          background: 'var(--seed-folder-bg-3)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-        }}
-      >
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-          <path 
-            d="M 0.5,91.5 L 0.5,17.5 L 29.5,17.5 C 31.5,17.5 33.5,13.5 35.5,9.5 C 37.5,5.5 39.5,5.5 42.5,5.5 L 65.5,5.5 C 68.5,5.5 70.5,5.5 72.5,9.5 C 74.5,13.5 76.5,17.5 78.5,17.5 L 94.5,17.5 C 97.5,17.5 99.5,21.5 99.5,25.5 L 99.5,91.5 C 99.5,95.5 97.5,99.5 94.5,99.5 L 5.5,99.5 C 2.5,99.5 0.5,95.5 0.5,91.5 Z" 
-            fill="none" stroke="var(--seed-folder-stroke-3)" strokeWidth="1" vectorEffect="non-scaling-stroke" 
-          />
-        </svg>
-        <div className="absolute left-[158px] top-[34px] text-[12px] font-medium tracking-wider flex items-center gap-1.5" style={{ color: 'var(--seed-text-main)' }}>
-          QPA
-          <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] text-white bg-white/10">
-            ➔
-          </div>
-        </div>
-        <div className="absolute left-6 top-[74px] text-[10px] font-medium" style={{ color: 'var(--seed-text-light)' }}>
-          Secctec Aolos
-        </div>
-        <div className="absolute left-6 top-[88px] text-[13px] font-semibold tracking-wide" style={{ color: 'var(--seed-text-muted)' }}>
-          City Onestry
-        </div>
-        <div className="absolute left-6 top-[108px] text-[9px] font-medium leading-tight" style={{ color: 'var(--seed-text-light)' }}>
-          Aszet Catomonics Review<br/>City Gnoestity
-        </div>
-      </div>
 
       {/* --- CARPETA PRINCIPAL (Compliance - Verde Liquid Glass) --- */}
       <div 
