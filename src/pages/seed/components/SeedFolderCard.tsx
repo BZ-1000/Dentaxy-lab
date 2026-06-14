@@ -94,7 +94,7 @@ export default function SeedFolderCard() {
             fill="none" stroke="var(--seed-folder-stroke-1)" strokeWidth="1" vectorEffect="non-scaling-stroke" 
           />
         </svg>
-        <div className="absolute left-6 top-6 text-[12px] font-medium tracking-wider" style={{ color: 'var(--seed-text-muted)' }}>
+        <div className="absolute left-6 top-[34px] text-[12px] font-medium tracking-wider" style={{ color: 'var(--seed-text-muted)' }}>
           Simatent
         </div>
       </div>
@@ -115,7 +115,7 @@ export default function SeedFolderCard() {
             fill="none" stroke="var(--seed-folder-stroke-2)" strokeWidth="1" vectorEffect="non-scaling-stroke" 
           />
         </svg>
-        <div className="absolute left-[92px] top-4 text-[12px] font-medium tracking-wider" style={{ color: 'var(--seed-text-muted)' }}>
+        <div className="absolute left-[92px] top-[34px] text-[12px] font-medium tracking-wider" style={{ color: 'var(--seed-text-muted)' }}>
           Vender
         </div>
         <div className="absolute left-[92px] top-[74px] text-[10px] font-medium" style={{ color: 'var(--seed-text-light)' }}>
@@ -142,7 +142,7 @@ export default function SeedFolderCard() {
             fill="none" stroke="var(--seed-folder-stroke-3)" strokeWidth="1" vectorEffect="non-scaling-stroke" 
           />
         </svg>
-        <div className="absolute left-[158px] top-4 text-[12px] font-medium tracking-wider flex items-center gap-1.5" style={{ color: 'var(--seed-text-main)' }}>
+        <div className="absolute left-[158px] top-[34px] text-[12px] font-medium tracking-wider flex items-center gap-1.5" style={{ color: 'var(--seed-text-main)' }}>
           QPA
           <div className="w-3.5 h-3.5 rounded-full flex items-center justify-center text-[8px] text-white bg-white/10">
             ➔
@@ -211,6 +211,13 @@ export default function SeedFolderCard() {
           </div>
         </div>
 
+        {/* Cabecera dentro de la pestaña (Tab) de la solapa trasera */}
+        {/* Colocada en z-30 y fuera del clipPath de la solapa delantera para que no se recorte */}
+        <div className="absolute top-[34px] left-6 z-30 pointer-events-none">
+          <h2 className="text-white text-[19px] font-semibold tracking-wide leading-tight">Compliance</h2>
+          <p className="text-white/60 text-[10px] font-medium tracking-wider mt-0.5">Recent activity</p>
+        </div>
+
         {/* CAPA 3: SOLAPA DELANTERA (Front Folder de Cristal Verde Vibrante) */}
         <div
           className="absolute inset-0 z-20"
@@ -232,14 +239,8 @@ export default function SeedFolderCard() {
           {/* Reflejo de luz diagonal interno */}
           <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/[0.08] to-white/[0.22] pointer-events-none z-10"></div>
 
-          {/* Cabecera dentro de la pestaña (Tab) de la solapa trasera */}
-          <div className="absolute top-[14px] left-6 z-20 pointer-events-none">
-            <h2 className="text-white text-[19px] font-semibold tracking-wide leading-tight">Compliance</h2>
-            <p className="text-white/60 text-[10px] font-medium tracking-wider mt-0.5">Recent activity</p>
-          </div>
-
           {/* Contenido principal sobre la solapa frontal */}
-          <div className="absolute top-[28%] inset-x-0 bottom-0 pt-4 px-6 pb-6 flex flex-col justify-between z-20">
+          <div className="absolute top-[28%] inset-x-0 bottom-0 pt-10 px-6 pb-6 flex flex-col justify-between z-20">
             
             {/* Línea de tiempo / Timeline */}
             <div className="mt-1">
