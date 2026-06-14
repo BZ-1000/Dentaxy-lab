@@ -199,11 +199,11 @@
 
 /* SOMBRAS ADAPTABLES COMPLIANCE CARD */
 .seed-compliance-card {
-  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.95), 0 10px 40px -10px rgba(0, 180, 90, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.95), 0 10px 40px -10px rgba(0, 180, 90, 0.3);
   transition: box-shadow 0.4s ease;
 }
 .light-theme .seed-compliance-card {
-  box-shadow: 0 30px 60px -15px rgba(10, 85, 50, 0.22), 0 10px 30px -10px rgba(16, 185, 129, 0.14), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  box-shadow: 0 30px 60px -15px rgba(10, 85, 50, 0.22), 0 10px 30px -10px rgba(16, 185, 129, 0.14);
 }
 
 /* NAV GREEN CAPSULE */
