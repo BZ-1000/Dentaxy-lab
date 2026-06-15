@@ -120,14 +120,14 @@ export default function SeedCarousel() {
             </div>
           </div>
 
-          {/* CAPA 3: SOLAPA DELANTERA (Front Folder de Cristal Esmerilado Verde Vibrante) */}
+          {/* CAPA 3: SOLAPA DELANTERA (Front Folder de Cristal Esmerilado Muy Borroso) */}
           <div
             className="absolute inset-0 z-20"
             style={{
               clipPath: 'url(#folder-front-clip-carousel)',
               background: 'var(--seed-liquid-glass-front)',
-              backdropFilter: 'blur(14px)',
-              WebkitBackdropFilter: 'blur(14px)',
+              backdropFilter: 'blur(48px)',
+              WebkitBackdropFilter: 'blur(48px)',
             }}
           >
             {/* Borde vectorial SVG exacto de la solapa delantera */}
