@@ -94,9 +94,8 @@ export default function SeedCarousel() {
 
           {/* CAPA 2: HOJA DE PAPEL INTERNA (Document) */}
           <div
-            className="absolute left-[16px] right-[16px] top-[24px] h-[152px] rounded-2xl shadow-md z-10 p-3 flex flex-col justify-between overflow-hidden transition-all duration-300"
+            className="absolute left-[16px] right-[16px] top-[24px] h-[152px] rounded-2xl shadow-md z-10 p-3 flex flex-col justify-between overflow-hidden seed-folder-paper"
             style={{
-              transform: 'rotate(-0.8deg)',
               background: 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)',
               border: '1px solid rgba(0, 0, 0, 0.06)',
             }}
@@ -122,7 +121,7 @@ export default function SeedCarousel() {
 
           {/* CAPA 3: SOLAPA DELANTERA (Front Folder de Cristal Esmerilado Muy Borroso) */}
           <div
-            className="absolute inset-0 z-20"
+            className="absolute inset-0 z-20 seed-folder-front"
             style={{
               clipPath: 'url(#folder-front-clip-carousel)',
               background: 'var(--seed-liquid-glass-front)',
