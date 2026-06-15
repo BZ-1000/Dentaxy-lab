@@ -46,21 +46,17 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
           <span className="text-[12px] font-semibold tracking-wide">January 12</span>
         </div>
 
-        {/* Cápsula Central: Eventos Activos (Gradiente Verde Glass) */}
+        {/* Cápsula Central: Eventos Activos (Mismo material que Expert, más alta) */}
         <div 
-          className="flex items-center h-[38px] px-1 rounded-full border shadow-lg overflow-hidden seed-nav-green-capsule" 
-          style={{ 
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-          }}
+          className="flex items-center h-[44px] px-1.5 rounded-full shadow-md overflow-hidden seed-nav-green-capsule" 
         >
           {/* Sección 1: 36 min */}
           <div className="flex items-center gap-2.5 pl-3 pr-3.5">
             <div className="flex -space-x-1">
-              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=60&q=80" className="w-5 h-5 rounded-full border border-white/20" alt="avatar" />
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=60&q=80" className="w-5 h-5 rounded-full border border-[var(--seed-glass-border)]" alt="avatar" />
             </div>
-            <span className="text-white/95 text-[10.5px] font-semibold tracking-wide">36 min</span>
-            <div className="w-5 h-5 rounded-full bg-[#0a351e]/80 border border-white/[0.06] flex items-center justify-center shadow-inner">
+            <span className="text-[var(--seed-text-main)] text-[11px] font-semibold tracking-wide">36 min</span>
+            <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-sm">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M14.5 8V16H4.5V8H14.5Z" fill="#EA4335" />
                 <path d="M14.5 10L18.5 7V17L14.5 14V10Z" fill="#4285F4" />
@@ -71,17 +67,17 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
           </div>
 
           {/* Separador */}
-          <div className="w-px h-4.5 bg-white/10"></div>
+          <div className="w-px h-5 bg-[var(--seed-glass-border)]"></div>
 
           {/* Sección 2: Audit Committee Review */}
           <div className="flex items-center gap-3 px-3.5">
-            <span className="text-white/60 text-[10px] font-medium tracking-wide">09:00 AM</span>
+            <span className="text-[var(--seed-text-light)] text-[10px] font-medium tracking-wide">09:00 AM</span>
             <div className="flex -space-x-1">
-              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=60&q=80" className="w-5 h-5 rounded-full border border-white/20" alt="avatar" />
-              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=60&q=80" className="w-5 h-5 rounded-full border border-white/20" alt="avatar" />
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=60&q=80" className="w-5 h-5 rounded-full border border-[var(--seed-glass-border)]" alt="avatar" />
+              <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=60&q=80" className="w-5 h-5 rounded-full border border-[var(--seed-glass-border)]" alt="avatar" />
             </div>
-            <span className="text-white text-[11px] font-semibold tracking-wide">Audit Committee Review</span>
-            <div className="w-5 h-5 rounded-full bg-[#0a351e]/80 border border-white/[0.06] flex items-center justify-center shadow-inner">
+            <span className="text-[var(--seed-text-main)] text-[11px] font-semibold tracking-wide">Audit Committee Review</span>
+            <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-sm">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M14.5 8V16H4.5V8H14.5Z" fill="#EA4335" />
                 <path d="M14.5 10L18.5 7V17L14.5 14V10Z" fill="#4285F4" />
@@ -92,14 +88,14 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
           </div>
 
           {/* Separador */}
-          <div className="w-px h-4.5 bg-white/10"></div>
+          <div className="w-px h-5 bg-[var(--seed-glass-border)]"></div>
 
           {/* Sección 3: 10:00 AM */}
-          <div className="flex items-center gap-3 pl-3.5 pr-2">
-            <span className="text-white/60 text-[10px] font-medium tracking-wide">10:00 AM</span>
+          <div className="flex items-center gap-3 pl-3.5 pr-2.5">
+            <span className="text-[var(--seed-text-light)] text-[10px] font-medium tracking-wide">10:00 AM</span>
             <div className="flex -space-x-1">
-              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=60&q=80" className="w-5 h-5 rounded-full border border-white/20" alt="avatar" />
-              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=60&q=80" className="w-5 h-5 rounded-full border border-white/20" alt="avatar" />
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=60&q=80" className="w-5 h-5 rounded-full border border-[var(--seed-glass-border)]" alt="avatar" />
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=60&q=80" className="w-5 h-5 rounded-full border border-[var(--seed-glass-border)]" alt="avatar" />
             </div>
           </div>
 
