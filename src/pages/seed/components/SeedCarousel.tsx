@@ -73,20 +73,22 @@ export default function SeedCarousel() {
           const isActive = diff === 0;
 
           // Parámetros de la pila 3D (archivador infinito)
-          const gap = 38; // Separación horizontal
-          const zStep = 32; // Separación de profundidad
-          const rY = 56; // Rotación en eje Y
+          const gap = 48; // Separación horizontal entre inactivas
+          const zStep = 24; // Separación de profundidad
+          const rY = 38; // Rotación en eje Y para ver la carpeta completa en perspectiva lateral
+          const centerOffset = 285; // Margen amplio para despejar la carpeta central verde
 
-          let translateX = diff * gap;
+          let translateX = 0;
           let translateZ = -Math.abs(diff) * zStep;
-          let rotateY = diff < 0 ? rY : diff > 0 ? -rY : 0;
+          let rotateY = 0;
           let rotateX = 0;
 
-          // Separación extra respecto a la carpeta activa para no tapar los textos
           if (diff < 0) {
-            translateX -= 20;
+            translateX = -centerOffset + (diff + 1) * gap;
+            rotateY = rY;
           } else if (diff > 0) {
-            translateX += 20;
+            translateX = centerOffset + (diff - 1) * gap;
+            rotateY = -rY;
           }
 
           // Si es activa, se posiciona de frente y un poco adelantada
