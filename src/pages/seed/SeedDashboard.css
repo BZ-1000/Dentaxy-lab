@@ -3,8 +3,8 @@
 :root {
   --seed-bg: #09090b; /* Fondo oscuro principal */
   --seed-bg-gradient: linear-gradient(135deg, #09090b 0%, #0c0c0f 100%);
-  --seed-green: #00D568; /* Verde vibrante de Seed */
-  --seed-green-glow: rgba(0, 213, 104, 0.25);
+  --seed-green: #00f5a0; /* Verde mano robot vibrante */
+  --seed-green-glow: rgba(0, 245, 160, 0.25);
   --seed-glass-bg: rgba(255, 255, 255, 0.03);
   --seed-glass-border: rgba(255, 255, 255, 0.08);
   --seed-glass-blur: blur(24px);
@@ -27,8 +27,8 @@
   --seed-icon-text: rgba(255, 255, 255, 0.5);
   
   /* Tarjetas Internas */
-  --seed-inner-card-bg: rgba(13, 77, 45, 0.3);
-  --seed-inner-card-hover: rgba(13, 77, 45, 0.4);
+  --seed-inner-card-bg: rgba(0, 130, 85, 0.2);
+  --seed-inner-card-hover: rgba(0, 130, 85, 0.3);
   --seed-inner-card-border: rgba(255, 255, 255, 0.06);
   
   /* Cápsulas Nav */
@@ -47,23 +47,22 @@
   --seed-glow-orb-opacity: 0.1;
   
   /* Orbes de brillo */
-  --seed-glow-orb-top: rgba(0, 213, 104, 0.08);
-  --seed-glow-orb-1: rgba(0, 213, 104, 0.04);
+  --seed-glow-orb-top: rgba(0, 245, 160, 0.08);
+  --seed-glow-orb-1: rgba(0, 245, 160, 0.04);
   --seed-glow-orb-2: rgba(99, 102, 241, 0.02);
-
+ 
   /* Carpeta Compliance */
-  --seed-compliance-bg: linear-gradient(180deg, rgba(20, 150, 88, 0.88) 0%, rgba(10, 85, 50, 0.96) 100%);
-  --seed-compliance-inner-bg: rgba(13, 77, 45, 0.3);
-  --seed-compliance-inner-hover: rgba(13, 77, 45, 0.45);
+  --seed-compliance-bg: linear-gradient(180deg, rgba(0, 200, 120, 0.88) 0%, rgba(0, 120, 75, 0.96) 100%);
+  --seed-compliance-inner-bg: rgba(0, 130, 85, 0.2);
+  --seed-compliance-inner-hover: rgba(0, 130, 85, 0.35);
   --seed-compliance-inner-border: rgba(255, 255, 255, 0.06);
-  --seed-compliance-avatar-border: #0d4829;
-
+  --seed-compliance-avatar-border: #005a3c;
+ 
   /* Carrusel Activo */
-  --seed-carousel-active-bg: linear-gradient(135deg, rgba(29, 191, 115, 0.9) 0%, rgba(10, 107, 64, 0.9) 100%);
-  --seed-carousel-active-border: rgba(0, 213, 104, 0.5);
-  --seed-carousel-active-shadow: 0 20px 40px -10px rgba(0, 213, 104, 0.3), 0 0 50px 0 rgba(0, 213, 104, 0.25);
-  --seed-liquid-glass-bg: linear-gradient(135deg, rgba(0, 213, 104, 0.3) 0%, rgba(5, 120, 60, 0.45) 100%);
-  --seed-liquid-glass-front: linear-gradient(135deg, rgba(0, 213, 104, 0.42) 0%, rgba(5, 140, 70, 0.58) 100%);
+  --seed-carousel-active-bg: linear-gradient(135deg, rgba(0, 245, 160, 0.9) 0%, rgba(0, 140, 90, 0.9) 100%);
+  --seed-carousel-active-border: rgba(0, 245, 160, 0.5);
+  --seed-carousel-active-shadow: 0 20px 40px -10px rgba(0, 245, 160, 0.3), 0 0 50px 0 rgba(0, 245, 160, 0.25);
+  --seed-liquid-glass-bg: linear-gradient(135deg, rgba(0, 245, 160, 0.22) 0%, rgba(0, 130, 85, 0.35) 100%);
 }
 
 .light-theme {
@@ -199,11 +198,11 @@
 
 /* SOMBRAS ADAPTABLES COMPLIANCE CARD */
 .seed-compliance-card {
-  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.95), 0 10px 40px -10px rgba(0, 180, 90, 0.3);
-  transition: box-shadow 0.4s ease;
+  filter: drop-shadow(0 15px 25px rgba(0, 245, 160, 0.22)) drop-shadow(0 5px 10px rgba(0, 245, 160, 0.15));
+  transition: filter 0.4s ease;
 }
 .light-theme .seed-compliance-card {
-  box-shadow: 0 30px 60px -15px rgba(10, 85, 50, 0.22), 0 10px 30px -10px rgba(16, 185, 129, 0.14);
+  filter: drop-shadow(0 15px 25px rgba(0, 214, 139, 0.18)) drop-shadow(0 5px 10px rgba(0, 214, 139, 0.1));
 }
 
 /* NAV GREEN CAPSULE */
@@ -300,13 +299,13 @@
 
 .seed-carousel-active {
   background: transparent;
-  box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.95), 0 10px 40px -10px rgba(0, 180, 90, 0.3);
+  filter: drop-shadow(0 15px 25px rgba(0, 245, 160, 0.22)) drop-shadow(0 5px 10px rgba(0, 245, 160, 0.15));
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative;
 }
 
 .light-theme .seed-carousel-active {
-  box-shadow: 0 30px 60px -15px rgba(10, 85, 50, 0.22), 0 10px 30px -10px rgba(16, 185, 129, 0.14);
+  filter: drop-shadow(0 15px 25px rgba(0, 214, 139, 0.18)) drop-shadow(0 5px 10px rgba(0, 214, 139, 0.1));
 }
 
 .seed-primary-button {

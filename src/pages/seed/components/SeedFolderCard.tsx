@@ -92,12 +92,7 @@ export default function SeedFolderCard() {
           </div>
         </div>
 
-        {/* Cabecera dentro de la pestaña (Tab) de la solapa trasera */}
-        {/* Colocada en z-30 y fuera del clipPath de la solapa delantera para que no se recorte */}
-        <div className="absolute top-[34px] left-6 z-30 pointer-events-none">
-          <h2 className="text-white text-[19px] font-semibold tracking-wide leading-tight">Compliance</h2>
-          <p className="text-white/60 text-[10px] font-medium tracking-wider mt-0.5">Recent activity</p>
-        </div>
+
 
         {/* CAPA 3: SOLAPA DELANTERA (Front Folder de Cristal Verde Vibrante) */}
         <div
