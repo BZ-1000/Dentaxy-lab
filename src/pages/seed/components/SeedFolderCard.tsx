@@ -94,14 +94,14 @@ export default function SeedFolderCard() {
 
 
 
-        {/* CAPA 3: SOLAPA DELANTERA (Front Folder de Cristal Verde Vibrante) */}
+        {/* CAPA 3: SOLAPA DELANTERA (Front Folder de Cristal Esmerilado Muy Borroso) */}
         <div
           className="absolute inset-0 z-20"
           style={{
             clipPath: 'url(#folder-front-clip-left)',
             background: 'var(--seed-liquid-glass-front)',
-            backdropFilter: 'blur(14px)',
-            WebkitBackdropFilter: 'blur(14px)',
+            backdropFilter: 'blur(32px)',
+            WebkitBackdropFilter: 'blur(32px)',
           }}
         >
           {/* Borde vectorial SVG exacto de la solapa delantera */}
