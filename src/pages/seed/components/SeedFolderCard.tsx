@@ -69,8 +69,9 @@ export default function SeedFolderCard() {
 
         {/* CAPA 2: HOJA DE PAPEL INTERNA (Document) */}
         <div
-          className="absolute left-[20px] right-[20px] top-[44px] h-[270px] rounded-2xl shadow-md z-10 p-5 flex flex-col justify-between overflow-hidden seed-folder-paper"
+          className="absolute left-[20px] right-[20px] top-[44px] h-[270px] rounded-2xl shadow-md z-10 p-5 flex flex-col justify-between overflow-hidden"
           style={{
+            transform: 'rotate(-0.6deg)',
             background: 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)',
             border: '1px solid rgba(0, 0, 0, 0.06)',
           }}
@@ -95,7 +96,7 @@ export default function SeedFolderCard() {
 
         {/* CAPA 3: SOLAPA DELANTERA (Front Folder de Cristal Esmerilado Muy Borroso) */}
         <div
-          className="absolute inset-0 z-20 seed-folder-front"
+          className="absolute inset-0 z-20"
           style={{
             clipPath: 'url(#folder-front-clip-left)',
             background: 'var(--seed-liquid-glass-front)',

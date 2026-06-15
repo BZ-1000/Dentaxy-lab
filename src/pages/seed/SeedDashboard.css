@@ -344,8 +344,7 @@
   background-color: var(--seed-compliance-inner-hover);
 }
 
-/* ANIMACIÓN DE CARPETA ABRIÉNDOSE (3D HOVER) */
-.seed-compliance-card,
+/* ANIMACIÓN DE CARPETA ABRIÉNDOSE (3D HOVER) - SÓLO CENTRAL */
 .seed-carousel-active {
   perspective: 1500px;
   transform-style: preserve-3d;
@@ -360,19 +359,6 @@
   transform-origin: bottom center;
   transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
   transform: rotateX(0deg) translateZ(0);
-}
-
-/* Carpeta Inferior (Compliance) */
-.seed-compliance-card .seed-folder-paper {
-  transform: rotate(-0.6deg) translateZ(0);
-}
-
-.seed-compliance-card:hover .seed-folder-paper {
-  transform: rotate(-0.6deg) rotateX(-22deg) translateY(-35px) translateZ(12px);
-}
-
-.seed-compliance-card:hover .seed-folder-front {
-  transform: rotateX(-28deg) translateY(1px) translateZ(16px);
 }
 
 /* Carpeta Central (Carrusel) */
