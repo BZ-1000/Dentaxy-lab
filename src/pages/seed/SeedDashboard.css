@@ -64,12 +64,6 @@
   --seed-carousel-active-shadow: 0 20px 40px -10px rgba(0, 176, 80, 0.3), 0 0 50px 0 rgba(0, 176, 80, 0.25);
   --seed-liquid-glass-bg: linear-gradient(135deg, rgba(0, 176, 80, 0.45) 0%, rgba(0, 95, 42, 0.6) 100%);
   --seed-liquid-glass-front: linear-gradient(135deg, rgba(0, 190, 85, 0.78) 0%, rgba(0, 120, 54, 0.88) 100%);
-  
-  /* Carpetas Inactivas (Cristal Blanco) */
-  --seed-inactive-folder-bg: rgba(255, 255, 255, 0.02);
-  --seed-inactive-folder-front: rgba(255, 255, 255, 0.05);
-  --seed-inactive-folder-stroke: rgba(255, 255, 255, 0.12);
-  --seed-inactive-text: rgba(255, 255, 255, 0.38);
 }
 
 .light-theme {  --seed-bg: #e0e4eb; /* Fondo base plateado metálico */
@@ -138,12 +132,6 @@
   --seed-carousel-active-shadow: 0 20px 40px -10px rgba(0, 163, 79, 0.22), 0 0 30px 0 rgba(0, 163, 79, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.3);
   --seed-liquid-glass-bg: linear-gradient(135deg, rgba(0, 213, 104, 0.42) 0%, rgba(0, 163, 79, 0.55) 100%);
   --seed-liquid-glass-front: linear-gradient(135deg, rgba(0, 213, 104, 0.76) 0%, rgba(0, 180, 88, 0.84) 100%);
-  
-  /* Carpetas Inactivas (Cristal Blanco) */
-  --seed-inactive-folder-bg: rgba(255, 255, 255, 0.28);
-  --seed-inactive-folder-front: rgba(255, 255, 255, 0.45);
-  --seed-inactive-folder-stroke: rgba(15, 23, 42, 0.08);
-  --seed-inactive-text: rgba(15, 23, 42, 0.45);
 }
 
 .seed-dashboard {
