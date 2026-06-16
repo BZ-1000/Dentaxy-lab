@@ -5,9 +5,11 @@ import SeedTopNav from './components/SeedTopNav';
 import SeedActionBar from './components/SeedActionBar';
 import SeedCarousel from './components/SeedCarousel';
 import SeedDashboardLayout from './components/SeedDashboardLayout';
+import SeedFolderModal from './components/SeedFolderModal';
 
 export default function SeedApp() {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [openedFolder, setOpenedFolder] = useState<{folder: any, rect?: DOMRect} | null>(null);
 
   const toggleTheme = () => {
     setTheme(prev => prev === 'dark' ? 'light' : 'dark');
@@ -40,7 +42,7 @@ export default function SeedApp() {
          
          {/* Carrusel 3D */}
          <div className="flex-1 flex items-center justify-center min-h-[320px] max-h-[380px] mt-2">
-           <SeedCarousel />
+           <SeedCarousel onOpenFolder={(folder, rect) => setOpenedFolder({ folder, rect })} />
          </div>
          
          {/* Grid Inferior (Key Dates, Compliance, Event) */}
@@ -49,6 +51,15 @@ export default function SeedApp() {
          </div>
          
       </div>
+
+      {/* Modal de Vista Detallada de Carpeta */}
+      {openedFolder && (
+        <SeedFolderModal 
+          folder={openedFolder.folder} 
+          originRect={openedFolder.rect}
+          onClose={() => setOpenedFolder(null)} 
+        />
+      )}
 
     </div>
   );

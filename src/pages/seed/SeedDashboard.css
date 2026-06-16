@@ -64,12 +64,14 @@
   --seed-carousel-active-shadow: 0 20px 40px -10px rgba(0, 176, 80, 0.3), 0 0 50px 0 rgba(0, 176, 80, 0.25);
   --seed-liquid-glass-bg: linear-gradient(135deg, rgba(0, 176, 80, 0.45) 0%, rgba(0, 95, 42, 0.6) 100%);
   --seed-liquid-glass-front: linear-gradient(135deg, rgba(0, 190, 85, 0.78) 0%, rgba(0, 120, 54, 0.88) 100%);
+  --seed-white-glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --seed-white-glass-front: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 100%);
 }
 
 .light-theme {  --seed-bg: #e0e4eb; /* Fondo base plateado metálico */
   --seed-bg-gradient: linear-gradient(135deg, #f0f2f5 0%, #cbd1d9 100%);
   --seed-green: #00d568; /* Verde esmeralda vibrante de excelente contraste y vitalidad */
-  --seed-green-glow: rgba(0, 213, 104, 0.22);
+  --seed-green-glow: rgba(15, 23, 42, 0.12);
   --seed-glass-bg: rgba(255, 255, 255, 0.45); /* Vidrio blanco esmerilado */
   --seed-glass-border: rgba(255, 255, 255, 0.65);
   --seed-glass-blur: blur(28px);
@@ -82,7 +84,7 @@
   --seed-card-border: rgba(255, 255, 255, 0.8); /* Borde superior brillante */
   --seed-card-shadow: 
     0 25px 50px -12px rgba(15, 23, 42, 0.06), 
-    0 0 35px 0 rgba(0, 213, 104, 0.02),
+    0 0 35px 0 rgba(15, 23, 42, 0.015),
     inset 0 1px 0 rgba(255, 255, 255, 0.85);
   
   /* Filas */
@@ -115,9 +117,9 @@
   --seed-glow-orb-opacity: 0.16;
  
   /* Orbes de brillo */
-  --seed-glow-orb-top: rgba(0, 213, 104, 0.09);
-  --seed-glow-orb-1: rgba(168, 85, 247, 0.05);
-  --seed-glow-orb-2: rgba(0, 213, 104, 0.08);
+  --seed-glow-orb-top: rgba(71, 85, 105, 0.04);
+  --seed-glow-orb-1: rgba(168, 85, 247, 0.03);
+  --seed-glow-orb-2: rgba(71, 85, 105, 0.03);
  
   /* Carpeta Compliance */
   --seed-compliance-bg: linear-gradient(180deg, rgba(0, 213, 104, 0.88) 0%, rgba(0, 163, 79, 0.95) 100%);
@@ -129,9 +131,11 @@
   /* Carrusel Activo */
   --seed-carousel-active-bg: linear-gradient(135deg, rgba(0, 213, 104, 0.88) 0%, rgba(0, 163, 79, 0.95) 100%);
   --seed-carousel-active-border: rgba(255, 255, 255, 0.4);
-  --seed-carousel-active-shadow: 0 20px 40px -10px rgba(0, 163, 79, 0.22), 0 0 30px 0 rgba(0, 163, 79, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  --seed-carousel-active-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.15), 0 0 30px 0 rgba(15, 23, 42, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.3);
   --seed-liquid-glass-bg: linear-gradient(135deg, rgba(0, 213, 104, 0.42) 0%, rgba(0, 163, 79, 0.55) 100%);
   --seed-liquid-glass-front: linear-gradient(135deg, rgba(0, 213, 104, 0.76) 0%, rgba(0, 180, 88, 0.84) 100%);
+  --seed-white-glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.2) 100%);
+  --seed-white-glass-front: linear-gradient(135deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.35) 100%);
 }
 
 .seed-dashboard {
@@ -202,7 +206,7 @@
   transition: filter 0.4s ease;
 }
 .light-theme .seed-compliance-card {
-  filter: drop-shadow(0 15px 25px rgba(0, 214, 139, 0.18)) drop-shadow(0 5px 10px rgba(0, 214, 139, 0.1));
+  filter: drop-shadow(0 15px 25px rgba(15, 23, 42, 0.1)) drop-shadow(0 5px 10px rgba(15, 23, 42, 0.06));
 }
 
 /* NAV GREEN CAPSULE */
@@ -306,8 +310,17 @@
   position: relative;
 }
 
-.light-theme .seed-carousel-active {
-  filter: drop-shadow(0 15px 25px rgba(0, 214, 139, 0.18)) drop-shadow(0 5px 10px rgba(0, 214, 139, 0.1));
+.seed-folder-stack-item {
+  background: transparent;
+  filter: drop-shadow(0 28px 25px rgba(0, 245, 160, 0.2)) drop-shadow(0 32px 40px rgba(0, 245, 160, 0.12));
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  position: relative;
+  will-change: transform, opacity;
+}
+
+.light-theme .seed-carousel-active,
+.light-theme .seed-folder-stack-item {
+  filter: drop-shadow(0 15px 25px rgba(15, 23, 42, 0.12)) drop-shadow(0 5px 10px rgba(15, 23, 42, 0.08));
 }
 
 .seed-primary-button {
@@ -345,32 +358,89 @@
 }
 
 /* ANIMACIÓN DE CARPETA ABRIÉNDOSE (3D HOVER) - SÓLO CENTRAL */
-.seed-carousel-active {
+.seed-carousel-active.group,
+.seed-folder-stack-item {
   perspective: 1500px;
   transform-style: preserve-3d;
 }
 
 .seed-folder-paper {
   transform-origin: bottom center;
-  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease;
 }
 
 .seed-folder-front {
   transform-origin: bottom center;
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.4s ease;
+}
+
+/* Lomo físico de la carpeta para dar volumen (spine) */
+.seed-folder-spine {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 24px; /* Grosor de la carpeta */
+  background: var(--seed-white-glass-bg);
+  transform-origin: bottom;
+  transform: rotateX(-90deg) translateY(24px);
+  border-top: 1px solid rgba(255,255,255,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+  pointer-events: none;
+}
+
+/* Carpeta Central (Carrusel) Apertura Interactiva */
+.seed-carousel-active.group:hover .seed-folder-paper {
+  transform: translate3d(0, -12px, 12px) rotateX(-18deg) !important;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important;
+}
+
+.seed-carousel-active.group:hover .seed-folder-front {
+  transform: translate3d(0, 2px, 24px) rotateX(-36deg) !important;
+  box-shadow: 0 35px 50px -10px rgba(0,0,0,0.35), inset 0 2px 6px rgba(255,255,255,0.4) !important;
+}
+
+.light-theme .seed-carousel-active.group:hover .seed-folder-front {
+  box-shadow: 0 35px 50px -10px rgba(15,23,42,0.18), inset 0 2px 6px rgba(255,255,255,0.8) !important;
+}
+
+/* Animación unificada en bloque para carpetas de la pila lateral (delantera, papel y trasera se mueven como un solo bloque sólido) */
+.seed-folder-block {
+  transform-origin: bottom center;
   transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1);
-  transform: rotateX(0deg) translateZ(0);
+  transform: rotateZ(0) translate3d(0, 0, 0);
+  will-change: transform;
 }
 
-/* Carpeta Central (Carrusel) */
-.seed-carousel-active .seed-folder-paper {
-  transform: rotate(-0.8deg) translateZ(0);
+/* Pila Izquierda: inclina todo el bloque 3D (antihorario en Z, hacia abajo y adentro) */
+.seed-stack-left:hover .seed-folder-block {
+  transform: rotateZ(-6deg) translate3d(0, 6px, -10px);
 }
 
-.seed-carousel-active:hover .seed-folder-paper {
-  transform: rotate(-0.8deg) rotateX(-22deg) translateY(-28px) translateZ(12px);
+/* Pila Derecha: inclina todo el bloque 3D (antihorario en Z, hacia abajo y adentro) */
+.seed-stack-right:hover .seed-folder-block {
+  transform: rotateZ(-6deg) translate3d(0, 6px, -10px);
 }
 
-.seed-carousel-active:hover .seed-folder-front {
-  transform: rotateX(-28deg) translateY(1px) translateZ(16px);
+
+
+
+/* MODAL / POPUP HOVER ANIMATIONS */
+@keyframes seed-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
+@keyframes seed-scale-up {
+  from { transform: scale(0.95) translateY(10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.seed-animate-fade-in {
+  animation: seed-fade-in 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+.seed-animate-scale-up {
+  animation: seed-scale-up 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}

@@ -8,33 +8,18 @@ export default function SeedFolderCard() {
       {/* --- DEFINICIONES DE CLIP PATHS PARA LAS CARPETAS --- */}
       <svg width="0" height="0" className="absolute pointer-events-none">
         <defs>
-          {/* 1. Solapa trasera (Pestaña a la izquierda, hombro a Y=18%) */}
           <clipPath id="folder-clip-left" clipPathUnits="objectBoundingBox">
             <path d="M 0,0.92 
-                     L 0,0.18 
-                     C 0,0.12, 0.02,0.06, 0.05,0.06 
-                     L 0.30,0.06 
-                     C 0.33,0.06, 0.36,0.10, 0.38,0.14 
-                     C 0.40,0.18, 0.42,0.18, 0.45,0.18 
-                     L 0.95,0.18 
-                     C 0.98,0.18, 1,0.22, 1,0.26 
-                     L 1,0.92 
-                     C 1,0.96, 0.98,1, 0.95,1 
-                     L 0.05,1 
-                     C 0.02,1, 0,0.96, 0,0.92 
-                     Z" />
-          </clipPath>
-          {/* 2. Solapa delantera (Borde superior recto a Y=28% de la altura, esquinas redondeadas) */}
-          <clipPath id="folder-front-clip-left" clipPathUnits="objectBoundingBox">
-            <path d="M 0,0.92 
-                     L 0,0.34 
-                     C 0,0.30, 0.02,0.28, 0.05,0.28 
-                     L 0.95,0.28 
-                     C 0.98,0.28, 1,0.30, 1,0.34 
-                     L 1,0.92 
-                     C 1,0.96, 0.98,1, 0.95,1 
-                     L 0.05,1 
-                     C 0.02,1, 0,0.96, 0,0.92 
+                     C 0,0.98, 0.02,1, 0.06,1 
+                     L 0.94,1 
+                     C 0.98,1, 1,0.98, 1,0.92 
+                     L 1,0.20 
+                     C 1,0.16, 0.98,0.13, 0.95,0.13 
+                     L 0.45,0.13 
+                     C 0.42,0.13, 0.40,0.13, 0.38,0.09 
+                     C 0.36,0.05, 0.33,0.02, 0.30,0.02 
+                     L 0.06,0.02 
+                     C 0.02,0.02, 0,0.06, 0,0.12 
                      Z" />
           </clipPath>
         </defs>
@@ -50,19 +35,19 @@ export default function SeedFolderCard() {
       >
         {/* CAPA 1: SOLAPA TRASERA DE LA CARPETA (Back Folder) */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 seed-folder-back drop-shadow-md"
           style={{
             clipPath: 'url(#folder-clip-left)',
-            background: 'var(--seed-liquid-glass-bg)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
+            background: 'var(--seed-white-glass-bg)',
           }}
         >
+          {/* Tinte Verde idéntico a la activa del carrusel */}
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-emerald-500 opacity-[0.65]"></div>
           {/* Borde sutil interno trasero */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1 1" preserveAspectRatio="none">
             <path 
-              d="M 0.5,91.5 L 0.5,17.5 C 0.5,11.5 2.5,5.5 5.5,5.5 L 29.5,5.5 C 32.5,5.5 35.5,9.5 37.5,13.5 C 39.5,17.5 41.5,17.5 44.5,17.5 L 94.5,17.5 C 97.5,17.5 99.5,21.5 99.5,25.5 L 99.5,91.5 C 99.5,96.5 97.5,99.5 94.5,99.5 L 5.5,99.5 C 2.5,99.5 0.5,96.5 0.5,91.5 Z" 
-              fill="none" stroke="rgba(255, 255, 255, 0.2)" strokeWidth="1" vectorEffect="non-scaling-stroke" 
+              d="M 0,0.92 C 0,0.98 0.02,1 0.06,1 L 0.94,1 C 0.98,1 1,0.98 1,0.92 L 1,0.20 C 1,0.16 0.98,0.13 0.95,0.13 L 0.45,0.13 C 0.42,0.13 0.40,0.13 0.38,0.09 C 0.36,0.05 0.33,0.02 0.30,0.02 L 0.06,0.02 C 0.02,0.02 0,0.06 0,0.12 Z" 
+              fill="none" stroke="rgba(255, 255, 255, 0.4)" strokeWidth="0.012" vectorEffect="non-scaling-stroke" 
             />
           </svg>
         </div>
@@ -94,29 +79,31 @@ export default function SeedFolderCard() {
 
 
 
-        {/* CAPA 3: SOLAPA DELANTERA (Front Folder de Cristal Esmerilado Muy Borroso) */}
+        {/* LOMO 3D FÍSICO (Spine idéntico al carrusel) */}
+        <div className="seed-folder-spine" style={{ left: '24px', right: '24px' }}></div>
+
+        {/* CAPA 3: SOLAPA DELANTERA (Plancha 3D gruesa de acrílico) */}
         <div
-          className="absolute inset-0 z-20"
+          className="absolute top-[80px] left-0 right-0 bottom-0 z-20 seed-folder-front"
           style={{
-            clipPath: 'url(#folder-front-clip-left)',
-            background: 'var(--seed-liquid-glass-front)',
-            backdropFilter: 'blur(48px)',
-            WebkitBackdropFilter: 'blur(48px)',
+            transform: 'translate3d(0, 0, 24px)',
+            transformStyle: 'preserve-3d',
+            borderRadius: '16px 16px 24px 24px',
+            borderTop: '1.5px solid rgba(255,255,255,0.5)',
+            borderLeft: '1px solid rgba(255,255,255,0.3)',
+            borderRight: '1px solid rgba(255,255,255,0.3)',
+            borderBottom: '1.5px solid rgba(255,255,255,0.3)',
+            boxShadow: '0 10px 30px -4px rgba(0,0,0,0.18), inset 0 2px 6px rgba(255,255,255,0.4)',
+            background: 'transparent',
           }}
         >
-          {/* Borde vectorial SVG exacto de la solapa delantera */}
-          <svg className="absolute inset-0 w-full h-full pointer-events-none z-30" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <path 
-              d="M 0.5,91.5 L 0.5,33.5 C 0.5,29.5 2.5,27.5 5.5,27.5 L 94.5,27.5 C 97.5,27.5 99.5,29.5 99.5,33.5 L 99.5,91.5 C 99.5,96.5 97.5,99.5 94.5,99.5 L 5.5,99.5 C 2.5,99.5 0.5,96.5 0.5,91.5 Z" 
-              fill="none" stroke="rgba(255, 255, 255, 0.35)" strokeWidth="1.2" vectorEffect="non-scaling-stroke" 
-            />
-          </svg>
-
-          {/* Reflejo de luz diagonal interno */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/[0.08] to-white/[0.22] pointer-events-none z-10"></div>
+          {/* Tinte Verde Activo */}
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-emerald-500 opacity-90" style={{ borderRadius: '16px 16px 24px 24px' }}></div>
+          {/* Brillo Cenital Cristalino */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/[0.08] to-white/[0.22] pointer-events-none z-10" style={{ borderRadius: '16px 16px 24px 24px' }}></div>
 
           {/* Contenido principal sobre la solapa frontal */}
-          <div className="absolute top-[28%] inset-x-0 bottom-0 pt-10 px-6 pb-6 flex flex-col justify-between z-20">
+          <div className="absolute top-[8%] inset-x-0 bottom-0 pt-6 px-6 pb-6 flex flex-col justify-between z-20">
             
             {/* Línea de tiempo / Timeline */}
             <div className="mt-1">
