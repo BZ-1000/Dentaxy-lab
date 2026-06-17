@@ -35,6 +35,21 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
         <div className="w-10 h-10 rounded-full seed-glass flex items-center justify-center text-[var(--seed-text-muted)] cursor-pointer hover:text-[var(--seed-text-main)] transition">
           <Search size={16} />
         </div>
+
+        {/* Google Drive Link (Arquitectura Zero-Storage) */}
+        <a 
+          href="https://drive.google.com/drive/my-drive" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          title="Mis archivos dentaxy"
+          className="w-8 h-8 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform duration-200"
+        >
+          <img 
+            src="/logos/google-drive.png" 
+            alt="Mis archivos dentaxy" 
+            className="w-full h-full object-contain"
+          />
+        </a>
       </div>
 
       {/* ── Centro: Píldora de Eventos e Indicadores (Degradado Verde y Cristal) ── */}
