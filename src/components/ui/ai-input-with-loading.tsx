@@ -127,20 +127,21 @@ export function AIInputWithLoading({
     };
 
     return (
-        <div className={cn("w-full py-2", className)}>
+        <div className="w-full py-2">
             <div className="relative w-full mx-auto">
                 <Textarea
                     id={id}
                     placeholder={placeholder}
                     className={cn(
-                        "w-full rounded-2xl pl-5 pr-12 py-4",
-                        "bg-white dark:bg-zinc-800/50", // Flat, clean background
-                        "border border-gray-200 dark:border-zinc-700", // Subtle border
-                        "placeholder:text-gray-400 dark:placeholder:text-zinc-500",
-                        "text-gray-900 dark:text-zinc-100 resize-none leading-relaxed",
-                        // NEUTRAL FOCUS RING (Black/Gray): No green saturation
-                        "focus:ring-2 focus:ring-black/10 dark:focus:ring-white/20 focus:border-black/50 dark:focus:border-white/50",
-                        "transition-all duration-200"
+                        "w-full rounded-3xl pl-6 pr-14 py-6",
+                        "bg-white/80 dark:bg-zinc-800/60 backdrop-blur-md shadow-sm", // Glassmorphic background
+                        "border border-white/80 dark:border-white/10", // Glass border
+                        "placeholder:text-zinc-400 dark:placeholder:text-zinc-500",
+                        "text-xl font-medium text-zinc-900 dark:text-zinc-100 resize-none leading-relaxed",
+                        // NEUTRAL FOCUS RING
+                        "focus:ring-4 focus:ring-black/5 dark:focus:ring-white/10 focus:border-black/20 dark:focus:border-white/20 focus:bg-white/90 dark:focus:bg-zinc-800/80",
+                        "transition-all duration-300",
+                        className
                     )}
                     style={{ minHeight: `${minHeight}px` }}
                     ref={textareaRef}

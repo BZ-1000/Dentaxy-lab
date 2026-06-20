@@ -93,6 +93,7 @@ import SingularityPage from './app/singularity/page';
 import SeedLanding from './pages/seed/SeedLanding';
 import SeedLogin from './pages/seed/SeedLogin';
 import SeedApp from './pages/seed/SeedApp';
+import { Seed2Phase } from './core/packages/seed2/Seed2Phase';
 
 // Dentaxy Ecosistema (páginas de cada producto)
 import LabPage from './pages/ecosystem/LabPage';
@@ -220,6 +221,7 @@ function App() {
                   <Route path="/seed" element={<SeedLanding />} />
                   <Route path="/seed/login" element={<SeedLogin />} />
                   <Route path="/seed/app" element={<SeedApp />} />
+                  <Route path="/seed/new" element={<Seed2Phase />} />
 
                   {/* Dentaxy Ecosistema — Páginas de cada producto */}
                   <Route path="/lab" element={<LabPage />} />

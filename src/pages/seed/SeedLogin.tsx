@@ -337,69 +337,17 @@ const loginSlideVariants = {
 
 export default function SeedLogin() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<Step>('google');
-  const [user, setUser] = useState<GoogleUser | null>(null);
-  const [showAdmin, setShowAdmin] = useState(false);
-  const [direction, setDirection] = useState(1);
 
-  const authLogin = useAuthStore(state => state.login);
-
-  const handleGoogleSuccess = useCallback((u: GoogleUser) => {
-    setUser(u);
-    sessionStorage.setItem('seed_user', JSON.stringify(u));
-    authLogin(u); // Guardar en el store global de Zustand
-    navigate('/seed/app', { replace: true });
-  }, [authLogin, navigate]);
-
-  const currentStepIndex = ['google', 'bienvenida'].indexOf(step);
+  React.useEffect(() => {
+    navigate('/seed?login=true', { replace: true });
+  }, [navigate]);
 
   return (
-    <div className="seed-theme min-h-screen w-full bg-white flex flex-col overflow-hidden selection:bg-blue-500/20 relative">
-      <AnimatePresence>
-        {showAdmin && <AdminModal onClose={() => setShowAdmin(false)} />}
-      </AnimatePresence>
-
-      {/* Header mínimo */}
-      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4">
-        <button
-          onClick={() => navigate('/')}
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors bg-white/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-gray-100 shadow-sm"
-        >
-          ← Inicio
-        </button>
-        <button
-          onClick={() => setShowAdmin(true)}
-          className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-700 transition-colors px-3 py-1.5 rounded-full"
-        >
-          <Lock className="w-3 h-3" /> Admin
-        </button>
-      </header>
-
-      {/* Background decorativo */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-blue-500/6 rounded-full blur-3xl" />
-        <div className="absolute -bottom-32 -left-32 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-50/40 rounded-full blur-3xl" />
+    <div className="h-screen w-full bg-[#0c0c0f] flex flex-col items-center justify-center text-white font-mono">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="w-8 h-8 rounded-full text-emerald-500 animate-spin" />
+        <span className="text-xs font-medium text-slate-400 tracking-wider">REDIRECCIONANDO...</span>
       </div>
-
-      {/* Área de contenido centrada */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-24">
-        <AnimatePresence mode="wait" custom={direction}>
-          {step === 'google' && (
-            <motion.div 
-              key="google" 
-              custom={direction}
-              variants={loginSlideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="w-full flex items-center justify-center"
-            >
-              <StepGoogle onNext={handleGoogleSuccess} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </main>
     </div>
   );
 }

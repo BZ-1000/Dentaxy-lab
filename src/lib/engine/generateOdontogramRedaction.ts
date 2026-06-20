@@ -593,7 +593,7 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
         <td style="padding:4px 8px;font-size:11px;color:#374151;font-weight:600">OD ${i.tooth}</td>
         <td style="padding:4px 8px;font-size:11px;color:#374151">${i.procedure}</td>
         <td style="padding:4px 8px;font-size:10px;color:${i.priority === 'Alta' ? '#EA4335' : i.priority === 'Media' ? '#F9AB00' : '#1D9E75'};font-weight:700">${i.priority}</td>
-        <td style="padding:4px 8px;font-size:10px;color:#9CA3AF">${i.estimatedTime}</td>
+        <td style="padding:4px 8px;font-size:10px;color:#555">${i.estimatedTime}</td>
       </tr>`).join('');
     return `
       <div style="margin-bottom:10px;border-radius:8px;overflow:hidden;border-left:3px solid ${border};background:${bg}">
@@ -601,10 +601,10 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
         <table style="width:100%;border-collapse:collapse">
           <thead>
             <tr style="background:rgba(0,0,0,0.03)">
-              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#9CA3AF;text-align:left;font-weight:600">OD</th>
-              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#9CA3AF;text-align:left;font-weight:600">Procedimiento</th>
-              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#9CA3AF;text-align:left;font-weight:600">Prioridad</th>
-              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#9CA3AF;text-align:left;font-weight:600">Tiempo</th>
+              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#555;text-align:left;font-weight:600">OD</th>
+              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#555;text-align:left;font-weight:600">Procedimiento</th>
+              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#555;text-align:left;font-weight:600">Prioridad</th>
+              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#555;text-align:left;font-weight:600">Tiempo</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -623,7 +623,7 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
   return `<div style="font-family:inherit">
 
   <div style="margin-bottom:16px;padding:14px 16px;border-radius:10px;background:#ffffff;border:1px solid #e5e7eb">
-    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin:0 0 10px">VII · ODONTOGRAMA</p>
+    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;margin:0 0 10px">VII · ODONTOGRAMA</p>
     ${activeStates.length > 0 ? `
     <table style="width:100%;border-collapse:collapse;margin-bottom:10px">
       <tbody>${hallazgosRows}</tbody>
@@ -632,7 +632,7 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
   </div>
 
   <div style="margin-bottom:16px;padding:14px 16px;border-radius:10px;background:#ffffff;border:1px solid #e5e7eb">
-    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin:0 0 10px">VIII · DIAGNÓSTICO PRESUNTIVO</p>
+    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;margin:0 0 10px">VIII · DIAGNÓSTICO PRESUNTIVO</p>
     <table style="width:100%;border-collapse:collapse">
       <tbody>${diagRows}</tbody>
     </table>
@@ -640,7 +640,7 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
 
   ${plan.length > 0 ? `
   <div style="margin-bottom:16px;padding:14px 16px;border-radius:10px;background:#ffffff;border:1px solid #e5e7eb">
-    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#9CA3AF;margin:0 0 10px">IX · PLAN DE TRATAMIENTO</p>
+    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;margin:0 0 10px">IX · PLAN DE TRATAMIENTO</p>
     ${renderPhase(phase1, 1)}
     ${renderPhase(phase2, 2)}
     ${renderPhase(phase3, 3)}

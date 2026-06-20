@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { X, FileText, CheckCircle2, AlertCircle, Clock, FilePlus2, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface SeedFolderModalProps {
   folder: any;
   originRect?: DOMRect;
   onClose: () => void;
+  activePatient?: any;
+  onOpenSeed2?: (patient: any) => void;
 }
 
-export default function SeedFolderModal({ folder, originRect, onClose }: SeedFolderModalProps) {
+export default function SeedFolderModal({ folder, originRect, onClose, activePatient, onOpenSeed2 }: SeedFolderModalProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
@@ -72,7 +75,16 @@ export default function SeedFolderModal({ folder, originRect, onClose }: SeedFol
              </p>
 
              {/* Botón CTA Masivo */}
-             <button className="group relative flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-white px-9 py-4.5 rounded-2xl font-medium text-[16px] tracking-wide transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_15px_30px_-5px_rgba(16,185,129,0.35)] shadow-[0_8px_20px_-6px_rgba(16,185,129,0.3)] w-full sm:w-auto min-h-[56px]">
+             <button 
+                onClick={() => {
+                  if (onOpenSeed2) {
+                    onOpenSeed2(activePatient);
+                  } else {
+                    navigate('/seed/new', { state: { patientData: activePatient } });
+                  }
+                }}
+                className="group relative flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-white px-9 py-4.5 rounded-2xl font-medium text-[16px] tracking-wide transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_15px_30px_-5px_rgba(16,185,129,0.35)] shadow-[0_8px_20px_-6px_rgba(16,185,129,0.3)] w-full sm:w-auto min-h-[56px]"
+              >
                 <Plus className="w-5 h-5 transition-transform group-hover:rotate-90 duration-300" strokeWidth={2.5} />
                 <span>Agregar Nuevo Expediente</span>
              </button>

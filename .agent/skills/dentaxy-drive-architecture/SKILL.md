@@ -6,26 +6,23 @@ description: Directiva arquitectónica estricta para el manejo de archivos, alma
 # 🛡️ DENTAXY DRIVE ARCHITECTURE (ZERO-STORAGE POLICY)
 
 ## 📌 Contexto
-Dentaxy opera bajo un modelo de privacidad extrema y eficiencia máxima. A diferencia de un SaaS tradicional que almacena bases de datos y archivos multimedia en servidores propios, Dentaxy es únicamente una **capa de visualización (Frontend Viewer)**.
+Dentaxy opera bajo un modelo de privacidad extrema. Los datos clínicos y expedientes NO se guardan en una base de datos central de Dentaxy. En lugar de eso, cada médico es **dueño de sus propios datos** alojados en su propio Google Drive. Dentaxy es **exclusivamente una interfaz** de creación y visualización.
 
-## 🔴 Regla de Oro: Cero Almacenamiento Local (Zero-Storage)
-**Nunca** implementes lógica que guarde, persista, almacene o envíe datos clínicos, expedientes, fotos, radiografías o perfiles de pacientes a una base de datos central de Dentaxy (Ej. Supabase, PostgreSQL, MongoDB, etc.). 
+## 🔴 Regla de Oro: Cero Almacenamiento Local o de Backend (Zero-Storage)
+**Nunca** implementes lógica que guarde, persista, almacene o envíe datos clínicos, expedientes, fotos, radiografías o perfiles de pacientes a Supabase, PostgreSQL, MongoDB o **cualquier API backend externa (incluyendo endpoints de Vercel locales)**.
 
-Dentaxy **NO** guarda ninguna información de los pacientes. 
+## 🟢 Flujo de Trabajo: 100% Frontend Client-Side API
 
-## 🟢 Flujo de Trabajo y Almacenamiento: "Mis archivos dentaxy"
-1. **Google Drive como Único Backend de Almacenamiento:**
-   - Toda creación, lectura, actualización y eliminación (CRUD) de expedientes o pacientes debe interactuar directamente con la API de Google Drive de la cuenta con la que el usuario (el dentista) inició sesión.
-2. **Carpeta Raíz Automática:**
-   - Al crear una cuenta o iniciar sesión por primera vez, el sistema debe crear (o verificar la existencia de) una carpeta llamada `Mis archivos dentaxy` en la raíz del Google Drive del usuario.
-3. **Estructura Interna del Drive:**
-   - Dentro de `Mis archivos dentaxy`, cada paciente es una subcarpeta.
-   - Todo PDF, reporte médico, historia clínica o imagen subida desde la interfaz "Agregar Paciente" de Dentaxy se guarda físicamente en esa carpeta de Drive.
+1. **Autenticación Frontend (Session Storage):**
+   - El login se hace exclusivamente en el frontend usando `@react-oauth/google` con los scopes necesarios (`userinfo.profile`, `drive.file`, etc.).
+   - El Token de Acceso (`googleAccessToken`) se guarda en memoria y en `sessionStorage` (`seed_user`).
 
-## 🚀 Acciones Requeridas por el Agente (IA)
-Cuando el usuario te pida crear una función como "Agregar Paciente", "Guardar documento", "Subir radiografía" o cualquier verbo que implique **Crear/Guardar/Eliminar**:
-- **NO** escribas consultas SQL ni endpoints de bases de datos para guardar la data clínica.
-- **SÍ** implementa funciones usando la API de Google Drive (ej. `gapi.client.drive.files.create`) para crear las carpetas y archivos correspondientes.
-- Si vas a listar los pacientes, debes hacer una petición de listado (Ej. `gapi.client.drive.files.list`) buscando las carpetas dentro de `Mis archivos dentaxy`.
+2. **Creación y Visualización de Expedientes (Directo a Google Drive):**
+   - Cuando se añade un paciente, se crean carpetas y subcarpetas llamando a la **API oficial de Google Drive** directamente desde el navegador (usando `fetch('https://www.googleapis.com/drive/v3/...')`) con el `googleAccessToken`.
+   - El frontend es el que interroga a Google Drive para saber qué pacientes existen, buscar archivos y mostrar metadatos.
+   - Las cargas de archivos (PDFs, imágenes) van directo del navegador del usuario a Google Drive, sin tocar ningún intermediario.
 
-*Tu objetivo es asegurar que la soberanía total de los datos resida físicamente en la cuenta de Google del usuario final.*
+3. **No Dependencia de Supabase para Autorización Drive:**
+   - La base de datos de Supabase no guarda `refresh_tokens`. Todo el estado de sesión de Google Drive recae sobre el ciclo de vida del token en el cliente y la cuenta local del usuario.
+
+*Tu objetivo es asegurar que la soberanía total de los datos resida físicamente en la cuenta de Google del usuario final y que todo el código sea cliente-céntrico, minimizando componentes de backend al absoluto cero para operaciones de expedientes.*

@@ -1,6 +1,6 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import HeroAnimation from "@/components/seed/HeroAnimation";
 import AnimatedDemoUI from "@/components/seed/AnimatedDemoUI";
 import { WorkflowSection } from "@/components/seed/WorkflowSection";
@@ -10,8 +10,13 @@ import {
   CircleX, CircleCheck, FileText, FolderOpen, CalendarDays,
   Wallet, ClipboardList, Mic, ArrowRight, Shield, BadgeCheck,
   Unlock, CalendarX, Cloud, ChevronRight, Zap, Lock,
-  HardDrive, Users, Sparkles, Star, Check, RefreshCw
+  HardDrive, Users, Sparkles, Star, Check, RefreshCw,
+  X, CheckCircle2, Loader2
 } from "lucide-react";
+import { useGoogleLogin } from '@react-oauth/google';
+import { useAuthStore, DoctorProfile } from '@/store/useAuthStore';
+import { toast } from 'sonner';
+
 
 
 /* ── Animaciones Scroll Premium (Ida y Venida) ── */
@@ -297,19 +302,121 @@ const ThreeCardsShowcase = () => {
 
 export default function SeedLanding() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
+  // Estados de la landing
   const [demoTrigger, setDemoTrigger] = useState(0);
   const [demoComplete, setDemoComplete] = useState(false);
-
-  // Estado para las FAQ
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
-
-  // Estado para la sección interactiva de infraestructura y reconocimientos
   const [activeValidationIdx, setActiveValidationIdx] = useState<number>(0);
+
+  // Estados del modal de Login
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [driveConnectChecked, setDriveConnectChecked] = useState(true);
+  const [calendarConnectChecked, setCalendarConnectChecked] = useState(true);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginStep, setLoginStep] = useState<'intro' | 'accounts' | 'custom'>('intro');
+  const [customEmail, setCustomEmail] = useState('');
+  const [customName, setCustomName] = useState('');
+
+  const isLocalHost = useCallback(() => {
+    const hostname = window.location.hostname;
+    return (
+      hostname === 'localhost' ||
+      hostname === '127.0.0.1' ||
+      hostname.startsWith('192.168.') ||
+      hostname.startsWith('10.') ||
+      hostname.startsWith('172.') ||
+      hostname.endsWith('.local')
+    );
+  }, []);
+
+  const authLogin = useAuthStore(state => state.login);
+
+  const handleGoogleSuccess = useCallback((u: DoctorProfile) => {
+    sessionStorage.setItem('seed_user', JSON.stringify(u));
+    authLogin(u); // Guardar en el store global de Zustand
+    
+    // Si estamos en entorno de desarrollo local (localhost, IP local, etc.)
+    if (isLocalHost()) {
+      if (driveConnectChecked) {
+        sessionStorage.setItem('drive_connected_simulated', 'true');
+      } else {
+        sessionStorage.removeItem('drive_connected_simulated');
+      }
+      sessionStorage.removeItem('drive_connect_requested');
+    } else {
+      // En producción, indicamos que se requiere vincular mediante el backend real
+      if (driveConnectChecked) {
+        sessionStorage.setItem('drive_connect_requested', 'true');
+      } else {
+        sessionStorage.removeItem('drive_connect_requested');
+      }
+      sessionStorage.removeItem('drive_connected_simulated');
+    }
+
+    navigate('/seed/app', { replace: true });
+  }, [authLogin, navigate, driveConnectChecked, isLocalHost]);
+
+  const login = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const userInfo = await userInfoResponse.json();
+        
+        const user: DoctorProfile = {
+          name: userInfo.name || userInfo.given_name,
+          email: userInfo.email,
+          picture: userInfo.picture,
+          googleAccessToken: tokenResponse.access_token
+        };
+        
+        handleGoogleSuccess(user);
+      } catch (err) {
+        console.error('Error fetching user info:', err);
+        setLoginLoading(false);
+      }
+    },
+    onError: (error) => {
+      console.error('Google Sign-In Error:', error);
+      toast.error('Error al conectar con Google', { description: 'Revisa tu conexión o intenta nuevamente.' });
+      setLoginLoading(false);
+    },
+    onNonOAuthError: (error) => {
+      console.error('Google Non-OAuth Error:', error);
+      toast.error('Autenticación cancelada', { description: 'El panel de Google fue cerrado.' });
+      setLoginLoading(false);
+    },
+    scope: 'openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar.events',
+    prompt: 'select_account',
+  });
+
+  const handleGoogleLoginClick = () => {
+    setLoginLoading(true);
+    try {
+      login();
+    } catch (e) {
+      console.error('Error al iniciar login con Google:', e);
+      toast.error('Error de inicialización', { description: 'No se pudo abrir el panel de Google OAuth.' });
+      setLoginLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (searchParams.get('login') === 'true') {
+      setIsLoginOpen(true);
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete('login');
+      setSearchParams(newParams);
+    }
+  }, [searchParams, setSearchParams]);
 
   const toggleFaq = (index: number) => {
     setActiveFaq(activeFaq === index ? null : index);
   };
+
 
   return (
     <div className="seed-v2 relative overflow-x-clip w-full">
@@ -321,6 +428,7 @@ export default function SeedLanding() {
         manoHumanaImg="/Seed/hand2.png"
         manoRobotImg="/Seed/mano-robot.png"
         className="seed-section hero-dark-section"
+        onOpenLogin={() => setIsLoginOpen(true)}
       />
 
       {/* ══════════════════════════════════════════════
@@ -352,7 +460,7 @@ export default function SeedLanding() {
               
               <div className="flex items-center gap-4">
                 <button 
-                  onClick={() => navigate('/seed/login')}
+                  onClick={() => setIsLoginOpen(true)}
                   className="bg-[#00C980] hover:bg-[#00b371] text-black font-mono text-sm px-6 py-3 rounded-lg transition-colors flex items-center gap-2"
                 >
                   Probar Seed <ArrowRight size={16} />
@@ -944,7 +1052,7 @@ export default function SeedLanding() {
                 </ul>
               </div>
               <button 
-                onClick={() => navigate('/seed/login')}
+                onClick={() => setIsLoginOpen(true)}
                 className="w-full btn btn-ghost btn-sm"
               >
                 Comenzar Semilla
@@ -984,7 +1092,7 @@ export default function SeedLanding() {
                 </ul>
               </div>
               <button 
-                onClick={() => navigate('/seed/login')}
+                onClick={() => setIsLoginOpen(true)}
                 className="w-full btn btn-primary btn-sm shadow-[0_4px_20px_rgba(0,201,128,0.3)]"
               >
                 Obtener Plan Raíz
@@ -1021,7 +1129,7 @@ export default function SeedLanding() {
                 </ul>
               </div>
               <button 
-                onClick={() => navigate('/seed/login')}
+                onClick={() => setIsLoginOpen(true)}
                 className="w-full btn btn-ghost btn-sm"
               >
                 Contactar Clínica
@@ -1074,7 +1182,7 @@ export default function SeedLanding() {
             No le pidas permiso a la burocracia. Empieza a digitalizar tu consulta hoy mismo con la máxima seguridad y velocidad local.
           </p>
           <button 
-            onClick={() => navigate('/seed/login')}
+            onClick={() => setIsLoginOpen(true)}
             className="btn btn-primary btn-lg shadow-[0_8px_30px_rgba(0,201,128,0.4)]"
           >
             Digitalizar Mi Práctica Ahora <ArrowRight size={18} />
@@ -1154,13 +1262,149 @@ export default function SeedLanding() {
             © 2026 DentaXy · Tecnología Determinista Local · Zacatecas, México
           </div>
           <button
-            onClick={() => navigate('/seed/login')}
+            onClick={() => setIsLoginOpen(true)}
             className="font-mono text-xs text-zinc-400 hover:text-white transition-colors flex items-center gap-1"
           >
             Acceder al Sistema <ChevronRight size={12} />
           </button>
         </div>
       </footer>
+
+      {/* MODAL DE INICIO DE SESIÓN GLASSMORPHIC */}
+      <AnimatePresence>
+        {isLoginOpen && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-md px-4" 
+            onClick={() => setIsLoginOpen(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", stiffness: 300, damping: 25 }}
+              onClick={e => e.stopPropagation()}
+              className="relative w-full max-w-md max-h-[82vh] md:max-h-[580px] overflow-y-auto p-6 md:p-8 bg-white/90 dark:bg-zinc-950/90 backdrop-blur-2xl rounded-[32px] border border-white/60 dark:border-white/10 shadow-[0_32px_64px_-12px_rgba(0,0,0,0.35)] flex flex-col items-center text-center scrollbar-thin"
+            >
+              {/* Glows de ambiente glassmorphic */}
+              <div className="absolute top-0 left-1/4 w-[180px] h-[90px] bg-emerald-500/10 blur-[50px] rounded-full pointer-events-none" />
+              <div className="absolute bottom-0 right-1/4 w-[180px] h-[90px] bg-blue-500/10 blur-[50px] rounded-full pointer-events-none" />
+
+              {/* Botón cerrar */}
+              <button
+                onClick={() => setIsLoginOpen(false)}
+                className="absolute top-5 right-5 w-8 h-8 bg-neutral-100 dark:bg-zinc-900 hover:bg-neutral-200 dark:hover:bg-zinc-800 rounded-full flex items-center justify-center transition-colors border border-zinc-200/50 dark:border-zinc-800/50"
+              >
+                <X className="w-4 h-4 text-neutral-500" />
+              </button>
+
+              {/* Contenido de Login */}
+              <div className="space-y-6 flex flex-col items-center w-full relative z-10">
+                {/* Título de Login */}
+                <div className="space-y-3">
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">
+                    Conecta tu <span className="gradient-text">Google Account</span>
+                  </h2>
+                  <p className="text-gray-500 dark:text-gray-400 max-w-sm text-sm leading-relaxed mx-auto font-sans">
+                    Tu cuenta de Google es el corazón de tu Dentaxy Seed. Tus expedientes se organizarán automáticamente en <strong>tu propia Google Drive</strong>, con total privacidad y soberanía de tus datos.
+                  </p>
+                </div>
+
+                {/* Grid del Ecosistema de Google - Igual al original */}
+                <div className="grid grid-cols-2 gap-3.5 w-full mt-2 font-sans">
+                  <div className="flex items-center gap-3 bg-neutral-50/70 hover:bg-neutral-50 dark:bg-zinc-900/60 dark:hover:bg-zinc-900 p-3 rounded-2xl border border-neutral-100 dark:border-zinc-800/80 hover:scale-[1.02] hover:shadow-md hover:shadow-neutral-200/50 dark:hover:shadow-black/50 transition-all duration-300 group">
+                    <img src="/logos/google-drive.png" alt="Google Drive" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
+                    <div className="text-left leading-tight">
+                      <p className="text-sm font-bold text-gray-800 dark:text-zinc-200">Google Drive</p>
+                      <p className="text-[10px] text-gray-400 font-medium">Expedientes Clínicos</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 bg-neutral-50/70 hover:bg-neutral-50 dark:bg-zinc-900/60 dark:hover:bg-zinc-900 p-3 rounded-2xl border border-neutral-100 dark:border-zinc-800/80 hover:scale-[1.02] hover:shadow-md hover:shadow-neutral-200/50 dark:hover:shadow-black/50 transition-all duration-300 group">
+                    <img src="/logos/google-calendar.png" alt="Google Calendar" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
+                    <div className="text-left leading-tight">
+                      <p className="text-sm font-bold text-gray-800 dark:text-zinc-200">Google Calendar</p>
+                      <p className="text-[10px] text-gray-400 font-medium">Agenda de Citas</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 bg-neutral-50/70 hover:bg-neutral-50 dark:bg-zinc-900/60 dark:hover:bg-zinc-900 p-3 rounded-2xl border border-neutral-100 dark:border-zinc-800/80 hover:scale-[1.02] hover:shadow-md hover:shadow-neutral-200/50 dark:hover:shadow-black/50 transition-all duration-300 group">
+                    <img src="/logos/gmail.png" alt="Google Gmail" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
+                    <div className="text-left leading-tight">
+                      <p className="text-sm font-bold text-gray-800 dark:text-zinc-200">Google Gmail</p>
+                      <p className="text-[10px] text-gray-400 font-medium">Notificaciones</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 bg-neutral-50/70 hover:bg-neutral-50 dark:bg-zinc-900/60 dark:hover:bg-zinc-900 p-3 rounded-2xl border border-neutral-100 dark:border-zinc-800/80 hover:scale-[1.02] hover:shadow-md hover:shadow-neutral-200/50 dark:hover:shadow-black/50 transition-all duration-300 group">
+                    <img src="/logos/google-sheets.png" alt="Google Sheets" className="w-12 h-12 object-contain group-hover:scale-105 transition-transform" />
+                    <div className="text-left leading-tight">
+                      <p className="text-sm font-bold text-gray-800 dark:text-zinc-200">Google Sheets</p>
+                      <p className="text-[10px] text-gray-400 font-medium">Estadísticas Clínicas</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Permisos requeridos explicados de forma premium con checkboxes */}
+                <div className="w-full space-y-2 font-sans">
+                  {/* Fila 1: Identidad y Perfil (Requerido / Fijo) */}
+                  <div className="flex items-start gap-3 text-left px-4 py-3 rounded-2xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/30">
+                    <CheckCircle2 className="w-4.5 h-4.5 text-blue-500 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-xs font-bold text-gray-800 dark:text-zinc-200">Tu identidad y perfil básico</p>
+                      <p className="text-[11px] text-gray-500 dark:text-zinc-400">Personalización inmediata de tu consultorio</p>
+                    </div>
+                  </div>
+
+                  {/* Fila 2: Acceso a Drive (Checkbox interactivo) */}
+                  <label className="flex items-start gap-3 text-left px-4 py-3 rounded-2xl bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/30 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={driveConnectChecked}
+                      onChange={(e) => setDriveConnectChecked(e.target.checked)}
+                      className="w-4.5 h-4.5 rounded border-blue-300 dark:border-blue-900 text-blue-500 focus:ring-blue-500 mt-0.5"
+                    />
+                    <div>
+                      <p className="text-xs font-bold text-gray-800 dark:text-zinc-200">
+                        Acceso exclusivo a la carpeta Dentaxy <span className="text-[9px] text-blue-600 dark:text-blue-400 font-bold">(Recomendado)</span>
+                      </p>
+                      <p className="text-[11px] text-gray-500 dark:text-zinc-400">Privacidad absoluta en tu propia nube de Google Drive</p>
+                    </div>
+                  </label>
+                </div>
+
+                {/* Botón de Google OAuth y simulador */}
+                <div className="w-full font-sans">
+                  <button
+                    onClick={handleGoogleLoginClick}
+                    disabled={loginLoading}
+                    className="w-full h-14 rounded-2xl bg-white border-2 border-neutral-200 hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/10 text-gray-700 font-bold text-base flex items-center justify-center gap-3 transition-all duration-300 group"
+                  >
+                    {loginLoading ? (
+                      <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+                    ) : (
+                      <>
+                        <svg className="w-5 h-5 group-hover:scale-105 transition-transform" viewBox="0 0 24 24">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                        </svg>
+                        Continuar con Google
+                      </>
+                    )}
+                  </button>
+                  <p className="text-xs text-gray-400 mt-3 font-sans">
+                    {loginLoading ? 'Conectando con Google...' : 'Se te pedirán permisos de forma segura en una ventana de Google.'}
+                  </p>
+
+
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+

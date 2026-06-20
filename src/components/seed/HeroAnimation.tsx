@@ -10,6 +10,7 @@ interface HeroAnimationProps {
   manoHumanaImg: string;
   manoRobotImg: string;
   className?: string;
+  onOpenLogin?: () => void;
 }
 
 /**
@@ -19,6 +20,7 @@ export default function HeroAnimation({
   manoHumanaImg,
   manoRobotImg,
   className,
+  onOpenLogin,
 }: HeroAnimationProps) {
   const [isMobile, setIsMobile] = React.useState(false);
 
@@ -146,6 +148,12 @@ export default function HeroAnimation({
         <div className={styles.navActions}>
           <motion.a
             href="/seed/login"
+            onClick={(e) => {
+              if (onOpenLogin) {
+                e.preventDefault();
+                onOpenLogin();
+              }
+            }}
             className={styles.navBtnLogin}
             whileHover={{ scale: 1.06 }}
             transition={{
@@ -158,6 +166,12 @@ export default function HeroAnimation({
           </motion.a>
           <motion.a
             href="/seed/login"
+            onClick={(e) => {
+              if (onOpenLogin) {
+                e.preventDefault();
+                onOpenLogin();
+              }
+            }}
             className={styles.navBtnGet}
             whileHover={{ scale: 1.06 }}
             transition={{

@@ -1,7 +1,76 @@
-import React from 'react';
-import { FileText, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ExternalLink, FolderOpen } from 'lucide-react';
 
-export default function SeedFolderCard() {
+export default function SeedFolderCard({ 
+  activePatient,
+  onHoverChange,
+  onOpenFolder
+}: { 
+  activePatient?: any;
+  onHoverChange?: (hovered: boolean) => void;
+  onOpenFolder?: (folder: any, rect: DOMRect) => void;
+}) {
+  const isFolderEmpty = !activePatient || activePatient.id === 999;
+  const name = isFolderEmpty ? 'Expediente Vacío' : activePatient.name;
+  const date = isFolderEmpty 
+    ? '--' 
+    : new Date(activePatient.createdTime).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+  const phone = activePatient?.appProperties?.telefono || 'Sin teléfono';
+  
+  // Lógica determinista y traducciones
+  const motivoRaw = activePatient?.appProperties?.motivo || 'primera';
+  const motiveMap: { [key: string]: string } = {
+    primera: 'Valoración inicial',
+    urgencia: 'Urgencia dental',
+    limpieza: 'Limpieza / Profilaxis',
+    ortodoncia: 'Ortodoncia',
+    cirugia: 'Cirugía dental'
+  };
+  const translatedMotivo = motiveMap[motivoRaw] || motivoRaw;
+
+  const allergies = activePatient?.appProperties?.alergias || '';
+  const hasAllergies = allergies && allergies.toLowerCase() !== 'ninguna' && allergies.trim() !== '';
+
+  // Hashes deterministas basados en el ID de la carpeta
+  const shortId = activePatient?.id ? activePatient.id.slice(0, 4) : '';
+  const idNum = activePatient?.id ? parseInt(activePatient.id.slice(0, 3), 36) || 0 : 0;
+  
+  const odontogramaValue = activePatient?.id ? `${idNum % 5}/32 Marcados` : '0/32 Marcados';
+  const faseValue = `Fase ${(idNum % 3) + 1} (${(idNum % 3) === 0 ? 'Diagnóstico' : (idNum % 3) === 1 ? 'Tratamiento' : 'Mantenimiento'})`;
+  const estatusOptions = ['Esperando Notas', 'En Tratamiento', 'Alta Clínica'];
+  const statusValue = activePatient?.id ? estatusOptions[idNum % 3] : '--';
+
+  // Consulta en tiempo real a Google Drive API
+  const [fileCount, setFileCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!activePatient || activePatient.id === 999) {
+      setFileCount(null);
+      return;
+    }
+    const fetchFileCount = async () => {
+      try {
+        const seedUserStr = sessionStorage.getItem('seed_user');
+        if (!seedUserStr) return;
+        const seedUser = JSON.parse(seedUserStr);
+        const accessToken = seedUser.googleAccessToken;
+        if (!accessToken) return;
+
+        const query = encodeURIComponent(`'${activePatient.id}' in parents and trashed = false`);
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id)`, {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        const data = await res.json();
+        if (data.files) {
+          setFileCount(data.files.length);
+        }
+      } catch (e) {
+        console.error("Error fetching file count:", e);
+      }
+    };
+    fetchFileCount();
+  }, [activePatient]);
+
   return (
     <div className="relative w-full h-full flex flex-col justify-end pb-2 px-2">
       
@@ -25,15 +94,16 @@ export default function SeedFolderCard() {
         </defs>
       </svg>
 
-      {/* --- CARPETA PRINCIPAL (Compliance - Verde Liquid Glass) --- */}
+      {/* --- CARPETA PRINCIPAL (Vista Previa de Paciente) --- */}
       <div 
-        className="relative w-full h-[360px] seed-compliance-card"
+        className="relative w-full h-[400px] seed-compliance-card hover:-translate-y-[100px] hover:z-50 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
         style={{
           borderRadius: '24px',
-          transform: 'translateZ(0)',
         }}
+        onMouseEnter={() => onHoverChange?.(true)}
+        onMouseLeave={() => onHoverChange?.(false)}
       >
-        {/* CAPA 1: SOLAPA TRASERA DE LA CARPETA (Back Folder) */}
+        {/* CAPA 1: SOLAPA TRASERA DE LA CARPETA */}
         <div
           className="absolute inset-0 seed-folder-back drop-shadow-md"
           style={{
@@ -41,27 +111,36 @@ export default function SeedFolderCard() {
             background: 'var(--seed-white-glass-bg)',
           }}
         >
-          {/* Tinte Verde idéntico a la activa del carrusel */}
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-emerald-500 opacity-[0.65]"></div>
-          {/* Borde sutil interno trasero */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 1 1" preserveAspectRatio="none">
             <path 
               d="M 0,0.92 C 0,0.98 0.02,1 0.06,1 L 0.94,1 C 0.98,1 1,0.98 1,0.92 L 1,0.20 C 1,0.16 0.98,0.13 0.95,0.13 L 0.45,0.13 C 0.42,0.13 0.40,0.13 0.38,0.09 C 0.36,0.05 0.33,0.02 0.30,0.02 L 0.06,0.02 C 0.02,0.02 0,0.06 0,0.12 Z" 
               fill="none" stroke="rgba(255, 255, 255, 0.4)" strokeWidth="0.012" vectorEffect="non-scaling-stroke" 
             />
           </svg>
+          
+          {/* Nombre en la Pestaña */}
+          {!isFolderEmpty && (
+            <div className="absolute top-5 left-6 w-[38%] overflow-hidden z-10">
+              <span 
+                className="block text-white font-medium text-[11px] uppercase tracking-[0.25em] truncate antialiased"
+                style={{ textShadow: '0 1px 2px rgba(0,0,0,0.1)' }}
+              >
+                {name}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* CAPA 2: HOJA DE PAPEL INTERNA (Document) */}
+        {/* CAPA 2: HOJA DE PAPEL INTERNA */}
         <div
-          className="absolute left-[20px] right-[20px] top-[44px] h-[270px] rounded-2xl shadow-md z-10 p-5 flex flex-col justify-between overflow-hidden"
+          className="absolute left-[20px] right-[20px] top-[44px] h-[310px] rounded-2xl shadow-md z-10 p-5 flex flex-col justify-between overflow-hidden"
           style={{
             transform: 'rotate(-0.6deg)',
             background: 'linear-gradient(135deg, #ffffff 0%, #f9fafb 100%)',
             border: '1px solid rgba(0, 0, 0, 0.06)',
           }}
         >
-          {/* Aquí se traslucirá la hoja blanca */}
           <div className="w-full h-full flex flex-col justify-between opacity-10 pointer-events-none select-none">
             <div className="space-y-3">
               <div className="w-16 h-3 bg-emerald-500 rounded-md"></div>
@@ -77,14 +156,12 @@ export default function SeedFolderCard() {
           </div>
         </div>
 
-
-
-        {/* LOMO 3D FÍSICO (Spine idéntico al carrusel) */}
+        {/* LOMO 3D FÍSICO */}
         <div className="seed-folder-spine" style={{ left: '24px', right: '24px' }}></div>
 
-        {/* CAPA 3: SOLAPA DELANTERA (Plancha 3D gruesa de acrílico) */}
+        {/* CAPA 3: SOLAPA DELANTERA (Panel Médico Compacto) */}
         <div
-          className="absolute top-[80px] left-0 right-0 bottom-0 z-20 seed-folder-front"
+          className="absolute top-[65px] left-0 right-0 bottom-0 z-20 seed-folder-front"
           style={{
             transform: 'translate3d(0, 0, 24px)',
             transformStyle: 'preserve-3d',
@@ -95,116 +172,36 @@ export default function SeedFolderCard() {
             borderBottom: '1.5px solid rgba(255,255,255,0.3)',
             boxShadow: '0 10px 30px -4px rgba(0,0,0,0.18), inset 0 2px 6px rgba(255,255,255,0.4)',
             background: 'transparent',
+            overflow: 'hidden',
           }}
         >
-          {/* Tinte Verde Activo */}
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-emerald-500 opacity-90" style={{ borderRadius: '16px 16px 24px 24px' }}></div>
-          {/* Brillo Cenital Cristalino */}
-          <div className="absolute inset-0 bg-gradient-to-b from-white/0 via-white/[0.08] to-white/[0.22] pointer-events-none z-10" style={{ borderRadius: '16px 16px 24px 24px' }}></div>
+          {/* Fondo Original Verde Esmeralda */}
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-400 to-emerald-500 opacity-95"></div>
+          {/* Reflejo Glass Original */}
+          <div className="absolute inset-0 bg-gradient-to-b from-white/10 via-white/[0.05] to-transparent pointer-events-none z-10"></div>
 
-          {/* Contenido principal sobre la solapa frontal */}
-          <div className="absolute top-[8%] inset-x-0 bottom-0 pt-6 px-6 pb-6 flex flex-col justify-between z-20">
-            
-            {/* Línea de tiempo / Timeline */}
-            <div className="mt-1">
-              <div className="flex items-center justify-between text-white text-[12px] font-medium mb-3">
-                 <span className="tracking-wide">Annual Data Privacy Audit</span>
-                 <div className="flex gap-7 text-white/50 font-normal mr-2">
-                    <span className="hover:text-white transition cursor-pointer pointer-events-auto">v1</span>
-                    <span className="hover:text-white transition cursor-pointer pointer-events-auto">v2-v2</span>
-                    <span className="hover:text-white transition cursor-pointer pointer-events-auto">v3-v4</span>
-                    <span className="text-white font-semibold relative pointer-events-auto">
-                      v1-v6
-                      {/* Indicador sutil de activo debajo */}
-                      <span className="absolute bottom-[-6px] left-1/2 -translate-x-1/2 w-1 h-1 bg-white rounded-full"></span>
-                    </span>
-                 </div>
-                 <span className="text-white/50 font-normal">Final Validation</span>
-              </div>
-              
-              {/* Barra de Timeline */}
-              <div className="relative w-full h-[1.5px] bg-white/15 flex items-center">
-                 {/* Progreso sólido */}
-                 <div className="absolute left-0 h-full bg-white/80 w-[68%]"></div>
-                 
-                 {/* Puntos anteriores */}
-                 <div className="absolute left-[34%] w-1 h-1 bg-white/60 rounded-full"></div>
-                 <div className="absolute left-[44%] w-1 h-1 bg-white/60 rounded-full"></div>
-                 <div className="absolute left-[54%] w-1 h-1 bg-white/60 rounded-full"></div>
-                 
-                 {/* Nodo Activo con Resplandor (Glow) */}
-                 <div className="absolute left-[68%] -translate-x-1/2 w-2.5 h-2.5 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.9)] z-10"></div>
-                 
-                 {/* Línea punteada posterior */}
-                 <div className="absolute left-[68%] right-0 h-full" style={{ backgroundImage: 'linear-gradient(to right, rgba(255,255,255,0.2) 40%, transparent 40%)', backgroundSize: '5px 1px' }}></div>
-              </div>
+          {isFolderEmpty ? (
+            <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center text-center p-6 gap-2 z-20">
+              <span className="text-white/40 text-[40px] mb-2"><FolderOpen size={48} /></span>
+              <h3 className="text-white font-bold text-[18px] tracking-wide">Panel de Control Médico</h3>
+              <p className="text-emerald-50 text-[13px] max-w-[280px] leading-relaxed">
+                Selecciona un expediente en el carrusel superior para visualizar el estado de salud del paciente.
+              </p>
             </div>
-
-            {/* Fila del Documento */}
-            <div className="flex gap-4 items-start flex-1 mt-3">
+          ) : (
+            <div className="absolute inset-0 flex flex-col z-20 h-full">
               
-              {/* Columna Icono + Conector vertical punteado */}
-              <div className="flex flex-col items-center h-full pt-1">
-                <div className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center bg-white/5 text-white/70 shadow-sm">
-                   <FileText size={16} />
+              {/* Área Scrollable (Vacía por ahora) */}
+              <div className="flex-1 overflow-y-auto px-6 pb-8 pt-6 custom-scrollbar relative z-10" style={{ scrollbarWidth: 'none' }}>
+                <div className="flex flex-col gap-8">
+                  {/* Contenido eliminado a petición del usuario */}
                 </div>
-                <div 
-                  className="w-px flex-1 mt-3" 
-                  style={{ 
-                    backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.18) 50%, transparent 50%)', 
-                    backgroundSize: '1px 5px',
-                    minHeight: '40px'
-                  }}
-                ></div>
               </div>
-              
-              {/* Detalles de archivo y Tarjeta de Reunión */}
-              <div className="flex-1 flex flex-col justify-between h-full pb-1">
-                 <div>
-                   <h3 className="text-white font-medium text-[13.5px] tracking-wide leading-tight">GDPR Compliance Report v1.pdf</h3>
-                   <p className="text-white/45 text-[10.5px] mt-0.5">compliancebrivags.legar</p>
-                 </div>
-
-                 {/* Tarjeta Interna (Reunión) */}
-                 <div className="w-full seed-compliance-inner-card rounded-[20px] p-3 flex items-center justify-between backdrop-blur-md transition mt-3">
-                    <div className="flex items-center gap-3">
-                       
-                       {/* Icono de Meet simulado a color */}
-                       <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center shadow-inner">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M14.5 8V16H4.5V8H14.5Z" fill="#EA4335" />
-                            <path d="M14.5 10L18.5 7V17L14.5 14V10Z" fill="#4285F4" />
-                            <path d="M4.5 8H8.5V12H4.5V8Z" fill="#FBBC05" />
-                            <path d="M10.5 12H14.5V16H10.5V12Z" fill="#34A853" />
-                          </svg>
-                       </div>
-                       
-                       <div>
-                          <h4 className="text-white font-medium text-[12px] tracking-wide">Audit Committee Review</h4>
-                          <div className="flex items-center gap-2 mt-1">
-                             {/* Overlapping Avatars */}
-                             <div className="flex -space-x-1">
-                               <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&q=80" className="w-4 h-4 rounded-full border border-[var(--seed-compliance-avatar-border)]" alt="avatar" />
-                               <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=80&q=80" className="w-4 h-4 rounded-full border border-[var(--seed-compliance-avatar-border)]" alt="avatar" />
-                             </div>
-                             <span className="text-white/50 text-[10px] font-medium tracking-wide">Internal Board</span>
-                          </div>
-                       </div>
-                    </div>
-                    
-                    {/* Hora */}
-                    <div className="bg-white/10 rounded-full px-2.5 py-1 text-white/70 text-[10px] font-semibold tracking-wide">
-                       09:00 AM
-                    </div>
-                 </div>
-              </div>
-
             </div>
-          </div>
+          )}
         </div>
       </div>
 
     </div>
   );
 }
-

@@ -34,6 +34,11 @@ interface AppleStyleDockProps {
   isGenerating?: boolean;
   canGoNext?: boolean;
   canGoPrev?: boolean;
+  currentStep?: number;
+  totalSteps?: number;
+  stepNames?: string[];
+  onStepClick?: (index: number) => void;
+  position?: 'fixed' | 'absolute';
 }
 
 export function AppleStyleDock({
@@ -44,12 +49,18 @@ export function AppleStyleDock({
   isGenerating,
   canGoNext,
   canGoPrev,
+  currentStep = 0,
+  totalSteps = 1,
+  stepNames = [],
+  onStepClick,
+  position = 'fixed',
 }: AppleStyleDockProps = {}) {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const [showInstructions, setShowInstructions] = useState(false);
   const [showFeedback, setShowFeedback] = useState(false);
   const [showFloatingChat, setShowFloatingChat] = useState(false);
+  const [showStepsDialog, setShowStepsDialog] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [session, setSession] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
@@ -181,7 +192,10 @@ export function AppleStyleDock({
   return (
     <>
       {/* Dock flotante — z-index máximo para superponerse a todo */}
-      <div className='fixed bottom-1 sm:bottom-2 left-1/2 max-w-[95vw] sm:max-w-full -translate-x-1/2 z-[9999] px-2 sm:px-0'>
+      <div className={cn(
+        position === 'absolute' ? 'absolute' : 'fixed',
+        'bottom-1 sm:bottom-2 left-1/2 max-w-[95vw] sm:max-w-full -translate-x-1/2 z-[100000] px-2 sm:px-0'
+      )}>
         <Dock
           className={cn(
             'items-end pb-2 sm:pb-3 pt-2 sm:pt-3 px-3 flex bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.1)] rounded-2xl overflow-visible',
@@ -196,22 +210,36 @@ export function AppleStyleDock({
             <DockItem
               key={idx}
               onClick={() => handleItemClick(item.title)}
-              className='aspect-square rounded-full cursor-pointer bg-white dark:bg-white shadow-sm'
+              className='aspect-square rounded-full cursor-pointer bg-white dark:bg-zinc-800 shadow-sm'
             >
               <DockLabel>{item.title}</DockLabel>
               <DockIcon>{item.icon}</DockIcon>
             </DockItem>
           ))}
 
+          {/* Progress Indicator (Global Form Progress) */}
+          <div 
+            onClick={() => setShowStepsDialog(true)}
+            className="flex flex-col justify-center items-center px-4 mx-2 border-l border-r border-zinc-200 dark:border-zinc-800 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors py-1 rounded-md"
+          >
+            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Paso {currentStep + 1} de {totalSteps}</span>
+            <div className="w-24 h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
+                style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
+              />
+            </div>
+          </div>
+
           {/* Botón Atrás — solo si existe navegación */}
           {onPrev && canGoPrev && (
             <DockItem
               onClick={onPrev}
-              className='aspect-square rounded-full bg-white dark:bg-white shadow-sm cursor-pointer'
+              className='aspect-square rounded-full bg-white dark:bg-zinc-800 shadow-sm cursor-pointer'
             >
               <DockLabel>Atrás</DockLabel>
               <DockIcon>
-                <ArrowLeft className='h-full w-full text-zinc-900 dark:text-zinc-900' />
+                <ArrowLeft className='h-full w-full text-zinc-900 dark:text-zinc-100' />
               </DockIcon>
             </DockItem>
           )}
@@ -249,7 +277,7 @@ export function AppleStyleDock({
           {isVisible && (
             <DockItem
               onClick={scrollToName}
-              className='aspect-square rounded-full bg-white dark:bg-white text-zinc-900 shadow-lg cursor-pointer slide-in'
+              className='aspect-square rounded-full bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg cursor-pointer slide-in'
             >
               <DockLabel>Scroll to Name</DockLabel>
               <DockIcon>
@@ -331,6 +359,38 @@ export function AppleStyleDock({
               </div>
             </DialogDescription>
           </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showStepsDialog} onOpenChange={setShowStepsDialog}>
+        <DialogContent className="max-h-[80vh] overflow-y-auto dentaxy-scrollbar">
+          <DialogHeader>
+            <DialogTitle>Navegación Rápida</DialogTitle>
+            <DialogDescription>
+              Selecciona una sección para ir directamente a ella.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 mt-4">
+            {stepNames.map((name, idx) => (
+              <button
+                key={idx}
+                onClick={() => {
+                  if (onStepClick) {
+                    onStepClick(idx);
+                  }
+                  setShowStepsDialog(false);
+                }}
+                className={cn(
+                  "w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                  idx === currentStep 
+                    ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+                    : "hover:bg-zinc-100 text-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                )}
+              >
+                {name}
+              </button>
+            ))}
+          </div>
         </DialogContent>
       </Dialog>
 

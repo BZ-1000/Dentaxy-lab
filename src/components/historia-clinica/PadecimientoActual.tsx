@@ -1,15 +1,10 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Eraser, Mic, ChevronRight, Sparkles, Activity, HeartPulse, Copy, Check } from "lucide-react";
+import { Eraser, ChevronRight, ChevronLeft, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
-import CaracteristicasDolor from "./padecimiento/CaracteristicasDolor";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { AIInputWithLoading } from "@/components/ui/ai-input-with-loading";
-import { AppleTypewriter } from "@/components/ui/AppleTypewriter";
 
 interface PadecimientoActualProps {
   formData: {
@@ -38,123 +33,111 @@ interface PadecimientoActualProps {
   handleSinSintomasChange: (checked: boolean) => void;
   onRedaccionGenerada?: (text: string | React.ReactNode, plainText?: string) => void;
   onToggleViewMode?: () => void;
+  onSectionComplete?: () => void;
 }
 
-// --- Micro-Components ---
+const slideVariants = {
+  enter: (dir: number) => ({
+    x: dir > 0 ? 40 : -40,
+    opacity: 0,
+    scale: 0.98
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    scale: 1,
+    transition: { type: "spring", stiffness: 350, damping: 30 }
+  },
+  exit: (dir: number) => ({
+    x: dir < 0 ? 40 : -40,
+    opacity: 0,
+    scale: 0.98,
+    transition: { duration: 0.2 }
+  })
+};
 
-const ChatBubbleLabel = ({ children, icon: Icon }: { children: React.ReactNode, icon?: any }) => (
-  <div className="flex items-start gap-3 mb-3 animate-in fade-in slide-in-from-left-4 duration-500">
-    <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center -ml-1 -mt-1">
-      {Icon ? (
-        <div className="w-full h-full flex items-center justify-center text-emerald-500 dark:text-emerald-400">
-          <Icon className="w-5 h-5" />
-        </div>
-      ) : (
-        <img src="/dentaxy-ai-avatar.png" alt="Dentaxy AI" className="w-full h-full object-contain" />
-      )}
-    </div>
-    <div className="bg-white dark:bg-background px-4 py-2 rounded-2xl rounded-tl-sm text-sm font-medium text-gray-700 dark:text-gray-200 shadow-sm border border-gray-200/50 dark:border-white/5">
-      {children}
-    </div>
+// --- Glassmorphic UI Micro-Components ---
+
+const glassBtnBase = "rounded-3xl border transition-all duration-300 relative overflow-hidden backdrop-blur-md shadow-sm";
+const glassBtnInactive = "bg-white/80 border-white/80 text-zinc-800 hover:bg-white/90 dark:bg-zinc-800/60 dark:border-white/10 dark:text-zinc-200 dark:hover:bg-zinc-800/80";
+const glassBtnActive = "bg-zinc-900 text-white border-transparent shadow-[0_8px_30px_rgb(0,0,0,0.12)] scale-[1.02] dark:bg-white dark:text-zinc-900";
+
+const ChipSelector = ({
+  options,
+  value,
+  onChange,
+  className
+}: {
+  options: { label: string, value: string, subtitle?: string }[],
+  value: string,
+  onChange: (val: string) => void,
+  className?: string
+}) => (
+  <div className={cn("grid gap-3", className)}>
+    {options.map((opt) => {
+      const active = value === opt.value;
+      return (
+        <button
+          key={opt.value}
+          onClick={() => onChange(opt.value)}
+          className={cn(
+            glassBtnBase, "p-5 text-left w-full flex flex-col justify-center",
+            active ? glassBtnActive : glassBtnInactive
+          )}
+        >
+          <span className="text-lg font-bold">{opt.label}</span>
+          {opt.subtitle && (
+            <span className={cn("text-sm mt-1", active ? "text-zinc-300 dark:text-zinc-600" : "text-zinc-600 dark:text-zinc-400")}>
+              {opt.subtitle}
+            </span>
+          )}
+        </button>
+      );
+    })}
   </div>
 );
 
-// --- Scroll Focus Wrapper ---
-// Only fades out when leaving the TOP 15% of the screen.
-// Bottom margin is massively extended (2000px) so content entering from the bottom is "In View" instantly.
-const ScrollFocusSection = ({
-  children,
-  className
-}: {
-  children: React.ReactNode,
-  className?: string
-}) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0.3, scale: 0.98 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      // Top: -100px (approx header height + padding). Start fading when it hits the visual ceiling.
-      // Bottom: 200% (Everything below is visible).
-      viewport={{ margin: "-100px 0px 2000px 0px", amount: 0 }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className={cn(
-        "transition-all duration-300 will-change-[opacity]",
-        className
-      )}
-    >
-      {children}
-    </motion.div>
-  );
-};
+const Heading = ({ children }: { children: React.ReactNode }) => (
+  <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900 dark:text-white leading-tight mb-8 drop-shadow-sm">
+    {children}
+  </h2>
+);
 
-// --- SELF-CONTAINED COPY BUTTON (Fixes Stale State Bug) ---
-const CopyButton = ({ textToCopy }: { textToCopy: string }) => {
-  const { toast } = useToast();
-  const [isCopied, setIsCopied] = useState(false);
-
-  return (
-    <Button
-      variant="ghost"
-      size="sm"
-      className={cn(
-        "h-9 px-3 transition-all duration-300",
-        isCopied
-          ? "text-green-600 bg-green-50 hover:text-green-600 hover:bg-green-50 dark:bg-green-900/30 dark:hover:bg-green-900/30" // Success: Forced Green (including hover)
-          : "text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:text-blue-400 dark:hover:bg-blue-900/20" // Hover: Blue as requested
-      )}
-      onClick={() => {
-        navigator.clipboard.writeText(textToCopy);
-        setIsCopied(true);
-        toast({
-          title: "Redacción copiada",
-          description: "Texto copiado al portapapeles",
-          duration: 1500,
-        });
-        setTimeout(() => setIsCopied(false), 1000);
-      }}
-    >
-      <AnimatePresence mode="wait">
-        {isCopied ? (
-          <motion.div
-            key="copied"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            className="flex items-center justify-center"
-          >
-            <Check className="w-4 h-4" />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="copy"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            className="flex items-center gap-2"
-          >
-            <Copy className="w-4 h-4" />
-            <span className="hidden group-hover:inline">Copiar</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </Button>
-  );
-};
-
-// --- Component ---
+const SubLabel = ({ children }: { children: React.ReactNode }) => (
+  <label className="text-xs font-bold text-zinc-900 dark:text-zinc-200 uppercase tracking-widest block mb-3 ml-1">
+    {children}
+  </label>
+);
 
 const PadecimientoActual = ({
   formData,
   handlePadecimientoChange,
   handleDolorChange,
   handleSinSintomasChange,
-  onToggleViewMode,
   onRedaccionGenerada,
+  onSectionComplete,
 }: PadecimientoActualProps) => {
   const { toast } = useToast();
   const defaultMotivoConsulta = "El paciente acude a consulta por ";
+  const defaultLocalizacion = "Localizado en ";
+  const defaultCausaProvocado = "Provocado con ";
+
+  const [currentMicroStep, setCurrentMicroStep] = useState(0);
+  const [dir, setDir] = useState(1);
+  const [tieneAlivio, setTieneAlivio] = useState<boolean | null>(null);
+
   const motivoValue = formData.padecimientoActual.motivoConsulta;
-  const hasMotivoStarted = motivoValue && motivoValue !== defaultMotivoConsulta && motivoValue.length > defaultMotivoConsulta.length + 5;
+
+  // Sync tieneAlivio with d.atenuacion when entering step 7
+  useEffect(() => {
+    if (currentMicroStep === 7) {
+      if (formData.padecimientoActual.dolor.atenuacion) {
+        setTieneAlivio(true);
+      } else {
+        setTieneAlivio(null);
+      }
+    }
+  }, [currentMicroStep]);
 
   // Initialize default value if empty
   useEffect(() => {
@@ -163,234 +146,541 @@ const PadecimientoActual = ({
     }
   }, []);
 
+  const getStepsSequence = () => {
+    const seq = [0, 1];
+    if (formData.padecimientoActual.sinSintomas) {
+      return seq;
+    }
+    seq.push(2);
+    if (formData.padecimientoActual.dolor.condicionAparicion === "provocado") {
+      seq.push(3);
+    }
+    seq.push(4);
+    seq.push(5);
+    if (formData.padecimientoActual.dolor.ubicacion === "localizado") {
+      seq.push(6);
+    }
+    seq.push(7);
+    return seq;
+  };
+
+  const seq = getStepsSequence();
+  const isLastStep = seq.indexOf(currentMicroStep) === seq.length - 1;
+
+  // Limpieza y generación determinista del texto de redacción
+  const generarTextoRedaccion = () => {
+    const motivo = formData.padecimientoActual.motivoConsulta || "No especificado";
+    const d = formData.padecimientoActual.dolor;
+
+    let historyText = "";
+
+    if (formData.padecimientoActual.sinSintomas) {
+      historyText = "El paciente refiere encontrarse asintomático al momento de la consulta, negando dolor o molestia alguna.";
+    } else {
+      let sentences = [];
+
+      const motivoRaw = formData.padecimientoActual.motivoConsulta || "No especificado";
+      const motivoClean = motivoRaw.replace(/^(el paciente (acude|viene|se presenta) (a|a la) consulta (por|manifestando)|acude a consulta por|motivo de consulta:)\s*/gi, "").trim();
+      const motivoFinal = motivoClean.charAt(0).toUpperCase() + motivoClean.slice(1);
+
+      sentences.push(`El paciente acude a consulta manifestando: "${motivoFinal}".`);
+
+      const cond = d.condicionAparicion?.toLowerCase() || "";
+      if (cond.includes("espont")) {
+        let feat = "Refiere un cuadro de dolor de aparición espontánea";
+        if (d.fechaInicio) feat += ` con una evolución constante desde el ${d.fechaInicio}`;
+        sentences.push(feat + ".");
+      } else if (cond.includes("provoc")) {
+        const causaRaw = d.causaProvocado || "";
+        const causaClean = causaRaw.replace(/^(provocado con|provocado por|se provoca con|al|con|por) /gi, "").trim();
+        sentences.push(`Presenta sintomatología de manera provocada, exacerbada específicamente ante ${causaClean}.`);
+      }
+
+      const freq = d.frecuencia?.toLowerCase() || "no especificada";
+      const carac = d.caracter?.toLowerCase() || "no especificado";
+      const intens = d.intensidad?.toLowerCase() || "moderada";
+
+      sentences.push(`El dolor se manifiesta con una frecuencia ${freq} de carácter ${carac} e intensidad ${intens}.`);
+
+      if (d.localizacion?.descripcion) {
+        const tipo = d.localizacion.tipo;
+        const descRaw = d.localizacion.descripcion;
+        const descClean = descRaw.replace(/^(localizado en|localizado|en la zona de|en) /gi, "").trim();
+
+        if (tipo === "Irradiado") {
+          sentences.push(`La sintomatología es de naturaleza difusa y se irradia hacia zonas adyacentes, sin presentar un punto de origen localizado.`);
+        } else if (tipo === "Localizado") {
+          sentences.push(`El foco doloroso se percibe estrictamente localizado en un punto clínico específico (${descClean}).`);
+        }
+      }
+
+      if (d.atenuacion) {
+        const aten = d.atenuacion.replace(/^(cede con|disminuye con|con|por|al) /gi, "").trim();
+        sentences.push(`El paciente reporta mejoría ante ${aten}.`);
+      }
+
+      historyText = sentences.join(" ");
+    }
+
+    const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mt-4 mb-1">${title}</span>`;
+    return `${formatTitle("Motivo de consulta")}${motivo}<br/>${formatTitle("Historia del padecimiento")}${historyText}`.trim();
+  };
+
+  useEffect(() => {
+    const textoHTML = generarTextoRedaccion();
+    if (onRedaccionGenerada) {
+      onRedaccionGenerada(textoHTML);
+    }
+  }, [
+    formData.padecimientoActual.motivoConsulta,
+    formData.padecimientoActual.sinSintomas,
+    formData.padecimientoActual.dolor.fechaInicio,
+    formData.padecimientoActual.dolor.condicionAparicion,
+    formData.padecimientoActual.dolor.causaProvocado,
+    formData.padecimientoActual.dolor.frecuencia,
+    formData.padecimientoActual.dolor.caracter,
+    formData.padecimientoActual.dolor.intensidad,
+    formData.padecimientoActual.dolor.ubicacion,
+    formData.padecimientoActual.dolor.localizacion.tipo,
+    formData.padecimientoActual.dolor.localizacion.descripcion,
+    formData.padecimientoActual.dolor.atenuacion
+  ]);
+
+  const generarRedaccionYCompletar = () => {
+    const textoHTML = generarTextoRedaccion();
+    if (onRedaccionGenerada) {
+      onRedaccionGenerada(textoHTML);
+    }
+    toast({
+      title: "Sección Completada",
+      description: "La redacción de Padecimiento Actual se ha guardado correctamente.",
+      duration: 1500,
+    });
+    if (onSectionComplete) {
+      onSectionComplete();
+    }
+  };
+
+  const handleNext = () => {
+    if (currentMicroStep === 0) {
+      const limpio = motivoValue.replace(defaultMotivoConsulta, "").trim();
+      if (limpio.length < 3) {
+        toast({
+          title: "Motivo Requerido",
+          description: "Por favor escribe un motivo de consulta válido antes de continuar.",
+          variant: "destructive"
+        });
+        return;
+      }
+    }
+
+    const currentIndex = seq.indexOf(currentMicroStep);
+    if (currentIndex < seq.length - 1) {
+      setDir(1);
+      setCurrentMicroStep(seq[currentIndex + 1]);
+    } else {
+      generarRedaccionYCompletar();
+    }
+  };
+
+  const handlePrev = () => {
+    const currentIndex = seq.indexOf(currentMicroStep);
+    if (currentIndex > 0) {
+      setDir(-1);
+      setCurrentMicroStep(seq[currentIndex - 1]);
+    }
+  };
+
   const clearForm = () => {
     handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
     handleSinSintomasChange(false);
+    handleDolorChange("fechaInicio", "");
+    handleDolorChange("condicionAparicion", "");
+    handleDolorChange("frecuencia", "");
+    handleDolorChange("caracter", "");
+    handleDolorChange("intensidad", "moderada");
+    handleDolorChange("causaProvocado", "");
+    handleDolorChange("ubicacion", "");
+    handleDolorChange("localizacion", { tipo: "", descripcion: "" });
+    handleDolorChange("atenuacion", "");
+    setCurrentMicroStep(0);
+    setDir(-1);
+    setTieneAlivio(null);
+    toast({
+      title: "Sección Reiniciada",
+      description: "Se han limpiado todas las respuestas de padecimiento actual."
+    });
+  };
 
-    // Auto-scroll to top on reset
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  const renderStepContent = () => {
+    const d = formData.padecimientoActual.dolor;
+    switch (currentMicroStep) {
+      case 0:
+        return (
+          <div key="step-0">
+            <Heading>¿Cuál es el motivo de la consulta hoy?</Heading>
+            <div className="relative mb-4">
+              <AIInputWithLoading
+                value={motivoValue}
+                onChange={(val) => {
+                  if (!val.startsWith(defaultMotivoConsulta)) {
+                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta + val.replace(defaultMotivoConsulta, ''));
+                  } else {
+                    handlePadecimientoChange("motivoConsulta", val);
+                  }
+                }}
+                placeholder="Ej. dolor intenso en la muela..."
+              />
+            </div>
+          </div>
+        );
+
+      case 1:
+        return (
+          <div key="step-1" className="flex flex-col h-full">
+            <Heading>¿El paciente refiere dolor o sintomatología activa?</Heading>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+              <button
+                onClick={() => {
+                  handleSinSintomasChange(false);
+                  setTimeout(() => {
+                    setDir(1);
+                    setCurrentMicroStep(2);
+                  }, 250);
+                }}
+                className={cn(
+                  glassBtnBase, "p-8 flex flex-col items-center justify-center gap-4 text-center",
+                  !formData.padecimientoActual.sinSintomas
+                    ? "bg-red-500/10 border-red-500 text-red-700 dark:bg-red-500/20 dark:border-red-400 dark:text-red-300 scale-[1.02]"
+                    : glassBtnInactive
+                )}
+              >
+                <span className="text-5xl mb-2 drop-shadow-sm">😫</span>
+                <span className="text-xl font-bold">Sí, hay dolor</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  handleSinSintomasChange(true);
+                  setTimeout(() => {
+                    generarRedaccionYCompletar();
+                  }, 250);
+                }}
+                className={cn(
+                  glassBtnBase, "p-8 flex flex-col items-center justify-center gap-4 text-center",
+                  formData.padecimientoActual.sinSintomas
+                    ? "bg-emerald-500/10 border-emerald-500 text-emerald-700 dark:bg-emerald-500/20 dark:border-emerald-400 dark:text-emerald-300 scale-[1.02]"
+                    : glassBtnInactive
+                )}
+              >
+                <span className="text-5xl mb-2 drop-shadow-sm">😌</span>
+                <span className="text-xl font-bold">Sin síntomas</span>
+              </button>
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div key="step-2">
+            <Heading>¿Desde cuándo y cómo aparece?</Heading>
+            <div className="space-y-8">
+              <div>
+                <SubLabel>Fecha de Inicio</SubLabel>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-zinc-500 dark:text-zinc-400">
+                    <Calendar className="w-6 h-6" strokeWidth={1.5} />
+                  </div>
+                  <input
+                    type="date"
+                    value={d.fechaInicio}
+                    onChange={(e) => handleDolorChange("fechaInicio", e.target.value)}
+                    className="w-full pl-16 pr-6 py-6 rounded-3xl bg-white/80 border border-white/80 dark:bg-zinc-800/60 dark:border-white/10 backdrop-blur-md font-medium text-xl text-zinc-900 dark:text-zinc-100 outline-none focus:ring-2 focus:ring-zinc-900/10 shadow-sm cursor-pointer appearance-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <SubLabel>Modo de Aparición</SubLabel>
+                <ChipSelector
+                  value={d.condicionAparicion}
+                  onChange={(val) => handleDolorChange("condicionAparicion", val)}
+                  className="grid-cols-2"
+                  options={[
+                    { label: "Espontáneo", value: "espontaneo", subtitle: "Aparece solo" },
+                    { label: "Provocado", value: "provocado", subtitle: "Requiere estímulo" }
+                  ]}
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div key="step-3">
+            <Heading>¿Qué estímulo provoca el dolor?</Heading>
+            <div className="relative mb-4">
+              <AIInputWithLoading
+                value={d.causaProvocado || defaultCausaProvocado}
+                onChange={(val) => {
+                  handleDolorChange("causaProvocado", val.startsWith(defaultCausaProvocado) ? val : defaultCausaProvocado + val);
+                }}
+              />
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div key="step-4">
+            <Heading>Cualidades del dolor</Heading>
+            <div className="space-y-6 pb-4">
+              <div>
+                <SubLabel>Frecuencia</SubLabel>
+                <ChipSelector
+                  value={d.frecuencia}
+                  onChange={(val) => handleDolorChange("frecuencia", val)}
+                  className="grid-cols-1 sm:grid-cols-2"
+                  options={[
+                    { label: "Intermitente", value: "intermitente", subtitle: "Va y viene" },
+                    { label: "Continua", value: "continua", subtitle: "Todo el tiempo" }
+                  ]}
+                />
+              </div>
+
+              <div>
+                <SubLabel>Carácter</SubLabel>
+                <ChipSelector
+                  value={d.caracter}
+                  onChange={(val) => handleDolorChange("caracter", val)}
+                  className="grid-cols-2"
+                  options={[
+                    { label: "Pulsátil", value: "pulsatil", subtitle: "Latido" },
+                    { label: "Sordo", value: "sordo", subtitle: "Molestia constante" },
+                    { label: "Quemante", value: "quemante", subtitle: "Ardor" },
+                    { label: "Opresivo", value: "opresivo", subtitle: "Presión" }
+                  ]}
+                />
+              </div>
+
+              <div>
+                <SubLabel>Intensidad</SubLabel>
+                <div className="grid grid-cols-3 gap-3">
+                  {['leve', 'moderada', 'severa'].map((level) => {
+                    const active = d.intensidad === level;
+                    let activeClass = "";
+                    if (active) {
+                       if (level === 'leve') activeClass = "bg-emerald-500/10 border-emerald-500 text-emerald-700 dark:bg-emerald-500/20 dark:border-emerald-400 dark:text-emerald-300 shadow-md scale-[1.02]";
+                       if (level === 'moderada') activeClass = "bg-amber-500/10 border-amber-500 text-amber-700 dark:bg-amber-500/20 dark:border-amber-400 dark:text-amber-300 shadow-md scale-[1.02]";
+                       if (level === 'severa') activeClass = "bg-red-500/10 border-red-500 text-red-700 dark:bg-red-500/20 dark:border-red-400 dark:text-red-300 shadow-md scale-[1.02]";
+                    }
+                    return (
+                      <button
+                        key={level}
+                        onClick={() => handleDolorChange("intensidad", level)}
+                        className={cn(
+                          glassBtnBase, "py-5 text-center font-bold capitalize text-base",
+                          active ? activeClass : glassBtnInactive
+                        )}
+                      >
+                        {level}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 5:
+        return (
+          <div key="step-5">
+            <Heading>¿Dónde se localiza?</Heading>
+            <ChipSelector
+              value={d.ubicacion || ''}
+              onChange={(val) => {
+                handleDolorChange("ubicacion", val);
+                handleDolorChange("localizacion", {
+                  ...d.localizacion,
+                  tipo: val === 'localizado' ? 'Localizado' : val === 'irradiado' ? 'Irradiado' : ''
+                });
+                setTimeout(() => {
+                  setDir(1);
+                  setCurrentMicroStep(val === 'localizado' ? 6 : 7);
+                }, 200);
+              }}
+              options={[
+                { label: "Localizado", value: "localizado", subtitle: "En un punto exacto" },
+                { label: "Irradiado", value: "irradiado", subtitle: "Se expande a otras zonas" }
+              ]}
+            />
+          </div>
+        );
+
+      case 6:
+        return (
+          <div key="step-6">
+            <Heading>Localización exacta</Heading>
+            <div className="relative mb-4">
+              <AIInputWithLoading
+                value={d.localizacion?.descripcion || defaultLocalizacion}
+                onChange={(val) => {
+                  const finalVal = val.startsWith(defaultLocalizacion) ? val : defaultLocalizacion + val;
+                  handleDolorChange("localizacion", { ...d.localizacion, descripcion: finalVal });
+                }}
+              />
+            </div>
+          </div>
+        );
+
+      case 7:
+        if (tieneAlivio === null) {
+          return (
+            <div key="step-7" className="flex flex-col h-full animate-in fade-in duration-300">
+              <Heading>¿Hay algo que lo alivie?</Heading>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                <button
+                  onClick={() => {
+                    setTieneAlivio(true);
+                  }}
+                  className={cn(
+                    glassBtnBase, "p-8 flex flex-col items-center justify-center gap-4 text-center hover:scale-[1.02]",
+                    glassBtnInactive
+                  )}
+                >
+                  <span className="text-5xl mb-2 drop-shadow-sm">💊</span>
+                  <span className="text-xl font-bold">Sí, algo lo alivia</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setTieneAlivio(false);
+                    handleDolorChange("atenuacion", "");
+                    setTimeout(() => {
+                      generarRedaccionYCompletar();
+                    }, 250);
+                  }}
+                  className={cn(
+                    glassBtnBase, "p-8 flex flex-col items-center justify-center gap-4 text-center hover:scale-[1.02]",
+                    glassBtnInactive
+                  )}
+                >
+                  <span className="text-5xl mb-2 drop-shadow-sm">❌</span>
+                  <span className="text-xl font-bold">No, nada lo alivia</span>
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return (
+          <div key="step-7-input" className="animate-in fade-in duration-300">
+            <Heading>¿Qué alivia el dolor?</Heading>
+            <div className="relative mb-4">
+              <AIInputWithLoading
+                value={d.atenuacion}
+                onChange={(val) => handleDolorChange("atenuacion", val)}
+                placeholder="Ej. analgésicos, compresas frías..."
+              />
+            </div>
+            <button
+              onClick={() => {
+                setTieneAlivio(null);
+                handleDolorChange("atenuacion", "");
+              }}
+              className="text-xs font-semibold text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 mt-4 flex items-center gap-1 transition-colors ml-1"
+            >
+              ← Cambiar respuesta
+            </button>
+          </div>
+        );
+
+      default:
+        return null;
     }
   };
 
   return (
-    // Removed mb-40 to fix "dead space" issue. reduced to pb-8
-    <div className="space-y-12 max-w-3xl mx-auto py-8">
-
-      {/* 1. Motivo de Consulta Block */}
-      <ScrollFocusSection className="relative z-20">
-        <ChatBubbleLabel>Cuéntame, ¿cuál es el motivo de la consulta hoy?</ChatBubbleLabel>
-
-        <div className="relative">
-          <AIInputWithLoading
-            value={motivoValue}
-            onChange={(val) => {
-              if (!val.startsWith(defaultMotivoConsulta)) {
-                handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta + val.replace(defaultMotivoConsulta, ''));
-              } else {
-                handlePadecimientoChange("motivoConsulta", val);
-              }
-            }}
-            placeholder="Ej. dolor intenso en la muela..."
-          />
+    <div className="relative w-full max-w-2xl mx-auto pb-8 pt-4">
+      {/* Main Glassmorphic Container */}
+      <div className="relative bg-white/80 dark:bg-zinc-900/40 backdrop-blur-xl border border-white/60 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.2)] rounded-[2.5rem] p-6 sm:p-10 flex flex-col justify-between">
+        
+        {/* Micro Step Indicator */}
+        <div className="flex justify-center gap-2 mb-10">
+          {seq.map((step) => {
+            const isActive = step === currentMicroStep;
+            const isPast = seq.indexOf(step) < seq.indexOf(currentMicroStep);
+            return (
+              <div 
+                key={step} 
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-500", 
+                  isActive ? "w-8 bg-zinc-900 dark:bg-white" : 
+                  isPast ? "w-2 bg-zinc-400 dark:bg-zinc-500" : "w-1.5 bg-zinc-200 dark:bg-zinc-800"
+                )} 
+              />
+            )
+          })}
         </div>
-      </ScrollFocusSection>
 
-      {/* 2. Dolor Presence Toggle (Progressive Disclosure) */}
-      <AnimatePresence>
-        {hasMotivoStarted && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-          >
-            <ScrollFocusSection className="space-y-6">
-              <ChatBubbleLabel>
-                ¿El paciente refiere <strong>dolor</strong> o sintomatología activa?
-              </ChatBubbleLabel>
+        {/* Dynamic Content Area */}
+        <div className="w-full">
+          <AnimatePresence mode="wait" custom={dir}>
+            <motion.div
+              key={currentMicroStep}
+              custom={dir}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              className="w-full"
+            >
+              {renderStepContent()}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
-              <div className="flex justify-start gap-4 pl-4 flex-wrap">
-                {/* BUTTON 1: SI HAY DOLOR (RED) */}
-                <button
-                  onClick={() => handleSinSintomasChange(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 w-full sm:w-auto",
-                    !formData.padecimientoActual.sinSintomas
-                      ? "border-red-500 bg-red-50/50 dark:bg-red-900/10 shadow-md ring-1 ring-red-500 scale-105"
-                      : "border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-red-200 grayscale opacity-80 hover:opacity-100"
-                  )}
-                >
-                  <div className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center text-lg transition-colors",
-                    !formData.padecimientoActual.sinSintomas ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-400"
-                  )}>
-                    😫
-                  </div>
-                  <div className="text-left">
-                    <div className="font-bold text-gray-900 dark:text-white text-sm">Sí, hay dolor</div>
-                    <div className="text-xs text-gray-500">Sintomatología presente</div>
-                  </div>
-                </button>
+        {/* Bottom Navigation */}
+        <div className="flex justify-between items-center pt-10 mt-10 z-10">
+          <div>
+            {seq.indexOf(currentMicroStep) > 0 && (
+              <button
+                onClick={handlePrev}
+                className="w-14 h-14 rounded-full bg-white/60 dark:bg-zinc-800/60 backdrop-blur-md border border-white/80 dark:border-white/10 text-zinc-600 dark:text-zinc-300 flex items-center justify-center shadow-sm hover:scale-105 hover:bg-white/90 dark:hover:bg-zinc-700/80 transition-all"
+              >
+                <ChevronLeft className="w-6 h-6 -ml-0.5" />
+              </button>
+            )}
+          </div>
 
-                {/* BUTTON 2: SIN SINTOMAS (GREEN) */}
-                <button
-                  onClick={() => handleSinSintomasChange(true)}
-                  className={cn(
-                    "flex items-center gap-3 px-6 py-4 rounded-3xl border transition-all duration-300 w-full sm:w-auto",
-                    formData.padecimientoActual.sinSintomas
-                      ? "border-green-500 bg-green-50/50 dark:bg-green-900/10 shadow-md ring-1 ring-green-500 scale-105"
-                      : "border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-green-200 grayscale opacity-80 hover:opacity-100"
-                  )}
-                >
-                  <div className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center text-lg transition-colors",
-                    formData.padecimientoActual.sinSintomas ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"
-                  )}>
-                    😌
-                  </div>
-                  <div className="text-left">
-                    <div className="font-bold text-gray-900 dark:text-white text-sm">Sin síntomas</div>
-                    <div className="text-xs text-gray-500">Asintomático</div>
-                  </div>
-                </button>
-              </div>
-            </ScrollFocusSection>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={clearForm}
+              className="text-sm font-bold text-zinc-500 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-2xl px-5 py-3 transition-colors flex items-center"
+            >
+              <Eraser className="w-4 h-4 mr-2" />
+              Reiniciar
+            </button>
 
-      {/* 3. Caracteristicas del Dolor (Deep Dive) */}
-      <AnimatePresence>
-        {hasMotivoStarted && !formData.padecimientoActual.sinSintomas && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-          >
-            <ScrollFocusSection>
-              {/* Deep Dive Container */}
-              <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            {(!isLastStep || (currentMicroStep === 7 && tieneAlivio === true)) && (
+              <button
+                onClick={handleNext}
+                className={cn(
+                  "rounded-3xl px-8 py-4 text-lg font-bold shadow-md transition-all flex items-center gap-3",
+                  isLastStep
+                    ? "bg-emerald-500 text-white hover:bg-emerald-400 hover:shadow-lg scale-[1.02]"
+                    : "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 hover:scale-105"
+                )}
+              >
+                {isLastStep ? "Finalizar" : "Siguiente"}
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+        </div>
 
-                {/* Subtitle Bar - Obsidian Style */}
-                <div className="mb-6 inline-flex">
-                  <div className="px-5 py-2 rounded-full bg-zinc-900/90 dark:bg-black/80 backdrop-blur-md border border-white/10 shadow-lg flex items-center">
-                    <span className="text-sm font-medium text-zinc-100">
-                      Características del dolor
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-2">
-                  <CaracteristicasDolor
-                    dolor={formData.padecimientoActual.dolor}
-                    onDolorChange={handleDolorChange}
-                  />
-                </div>
-              </div>
-            </ScrollFocusSection>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Footer Controls */}
-      <div className="flex justify-end items-center gap-4 pt-10 opacity-90 transition-opacity">
-        {onToggleViewMode && (
-          <Button
-            variant="outline"
-            onClick={() => {
-              // LOGIC: GENERATE REDACTION ON CLICK (HTML FORMATTED)
-              const motivo = formData.padecimientoActual.motivoConsulta || "No especificado";
-              const d = formData.padecimientoActual.dolor;
-
-              // Construct HTML Output matching user's requested format
-              let historyText = "";
-
-              if (formData.padecimientoActual.sinSintomas) {
-                historyText = "El paciente refiere encontrarse asintomático al momento de la consulta, negando dolor o molestia alguna.";
-              } else {
-                // MASTER REDACTION ENGINE (V4)
-                let sentences = [];
-
-                // 1. Dynamic Start (Regla de Inicio Dinámico: Limpieza de Motivo)
-                const motivoRaw = formData.padecimientoActual.motivoConsulta || "No especificado";
-                // Regex to strip redundant "El paciente acude..." prefixes
-                const motivoClean = motivoRaw.replace(/^(el paciente (acude|viene|se presenta) (a|a la) consulta (por|manifestando)|acude a consulta por|motivo de consulta:)\s*/gi, "").trim();
-                // Capitalize first letter
-                const motivoFinal = motivoClean.charAt(0).toUpperCase() + motivoClean.slice(1);
-
-                sentences.push(`El paciente acude a consulta manifestando: "${motivoFinal}".`);
-
-                // 2. Origin (Regla de Origen / Modo de Aparición)
-                const cond = d.condicionAparicion?.toLowerCase() || "";
-                if (cond.includes("espont")) {
-                  let feat = "Refiere un cuadro de dolor de aparición espontánea";
-                  if (d.fechaInicio) feat += ` con una evolución constante desde el ${d.fechaInicio}`;
-                  sentences.push(feat + ".");
-                } else if (cond.includes("provoc")) {
-                  const causaRaw = d.causaProvocado || "";
-                  const causaClean = causaRaw.replace(/^(provocado con|provocado por|se provoca con|al|con|por) /gi, "").trim();
-                  // V4 Correction: "de manera provocada" instead of "carácter provocado"
-                  sentences.push(`Presenta sintomatología de manera provocada, exacerbada específicamente ante ${causaClean}.`);
-                }
-
-                // 3. Characterization (Regla de Caracterización: Frec + Carac + Inten)
-                const freq = d.frecuencia?.toLowerCase() || "no especificada";
-                const carac = d.caracter?.toLowerCase() || "no especificado";
-                const intens = d.intensidad?.toLowerCase() || "moderada";
-
-                sentences.push(`El dolor se manifiesta con una frecuencia ${freq} de carácter ${carac} e intensidad ${intens}.`);
-
-                // 4. Location Exclusion (Regla de Exclusión por Localización)
-                if (d.localizacion?.descripcion) {
-                  const tipo = d.localizacion.tipo;
-                  const descRaw = d.localizacion.descripcion;
-                  const descClean = descRaw.replace(/^(localizado en|localizado|en la zona de|en) /gi, "").trim();
-
-                  if (tipo === "Irradiado") {
-                    sentences.push(`La sintomatología es de naturaleza difusa y se irradia hacia zonas adyacentes, sin presentar un punto de origen localizado.`);
-                    // Optional: We could add the specific description if needed, currently adhering to "no localizado" rule.
-                  } else if (tipo === "Localizado") {
-                    // V4 Correction: Explicit template without fallback
-                    sentences.push(`El foco doloroso se percibe estrictamente localizado en un punto clínico específico (${descClean}).`);
-                  }
-                  // V4 Correction: REMOVED FALLBACK "Refiere dolor en..." to prevent confusion with Intermitente.
-                  // If type is neither Localizado nor Irradiado, no location text is output.
-                }
-
-                // 5. Closing (Alivio / Atenuación)
-                if (d.atenuacion) {
-                  const aten = d.atenuacion.replace(/^(cede con|disminuye con|con|por|al) /gi, "").trim();
-                  sentences.push(`El paciente reporta mejoría ante ${aten}.`);
-                }
-
-                historyText = sentences.join(" ");
-              }
-
-              // Generación de Texto Unificada
-              const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-400 mt-4 mb-1">${title}</span>`;
-              const redaccionTexto = `${formatTitle("Motivo de consulta")}${motivo}<br/>${formatTitle("Historia del padecimiento")}${historyText}`.trim();
-
-              if (onRedaccionGenerada) {
-                onRedaccionGenerada(redaccionTexto);
-              }
-            }}
-            className="hidden data-trigger-generation text-indigo-600 border-indigo-200 hover:bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:hover:bg-indigo-900/20"
-          >
-            <Sparkles className="w-4 h-4 mr-2" />
-            Ver Redacción IA
-          </Button>
-        )}
-
-        <Button
-          variant="ghost"
-          onClick={clearForm}
-          className="text-xs text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10"
-        >
-          <Eraser className="w-3 h-3 mr-2" />
-          Reiniciar Sección
-        </Button>
       </div>
-
     </div>
   );
 };

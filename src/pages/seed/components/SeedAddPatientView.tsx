@@ -9,32 +9,87 @@ export default function SeedAddPatientView() {
     apellidos: '',
     telefono: '',
     motivo: 'primera',
+    alergias: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const login = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      console.log('Creando expediente en Drive con token:', tokenResponse);
-      setIsSuccess(true);
-      setIsSubmitting(false);
-    },
-    onError: () => {
-      console.error('Error de autenticación Google');
-      setIsSubmitting(false);
-    },
-    scope: 'https://www.googleapis.com/auth/drive.file'
-  });
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nombre || !formData.apellidos) return;
     setIsSubmitting(true);
-    login();
+
+    try {
+      const seedUserStr = sessionStorage.getItem('seed_user');
+      if (!seedUserStr) throw new Error("No hay sesión activa");
+      
+      const seedUser = JSON.parse(seedUserStr);
+      const accessToken = seedUser.googleAccessToken;
+      
+      if (!accessToken) throw new Error("No hay conexión de Google Drive");
+
+      // 1. Buscar la carpeta raíz 'Dentaxy'
+      const query = encodeURIComponent("name = 'Dentaxy' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
+      const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id)`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const searchData = await searchRes.json();
+      
+      let parentId = null;
+      if (searchData.files && searchData.files.length > 0) {
+        parentId = searchData.files[0].id;
+      } else {
+        const createRootRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: 'Dentaxy',
+            mimeType: 'application/vnd.google-apps.folder'
+          })
+        });
+        const rootData = await createRootRes.json();
+        parentId = rootData.id;
+      }
+
+      // 2. Crear la carpeta del paciente
+      const folderName = `${formData.apellidos.toUpperCase()}, ${formData.nombre}`;
+      const createPatientRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: folderName,
+          mimeType: 'application/vnd.google-apps.folder',
+          parents: [parentId],
+          appProperties: {
+            telefono: formData.telefono,
+            motivo: formData.motivo,
+            alergias: formData.alergias || 'Ninguna'
+          }
+        })
+      });
+
+      if (!createPatientRes.ok) {
+        throw new Error("Error al crear carpeta del paciente");
+      }
+
+      console.log('Expediente creado en Drive exitosamente');
+      window.dispatchEvent(new Event('patientCreated'));
+      setIsSuccess(true);
+    } catch (err) {
+      console.error('Error guardando expediente:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const resetForm = () => {
-    setFormData({ nombre: '', apellidos: '', telefono: '', motivo: 'primera' });
+    setFormData({ nombre: '', apellidos: '', telefono: '', motivo: 'primera', alergias: '' });
     setIsSuccess(false);
     setIsSubmitting(false);
     setIsFormOpen(false);
@@ -173,6 +228,19 @@ export default function SeedAddPatientView() {
                 <option value="ortodoncia" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">Ortodoncia</option>
                 <option value="cirugia" className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">Cirugía</option>
               </select>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: 'var(--seed-text-muted)' }}>
+                Alergias / Patologías
+              </label>
+              <input 
+                type="text" 
+                value={formData.alergias}
+                onChange={(e) => setFormData(prev => ({ ...prev, alergias: e.target.value }))}
+                className="w-full h-10 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl px-4 text-slate-900 dark:text-white text-xs focus:outline-none focus:border-emerald-500/40 dark:focus:border-emerald-400/40 focus:bg-white dark:focus:bg-white/10 transition-all" 
+                placeholder="Ej. Penicilina, Diabetes (Opcional)" 
+              />
             </div>
 
             <button 

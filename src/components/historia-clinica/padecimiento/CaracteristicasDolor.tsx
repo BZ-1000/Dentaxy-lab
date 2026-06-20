@@ -84,7 +84,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
           <ChatLabel>¿Desde <strong>cuándo</strong> siente este dolor y cómo aparece?</ChatLabel>
           <div className="pl-11 grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-1">Fecha de Inicio</label>
+              <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider ml-1">Fecha de Inicio</label>
               <div className="relative group">
                 <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-zinc-800 transition-colors">
                   <Calendar className="w-5 h-5 opacity-80" strokeWidth={1.5} />
@@ -99,7 +99,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-1">Modo de Aparición</label>
+              <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider ml-1">Modo de Aparición</label>
               <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={() => onDolorChange("condicionAparicion", "espontaneo")}
@@ -156,7 +156,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
 
           {/* Frecuencia */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Frecuencia</span>
+            <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider block">Frecuencia</span>
             <ChipSelector
               value={dolor.frecuencia}
               onChange={(val) => onDolorChange("frecuencia", val)}
@@ -169,7 +169,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
 
           {/* Carácter */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Tipo de Dolor (Carácter)</span>
+            <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider block">Tipo de Dolor (Carácter)</span>
             <ChipSelector
               value={dolor.caracter}
               onChange={(val) => onDolorChange("caracter", val)}
@@ -184,7 +184,7 @@ const CaracteristicasDolor = ({ dolor, onDolorChange }: CaracteristicasDolorProp
 
           {/* Intensidad (Slider Visual) */}
           <div className="space-y-2">
-            <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Intensidad</span>
+            <span className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider block">Intensidad</span>
             <div className="flex gap-2">
               {['leve', 'moderada', 'severa'].map((level, idx) => (
                 <button

@@ -1,5 +1,8 @@
-import React from 'react';
-import { Search, Calendar, FileText, ArrowUpRight, Settings, Bell, Video, Sun, Moon } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Search, Calendar, FileText, ArrowUpRight, Settings, Bell, Video, Sun, Moon, LogOut, HardDrive, ShieldCheck, Mail } from 'lucide-react';
+import { useAuthStore } from '@/store/useAuthStore';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface SeedTopNavProps {
   theme?: 'dark' | 'light';
@@ -7,6 +10,41 @@ interface SeedTopNavProps {
 }
 
 export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavProps) {
+  const navigate = useNavigate();
+  const doctor = useAuthStore(state => state.doctor);
+  const logout = useAuthStore(state => state.logout);
+  
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const popoverRef = useRef<HTMLDivElement>(null);
+
+  const handleLogout = () => {
+    sessionStorage.clear();
+    logout();
+    navigate('/seed', { replace: true });
+  };
+
+  const getInitials = useCallback((name: string) => {
+    if (!name) return "EV";
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.slice(0, 2).toUpperCase();
+  }, []);
+
+  // Cerrar popover al hacer clic afuera
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
   return (
     <nav className="w-full h-20 px-6 flex items-center justify-between relative z-50">
       
@@ -38,16 +76,16 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
 
         {/* Google Drive Link (Arquitectura Zero-Storage) */}
         <a 
-          href="https://drive.google.com/drive/my-drive" 
+          href={`https://drive.google.com/drive/my-drive${doctor?.email ? `?authuser=${encodeURIComponent(doctor.email)}` : ''}`}
           target="_blank" 
           rel="noopener noreferrer"
           title="Mis archivos dentaxy"
-          className="w-8 h-8 flex items-center justify-center cursor-pointer hover:scale-105 transition-transform duration-200"
+          className="flex items-center justify-center cursor-pointer hover:scale-105 transition-transform duration-200"
         >
           <img 
             src="/logos/google-drive.png" 
             alt="Mis archivos dentaxy" 
-            className="w-full h-full object-contain"
+            className="w-7 h-7 object-contain drop-shadow-md"
           />
         </a>
       </div>
@@ -128,8 +166,8 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
 
       </div>
 
-      {/* ── Derecha: Configuración, Notificaciones y Perfil ── */}
-      <div className="flex items-center gap-3">
+      {/* ── Derecha: Controles y Perfil ── */}
+      <div className="flex items-center gap-3 relative">
         {/* Botón Liquid Glass de cambio de tema */}
         <button 
           onClick={toggleTheme}
@@ -148,8 +186,105 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
             5
           </div>
         </div>
-        <div className="w-10 h-10 rounded-full seed-glass flex items-center justify-center text-[var(--seed-text-main)] text-xs font-semibold cursor-pointer hover:bg-[var(--seed-row-hover)] transition">
-          EV
+        <div className="relative font-sans" ref={popoverRef}>
+          {/* Avatar interactivo */}
+          <button 
+            onClick={() => setIsProfileOpen(prev => !prev)}
+            className="w-10 h-10 rounded-full seed-glass flex items-center justify-center text-[var(--seed-text-main)] text-xs font-semibold cursor-pointer hover:bg-[var(--seed-row-hover)] transition overflow-hidden border border-neutral-200/20 dark:border-zinc-800 focus:outline-none"
+          >
+            {doctor?.picture && !imgError ? (
+              <img 
+                src={doctor.picture} 
+                alt={doctor.name} 
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+                onError={() => setImgError(true)}
+              />
+            ) : (
+              getInitials(doctor?.name || "EV")
+            )}
+          </button>
+
+          {/* Menú de Perfil Glassmorphic */}
+          <AnimatePresence>
+            {isProfileOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 12 }}
+                transition={{ type: "spring", stiffness: 350, damping: 26 }}
+                className="absolute right-0 top-12 w-80 p-5 bg-white/95 dark:bg-zinc-950/90 backdrop-blur-2xl rounded-3xl border border-neutral-250/50 dark:border-zinc-800/80 shadow-[0_24px_48px_-15px_rgba(0,0,0,0.3)] z-[100]"
+              >
+                {/* Cabecera del Perfil */}
+                <div className="flex items-center gap-3.5 pb-4 border-b border-neutral-200/50 dark:border-zinc-800/50">
+                  <div className="w-12 h-12 rounded-full bg-purple-600/10 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 font-bold text-lg shrink-0 overflow-hidden border border-purple-200/40 dark:border-purple-800/30">
+                    {doctor?.picture && !imgError ? (
+                      <img 
+                        src={doctor.picture} 
+                        alt={doctor.name} 
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                        onError={() => setImgError(true)}
+                      />
+                    ) : (
+                      getInitials(doctor?.name || "EV")
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1 text-left">
+                    <p className="text-sm font-bold text-neutral-800 dark:text-zinc-150 truncate">
+                      {doctor?.name || "Doctor Dentaxy"}
+                    </p>
+                    <p className="text-xs text-neutral-500 dark:text-zinc-400 truncate flex items-center gap-1 mt-0.5">
+                      <Mail size={11} className="shrink-0" />
+                      {doctor?.email || "doctor@dentaxy.com"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Sección de Estado de Google Drive */}
+                <div className="py-4 space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-neutral-500 dark:text-zinc-400 font-medium">Google Drive</span>
+                    <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50/70 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 font-bold text-[10px] border border-emerald-100/50 dark:border-emerald-900/30">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                      Conectado
+                    </span>
+                  </div>
+                  
+                  <div className="p-3 rounded-2xl bg-neutral-50 dark:bg-zinc-900/40 border border-neutral-200/40 dark:border-zinc-800/40 text-left">
+                    <div className="flex items-center gap-2 text-xs font-bold text-neutral-700 dark:text-zinc-350">
+                      <HardDrive size={13} className="text-[#34A853]" />
+                      <span>Soberanía de Datos</span>
+                    </div>
+                    <p className="text-[10px] text-neutral-500 dark:text-zinc-400 mt-1 leading-relaxed">
+                      Tus expedientes y PDFs clínicos se almacenan localmente en tu nube.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Acciones del Menú */}
+                <div className="pt-2 space-y-1">
+                  <a 
+                    href="https://drive.google.com/drive/my-drive"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full h-11 px-3.5 rounded-xl text-neutral-700 dark:text-zinc-300 hover:bg-neutral-50 dark:hover:bg-zinc-900/60 font-medium text-xs flex items-center gap-2.5 transition-all duration-200 border border-transparent hover:border-neutral-200/50 dark:hover:border-zinc-800/40"
+                  >
+                    <img src="/logos/google-drive.png" className="w-4.5 h-4.5 object-contain" alt="Drive" />
+                    <span>Ver Carpeta en Google Drive</span>
+                  </a>
+
+                  <button
+                    onClick={handleLogout}
+                    className="w-full h-11 px-3.5 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 font-medium text-xs flex items-center gap-2.5 transition-all duration-200 border border-transparent hover:border-red-100 dark:hover:border-red-950/30"
+                  >
+                    <LogOut size={14} />
+                    <span>Cerrar Sesión</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
       

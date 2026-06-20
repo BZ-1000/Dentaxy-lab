@@ -138,7 +138,7 @@ const AntecedentesPersonalesPatologicos: React.FC<{
 
     let fullText = "";
 
-    const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-400 mt-4 mb-1">${title}</span>`;
+    const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mt-4 mb-1">${title}</span>`;
 
     cats.forEach(cat => {
       const text = generarRedaccionPorCategoria(cat);

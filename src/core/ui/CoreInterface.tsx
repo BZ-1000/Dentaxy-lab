@@ -10,6 +10,7 @@ import { FileSearch, ClipboardList, Palette, Sparkles, Layout, Target } from 'lu
 import { motion } from 'framer-motion';
 import { DentaxyStudio } from '@/core/packages/studio/DentaxyStudio';
 import { QuestEngine } from '@/core/packages/quest-engine/QuestEngine';
+import { Seed2Phase } from '../packages/seed2/Seed2Phase';
 import { DentaxyErrorBoundary } from '@/components/ui/DentaxyErrorBoundary';
 import { cn } from '@/lib/utils';
 
@@ -53,6 +54,7 @@ export const phases = [
     { id: 2, name: 'Clínica', fullName: 'Fase 2: Historia Clínica', icon: ClipboardList, color: 'emerald' },
     { id: 3, name: 'Studio', fullName: 'Fase 3: DENTAXY Studio', icon: Palette, color: 'indigo' },
     { id: 4, name: 'Planificador', fullName: 'Fase 4: Planificador Inteligente', icon: Target, color: 'amber' },
+    { id: 5, name: 'Seed 2.0', fullName: 'Fase 5: Seed 2.0', icon: Sparkles, color: 'purple' },
 ];
 
 export const PhaseNavigator = ({ activePhase, setActivePhase }: { activePhase: number, setActivePhase: (id: number) => void }) => {
@@ -78,7 +80,8 @@ export const PhaseNavigator = ({ activePhase, setActivePhase }: { activePhase: n
                                     phase.color === 'blue' && "bg-blue-600 shadow-lg shadow-blue-500/20",
                                     phase.color === 'emerald' && "bg-emerald-600 shadow-lg shadow-emerald-500/20",
                                     phase.color === 'indigo' && "bg-indigo-600 shadow-lg shadow-indigo-500/20",
-                                    phase.color === 'amber' && "bg-amber-500 shadow-lg shadow-amber-500/20"
+                                    phase.color === 'amber' && "bg-amber-500 shadow-lg shadow-amber-500/20",
+                                    phase.color === 'purple' && "bg-purple-600 shadow-lg shadow-purple-500/20"
                                 )}
                                 transition={{ type: "spring", bounce: 0.1, duration: 0.3 }}
                             />
@@ -154,7 +157,12 @@ export const CoreInterface = ({ activePhase, setActivePhase }: CoreInterfaceProp
     };
 
     return (
-        <div className="w-full max-w-5xl mx-auto pt-12 pb-32 flex flex-col gap-8 min-h-screen font-sans">
+        <div className={cn(
+            "font-sans", 
+            activePhase === 5 
+                ? "w-full h-full" 
+                : "w-full max-w-5xl mx-auto pt-12 pb-32 flex flex-col gap-8 min-h-screen"
+        )}>
 
 
             {/* --- PHASE 1 VIEW --- */}
@@ -324,6 +332,13 @@ export const CoreInterface = ({ activePhase, setActivePhase }: CoreInterfaceProp
                         </DentaxyErrorBoundary>
                     </div>
                 </motion.div>
+            )}
+
+            {/* --- PHASE 5 VIEW (Seed 2.0) --- */}
+            {activePhase === 5 && (
+                <DentaxyErrorBoundary componentName="Seed 2.0" fallbackTitle="Error en Seed 2.0">
+                    <Seed2Phase />
+                </DentaxyErrorBoundary>
             )}
         </div>
     );

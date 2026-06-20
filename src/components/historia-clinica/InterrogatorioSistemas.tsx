@@ -593,7 +593,7 @@ const InterrogatorioSistemas: React.FC<InterrogatorioSistemasProps> = ({
       { key: 'nervioso', label: 'Sistema Nervioso' },
     ];
 
-    const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-400 mt-4 mb-1">${title}</span>`;
+    const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mt-4 mb-1">${title}</span>`;
 
     const textoCombinado = sistemas
       .map(s => {
