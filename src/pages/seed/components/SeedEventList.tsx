@@ -6,9 +6,9 @@ export default function SeedEventList() {
 
   return (
     <div 
-      className="w-full h-full p-6 flex flex-col justify-between overflow-hidden transition-all duration-300"
+      className="w-full h-full px-6 pt-6 pb-12 flex flex-col justify-between overflow-hidden transition-all duration-300"
       style={{
-        borderRadius: '30px',
+        borderRadius: '30px 30px 0 0',
         background: 'var(--seed-card-bg)',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',

@@ -8,9 +8,34 @@ import { useHistoriaClinica } from '@/hooks/useHistoriaClinica';
 
 // UI Components
 import { ProgressLine } from './ui/ProgressLine';
-import { AppleStyleDock } from '@/components/AppleStyleDock';
 import { DocumentWriterPanel } from './ui/DocumentWriterPanel';
 import { SectionCard, ViewMode } from './ui/SectionCard';
+import { DexShellCard } from './ui/DexShellCard';
+import { useFormCLI } from './cli/useFormCLI';
+import { padecimientoCLIQuestions } from './cli/sections/padecimientoCLI';
+import { heredofamiliaresCLIQuestions } from './cli/sections/heredofamiliaresCLI';
+import { noPatologicosCLIQuestions } from './cli/sections/noPatologicosCLI';
+import { patologicosCLIQuestions } from './cli/sections/patologicosCLI';
+import { alergicosCLIQuestions } from './cli/sections/alergicosCLI';
+import { quirurgicosCLIQuestions } from './cli/sections/quirurgicosCLI';
+import { hemorragicosCLIQuestions } from './cli/sections/hemorragicosCLI';
+import { ginecoObstetricosCLIQuestions } from './cli/sections/ginecoObstetricosCLI';
+import { interrogatorioCLIQuestions } from './cli/sections/interrogatorioCLI';
+import { exploracionFisicaCLIQuestions } from './cli/sections/exploracionFisicaCLI';
+import { 
+  cabezaCLIQuestions, 
+  atmCLIQuestions, 
+  cuelloCLIQuestions, 
+  intrabucalCLIQuestions, 
+  odontogramaCLIQuestions, 
+  salivalesCLIQuestions, 
+  oclusionCLIQuestions, 
+  relacionDientesCLIQuestions, 
+  lineaMediaCLIQuestions, 
+  frenillosCLIQuestions 
+} from './cli/sections/dentalCLI';
+import { getFallbackCLIQuestions } from './cli/sections/fallbackCLI';
+import { useCliStore } from '@/stores/useCliStore';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -244,6 +269,314 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
     setViewMode(prev => prev === 'form' ? 'redaction' : 'form');
   };
 
+  /* --- CLI ENGINE INTEGRATION --- */
+  const currentSectionId = seccionesActivas[currentStep]?.id;
+  
+  const getQuestionsForSection = (sectionId: string) => {
+    switch (sectionId) {
+      case 'padecimiento': return padecimientoCLIQuestions;
+      case 'heredofamiliares': return heredofamiliaresCLIQuestions;
+      case 'noPatologicos': return noPatologicosCLIQuestions;
+      case 'patologicos': return patologicosCLIQuestions;
+      case 'alergicos': return alergicosCLIQuestions;
+      case 'quirurgicos': return quirurgicosCLIQuestions;
+      case 'hemorragicos': return hemorragicosCLIQuestions;
+      case 'ginecoObstetricos': return ginecoObstetricosCLIQuestions;
+      case 'interrogatorio': return interrogatorioCLIQuestions;
+      case 'exploracionFisica': return exploracionFisicaCLIQuestions;
+      case 'cabeza': return cabezaCLIQuestions;
+      case 'atm': return atmCLIQuestions;
+      case 'cuello': return cuelloCLIQuestions;
+      case 'intrabucal': return intrabucalCLIQuestions;
+      case 'odontograma': return odontogramaCLIQuestions;
+      case 'salivales': return salivalesCLIQuestions;
+      case 'oclusion': return oclusionCLIQuestions;
+      case 'relacionDientes': return relacionDientesCLIQuestions;
+      case 'lineaMedia': return lineaMediaCLIQuestions;
+      case 'frenillos': return frenillosCLIQuestions;
+      default: return getFallbackCLIQuestions(seccionesActivas[currentStep]?.nombre);
+    }
+  };
+
+  const cliQuestions = getQuestionsForSection(currentSectionId);
+
+  const handleCLISectionComplete = async (answers: Record<string, any>) => {
+    // Generar redacción automáticamente al terminar la sección
+    await handleGenerateCurrent();
+    
+    // Pequeño timeout para permitir que se guarde la redacción antes de avanzar
+    setTimeout(() => {
+      handleNext();
+    }, 150);
+  };
+
+  const { currentQuestion, submitAnswer, goBack: cliGoBack, canGoBack: cliCanGoBack } = useFormCLI(cliQuestions, handleCLISectionComplete);
+
+  const handleCLISubmit = (answer: string | number) => {
+    const qId = currentQuestion?.id;
+    if (!qId) return;
+
+    // Map responses to useHistoriaClinica handlers
+    if (currentSectionId === 'padecimiento') {
+      if (qId === 'motivoConsulta') handlePadecimientoChange('motivoConsulta', answer.toString());
+      if (qId === 'sinSintomas') handleSinSintomasChange(answer === 'true');
+      if (qId === 'fechaInicio') handleDolorChange('fechaInicio', answer);
+      if (qId === 'condicionAparicion') handleDolorChange('condicionAparicion', answer);
+      if (qId === 'causaProvocado') handleDolorChange('causaProvocado', answer);
+      if (qId === 'frecuencia') handleDolorChange('frecuencia', answer);
+      if (qId === 'caracter') handleDolorChange('caracter', answer);
+      if (qId === 'intensidad') handleDolorChange('intensidad', answer);
+      if (qId === 'ubicacion') handleDolorChange('ubicacion', answer);
+      if (qId === 'localizacionDescripcion') handleDolorChange('localizacion', { tipo: 'Localizado', descripcion: answer });
+      if (qId === 'atenuacion') handleDolorChange('atenuacion', answer);
+    }
+    else if (currentSectionId === 'heredofamiliares') {
+      if (qId === 'padre_estado') {
+        if (answer === 'sano') {
+          handleFamiliarChange('padre', 'vivoSano', true);
+          handleFamiliarChange('padre', 'finado', false);
+        } else if (answer === 'finado') {
+          handleFamiliarChange('padre', 'vivoSano', false);
+          handleFamiliarChange('padre', 'finado', true);
+        } else {
+          handleFamiliarChange('padre', 'vivoSano', false);
+          handleFamiliarChange('padre', 'finado', false);
+        }
+      }
+      if (qId === 'padre_causa') handleFamiliarChange('padre', 'causaMuerte', answer.toString());
+      if (qId === 'padre_condiciones') {
+        handleCondicionChange('padre', 'diabetesMellitus', answer === 'diabetes');
+        handleCondicionChange('padre', 'hipertensionArterial', answer === 'hipertension');
+        handleCondicionChange('padre', 'cancer', answer === 'cancer');
+        if (answer !== 'otras') handleCondicionChange('padre', 'otras', '');
+      }
+      if (qId === 'padre_otras_desc') handleCondicionChange('padre', 'otras', answer.toString());
+
+      if (qId === 'madre_estado') {
+        if (answer === 'sano') {
+          handleFamiliarChange('madre', 'vivoSano', true);
+          handleFamiliarChange('madre', 'finado', false);
+        } else if (answer === 'finado') {
+          handleFamiliarChange('madre', 'vivoSano', false);
+          handleFamiliarChange('madre', 'finado', true);
+        } else {
+          handleFamiliarChange('madre', 'vivoSano', false);
+          handleFamiliarChange('madre', 'finado', false);
+        }
+      }
+      if (qId === 'madre_causa') handleFamiliarChange('madre', 'causaMuerte', answer.toString());
+      if (qId === 'madre_condiciones') {
+        handleCondicionChange('madre', 'diabetesMellitus', answer === 'diabetes');
+        handleCondicionChange('madre', 'hipertensionArterial', answer === 'hipertension');
+        handleCondicionChange('madre', 'cancer', answer === 'cancer');
+        if (answer !== 'otras') handleCondicionChange('madre', 'otras', '');
+      }
+      if (qId === 'madre_otras_desc') handleCondicionChange('madre', 'otras', answer.toString());
+      
+      if (qId === 'otros_familiares_desc') {
+        handleCondicionChange('abueloPaterno', 'otras', answer.toString());
+      }
+    }
+    else if (currentSectionId === 'noPatologicos') {
+      if (qId === 'frecuenciaCepillado') handleAntecedenteChange('frecuenciaCepillado', answer.toString());
+      if (qId === 'auxiliaresBucales') {
+        let aux = [];
+        if (answer === 'hilo' || answer === 'ambos') aux.push('Hilo dental');
+        if (answer === 'enjuague' || answer === 'ambos') aux.push('Enjuague bucal');
+        handleAntecedenteChange('auxiliaresBucales', aux);
+      }
+      if (qId === 'mascotasDetalle') handleAntecedenteChange('mascotas', answer.toString());
+      if (qId === 'serviciosVivienda') {
+        const servs = answer === 'completos' ? ['Agua potable', 'Luz eléctrica', 'Drenaje'] : ['Agua potable'];
+        handleAntecedenteChange('servicios', servs);
+      }
+      if (qId === 'alimentacion') {
+        const dietaVal = answer === 'balanceada' ? 'Balanceada' : answer === 'cariogenica' ? 'Cariogénica' : 'Deficiente';
+        handleAntecedenteChange('tipoDieta', dietaVal);
+      }
+    }
+    else if (currentSectionId === 'patologicos') {
+      if (qId === 'sinPatologia') {
+        handleAntecedentePatologicoChange('sinPatologia', answer === 'true');
+        if (answer === 'true') {
+          handleAntecedentePatologicoChange('cardiacos', { ninguna: true });
+          handleAntecedentePatologicoChange('nutricionales', { ninguna: true });
+          handleAntecedentePatologicoChange('hepaticos', { ninguna: true });
+        }
+      }
+      if (qId === 'cardiacos') {
+        handleAntecedentePatologicoChange('cardiacos', {
+          enfermedadCoronaria: answer === 'arritmia',
+          arritmias: answer === 'arritmia',
+          defectosCardiacosCongenitos: false,
+          ninguna: answer === 'no',
+          otra: answer === 'hipertension',
+          otraDescripcion: answer === 'hipertension' ? 'Hipertensión arterial' : ''
+        });
+      }
+      if (qId === 'diabetes') {
+        handleAntecedentePatologicoChange('nutricionales', {
+          sobrepeso: false,
+          obesidad: false,
+          ninguna: answer === 'no',
+          otra: answer === 'si',
+          otraDescripcion: answer === 'si' ? 'Diabetes Mellitus' : ''
+        });
+      }
+      if (qId === 'otrosDetalles') {
+        handleAntecedentePatologicoChange('otrosPadecimientos', {
+          especificar: true,
+          ninguna: false,
+          otra: true,
+          otraDescripcion: answer.toString()
+        });
+      }
+    }
+    else if (currentSectionId === 'alergicos') {
+      if (qId === 'medicamentos_alergico') {
+        handleAntecedenteAlergicoChange('medicamentos', {
+          es_alergico: answer === 'true',
+          cuales: '',
+          tipo_reaccion: '',
+          severidad: ''
+        });
+      }
+      if (qId === 'medicamentos_cuales') {
+        handleAntecedenteAlergicoChange('medicamentos', {
+          es_alergico: true,
+          cuales: answer.toString(),
+          tipo_reaccion: 'Reacción adversa',
+          severidad: 'Moderada'
+        });
+      }
+      if (qId === 'alimentos_alergico') {
+        handleAntecedenteAlergicoChange('alimentos', {
+          es_alergico: answer === 'true',
+          cuales: ''
+        });
+      }
+      if (qId === 'alimentos_cuales') {
+        handleAntecedenteAlergicoChange('alimentos', {
+          es_alergico: true,
+          cuales: answer.toString()
+        });
+      }
+      if (qId === 'latex_alergico') {
+        handleAntecedenteAlergicoChange('latex', {
+          es_alergico: answer === 'true',
+          descripcion_reaccion: answer === 'true' ? 'Contacto cutáneo' : ''
+        });
+      }
+      if (qId === 'reaccionAnestesia') handleAntecedenteAlergicoChange('reaccionAnestesia', answer === 'true');
+      if (qId === 'descripcionReaccionAnestesia') handleAntecedenteAlergicoChange('descripcionReaccion', answer.toString());
+    }
+    else if (currentSectionId === 'quirurgicos') {
+      if (qId === 'sinQuirurgicos') handleAntecedenteQuirurgicoChange('sinQuirurgicos', answer === 'true');
+      if (qId === 'cirugiasDetalles') handleAntecedenteQuirurgicoChange('hospitalizacionesPrevias', answer.toString());
+      if (qId === 'tomaMedicamentos') handleAntecedenteQuirurgicoChange('tomaMedicamentos', answer === 'true');
+      if (qId === 'cualesMedicamentos') {
+        handleAntecedenteQuirurgicoChange('cualesMedicamentos', answer.toString());
+        handleAntecedenteQuirurgicoChange('motivoMedicamentos', 'Control sistémico');
+      }
+    }
+    else if (currentSectionId === 'hemorragicos') {
+      if (qId === 'sinHemorragicos') {
+        handleAntecedenteHemorragicoChange('sinHemorragicos', answer === 'true');
+        handleAntecedenteHemorragicoChange('sangradoProlongado', 'No');
+        handleAntecedenteHemorragicoChange('hematomas', 'No');
+        handleAntecedenteHemorragicoChange('transfusiones', 'No');
+      }
+      if (qId === 'sangradoProlongado') {
+        const val = answer === 'si' ? 'Sí' : 'No';
+        handleAntecedenteHemorragicoChange('sangradoProlongado', val);
+        handleAntecedenteHemorragicoChange('hematomas', val);
+      }
+      if (qId === 'transfusionPrevia') handleAntecedenteHemorragicoChange('transfusionPrevia', answer === 'true');
+      if (qId === 'motivoTransfusion') {
+        handleAntecedenteHemorragicoChange('transfusiones', 'Sí');
+        handleAntecedenteHemorragicoChange('detallesAdicionales', answer.toString());
+      }
+    }
+    else if (currentSectionId === 'interrogatorio') {
+      if (qId === 'sistemas_detalles') {
+        const sist = currentQuestion?.placeholder || 'General';
+        handleInterrogatorioChange(sist, answer.toString());
+      }
+    }
+    else if (currentSectionId === 'exploracionFisica') {
+      if (qId === 'ta') handleExploracionFisicaChange('signosVitales', { ...formData.exploracionFisica.signosVitales, ta: answer.toString() });
+      if (qId === 'fc') handleExploracionFisicaChange('signosVitales', { ...formData.exploracionFisica.signosVitales, fc: answer.toString() });
+      if (qId === 'temperatura') handleExploracionFisicaChange('signosVitales', { ...formData.exploracionFisica.signosVitales, temperatura: answer.toString() });
+      if (qId === 'peso') handleExploracionFisicaChange('signosVitales', { ...formData.exploracionFisica.signosVitales, peso: answer.toString() });
+      if (qId === 'talla') handleExploracionFisicaChange('signosVitales', { ...formData.exploracionFisica.signosVitales, talla: answer.toString() });
+    }
+    else if (currentSectionId === 'cabeza') {
+      if (qId === 'cabeza_hallazgos') handleExamenCabezaChange('sinHallazgos', answer === 'normal');
+      if (qId === 'cabeza_detalles') handleExamenCabezaChange('otrosHallazgos', answer.toString());
+    }
+    else if (currentSectionId === 'atm') {
+      if (qId === 'atm_ruidos') handleArticulacionCraneomandibularChange('ruidoArticular', answer === 'true' ? 'Chasquidos' : 'Ninguno');
+      if (qId === 'atm_dolor') handleArticulacionCraneomandibularChange('dolor', answer === 'true');
+      if (qId === 'atm_observaciones') handleArticulacionCraneomandibularChange('otrasObservaciones', answer.toString());
+    }
+    else if (currentSectionId === 'cuello') {
+      if (qId === 'cuello_normal') handleExamenCuelloChange('sinHallazgos', answer === 'normal');
+      if (qId === 'cuello_detalles') {
+        handleExamenCuelloChange('cervicales', { palpacion: 'se_palpan', observaciones: answer.toString() });
+      }
+    }
+    else if (currentSectionId === 'intrabucal') {
+      if (qId === 'intrabucal_normal') handleExamenIntrabucalChange('sinHallazgos', answer === 'normal');
+      if (qId === 'intrabucal_detalles') {
+        handleExamenIntrabucalChange('mejillas', { sinHallazgos: false, observaciones: answer.toString() });
+      }
+    }
+    else if (currentSectionId === 'odontograma') {
+      if (qId === 'odontograma_detalles') {
+        handleOdontogramaChange(999, 'caries');
+      }
+    }
+    else if (currentSectionId === 'salivales') {
+      if (qId === 'salivales_normal') handleGlandulasSalivalesChange('sinHallazgos', answer === 'normal');
+      if (qId === 'salivales_detalles') handleGlandulasSalivalesChange('observaciones', answer.toString());
+    }
+    else if (currentSectionId === 'oclusion') {
+      if (qId === 'clasificacionAngle') handleOclusionChange('clasificacionAngle', answer.toString());
+      if (qId === 'mordidaAnormal') {
+        handleOclusionChange('mordidaCruzada', answer === 'cruzada' || answer === 'ambas');
+        handleOclusionChange('mordidaAbierta', answer === 'abierta' || answer === 'ambas');
+      }
+    }
+    else if (currentSectionId === 'relacionDientes') {
+      if (qId === 'relacion_normal') {
+        handleRelacionDientesChange('apiñamiento', answer === 'apiniamiento' || answer === 'ambos');
+        handleRelacionDientesChange('diastemas', answer === 'diastemas' || answer === 'ambos');
+      }
+      if (qId === 'relacion_observaciones') handleRelacionDientesChange('observaciones', answer.toString());
+    }
+    else if (currentSectionId === 'lineaMedia') {
+      if (qId === 'coincidente') handleLineaMediaChange('coincidente', answer === 'true');
+      if (qId === 'desviacion') handleLineaMediaChange('desviacion', answer.toString());
+    }
+    else if (currentSectionId === 'frenillos') {
+      if (qId === 'frenillos_normal') handleFrenillosChange('sinHallazgos', answer === 'normal');
+      if (qId === 'frenillos_detalles') handleFrenillosChange('observaciones', answer.toString());
+    }
+
+    submitAnswer(answer);
+  };
+
+  React.useEffect(() => {
+    const store = useCliStore.getState();
+    store.setExpedienteMode(true);
+    return () => store.setExpedienteMode(false);
+  }, []);
+
+  React.useEffect(() => {
+    const store = useCliStore.getState();
+    store.setCurrentQuestion(currentQuestion, handleCLISubmit);
+  }, [currentQuestion, currentSectionId]);
+
   const renderCurrentStepContent = () => {
     const section = seccionesActivas[currentStep];
     const onSeccionGeneradaProp = (seccionId: string, text: string) => handleContentGenerated(seccionId, text);
@@ -420,142 +753,89 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
 
   return (
     <div className={cn(
-      "flex w-full h-full overflow-hidden relative",
-      isPopup ? "bg-transparent" : "bg-zinc-50 dark:bg-zinc-950"
+      "relative w-full h-full overflow-hidden",
+      isPopup ? "bg-transparent" : "bg-white dark:bg-zinc-950"
     )}>
-      {/* Boton de Cerrar global */}
-      {onClose && (
-        <button 
-            onClick={onClose}
-            className="absolute top-6 right-6 z-[9999] w-12 h-12 bg-white/20 hover:bg-white/30 dark:bg-black/20 dark:hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-slate-800 dark:text-white transition-all shadow-lg border border-white/30 dark:border-white/10"
-            title="Cerrar Expediente"
-        >
-            <X size={24} />
-        </button>
-      )}
 
-      {/* Left Panel: Form View */}
-      <motion.div 
-        initial={false}
-        animate={{ 
-          width: (isDocumentOpen && !isMobile) ? (isDocumentExpanded ? "0%" : `${100 - docWidth}%`) : "100%",
-          opacity: (isDocumentOpen && !isMobile && isDocumentExpanded) ? 0 : 1 
-        }}
-        transition={isDraggingSplit ? { duration: 0 } : { type: 'spring', stiffness: 350, damping: 30 }}
-        className={cn(
-          "flex flex-col relative h-full shrink-0 will-change-[width] z-30",
-          isDocumentOpen && isMobile && "hidden"
-        )}
-      >
-        {/* Main Content Area */}
-        <div
-          ref={scrollContainerRef}
-          onScroll={handleScroll}
-          className="flex-1 overflow-y-auto overflow-x-hidden pt-12 pb-48 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-        >
-          <div className="container mx-auto px-4 min-h-full flex flex-col max-w-4xl">
-            <div className="my-auto w-full">
-              <AnimatePresence mode="wait" custom={direction}>
-                <motion.div
-                key={currentStep}
-                custom={direction}
-                variants={variants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{
-                  x: { type: "spring", stiffness: 300, damping: 30 },
-                  opacity: { duration: 0.2 }
-                }}
-                className="w-full flex justify-center"
-              >
-                {/* 2. Focus Card: Section Container with Progressive Disclosure */}
-                <div className="w-full" data-section={currentSectionInfo.id}>
-                  <SectionCard
-                    title={currentSectionInfo.nombre}
-                    viewMode={viewMode}
-                    onViewModeChange={setViewMode}
-                    redactionPreview={generations[currentSectionInfo.id]}
-                    isExpanded={isSectionExpanded}
-                    onToggleExpand={() => setIsSectionExpanded(!isSectionExpanded)}
-                    hideGlobalToggle={currentSectionInfo.id === 'padecimiento'}
-                  >
-                    {renderCurrentStepContent()}
-                  </SectionCard>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-            </div>
-          </div>
-        </div>
-
-        {/* 3. Command Dock: Bottom Control Center (Absolute, aligned only to the form panel) */}
-        <AppleStyleDock
+      {/* CAPA 1 (fondo): Documento blanco — ocupa toda la pantalla por detrás */}
+      <div className="absolute inset-0 z-0 overflow-y-auto">
+        <DocumentWriterPanel
+          formData={formData}
+          patientData={patientData}
+          generations={generations}
+          seccionesActivas={seccionesActivas}
+          onClose={() => setIsDocumentOpen(false)}
+          isExpanded={isDocumentExpanded}
+          onToggleExpand={() => setIsDocumentExpanded(!isDocumentExpanded)}
           onNext={handleNext}
-          onPrev={handlePrev}
-          onGenerate={handleGenerateCurrent}
-          isGenerating={isGenerating}
           canGoNext={currentStep < seccionesActivas.length - 1}
-          canGoPrev={currentStep > 0}
-          currentStep={currentStep}
-          totalSteps={seccionesActivas.length}
-          stepNames={seccionesActivas.map(s => s.nombre)}
-          onStepClick={handleStepClick}
-          onOpenFormularios={(forceOpen) => setIsDocumentOpen(prev => forceOpen === true ? true : !prev)}
-          position="absolute"
+          width={100}
         />
+      </div>
 
-        {/* Floating Automation Status Overlay */}
-        {isGenerating && progress && (
-          <div className="fixed top-24 right-6 z-50 pointer-events-none">
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-gradient-to-br from-emerald-400 to-emerald-600 text-white px-4 py-2 rounded-xl flex items-center gap-3 shadow-[0_0_18px_rgba(52,211,153,0.55)] border-0 hover:shadow-[0_0_24px_rgba(52,211,153,0.7)] transition-all"
-            >
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold uppercase">Dentaxy AI Running</span>
-                <span className="text-xs text-zinc-600 dark:text-zinc-400">{progress.percentage}% Completado</span>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </motion.div>
-
-
-
-      {/* Botón flotante: Reabrir Documento (aparece cuando el documento está minimizado) */}
-      {!isDocumentOpen && Object.keys(generations).length > 0 && !isMobile && (
+      {/* CAPA 2 (frente): Tarjeta de pregunta centrada encima del documento */}
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="absolute inset-0 z-10 flex items-center justify-center p-6 pointer-events-none"
+      >
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={currentStep}
+            custom={direction}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 }
+            }}
+            className="w-full max-w-[580px] pointer-events-auto"
+          >
+            {/* 
+              Renderizamos los formularios originales pero INVISIBLES.
+              Esto permite que sus hooks internos (useEffect) sigan reaccionando
+              a los cambios de estado (formData) y generen las redacciones automáticamente
+              sin tener que duplicar toda la lógica determinista aquí.
+            */}
+            <div data-section={currentSectionInfo.id} style={{ display: 'none' }}>
+              {renderCurrentStepContent()}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      {/* Botón de Cerrar — siempre encima de todo */}
+      {onClose && (
         <button
-          onClick={() => setIsDocumentOpen(true)}
-          className="absolute top-20 right-6 z-[9990] w-12 h-12 bg-white/20 hover:bg-white/30 dark:bg-black/20 dark:hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-slate-800 dark:text-white transition-all shadow-lg border border-white/30 dark:border-white/10"
-          title="Abrir Documento Automático"
+          onClick={onClose}
+          className="absolute top-6 right-6 z-[9999] w-12 h-12 bg-white/20 hover:bg-white/30 dark:bg-black/20 dark:hover:bg-black/40 backdrop-blur-md rounded-full flex items-center justify-center text-slate-800 dark:text-white transition-all shadow-lg border border-white/30 dark:border-white/10"
+          title="Cerrar Expediente"
         >
-          <ChevronLeft size={24} />
+          <X size={24} />
         </button>
       )}
 
-      {/* Right Panel: Split Document View */}
-      <AnimatePresence>
-        {isDocumentOpen && (
-          <DocumentWriterPanel
-            formData={formData}
-            patientData={patientData}
-            generations={generations}
-            seccionesActivas={seccionesActivas}
-            onClose={() => setIsDocumentOpen(false)}
-            isExpanded={isDocumentExpanded}
-            onToggleExpand={() => setIsDocumentExpanded(!isDocumentExpanded)}
-            onNext={handleNext}
-            canGoNext={currentStep < seccionesActivas.length - 1}
-            width={isMobile ? 100 : docWidth}
-          />
-        )}
-      </AnimatePresence>
+      {/* Floating Automation Status Overlay */}
+      {isGenerating && progress && (
+        <div className="fixed top-24 right-6 z-50 pointer-events-none">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-gradient-to-br from-emerald-400 to-emerald-600 text-white px-4 py-2 rounded-xl flex items-center gap-3 shadow-[0_0_18px_rgba(52,211,153,0.55)] border-0 hover:shadow-[0_0_24px_rgba(52,211,153,0.7)] transition-all"
+          >
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold uppercase">Dentaxy AI Running</span>
+              <span className="text-xs text-zinc-600 dark:text-zinc-400">{progress.percentage}% Completado</span>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
     </div>
   );
 }
+
 
 export default Seed2FormPanel;

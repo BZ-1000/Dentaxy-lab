@@ -141,7 +141,7 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
         "bg-transparent flex flex-col overflow-hidden shrink-0 will-change-[width]",
         isMobile 
           ? "fixed inset-0 z-[9999] bg-white" 
-          : "h-[calc(100%-2rem)] my-4 mr-4 rounded-[2rem] relative z-40"
+          : "h-full w-full rounded-none m-0 relative z-40"
       )}
     >
       <div className={cn("flex flex-col h-full w-full", !isMobile && "min-w-[500px]")}>
@@ -149,7 +149,7 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
         <div
           className={cn(
             "relative flex flex-col h-full mx-auto bg-white font-mplus rounded-3xl shadow-sm border border-zinc-200/50 overflow-hidden",
-            isMobile ? "w-full" : "w-full max-w-[860px]"
+            isMobile ? "w-full" : "w-full lg:max-w-[calc(98vw-716px)] max-w-[860px]"
           )}
           style={{ color: '#0f0f0f' }}
         >
@@ -183,7 +183,7 @@ export const DocumentWriterPanel: React.FC<DocumentWriterPanelProps> = ({
           <div
             id="dentaxy-print-document"
             ref={scrollContainerRef}
-            className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:px-10 md:pt-6 scroll-smooth dentaxy-scrollbar bg-white pb-[120px]"
+            className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:px-10 md:pt-6 scroll-smooth dentaxy-scrollbar bg-white pb-[550px]"
           >
             {/* HEADER DEL DOCUMENTO CLÍNICO */}
             <header className="border-b border-zinc-200 pb-8 mb-10">

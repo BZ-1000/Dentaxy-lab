@@ -1,38 +1,69 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SeedKeyDates from './SeedKeyDates';
-import SeedFolderCard from './SeedFolderCard';
+import SeedChatConsole from './SeedChatConsole';
 import SeedEventList from './SeedEventList';
 
 export default function SeedDashboardLayout({ 
   activePatient,
   isFolderHovered,
   onFolderHoverChange,
-  onOpenFolder
+  onOpenFolder,
+  onOpenAddPatient,
+  isQuestionMode = false,
+  setIsQuestionMode,
+  questionType = null,
+  onConfirmQuestion
 }: { 
   activePatient?: any;
   isFolderHovered?: boolean;
   onFolderHoverChange?: (hovered: boolean) => void;
   onOpenFolder?: (folder: any, rect: DOMRect) => void;
+  onOpenAddPatient?: () => void;
+  isQuestionMode?: boolean;
+  setIsQuestionMode?: (val: boolean) => void;
+  questionType?: 'NEW_PATIENT' | 'INIT_EXPEDIENTE' | null;
+  onConfirmQuestion?: (type: 'NEW_PATIENT' | 'INIT_EXPEDIENTE') => void;
 }) {
+  const [hoverLeft, setHoverLeft] = useState(false);
+  const [hoverRight, setHoverRight] = useState(false);
+
   return (
     <div className="w-full max-w-[98vw] mx-auto px-2 grid grid-cols-1 lg:grid-cols-[340px_1fr_340px] gap-2.5 items-end relative z-20">
       
       {/* Columna Izquierda: Key Dates */}
-      <div className={`h-[330px] transform translate-y-[36px] transition-all duration-500 ${isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
+      <div 
+        onMouseEnter={() => setHoverLeft(true)}
+        onMouseLeave={() => setHoverLeft(false)}
+        className={`h-[340px] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isQuestionMode ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}
+        style={{
+          transform: hoverLeft ? 'translateY(0)' : 'translateY(140px)'
+        }}
+      >
         <SeedKeyDates />
       </div>
 
-      {/* Columna Central: Tarjeta Compliance */}
-      <div className="h-[395px] relative">
-        <SeedFolderCard 
+      {/* Columna Central: Consola de Chat Dentaxy IA */}
+      <div className="h-[340px] flex items-end relative w-full">
+        <SeedChatConsole 
           activePatient={activePatient} 
           onHoverChange={onFolderHoverChange} 
-          onOpenFolder={onOpenFolder}
+          onOpenAddPatient={onOpenAddPatient}
+          isQuestionMode={isQuestionMode}
+          setIsQuestionMode={setIsQuestionMode}
+          questionType={questionType}
+          onConfirmQuestion={onConfirmQuestion}
         />
       </div>
 
       {/* Columna Derecha: Event List */}
-      <div className={`h-[330px] transform translate-y-[36px] transition-all duration-500 ${isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
+      <div 
+        onMouseEnter={() => setHoverRight(true)}
+        onMouseLeave={() => setHoverRight(false)}
+        className={`h-[340px] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isQuestionMode ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}
+        style={{
+          transform: hoverRight ? 'translateY(0)' : 'translateY(140px)'
+        }}
+      >
         <SeedEventList />
       </div>
 

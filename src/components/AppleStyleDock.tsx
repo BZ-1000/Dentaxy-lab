@@ -191,101 +191,82 @@ export function AppleStyleDock({
 
   return (
     <>
-      {/* Dock flotante — z-index máximo para superponerse a todo */}
+      {/* Dock adherido a la base de la card, mismo ancho máximo */}
       <div className={cn(
         position === 'absolute' ? 'absolute' : 'fixed',
-        'bottom-1 sm:bottom-2 left-1/2 max-w-[95vw] sm:max-w-full -translate-x-1/2 z-[100000] px-2 sm:px-0'
+        'bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 z-[100000]',
+        'w-full max-w-[min(600px,calc(100vw-32px))]',
+        'px-0'
       )}>
-        <Dock
-          className={cn(
-            'items-end pb-2 sm:pb-3 pt-2 sm:pt-3 px-3 flex bg-white/90 dark:bg-zinc-950/90 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.1)] rounded-2xl overflow-visible',
-            isVisible ? 'w-auto' : 'w-fit'
-          )}
-          distance={140}
-          magnification={60}
-          panelHeight={48}
-        >
-          {/* Botones estáticos */}
-          {data.map((item, idx) => (
-            <DockItem
-              key={idx}
-              onClick={() => handleItemClick(item.title)}
-              className='aspect-square rounded-full cursor-pointer bg-white dark:bg-zinc-800 shadow-sm'
-            >
-              <DockLabel>{item.title}</DockLabel>
-              <DockIcon>{item.icon}</DockIcon>
-            </DockItem>
-          ))}
+        <div className="flex items-stretch bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-2xl border border-zinc-200/70 dark:border-zinc-800/70 overflow-hidden">
 
-          {/* Progress Indicator (Global Form Progress) */}
-          <div 
+          {/* Textarea libre estilo Dex — ocupa todo el espacio disponible */}
+          <div className="flex-1 flex items-center px-3.5 py-2.5">
+            <textarea
+              rows={1}
+              placeholder="Escribe una nota o instrucción para Dex..."
+              className="w-full resize-none bg-transparent border-none outline-none text-[12.5px] text-zinc-700 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-600 leading-snug overflow-hidden"
+              style={{ minHeight: '28px', maxHeight: '80px' }}
+              onInput={(e) => {
+                const el = e.currentTarget;
+                el.style.height = 'auto';
+                el.style.height = Math.min(el.scrollHeight, 80) + 'px';
+              }}
+            />
+          </div>
+
+          {/* Separador */}
+          <div className="w-px bg-zinc-200 dark:bg-zinc-800 my-2" />
+
+          {/* Indicador de pasos — clickeable para ver lista */}
+          <div
             onClick={() => setShowStepsDialog(true)}
-            className="flex flex-col justify-center items-center px-4 mx-2 border-l border-r border-zinc-200 dark:border-zinc-800 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors py-1 rounded-md"
+            className="flex flex-col justify-center items-center px-3 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
           >
-            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-1">Paso {currentStep + 1} de {totalSteps}</span>
-            <div className="w-24 h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-emerald-500 rounded-full transition-all duration-500" 
+            <span className="text-[9.5px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
+              Paso {currentStep + 1} de {totalSteps}
+            </span>
+            <div className="w-14 h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden mt-0.5">
+              <div
+                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
                 style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
               />
             </div>
           </div>
 
-          {/* Botón Atrás — solo si existe navegación */}
+          {/* Botón Atrás */}
           {onPrev && canGoPrev && (
-            <DockItem
+            <button
               onClick={onPrev}
-              className='aspect-square rounded-full bg-white dark:bg-zinc-800 shadow-sm cursor-pointer'
+              className="flex items-center justify-center w-10 h-full hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors border-l border-zinc-200 dark:border-zinc-800"
             >
-              <DockLabel>Atrás</DockLabel>
-              <DockIcon>
-                <ArrowLeft className='h-full w-full text-zinc-900 dark:text-zinc-100' />
-              </DockIcon>
-            </DockItem>
+              <ArrowLeft size={15} className="text-zinc-600 dark:text-zinc-300" />
+            </button>
           )}
 
-          {/* Botón Siguiente — verde esmeralda vibrante */}
+          {/* Botón Siguiente — verde esmeralda */}
           {onNext && canGoNext && (
-            <DockItem
+            <button
               onClick={() => {
                 if (onGenerate) onGenerate();
                 onNext();
                 if (!isMobile && onOpenFormularios) onOpenFormularios(true);
-                
                 setRedaccionesState('loading');
                 setTimeout(() => {
                   setRedaccionesState('success');
-                  setTimeout(() => {
-                    setRedaccionesState('idle');
-                  }, 2000);
+                  setTimeout(() => setRedaccionesState('idle'), 2000);
                 }, 5000);
               }}
-              className='aspect-square rounded-full bg-[#10b981] hover:bg-[#059669] shadow-[0_0_15px_rgba(16,185,129,0.4)] cursor-pointer'
+              className="flex items-center justify-center w-10 h-full rounded-r-2xl bg-[#0ecf8e] hover:bg-[#25dba0] transition-colors border-l border-[#0ecf8e]/20"
             >
-              <DockLabel>Siguiente</DockLabel>
-              <DockIcon>
-                {isGenerating ? (
-                  <Loader2 className='h-full w-full text-white animate-spin' />
-                ) : (
-                  <ArrowRight className='h-full w-full text-white' />
-                )}
-              </DockIcon>
-            </DockItem>
+              {isGenerating ? (
+                <Loader2 size={15} className="text-white animate-spin" />
+              ) : (
+                <ArrowRight size={15} className="text-white" />
+              )}
+            </button>
           )}
-
-          {/* Scroll-to-name: aparece dinámicamente al hacer scroll */}
-          {isVisible && (
-            <DockItem
-              onClick={scrollToName}
-              className='aspect-square rounded-full bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-lg cursor-pointer slide-in'
-            >
-              <DockLabel>Scroll to Name</DockLabel>
-              <DockIcon>
-                <Save className='h-full w-full text-zinc-900' />
-              </DockIcon>
-            </DockItem>
-          )}
-        </Dock>
+        </div>
       </div>
 
       <FloatingChatInput

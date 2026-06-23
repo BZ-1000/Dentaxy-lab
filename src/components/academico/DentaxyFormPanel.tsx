@@ -479,16 +479,6 @@ export const DentaxyFormPanel: React.FC<DentaxyFormPanelProps> = ({
           </div>
         </div>
 
-        {/* 3. Command Dock: Bottom Control Center */}
-        <AppleStyleDock
-          onNext={handleNext}
-          onPrev={handlePrev}
-          onGenerate={handleGenerateCurrent}
-          isGenerating={isGenerating}
-          canGoNext={currentStep < seccionesActivas.length - 1}
-          canGoPrev={currentStep > 0}
-          onOpenFormularios={(forceOpen) => setIsDocumentOpen(prev => forceOpen === true ? true : !prev)}
-        />
 
         {/* Floating Automation Status Overlay */}
         {isGenerating && progress && (

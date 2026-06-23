@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { ArrowUpRight, FolderOpen } from 'lucide-react';
+import { ArrowUpRight, FolderOpen, Plus } from 'lucide-react';
 
 interface SeedCarouselProps {
   onOpenFolder?: (folder: any, rect: DOMRect) => void;
@@ -136,6 +136,15 @@ export default function SeedCarousel({ onOpenFolder, onOpenAddPatient, onActiveP
           transformStyle: 'preserve-3d',
         }}
       >
+        {/* Botón 3D de Nuevo Expediente en el fondo (Solo Icono Circular) */}
+        <button
+          onClick={onOpenAddPatient}
+          className="seed-3d-add-button group"
+          title="Nuevo Expediente"
+        >
+          <Plus size={20} className="transition-colors" />
+        </button>
+
         {cardsToRender.map((card, index) => {
           const isEmptyCard = card.id === 999;
           const logicalPosition = isEmptyCard ? 0 : (index === 0 ? 0 : (index % 2 !== 0 ? Math.ceil(index/2) : -Math.ceil(index/2)));

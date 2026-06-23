@@ -46,7 +46,7 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
     };
   }, []);
   return (
-    <nav className="w-full h-20 px-6 flex items-center justify-between relative z-50">
+    <nav className="w-full h-20 px-6 flex items-center justify-between relative z-30">
       
       {/* ── Izquierda: Logo y Buscador ── */}
       <div className="flex items-center gap-4">

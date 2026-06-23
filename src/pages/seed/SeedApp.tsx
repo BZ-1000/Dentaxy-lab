@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './SeedDashboard.css';
 
 import SeedTopNav from './components/SeedTopNav';
-import SeedActionBar from './components/SeedActionBar';
 import SeedCarousel from './components/SeedCarousel';
 import SeedDashboardLayout from './components/SeedDashboardLayout';
 import SeedFolderModal from './components/SeedFolderModal';
@@ -22,6 +21,19 @@ export default function SeedApp() {
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
   const [activePatient, setActivePatient] = useState<any>(null);
   const [isFolderHovered, setIsFolderHovered] = useState(false);
+
+  // Estados de Modo Pregunta en Dex
+  const [isQuestionMode, setIsQuestionMode] = useState(false);
+  const [questionType, setQuestionType] = useState<'NEW_PATIENT' | 'INIT_EXPEDIENTE' | null>(null);
+
+  const handleConfirmQuestion = (type: 'NEW_PATIENT' | 'INIT_EXPEDIENTE') => {
+    if (type === 'NEW_PATIENT') {
+      setIsAddPatientOpen(true);
+    } else if (type === 'INIT_EXPEDIENTE') {
+      setSeed2PatientData(activePatient);
+      setIsSeed2Open(true);
+    }
+  };
 
   // Seed 2 Popup State
   const [isSeed2Open, setIsSeed2Open] = useState(false);
@@ -192,24 +204,36 @@ export default function SeedApp() {
     );
   }
 
+  const handleOpenFolder = (folder: any) => {
+    setActivePatient(folder);
+    setQuestionType('INIT_EXPEDIENTE');
+    setIsQuestionMode(true);
+  };
+
+  const handleOpenAddPatient = () => {
+    setQuestionType('NEW_PATIENT');
+    setIsQuestionMode(true);
+  };
+
   return (
-    <div className={`seed-dashboard flex flex-col h-screen overflow-hidden ${theme === 'dark' ? 'dark' : 'light-theme'}`}>
+    <div className={`seed-dashboard flex flex-col h-screen overflow-hidden relative ${theme === 'dark' ? 'dark' : 'light-theme'}`}>
       
+      {/* Overlay de Desenfoque Global */}
+      {isQuestionMode && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/10 dark:bg-black/20 backdrop-blur-sm transition-all duration-500 animate-in fade-in"
+          onClick={() => setIsQuestionMode(false)}
+        />
+      )}
+
       {/* Navegación Superior */}
-      <div className={`transition-all duration-500 ${isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
+      <div className={`transition-all duration-500 ${(isQuestionMode || isSeed2Open) ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
         <SeedTopNav theme={theme} toggleTheme={toggleTheme} />
       </div>
       
-      {/* Barra de Filtros */}
-      <div className={`transition-all duration-500 ${isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
-        <SeedActionBar 
-          onNavigate={handleNavigation} 
-          currentView={currentView === 'CAROUSEL' ? 'CAROUSEL' : 'PATIENTS_LIST'} 
-        />
-      </div>
-      
+
       {/* Contenido Principal sin Scroll */}
-      <div className="flex-1 overflow-hidden relative flex flex-col justify-between">
+      <div className="flex-1 overflow-hidden relative flex flex-col justify-center pb-48">
          
          {/* Brillo de fondo central superior */}
          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] seed-glow-orb-top blur-[120px] rounded-[100%] pointer-events-none z-0"></div>
@@ -225,7 +249,7 @@ export default function SeedApp() {
          ></div>
          
          {/* Área Central (Carrusel / Directorio) */}
-         <div className={`flex-1 flex items-center justify-center min-h-[320px] max-h-[380px] mt-2 relative w-full px-16 transition-all duration-500 ${isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
+          <div className={`flex items-center justify-center min-h-[320px] max-h-[380px] relative w-full px-16 transition-all duration-500 ${(isQuestionMode || isSeed2Open) ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
             
             {/* Flechas de Navegación Globales */}
             <button 
@@ -244,8 +268,8 @@ export default function SeedApp() {
             {/* Contenido Dinámico */}
             {currentView === 'CAROUSEL' ? (
               <SeedCarousel 
-                onOpenFolder={(folder, rect) => setOpenedFolder({ folder, rect })} 
-                onOpenAddPatient={() => setIsAddPatientOpen(true)}
+                onOpenFolder={(folder, rect) => handleOpenFolder(folder)} 
+                onOpenAddPatient={handleOpenAddPatient}
                 onActivePatientChange={setActivePatient}
               />
             ) : (
@@ -254,32 +278,24 @@ export default function SeedApp() {
 
          </div>
          
-         {/* Grid Inferior (Key Dates, Compliance, Event) */}
-         <div className="pb-6 relative z-50">
-           <SeedDashboardLayout 
-             activePatient={activePatient} 
-             isFolderHovered={isFolderHovered}
-             onFolderHoverChange={setIsFolderHovered}
-             onOpenFolder={(folder, rect) => setOpenedFolder({ folder, rect })}
-           />
-         </div>
+          {/* Grid Inferior (Key Dates, Compliance, Event) */}
+          <div className="fixed bottom-0 left-0 right-0 z-50">
+            <SeedDashboardLayout 
+              activePatient={activePatient} 
+              isFolderHovered={false}
+              onFolderHoverChange={() => {}}
+              onOpenFolder={(folder, rect) => handleOpenFolder(folder)}
+              onOpenAddPatient={handleOpenAddPatient}
+              isQuestionMode={isQuestionMode || isSeed2Open}
+              setIsQuestionMode={setIsQuestionMode}
+              questionType={questionType}
+              onConfirmQuestion={handleConfirmQuestion}
+            />
+          </div>
          
       </div>
 
-      {/* Modal de Vista Detallada de Carpeta */}
-      {openedFolder && (
-        <SeedFolderModal 
-          folder={openedFolder.folder} 
-          originRect={openedFolder.rect}
-          onClose={() => setOpenedFolder(null)} 
-          activePatient={activePatient}
-          onOpenSeed2={(patient) => {
-            setSeed2PatientData(patient);
-            setIsSeed2Open(true);
-            setOpenedFolder(null);
-          }}
-        />
-      )}
+
 
       {/* Popup de Registro de Pacientes */}
       <SeedAddPatientModal 
@@ -295,9 +311,9 @@ export default function SeedApp() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-md p-4 sm:p-8"
+            className="absolute inset-0 z-[48] flex items-start justify-center bg-black/10 dark:bg-black/30 backdrop-blur-[2px] pt-0"
           >
-            <div className="w-full h-full max-w-[1500px] rounded-[2.5rem] overflow-hidden relative">
+            <div className="w-full h-full relative">
                <Seed2Phase 
                  patientData={seed2PatientData} 
                  onClose={() => setIsSeed2Open(false)} 
