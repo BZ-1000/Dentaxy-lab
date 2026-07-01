@@ -1,6 +1,89 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Mic, ChevronDown, Sparkles, Send, Check, X } from 'lucide-react';
+import { Plus, Mic, ChevronDown, Sparkles, Send, Check, X, ArrowUpRight, User, Phone, Scan, RefreshCw } from 'lucide-react';
 import { useCliStore } from '@/stores/useCliStore';
+import { motion } from 'framer-motion';
+
+interface FutureButtonConsoleProps {
+  onClick?: () => void;
+  className?: string;
+  label?: string;
+}
+
+const FutureButtonConsole = ({ onClick, className = "", label = "CREAR EXPEDIENTE" }: FutureButtonConsoleProps) => {
+  // Dimensiones del contenedor y botón
+  const buttonDimensions = "h-10 w-full";
+
+  // Variantes del círculo negro (del mismo alto del botón: 40px)
+  const bgVariants = {
+    rest: { width: 40, height: 40, left: 0, top: 0 },
+    hover: { width: "100%", height: "100%", left: 0, top: 0 }
+  };
+
+  // Variantes de la flecha (desplazamiento exacto en hover)
+  const arrowVariants = {
+    rest: { x: 0, rotate: 0 },
+    hover: { x: "calc(100% - 40px)", rotate: 45 }
+  };
+
+  // Variantes del texto (desplazamiento para dejar espacio a la flecha en hover)
+  const textVariants = {
+    rest: { x: 10 },
+    hover: { x: -22 }
+  };
+
+  return (
+    <div className={`relative group shrink-0 ${buttonDimensions} ${className}`}>
+      {/* ── LUZ DE NEÓN PROYECTADA EXCLUSIVAMENTE HACIA ABAJO ── */}
+      <div 
+        className="absolute bottom-[-5px] left-1/2 -translate-x-1/2 w-[82%] h-2.5 bg-[#00f5a0] rounded-full blur-[10px] opacity-65 group-hover:opacity-90 transition-all duration-300 -z-10 group-hover:scale-x-105"
+        style={{
+          boxShadow: "0 8px 20px rgba(0, 245, 160, 0.45), 0 12px 30px rgba(0, 245, 160, 0.25)"
+        }}
+      />
+
+      {/* Botón interactivo principal */}
+      <motion.button 
+        type="button"
+        onClick={onClick}
+        initial="rest"
+        whileHover="hover"
+        animate="rest"
+        className="relative w-full h-full flex items-center bg-[#00f5a0] rounded-full overflow-hidden select-none cursor-pointer border-none outline-none p-0 transition-shadow duration-300"
+        style={{
+          boxShadow: "0 4px 14px rgba(0, 245, 160, 0.35)"
+        }}
+      >
+        {/* Fondo negro expandible que en hover cubre todo el botón verde */}
+        <motion.div 
+          variants={bgVariants}
+          transition={{ type: "spring", stiffness: 220, damping: 24 }}
+          className="absolute bg-black rounded-full z-0 flex items-center justify-start p-0"
+        >
+          {/* Flecha dentro del contenedor negro */}
+          <motion.div
+            variants={arrowVariants}
+            transition={{ type: "spring", stiffness: 220, damping: 24 }}
+            className="flex items-center justify-center text-white shrink-0 w-10 h-10"
+          >
+            <ArrowUpRight className="w-[24px] h-[24px]" strokeWidth={2} />
+          </motion.div>
+        </motion.div>
+
+        {/* Texto (z-10 para quedar sobre el fondo negro cuando se expande) */}
+        <div className="relative z-10 flex items-center justify-center w-full h-full pointer-events-none pr-1">
+          <motion.span 
+            variants={textVariants}
+            transition={{ type: "spring", stiffness: 220, damping: 24 }}
+            className="text-black group-hover:text-white transition-colors duration-300 font-black tracking-[0.18em] uppercase text-[9.5px]"
+            style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
+          >
+            {label}
+          </motion.span>
+        </div>
+      </motion.button>
+    </div>
+  );
+};
 
 interface SeedChatConsoleProps {
   activePatient: any;
@@ -41,6 +124,104 @@ export default function SeedChatConsole({
   const [isConsoleHovered, setIsConsoleHovered] = useState(false);
 
   const [selectedOption, setSelectedOption] = useState<1 | 2>(1);
+
+  // Estados locales para el registro de paciente en consola
+  const [newPatientName, setNewPatientName] = useState('');
+  const [newPatientPhone, setNewPatientPhone] = useState('');
+  const [isSubmittingLocal, setIsSubmittingLocal] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Obtener información real de Google Drive para la telemetría HUD
+  const seedUserStr = sessionStorage.getItem('seed_user');
+  const seedUser = seedUserStr ? JSON.parse(seedUserStr) : null;
+  const hasGoogleDrive = !!seedUser?.googleAccessToken;
+  const driveEmail = seedUser?.email || "doctor@dentaxy.com";
+
+  useEffect(() => {
+    if (!isQuestionMode || questionType !== 'NEW_PATIENT') return;
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, [isQuestionMode, questionType]);
+
+  const handleCreatePatientLocal = async () => {
+    if (!newPatientName.trim()) return;
+    setIsSubmittingLocal(true);
+
+    try {
+      const accessToken = seedUser?.googleAccessToken;
+      if (!accessToken) throw new Error("No hay conexión de Google Drive");
+
+      // 1. Buscar la carpeta raíz 'Dentaxy'
+      const query = encodeURIComponent("name = 'Dentaxy' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
+      const searchRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${query}&fields=files(id)`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const searchData = await searchRes.json();
+      
+      let parentId = null;
+      if (searchData.files && searchData.files.length > 0) {
+        parentId = searchData.files[0].id;
+      } else {
+        // Crear carpeta Dentaxy
+        const createRootRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: 'Dentaxy',
+            mimeType: 'application/vnd.google-apps.folder'
+          })
+        });
+        const rootData = await createRootRes.json();
+        parentId = rootData.id;
+      }
+
+      // 2. Crear subcarpeta del paciente con formato en Mayúsculas
+      const folderName = newPatientName.trim().toUpperCase();
+      const createFolderRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          name: folderName,
+          mimeType: 'application/vnd.google-apps.folder',
+          parents: [parentId],
+          properties: {
+            phone: newPatientPhone.trim() || 'Sin teléfono'
+          }
+        })
+      });
+
+      if (!createFolderRes.ok) throw new Error("Error al crear carpeta de paciente en Drive");
+
+      // Notificar éxito al carrusel y sistema local
+      window.dispatchEvent(new Event('patientCreated'));
+      window.dispatchEvent(new CustomEvent('createNewPatientLocal', {
+        detail: {
+          name: folderName,
+          edad: '30',
+          genero: 'Masculino',
+          telefono: newPatientPhone.trim() || 'Sin teléfono',
+          motivo: 'Valoración inicial',
+          alergias: 'Ninguna',
+          estatus: 'Primera Cita'
+        }
+      }));
+
+      setIsQuestionMode?.(false);
+      setNewPatientName('');
+      setNewPatientPhone('');
+    } catch (err: any) {
+      console.error(err);
+      alert("Error al sincronizar con Google Drive: " + err.message);
+    } finally {
+      setIsSubmittingLocal(false);
+    }
+  };
 
   // Resetear la opción seleccionada al entrar en modo pregunta
   useEffect(() => {
@@ -236,7 +417,13 @@ export default function SeedChatConsole({
   const showExpanded = isConsoleHovered || isFocused || isQuestionMode;
 
   // Variables de diseño dinámicas del contenedor único
-  const containerHeight = isQuestionMode ? '230px' : showExpanded ? '280px' : '112px';
+  const containerHeight = (isQuestionMode && questionType === 'NEW_PATIENT') 
+    ? '335px' 
+    : isQuestionMode 
+      ? '230px' 
+      : showExpanded 
+        ? '280px' 
+        : '112px';
   const containerRadius = '20px';
   const containerShadow = showExpanded ? 'var(--seed-card-shadow), inset 0 1px 0 var(--seed-card-border)' : '0 8px 24px -4px rgba(0, 0, 0, 0.4)';
 
@@ -244,9 +431,9 @@ export default function SeedChatConsole({
   const renderHeader = () => {
     if (isQuestionMode) {
       return (
-        <div className="flex items-center justify-between w-full h-6 px-[18px] pb-1 border-b border-[var(--seed-row-border)]/20 mb-0.5 animate-in fade-in duration-300">
-          <div className="flex items-center gap-2 text-[9.5px] font-bold text-[var(--seed-text-muted)] tracking-wider uppercase">
-            <span>Confirmación</span>
+        <div className="flex items-center justify-between w-full h-8 px-[18px] pb-1 border-b border-[var(--seed-row-border)]/20 mb-0.5 animate-in fade-in duration-300">
+          <div className="flex items-center gap-2 text-[12px] font-black text-slate-800 dark:text-zinc-200 tracking-[0.18em] uppercase font-['Bruno_Ace_SC',_sans-serif]">
+            <span>{questionType === 'NEW_PATIENT' ? 'Registrar Nuevo Paciente' : 'Confirmación'}</span>
           </div>
           <ChevronDown 
             size={13} 
@@ -409,18 +596,99 @@ export default function SeedChatConsole({
         }`}
       >
         {effectiveIsQuestionMode ? (
-          <div className="flex-1 flex flex-col justify-start items-start animate-in fade-in duration-300 px-1 pt-1 pb-0 w-full overflow-hidden">
-            {/* Título de la pregunta */}
-            <div className="text-[19px] sm:text-[20px] font-medium text-slate-700 dark:text-[var(--seed-text-main)] mb-1.5 w-full leading-snug tracking-tight animate-in fade-in duration-300">
-              {isExpedienteMode && currentQuestion ? currentQuestion.text :
-                questionType === 'NEW_PATIENT' 
-                  ? '¿Deseas registrar un nuevo paciente?' 
-                  : `¿Deseas iniciar el expediente clínico de ${name}?`
-              }
-            </div>
+          questionType === 'NEW_PATIENT' ? (
+            <div className="flex-1 flex flex-col justify-center items-center w-full gap-5 py-2 animate-in fade-in duration-300 relative select-none">
+              
+              {/* Visor superior HUD de fecha/hora (Reloj de Gran Formato con Traza SVG Asimétrica) */}
+              <div className="w-full flex flex-col items-center relative select-none">
+                {/* Reloj de Gran Formato */}
+                <div className="flex flex-col items-center justify-center gap-0.5 mt-[-6px] mb-1">
+                  <span className="text-[5.5px] tracking-[0.35em] font-mono text-slate-400 dark:text-zinc-500 uppercase font-black">
+                    TELEMETRY_CLOCK_RECORD
+                  </span>
+                  <div className="text-[24px] sm:text-[26px] font-black tracking-[0.2em] text-slate-800 dark:text-zinc-100 flex items-center justify-center font-['JetBrains_Mono',_monospace] leading-none">
+                    {currentTime.toLocaleTimeString('es-MX', { hour12: false })}
+                  </div>
+                  <span className="text-[7.5px] tracking-[0.2em] font-bold text-slate-500 dark:text-zinc-400 font-mono mt-0.5">
+                    {currentTime.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase()}
+                  </span>
+                </div>
 
-            {/* Lista de Opciones */}
-            <div className="flex flex-col gap-1.5 w-full">
+                {/* Traza SVG Asimétrica Continua Tenue Superior */}
+                <svg className="w-full h-3 text-slate-300 dark:text-zinc-800 opacity-60 dark:opacity-40" viewBox="0 0 400 12" fill="none" preserveAspectRatio="none">
+                  <path d="M0 6 H160 L170 1 H230 L240 6 H400" stroke="currentColor" strokeWidth="1.2" />
+                  <circle cx="170" cy="1" r="1.5" className="fill-slate-400 dark:fill-zinc-650" />
+                  <circle cx="230" cy="1" r="1.5" className="fill-slate-400 dark:fill-zinc-650" />
+                </svg>
+              </div>
+
+              {/* Formulario de Inputs tridimensionales con relieve neumórfico */}
+              <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                {/* Input 1: Nombre Completo */}
+                <div className="flex flex-col gap-1 w-full text-left">
+                  <div className="flex items-center gap-1.5 font-mono text-[7px] tracking-widest text-slate-500 dark:text-zinc-400 select-none font-bold">
+                    <User size={9} className="text-slate-400 dark:text-zinc-500" />
+                    <span>NOMBRE COMPLETO</span>
+                  </div>
+                  <div className="relative group">
+                    <input 
+                      type="text" 
+                      value={newPatientName}
+                      onChange={(e) => setNewPatientName(e.target.value)}
+                      className="w-full h-10 px-4 bg-slate-100/50 dark:bg-zinc-950/40 border border-slate-300/60 dark:border-zinc-800/80 rounded-full text-slate-900 dark:text-white text-xs focus:outline-none focus:border-slate-500 dark:focus:border-zinc-600 focus:bg-white dark:focus:bg-zinc-900/40 focus:ring-1 focus:ring-slate-500/10 dark:focus:ring-zinc-600/10 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-500 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),_1px_1px_0px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.7),_1px_1px_1px_rgba(255,255,255,0.05)]" 
+                      placeholder="Nombre del paciente"
+                      autoFocus 
+                    />
+                  </div>
+                </div>
+
+                {/* Input 2: Teléfono */}
+                <div className="flex flex-col gap-1 w-full text-left">
+                  <div className="flex items-center gap-1.5 font-mono text-[7px] tracking-widest text-slate-500 dark:text-zinc-400 select-none font-bold">
+                    <Phone size={9} className="text-slate-400 dark:text-zinc-500" />
+                    <span>TELÉFONO CELULAR</span>
+                  </div>
+                  <div className="relative group">
+                    <input 
+                      type="tel" 
+                      value={newPatientPhone}
+                      onChange={(e) => setNewPatientPhone(e.target.value)}
+                      className="w-full h-10 px-4 bg-slate-100/50 dark:bg-zinc-950/40 border border-slate-300/60 dark:border-zinc-800/80 rounded-full text-slate-900 dark:text-white text-xs focus:outline-none focus:border-slate-500 dark:focus:border-zinc-600 focus:bg-white dark:focus:bg-zinc-900/40 focus:ring-1 focus:ring-slate-500/10 dark:focus:ring-zinc-600/10 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-500 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),_1px_1px_0px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.7),_1px_1px_1px_rgba(255,255,255,0.05)]" 
+                      placeholder="Número de celular" 
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Base HUD de Diagnóstico del Almacenamiento (Con Traza SVG Asimétrica Inferior) */}
+              <div className="w-full mt-1 flex flex-col items-center">
+                {/* Traza SVG Asimétrica de base */}
+                <svg className="w-full h-3 text-slate-300 dark:text-zinc-800 opacity-60 dark:opacity-40" viewBox="0 0 400 12" fill="none" preserveAspectRatio="none">
+                  <path d="M0 6 H160 L170 11 H230 L240 1 H400" stroke="currentColor" strokeWidth="1.2" />
+                  <circle cx="170" cy="11" r="1.5" className="fill-slate-400 dark:fill-zinc-650" />
+                  <circle cx="230" cy="11" r="1.5" className="fill-slate-400 dark:fill-zinc-650" />
+                </svg>
+                
+                {/* Metadatos funcionales discretos con opacidad y contraste reducidos para hacer juego con las trazas */}
+                <div className="w-full flex items-center justify-between font-mono text-[6px] sm:text-[6.5px] tracking-[0.22em] text-slate-400/50 dark:text-zinc-500/60 select-none px-1 mt-1 font-semibold">
+                  <span>ROOT_PATH: GOOGLE_DRIVE://DENTAXY</span>
+                  <span className="flex items-center gap-1"><span className={`w-1 h-1 rounded-full ${hasGoogleDrive ? 'bg-[#00c980]/50 dark:bg-[#00f5a0]/60' : 'bg-red-500/50'}`} />PROVIDER: {driveEmail.toUpperCase()}</span>
+                </div>
+              </div>
+
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col justify-start items-start animate-in fade-in duration-300 px-1 pt-1 pb-0 w-full overflow-hidden">
+{/* Título de la pregunta */}
+              <div className="text-[19px] sm:text-[20px] font-medium text-slate-700 dark:text-[var(--seed-text-main)] mb-1.5 w-full leading-snug tracking-tight animate-in fade-in duration-300">
+                {isExpedienteMode && currentQuestion ? currentQuestion.text :
+                  `¿Deseas iniciar el expediente clínico de ${name}?`
+                }
+              </div>
+
+              {/* Lista de Opciones */}
+              <div className="flex flex-col gap-1.5 w-full">
               {isExpedienteMode && currentQuestion?.type === 'options' ? (
                 currentQuestion.options?.map((opt, idx) => (
                   <div 
@@ -498,6 +766,7 @@ export default function SeedChatConsole({
               )}
             </div>
           </div>
+          )
         ) : isAnalyzing ? (
           <div className="flex-1 px-1 py-3 flex flex-col gap-2 animate-pulse">
             <div className="flex items-center gap-2 text-[12px] text-[var(--seed-text-light)] pl-0.5 mt-0.5">
@@ -541,77 +810,156 @@ export default function SeedChatConsole({
         }}
       >
         {effectiveIsQuestionMode ? (
-          <>
-            {isExpedienteMode && currentQuestion?.type === 'text' && (
-              <input 
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    submitAnswer?.(inputText.trim());
-                    setInputText('');
-                  }
+          questionType === 'NEW_PATIENT' ? (
+            <div className="flex items-center justify-between py-1.5 px-1 w-full animate-in fade-in duration-300 gap-4">
+              {/* Botón CANCELAR con textura tridimensional */}
+              <button 
+                type="button"
+                onClick={() => {
+                  setIsQuestionMode?.(false);
+                  setNewPatientName('');
+                  setNewPatientPhone('');
                 }}
-                placeholder={currentQuestion.placeholder || "Escribe tu respuesta..."}
-                className="w-full !bg-transparent !border-none !outline-none !shadow-none !backdrop-blur-none !rounded-none focus:!scale-100 focus:!ring-0 text-[12.5px] px-1.5 py-0.5 text-[var(--seed-text-main)] placeholder-[var(--seed-text-muted)]/50"
-                autoFocus
-              />
-            )}
+                className="flex-1 h-[40px] rounded-full border border-slate-300 dark:border-zinc-800 bg-slate-100/80 dark:bg-zinc-900/80 text-slate-700 dark:text-zinc-300 text-[10px] font-black tracking-[0.18em] uppercase hover:bg-slate-200/80 dark:hover:bg-zinc-800/80 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center font-['Bruno_Ace_SC',_sans-serif] shadow-[1px_1px_2px_rgba(0,0,0,0.05),_inset_0_1px_1px_rgba(255,255,255,0.9)] dark:shadow-[1px_1px_2px_rgba(255,255,255,0.05),_inset_0_1px_1px_rgba(255,255,255,0.1)] active:scale-98"
+                style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
+              >
+                Cancelar
+              </button>
 
-            {/* Fila de controles inferior estilo Antigravity dialog */}
-            <div className={"flex items-center justify-between py-1 px-1 w-full animate-in fade-in duration-300 " + (isExpedienteMode && currentQuestion?.type === 'text' ? "border-t border-[var(--seed-row-border)]/40 pt-2" : "")}>
-              <div className="flex items-center gap-2">
-                {/* dex-confirmar eliminado */}
+              {/* Barra central de Micro-acciones Clínicas */}
+              <div className="flex items-center gap-2 select-none shrink-0">
+                {/* Acción 1: Dictado de Voz Clínico */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    alert("Iniciando dictado de voz clínico para expediente... Hable ahora.");
+                  }}
+                  title="Dictar expediente por voz"
+                  className="w-[34px] h-[34px] rounded-full flex items-center justify-center bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md border border-slate-300/50 dark:border-zinc-850/60 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:border-[#00c980] dark:hover:border-[#00f5a0] hover:ring-1 hover:ring-[#00c980]/20 dark:hover:ring-[#00f5a0]/20 hover:shadow-[0_0_8px_rgba(0,245,160,0.2)] dark:hover:shadow-[0_0_10px_rgba(0,245,160,0.25)] transition-all cursor-pointer active:scale-90"
+                >
+                  <Mic size={14} className="stroke-[2.2]" />
+                </button>
+
+                {/* Acción 2: Autocompletar con Datos Demo */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewPatientName("CARLOS EDUARDO HERNÁNDEZ");
+                    setNewPatientPhone("4921234567");
+                  }}
+                  title="Autocompletar con datos demo"
+                  className="w-[34px] h-[34px] rounded-full flex items-center justify-center bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md border border-slate-300/50 dark:border-zinc-850/60 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:border-[#00c980] dark:hover:border-[#00f5a0] hover:ring-1 hover:ring-[#00c980]/20 dark:hover:ring-[#00f5a0]/20 hover:shadow-[0_0_8px_rgba(0,245,160,0.2)] dark:hover:shadow-[0_0_10px_rgba(0,245,160,0.25)] transition-all cursor-pointer active:scale-90"
+                >
+                  <Sparkles size={14} className="stroke-[2.2]" />
+                </button>
+
+                {/* Acción 3: Escanear INE / Identificación con Cámara */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    alert("Activando cámara para escaneo de identificación del paciente...");
+                  }}
+                  title="Escanear identificación física"
+                  className="w-[34px] h-[34px] rounded-full flex items-center justify-center bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md border border-slate-300/50 dark:border-zinc-850/60 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:border-[#00c980] dark:hover:border-[#00f5a0] hover:ring-1 hover:ring-[#00c980]/20 dark:hover:ring-[#00f5a0]/20 hover:shadow-[0_0_8px_rgba(0,245,160,0.2)] dark:hover:shadow-[0_0_10px_rgba(0,245,160,0.25)] transition-all cursor-pointer active:scale-90"
+                >
+                  <Scan size={14} className="stroke-[2.2]" />
+                </button>
+
+                {/* Acción 4: Limpiar campos del formulario */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNewPatientName("");
+                    setNewPatientPhone("");
+                  }}
+                  title="Restablecer formulario"
+                  className="w-[34px] h-[34px] rounded-full flex items-center justify-center bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md border border-slate-300/50 dark:border-zinc-850/60 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:border-[#00c980] dark:hover:border-[#00f5a0] hover:ring-1 hover:ring-[#00c980]/20 dark:hover:ring-[#00f5a0]/20 hover:shadow-[0_0_8px_rgba(0,245,160,0.2)] dark:hover:shadow-[0_0_10px_rgba(0,245,160,0.25)] transition-all cursor-pointer active:scale-90"
+                >
+                  <RefreshCw size={14} className="stroke-[2.2]" />
+                </button>
               </div>
 
-              <div className="flex items-center gap-3">
-                {/* Botón Skip */}
-                <button 
-                  type="button"
-                  onClick={() => {
-                    if (isExpedienteMode) {
-                      submitAnswer?.('');
-                      setInputText('');
-                    } else {
-                      setIsQuestionMode?.(false);
-                    }
-                  }}
-                  className="text-[var(--seed-text-muted)] hover:text-[var(--seed-text-main)] text-[11px] font-semibold px-2 py-1 cursor-pointer transition-all"
-                >
-                  Omitir
-                </button>
-
-                {/* Botón Submit ↵ */}
-                <button 
-                  type="button"
-                  onClick={() => {
-                    if (isExpedienteMode) {
-                      if (currentQuestion?.type === 'options') {
-                        if (currentQuestion.options && selectedOption > 0 && selectedOption <= currentQuestion.options.length) {
-                          submitAnswer?.(currentQuestion.options[selectedOption - 1].id);
-                          setSelectedOption(1); // reset selection
-                        }
-                      } else if (currentQuestion?.type === 'text') {
-                        submitAnswer?.(inputText.trim());
-                        setInputText('');
-                      }
-                    } else if (!isExpedienteMode) {
-                      setIsQuestionMode?.(false);
-                      if (selectedOption === 1 && questionType) {
-                        onConfirmQuestion?.(questionType);
-                      }
-                    }
-                  }}
-                  className="px-3 py-1.5 rounded-lg bg-[#0ecf8e] hover:bg-[#25dba0] text-white text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md shadow-[#0ecf8e]/30"
-                >
-                  <span>Confirmar</span>
-                  <span className="text-[9px] opacity-70">↵</span>
-                </button>
+              {/* Botón CREAR EXPEDIENTE */}
+              <div className="relative group shrink-0 h-[40px] flex-1 flex items-center justify-center">
+                <FutureButtonConsole 
+                  onClick={handleCreatePatientLocal}
+                  label={isSubmittingLocal ? 'CREANDO...' : 'CREAR EXPEDIENTE'}
+                />
               </div>
             </div>
-          </>
+          ) : (
+            <>
+              {isExpedienteMode && currentQuestion?.type === 'text' && (
+                <input 
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      submitAnswer?.(inputText.trim());
+                      setInputText('');
+                    }
+                  }}
+                  placeholder={currentQuestion.placeholder || "Escribe tu respuesta..."}
+                  className="w-full !bg-transparent !border-none !outline-none !shadow-none !backdrop-blur-none !rounded-none focus:!scale-100 focus:!ring-0 text-[12.5px] px-1.5 py-0.5 text-[var(--seed-text-main)] placeholder-[var(--seed-text-muted)]/50"
+                  autoFocus
+                />
+              )}
+
+              {/* Fila de controles inferior estilo Antigravity dialog */}
+              <div className={"flex items-center justify-between py-1 px-1 w-full animate-in fade-in duration-300 " + (isExpedienteMode && currentQuestion?.type === 'text' ? "border-t border-[var(--seed-row-border)]/40 pt-2" : "")}>
+                <div className="flex items-center gap-2">
+                  {/* dex-confirmar eliminado */}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {/* Botón Skip */}
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      if (isExpedienteMode) {
+                        submitAnswer?.('');
+                        setInputText('');
+                      } else {
+                        setIsQuestionMode?.(false);
+                      }
+                    }}
+                    className="text-[var(--seed-text-muted)] hover:text-[var(--seed-text-main)] text-[11px] font-semibold px-2 py-1 cursor-pointer transition-all"
+                  >
+                    Omitir
+                  </button>
+
+                  {/* Botón Submit ↵ */}
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      if (isExpedienteMode) {
+                        if (currentQuestion?.type === 'options') {
+                          if (currentQuestion.options && selectedOption > 0 && selectedOption <= currentQuestion.options.length) {
+                            submitAnswer?.(currentQuestion.options[selectedOption - 1].id);
+                            setSelectedOption(1); // reset selection
+                          }
+                        } else if (currentQuestion?.type === 'text') {
+                          submitAnswer?.(inputText.trim());
+                          setInputText('');
+                        }
+                      } else if (!isExpedienteMode) {
+                        setIsQuestionMode?.(false);
+                        if (selectedOption === 1 && questionType) {
+                          onConfirmQuestion?.(questionType);
+                        }
+                      }
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-[#0ecf8e] hover:bg-[#25dba0] text-white text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md shadow-[#0ecf8e]/30"
+                  >
+                    <span>Confirmar</span>
+                    <span className="text-[9px] opacity-70">↵</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )
         ) : (
           <>
             {/* Input de texto principal */}
