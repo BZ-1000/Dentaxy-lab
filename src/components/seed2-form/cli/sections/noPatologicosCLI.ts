@@ -1,31 +1,19 @@
 import { CLIQuestion } from '../useFormCLI';
 
 export const noPatologicosCLIQuestions: CLIQuestion[] = [
+  // Vivienda y Zoonosis
   {
-    id: 'frecuenciaCepillado',
-    text: '¿Con qué frecuencia al día se cepilla los dientes el paciente?',
+    id: 'nopat_vivienda',
+    text: '¿La vivienda cuenta con todos los servicios básicos y buenas condiciones de higiene?',
     type: 'options',
     options: [
-      { id: '1 vez al día', label: '1 vez al día' },
-      { id: '2 veces al día', label: '2 veces al día' },
-      { id: '3 o más veces al día', label: '3 o más veces al día' },
-      { id: 'No se cepilla', label: 'No realiza cepillado' }
+      { id: 'completos', label: 'Sí, servicios completos e higiénica' },
+      { id: 'incompletos', label: 'No, servicios deficientes o riesgos' }
     ]
   },
   {
-    id: 'auxiliaresBucales',
-    text: '¿Utiliza algún auxiliar bucal de forma regular?',
-    type: 'options',
-    options: [
-      { id: 'ninguno', label: 'Ninguno' },
-      { id: 'hilo', label: 'Hilo dental' },
-      { id: 'enjuague', label: 'Enjuague bucal' },
-      { id: 'ambos', label: 'Hilo dental y Enjuague bucal' }
-    ]
-  },
-  {
-    id: 'mascotas',
-    text: '¿Tiene mascotas en su hogar?',
+    id: 'nopat_mascotas',
+    text: '¿Convive con mascotas en el domicilio (zoonosis)?',
     type: 'options',
     options: [
       { id: 'no', label: 'No' },
@@ -33,29 +21,44 @@ export const noPatologicosCLIQuestions: CLIQuestion[] = [
     ]
   },
   {
-    id: 'mascotasDetalle',
-    text: '¿Qué tipo de mascotas tiene y cuántas?',
+    id: 'nopat_mascotas_detalle',
+    text: 'Especifique el tipo de mascota y convivencia (dentro/fuera):',
     type: 'text',
-    placeholder: 'Ej. Dos perros en patio, un gato adentro...',
-    condition: (answers) => answers.mascotas === 'si'
+    placeholder: 'Ej. 2 perros en el patio...',
+    condition: (answers) => answers.nopat_mascotas === 'si'
   },
+  // Alimentación
   {
-    id: 'serviciosVivienda',
-    text: '¿La vivienda cuenta con todos los servicios básicos (agua, luz, drenaje)?',
+    id: 'nopat_alimentacion',
+    text: '¿Cómo describe su alimentación diaria?',
     type: 'options',
     options: [
-      { id: 'completos', label: 'Sí, cuenta con todos los servicios' },
-      { id: 'incompletos', label: 'No, tiene servicios deficientes o incompletos' }
+      { id: 'adecuada', label: 'Adecuada/Balanceada' },
+      { id: 'cariogenica', label: 'Cariogénica (alta en azúcar)' },
+      { id: 'deficiente', label: 'Deficiente' }
+    ]
+  },
+  // Higiene Bucal
+  {
+    id: 'nopat_cepillado',
+    text: '¿Frecuencia de cepillado dental al día?',
+    type: 'options',
+    options: [
+      { id: '3', label: '3 o más veces' },
+      { id: '2', label: '2 veces' },
+      { id: '1', label: '1 vez' },
+      { id: '0', label: 'Ocasional o no cepilla' }
     ]
   },
   {
-    id: 'alimentacion',
-    text: '¿Cómo describe la alimentación del paciente?',
+    id: 'nopat_auxiliares',
+    text: '¿Utiliza auxiliares (hilo dental, enjuague)?',
     type: 'options',
     options: [
-      { id: 'balanceada', label: 'Balanceada / Adecuada' },
-      { id: 'cariogenica', label: 'Alta en carbohidratos, harinas o azúcares (Cariogénica)' },
-      { id: 'deficiente', label: 'Irregular o deficiente' }
+      { id: 'no', label: 'Ninguno' },
+      { id: 'ambos', label: 'Hilo y enjuague' },
+      { id: 'hilo', label: 'Solo hilo dental' },
+      { id: 'enjuague', label: 'Solo enjuague' }
     ]
   }
 ];

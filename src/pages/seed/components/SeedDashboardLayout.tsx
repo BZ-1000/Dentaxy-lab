@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import SeedKeyDates from './SeedKeyDates';
+import SeedLobbyWidget from './SeedLobbyWidget';
 import SeedChatConsole from './SeedChatConsole';
 import SeedEventList from './SeedEventList';
 
@@ -12,7 +12,10 @@ export default function SeedDashboardLayout({
   isQuestionMode = false,
   setIsQuestionMode,
   questionType = null,
-  onConfirmQuestion
+  onConfirmQuestion,
+  theme = 'dark',
+  onOpenQR,
+  isOpenQR = false
 }: { 
   activePatient?: any;
   isFolderHovered?: boolean;
@@ -23,23 +26,33 @@ export default function SeedDashboardLayout({
   setIsQuestionMode?: (val: boolean) => void;
   questionType?: 'NEW_PATIENT' | 'INIT_EXPEDIENTE' | null;
   onConfirmQuestion?: (type: 'NEW_PATIENT' | 'INIT_EXPEDIENTE') => void;
+  theme?: 'dark' | 'light';
+  onOpenQR?: (code: string) => void;
+  isOpenQR?: boolean;
 }) {
   const [hoverLeft, setHoverLeft] = useState(false);
   const [hoverRight, setHoverRight] = useState(false);
+  const [isLobbyActive, setIsLobbyActive] = useState(false);
 
   return (
     <div className="w-full max-w-[98vw] mx-auto px-2 grid grid-cols-1 lg:grid-cols-[340px_1fr_340px] gap-2.5 items-end relative z-20">
       
-      {/* Columna Izquierda: Key Dates */}
+      {/* Columna Izquierda: Lobby Digital */}
       <div 
         onMouseEnter={() => setHoverLeft(true)}
         onMouseLeave={() => setHoverLeft(false)}
         className={`h-[340px] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isQuestionMode ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}
         style={{
-          transform: hoverLeft ? 'translateY(0)' : 'translateY(140px)'
+          transform: (hoverLeft || isLobbyActive || isOpenQR) ? 'translateY(0)' : 'translateY(140px)'
         }}
       >
-        <SeedKeyDates />
+        <SeedLobbyWidget 
+          theme={theme} 
+          onActiveChange={setIsLobbyActive} 
+          onOpenQR={onOpenQR}
+          isOpenQR={isOpenQR}
+          onOpenAddPatient={onOpenAddPatient}
+        />
       </div>
 
       {/* Columna Central: Consola de Chat Dentaxy IA */}

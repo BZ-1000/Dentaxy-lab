@@ -13,10 +13,11 @@ export function GlobalDexBubble() {
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Ocultar en la landing (ya tiene su propia burbuja) y en el panel admin
+  // Ocultar en la landing, panel admin y rutas de registro de pacientes
   const isLanding = location.pathname === "/";
   const isAdmin   = location.pathname.startsWith("/admin");
-  if (isLanding || isAdmin) return null;
+  const isPatient = location.pathname.startsWith("/paciente") || location.pathname.startsWith("/x");
+  if (isLanding || isAdmin || isPatient) return null;
 
   const handleSendMessage = async () => {
     if (!chatInput.trim() || isLoading) return;

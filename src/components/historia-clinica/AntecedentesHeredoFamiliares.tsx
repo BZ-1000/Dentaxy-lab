@@ -238,11 +238,6 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
   };
 
   const generarRedaccionIA = () => {
-    if (missingFamiliares.length > 0) {
-      setShowModal(true);
-      return;
-    }
-
     const textoGenerado = todosLosFamiliares.map(familiar => {
       const familiarKey = getFamiliarKey(familiar);
 
@@ -302,9 +297,27 @@ const AntecedentesHeredoFamiliares = ({ formData, handleFamiliarChange, handleCo
       return '';
     }).filter(Boolean).join(" ");
 
-    // Redundancy check (simplified for now)
+    let redaccionTexto = textoGenerado.trim();
 
-    const redaccionTexto = textoGenerado.trim() || "Niega antecedentes heredofamiliares de importancia.";
+    // Si no hay datos específicos de abuelos/tíos/etc., agregar negación explícita para el resto de familiares de primer y segundo grado.
+    const tieneOtrosPatologicos = todosLosFamiliares.some(f => {
+      if (f === 'Padre' || f === 'Madre') return false;
+      const key = getFamiliarKey(f);
+      const data = formData.antecedentesHeredoFamiliares[key];
+      return data?.finado || Object.values(data?.condiciones || {}).some(v => v);
+    });
+
+    if (!tieneOtrosPatologicos) {
+      if (redaccionTexto) {
+        redaccionTexto += " Niega otros antecedentes heredofamiliares patológicos de relevancia clínica (incluyendo diabetes mellitus, hipertensión arterial y procesos oncológicos en familiares de primer y segundo grado).";
+      } else {
+        redaccionTexto = "El paciente niega antecedentes heredofamiliares patológicos de importancia clínica, declarando no tener familiares directos (padres, abuelos, hermanos) con diabetes mellitus, hipertensión arterial, cáncer u otras afecciones sistémicas relevantes.";
+      }
+    } else {
+      if (!redaccionTexto) {
+        redaccionTexto = "Niega antecedentes heredofamiliares de importancia.";
+      }
+    }
 
     if (onRedaccionGenerada) {
       onRedaccionGenerada(redaccionTexto);

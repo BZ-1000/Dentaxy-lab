@@ -6,7 +6,7 @@ export const padecimientoCLIQuestions: CLIQuestion[] = [
     text: '¿Cuál es el motivo de la consulta hoy?',
     type: 'text',
     placeholder: 'Ej. Dolor en muela, limpieza, revisión...',
-    defaultValue: 'El paciente acude a consulta por '
+    defaultValue: ''
   },
   {
     id: 'sinSintomas',

@@ -6,7 +6,7 @@ export const validatePadecimientoActual = (formData: FormDataState) => {
   const missingFields = [];
   const { padecimientoActual } = formData;
 
-  if (!padecimientoActual.motivoConsulta || padecimientoActual.motivoConsulta === "El paciente acude a consulta por ") {
+  if (!padecimientoActual.motivoConsulta || !padecimientoActual.motivoConsulta.trim()) {
     missingFields.push("Motivo de consulta");
   }
 

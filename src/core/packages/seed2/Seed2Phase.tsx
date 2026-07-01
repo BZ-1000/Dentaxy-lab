@@ -8,6 +8,7 @@ interface Seed2PhaseProps {
     patientData?: any;
     onClose?: () => void;
     isPopup?: boolean;
+    intakeData?: { name?: string; reason?: string };
 }
 
 /**
@@ -16,23 +17,23 @@ interface Seed2PhaseProps {
  * Un clon funcional idéntico a demo/ai pero integrado nativamente
  * dentro del entorno protegido /core.
  */
-export const Seed2Phase: React.FC<Seed2PhaseProps> = ({ patientData: propsPatientData, onClose, isPopup = false }) => {
+export const Seed2Phase: React.FC<Seed2PhaseProps> = ({ patientData: propsPatientData, onClose, isPopup = false, intakeData }) => {
     const location = useLocation();
     const patientData = propsPatientData || location.state?.patientData || {
-        nombreCompleto: "Juan Pérez (Datos de Demo)",
+        nombreCompleto: intakeData?.name || "Juan Pérez (Datos de Demo)",
         edad: "35 años",
         genero: "Masculino",
         fechaNacimiento: "15/04/1989",
         ocupacion: "Ingeniero",
         telefono: "555-123-4567",
-        motivoConsulta: "Revisión general"
+        motivoConsulta: intakeData?.reason || "Revisión general"
     };
 
     return (
         <AnalysisModeProvider>
             <div className={`w-full flex flex-col overflow-hidden relative ${isPopup ? 'h-full bg-transparent' : 'h-screen bg-background'}`}>
                 {/* Seed2FormPanel ocupa toda la pantalla — sin header */}
-                <Seed2FormPanel patientData={patientData} isPopup={isPopup} onClose={onClose} />
+                <Seed2FormPanel patientData={patientData} isPopup={isPopup} onClose={onClose} intakeData={intakeData} />
             </div>
         </AnalysisModeProvider>
     );

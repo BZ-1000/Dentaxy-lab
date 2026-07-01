@@ -141,8 +141,8 @@ const PadecimientoActual = ({
 
   // Initialize default value if empty
   useEffect(() => {
-    if (!motivoValue) {
-      handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+    if (motivoValue === undefined || motivoValue === null) {
+      handlePadecimientoChange("motivoConsulta", "");
     }
   }, []);
 
@@ -263,8 +263,7 @@ const PadecimientoActual = ({
 
   const handleNext = () => {
     if (currentMicroStep === 0) {
-      const limpio = motivoValue.replace(defaultMotivoConsulta, "").trim();
-      if (limpio.length < 3) {
+      if (!motivoValue || motivoValue.trim().length < 3) {
         toast({
           title: "Motivo Requerido",
           description: "Por favor escribe un motivo de consulta válido antes de continuar.",
@@ -292,7 +291,7 @@ const PadecimientoActual = ({
   };
 
   const clearForm = () => {
-    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+    handlePadecimientoChange("motivoConsulta", "");
     handleSinSintomasChange(false);
     handleDolorChange("fechaInicio", "");
     handleDolorChange("condicionAparicion", "");
@@ -323,13 +322,15 @@ const PadecimientoActual = ({
               <AIInputWithLoading
                 value={motivoValue}
                 onChange={(val) => {
-                  if (!val.startsWith(defaultMotivoConsulta)) {
-                    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta + val.replace(defaultMotivoConsulta, ''));
-                  } else {
-                    handlePadecimientoChange("motivoConsulta", val);
-                  }
+                  handlePadecimientoChange("motivoConsulta", val);
                 }}
-                placeholder="Ej. dolor intenso en la muela..."
+                placeholder="Ej. dolor de muela, limpieza, revisión..."
+                starterPhrases={[
+                  "El paciente acude a consulta por ",
+                  "Acude a consulta por ",
+                  "Se presenta a consulta por ",
+                  "Refiere "
+                ]}
               />
             </div>
           </div>

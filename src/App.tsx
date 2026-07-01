@@ -106,6 +106,9 @@ import MyLanaPage from './pages/ecosystem/MyLanaPage';
 // NFC Verificación de Autenticidad
 import NFCVerify from './pages/verify/NFCVerify';
 
+// Patient Intake (Dex Portal)
+import PatientIntakeView from './pages/patient/PatientIntakeView';
+
 // Component to initialize global tracking
 const GlobalTracker = () => {
   useGlobalMetrics(); // Initialize all metrics tracking globally
@@ -233,6 +236,8 @@ function App() {
 
                   {/* App - Acceso libre */}
                   <Route path="/app" element={<Index />} />
+                  <Route path="/paciente/:sessionId" element={<PatientIntakeView />} />
+                  <Route path="/x/:clinicId" element={<PatientIntakeView />} />
 
                   {/* NFC — Verificación de Autenticidad de Documentos */}
                   <Route path="/verify" element={<NFCVerify />} />

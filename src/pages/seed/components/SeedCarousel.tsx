@@ -5,9 +5,21 @@ interface SeedCarouselProps {
   onOpenFolder?: (folder: any, rect: DOMRect) => void;
   onOpenAddPatient?: () => void;
   onActivePatientChange?: (patient: any) => void;
+  onPatientsLoad?: (patients: any[]) => void;
 }
 
-export default function SeedCarousel({ onOpenFolder, onOpenAddPatient, onActivePatientChange }: SeedCarouselProps) {
+export default function SeedCarousel({ 
+  onOpenFolder, 
+  onOpenAddPatient, 
+  onActivePatientChange,
+  onPatientsLoad 
+}: SeedCarouselProps) {
+  const onPatientsLoadRef = useRef(onPatientsLoad);
+  
+  useEffect(() => {
+    onPatientsLoadRef.current = onPatientsLoad;
+  }, [onPatientsLoad]);
+
   // Mapeamos una sola tarjeta especial para el expediente vacío que heredará las físicas 3D
   const EMPTY_CARD = {
     id: 999,
@@ -56,6 +68,7 @@ export default function SeedCarousel({ onOpenFolder, onOpenAddPatient, onActiveP
 
       if (dataPatients.files) {
         setPatients(dataPatients.files);
+        onPatientsLoadRef.current?.(dataPatients.files);
         // Cuando se recargan los pacientes (ej. uno nuevo), volvemos al centro para ver el más reciente
         setActiveIndex(0);
       }
@@ -136,15 +149,6 @@ export default function SeedCarousel({ onOpenFolder, onOpenAddPatient, onActiveP
           transformStyle: 'preserve-3d',
         }}
       >
-        {/* Botón 3D de Nuevo Expediente en el fondo (Solo Icono Circular) */}
-        <button
-          onClick={onOpenAddPatient}
-          className="seed-3d-add-button group"
-          title="Nuevo Expediente"
-        >
-          <Plus size={20} className="transition-colors" />
-        </button>
-
         {cardsToRender.map((card, index) => {
           const isEmptyCard = card.id === 999;
           const logicalPosition = isEmptyCard ? 0 : (index === 0 ? 0 : (index % 2 !== 0 ? Math.ceil(index/2) : -Math.ceil(index/2)));

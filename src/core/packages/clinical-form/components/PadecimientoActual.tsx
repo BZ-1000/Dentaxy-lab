@@ -154,17 +154,17 @@ const PadecimientoActual = ({
   const { toast } = useToast();
   const defaultMotivoConsulta = "El paciente acude a consulta por ";
   const motivoValue = formData.padecimientoActual.motivoConsulta;
-  const hasMotivoStarted = motivoValue && motivoValue !== defaultMotivoConsulta && motivoValue.length > defaultMotivoConsulta.length + 5;
+  const hasMotivoStarted = motivoValue && motivoValue.trim().length >= 3;
 
   // Initialize default value if empty
   useEffect(() => {
-    if (!motivoValue) {
-      handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+    if (motivoValue === undefined || motivoValue === null) {
+      handlePadecimientoChange("motivoConsulta", "");
     }
   }, []);
 
   const clearForm = () => {
-    handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta);
+    handlePadecimientoChange("motivoConsulta", "");
     handleSinSintomasChange(false);
 
     // Auto-scroll to top on reset
@@ -185,13 +185,15 @@ const PadecimientoActual = ({
           <AIInputWithLoading
             value={motivoValue}
             onChange={(val) => {
-              if (!val.startsWith(defaultMotivoConsulta)) {
-                handlePadecimientoChange("motivoConsulta", defaultMotivoConsulta + val.replace(defaultMotivoConsulta, ''));
-              } else {
-                handlePadecimientoChange("motivoConsulta", val);
-              }
+              handlePadecimientoChange("motivoConsulta", val);
             }}
-            placeholder="Ej. dolor intenso en la muela..."
+            placeholder="Ej. dolor de muela, limpieza, revisión..."
+            starterPhrases={[
+              "El paciente acude a consulta por ",
+              "Acude a consulta por ",
+              "Se presenta a consulta por ",
+              "Refiere "
+            ]}
           />
         </div>
       </ScrollFocusSection>

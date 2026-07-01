@@ -3,87 +3,18 @@ import { Plus, Mic, ChevronDown, Sparkles, Send, Check, X, ArrowUpRight, User, P
 import { useCliStore } from '@/stores/useCliStore';
 import { motion } from 'framer-motion';
 
-interface FutureButtonConsoleProps {
-  onClick?: () => void;
-  className?: string;
-  label?: string;
-}
-
-const FutureButtonConsole = ({ onClick, className = "", label = "CREAR EXPEDIENTE" }: FutureButtonConsoleProps) => {
-  // Dimensiones del contenedor y botón
-  const buttonDimensions = "h-10 w-full";
-
-  // Variantes del círculo negro (del mismo alto del botón: 40px)
-  const bgVariants = {
-    rest: { width: 40, height: 40, left: 0, top: 0 },
-    hover: { width: "100%", height: "100%", left: 0, top: 0 }
-  };
-
-  // Variantes de la flecha (desplazamiento exacto en hover)
-  const arrowVariants = {
-    rest: { x: 0, rotate: 0 },
-    hover: { x: "calc(100% - 40px)", rotate: 45 }
-  };
-
-  // Variantes del texto (desplazamiento para dejar espacio a la flecha en hover)
-  const textVariants = {
-    rest: { x: 10 },
-    hover: { x: -22 }
-  };
-
-  return (
-    <div className={`relative group shrink-0 ${buttonDimensions} ${className}`}>
-      {/* ── LUZ DE NEÓN PROYECTADA EXCLUSIVAMENTE HACIA ABAJO ── */}
-      <div 
-        className="absolute bottom-[-5px] left-1/2 -translate-x-1/2 w-[82%] h-2.5 bg-[#00f5a0] rounded-full blur-[10px] opacity-65 group-hover:opacity-90 transition-all duration-300 -z-10 group-hover:scale-x-105"
-        style={{
-          boxShadow: "0 8px 20px rgba(0, 245, 160, 0.45), 0 12px 30px rgba(0, 245, 160, 0.25)"
-        }}
-      />
-
-      {/* Botón interactivo principal */}
-      <motion.button 
-        type="button"
-        onClick={onClick}
-        initial="rest"
-        whileHover="hover"
-        animate="rest"
-        className="relative w-full h-full flex items-center bg-[#00f5a0] rounded-full overflow-hidden select-none cursor-pointer border-none outline-none p-0 transition-shadow duration-300"
-        style={{
-          boxShadow: "0 4px 14px rgba(0, 245, 160, 0.35)"
-        }}
-      >
-        {/* Fondo negro expandible que en hover cubre todo el botón verde */}
-        <motion.div 
-          variants={bgVariants}
-          transition={{ type: "spring", stiffness: 220, damping: 24 }}
-          className="absolute bg-black rounded-full z-0 flex items-center justify-start p-0"
-        >
-          {/* Flecha dentro del contenedor negro */}
-          <motion.div
-            variants={arrowVariants}
-            transition={{ type: "spring", stiffness: 220, damping: 24 }}
-            className="flex items-center justify-center text-white shrink-0 w-10 h-10"
-          >
-            <ArrowUpRight className="w-[24px] h-[24px]" strokeWidth={2} />
-          </motion.div>
-        </motion.div>
-
-        {/* Texto (z-10 para quedar sobre el fondo negro cuando se expande) */}
-        <div className="relative z-10 flex items-center justify-center w-full h-full pointer-events-none pr-1">
-          <motion.span 
-            variants={textVariants}
-            transition={{ type: "spring", stiffness: 220, damping: 24 }}
-            className="text-black group-hover:text-white transition-colors duration-300 font-black tracking-[0.18em] uppercase text-[9.5px]"
-            style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
-          >
-            {label}
-          </motion.span>
-        </div>
-      </motion.button>
-    </div>
-  );
-};
+const COUNTRIES = [
+  { code: 'MX', lada: '+52', flag: '🇲🇽', name: 'México' },
+  { code: 'US', lada: '+1', flag: '🇺🇸', name: 'EE.UU.' },
+  { code: 'ES', lada: '+34', flag: '🇪🇸', name: 'España' },
+  { code: 'CO', lada: '+57', flag: '🇨🇴', name: 'Colombia' },
+  { code: 'AR', lada: '+54', flag: '🇦🇷', name: 'Argentina' },
+  { code: 'CL', lada: '+56', flag: '🇨🇱', name: 'Chile' },
+  { code: 'PE', lada: '+51', flag: '🇵🇪', name: 'Perú' },
+  { code: 'EC', lada: '+593', flag: '🇪🇨', name: 'Ecuador' },
+  { code: 'VE', lada: '+58', flag: '🇻🇪', name: 'Venezuela' },
+  { code: 'GT', lada: '+502', flag: '🇬🇹', name: 'Guatemala' }
+];
 
 interface SeedChatConsoleProps {
   activePatient: any;
@@ -127,7 +58,9 @@ export default function SeedChatConsole({
 
   // Estados locales para el registro de paciente en consola
   const [newPatientName, setNewPatientName] = useState('');
-  const [newPatientPhone, setNewPatientPhone] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState({ code: 'MX', lada: '+52', flag: '🇲🇽', name: 'México' });
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [localPhone, setLocalPhone] = useState('');
   const [isSubmittingLocal, setIsSubmittingLocal] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -180,6 +113,7 @@ export default function SeedChatConsole({
 
       // 2. Crear subcarpeta del paciente con formato en Mayúsculas
       const folderName = newPatientName.trim().toUpperCase();
+      const phoneToSave = `${selectedCountry.lada} ${localPhone.trim()}`;
       const createFolderRes = await fetch('https://www.googleapis.com/drive/v3/files', {
         method: 'POST',
         headers: {
@@ -191,7 +125,7 @@ export default function SeedChatConsole({
           mimeType: 'application/vnd.google-apps.folder',
           parents: [parentId],
           properties: {
-            phone: newPatientPhone.trim() || 'Sin teléfono'
+            phone: phoneToSave || 'Sin teléfono'
           }
         })
       });
@@ -205,7 +139,7 @@ export default function SeedChatConsole({
           name: folderName,
           edad: '30',
           genero: 'Masculino',
-          telefono: newPatientPhone.trim() || 'Sin teléfono',
+          telefono: phoneToSave || 'Sin teléfono',
           motivo: 'Valoración inicial',
           alergias: 'Ninguna',
           estatus: 'Primera Cita'
@@ -214,7 +148,8 @@ export default function SeedChatConsole({
 
       setIsQuestionMode?.(false);
       setNewPatientName('');
-      setNewPatientPhone('');
+      setLocalPhone('');
+      setSelectedCountry({ code: 'MX', lada: '+52', flag: '🇲🇽', name: 'México' });
     } catch (err: any) {
       console.error(err);
       alert("Error al sincronizar con Google Drive: " + err.message);
@@ -627,15 +562,21 @@ export default function SeedChatConsole({
                 
                 {/* Input 1: Nombre Completo */}
                 <div className="flex flex-col gap-1 w-full text-left">
-                  <div className="flex items-center gap-1.5 font-mono text-[7px] tracking-widest text-slate-500 dark:text-zinc-400 select-none font-bold">
-                    <User size={9} className="text-slate-400 dark:text-zinc-500" />
+                  <div className="flex items-center gap-1.5 font-['Bruno_Ace_SC',_sans-serif] text-[9.5px] tracking-widest text-slate-500 dark:text-zinc-400 select-none font-bold">
+                    <User size={12} className="text-slate-400 dark:text-zinc-500" />
                     <span>NOMBRE COMPLETO</span>
                   </div>
                   <div className="relative group">
                     <input 
                       type="text" 
                       value={newPatientName}
-                      onChange={(e) => setNewPatientName(e.target.value)}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const capitalized = val.split(' ').map(word => {
+                          return word.charAt(0).toUpperCase() + word.slice(1);
+                        }).join(' ');
+                        setNewPatientName(capitalized);
+                      }}
                       className="w-full h-10 px-4 bg-slate-100/50 dark:bg-zinc-950/40 border border-slate-300/60 dark:border-zinc-800/80 rounded-full text-slate-900 dark:text-white text-xs focus:outline-none focus:border-slate-500 dark:focus:border-zinc-600 focus:bg-white dark:focus:bg-zinc-900/40 focus:ring-1 focus:ring-slate-500/10 dark:focus:ring-zinc-600/10 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-500 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),_1px_1px_0px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.7),_1px_1px_1px_rgba(255,255,255,0.05)]" 
                       placeholder="Nombre del paciente"
                       autoFocus 
@@ -643,20 +584,59 @@ export default function SeedChatConsole({
                   </div>
                 </div>
 
-                {/* Input 2: Teléfono */}
+                {/* Input 2: Teléfono con selector de país */}
                 <div className="flex flex-col gap-1 w-full text-left">
-                  <div className="flex items-center gap-1.5 font-mono text-[7px] tracking-widest text-slate-500 dark:text-zinc-400 select-none font-bold">
-                    <Phone size={9} className="text-slate-400 dark:text-zinc-500" />
+                  <div className="flex items-center gap-1.5 font-['Bruno_Ace_SC',_sans-serif] text-[9.5px] tracking-widest text-slate-500 dark:text-zinc-400 select-none font-bold">
+                    <Phone size={12} className="text-slate-400 dark:text-zinc-500" />
                     <span>TELÉFONO CELULAR</span>
                   </div>
-                  <div className="relative group">
-                    <input 
-                      type="tel" 
-                      value={newPatientPhone}
-                      onChange={(e) => setNewPatientPhone(e.target.value)}
-                      className="w-full h-10 px-4 bg-slate-100/50 dark:bg-zinc-950/40 border border-slate-300/60 dark:border-zinc-800/80 rounded-full text-slate-900 dark:text-white text-xs focus:outline-none focus:border-slate-500 dark:focus:border-zinc-600 focus:bg-white dark:focus:bg-zinc-900/40 focus:ring-1 focus:ring-slate-500/10 dark:focus:ring-zinc-600/10 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-500 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),_1px_1px_0px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.7),_1px_1px_1px_rgba(255,255,255,0.05)]" 
-                      placeholder="Número de celular" 
+                  {/* Contenedor pill con selector + input */}
+                  <div className="relative flex h-10 rounded-full bg-slate-100/50 dark:bg-zinc-950/40 border border-slate-300/60 dark:border-zinc-800/80 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),_1px_1px_0px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.7),_1px_1px_1px_rgba(255,255,255,0.05)] focus-within:border-slate-500 dark:focus-within:border-zinc-600 transition-all overflow-visible">
+                    {/* Botón selector de país */}
+                    <button
+                      type="button"
+                      onClick={() => setShowCountryDropdown(v => !v)}
+                      className="flex items-center gap-1 px-3 text-sm border-r border-slate-300/60 dark:border-zinc-800/80 shrink-0 cursor-pointer hover:bg-slate-200/40 dark:hover:bg-zinc-800/30 rounded-l-full transition-colors"
+                    >
+                      <span className="text-base leading-none">{selectedCountry.flag}</span>
+                      <span className="text-[10px] font-bold text-slate-600 dark:text-zinc-400 font-mono">{selectedCountry.lada}</span>
+                      <ChevronDown size={9} className={`text-slate-400 dark:text-zinc-500 transition-transform duration-200 ${showCountryDropdown ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {/* Input numérico local */}
+                    <input
+                      type="tel"
+                      value={localPhone}
+                      onChange={(e) => setLocalPhone(e.target.value.replace(/[^\d\s\-]/g, ''))}
+                      placeholder="10 dígitos"
+                      className="flex-1 h-full px-3 bg-transparent text-slate-900 dark:text-white text-xs focus:outline-none font-medium placeholder-slate-400 dark:placeholder-zinc-500"
                     />
+
+                    {/* Dropdown de países */}
+                    {showCountryDropdown && (
+                      <div className="absolute left-0 top-[calc(100%+6px)] z-50 w-[220px] rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-xl overflow-hidden">
+                        {COUNTRIES.map(country => (
+                          <button
+                            key={country.code}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCountry(country);
+                              setShowCountryDropdown(false);
+                            }}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors cursor-pointer ${
+                              selectedCountry.code === country.code ? 'bg-slate-100 dark:bg-zinc-900' : ''
+                            }`}
+                          >
+                            <span className="text-base">{country.flag}</span>
+                            <span className="text-[11px] font-semibold text-slate-700 dark:text-zinc-300 flex-1">{country.name}</span>
+                            <span className="text-[10px] font-mono text-slate-500 dark:text-zinc-500">{country.lada}</span>
+                            {selectedCountry.code === country.code && (
+                              <span className="text-[#00c980] text-xs font-bold">✓</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -665,9 +645,9 @@ export default function SeedChatConsole({
               <div className="w-full mt-1 flex flex-col items-center">
                 {/* Traza SVG Asimétrica de base */}
                 <svg className="w-full h-3 text-slate-300 dark:text-zinc-800 opacity-60 dark:opacity-40" viewBox="0 0 400 12" fill="none" preserveAspectRatio="none">
-                  <path d="M0 6 H160 L170 11 H230 L240 1 H400" stroke="currentColor" strokeWidth="1.2" />
-                  <circle cx="170" cy="11" r="1.5" className="fill-slate-400 dark:fill-zinc-650" />
-                  <circle cx="230" cy="11" r="1.5" className="fill-slate-400 dark:fill-zinc-650" />
+                  <path d="M0 6 H160 L170 1 H230 L240 6 H400" stroke="currentColor" strokeWidth="1.2" />
+                  <circle cx="170" cy="1" r="1.5" className="fill-slate-400 dark:fill-zinc-650" />
+                  <circle cx="230" cy="1" r="1.5" className="fill-slate-400 dark:fill-zinc-650" />
                 </svg>
                 
                 {/* Metadatos funcionales discretos con opacidad y contraste reducidos para hacer juego con las trazas */}
@@ -812,13 +792,12 @@ export default function SeedChatConsole({
         {effectiveIsQuestionMode ? (
           questionType === 'NEW_PATIENT' ? (
             <div className="flex items-center justify-between py-1.5 px-1 w-full animate-in fade-in duration-300 gap-4">
-              {/* Botón CANCELAR con textura tridimensional */}
               <button 
                 type="button"
                 onClick={() => {
                   setIsQuestionMode?.(false);
                   setNewPatientName('');
-                  setNewPatientPhone('');
+                  setNewPatientPhone('+52 ');
                 }}
                 className="flex-1 h-[40px] rounded-full border border-slate-300 dark:border-zinc-800 bg-slate-100/80 dark:bg-zinc-900/80 text-slate-700 dark:text-zinc-300 text-[10px] font-black tracking-[0.18em] uppercase hover:bg-slate-200/80 dark:hover:bg-zinc-800/80 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center font-['Bruno_Ace_SC',_sans-serif] shadow-[1px_1px_2px_rgba(0,0,0,0.05),_inset_0_1px_1px_rgba(255,255,255,0.9)] dark:shadow-[1px_1px_2px_rgba(255,255,255,0.05),_inset_0_1px_1px_rgba(255,255,255,0.1)] active:scale-98"
                 style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
@@ -870,7 +849,7 @@ export default function SeedChatConsole({
                   type="button"
                   onClick={() => {
                     setNewPatientName("");
-                    setNewPatientPhone("");
+                    setNewPatientPhone("+52 ");
                   }}
                   title="Restablecer formulario"
                   className="w-[34px] h-[34px] rounded-full flex items-center justify-center bg-white/40 dark:bg-zinc-950/20 backdrop-blur-md border border-slate-300/50 dark:border-zinc-850/60 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-white hover:border-[#00c980] dark:hover:border-[#00f5a0] hover:ring-1 hover:ring-[#00c980]/20 dark:hover:ring-[#00f5a0]/20 hover:shadow-[0_0_8px_rgba(0,245,160,0.2)] dark:hover:shadow-[0_0_10px_rgba(0,245,160,0.25)] transition-all cursor-pointer active:scale-90"
@@ -879,13 +858,16 @@ export default function SeedChatConsole({
                 </button>
               </div>
 
-              {/* Botón CREAR EXPEDIENTE */}
-              <div className="relative group shrink-0 h-[40px] flex-1 flex items-center justify-center">
-                <FutureButtonConsole 
-                  onClick={handleCreatePatientLocal}
-                  label={isSubmittingLocal ? 'CREANDO...' : 'CREAR EXPEDIENTE'}
-                />
-              </div>
+              {/* Botón CREAR EXPEDIENTE idéntico al de cancelar */}
+              <button 
+                type="button"
+                onClick={handleCreatePatientLocal}
+                disabled={isSubmittingLocal}
+                className="flex-1 h-[40px] rounded-full border border-slate-300 dark:border-zinc-800 bg-slate-100/80 dark:bg-zinc-900/80 text-slate-700 dark:text-zinc-300 text-[10px] font-black tracking-[0.18em] uppercase hover:bg-slate-200/80 dark:hover:bg-zinc-800/80 hover:text-slate-900 dark:hover:text-white transition-all cursor-pointer flex items-center justify-center font-['Bruno_Ace_SC',_sans-serif] shadow-[1px_1px_2px_rgba(0,0,0,0.05),_inset_0_1px_1px_rgba(255,255,255,0.9)] dark:shadow-[1px_1px_2px_rgba(255,255,255,0.05),_inset_0_1px_1px_rgba(255,255,255,0.1)] active:scale-98 disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
+              >
+                {isSubmittingLocal ? 'Creando...' : 'Crear'}
+              </button>
             </div>
           ) : (
             <>

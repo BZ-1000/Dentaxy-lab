@@ -15,6 +15,8 @@ export interface CLIQuestion {
   placeholder?: string;
   defaultValue?: string | boolean;
   condition?: (answers: Record<string, any>) => boolean;
+  starterPhrases?: string[];
+  suggestions?: string[];
 }
 
 export interface FormCLIEngine {
@@ -24,6 +26,8 @@ export interface FormCLIEngine {
   canGoBack: boolean;
   isComplete: boolean;
   history: { questionId: string; answer: any }[];
+  currentIndex: number;
+  totalQuestions: number;
 }
 
 export function useFormCLI(
@@ -88,6 +92,8 @@ export function useFormCLI(
     goBack,
     canGoBack: currentIndex > 0,
     isComplete,
-    history
+    history,
+    currentIndex,
+    totalQuestions: questions.length
   };
 }

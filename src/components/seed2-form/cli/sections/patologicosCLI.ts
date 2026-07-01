@@ -1,62 +1,89 @@
 import { CLIQuestion } from '../useFormCLI';
 
 export const patologicosCLIQuestions: CLIQuestion[] = [
+  // --- Sistémicas ---
   {
-    id: 'sinPatologia',
-    text: '¿El paciente padece de alguna enfermedad sistémica activa?',
+    id: 'enfermedades_sistemicas',
+    text: '¿Padece alguna enfermedad sistémica crónica o infecciosa (ej. Diabetes, Hipertensión, Asma, Hepatitis)?',
     type: 'options',
     options: [
-      { id: 'true', label: 'No, niega enfermedades (Aparentemente sano)' },
-      { id: 'false', label: 'Sí, refiere padecer alguna condición' }
+      { id: 'false', label: 'No, ninguna' },
+      { id: 'true', label: 'Sí, refiere enfermedades' }
     ]
   },
   {
-    id: 'cardiacos',
-    text: '¿Padece alguna alteración cardíaca o circulatoria?',
-    type: 'options',
-    options: [
-      { id: 'no', label: 'No, ninguna' },
-      { id: 'hipertension', label: 'Hipertensión arterial' },
-      { id: 'arritmia', label: 'Arritmias o cardiopatías' }
-    ],
-    condition: (answers) => answers.sinPatologia === 'false'
-  },
-  {
-    id: 'diabetes',
-    text: '¿Padece de Diabetes Mellitus?',
-    type: 'options',
-    options: [
-      { id: 'no', label: 'No' },
-      { id: 'si', label: 'Sí (Diabetes)' }
-    ],
-    condition: (answers) => answers.sinPatologia === 'false'
-  },
-  {
-    id: 'pulmonares',
-    text: '¿Padece de alguna afección pulmonar o respiratoria?',
-    type: 'options',
-    options: [
-      { id: 'no', label: 'No' },
-      { id: 'asma', label: 'Asma' },
-      { id: 'epoc', label: 'EPOC o bronquitis crónica' }
-    ],
-    condition: (answers) => answers.sinPatologia === 'false'
-  },
-  {
-    id: 'otrosPadecimientos',
-    text: '¿Tiene alguna otra enfermedad (vih, hepatitis, problemas renales, etc.)?',
-    type: 'options',
-    options: [
-      { id: 'no', label: 'No, ninguna otra' },
-      { id: 'si', label: 'Sí, deseo especificar otras' }
-    ],
-    condition: (answers) => answers.sinPatologia === 'false'
-  },
-  {
-    id: 'otrosDetalles',
-    text: 'Escriba las otras patologías que padece y sus medicamentos o control:',
+    id: 'enfermedades_cuales',
+    text: 'Indique qué enfermedades padece, tiempo de evolución y si lleva tratamiento:',
     type: 'text',
-    placeholder: 'Ej. Hipotiroidismo controlado con levotiroxina...',
-    condition: (answers) => answers.sinPatologia === 'false' && answers.otrosPadecimientos === 'si'
+    placeholder: 'Ej. Diabetes desde hace 5 años, tratada con metformina...',
+    condition: (answers) => answers.enfermedades_sistemicas === 'true'
+  },
+  // --- Alergias ---
+  {
+    id: 'alergias_general',
+    text: '¿Es alérgico a algún medicamento, anestésico, alimento o sustancia?',
+    type: 'options',
+    options: [
+      { id: 'false', label: 'No, niega alergias' },
+      { id: 'true', label: 'Sí, refiere alergia' }
+    ]
+  },
+  {
+    id: 'alergias_cuales',
+    text: '¿A qué es alérgico y qué reacción presenta?',
+    type: 'text',
+    placeholder: 'Ej. Penicilina (urticaria), Látex (dermatitis)...',
+    condition: (answers) => answers.alergias_general === 'true'
+  },
+  // --- Quirúrgicos / Hospitalizaciones ---
+  {
+    id: 'quirurgicos_general',
+    text: '¿Tiene antecedentes de cirugías previas u hospitalizaciones recientes?',
+    type: 'options',
+    options: [
+      { id: 'false', label: 'No refiere antecedentes' },
+      { id: 'true', label: 'Sí refiere' }
+    ]
+  },
+  {
+    id: 'quirurgicos_cuales',
+    text: 'Especifique la cirugía u hospitalización, motivo y fecha aproximada:',
+    type: 'text',
+    placeholder: 'Ej. Apendicectomía en 2018...',
+    condition: (answers) => answers.quirurgicos_general === 'true'
+  },
+  // --- Hemorrágicos ---
+  {
+    id: 'hemorragicos_general',
+    text: '¿Presenta problemas de sangrado prolongado, hematomas frecuentes o ha recibido transfusiones?',
+    type: 'options',
+    options: [
+      { id: 'false', label: 'No, coagulación normal' },
+      { id: 'true', label: 'Sí, refiere problemas/transfusiones' }
+    ]
+  },
+  {
+    id: 'hemorragicos_cuales',
+    text: 'Especifique el problema de sangrado o motivo/fecha de transfusión:',
+    type: 'text',
+    placeholder: 'Ej. Transfusión en 2020 por anemia, o sangrado de encías...',
+    condition: (answers) => answers.hemorragicos_general === 'true'
+  },
+  // --- Adicciones ---
+  {
+    id: 'adicciones_general',
+    text: '¿Refiere consumo habitual de tabaco, alcohol u otras sustancias?',
+    type: 'options',
+    options: [
+      { id: 'false', label: 'No, niega adicciones' },
+      { id: 'true', label: 'Sí, refiere consumo' }
+    ]
+  },
+  {
+    id: 'adicciones_cuales',
+    text: 'Especifique qué consume y con qué frecuencia:',
+    type: 'text',
+    placeholder: 'Ej. Tabaco (5 cigarros al día), Alcohol ocasional...',
+    condition: (answers) => answers.adicciones_general === 'true'
   }
 ];

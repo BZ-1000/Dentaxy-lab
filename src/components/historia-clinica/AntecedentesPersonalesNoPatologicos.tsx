@@ -50,160 +50,77 @@ const AntecedentesPersonalesNoPatologicos: React.FC<AntecedentesPersonalesNoPato
   const generarRedaccionIA = () => {
     const servicios = generateServiciosDomiciliariosText();
     const vivienda = generateHigieneViviendaText();
-    const higPersonal = generateHigienePersonalText();
     const higBucal = generateHigieneBucalText();
     const alimentacion = generateAlimentacionText();
 
     const formatTitle = (title: string) => `<span class="block text-xs font-semibold uppercase tracking-widest text-zinc-600 dark:text-zinc-400 mt-4 mb-1">${title}</span>`;
 
-    const redaccionTexto = `
-${formatTitle("Servicios Domiciliarios")}
-${servicios}
-
-${formatTitle("Higiene de la Vivienda")}
-${vivienda}
-
-${formatTitle("Higiene Personal")}
-${higPersonal}
-
-${formatTitle("Higiene Bucal")}
-${higBucal}
-
-${formatTitle("Alimentación")}
-${alimentacion}
-    `.trim();
+    let redaccionTexto = '';
+    
+    if (servicios) redaccionTexto += `\n${formatTitle("Servicios Domiciliarios")}\n${servicios}\n`;
+    if (vivienda) redaccionTexto += `\n${formatTitle("Higiene de la Vivienda y Zoonosis")}\n${vivienda}\n`;
+    if (higBucal) redaccionTexto += `\n${formatTitle("Higiene Bucal")}\n${higBucal}\n`;
+    if (alimentacion) redaccionTexto += `\n${formatTitle("Alimentación")}\n${alimentacion}\n`;
 
     if (onRedaccionGenerada) {
-      onRedaccionGenerada(redaccionTexto);
+      onRedaccionGenerada(redaccionTexto.trim());
     }
     if (onToggleViewMode) {
       onToggleViewMode();
     }
   };
 
-  // ... (Keeping generate helper functions as they rely on closure scope or define them inside if needed, 
-  // but looking at source, they use 'formDataLocal' which is in scope. 
-  // I must include them or ensure they are preserved. 
-  // The replace_file_content will REPLACE the target range. 
-  // I need to be careful with the range. 
-  // I will replace from the State Definitions DOWN to the Return statement, preserving helper functions if they are in the block.
-  // Actually, helper functions are lines 125-237.
-  // I will KEEP helper functions and just replace the surrounding logic.
-
-  // Wait, I can't easily partially replace logic around functions without a huge block.
-  // I will replace the TOP Part (State + Generar Function)
-  // AND the BOTTOM Part (Return + Footer).
-  // Leaving helpers intact is safer if I do 2 edits.
-
-  // Let's try 2 edits.)
-
   const generateServiciosDomiciliariosText = () => {
-    const {
-      tipoVivienda,
-      materialVivienda,
-      servicios,
-      condicionCalle,
-      iluminacionCalle
-    } = formDataLocal;
-    let serviciosList = '';
-    if (servicios.length === 6) {
-      serviciosList = '(agua, luz, drenaje, transporte, internet y gas)';
+    const { servicios } = formDataLocal;
+    if (servicios.includes('internet') || servicios.length >= 6) {
+      return 'El paciente habita en una vivienda que cuenta con todos los servicios básicos y se reporta en buenas condiciones de higiene.';
     } else if (servicios.length > 0) {
-      serviciosList = servicios.join(', ');
-    } else {
-      serviciosList = 'servicios limitados';
+      return 'El paciente habita en una vivienda con servicios básicos deficientes o limitados, lo que podría representar factores de riesgo ambientales.';
     }
-    return `El paciente habita en una vivienda de tipo ${tipoVivienda || '[no especificado]'}, construida principalmente con ${materialVivienda || '[no especificado]'}. Cuenta con los siguientes servicios básicos: ${serviciosList}. La condición de la calle en la que se encuentra la vivienda es ${condicionCalle || '[no especificado]'}, y la iluminación en la vía pública es ${iluminacionCalle || '[no especificado]'}, lo que puede influir en la seguridad y accesibilidad del entorno.`;
+    return '';
   };
 
   const generateHigieneViviendaText = () => {
-    const {
-      frecuenciaLimpieza,
-      cambioRopaCama,
-      hacinamiento,
-      promiscuidad,
-      mascotas,
-      manejoResiduos
-    } = formDataLocal;
-    let hacinamientoText = hacinamiento === 'si' ? 'presencia de hacinamiento' : 'ausencia de hacinamiento';
-    let promiscuidadText = promiscuidad === 'si' ? 'hay presencia de promiscuidad' : 'no hay evidencia de promiscuidad';
-    let mascotasText = '';
-    if (mascotas === 'dentro') {
-      mascotasText = 'se observan animales dentro de la casa';
-    } else if (mascotas === 'patio') {
-      mascotasText = 'se observan animales en el patio';
-    } else {
-      mascotasText = 'no se observan animales en el domicilio';
+    const { mascotas } = formDataLocal;
+    if (mascotas === 'dentro' || mascotas === 'patio') {
+      return 'Se reporta convivencia con animales o mascotas en el domicilio (zoonosis positiva).';
+    } else if (mascotas === 'no') {
+      return 'No se reporta convivencia con mascotas en el domicilio (zoonosis negativa).';
     }
-    return `El mantenimiento del hogar se realiza con una frecuencia ${frecuenciaLimpieza || '[no especificada]'}, lo que impacta directamente en la salubridad del entorno. La ropa de cama se cambia ${cambioRopaCama || '[no especificado]'}, contribuyendo a la higiene y confort del paciente. Se observa ${hacinamientoText}, lo que puede influir en la calidad de vida y bienestar de los habitantes. Asimismo, ${promiscuidadText}, lo cual puede ser relevante en la evaluación de riesgos sanitarios y epidemiológicos. En el domicilio ${mascotasText}, lo que puede representar un factor de exposición a zoonosis u otras afecciones. En cuanto al manejo de residuos, ${manejoResiduos || '[no especificado]'}, lo que influye en la prevención de enfermedades y el control ambiental.`;
-  };
-
-  const generateHigienePersonalText = () => {
-    const {
-      frecuenciaBano,
-      lavadoManos,
-      cambioRopa
-    } = formDataLocal;
-    let lavadoManosText = '';
-    if (lavadoManos.length > 0) {
-      lavadoManosText = lavadoManos.join(', ');
-    } else {
-      lavadoManosText = 'sin hábito regular';
-    }
-    return `El paciente refiere una frecuencia de baño ${frecuenciaBano || '[no especificada]'}, lo que contribuye a la higiene general y prevención de infecciones cutáneas. Presenta hábitos de higiene de manos ${lavadoManosText}, lo que es un factor clave en la prevención de enfermedades de transmisión feco-oral. El cambio de ropa se realiza ${cambioRopa || '[no especificada]'}, aspecto importante en el mantenimiento de la higiene personal.`;
+    return '';
   };
 
   const generateHigieneBucalText = () => {
-    const {
-      frecuenciaCepillado,
-      tecnicaCepillado,
-      auxiliaresBucales,
-      ultimaVisitaOdontologo,
-      problemasBucales
-    } = formDataLocal;
-    let auxiliaresText = '';
+    const { frecuenciaCepillado, auxiliaresBucales } = formDataLocal;
+    let auxText = '';
+    
     if (auxiliaresBucales.includes('no auxiliares')) {
-      auxiliaresText = 'no usa auxiliares de higiene bucal';
+      auxText = 'sin uso de auxiliares bucales adicionales';
     } else if (auxiliaresBucales.length > 0) {
-      auxiliaresText = auxiliaresBucales.join(', ');
-    } else {
-      auxiliaresText = '[no especificado]';
+      auxText = 'utilizando como auxiliares: ' + auxiliaresBucales.join(' y ');
     }
-    let problemasText = '';
-    if (problemasBucales.includes('no problemas')) {
-      problemasText = 'sin problemas bucales';
-    } else if (problemasBucales.length > 0) {
-      problemasText = problemasBucales.join(', ');
-    } else {
-      problemasText = '[no especificado]';
-    }
-    return `El paciente refiere un cepillado dental con una frecuencia ${frecuenciaCepillado || '[no especificada]'}, utilizando técnica ${tecnicaCepillado || '[no especificada]'}, lo que influye directamente en la salud periodontal y la prevención de caries. Además, complementa su higiene bucal con ${auxiliaresText}. La última visita al odontólogo fue hace ${ultimaVisitaOdontologo || '[no especificada]'}, lo que permite evaluar su acceso a la atención odontológica y el seguimiento de su salud bucal. Actualmente, refiere ${problemasText}, aspectos clave en la valoración del estado oral.`;
-  };
 
-  const formatTime12Hour = (time: string) => {
-    if (!time) return '[no especificado]';
-    const [hours, minutes] = time.split(':');
-    const period = parseInt(hours, 10) >= 12 ? 'PM' : 'AM';
-    const formattedHours = parseInt(hours, 10) % 12 || 12;
-    return `${formattedHours}:${minutes} ${period}`;
+    let text = '';
+    if (frecuenciaCepillado) {
+      text += `Refiere higiene bucal con frecuencia de cepillado ${frecuenciaCepillado}`;
+      if (auxText) text += `, ${auxText}.`;
+      else text += '.';
+    } else if (auxText) {
+      text += `Higiene bucal: ${auxText}.`;
+    }
+    return text;
   };
 
   const generateAlimentacionText = () => {
-    const {
-      alimentosConsumidos,
-      frecuenciaFrutasVerduras,
-      frecuenciaBebidasAzucaradas,
-      frecuenciaComidaChatarra,
-      consumoAgua,
-      numeroComidas,
-      horarioComidas
-    } = formDataLocal;
-    let alimentosText = alimentosConsumidos.length > 0 ? alimentosConsumidos.join(', ') : '[no especificado]';
-    let horarios = '';
-    if (horarioComidas) {
-      horarios = `Almuerzo: ${formatTime12Hour(horarioComidas.desayuno)}<br/>Comida: ${formatTime12Hour(horarioComidas.almuerzo)}<br/>Cena: ${formatTime12Hour(horarioComidas.cena)}`;
+    const { alimentosConsumidos } = formDataLocal;
+    if (alimentosConsumidos.includes('dulces y azúcares') || alimentosConsumidos.includes('alimentos procesados')) {
+      return 'Paciente refiere una alimentación de tipo cariogénica, con alto consumo de carbohidratos, azúcares y alimentos procesados.';
+    } else if (alimentosConsumidos.includes('frutas y verduras')) {
+      return 'Paciente refiere una alimentación adecuada y balanceada (con consumo regular de proteínas, frutas, verduras y agua).';
+    } else if (alimentosConsumidos.length > 0) {
+      return 'Paciente refiere una alimentación deficiente o irregular.';
     }
-    return `El paciente tiene una alimentación basada en ${alimentosText}, lo que influye en su estado nutricional y salud general. El consumo de frutas y verduras es ${frecuenciaFrutasVerduras || '[no especificada]'}, mientras que la ingesta de bebidas azucaradas ocurre ${frecuenciaBebidasAzucaradas || '[no especificada]'} y el consumo de comida chatarra ${frecuenciaComidaChatarra || '[no especificada]'}, factores determinantes en el riesgo de enfermedades metabólicas y caries dental. La cantidad de agua ingerida diariamente es de aproximadamente ${consumoAgua || '[no especificado]'}, contribuyendo a la hidratación y función renal. Realiza ${numeroComidas || '[no especificado]'} comidas al día, con los siguientes horarios reportados:<br/><br/>${horarios}`;
+    return '';
   };
 
   const handleFormChange = (field: string, value: any) => {

@@ -16,24 +16,10 @@ import { padecimientoCLIQuestions } from './cli/sections/padecimientoCLI';
 import { heredofamiliaresCLIQuestions } from './cli/sections/heredofamiliaresCLI';
 import { noPatologicosCLIQuestions } from './cli/sections/noPatologicosCLI';
 import { patologicosCLIQuestions } from './cli/sections/patologicosCLI';
-import { alergicosCLIQuestions } from './cli/sections/alergicosCLI';
-import { quirurgicosCLIQuestions } from './cli/sections/quirurgicosCLI';
-import { hemorragicosCLIQuestions } from './cli/sections/hemorragicosCLI';
 import { ginecoObstetricosCLIQuestions } from './cli/sections/ginecoObstetricosCLI';
 import { interrogatorioCLIQuestions } from './cli/sections/interrogatorioCLI';
 import { exploracionFisicaCLIQuestions } from './cli/sections/exploracionFisicaCLI';
-import { 
-  cabezaCLIQuestions, 
-  atmCLIQuestions, 
-  cuelloCLIQuestions, 
-  intrabucalCLIQuestions, 
-  odontogramaCLIQuestions, 
-  salivalesCLIQuestions, 
-  oclusionCLIQuestions, 
-  relacionDientesCLIQuestions, 
-  lineaMediaCLIQuestions, 
-  frenillosCLIQuestions 
-} from './cli/sections/dentalCLI';
+import { dentalCLIQuestions } from './cli/sections/dentalCLI';
 import { getFallbackCLIQuestions } from './cli/sections/fallbackCLI';
 import { useCliStore } from '@/stores/useCliStore';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -85,6 +71,7 @@ interface Seed2FormPanelProps {
     motivoConsulta: string;
   };
   onClose?: () => void;
+  intakeData?: { name?: string; reason?: string };
 }
 
 const variants = {
@@ -110,37 +97,27 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
   disableProgressLineAnimation = false,
   isPopup = false,
   patientData,
-  onClose
+  onClose,
+  intakeData
 }) => {
 
   const seccionesGenerables = [
     { id: 'padecimiento', nombre: '1. Padecimiento Actual' },
     { id: 'heredofamiliares', nombre: '2. Antecedentes Heredofamiliares' },
-    { id: 'noPatologicos', nombre: '3. Antecedentes No Patológicos' },
-    { id: 'patologicos', nombre: '4. Antecedentes Patológicos' },
-    { id: 'alergicos', nombre: '5. Antecedentes Alérgicos' },
-    { id: 'quirurgicos', nombre: '6. Antecedentes Quirúrgicos' },
-    { id: 'hemorragicos', nombre: '7. Antecedentes Hemorrágicos' },
-    { id: 'ginecoObstetricos', nombre: '8. Antecedentes Gineco-obstétricos' },
-    { id: 'interrogatorio', nombre: '9. Interrogatorio por Sistemas' },
-    { id: 'exploracionFisica', nombre: '10. Exploración Física' },
-    { id: 'cabeza', nombre: '11. Examen de Cabeza' },
-    { id: 'atm', nombre: '12. Articulación Craneomandibular' },
-    { id: 'cuello', nombre: '13. Examen de Cuello' },
-    { id: 'intrabucal', nombre: '14. Examen Intrabucal' },
-    { id: 'odontograma', nombre: '15. Odontograma' },
-    { id: 'salivales', nombre: '16. Glándulas Salivales' },
-    { id: 'oclusion', nombre: '17. Oclusión' },
-    { id: 'relacionDientes', nombre: '18. Relación de Dientes' },
-    { id: 'lineaMedia', nombre: '19. Línea Media' },
-    { id: 'frenillos', nombre: '20. Frenillos' },
+    { id: 'patologicos', nombre: '3. Antecedentes Personales Patológicos' },
+    { id: 'noPatologicos', nombre: '4. Antecedentes No Patológicos' },
+    { id: 'exploracionFisica', nombre: '5. Exploración Física y Regional' },
+    { id: 'odontograma', nombre: '6. Exploración Intrabucal y Odontograma' }
   ];
 
-  const [esMujer] = useState(false);
+  const esMujer = patientData?.genero?.toLowerCase() === 'femenino' || 
+                   patientData?.genero?.toLowerCase() === 'mujer' || 
+                   patientData?.genero?.toLowerCase() === 'f';
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>('form');
   const [isSectionExpanded, setIsSectionExpanded] = useState(true);
+  const [sistemaAfectadoActivo, setSistemaAfectadoActivo] = useState<string>('digestivo');
 
   // Split-screen state
   const isMobile = useIsMobile();
@@ -150,10 +127,11 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
   const [isDraggingSplit, setIsDraggingSplit] = useState(false); // State to disable animations while dragging
 
   // Filter sections based on gender
-  const seccionesActivas = seccionesGenerables.filter(s => s.id !== 'ginecoObstetricos' || esMujer);
+  const seccionesActivas = seccionesGenerables;
   const currentSectionInfo = seccionesActivas[currentStep];
 
   /* Generaciones de contenido */
+  const [subGenerations, setSubGenerations] = useState<Record<string, string>>({});
   const [generations, setGenerations] = useState<Record<string, any>>({});
 
   const {
@@ -187,8 +165,71 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
     toggleService,
   } = useHistoriaClinica();
 
+  // Escuchar datos que llegan en tiempo real desde el celular (Supabase)
+  React.useEffect(() => {
+    if (intakeData?.reason && intakeData.reason !== formData.padecimientoActual.motivoConsulta) {
+      handlePadecimientoChange('motivoConsulta', intakeData.reason);
+      toast.success('Motivo de consulta recibido del paciente');
+      
+      // Intentar forzar la generación de esta sección después de un retraso corto
+      setTimeout(() => {
+        handleGenerateCurrent();
+      }, 500);
+    }
+  }, [intakeData?.reason]);
+
   const handleContentGenerated = (seccionId: string, contenido: any, textoPlano?: string) => {
-    setGenerations(prev => ({ ...prev, [seccionId]: contenido }));
+    const textValue = typeof contenido === 'string' ? contenido : (textoPlano || '');
+
+    setSubGenerations(prev => {
+      const updated = { ...prev, [seccionId]: textValue };
+
+      // Calcular las generations consolidadas a partir de updated
+      const consolidated: Record<string, string> = {};
+
+      // 1. Padecimiento Actual
+      consolidated.padecimiento = updated.padecimiento || '';
+
+      // 2. Antecedentes Heredofamiliares
+      consolidated.heredofamiliares = updated.heredofamiliares || '';
+
+      // 3. Antecedentes Personales Patológicos (consolida patologicos, alergicos, quirurgicos, hemorragicos, ginecoObstetricos)
+      const partPatologicos = [
+        updated.patologicos,
+        updated.alergicos,
+        updated.quirurgicos,
+        updated.hemorragicos,
+        esMujer ? updated.ginecoObstetricos : null
+      ].filter(Boolean).join('<br/><br/>');
+      consolidated.patologicos = partPatologicos;
+
+      // 4. Antecedentes Personales No Patológicos
+      consolidated.noPatologicos = updated.noPatologicos || '';
+
+      // 5. Exploración Física y Regional (consolida exploracionFisica, cabeza, atm, cuello)
+      const partFisica = [
+        updated.exploracionFisica,
+        updated.cabeza,
+        updated.atm,
+        updated.cuello
+      ].filter(Boolean).join('<br/><br/>');
+      consolidated.exploracionFisica = partFisica;
+
+      // 6. Exploración Intrabucal y Odontograma (consolida odontograma, intrabucal, salivales, oclusion, relacionDientes, lineaMedia, frenillos)
+      const partDental = [
+        updated.odontograma,
+        updated.intrabucal,
+        updated.salivales,
+        updated.oclusion,
+        updated.relacionDientes,
+        updated.lineaMedia,
+        updated.frenillos
+      ].filter(Boolean).join('<br/><br/>');
+      consolidated.odontograma = partDental;
+
+      setGenerations(consolidated);
+      return updated;
+    });
 
     // Open split panel on Desktop
     if (!isMobile) {
@@ -196,10 +237,8 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
     }
 
     // Notify parent if listener exists
-    if (onSeccionGenerada && typeof contenido === 'string') {
-      onSeccionGenerada(seccionId, contenido);
-    } else if (onSeccionGenerada && textoPlano) {
-      onSeccionGenerada(seccionId, textoPlano);
+    if (onSeccionGenerada) {
+      onSeccionGenerada(seccionId, textValue);
     }
   };
 
@@ -276,29 +315,23 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
     switch (sectionId) {
       case 'padecimiento': return padecimientoCLIQuestions;
       case 'heredofamiliares': return heredofamiliaresCLIQuestions;
+      case 'patologicos': {
+        const questions = [...patologicosCLIQuestions];
+        if (esMujer) {
+          questions.push(...ginecoObstetricosCLIQuestions);
+        }
+        return questions;
+      }
       case 'noPatologicos': return noPatologicosCLIQuestions;
-      case 'patologicos': return patologicosCLIQuestions;
-      case 'alergicos': return alergicosCLIQuestions;
-      case 'quirurgicos': return quirurgicosCLIQuestions;
-      case 'hemorragicos': return hemorragicosCLIQuestions;
-      case 'ginecoObstetricos': return ginecoObstetricosCLIQuestions;
-      case 'interrogatorio': return interrogatorioCLIQuestions;
       case 'exploracionFisica': return exploracionFisicaCLIQuestions;
-      case 'cabeza': return cabezaCLIQuestions;
-      case 'atm': return atmCLIQuestions;
-      case 'cuello': return cuelloCLIQuestions;
-      case 'intrabucal': return intrabucalCLIQuestions;
-      case 'odontograma': return odontogramaCLIQuestions;
-      case 'salivales': return salivalesCLIQuestions;
-      case 'oclusion': return oclusionCLIQuestions;
-      case 'relacionDientes': return relacionDientesCLIQuestions;
-      case 'lineaMedia': return lineaMediaCLIQuestions;
-      case 'frenillos': return frenillosCLIQuestions;
+      case 'odontograma': return dentalCLIQuestions;
       default: return getFallbackCLIQuestions(seccionesActivas[currentStep]?.nombre);
     }
   };
 
-  const cliQuestions = getQuestionsForSection(currentSectionId);
+  const cliQuestions = React.useMemo(() => {
+    return getQuestionsForSection(currentSectionId);
+  }, [currentSectionId, esMujer]);
 
   const handleCLISectionComplete = async (answers: Record<string, any>) => {
     // Generar redacción automáticamente al terminar la sección
@@ -310,7 +343,7 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
     }, 150);
   };
 
-  const { currentQuestion, submitAnswer, goBack: cliGoBack, canGoBack: cliCanGoBack } = useFormCLI(cliQuestions, handleCLISectionComplete);
+  const { currentQuestion, submitAnswer, goBack: cliGoBack, canGoBack: cliCanGoBack, currentIndex, totalQuestions } = useFormCLI(cliQuestions, handleCLISectionComplete);
 
   const handleCLISubmit = (answer: string | number) => {
     const qId = currentQuestion?.id;
@@ -374,193 +407,296 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
       if (qId === 'madre_otras_desc') handleCondicionChange('madre', 'otras', answer.toString());
       
       if (qId === 'otros_familiares_desc') {
-        handleCondicionChange('abueloPaterno', 'otras', answer.toString());
+        const text = answer.toString().toLowerCase();
+        const familiarKeys: string[] = [];
+
+        if (text.includes('abuelo paterno')) familiarKeys.push('abueloPaterno');
+        if (text.includes('abuela paterna')) familiarKeys.push('abuelaPaterna');
+        if (text.includes('abuelo materno')) familiarKeys.push('abueloMaterno');
+        if (text.includes('abuela materna')) familiarKeys.push('abuelaMaterna');
+
+        // Búsqueda por palabras clave generales si no fue específico
+        if (familiarKeys.length === 0) {
+          if (text.includes('abuelo')) {
+            familiarKeys.push('abueloPaterno');
+            familiarKeys.push('abueloMaterno');
+          }
+          if (text.includes('abuela')) {
+            familiarKeys.push('abuelaPaterna');
+            familiarKeys.push('abuelaMaterna');
+          }
+        }
+
+        // Valor por defecto por si no se especifica el abuelo/abuela
+        if (familiarKeys.length === 0) {
+          familiarKeys.push('abueloPaterno');
+        }
+
+        const hasDiabetes = text.includes('diabet') || text.includes('azucar') || text.includes('azúcar');
+        const hasHipertension = text.includes('hiperten') || text.includes('presion') || text.includes('presión');
+        const hasCancer = text.includes('cancer') || text.includes('cáncer') || text.includes('tumor') || text.includes('oncolog') || text.includes('oncológ');
+
+        familiarKeys.forEach(familiarKey => {
+          handleFamiliarChange(familiarKey, 'vivoSano', false);
+          handleFamiliarChange(familiarKey, 'finado', false);
+          
+          if (hasDiabetes) handleCondicionChange(familiarKey, 'diabetesMellitus', true);
+          if (hasHipertension) handleCondicionChange(familiarKey, 'hipertensionArterial', true);
+          if (hasCancer) handleCondicionChange(familiarKey, 'cancer', true);
+          
+          handleCondicionChange(familiarKey, 'otras', answer.toString());
+        });
       }
     }
     else if (currentSectionId === 'noPatologicos') {
-      if (qId === 'frecuenciaCepillado') handleAntecedenteChange('frecuenciaCepillado', answer.toString());
-      if (qId === 'auxiliaresBucales') {
+      if (qId === 'nopat_vivienda') {
+        const servs = answer === 'completos' ? ['agua', 'luz', 'drenaje', 'transporte', 'internet', 'gas'] : ['agua'];
+        handleAntecedenteNoPatologicoChange('servicios', servs);
+      }
+      if (qId === 'nopat_mascotas') {
+        handleAntecedenteNoPatologicoChange('mascotas', answer === 'si' ? 'dentro' : 'no');
+      }
+      if (qId === 'nopat_mascotas_detalle') {
+        // Guardaremos temporalmente el detalle sobreescribiendo si es "patio" o "dentro"
+        if (answer.toString().toLowerCase().includes('patio') || answer.toString().toLowerCase().includes('fuera')) {
+          handleAntecedenteNoPatologicoChange('mascotas', 'patio');
+        } else {
+          handleAntecedenteNoPatologicoChange('mascotas', 'dentro');
+        }
+      }
+      if (qId === 'nopat_alimentacion') {
+        let dietaVal = [];
+        if (answer === 'adecuada') dietaVal = ['frutas y verduras', 'carnes y proteínas'];
+        else if (answer === 'cariogenica') dietaVal = ['alimentos procesados', 'dulces y azúcares'];
+        else dietaVal = ['alimentos procesados'];
+        handleAntecedenteNoPatologicoChange('alimentosConsumidos', dietaVal);
+      }
+      if (qId === 'nopat_cepillado') {
+        let text = answer === '3' ? 'después de cada comida' : answer === '2' ? 'dos veces al día' : answer === '1' ? 'una vez al día' : 'ocasional';
+        handleAntecedenteNoPatologicoChange('frecuenciaCepillado', text);
+      }
+      if (qId === 'nopat_auxiliares') {
         let aux = [];
-        if (answer === 'hilo' || answer === 'ambos') aux.push('Hilo dental');
-        if (answer === 'enjuague' || answer === 'ambos') aux.push('Enjuague bucal');
-        handleAntecedenteChange('auxiliaresBucales', aux);
-      }
-      if (qId === 'mascotasDetalle') handleAntecedenteChange('mascotas', answer.toString());
-      if (qId === 'serviciosVivienda') {
-        const servs = answer === 'completos' ? ['Agua potable', 'Luz eléctrica', 'Drenaje'] : ['Agua potable'];
-        handleAntecedenteChange('servicios', servs);
-      }
-      if (qId === 'alimentacion') {
-        const dietaVal = answer === 'balanceada' ? 'Balanceada' : answer === 'cariogenica' ? 'Cariogénica' : 'Deficiente';
-        handleAntecedenteChange('tipoDieta', dietaVal);
+        if (answer === 'hilo' || answer === 'ambos') aux.push('hilo dental');
+        if (answer === 'enjuague' || answer === 'ambos') aux.push('enjuague bucal');
+        if (answer === 'no') aux.push('no auxiliares');
+        handleAntecedenteNoPatologicoChange('auxiliaresBucales', aux);
       }
     }
     else if (currentSectionId === 'patologicos') {
-      if (qId === 'sinPatologia') {
-        handleAntecedentePatologicoChange('sinPatologia', answer === 'true');
-        if (answer === 'true') {
-          handleAntecedentePatologicoChange('cardiacos', { ninguna: true });
-          handleAntecedentePatologicoChange('nutricionales', { ninguna: true });
-          handleAntecedentePatologicoChange('hepaticos', { ninguna: true });
+      // --- Sistémicas ---
+      if (qId === 'enfermedades_sistemicas') {
+        if (answer === 'false') {
+           handleAntecedentePatologicoChange('sinPatologia', true);
+        } else {
+           handleAntecedentePatologicoChange('sinPatologia', false);
         }
       }
-      if (qId === 'cardiacos') {
-        handleAntecedentePatologicoChange('cardiacos', {
-          enfermedadCoronaria: answer === 'arritmia',
-          arritmias: answer === 'arritmia',
-          defectosCardiacosCongenitos: false,
-          ninguna: answer === 'no',
-          otra: answer === 'hipertension',
-          otraDescripcion: answer === 'hipertension' ? 'Hipertensión arterial' : ''
+      if (qId === 'enfermedades_cuales') {
+         handleAntecedentePatologicoChange('otrosPadecimientos', { ninguna: false, otra: true, otraDescripcion: answer.toString() });
+      }
+      // --- Alergias ---
+      if (qId === 'alergias_general') {
+         if (answer === 'false') {
+             handleAntecedenteAlergicoChange('tiposAlergias.medicamentos', false);
+             handleAntecedenteAlergicoChange('tiposAlergias.alimentos', false);
+             handleAntecedenteAlergicoChange('tiposAlergias.ambiente', false);
+             handleAntecedenteAlergicoChange('cualesAlergias', '');
+             handleAntecedenteAlergicoChange('especificacionAlergias', '');
+         }
+      }
+      if (qId === 'alergias_cuales') {
+         handleAntecedenteAlergicoChange('tiposAlergias.medicamentos', true); // Se asume medicamento por defecto si escribe algo genérico, la redacción se ajustará
+         handleAntecedenteAlergicoChange('cualesAlergias', answer.toString());
+         handleAntecedenteAlergicoChange('especificacionAlergias', 'Reacción alérgica documentada por el paciente');
+      }
+      // --- Quirúrgicos / Hospitalizaciones ---
+      if (qId === 'quirurgicos_general') {
+         handleAntecedenteQuirurgicoChange('sinQuirurgicos', answer === 'false');
+      }
+      if (qId === 'quirurgicos_cuales') {
+         handleAntecedenteQuirurgicoChange('cirugiasRealizadas', [{
+           tipo: answer.toString(),
+           fecha: 'Referida en interrogatorio',
+           motivo: 'Procedimiento quirúrgico/hospitalización'
+         }]);
+      }
+      // --- Hemorrágicos ---
+      if (qId === 'hemorragicos_general') {
+         if (answer === 'false') {
+             handleAntecedenteHemorragicoChange('sangradoProlongado', false);
+             handleAntecedenteHemorragicoChange('transfusionPrevia', false);
+         } else {
+             handleAntecedenteHemorragicoChange('sangradoProlongado', true);
+         }
+      }
+      if (qId === 'hemorragicos_cuales') {
+         handleAntecedenteHemorragicoChange('transfusionPrevia', true);
+         handleAntecedenteHemorragicoChange('motivoTransfusion', answer.toString());
+         handleAntecedenteHemorragicoChange('fechaTransfusion', new Date().toISOString());
+      }
+      // --- Adicciones ---
+      if (qId === 'adicciones_general') {
+        if (answer === 'false') {
+           handleAntecedenteAlergicoChange('adicciones.tabaco', false);
+           handleAntecedenteAlergicoChange('adicciones.alcohol', false);
+           handleAntecedenteAlergicoChange('adicciones.drogas', false);
+           handleAntecedenteAlergicoChange('detallesAdicciones', '');
+        }
+      }
+      if (qId === 'adicciones_cuales') {
+        const text = answer.toString().toLowerCase();
+        handleAntecedenteAlergicoChange('adicciones.tabaco', text.includes('tabac') || text.includes('cigarr') || text.includes('fuma'));
+        handleAntecedenteAlergicoChange('adicciones.alcohol', text.includes('alcohol') || text.includes('toma') || text.includes('social') || text.includes('cerveza'));
+        handleAntecedenteAlergicoChange('detallesAdicciones', answer.toString());
+      }
+
+      // --- Gineco-Obstétricos (Mapeo de respuestas de la CLI) ---
+      if (qId === 'go_embarazo') {
+        const isEmbarazada = answer === 'true';
+        if (isEmbarazada) {
+          handleAntecedenteGinecoObstetricoChange('complicaciones', 'Embarazo activo');
+        }
+      }
+      if (qId === 'go_meses') {
+        handleAntecedenteGinecoObstetricoChange('complicaciones', `Embarazo activo de ${answer.toString()}`);
+      }
+      if (qId === 'go_lactancia') {
+        if (answer === 'true') {
+          handleAntecedenteGinecoObstetricoChange('complicaciones', 'Lactancia activa');
+        }
+      }
+      if (qId === 'go_anticonceptivos') {
+        if (answer === 'true') {
+          handleAntecedenteGinecoObstetricoChange('complicaciones', 'Uso de anticonceptivos hormonales');
+        }
+      }
+      if (qId === 'go_complicaciones_detalle') {
+        handleAntecedenteGinecoObstetricoChange('complicaciones', answer.toString());
+      }
+      if (qId === 'go_formula') {
+        // Parsear fórmula obstétrica si es ingresada en formato G1 P0 C0 A0
+        const str = answer.toString().toUpperCase();
+        const gMatch = str.match(/G\s*(\d+)/);
+        const pMatch = str.match(/P\s*(\d+)/);
+        const cMatch = str.match(/C\s*(\d+)/);
+        const aMatch = str.match(/A\s*(\d+)/);
+        if (gMatch) handleAntecedenteGinecoObstetricoChange('embarazos', parseInt(gMatch[1], 10));
+        if (pMatch) handleAntecedenteGinecoObstetricoChange('partos', parseInt(pMatch[1], 10));
+        if (cMatch) handleAntecedenteGinecoObstetricoChange('cesareas', parseInt(cMatch[1], 10));
+        if (aMatch) handleAntecedenteGinecoObstetricoChange('abortos', parseInt(aMatch[1], 10));
+      }
+
+      // --- Interrogatorio por Sistemas ---
+      if (qId === 'sistemas_alteracion') {
+        const isSano = answer === 'no';
+        if (isSano) {
+          handleInterrogatorioChange('digestivo', 'Sin sintomatología digestiva reportada. Masticación y deglución normales.');
+          handleInterrogatorioChange('respiratorio', 'Sin sintomatología respiratoria. Respiración de tipo costal/abdominal normal.');
+          handleInterrogatorioChange('cardiovascular', 'Sin sintomatología cardiovascular. Niega disnea, dolor torácico o palpitaciones.');
+          handleInterrogatorioChange('genitoUrinario', 'Sin sintomatología genitourinaria.');
+          handleInterrogatorioChange('endocrino', 'Sin sintomatología endocrina o alteraciones hormonales.');
+          handleInterrogatorioChange('tegumentario', 'Piel y anexos normales, hidratados y sin lesiones evidentes.');
+          handleInterrogatorioChange('musculoEsqueletico', 'Sistema musculoesquelético íntegro y funcional, sin limitaciones de movilidad.');
+          handleInterrogatorioChange('nervioso', 'Sistema nervioso íntegro, alerta y orientado en tres esferas.');
+        }
+      }
+      if (qId === 'sistema_afectado') {
+        const sys = answer.toString();
+        setSistemaAfectadoActivo(sys);
+        // Inicializamos los demás como negativos para que no queden vacíos
+        const depts = ['cardiovascular', 'digestivo', 'respiratorio', 'nervioso', 'genitoUrinario', 'endocrino', 'tegumentario', 'musculoEsqueletico'];
+        depts.forEach(s => {
+          if (s !== sys) {
+            handleInterrogatorioChange(s, 'Sin sintomatología patológica activa.');
+          }
         });
       }
-      if (qId === 'diabetes') {
-        handleAntecedentePatologicoChange('nutricionales', {
-          sobrepeso: false,
-          obesidad: false,
-          ninguna: answer === 'no',
-          otra: answer === 'si',
-          otraDescripcion: answer === 'si' ? 'Diabetes Mellitus' : ''
-        });
-      }
-      if (qId === 'otrosDetalles') {
-        handleAntecedentePatologicoChange('otrosPadecimientos', {
-          especificar: true,
-          ninguna: false,
-          otra: true,
-          otraDescripcion: answer.toString()
-        });
-      }
-    }
-    else if (currentSectionId === 'alergicos') {
-      if (qId === 'medicamentos_alergico') {
-        handleAntecedenteAlergicoChange('medicamentos', {
-          es_alergico: answer === 'true',
-          cuales: '',
-          tipo_reaccion: '',
-          severidad: ''
-        });
-      }
-      if (qId === 'medicamentos_cuales') {
-        handleAntecedenteAlergicoChange('medicamentos', {
-          es_alergico: true,
-          cuales: answer.toString(),
-          tipo_reaccion: 'Reacción adversa',
-          severidad: 'Moderada'
-        });
-      }
-      if (qId === 'alimentos_alergico') {
-        handleAntecedenteAlergicoChange('alimentos', {
-          es_alergico: answer === 'true',
-          cuales: ''
-        });
-      }
-      if (qId === 'alimentos_cuales') {
-        handleAntecedenteAlergicoChange('alimentos', {
-          es_alergico: true,
-          cuales: answer.toString()
-        });
-      }
-      if (qId === 'latex_alergico') {
-        handleAntecedenteAlergicoChange('latex', {
-          es_alergico: answer === 'true',
-          descripcion_reaccion: answer === 'true' ? 'Contacto cutáneo' : ''
-        });
-      }
-      if (qId === 'reaccionAnestesia') handleAntecedenteAlergicoChange('reaccionAnestesia', answer === 'true');
-      if (qId === 'descripcionReaccionAnestesia') handleAntecedenteAlergicoChange('descripcionReaccion', answer.toString());
-    }
-    else if (currentSectionId === 'quirurgicos') {
-      if (qId === 'sinQuirurgicos') handleAntecedenteQuirurgicoChange('sinQuirurgicos', answer === 'true');
-      if (qId === 'cirugiasDetalles') handleAntecedenteQuirurgicoChange('hospitalizacionesPrevias', answer.toString());
-      if (qId === 'tomaMedicamentos') handleAntecedenteQuirurgicoChange('tomaMedicamentos', answer === 'true');
-      if (qId === 'cualesMedicamentos') {
-        handleAntecedenteQuirurgicoChange('cualesMedicamentos', answer.toString());
-        handleAntecedenteQuirurgicoChange('motivoMedicamentos', 'Control sistémico');
-      }
-    }
-    else if (currentSectionId === 'hemorragicos') {
-      if (qId === 'sinHemorragicos') {
-        handleAntecedenteHemorragicoChange('sinHemorragicos', answer === 'true');
-        handleAntecedenteHemorragicoChange('sangradoProlongado', 'No');
-        handleAntecedenteHemorragicoChange('hematomas', 'No');
-        handleAntecedenteHemorragicoChange('transfusiones', 'No');
-      }
-      if (qId === 'sangradoProlongado') {
-        const val = answer === 'si' ? 'Sí' : 'No';
-        handleAntecedenteHemorragicoChange('sangradoProlongado', val);
-        handleAntecedenteHemorragicoChange('hematomas', val);
-      }
-      if (qId === 'transfusionPrevia') handleAntecedenteHemorragicoChange('transfusionPrevia', answer === 'true');
-      if (qId === 'motivoTransfusion') {
-        handleAntecedenteHemorragicoChange('transfusiones', 'Sí');
-        handleAntecedenteHemorragicoChange('detallesAdicionales', answer.toString());
-      }
-    }
-    else if (currentSectionId === 'interrogatorio') {
       if (qId === 'sistemas_detalles') {
-        const sist = currentQuestion?.placeholder || 'General';
-        handleInterrogatorioChange(sist, answer.toString());
+        handleInterrogatorioChange(sistemaAfectadoActivo, answer.toString());
       }
     }
     else if (currentSectionId === 'exploracionFisica') {
-      if (qId === 'ta') handleExploracionFisicaChange('signosVitales', { ...formData.exploracionFisica.signosVitales, ta: answer.toString() });
-      if (qId === 'fc') handleExploracionFisicaChange('signosVitales', { ...formData.exploracionFisica.signosVitales, fc: answer.toString() });
-      if (qId === 'temperatura') handleExploracionFisicaChange('signosVitales', { ...formData.exploracionFisica.signosVitales, temperatura: answer.toString() });
-      if (qId === 'peso') handleExploracionFisicaChange('signosVitales', { ...formData.exploracionFisica.signosVitales, peso: answer.toString() });
-      if (qId === 'talla') handleExploracionFisicaChange('signosVitales', { ...formData.exploracionFisica.signosVitales, talla: answer.toString() });
-    }
-    else if (currentSectionId === 'cabeza') {
+      if (qId === 'signos_vitales_normales') {
+        if (answer === 'si') {
+          handleExploracionFisicaChange('signosVitales', { 
+            ...formData.exploracionFisica.signosVitales, 
+            ta: '120/80', fc: '80', temperatura: '36.5', fr: '16' 
+          });
+        }
+      }
+      if (qId === 'signos_vitales_variaciones') {
+        // En caso de variaciones dictadas, las alojamos en 'ta' como texto crudo para que el doctor no pierda la info 
+        // y pueda acomodar los valores exactos en los inputs de la UI.
+        handleExploracionFisicaChange('signosVitales', { 
+          ...formData.exploracionFisica.signosVitales, 
+          ta: answer.toString() 
+        });
+      }
+      if (qId === 'sinHallazgosFisicos') {
+        const isSano = answer === 'true';
+        handleExamenCabezaChange('sinHallazgos', isSano);
+        handleArticulacionCraneomandibularChange('ruidoArticular', 'Ninguno');
+        handleArticulacionCraneomandibularChange('dolor', false);
+        handleExamenCuelloChange('sinHallazgos', isSano);
+      }
       if (qId === 'cabeza_hallazgos') handleExamenCabezaChange('sinHallazgos', answer === 'normal');
       if (qId === 'cabeza_detalles') handleExamenCabezaChange('otrosHallazgos', answer.toString());
-    }
-    else if (currentSectionId === 'atm') {
       if (qId === 'atm_ruidos') handleArticulacionCraneomandibularChange('ruidoArticular', answer === 'true' ? 'Chasquidos' : 'Ninguno');
       if (qId === 'atm_dolor') handleArticulacionCraneomandibularChange('dolor', answer === 'true');
       if (qId === 'atm_observaciones') handleArticulacionCraneomandibularChange('otrasObservaciones', answer.toString());
-    }
-    else if (currentSectionId === 'cuello') {
       if (qId === 'cuello_normal') handleExamenCuelloChange('sinHallazgos', answer === 'normal');
       if (qId === 'cuello_detalles') {
         handleExamenCuelloChange('cervicales', { palpacion: 'se_palpan', observaciones: answer.toString() });
       }
     }
-    else if (currentSectionId === 'intrabucal') {
+    else if (currentSectionId === 'odontograma') {
+      if (qId === 'sinHallazgosDentales') {
+        const isSano = answer === 'true';
+        handleExamenIntrabucalChange('sinHallazgos', isSano);
+        handleGlandulasSalivalesChange('sinHallazgos', isSano);
+        handleOclusionChange('clasificacionAngle', 'Clase I');
+        handleOclusionChange('mordidaCruzada', false);
+        handleOclusionChange('mordidaAbierta', false);
+        handleRelacionDientesChange('apiñamiento', false);
+        handleRelacionDientesChange('diastemas', false);
+        handleLineaMediaChange('coincidente', true);
+        handleFrenillosChange('sinHallazgos', isSano);
+      }
       if (qId === 'intrabucal_normal') handleExamenIntrabucalChange('sinHallazgos', answer === 'normal');
       if (qId === 'intrabucal_detalles') {
         handleExamenIntrabucalChange('mejillas', { sinHallazgos: false, observaciones: answer.toString() });
       }
-    }
-    else if (currentSectionId === 'odontograma') {
+      if (qId === 'odontograma_sano') {
+        if (answer === 'sano') {
+          handleOdontogramaChange(999, 'sano');
+        }
+      }
       if (qId === 'odontograma_detalles') {
         handleOdontogramaChange(999, 'caries');
       }
-    }
-    else if (currentSectionId === 'salivales') {
       if (qId === 'salivales_normal') handleGlandulasSalivalesChange('sinHallazgos', answer === 'normal');
       if (qId === 'salivales_detalles') handleGlandulasSalivalesChange('observaciones', answer.toString());
-    }
-    else if (currentSectionId === 'oclusion') {
-      if (qId === 'clasificacionAngle') handleOclusionChange('clasificacionAngle', answer.toString());
-      if (qId === 'mordidaAnormal') {
-        handleOclusionChange('mordidaCruzada', answer === 'cruzada' || answer === 'ambas');
-        handleOclusionChange('mordidaAbierta', answer === 'abierta' || answer === 'ambas');
+      if (qId === 'alteraciones_oclusales') {
+        const isSano = answer === 'normal';
+        // Si dice que es normal, reseteamos todos a sus valores ideales
+        if (isSano) {
+          handleOclusionChange('clasificacionAngle', 'Clase I');
+          handleOclusionChange('mordidaCruzada', false);
+          handleOclusionChange('mordidaAbierta', false);
+          handleRelacionDientesChange('apiñamiento', false);
+          handleRelacionDientesChange('diastemas', false);
+          handleLineaMediaChange('coincidente', true);
+          handleFrenillosChange('sinHallazgos', true);
+        } else {
+          // Si hay hallazgos, quitamos el status de 'sinHallazgos' general
+          handleExamenIntrabucalChange('sinHallazgos', false);
+        }
       }
-    }
-    else if (currentSectionId === 'relacionDientes') {
-      if (qId === 'relacion_normal') {
-        handleRelacionDientesChange('apiñamiento', answer === 'apiniamiento' || answer === 'ambos');
-        handleRelacionDientesChange('diastemas', answer === 'diastemas' || answer === 'ambos');
+      if (qId === 'alteraciones_oclusales_detalles') {
+        // Volcamos todo el texto crudo en observaciones de la oclusión
+        handleOclusionChange('observaciones', answer.toString());
       }
-      if (qId === 'relacion_observaciones') handleRelacionDientesChange('observaciones', answer.toString());
-    }
-    else if (currentSectionId === 'lineaMedia') {
-      if (qId === 'coincidente') handleLineaMediaChange('coincidente', answer === 'true');
-      if (qId === 'desviacion') handleLineaMediaChange('desviacion', answer.toString());
-    }
-    else if (currentSectionId === 'frenillos') {
-      if (qId === 'frenillos_normal') handleFrenillosChange('sinHallazgos', answer === 'normal');
-      if (qId === 'frenillos_detalles') handleFrenillosChange('observaciones', answer.toString());
     }
 
     submitAnswer(answer);
@@ -569,13 +705,27 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
   React.useEffect(() => {
     const store = useCliStore.getState();
     store.setExpedienteMode(true);
-    return () => store.setExpedienteMode(false);
-  }, []);
+    store.setSecciones(seccionesActivas);
+    store.setOnCambiarSeccion((seccionId: string) => {
+      onSectionActive(seccionId);
+    });
+    return () => {
+      store.setExpedienteMode(false);
+      store.setSecciones([]);
+      store.setOnCambiarSeccion(() => {});
+    };
+  }, [seccionesActivas]);
 
   React.useEffect(() => {
     const store = useCliStore.getState();
-    store.setCurrentQuestion(currentQuestion, handleCLISubmit);
-  }, [currentQuestion, currentSectionId]);
+    store.setSeccionActiva(currentSectionId);
+  }, [currentSectionId]);
+
+  React.useEffect(() => {
+    const store = useCliStore.getState();
+    store.setCurrentQuestion(currentQuestion, handleCLISubmit, cliGoBack);
+    store.setProgreso(currentIndex, totalQuestions);
+  }, [currentQuestion, currentIndex, totalQuestions, cliGoBack]);
 
   const renderCurrentStepContent = () => {
     const section = seccionesActivas[currentStep];
@@ -602,6 +752,38 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
           handleCondicionChange={handleCondicionChange}
           {...commonProps}
         />;
+      case 'patologicos':
+        return (
+          <div className="space-y-6 max-h-[85vh] overflow-y-auto pr-2 pb-12 scrollbar-none">
+            <PatologicosCard
+              formData={formData}
+              handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
+              {...commonProps}
+            />
+            <AlergicosCard
+              formData={formData}
+              handleAntecedenteAlergicoChange={handleAntecedenteAlergicoChange}
+              {...commonProps}
+            />
+            <QuirurgicosCard
+              formData={formData}
+              handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange}
+              {...commonProps}
+            />
+            <HemorragicosCard
+              formData={formData}
+              handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange}
+              {...commonProps}
+            />
+            {esMujer && (
+              <GinecoObstetricosCard
+                formData={formData}
+                handleAntecedenteGinecoObstetricoChange={handleAntecedenteGinecoObstetricoChange}
+                {...commonProps}
+              />
+            )}
+          </div>
+        );
       case 'noPatologicos':
         return <NoPatologicosCard
           formData={formData}
@@ -609,109 +791,71 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
           toggleService={toggleService}
           {...commonProps}
         />;
-      case 'patologicos':
-        return <PatologicosCard
-          formData={formData}
-          handleAntecedentePatologicoChange={handleAntecedentePatologicoChange}
-          {...commonProps}
-        />;
-      case 'alergicos':
-        return <AlergicosCard
-          formData={formData}
-          handleAntecedenteAlergicoChange={handleAntecedenteAlergicoChange}
-          {...commonProps}
-        />;
-      case 'quirurgicos':
-        return <QuirurgicosCard
-          formData={formData}
-          handleAntecedenteQuirurgicoChange={handleAntecedenteQuirurgicoChange}
-          {...commonProps}
-        />;
-      case 'hemorragicos':
-        return <HemorragicosCard
-          formData={formData}
-          handleAntecedenteHemorragicoChange={handleAntecedenteHemorragicoChange}
-          {...commonProps}
-        />;
-      case 'ginecoObstetricos':
-        return <GinecoObstetricosCard
-          formData={formData}
-          handleAntecedenteGinecoObstetricoChange={handleAntecedenteGinecoObstetricoChange}
-          {...commonProps}
-        />;
-      case 'interrogatorio':
-        return <InterrogatorioCard
-          formData={formData}
-          handleInterrogatorioChange={handleInterrogatorioChange}
-          {...commonProps}
-        />;
       case 'exploracionFisica':
-        return <ExploracionFisicaCard
-          formData={formData}
-          handleExploracionFisicaChange={handleExploracionFisicaChange}
-          {...commonProps}
-        />;
-      case 'cabeza':
-        return <CabezaCard
-          formData={formData}
-          handleExamenCabezaChange={handleExamenCabezaChange}
-          {...commonProps}
-        />;
-      case 'atm':
-        return <ATMCard
-          formData={formData}
-          handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange}
-          {...commonProps}
-        />;
-      case 'cuello':
-        return <CuelloCard
-          formData={formData}
-          handleExamenCuelloChange={handleExamenCuelloChange}
-          {...commonProps}
-        />;
-      case 'intrabucal':
-        return <IntrabucalCard
-          formData={formData}
-          handleExamenIntrabucalChange={handleExamenIntrabucalChange}
-          {...commonProps}
-        />;
-      case 'odontograma': {
-        return <Odontograma
-          formData={formData}
-          handleOdontogramaChange={handleOdontogramaChange}
-          onRedaccionGenerada={(content: string) => handleContentGenerated('odontograma', content)}
-        />;
-      }
-      case 'salivales':
-        return <SalivalesCard
-          formData={formData}
-          handleGlandulasSalivalesChange={handleGlandulasSalivalesChange}
-          {...commonProps}
-        />;
-      case 'oclusion':
-        return <OclusionCard
-          formData={formData}
-          handleOclusionChange={handleOclusionChange}
-          {...commonProps}
-        />;
-      case 'relacionDientes':
-        return <RelacionDientesCard
-          formData={formData}
-          handleRelacionDientesChange={handleRelacionDientesChange}
-          {...commonProps}
-        />;
-      case 'lineaMedia':
-        return <LineaMediaCard
-          formData={formData}
-          handleLineaMediaChange={handleLineaMediaChange}
-          {...commonProps}
-        />;
-      case 'frenillos':
-        return <FrenillosCard
-          formData={formData}
-          handleFrenillosChange={handleFrenillosChange}
-          {...commonProps}
-        />;
+        return (
+          <div className="space-y-6 max-h-[85vh] overflow-y-auto pr-2 pb-12 scrollbar-none">
+            <ExploracionFisicaCard
+              formData={formData}
+              handleExploracionFisicaChange={handleExploracionFisicaChange}
+              {...commonProps}
+            />
+            <CabezaCard
+              formData={formData}
+              handleExamenCabezaChange={handleExamenCabezaChange}
+              {...commonProps}
+            />
+            <ATMCard
+              formData={formData}
+              handleArticulacionCraneomandibularChange={handleArticulacionCraneomandibularChange}
+              {...commonProps}
+            />
+            <CuelloCard
+              formData={formData}
+              handleExamenCuelloChange={handleExamenCuelloChange}
+              {...commonProps}
+            />
+          </div>
+        );
+      case 'odontograma':
+        return (
+          <div className="space-y-6 max-h-[85vh] overflow-y-auto pr-2 pb-12 scrollbar-none">
+            <Odontograma
+              formData={formData}
+              handleOdontogramaChange={handleOdontogramaChange}
+              onRedaccionGenerada={(content: string) => handleContentGenerated('odontograma', content)}
+            />
+            <IntrabucalCard
+              formData={formData}
+              handleExamenIntrabucalChange={handleExamenIntrabucalChange}
+              {...commonProps}
+            />
+            <SalivalesCard
+              formData={formData}
+              handleGlandulasSalivalesChange={handleGlandulasSalivalesChange}
+              {...commonProps}
+            />
+            <OclusionCard
+              formData={formData}
+              handleOclusionChange={handleOclusionChange}
+              {...commonProps}
+            />
+            <RelacionDientesCard
+              formData={formData}
+              handleRelacionDientesChange={handleRelacionDientesChange}
+              {...commonProps}
+            />
+            <LineaMediaCard
+              formData={formData}
+              handleLineaMediaChange={handleLineaMediaChange}
+              {...commonProps}
+            />
+            <FrenillosCard
+              formData={formData}
+              handleFrenillosChange={handleFrenillosChange}
+              {...commonProps}
+            />
+          </div>
+        );
       default:
         return null;
     }
@@ -733,18 +877,23 @@ export const Seed2FormPanel: React.FC<Seed2FormPanelProps> = ({
   */
   const handleGenerateCurrent = async () => {
     const currentSectionId = seccionesActivas[currentStep].id;
-    // ... logic remains same ...
     const sectionContainer = document.querySelector(`div[data-section="${currentSectionId}"]`);
 
     if (sectionContainer) {
       const buttons = Array.from(sectionContainer.querySelectorAll('button'));
-      const generateButton = buttons.find(btn => {
+      const generateButtons = buttons.filter(btn => {
         const text = btn.textContent?.toLowerCase() || '';
-        return btn.classList.contains('data-trigger-generation') || text.includes('generar redacción') || text.includes('redactar') || text.includes('generar') || text.includes('ver redacción');
+        return btn.classList.contains('data-trigger-generation') || 
+               text.includes('generar redacción') || 
+               text.includes('redactar') || 
+               text.includes('generar') || 
+               text.includes('ver redacción');
       });
 
-      if (generateButton) {
-        (generateButton as HTMLButtonElement).click();
+      if (generateButtons.length > 0) {
+        generateButtons.forEach(btn => {
+          (btn as HTMLButtonElement).click();
+        });
       } else {
         console.warn('Dock: No local generate button found for ' + currentSectionId);
       }
