@@ -300,3 +300,21 @@ html {
 [class*="SidebarBody"] {
   background: white !important;
 }
+
+/* ============================================================
+   ANIMACIONES DENTAXY: RESPLANDOR DE LUZ BLANCA (LIGHT GLOW)
+   ============================================================ */
+@keyframes light-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 0px transparent) brightness(0.9) contrast(0.95);
+    opacity: 0.85;
+  }
+  50% {
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 0.5px rgba(0, 0, 0, 0.15)) brightness(1.2) contrast(1.1);
+    opacity: 1;
+  }
+}
+
+.animate-light-glow {
+  animation: light-glow 4s ease-in-out infinite;
+}
