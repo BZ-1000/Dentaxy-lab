@@ -149,28 +149,28 @@ export function BiometricLockScreen({ onUnlock }: BiometricLockScreenProps) {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3 }}
-                className="relative z-10"
+                className="relative z-10 w-full max-w-[450px] px-4"
             >
-                <Card className="w-[450px] border-white/20 bg-white/95 backdrop-blur-2xl shadow-2xl shadow-black/50">
-                    <CardHeader className="text-center space-y-3 pb-6">
+                <Card className="w-full border-white/20 bg-white/95 backdrop-blur-2xl shadow-2xl shadow-black/50 overflow-hidden">
+                    <CardHeader className="text-center space-y-3 pb-4 sm:pb-6 px-4 sm:px-6">
                         <motion.div
                             animate={{ rotate: [0, 5, -5, 0] }}
                             transition={{ duration: 2, repeat: Infinity }}
-                            className="mx-auto h-20 w-20 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-500/50"
+                            className="mx-auto h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-500/50"
                         >
-                            <Lock className="h-10 w-10 text-white" />
+                            <Lock className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
                         </motion.div>
-                        <CardTitle className="text-2xl font-bold text-gray-900">
+                        <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900">
                             {getLockMessage()}
                         </CardTitle>
-                        <CardDescription className="text-gray-600 font-medium">
+                        <CardDescription className="text-sm text-gray-600 font-medium">
                             {lockedAt && (
                                 <>Bloqueado {formatDistanceToNow(lockedAt, { addSuffix: true, locale: es })}</>
                             )}
                         </CardDescription>
                     </CardHeader>
 
-                    <CardContent className="space-y-5 pb-8">
+                    <CardContent className="space-y-5 px-4 sm:px-6 pb-6 sm:pb-8">
                         <AnimatePresence mode="wait">
                             {!showPasswordFallback ? (
                                 <motion.div
@@ -183,7 +183,7 @@ export function BiometricLockScreen({ onUnlock }: BiometricLockScreenProps) {
                                     <Button
                                         onClick={handleBiometricUnlock}
                                         disabled={isUnlocking}
-                                        className="w-full h-14 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold text-lg shadow-lg shadow-purple-500/30"
+                                        className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-bold text-base sm:text-lg shadow-lg shadow-purple-500/30"
                                     >
                                         {isUnlocking ? (
                                             <>
