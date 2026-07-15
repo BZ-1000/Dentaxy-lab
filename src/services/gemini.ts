@@ -300,10 +300,10 @@ function buildResponse(message: string): string {
     // Si es búsqueda de paciente, personalizar la respuesta
     if (intent.query) {
       const templates = [
-        `Buscando a ${intent.query} en el directorio, Doctor.`,
-        `Localizando el expediente de ${intent.query}.`,
-        `Accediendo al expediente de ${intent.query}, un momento.`,
-        `Buscando a ${intent.query} en los registros clínicos.`,
+        `Enseguida, Doctor. He colocado el expediente de ${intent.query} frente a usted.`,
+        `Como ordene. El historial de ${intent.query} ya está centrado en pantalla, señor.`,
+        `A sus órdenes. He traído la información de ${intent.query} a primer plano.`,
+        `Listo, Doctor. El archivo de ${intent.query} se encuentra ahora en el centro de su visor.`,
       ];
       return pick(templates);
     }

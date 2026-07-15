@@ -271,6 +271,7 @@ export function GlobalDexBubble() {
   const isListeningRef = useRef(false);
   // Contador de errores not-allowed para no matar DEX con un error transitorio
   const notAllowedCountRef = useRef(0);
+  const launchSRRef = useRef<(() => void) | null>(null);
 
   // ── Ref de función de procesamiento (siempre actualizado) ─────────────────
   const processVoiceRef = useRef<(text: string) => void>(() => {});
@@ -343,11 +344,13 @@ export function GlobalDexBubble() {
     if (!text.trim()) return;
     try {
       const response = await chatWithAgent(text, {}, []);
+      convStateRef.current = 'IDLE';
       setResponseMessage(response);
       speakText(response);
       resetInactivity();
     } catch {
       const m = "No pude procesar ese comando, Doctor. ¿Puede repetirlo?";
+      convStateRef.current = 'IDLE';
       setResponseMessage(m);
       speakText(m);
     }
@@ -694,9 +697,16 @@ export function GlobalDexBubble() {
             if (cmd.length > 2) {
               // Hay comando inmediato — verificar que no sea basura
               if (!isMeaningfulCommand(cmd)) {
-                // Comando sin sentido → volver a dormir silenciosamente
-                console.log('[DEX] Comando sin sentido, ignorando:', cmd);
-                goSleep(false); // sin sonido de desactivación
+                // Comando sin sentido (ej. ruido o muletilla) → ignorar y seguir escuchando
+                console.log('[DEX] Comando inline sin sentido, ignorando:', cmd);
+                setResponseMessage('Escuchando, Doctor...');
+                convStateRef.current = 'WAITING_COMMAND';
+                if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
+                commandTimeoutRef.current = setTimeout(() => {
+                  if (voiceStateRef.current === 'LISTENING_COMMAND' && aliveRef.current) {
+                    goSleep(true);
+                  }
+                }, 4000);
                 continue;
               }
 
@@ -750,9 +760,9 @@ export function GlobalDexBubble() {
                 // Resultado definitivo: verificar significado antes de ejecutar
                 const isContext = ['ADD_PATIENT_NAME', 'ADD_PATIENT_PHONE', 'ADD_PATIENT_CONFIRM'].includes(convStateRef.current);
                 if (!isContext && !isMeaningfulCommand(cmd)) {
-                  // No tiene sentido → volver a dormir sin responder
+                  // No tiene sentido → limpiar el texto y seguir esperando
                   console.log('[DEX] Comando final sin sentido, ignorando:', cmd);
-                  goSleep(false);
+                  setResponseMessage('Escuchando, Doctor...');
                   continue;
                 }
                 if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
@@ -767,7 +777,7 @@ export function GlobalDexBubble() {
                   if (voiceStateRef.current === 'LISTENING_COMMAND' && aliveRef.current) {
                     const isCtx = ['ADD_PATIENT_NAME', 'ADD_PATIENT_PHONE', 'ADD_PATIENT_CONFIRM'].includes(convStateRef.current);
                     if (!isCtx && !isMeaningfulCommand(cmd)) {
-                      goSleep(false);
+                      setResponseMessage('Escuchando, Doctor...');
                       return;
                     }
                     if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
@@ -793,6 +803,8 @@ export function GlobalDexBubble() {
         restartTimerRef.current = setTimeout(launch, 500);
       }
     };
+
+    launchSRRef.current = launch;
 
     // ── Watchdog anti-deadlock ────────────────────────────────────────────
     // Cada 8 segundos verifica que el motor esté activo; si no → lo resucita
@@ -865,10 +877,25 @@ export function GlobalDexBubble() {
             goSleep(true);
           }
         }, 4000);
+      } else {
+        // nextState === 'SLEEPING'
+        setTimeout(() => {
+          if (voiceStateRef.current === 'SLEEPING' || voiceStateRef.current === 'SPEAKING') {
+            setResponseMessage(null);
+          }
+        }, 1500);
       }
       voiceStateRef.current = nextState;
       setVoiceState(nextState);
-      // El recognition se reinicia automáticamente vía onend → launch()
+      
+      // Como abortamos el reconocimiento durante SPEAKING, onend se saltó el reinicio.
+      // Debemos forzar el relanzamiento aquí explícitamente para que escuche de nuevo.
+      if (aliveRef.current && !isListeningRef.current && launchSRRef.current) {
+        // pequeño timeout para evitar colisión con el abort anterior en el API nativo
+        setTimeout(() => {
+          if (launchSRRef.current) launchSRRef.current();
+        }, 50);
+      }
     }
   }, [isSpeaking, shouldHide, setVS, goSleep]);
 
@@ -1006,7 +1033,12 @@ export function GlobalDexBubble() {
               <input
                 type="text"
                 value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setChatInput(val);
+                  // Disparar búsqueda en tiempo real para que el carrusel se filtre
+                  window.dispatchEvent(new CustomEvent('dex:typingSearch', { detail: { query: val } }));
+                }}
                 placeholder="Pregunta lo que quieras"
                 className="flex-1 bg-transparent border-none outline-none text-slate-800 text-sm font-semibold placeholder-slate-400 py-1"
                 onKeyDown={(e) => { if (e.key === "Enter") handleSendMessage(); }}

@@ -32,6 +32,11 @@ export default function SeedCarousel({
   const [activeIndex, setActiveIndex] = useState(0); 
   const isScrolling = useRef(false);
   const [patients, setPatients] = useState<any[]>([]);
+  const patientsRef = useRef<any[]>([]);
+  useEffect(() => {
+    patientsRef.current = patients;
+  }, [patients]);
+  
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchPatients = useCallback(async () => {
@@ -106,69 +111,52 @@ export default function SeedCarousel({
       onPatientsLoadRef.current?.([newPatient]);
     };
 
-    // ── DEX: navegar al paciente buscado ──────────────────────────────────
+    // ── DEX: navegar y enfocar paciente buscado ──────────────────────────
+    const handleSearchCommand = (query: string) => {
+      const val = query.trim().toLowerCase();
+      const qStr = val.replace(/^(busca al paciente|buscar al paciente|busca al|buscar al|busca paciente|buscar paciente|busca a|buscar a|busca|buscar|quiero ver a|quiero ver|abre a|abrir a|abre|abrir|encuentra a|encuentra)\s+/i, '').trim();
+      
+      const pts = patientsRef.current;
+      if (!qStr || pts.length === 0) return;
+
+      const normalize = (s: string) => (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      const nq = normalize(qStr);
+      
+      let matchIndex = pts.findIndex(p => normalize(p.name).includes(nq));
+      
+      if (matchIndex === -1) {
+        const qTokens = nq.split(/\s+/);
+        matchIndex = pts.findIndex(p => {
+          const nTokens = normalize(p.name).split(/[,\s]+/);
+          return qTokens.some(qt => nTokens.some(nt => nt.startsWith(qt) || qt.startsWith(nt)));
+        });
+      }
+
+      if (matchIndex !== -1) {
+        const logicalPosition = matchIndex === 0 ? 0 : (matchIndex % 2 !== 0 ? Math.ceil(matchIndex/2) : -Math.ceil(matchIndex/2));
+        setActiveIndex(logicalPosition);
+      }
+    };
+
     const handleDexSearch = (e: Event) => {
       const ev = e as CustomEvent;
-      const query: string = (ev.detail?.query || '').toLowerCase().trim();
-      if (!query) return;
+      handleSearchCommand(ev.detail?.query || '');
+    };
 
-      setPatients(currentPatients => {
-        if (currentPatients.length === 0) return currentPatients;
-
-        // Buscar el índice del paciente cuyo nombre contenga el query
-        let foundArrayIndex = -1;
-        let bestScore = 0;
-
-        currentPatients.forEach((p, arrIdx) => {
-          const name = (p.name || '').toLowerCase();
-          // Eliminar acentos para comparar
-          const normalize = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-          const n = normalize(name);
-          const q = normalize(query);
-
-          let score = 0;
-          if (n === q) score = 100;                         // exacto
-          else if (n.startsWith(q)) score = 80;             // empieza con
-          else if (n.includes(q)) score = 60;               // contiene
-          else {
-            // comparar tokens individuales
-            const qTokens = q.split(/\s+/);
-            const nTokens = n.split(/[,\s]+/);
-            const matched = qTokens.filter(qt => nTokens.some(nt => nt.startsWith(qt) || qt.startsWith(nt)));
-            score = matched.length > 0 ? (matched.length / qTokens.length) * 40 : 0;
-          }
-
-          if (score > bestScore) {
-            bestScore = score;
-            foundArrayIndex = arrIdx;
-          }
-        });
-
-        if (foundArrayIndex === -1 || bestScore === 0) return currentPatients;
-
-        // Convertir arrayIndex → logicalPosition del carrusel
-        // Lógica del carrusel: index 0 → pos 0, index 1 → pos 1, index 2 → pos -1, index 3 → pos 2, index 4 → pos -2 ...
-        let logicalPos: number;
-        if (foundArrayIndex === 0) {
-          logicalPos = 0;
-        } else if (foundArrayIndex % 2 !== 0) {
-          logicalPos = Math.ceil(foundArrayIndex / 2);
-        } else {
-          logicalPos = -Math.ceil(foundArrayIndex / 2);
-        }
-
-        setActiveIndex(logicalPos);
-        return currentPatients;
-      });
+    const handleTypingSearch = (e: Event) => {
+      const ev = e as CustomEvent;
+      handleSearchCommand(ev.detail?.query || '');
     };
 
     window.addEventListener('patientCreated', handlePatientCreated);
     window.addEventListener('createNewPatientLocal', handleLocalPatient);
     window.addEventListener('dex:searchPatient', handleDexSearch);
+    window.addEventListener('dex:typingSearch', handleTypingSearch);
     return () => {
       window.removeEventListener('patientCreated', handlePatientCreated);
       window.removeEventListener('createNewPatientLocal', handleLocalPatient);
       window.removeEventListener('dex:searchPatient', handleDexSearch);
+      window.removeEventListener('dex:typingSearch', handleTypingSearch);
     };
   }, [fetchPatients]);
 
@@ -178,6 +166,7 @@ export default function SeedCarousel({
       onActivePatientChange(null);
       return;
     }
+    
     const activePatient = patients.find((_, index) => {
       const logicalPosition = index === 0 ? 0 : (index % 2 !== 0 ? Math.ceil(index/2) : -Math.ceil(index/2));
       return logicalPosition === activeIndex;
@@ -203,7 +192,7 @@ export default function SeedCarousel({
     } else {
       setActiveIndex(prev => Math.max(prev - 1, minPos));
     }
-  }, [patients.length]);
+  }, [patients]);
 
   const cardsToRender = patients.length > 0 ? patients : [EMPTY_CARD];
 
