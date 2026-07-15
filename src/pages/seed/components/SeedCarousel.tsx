@@ -82,9 +82,93 @@ export default function SeedCarousel({
   useEffect(() => {
     fetchPatients();
     const handlePatientCreated = () => fetchPatients();
+    
+    // Agregar paciente instantáneamente al carrusel sin esperar Drive
+    const handleLocalPatient = (e: Event) => {
+      const ev = e as CustomEvent;
+      const { name, telefono } = ev.detail || {};
+      if (!name) return;
+      const newPatient = {
+        id: `LOCAL-${Date.now()}`,
+        name,
+        appProperties: {
+          telefono: telefono || '',
+          motivo: 'Valoración inicial (DEX AI)',
+          alergias: 'Ninguna'
+        }
+      };
+      setPatients(prev => {
+        const exists = prev.some(p => p.name === name);
+        if (exists) return prev;
+        return [newPatient, ...prev];
+      });
+      setActiveIndex(0);
+      onPatientsLoadRef.current?.([newPatient]);
+    };
+
+    // ── DEX: navegar al paciente buscado ──────────────────────────────────
+    const handleDexSearch = (e: Event) => {
+      const ev = e as CustomEvent;
+      const query: string = (ev.detail?.query || '').toLowerCase().trim();
+      if (!query) return;
+
+      setPatients(currentPatients => {
+        if (currentPatients.length === 0) return currentPatients;
+
+        // Buscar el índice del paciente cuyo nombre contenga el query
+        let foundArrayIndex = -1;
+        let bestScore = 0;
+
+        currentPatients.forEach((p, arrIdx) => {
+          const name = (p.name || '').toLowerCase();
+          // Eliminar acentos para comparar
+          const normalize = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          const n = normalize(name);
+          const q = normalize(query);
+
+          let score = 0;
+          if (n === q) score = 100;                         // exacto
+          else if (n.startsWith(q)) score = 80;             // empieza con
+          else if (n.includes(q)) score = 60;               // contiene
+          else {
+            // comparar tokens individuales
+            const qTokens = q.split(/\s+/);
+            const nTokens = n.split(/[,\s]+/);
+            const matched = qTokens.filter(qt => nTokens.some(nt => nt.startsWith(qt) || qt.startsWith(nt)));
+            score = matched.length > 0 ? (matched.length / qTokens.length) * 40 : 0;
+          }
+
+          if (score > bestScore) {
+            bestScore = score;
+            foundArrayIndex = arrIdx;
+          }
+        });
+
+        if (foundArrayIndex === -1 || bestScore === 0) return currentPatients;
+
+        // Convertir arrayIndex → logicalPosition del carrusel
+        // Lógica del carrusel: index 0 → pos 0, index 1 → pos 1, index 2 → pos -1, index 3 → pos 2, index 4 → pos -2 ...
+        let logicalPos: number;
+        if (foundArrayIndex === 0) {
+          logicalPos = 0;
+        } else if (foundArrayIndex % 2 !== 0) {
+          logicalPos = Math.ceil(foundArrayIndex / 2);
+        } else {
+          logicalPos = -Math.ceil(foundArrayIndex / 2);
+        }
+
+        setActiveIndex(logicalPos);
+        return currentPatients;
+      });
+    };
+
     window.addEventListener('patientCreated', handlePatientCreated);
+    window.addEventListener('createNewPatientLocal', handleLocalPatient);
+    window.addEventListener('dex:searchPatient', handleDexSearch);
     return () => {
       window.removeEventListener('patientCreated', handlePatientCreated);
+      window.removeEventListener('createNewPatientLocal', handleLocalPatient);
+      window.removeEventListener('dex:searchPatient', handleDexSearch);
     };
   }, [fetchPatients]);
 

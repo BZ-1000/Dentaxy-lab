@@ -1,0 +1,800 @@
+    const tremolo = audioCtx.createOscillator();
+    const tremoloGain = audioCtx.createGain();
+    tremolo.type = 'sine';
+    tremolo.frequency.setValueAtTime(8, now); // Oscilación de volumen a 8Hz
+    tremoloGain.gain.setValueAtTime(0.06, now);
+    
+    tremolo.connect(tremoloGain);
+    tremoloGain.connect(energyGain.gain);
+
+    // Fade-out exponencial de la energía vibrante
+    energyGain.gain.setValueAtTime(0.18, now + 0.8);
+    energyGain.gain.exponentialRampToValueAtTime(0.001, now + 1.4);
+
+    osc1.start(now);
+    osc2.start(now);
+    noiseSource.start(now);
+    vibrationLfo.start(now);
+    tremolo.start(now);
+    
+    osc1.stop(now + 1.42);
+    osc2.stop(now + 1.42);
+    noiseSource.stop(now + 0.9);
+    vibrationLfo.stop(now + 1.42);
+    tremolo.stop(now + 1.42);
+  } catch (error) {
+    console.error("Error playing energy activation sound:", error);
+  }
+};
+
+const playDeactivationSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    
+    const masterFilter = audioCtx.createBiquadFilter();
+    masterFilter.type = 'lowpass';
+    masterFilter.frequency.setValueAtTime(500, now);
+    
+    const masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0.7, now);
+    
+    masterFilter.connect(masterGain);
+    masterGain.connect(audioCtx.destination);
+
+    // Descendente de energía sub-grave
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    osc1.type = 'sawtooth';
+    osc2.type = 'triangle';
+    
+    // Pitch sweep descendente grave (125Hz a 45Hz)
+    osc1.frequency.setValueAtTime(125, now);
+    osc1.frequency.exponentialRampToValueAtTime(45, now + 0.7);
+    
+    osc2.frequency.setValueAtTime(125, now);
+    osc2.frequency.exponentialRampToValueAtTime(45, now + 0.7);
+    
+    osc1.detune.setValueAtTime(-15, now);
+    osc2.detune.setValueAtTime(15, now);
+    
+    const energyFilter = audioCtx.createBiquadFilter();
+    energyFilter.type = 'lowpass';
+    energyFilter.frequency.setValueAtTime(450, now);
+    energyFilter.frequency.exponentialRampToValueAtTime(80, now + 0.7);
+    
+    const energyGain = audioCtx.createGain();
+    energyGain.gain.setValueAtTime(0.18, now);
+    energyGain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+    
+    osc1.connect(energyFilter);
+    osc2.connect(energyFilter);
+    energyFilter.connect(energyGain);
+    energyGain.connect(masterFilter);
+
+    // Whoosh descendente de despresurización
+    const sampleRate = audioCtx.sampleRate;
+    const noiseDuration = 0.7;
+    const noiseBufferSize = sampleRate * noiseDuration;
+    const noiseBuffer = audioCtx.createBuffer(1, noiseBufferSize, sampleRate);
+    const noiseData = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < noiseBufferSize; i++) {
+      noiseData[i] = Math.random() * 2 - 1;
+    }
+    const noiseSource = audioCtx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    
+    const noiseFilter = audioCtx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.Q.setValueAtTime(5.0, now);
+    noiseFilter.frequency.setValueAtTime(450, now);
+    noiseFilter.frequency.exponentialRampToValueAtTime(80, now + 0.65);
+    
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0.09, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+    
+    noiseSource.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(masterFilter);
+    
+    osc1.start(now);
+    osc2.start(now);
+    noiseSource.start(now);
+    
+    osc1.stop(now + 0.76);
+    osc2.stop(now + 0.76);
+    noiseSource.stop(now + 0.7);
+  } catch (error) {
+    console.error("Error playing energy deactivation sound:", error);
+  }
+};
+// Tonos sintetizados con Web Audio API (Carga y Descenso de Energía Espacial - Sci-Fi Premium de Alta Calidad)
+const playActivationSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    
+    // Filtro maestro pasabajos cálido (corte a 800Hz para mantener cuerpo y evitar siseos)
+    const masterFilter = audioCtx.createBiquadFilter();
+    masterFilter.type = 'lowpass';
+    masterFilter.frequency.setValueAtTime(800, now);
+    
+    const masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0.85, now);
+    
+    masterFilter.connect(masterGain);
+    masterGain.connect(audioCtx.destination);
+
+    // ─── EFECTO ESPACIAL / CHORUS DE ALTA CALIDAD (DELAY + RETROALIMENTACIÓN) ───
+    // Genera grosor y amplitud de sonido para que "llene" todo el campo estéreo y no suene barato/plano
+    const delayNode = audioCtx.createDelay(0.1);
+    const feedbackGain = audioCtx.createGain();
+    delayNode.delayTime.setValueAtTime(0.018, now); // Retardo de 18ms
+    feedbackGain.gain.setValueAtTime(0.45, now);   // 45% retroalimentación
+    
+    delayNode.connect(feedbackGain);
+    feedbackGain.connect(delayNode); // Bucle
+    
+    // Conectar el delay en paralelo
+    delayNode.connect(masterFilter);
+
+    // ─── 1. CARGA RÁPIDA DE ENERGÍA (0.0s - 0.45s) ───
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const oscTriangle = audioCtx.createOscillator();
+    
+    osc1.type = 'sine';
+    osc2.type = 'sine';
+    oscTriangle.type = 'triangle';
+    
+    // Pitch sweep ascendente rápido y denso (de 65Hz a 170Hz)
+    const startFreq = 65;
+    const endFreq = 170;
+    osc1.frequency.setValueAtTime(startFreq, now);
+    osc1.frequency.exponentialRampToValueAtTime(endFreq, now + 0.45);
+    
+    osc2.frequency.setValueAtTime(startFreq, now);
+    osc2.frequency.exponentialRampToValueAtTime(endFreq, now + 0.45);
+    
+    oscTriangle.frequency.setValueAtTime(startFreq, now);
+    oscTriangle.frequency.exponentialRampToValueAtTime(endFreq, now + 0.45);
+    
+    // Desafinación estéreo (grosor armónico premium)
+    osc1.detune.setValueAtTime(-20, now);
+    osc2.detune.setValueAtTime(20, now);
+    oscTriangle.detune.setValueAtTime(5, now);
+    
+    // Filtro local resonante
+    const localFilter = audioCtx.createBiquadFilter();
+    localFilter.type = 'lowpass';
+    localFilter.Q.setValueAtTime(3.0, now);
+    localFilter.frequency.setValueAtTime(140, now);
+    localFilter.frequency.exponentialRampToValueAtTime(550, now + 0.45);
+    
+    const energyGain = audioCtx.createGain();
+    energyGain.gain.setValueAtTime(0, now);
+    energyGain.gain.linearRampToValueAtTime(0.24, now + 0.42); // Ataque rápido de energía
+    
+    osc1.connect(localFilter);
+    osc2.connect(localFilter);
+    oscTriangle.connect(localFilter);
+    localFilter.connect(energyGain);
+    
+    // Conectar tanto a master directo como al procesador espacial en paralelo
+    energyGain.connect(masterFilter);
+    energyGain.connect(delayNode);
+
+    // Whoosh de partículas aéreas
+    const sampleRate = audioCtx.sampleRate;
+    const noiseDuration = 0.55;
+    const noiseBufferSize = sampleRate * noiseDuration;
+    const noiseBuffer = audioCtx.createBuffer(1, noiseBufferSize, sampleRate);
+    const noiseData = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < noiseBufferSize; i++) {
+      noiseData[i] = Math.random() * 2 - 1;
+    }
+    const noiseSource = audioCtx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    
+    const noiseFilter = audioCtx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.Q.setValueAtTime(5.0, now);
+    noiseFilter.frequency.setValueAtTime(120, now);
+    noiseFilter.frequency.exponentialRampToValueAtTime(500, now + 0.45);
+    
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0, now);
+    noiseGain.gain.linearRampToValueAtTime(0.08, now + 0.4);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+    
+    noiseSource.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(masterFilter);
+    noiseGain.connect(delayNode);
+
+    // ─── 2. VIBRACIÓN DE LA ENERGÍA (0.45s - 1.1s) ───
+    // LFO que modula el pitch para dar vibración sónica / eléctrica
+    const vibrationLfo = audioCtx.createOscillator();
+    const vibrationGain = audioCtx.createGain();
+    vibrationLfo.type = 'sine';
+    vibrationLfo.frequency.setValueAtTime(36, now); // Vibración a 36Hz
+    vibrationGain.gain.setValueAtTime(0, now);
+    vibrationGain.gain.setValueAtTime(0, now + 0.43);
+    vibrationGain.gain.linearRampToValueAtTime(18, now + 0.5); // Comienza al terminar la carga
+    
+    vibrationLfo.connect(vibrationGain);
+    vibrationGain.connect(osc1.frequency);
+    vibrationGain.connect(osc2.frequency);
+    vibrationGain.connect(oscTriangle.frequency);
+    
+    // Trémolo sobre el volumen final de la vibración
+    const tremolo = audioCtx.createOscillator();
+    const tremoloGain = audioCtx.createGain();
+    tremolo.type = 'sine';
+    tremolo.frequency.setValueAtTime(7, now); // Oscilación de volumen a 7Hz
+    tremoloGain.gain.setValueAtTime(0.05, now);
+    
+    tremolo.connect(tremoloGain);
+    tremoloGain.connect(energyGain.gain);
+
+    // Decaimiento asintótico curvo de alta calidad para evitar cortes y "pops" baratos
+    energyGain.gain.setValueAtTime(0.24, now + 0.45);
+    energyGain.gain.setTargetAtTime(0, now + 0.5, 0.16); // Decae de forma natural y ultra-suave
+
+    osc1.start(now);
+    osc2.start(now);
+    oscTriangle.start(now);
+    noiseSource.start(now);
+    vibrationLfo.start(now);
+    tremolo.start(now);
+    
+    osc1.stop(now + 1.25);
+    osc2.stop(now + 1.25);
+    oscTriangle.stop(now + 1.25);
+    noiseSource.stop(now + 0.6);
+    vibrationLfo.stop(now + 1.25);
+    tremolo.stop(now + 1.25);
+  } catch (error) {
+    console.error("Error playing energy activation sound:", error);
+  }
+};
+
+const playDeactivationSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    
+    const masterFilter = audioCtx.createBiquadFilter();
+    masterFilter.type = 'lowpass';
+    masterFilter.frequency.setValueAtTime(500, now);
+    
+    const masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0.75, now);
+    
+    masterFilter.connect(masterGain);
+    masterGain.connect(audioCtx.destination);
+
+    // Procesador espacial para la salida (Delay)
+    const delayNode = audioCtx.createDelay(0.1);
+    const feedbackGain = audioCtx.createGain();
+    delayNode.delayTime.setValueAtTime(0.022, now);
+    feedbackGain.gain.setValueAtTime(0.4, now);
+    delayNode.connect(feedbackGain);
+    feedbackGain.connect(delayNode);
+    delayNode.connect(masterFilter);
+
+    // Descendente de energía sub-grave
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const oscTriangle = audioCtx.createOscillator();
+    
+    osc1.type = 'sine';
+    osc2.type = 'sine';
+    oscTriangle.type = 'triangle';
+    
+    // Pitch sweep descendente grave (170Hz a 45Hz)
+    osc1.frequency.setValueAtTime(170, now);
+    osc1.frequency.exponentialRampToValueAtTime(45, now + 0.6);
+    
+    osc2.frequency.setValueAtTime(170, now);
+    osc2.frequency.exponentialRampToValueAtTime(45, now + 0.6);
+    
+    oscTriangle.frequency.setValueAtTime(170, now);
+    oscTriangle.frequency.exponentialRampToValueAtTime(45, now + 0.6);
+    
+    osc1.detune.setValueAtTime(-20, now);
+    osc2.detune.setValueAtTime(20, now);
+    oscTriangle.detune.setValueAtTime(5, now);
+    
+    const localFilter = audioCtx.createBiquadFilter();
+    localFilter.type = 'lowpass';
+    localFilter.frequency.setValueAtTime(500, now);
+    localFilter.frequency.exponentialRampToValueAtTime(70, now + 0.6);
+    
+    const energyGain = audioCtx.createGain();
+    energyGain.gain.setValueAtTime(0.24, now);
+    energyGain.gain.setTargetAtTime(0, now + 0.05, 0.18); // Decaimiento asintótico para suavidad
+    
+    osc1.connect(localFilter);
+    osc2.connect(localFilter);
+    oscTriangle.connect(localFilter);
+    localFilter.connect(energyGain);
+    
+    energyGain.connect(masterFilter);
+    energyGain.connect(delayNode);
+
+    // Whoosh de despresurización
+    const sampleRate = audioCtx.sampleRate;
+    const noiseDuration = 0.65;
+    const noiseBufferSize = sampleRate * noiseDuration;
+    const noiseBuffer = audioCtx.createBuffer(1, noiseBufferSize, sampleRate);
+    const noiseData = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < noiseBufferSize; i++) {
+      noiseData[i] = Math.random() * 2 - 1;
+    }
+    const noiseSource = audioCtx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    
+    const noiseFilter = audioCtx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.Q.setValueAtTime(5.0, now);
+    noiseFilter.frequency.setValueAtTime(450, now);
+    noiseFilter.frequency.exponentialRampToValueAtTime(80, now + 0.55);
+    
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0.08, now);
+    noiseGain.gain.setTargetAtTime(0, now + 0.05, 0.15);
+    
+    noiseSource.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(masterFilter);
+    noiseGain.connect(delayNode);
+    
+    osc1.start(now);
+    osc2.start(now);
+    oscTriangle.start(now);
+    noiseSource.start(now);
+    
+    osc1.stop(now + 1.1);
+    osc2.stop(now + 1.1);
+    oscTriangle.stop(now + 1.1);
+    noiseSource.stop(now + 0.7);
+  } catch (error) {
+    console.error("Error playing energy deactivation sound:", error);
+  }
+};
+// Tonos sintetizados con Web Audio API (Carga y Descenso de Energía Espacial - Sci-Fi Premium de Alta Calidad)
+const playActivationSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    
+    // Filtro maestro pasabajos idéntico para calidez
+    const masterFilter = audioCtx.createBiquadFilter();
+    masterFilter.type = 'lowpass';
+    masterFilter.frequency.setValueAtTime(500, now);
+    
+    const masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0.75, now);
+    
+    masterFilter.connect(masterGain);
+    masterGain.connect(audioCtx.destination);
+
+    // Procesador espacial (Delay) idéntico para fluidez estéreo y amplitud
+    const delayNode = audioCtx.createDelay(0.1);
+    const feedbackGain = audioCtx.createGain();
+    delayNode.delayTime.setValueAtTime(0.018, now);
+    feedbackGain.gain.setValueAtTime(0.4, now); // Retroalimentación idéntica
+    delayNode.connect(feedbackGain);
+    feedbackGain.connect(delayNode);
+    delayNode.connect(masterFilter);
+
+    // Osciladores idénticos de alta calidad (2 sine + 1 triangle)
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const oscTriangle = audioCtx.createOscillator();
+    
+    osc1.type = 'sine';
+    osc2.type = 'sine';
+    oscTriangle.type = 'triangle';
+    
+    // Pitch sweep ascendente exacto y fluido (de 45Hz a 160Hz) en 0.6s
+    const startFreq = 45;
+    const endFreq = 160;
+    osc1.frequency.setValueAtTime(startFreq, now);
+    osc1.frequency.exponentialRampToValueAtTime(endFreq, now + 0.6);
+    
+    osc2.frequency.setValueAtTime(startFreq, now);
+    osc2.frequency.exponentialRampToValueAtTime(endFreq, now + 0.6);
+    
+    oscTriangle.frequency.setValueAtTime(startFreq, now);
+    oscTriangle.frequency.exponentialRampToValueAtTime(endFreq, now + 0.6);
+    
+    // Desafinación idéntica
+    osc1.detune.setValueAtTime(-20, now);
+    osc2.detune.setValueAtTime(20, now);
+    oscTriangle.detune.setValueAtTime(5, now);
+    
+    const localFilter = audioCtx.createBiquadFilter();
+    localFilter.type = 'lowpass';
+    localFilter.frequency.setValueAtTime(120, now);
+    localFilter.frequency.exponentialRampToValueAtTime(500, now + 0.6);
+    
+    // Ganancia envolvente idéntica y no saturada
+    const energyGain = audioCtx.createGain();
+    energyGain.gain.setValueAtTime(0, now);
+    energyGain.gain.linearRampToValueAtTime(0.24, now + 0.08); // Ataque de 80ms
+    energyGain.gain.setTargetAtTime(0, now + 0.12, 0.18); // Decaimiento asintótico súper fluido
+    
+    osc1.connect(localFilter);
+    osc2.connect(localFilter);
+    oscTriangle.connect(localFilter);
+    localFilter.connect(energyGain);
+    
+    energyGain.connect(masterFilter);
+    energyGain.connect(delayNode);
+
+    // Ruido de partículas muy atenuado idéntico al de desactivación
+    const sampleRate = audioCtx.sampleRate;
+    const noiseDuration = 0.65;
+    const noiseBufferSize = sampleRate * noiseDuration;
+    const noiseBuffer = audioCtx.createBuffer(1, noiseBufferSize, sampleRate);
+    const noiseData = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < noiseBufferSize; i++) {
+      noiseData[i] = Math.random() * 2 - 1;
+    }
+    const noiseSource = audioCtx.createBufferSource();
+    noiseSource.buffer = noiseBuffer;
+    
+    const noiseFilter = audioCtx.createBiquadFilter();
+    noiseFilter.type = 'bandpass';
+    noiseFilter.Q.setValueAtTime(5.0, now);
+    noiseFilter.frequency.setValueAtTime(80, now);
+    noiseFilter.frequency.exponentialRampToValueAtTime(450, now + 0.55);
+    
+    const noiseGain = audioCtx.createGain();
+    noiseGain.gain.setValueAtTime(0, now);
+    noiseGain.gain.linearRampToValueAtTime(0.06, now + 0.08);
+    noiseGain.gain.setTargetAtTime(0, now + 0.12, 0.15);
+    
+    noiseSource.connect(noiseFilter);
+    noiseFilter.connect(noiseGain);
+    noiseGain.connect(masterFilter);
+    noiseGain.connect(delayNode);
+    
+    osc1.start(now);
+    osc2.start(now);
+    oscTriangle.start(now);
+    noiseSource.start(now);
+    
+    osc1.stop(now + 1.1);
+    osc2.stop(now + 1.1);
+    oscTriangle.stop(now + 1.1);
+    noiseSource.stop(now + 0.7);
+  } catch (error) {
+    console.error("Error playing energy activation sound:", error);
+  }
+};
+// Tonos sintetizados con Web Audio API (Carga y Descenso de Energía Espacial - Sci-Fi Premium de Alta Calidad)
+const playActivationSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    
+    // Filtro maestro pasabajos idéntico para calidez
+    const masterFilter = audioCtx.createBiquadFilter();
+    masterFilter.type = 'lowpass';
+    masterFilter.frequency.setValueAtTime(500, now);
+    
+    // Bajamos la ganancia master a 0.50 (de 0.75) para evitar saturación digital
+    const masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0.50, now);
+    
+    masterFilter.connect(masterGain);
+    masterGain.connect(audioCtx.destination);
+
+    // Procesador espacial (Delay) idéntico para fluidez estéreo y amplitud
+    const delayNode = audioCtx.createDelay(0.1);
+    const feedbackGain = audioCtx.createGain();
+    delayNode.delayTime.setValueAtTime(0.018, now);
+    feedbackGain.gain.setValueAtTime(0.35, now); // Retroalimentación controlada
+    delayNode.connect(feedbackGain);
+    feedbackGain.connect(delayNode);
+    delayNode.connect(masterFilter);
+
+    // Osciladores de alta calidad (2 sine + 1 triangle)
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const oscTriangle = audioCtx.createOscillator();
+    
+    osc1.type = 'sine';
+    osc2.type = 'sine';
+    oscTriangle.type = 'triangle';
+    
+    // Pitch sweep ascendente exacto y fluido (de 45Hz a 160Hz) en 0.6s
+    const startFreq = 45;
+    const endFreq = 160;
+    osc1.frequency.setValueAtTime(startFreq, now);
+    osc1.frequency.exponentialRampToValueAtTime(endFreq, now + 0.6);
+    
+    osc2.frequency.setValueAtTime(startFreq, now);
+    osc2.frequency.exponentialRampToValueAtTime(endFreq, now + 0.6);
+    
+    oscTriangle.frequency.setValueAtTime(startFreq, now);
+    oscTriangle.frequency.exponentialRampToValueAtTime(endFreq, now + 0.6);
+    
+    // Desafinación idéntica
+    osc1.detune.setValueAtTime(-20, now);
+    osc2.detune.setValueAtTime(20, now);
+    oscTriangle.detune.setValueAtTime(5, now);
+    
+    // Filtro local plano (Q=1.0) para evitar picos resonantes que saturan al subir de frecuencia
+    const localFilter = audioCtx.createBiquadFilter();
+    localFilter.type = 'lowpass';
+    localFilter.Q.setValueAtTime(1.0, now);
+    localFilter.frequency.setValueAtTime(120, now);
+    localFilter.frequency.exponentialRampToValueAtTime(500, now + 0.6);
+    
+    // Bajamos la ganancia de energía a 0.12 (de 0.24) para eliminar distorsión
+    const energyGain = audioCtx.createGain();
+    energyGain.gain.setValueAtTime(0, now);
+    energyGain.gain.linearRampToValueAtTime(0.12, now + 0.08); // Ataque de 80ms
+    energyGain.gain.setTargetAtTime(0, now + 0.12, 0.18); // Decaimiento asintótico súper fluido
+    
+    osc1.connect(localFilter);
+    osc2.connect(localFilter);
+    oscTriangle.connect(localFilter);
+    localFilter.connect(energyGain);
+    
+    energyGain.connect(masterFilter);
+    energyGain.connect(delayNode);
+    
+    osc1.start(now);
+    osc2.start(now);
+    oscTriangle.start(now);
+    
+    osc1.stop(now + 1.1);
+    osc2.stop(now + 1.1);
+    oscTriangle.stop(now + 1.1);
+  } catch (error) {
+    console.error("Error playing energy activation sound:", error);
+  }
+};
+  } catch (error) {
+    console.error("Error playing energy activation sound:", error);
+  }
+};
+const playActivationSound = () => {
+  try {
+    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const now = audioCtx.currentTime;
+    
+    // Filtro maestro pasabajos idéntico para calidez
+    const masterFilter = audioCtx.createBiquadFilter();
+    masterFilter.type = 'lowpass';
+    masterFilter.frequency.setValueAtTime(500, now);
+    
+    // Ganancia master igualada al mismo nivel que desactivación (0.75)
+    const masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0.75, now);
+    
+    masterFilter.connect(masterGain);
+    masterGain.connect(audioCtx.destination);
+
+    // Procesador espacial (Delay) idéntico para fluidez estéreo y amplitud
+    const delayNode = audioCtx.createDelay(0.1);
+    const feedbackGain = audioCtx.createGain();
+    delayNode.delayTime.setValueAtTime(0.022, now); // Retardo idéntico a desactivación
+    feedbackGain.gain.setValueAtTime(0.4, now);     // Feedback idéntico (40%)
+    delayNode.connect(feedbackGain);
+    feedbackGain.connect(delayNode);
+    delayNode.connect(masterFilter);
+
+    // Osciladores de alta calidad (2 sine + 1 triangle)
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const oscTriangle = audioCtx.createOscillator();
+    
+    osc1.type = 'sine';
+    osc2.type = 'sine';
+    oscTriangle.type = 'triangle';
+    
+    // Pitch sweep ascendente exacto y fluido (de 45Hz a 160Hz) en 0.6s
+    const startFreq = 45;
+    const endFreq = 160;
+    osc1.frequency.setValueAtTime(startFreq, now);
+    osc1.frequency.exponentialRampToValueAtTime(endFreq, now + 0.6);
+    
+    osc2.frequency.setValueAtTime(startFreq, now);
+    osc2.frequency.exponentialRampToValueAtTime(endFreq, now + 0.6);
+    
+    oscTriangle.frequency.setValueAtTime(startFreq, now);
+    oscTriangle.frequency.exponentialRampToValueAtTime(endFreq, now + 0.6);
+    
+    // Desafinación idéntica
+    osc1.detune.setValueAtTime(-20, now);
+    osc2.detune.setValueAtTime(20, now);
+    oscTriangle.detune.setValueAtTime(5, now);
+    
+    // Filtro local plano (Q=1.0) para evitar picos resonantes de distorsión
+    const localFilter = audioCtx.createBiquadFilter();
+    localFilter.type = 'lowpass';
+    localFilter.Q.setValueAtTime(1.0, now);
+    localFilter.frequency.setValueAtTime(120, now);
+    localFilter.frequency.exponentialRampToValueAtTime(500, now + 0.6);
+    
+    // Ganancia de energía igualada a 0.24 (al nivel de desactivación)
+    // Usamos un ataque exponencial suave de 0.001 a 0.24 para eliminar el "pop" o transitorio de inicio que satura
+    const energyGain = audioCtx.createGain();
+    energyGain.gain.setValueAtTime(0.001, now);
+    energyGain.gain.exponentialRampToValueAtTime(0.24, now + 0.08); // Ataque exponencial suave de 80ms
+    energyGain.gain.setTargetAtTime(0, now + 0.12, 0.18);           // Decaimiento asintótico idéntico
+    
+    osc1.connect(localFilter);
+    osc2.connect(localFilter);
+    oscTriangle.connect(localFilter);
+    localFilter.connect(energyGain);
+    
+    energyGain.connect(masterFilter);
+    energyGain.connect(delayNode);
+    
+    osc1.start(now);
+    osc2.start(now);
+    oscTriangle.start(now);
+    
+    osc1.stop(now + 1.1);
+    osc2.stop(now + 1.1);
+    oscTriangle.stop(now + 1.1);
+  } catch (error) {
+    console.error("Error playing energy activation sound:", error);
+  }
+};
+      {/* ── Burbuja / Barra de Chat Expandible ── */}
+      <motion.div
+        initial={false}
+        animate={isChatOpen ? {
+          width:        isMobile ? "calc(100vw - 32px)" : 480,
+          height:       64,
+          borderRadius: 32,
+          y: 0,
+          x: 0,
+        } : {
+          width: isDexActive ? 110 : 96,
+          height: isDexActive ? 110 : 96,
+          borderRadius: isDexActive ? 55 : 48,
+          y: [0, -6, 0],
+          x: [0, 3, -3, 0],
+          transition: {
+            y: { repeat: Infinity, duration: 4, ease: "easeInOut" },
+            x: { repeat: Infinity, duration: 7, ease: "easeInOut" }
+          }
+        }}
+        whileHover={!isChatOpen ? {
+          scale: 1.05,
+          boxShadow: isDexActive 
+            ? "0 0 35px rgba(147,51,234,0.5)"
+            : "0 15px 35px rgba(0,0,0,0.12)",
+        } : undefined}
+        whileTap={!isChatOpen ? { scale: 0.96 } : undefined}
+        transition={isChatOpen ? { type: "spring", stiffness: 140, damping: 20 } : { type: "tween", ease: "easeInOut" }}
+        className={`fixed z-[9999] flex items-center cursor-pointer transition-shadow duration-300 ${
+          isChatOpen
+            ? "bg-white shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-slate-100 p-1"
+            : isDexActive
+              ? "bg-transparent shadow-[0_0_30px_rgba(147,51,234,0.4)] border border-purple-500/10"
+              : "bg-transparent shadow-[0_10px_30px_rgba(0,0,0,0.08)] border-none"
+        }`}
+        style={{
+          right:  isMobile ? 16 : 48,
+          bottom: isMobile ? 24 : 24,
+        }}
+        onClick={() => {
+          if (!isChatOpen) setIsChatOpen(true);
+        }}
+      >
+        {/* Orbe de DEX */}
+        <motion.div
+          onClick={(e) => {
+            if (isChatOpen) {
+              e.stopPropagation();
+              setIsChatOpen(false);
+              setResponseMessage(null);
+            }
+          }}
+          className="rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-transparent border-none shadow-none transition-all duration-300"
+          style={{
+            width:  isChatOpen ? 56 : isDexActive ? 102 : 88,
+            height: isChatOpen ? 56 : isDexActive ? 102 : 88,
+          }}
+        >
+          <video
+            src="/logos/Dentaxy AI.mp4"
+            autoPlay
+            muted
+            playsInline
+            loop
+            className={`w-full h-full object-cover scale-[1.06] select-none pointer-events-none ${isChatOpen ? '' : 'mix-blend-multiply'}`}
+          />
+        </motion.div>
+      {/* ── Burbuja / Barra de Chat Expandible — idéntica al paso 4 de Insights ── */}
+      <motion.div
+        initial={false}
+        animate={isChatOpen ? {
+          width:        isMobile ? "calc(100vw - 32px)" : 480,
+          height:       64,
+          borderRadius: 32,
+          y: 0,
+          x: 0,
+        } : {
+          width: isDexActive ? 110 : 96,
+          height: isDexActive ? 110 : 96,
+          borderRadius: isDexActive ? 55 : 48,
+          y: [0, -6, 0],
+          x: [0, 3, 0, -3, 0],
+          transition: {
+            y: {
+              repeat: Infinity,
+              duration: 4,
+              ease: "easeInOut"
+            },
+            x: {
+              repeat: Infinity,
+              duration: 6,
+              ease: "easeInOut"
+            }
+          }
+        }}
+        whileHover={!isChatOpen ? {
+          scale: 1.06,
+          boxShadow: isDexActive 
+            ? "0 0 45px rgba(147,51,234,0.65), 0 20px 48px rgba(0,0,0,0.25)"
+            : "0 20px 48px rgba(0,0,0,0.18)",
+          filter: "brightness(1.05)",
+        } : undefined}
+        whileTap={!isChatOpen ? { scale: 0.96 } : undefined}
+        transition={isChatOpen ? { type: "spring", stiffness: 140, damping: 20 } : { type: "tween", ease: "easeInOut" }}
+        className={`fixed z-[9999] flex items-center cursor-pointer transition-shadow duration-300 ${
+          isChatOpen
+            ? "bg-white shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-slate-100 p-1"
+            : isDexActive
+              ? "bg-transparent shadow-[0_0_35px_rgba(147,51,234,0.45)] border border-purple-500/20"
+              : "bg-transparent p-0"
+        }`}
+        style={{
+          right:  isMobile ? 16 : 48,
+          bottom: isMobile ? 24 : 24,
+        }}
+        onClick={() => {
+          if (!isChatOpen) setIsChatOpen(true);
+        }}
+      >
+        {/* Halo de Luz Negra / Ultravioleta por detrás */}
+        {isDexActive && !isChatOpen && (
+          <div className="absolute inset-0 rounded-full bg-purple-950/35 blur-[22px] scale-[1.3] animate-pulse -z-10 pointer-events-none" />
+        )}
+
+        {/* Orbe de DEX */}
+        <motion.div
+          onClick={(e) => {
+            if (isChatOpen) {
+              e.stopPropagation();
+              setIsChatOpen(false);
+              setResponseMessage(null);
+            }
+          }}
+          className="rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-transparent border-none shadow-none transition-all duration-300"
+          style={{
+            width:  isChatOpen ? 56 : isDexActive ? 102 : 88,
+            height: isChatOpen ? 56 : isDexActive ? 102 : 88,
+          }}
+        >
+          <video
+            src="/logos/Dentaxy AI.mp4"
+            autoPlay
+            muted
+            playsInline
+            loop
+            className="w-full h-full object-cover scale-[1.3] select-none pointer-events-none"
+          />
+        </motion.div>

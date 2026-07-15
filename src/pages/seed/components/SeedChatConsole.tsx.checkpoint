@@ -71,7 +71,7 @@ export default function SeedChatConsole({
   const [patientCode, setPatientCode] = useState<string>('');
   const barcodeSvg = useMemo(() => {
     if (!patientCode) return '';
-    return code128ToSVG(patientCode, 1.05, 38);
+    return code128ToSVG(patientCode, 1.0, 22);
   }, [patientCode]);
 
   // Obtener información real de Google Drive para la telemetría HUD
@@ -79,38 +79,6 @@ export default function SeedChatConsole({
   const seedUser = seedUserStr ? JSON.parse(seedUserStr) : null;
   const hasGoogleDrive = !!seedUser?.googleAccessToken;
   const driveEmail = seedUser?.email || "doctor@dentaxy.com";
-
-  // Estados de control de la terminal interactiva
-  const [isTerminalOn, setIsTerminalOn] = useState(true);
-  const [isTerminalMinimized, setIsTerminalMinimized] = useState(false);
-  const [isTerminalExpanded, setIsTerminalExpanded] = useState(false);
-  const [expandOrigin, setExpandOrigin] = useState({ x: 0, y: 0 });
-
-  // Estados para el monitor de duplicados de pacientes
-  const [duplicateStatus, setDuplicateStatus] = useState<'idle' | 'scanning' | 'clean' | 'conflict'>('idle');
-  const [matchedNames, setMatchedNames] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (!newPatientName.trim()) {
-      setDuplicateStatus('idle');
-      setMatchedNames([]);
-      return;
-    }
-
-    setDuplicateStatus('scanning');
-    const timer = setTimeout(() => {
-      const nameUpper = newPatientName.trim().toUpperCase();
-      if (nameUpper.includes('BRANDON') || nameUpper.includes('JUAN') || nameUpper.includes('MARIA') || nameUpper.includes('RAMIREZ') || nameUpper.includes('PEREZ') || nameUpper.includes('DELGADO') || nameUpper.includes('HERNANDEZ')) {
-        setDuplicateStatus('conflict');
-        setMatchedNames(["BRANDON RAMIREZ", "JUAN PEREZ", "MARIA DELGADO"]);
-      } else {
-        setDuplicateStatus('clean');
-        setMatchedNames([]);
-      }
-    }, 1200);
-
-    return () => clearTimeout(timer);
-  }, [newPatientName]);
 
   useEffect(() => {
     if (!isQuestionMode || questionType !== 'NEW_PATIENT') return;
@@ -434,7 +402,7 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
       `• Consultar **alergias** o riesgos del paciente.`;
   };
 
-  // La consola se expande si tiene hover o si el input tiene el foco o si está en modo pregunta
+  // La consola se expande si tiene hover o si el input tiene el foco (click activo) o en modo pregunta
   const showExpanded = isConsoleHovered || isFocused || isQuestionMode;
 
   // Variables de diseño dinámicas del contenedor único
@@ -445,7 +413,6 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
       : showExpanded 
         ? '280px' 
         : '112px';
-
   const containerRadius = '20px';
   const containerShadow = showExpanded ? 'var(--seed-card-shadow), inset 0 1px 0 var(--seed-card-border)' : '0 8px 24px -4px rgba(0, 0, 0, 0.4)';
 
@@ -622,11 +589,10 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
           questionType === 'NEW_PATIENT' ? (
             <div className="flex-1 flex flex-col md:flex-row gap-6 px-1 py-1 w-full animate-in fade-in duration-300 relative select-none text-left">
               
-              {/* Columna Izquierda: Telemetría HUD (Reloj) y Terminal Interactiva de Conflictos */}
-              <div className="w-full md:w-[42%] flex flex-col border-b md:border-b-0 md:border-r border-slate-350/30 dark:border-zinc-800/50 pb-4 md:pb-0 md:pr-5 gap-3 justify-between">
-                
+              {/* Columna Izquierda: Telemetría HUD, Reloj y Código de Identidad */}
+              <div className="w-full md:w-[42%] flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-350/30 dark:border-zinc-800/50 pb-4 md:pb-0 md:pr-5 gap-3">
                 {/* Reloj HUD y Fecha */}
-                <div className="flex flex-col gap-0.5 shrink-0">
+                <div className="flex flex-col gap-0.5">
                   <span className="text-[7px] tracking-[0.25em] font-bold text-slate-500 dark:text-zinc-500 uppercase font-mono">DENTX_SYS TIME</span>
                   <div className="text-[24px] font-black tracking-[0.15em] text-slate-800 dark:text-zinc-100 font-['JetBrains_Mono',_monospace] leading-none">
                     {currentTime.toLocaleTimeString('es-MX', { hour12: false })}
@@ -636,259 +602,147 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
                   </span>
                 </div>
 
-                {/* Terminal Simulada de Conflictos */}
-                <div 
-                  className="flex-grow flex flex-col bg-slate-950 dark:bg-black border border-slate-850 dark:border-zinc-850 rounded-xl relative overflow-hidden shadow-md min-h-[145px] hover:scale-[1.025] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                >
-                  {/* Barra Superior de la Terminal */}
-                  <div className="flex items-center justify-between px-3 py-2 bg-slate-900/90 dark:bg-zinc-950/80 border-b border-slate-800/60 dark:border-zinc-900 select-none shrink-0">
-                    <div className="flex items-center gap-1.5">
-                      {/* Botones de ventana interactivos */}
-                      <button 
-                        type="button"
-                        onClick={() => setIsTerminalOn(!isTerminalOn)}
-                        className="w-2.5 h-2.5 rounded-full bg-zinc-600 hover:scale-130 transition-transform active:scale-90 cursor-pointer"
-                        title="Apagar pantalla"
-                      />
-                      <button 
-                        type="button"
-                        onClick={() => {
-                          if (isTerminalOn) {
-                            setIsTerminalMinimized(!isTerminalMinimized);
-                          }
-                        }}
-                        className="w-2.5 h-2.5 rounded-full bg-zinc-505 dark:bg-zinc-500 hover:scale-130 transition-transform active:scale-90 cursor-pointer"
-                        title="Minimizar logs"
-                      />
-                      <button 
-                        type="button"
-                        onClick={(e) => {
-                          if (isTerminalOn) {
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            setExpandOrigin({
-                              x: rect.left + rect.width / 2,
-                              y: rect.top + rect.height / 2
-                            });
-                            setIsTerminalExpanded(true);
-                          }
-                        }}
-                        className="w-2.5 h-2.5 rounded-full bg-zinc-400 hover:scale-130 transition-transform active:scale-90 cursor-pointer"
-                        title="Expandir terminal"
-                      />
-                    </div>
-                    {/* Prompt de doctor de Gmail dinámico */}
-                    <span className="text-[7.5px] font-mono text-zinc-400 dark:text-zinc-500 tracking-wider">
-                      {driveEmail}:~
-                    </span>
+                {/* Tarjeta de Identificación & Barcode */}
+                {barcodeSvg && (
+                  <div className="flex flex-col gap-1.5 p-3 bg-slate-200/40 dark:bg-zinc-950/20 border border-slate-300/40 dark:border-zinc-900/60 rounded-xl relative overflow-hidden shadow-sm">
+                    <div className="absolute top-0 right-0 w-2 h-full bg-slate-300/20 dark:bg-zinc-800/10 border-l border-slate-300/30 dark:border-zinc-900/40" />
+                    <span className="text-[6.5px] tracking-[0.22em] font-mono text-slate-700/90 dark:text-zinc-300 uppercase leading-none font-bold">ID PACIENTE</span>
+                    <span className="text-[8.5px] tracking-[0.05em] font-mono text-slate-600 dark:text-zinc-400 leading-none select-all">{patientCode}</span>
+                    
+                    <div
+                      className="opacity-75 dark:opacity-50 hover:opacity-100 transition-opacity duration-300 mt-1"
+                      dangerouslySetInnerHTML={{ __html: barcodeSvg.replace('<svg ', '<svg fill="currentColor" class="text-slate-650 dark:text-zinc-400" ') }}
+                    />
                   </div>
+                )}
 
-                  {/* Cuerpo de la Terminal */}
-                  <div className="flex-1 p-3 flex flex-col justify-between font-['JetBrains_Mono',_monospace] relative text-left">
-                    {!isTerminalOn ? (
-                      <div className="flex-1 flex items-center justify-center text-zinc-600 text-[9px] font-bold tracking-widest font-mono">
-                        [MONITOR APAGADO]
-                      </div>
-                    ) : isTerminalMinimized ? (
-                      <div className="flex-grow flex items-center justify-center text-zinc-300 text-[8.5px] font-bold tracking-wider animate-pulse">
-                        [MONITOR MINIMIZADO - LOGS OCULTOS]
-                      </div>
-                    ) : (
-                      <div className="flex-1 flex flex-col justify-between h-full">
-                        {/* Cabecera del Log */}
-                        <div className="flex items-center justify-between text-[7px] tracking-[0.18em] text-zinc-300 font-extrabold uppercase leading-none pb-1 border-b border-zinc-900">
-                          <span>CONFLICTS_MONITOR</span>
-                          <span className="animate-pulse">
-                            {duplicateStatus === 'scanning' ? 'SCANNING' : matchedNames.length > 0 ? 'CONFLICT' : 'IDLE'}
-                          </span>
-                        </div>
+                {/* Estado del Almacenamiento */}
+                <div className="flex flex-col gap-1 font-mono text-[6.5px] tracking-[0.2em] text-slate-600 dark:text-zinc-500 font-semibold leading-none">
+                  <span>ROOT_PATH: GOOGLE_DRIVE://DENTAXY</span>
+                  <span className="flex items-center gap-1.5">
+                    <span className={`w-1 h-1 rounded-full ${hasGoogleDrive ? 'bg-[#00c980]/80' : 'bg-red-500/70'}`} />
+                    PROVIDER: {driveEmail.toUpperCase()}
+                  </span>
+                </div>
+              </div>
 
-                        {/* Fila del Radar y Estado */}
-                        <div className="flex items-center gap-3 my-2">
-                          {/* Radar Animado */}
-                          <div className="relative w-8 h-8 rounded-full border border-zinc-800 flex items-center justify-center shrink-0 overflow-hidden">
-                            <div className="absolute inset-0 border border-zinc-900 rounded-full" />
-                            <div className="absolute inset-1 border border-zinc-900 rounded-full" />
-                            {/* Barrido del Radar */}
-                            <div 
-                              className={`absolute inset-0 rounded-full border-t border-r border-zinc-400 ${duplicateStatus === 'scanning' ? 'animate-spin' : ''}`}
-                              style={{ animationDuration: '1.2s' }}
-                            />
-                            <span className="text-[7px] font-bold text-zinc-400 font-mono shrink-0 select-none">Rx</span>
-                          </div>
+              {/* Columna Derecha: Inputs del Paciente Organizados Verticalmente */}
+              <div className="flex-1 flex flex-col justify-center gap-4">
+                
+                {/* Input 1: Nombre Completo */}
+                <div className="flex flex-col gap-1 text-left">
+                  <div className="flex items-center gap-1.5 font-['Bruno_Ace_SC',_sans-serif] text-[9.5px] tracking-widest text-slate-700/90 dark:text-zinc-300 select-none font-bold">
+                    <User size={12} className="text-slate-600 dark:text-zinc-450" />
+                    <span>NOMBRE COMPLETO</span>
+                  </div>
+                  <div className="relative group">
+                    <input 
+                      type="text" 
+                      value={newPatientName}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        const capitalized = val.split(' ').map(word => {
+                          return word.charAt(0).toUpperCase() + word.slice(1);
+                        }).join(' ');
+                        setNewPatientName(capitalized);
+                      }}
+                      className="w-full h-10 px-4 bg-slate-100/50 dark:bg-zinc-950/40 border border-slate-300/60 dark:border-zinc-800/80 rounded-full text-slate-900 dark:text-white text-xs focus:outline-none focus:border-slate-500 dark:focus:border-zinc-600 focus:bg-white dark:focus:bg-zinc-900/40 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-500 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),_1px_1px_0px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.7)]" 
+                      placeholder="Nombre del paciente"
+                      autoFocus 
+                    />
+                  </div>
+                </div>
 
-                          {/* Info del Escaneo */}
-                          <div className="flex-1 text-[8.5px] font-mono leading-relaxed space-y-0.5">
-                            <div className="text-zinc-200">
-                              <span className="text-zinc-500">$ query:</span>{' '}
-                              <span className="font-bold text-white uppercase">{newPatientName ? newPatientName.toUpperCase() : 'STANDBY'}</span>
-                            </div>
-                            <div className="text-zinc-200">
-                              <span className="text-zinc-550">$ status:</span>{' '}
-                              {duplicateStatus === 'scanning' ? (
-                                <span className="text-zinc-300 font-bold animate-pulse">SCANNING...</span>
-                              ) : matchedNames.length > 0 ? (
-                                <span className="text-white font-black bg-zinc-850 px-1 rounded">CONFLICT DETECTED</span>
-                              ) : (
-                                <span className="text-zinc-300 font-bold">SHIELD_READY</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
+                {/* Input 2: Teléfono con selector de país */}
+                <div className="flex flex-col gap-1 text-left">
+                  <div className="flex items-center gap-1.5 font-['Bruno_Ace_SC',_sans-serif] text-[9.5px] tracking-widest text-slate-700/90 dark:text-zinc-300 select-none font-bold">
+                    <Phone size={12} className="text-slate-600 dark:text-zinc-450" />
+                    <span>TELÉFONO CELULAR</span>
+                  </div>
+                  
+                  <div className="relative flex h-10 rounded-full bg-slate-100/50 dark:bg-zinc-950/40 border border-slate-300/60 dark:border-zinc-800/80 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),_1px_1px_0px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.7)] focus-within:border-slate-500 dark:focus-within:border-zinc-600 transition-all overflow-visible">
+                    <button
+                      ref={countryBtnRef}
+                      type="button"
+                      onClick={() => {
+                        if (countryBtnRef.current) {
+                          const rect = countryBtnRef.current.getBoundingClientRect();
+                          setDropdownPos({ top: rect.bottom + 6, left: rect.left, width: 220 });
+                        }
+                        setShowCountryDropdown(v => !v);
+                      }}
+                      className="flex items-center gap-1 px-4 text-sm border-r border-slate-300/60 dark:border-zinc-800/80 shrink-0 cursor-pointer hover:bg-slate-200/40 dark:hover:bg-zinc-800/30 rounded-l-full transition-colors"
+                    >
+                      <span className="text-base leading-none">{selectedCountry.flag}</span>
+                      <span className="text-[10px] font-bold text-slate-600 dark:text-zinc-400 font-mono">{selectedCountry.lada}</span>
+                      <ChevronDown size={9} className={`text-slate-400 dark:text-zinc-500 transition-transform duration-200 ${showCountryDropdown ? 'rotate-180' : ''}`} />
+                    </button>
 
-                        {/* Listado de Logs */}
-                        <div className="text-[8px] border-t border-zinc-900 pt-1 text-zinc-150 leading-relaxed font-mono">
-                          <div className="text-zinc-500 font-black tracking-wider uppercase">// ULTIMOS REGISTROS DETECTADOS:</div>
-                          {duplicateStatus === 'scanning' ? (
-                            <div className="text-zinc-350 animate-pulse pl-2">• Escaneando coincidencias en Drive...</div>
-                          ) : matchedNames.length > 0 ? (
-                            <div className="max-h-[36px] overflow-y-auto space-y-0.5 pr-1 scrollbar-none font-bold text-white">
-                              {matchedNames.map((name, i) => (
-                                <div key={i} className="pl-2 animate-fade-in">• {name}</div>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-zinc-400 pl-2">
-                              {newPatientName ? '✓ No se detectaron duplicados en local ni Drive.' : '- Ninguno (Standby)'}
-                            </div>
-                          )}
-                        </div>
+                    <input
+                      type="tel"
+                      value={localPhone}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                        let formatted = digits;
+                        if (digits.length > 6) {
+                          formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+                        } else if (digits.length > 3) {
+                          formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
+                        }
+                        setLocalPhone(formatted);
+                      }}
+                      placeholder="000-000-0000"
+                      className="flex-1 h-full px-4 bg-transparent text-slate-900 dark:text-white text-xs focus:outline-none font-medium placeholder-slate-400 dark:placeholder-zinc-500"
+                    />
+
+                    {/* Dropdown de países — renderizado en posición fixed para escapar overflow:hidden */}
+                    {showCountryDropdown && (
+                      <div
+                        style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width, zIndex: 9999 }}
+                        className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-xl overflow-y-auto max-h-64"
+                      >
+                        {COUNTRIES.map(country => (
+                          <button
+                            key={country.code}
+                            type="button"
+                            onClick={() => {
+                              setSelectedCountry(country);
+                              setShowCountryDropdown(false);
+                            }}
+                            className={`w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors cursor-pointer ${
+                              selectedCountry.code === country.code ? 'bg-slate-100 dark:bg-zinc-900' : ''
+                            }`}
+                          >
+                            <span className="text-base">{country.flag}</span>
+                            <span className="text-[11px] font-semibold text-slate-700 dark:text-zinc-300 flex-1">{country.name}</span>
+                            <span className="text-[10px] font-mono text-slate-500 dark:text-zinc-500">{country.lada}</span>
+                            {selectedCountry.code === country.code && (
+                              <span className="text-[#00c980] text-xs font-bold">✓</span>
+                            )}
+                          </button>
+                        ))}
                       </div>
                     )}
                   </div>
                 </div>
-
               </div>
 
-              {/* Columna Derecha: Inputs del Paciente y el Código de Identidad (Barcode) */}
-              <div className="flex-grow flex-1 flex flex-col justify-between gap-3.5">
+              {/* Base HUD de Diagnóstico del Almacenamiento (Con Traza SVG Asimétrica Inferior) */}
+              <div className="w-full mt-1 flex flex-col items-center">
+                {/* Traza SVG idéntica a la superior — misma clase, color y strokeWidth */}
+                <svg className="w-full h-3 text-slate-300 dark:text-zinc-800 opacity-60 dark:opacity-40" viewBox="0 0 400 12" fill="none" preserveAspectRatio="none">
+                  <path d="M0 6 H160 L170 11 H230 L240 6 H400" stroke="currentColor" strokeWidth="1.2" />
+                  <circle cx="170" cy="11" r="1.5" className="fill-slate-400 dark:fill-zinc-650" />
+                  <circle cx="230" cy="11" r="1.5" className="fill-slate-400 dark:fill-zinc-650" />
+                </svg>
                 
-                {/* Inputs agrupados en contenedor */}
-                <div className="flex flex-col gap-3.5">
-                  {/* Input 1: Nombre Completo */}
-                  <div className="flex flex-col gap-1 text-left">
-                    <div className="flex items-center gap-1.5 font-['Bruno_Ace_SC',_sans-serif] text-[9.5px] tracking-widest text-slate-900 dark:text-zinc-50 select-none font-extrabold">
-                      <User size={12} className="text-slate-700 dark:text-zinc-350" />
-                      <span>NOMBRE COMPLETO</span>
-                    </div>
-                    <div className="relative group">
-                      <input 
-                        type="text" 
-                        value={newPatientName}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const capitalized = val.split(' ').map(word => {
-                            return word.charAt(0).toUpperCase() + word.slice(1);
-                          }).join(' ');
-                          setNewPatientName(capitalized);
-                        }}
-                        className="w-full h-10 px-4 bg-slate-100/50 dark:bg-zinc-950/40 border border-slate-300/60 dark:border-zinc-800/80 rounded-full text-slate-900 dark:text-white text-xs focus:outline-none focus:border-slate-500 dark:focus:border-zinc-600 focus:bg-white dark:focus:bg-zinc-900/40 transition-all font-medium placeholder-slate-400 dark:placeholder-zinc-500 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),_1px_1px_0px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.7)]" 
-                        placeholder="Nombre del paciente"
-                        autoFocus 
-                      />
-                    </div>
-                  </div>
-
-                  {/* Input 2: Teléfono con selector de país */}
-                  <div className="flex flex-col gap-1 text-left">
-                    <div className="flex items-center gap-1.5 font-['Bruno_Ace_SC',_sans-serif] text-[9.5px] tracking-widest text-slate-900 dark:text-zinc-50 select-none font-extrabold">
-                      <Phone size={12} className="text-slate-700 dark:text-zinc-350" />
-                      <span>TELÉFONO CELULAR</span>
-                    </div>
-                    
-                    <div className="relative flex h-10 rounded-full bg-slate-100/50 dark:bg-zinc-950/40 border border-slate-300/60 dark:border-zinc-800/80 shadow-[inset_2px_2px_4px_rgba(0,0,0,0.06),_1px_1px_0px_rgba(255,255,255,0.9)] dark:shadow-[inset_2px_2px_5px_rgba(0,0,0,0.7)] focus-within:border-slate-500 dark:focus-within:border-zinc-600 transition-all overflow-visible">
-                      <button
-                        ref={countryBtnRef}
-                        type="button"
-                        onClick={() => {
-                          if (countryBtnRef.current) {
-                            const rect = countryBtnRef.current.getBoundingClientRect();
-                            setDropdownPos({ top: rect.bottom + 6, left: rect.left, width: 220 });
-                          }
-                          setShowCountryDropdown(v => !v);
-                        }}
-                        className="flex items-center gap-1 px-4 text-sm border-r border-slate-300/60 dark:border-zinc-800/80 shrink-0 cursor-pointer hover:bg-slate-200/40 dark:hover:bg-zinc-800/30 rounded-l-full transition-colors"
-                      >
-                        <span className="text-base leading-none">{selectedCountry.flag}</span>
-                        <span className="text-[10px] font-bold text-slate-600 dark:text-zinc-400 font-mono">{selectedCountry.lada}</span>
-                        <ChevronDown size={9} className={`text-slate-400 dark:text-zinc-500 transition-transform duration-200 ${showCountryDropdown ? 'rotate-180' : ''}`} />
-                      </button>
-
-                      <input
-                        type="tel"
-                        value={localPhone}
-                        onChange={(e) => {
-                          const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                          let formatted = digits;
-                          if (digits.length > 6) {
-                            formatted = `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-                          } else if (digits.length > 3) {
-                            formatted = `${digits.slice(0, 3)}-${digits.slice(3)}`;
-                          }
-                          setLocalPhone(formatted);
-                        }}
-                        placeholder="000-000-0000"
-                        className="flex-1 h-full px-4 bg-transparent text-slate-900 dark:text-white text-xs focus:outline-none font-medium placeholder-slate-400 dark:placeholder-zinc-500"
-                      />
-
-                      {/* Dropdown de países — renderizado en posición fixed para escapar overflow:hidden */}
-                      {showCountryDropdown && (
-                        <div
-                          style={{ position: 'fixed', top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width, zIndex: 9999 }}
-                          className="rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 shadow-xl overflow-y-auto max-h-64"
-                        >
-                          {COUNTRIES.map(country => (
-                            <button
-                              key={country.code}
-                              type="button"
-                              onClick={() => {
-                                setSelectedCountry(country);
-                                setShowCountryDropdown(false);
-                              }}
-                              className={`w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-zinc-900 transition-colors cursor-pointer ${
-                                selectedCountry.code === country.code ? 'bg-slate-100 dark:bg-zinc-900' : ''
-                              }`}
-                            >
-                              <span className="text-base">{country.flag}</span>
-                              <span className="text-[11px] font-semibold text-slate-700 dark:text-zinc-300 flex-1">{country.name}</span>
-                              <span className="text-[10px] font-mono text-slate-500 dark:text-zinc-500">{country.lada}</span>
-                              {selectedCountry.code === country.code && (
-                                <span className="text-[#00c980] text-xs font-bold">✓</span>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                {/* Metadatos funcionales discretos con opacidad y contraste reducidos para hacer juego con las trazas */}
+                <div className="w-full flex items-center justify-between font-mono text-[6px] sm:text-[6.5px] tracking-[0.22em] text-slate-600 dark:text-zinc-400 select-none px-1 mt-1 font-semibold">
+                  <span>ROOT_PATH: GOOGLE_DRIVE://DENTAXY</span>
+                  <span className="flex items-center gap-1"><span className={`w-1 h-1 rounded-full ${hasGoogleDrive ? 'bg-[#00c980]/50 dark:bg-[#00f5a0]/60' : 'bg-red-500/50'}`} />PROVIDER: {driveEmail.toUpperCase()}</span>
                 </div>
-
-                {/* Código de barras (ID PACIENTE) con fondo blanco y efecto botón plástico salido acentuado 3D */}
-                <div className="flex items-center gap-4 pt-1 w-full">
-                  {barcodeSvg && (
-                    <div 
-                      style={{ 
-                        background: '#ffffff', 
-                        backgroundColor: '#ffffff', 
-                        opacity: 1, 
-                        backdropFilter: 'none', 
-                        WebkitBackdropFilter: 'none'
-                      }}
-                      className="w-full flex items-center justify-start gap-8 py-2.5 px-4.5 border border-slate-250 dark:border-zinc-800/80 rounded-xl relative overflow-hidden shadow-[5px_5px_12px_rgba(0,0,0,0.07)] dark:shadow-[5px_5px_14px_rgba(0,0,0,0.5)] hover:scale-[1.025] hover:shadow-[7px_7px_16px_rgba(0,0,0,0.12)] transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                    >
-                      <div className="flex flex-col text-left shrink-0 select-none pl-3.5">
-                        <span className="text-[8.5px] tracking-[0.2em] font-mono text-slate-900 uppercase leading-none font-black">ID PACIENTE</span>
-                        <span className="text-[11.5px] tracking-[0.05em] font-mono text-slate-700 leading-none select-all font-black mt-2">{patientCode}</span>
-                      </div>
-                      
-                      <div
-                        className="flex-grow max-w-[210px] h-[42px] flex items-center opacity-95 transition-opacity duration-300 pr-2"
-                        dangerouslySetInnerHTML={{ __html: barcodeSvg.replace('<svg ', '<svg fill="currentColor" class="text-black w-full h-full" ') }}
-                      />
-                    </div>
-                  )}
-                </div>
-
               </div>
+
             </div>
           ) : (
             <div className="flex-1 flex flex-col justify-start items-start animate-in fade-in duration-300 px-1 pt-1 pb-0 w-full overflow-hidden">

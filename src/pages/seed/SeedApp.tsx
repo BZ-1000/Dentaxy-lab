@@ -10,6 +10,8 @@ import SeedAddPatientModal from './components/SeedAddPatientModal';
 import SeedAddPatientView from './components/SeedAddPatientView';
 import SeedFolderDashboard from './components/SeedFolderDashboard';
 import SeedOnboardingDrive from './components/SeedOnboardingDrive';
+import SeedOnboarding from './components/onboarding/SeedOnboarding';
+import LivePrescriptionPreview from './components/onboarding/LivePrescriptionPreview';
 import { ChevronLeft, ChevronRight, X, Bell, Printer, Download, Link2, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -58,6 +60,22 @@ export default function SeedApp() {
     }
   }, [clinicId]);
 
+  // ── Escuchar eventos de DEX para abrir vistas ──────────────────────────
+  useEffect(() => {
+    const handleDexOpenAddPatient = () => {
+      setIsAddPatientOpen(true);
+    };
+    const handleDexOpenPatientsList = () => {
+      setCurrentView('PATIENTS_LIST');
+    };
+    window.addEventListener('dex:openAddPatient', handleDexOpenAddPatient);
+    window.addEventListener('dex:openPatientsList', handleDexOpenPatientsList);
+    return () => {
+      window.removeEventListener('dex:openAddPatient', handleDexOpenAddPatient);
+      window.removeEventListener('dex:openPatientsList', handleDexOpenPatientsList);
+    };
+  }, []);
+
   const handleConfirmQuestion = (type: 'NEW_PATIENT' | 'INIT_EXPEDIENTE') => {
     if (type === 'NEW_PATIENT') {
       setIsAddPatientOpen(true);
@@ -74,9 +92,26 @@ export default function SeedApp() {
   // Estados para Google Drive Onboarding
   const [isCheckingDrive, setIsCheckingDrive] = useState(true);
   const [hasDriveConnected, setHasDriveConnected] = useState(false);
+  
+  // Estado para Onboarding de Identidad Clínica (Setup)
+  const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(false);
+  const [doctorProfile, setDoctorProfile] = useState<any>(null);
+  const [isProfileCredentialOpen, setIsProfileCredentialOpen] = useState(false);
 
   useEffect(() => {
     checkDriveStatus();
+
+    // Cargar perfil del doctor si está en localStorage
+    const cachedProfile = localStorage.getItem('dentaxy_doctor_profile');
+    if (cachedProfile) {
+      try {
+        const parsed = JSON.parse(cachedProfile);
+        setDoctorProfile(parsed);
+        setHasCompletedOnboarding(true);
+      } catch (e) {
+        console.error("Error al cargar perfil local:", e);
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -190,6 +225,11 @@ export default function SeedApp() {
 
             setHasDriveConnected(true);
             setIsCheckingDrive(false);
+            
+            // Cargar perfil desde Google Drive si no está en caché local
+            if (!localStorage.getItem('dentaxy_doctor_profile')) {
+              loadProfileFromGoogleDrive(seedUser.googleAccessToken);
+            }
             return;
           }
         } catch (e) {
@@ -262,6 +302,337 @@ export default function SeedApp() {
       console.error("Error validando la integración de Google Drive:", err);
     } finally {
       setIsCheckingDrive(false);
+    }
+  };
+
+  const generateProfileHtml = (data: any) => {
+    const lines = [
+      '<!DOCTYPE html>',
+      '<html lang="es">',
+      '<head>',
+      '  <meta charset="UTF-8">',
+      '  <meta name="viewport" content="width=device-width, initial-scale=1.0">',
+      '  <title>Perfil Clínico - Dr. ' + (data.doctorName || 'Dentista') + '</title>',
+      '  <style>',
+      '    body {',
+      '      background-color: #f3f4f6;',
+      '      font-family: ui-sans-serif, system-ui, sans-serif;',
+      '      display: flex;',
+      '      justify-content: center;',
+      '      align-items: center;',
+      '      min-height: 100vh;',
+      '      margin: 0;',
+      '      padding: 20px;',
+      '    }',
+      '    .card {',
+      '      width: 480px;',
+      '      padding: 32px 32px 20px 32px;',
+      '      border-radius: 28px;',
+      '      background: linear-gradient(135deg, #ffffff, #f3f4f6);',
+      '      box-shadow: 12px 12px 28px #b2c1ce, -12px -12px 28px #ffffff;',
+      '      border: 1px solid rgba(255,255,255,0.7);',
+      '      font-family: monospace;',
+      '      color: #262626;',
+      '      position: relative;',
+      '    }',
+      '    .flex-row {',
+      '      display: flex;',
+      '      gap: 32px;',
+      '      width: 100%;',
+      '    }',
+      '    .col-left {',
+      '      display: flex;',
+      '      flex-direction: column;',
+      '      gap: 12px;',
+      '      flex-shrink: 0;',
+      '      width: 155px;',
+      '    }',
+      '    .photo-frame {',
+      '      width: 155px;',
+      '      height: 195px;',
+      '      border: 1px solid #a3a3a3;',
+      '      border-radius: 12px;',
+      '      overflow: hidden;',
+      '      display: flex;',
+      '      align-items: center;',
+      '      justify-content: center;',
+      '      background: #f0f0ed;',
+      '      box-shadow: inset 1.5px 1.5px 3px rgba(0,0,0,0.06), 1.5px 1.5px 3px #ffffff;',
+      '    }',
+      '    .photo-frame img {',
+      '      width: 100%;',
+      '      height: 100%;',
+      '      object-fit: cover;',
+      '    }',
+      '    .col-right {',
+      '      flex: 1;',
+      '      display: flex;',
+      '      flex-direction: column;',
+      '      text-align: left;',
+      '      min-width: 0;',
+      '    }',
+      '    .meta-line {',
+      '      font-size: 8px;',
+      '      font-weight: 900;',
+      '      letter-spacing: 0.15em;',
+      '      color: #737373;',
+      '      margin-bottom: 2px;',
+      '      text-transform: uppercase;',
+      '    }',
+      '    .doctor-name {',
+      '      font-family: "Bruno Ace SC", monospace;',
+      '      font-size: 15px;',
+      '      font-weight: 900;',
+      '      color: #171717;',
+      '      letter-spacing: 0.05em;',
+      '      text-transform: uppercase;',
+      '      line-height: 1.15;',
+      '      margin: 0 0 10px 0;',
+      '    }',
+      '    .detail-grid {',
+      '      display: grid;',
+      '      grid-template-columns: repeat(2, 1fr);',
+      '      gap: 10px;',
+      '      margin-top: 6px;',
+      '    }',
+      '    .detail-box {',
+      '      border: 1px solid rgba(229, 229, 229, 0.8);',
+      '      border-radius: 10px;',
+      '      padding: 6px 8px;',
+      '      background: rgba(255,255,255,0.4);',
+      '    }',
+      '    .detail-label {',
+      '      font-size: 7.5px;',
+      '      font-weight: 900;',
+      '      letter-spacing: 0.1em;',
+      '      color: #737373;',
+      '      text-transform: uppercase;',
+      '    }',
+      '    .detail-val {',
+      '      font-size: 9px;',
+      '      font-weight: 900;',
+      '      color: #171717;',
+      '      margin-top: 2px;',
+      '      text-transform: uppercase;',
+      '    }',
+      '    .footer-row {',
+      '      display: grid;',
+      '      grid-template-columns: repeat(12, 1fr);',
+      '      gap: 16px;',
+      '      margin-top: 14px;',
+      '      align-items: end;',
+      '      border-top: 1px solid rgba(229, 229, 229, 0.6);',
+      '      padding-top: 10px;',
+      '    }',
+      '    .signature-area {',
+      '      max-height: 42px;',
+      '      max-width: 100%;',
+      '      object-fit: contain;',
+      '    }',
+      '    .brand-block {',
+      '      display: flex;',
+      '      align-items: center;',
+      '      gap: 4px;',
+      '      margin-top: 8px;',
+      '      justify-content: flex-end;',
+      '    }',
+      '    .brand-text {',
+      '      font-family: "Bruno Ace SC", monospace;',
+      '      font-size: 12px;',
+      '      font-weight: 900;',
+      '      letter-spacing: 0.25em;',
+      '      color: #525252;',
+      '    }',
+      '    .brand-logo {',
+      '      height: 46px;',
+      '      width: auto;',
+      '    }',
+      '  </style>',
+      '</head>',
+      '<body>',
+      '  <div class="card">',
+      '    <div class="flex-row">',
+      '      <div class="col-left">',
+      '        <div class="photo-frame">',
+      data.doctorPhoto ? `          <img src="${data.doctorPhoto}" alt="Foto Doctor" />` : '          <div style="color:#a3a3a3;font-size:8px;">FOTO</div>',
+      '        </div>',
+      '      </div>',
+      '      <div class="col-right">',
+      '        <div class="meta-line">Identificación Profesional</div>',
+      '        <h2 class="doctor-name">' + (data.doctorName || 'Sin Nombre') + '</h2>',
+      '        ',
+      '        <div class="detail-box">',
+      '          <div class="detail-label">Cédula General</div>',
+      '          <div class="detail-val">' + (data.cedulaGeneral || 'XXXXXX') + '</div>',
+      '        </div>',
+      '        <div class="detail-box" style="margin-top:8px;">',
+      '          <div class="detail-label">Institución Emisora</div>',
+      '          <div class="detail-val">' + (data.institucion || 'SEP') + '</div>',
+      '        </div>',
+      '        <div class="detail-grid">',
+      '          <div class="detail-box">',
+      '          <div class="detail-label">Vigencia</div>',
+      '          <div class="detail-val" style="color:#10b981;">' + (data.vigencia || 'ACTIVA') + '</div>',
+      '        </div>',
+      '        <div class="detail-box">',
+      '          <div class="detail-label">RFC del Doctor</div>',
+      '          <div class="detail-val">' + (data.rfc || 'SIN RFC') + '</div>',
+      '        </div>',
+      '      </div>',
+      '    </div>',
+      '  </div>',
+      '  <div class="footer-row">',
+      '    <div style="grid-column: span 3;">',
+      '      <div class="detail-label">QR Acceso</div>',
+      '      <div style="font-size:8px;color:#737373;margin-top:4px;">[QR EMBEDDED]</div>',
+      '    </div>',
+      '    <div style="grid-column: span 4; text-align: center;">',
+      '      <div style="min-height: 40px; display: flex; align-items: center; justify-content: center;">',
+      data.signature ? `        <img class="signature-area" src="${data.signature}" alt="Firma" />` : '        <span style="font-size:7px;color:#a3a3a3;font-style:italic;">PENDIENTE</span>',
+      '      </div>',
+      '      <div style="border-top: 1px dashed rgba(0,0,0,0.15); margin-top:4px; font-size:6.5px; font-weight:900; color:#737373;">FIRMA DIGITAL</div>',
+      '    </div>',
+      '    <div style="grid-column: span 5; text-align: right;">',
+      '      <div class="detail-val" style="font-size:11px;">' + (data.telefono || 'Sin teléfono') + '</div>',
+      '      <div class="detail-label" style="font-size:8px; margin-top:2px;">' + (data.email || 'doctor@dentaxy.com') + '</div>',
+      '      <div class="brand-block">',
+      '        <span class="brand-text">COFILD</span>',
+      '        <img class="brand-logo" src="https://dentaxy.com/brand/dentistry-logo.png" onerror="this.style.display=\'none\'" />',
+      '      </div>',
+      '    </div>',
+      '  </div>',
+      '</div>',
+      '  <script id="dentaxy-profile-data" type="application/json">',
+      JSON.stringify(data, null, 2),
+      '  </script>',
+      '</body>',
+      '</html>'
+    ];
+    return lines.join('\n');
+  };
+
+  const loadProfileFromGoogleDrive = async (accessToken: string) => {
+    try {
+      const folderQuery = encodeURIComponent("name = 'Dentaxy' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
+      const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${folderQuery}&fields=files(id, name)`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const folderData = await folderRes.json();
+      if (!folderData.files || folderData.files.length === 0) return;
+      const folderId = folderData.files[0].id;
+
+      const fileQuery = encodeURIComponent(`name = 'dentaxy_perfil.html' and '${folderId}' in parents and trashed = false`);
+      const fileRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${fileQuery}&fields=files(id, name)`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const fileData = await fileRes.json();
+      if (!fileData.files || fileData.files.length === 0) return;
+      const fileId = fileData.files[0].id;
+
+      const mediaRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const htmlText = await mediaRes.text();
+
+      const startTag = '<script id="dentaxy-profile-data" type="application/json">';
+      const endTag = '</script>';
+      const startIndex = htmlText.indexOf(startTag);
+      if (startIndex !== -1) {
+        const jsonStart = startIndex + startTag.length;
+        const jsonEnd = htmlText.indexOf(endTag, jsonStart);
+        if (jsonEnd !== -1) {
+          const jsonText = htmlText.substring(jsonStart, jsonEnd).trim();
+          const profile = JSON.parse(jsonText);
+          
+          localStorage.setItem('dentaxy_doctor_profile', JSON.stringify(profile));
+          setDoctorProfile(profile);
+          setHasCompletedOnboarding(true);
+          console.log("Perfil del doctor cargado exitosamente desde Google Drive.");
+        }
+      }
+    } catch (err) {
+      console.error("Error al cargar perfil desde Google Drive:", err);
+    }
+  };
+
+  const saveProfileToGoogleDrive = async (profileData: any) => {
+    try {
+      const seedUserStr = sessionStorage.getItem('seed_user');
+      if (!seedUserStr) return;
+      const seedUser = JSON.parse(seedUserStr);
+      const accessToken = seedUser?.googleAccessToken;
+      if (!accessToken) return;
+
+      const folderQuery = encodeURIComponent("name = 'Dentaxy' and mimeType = 'application/vnd.google-apps.folder' and trashed = false");
+      const folderRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${folderQuery}&fields=files(id, name)`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const folderData = await folderRes.json();
+      let folderId = '';
+      if (!folderData.files || folderData.files.length === 0) {
+        const createFolderRes = await fetch('https://www.googleapis.com/drive/v3/files', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: 'Dentaxy',
+            mimeType: 'application/vnd.google-apps.folder'
+          })
+        });
+        const createdFolder = await createFolderRes.json();
+        folderId = createdFolder.id;
+      } else {
+        folderId = folderData.files[0].id;
+      }
+
+      const htmlContent = generateProfileHtml({
+        ...profileData,
+        email: doctor?.email || 'doctor@dentaxy.com'
+      });
+      const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+
+      const fileQuery = encodeURIComponent(`name = 'dentaxy_perfil.html' and '${folderId}' in parents and trashed = false`);
+      const fileRes = await fetch(`https://www.googleapis.com/drive/v3/files?q=${fileQuery}&fields=files(id, name)`, {
+        headers: { Authorization: `Bearer ${accessToken}` }
+      });
+      const fileData = await fileRes.json();
+      
+      const form = new FormData();
+      
+      if (fileData.files && fileData.files.length > 0) {
+        const fileId = fileData.files[0].id;
+        form.append('metadata', new Blob([JSON.stringify({
+          name: 'dentaxy_perfil.html',
+          mimeType: 'text/html'
+        })], { type: 'application/json' }));
+        form.append('file', htmlBlob);
+
+        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`, {
+          method: 'PATCH',
+          headers: { Authorization: `Bearer ${accessToken}` },
+          body: form
+        });
+        console.log("Perfil del doctor actualizado en Google Drive.");
+      } else {
+        form.append('metadata', new Blob([JSON.stringify({
+          name: 'dentaxy_perfil.html',
+          mimeType: 'text/html',
+          parents: [folderId],
+          description: `Perfil Clínico de Dentaxy — Dr. ${profileData.doctorName}`
+        })], { type: 'application/json' }));
+        form.append('file', htmlBlob);
+
+        await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${accessToken}` },
+          body: form
+        });
+        console.log("Perfil del doctor guardado por primera vez en Google Drive.");
+      }
+    } catch (err) {
+      console.error("Error al guardar perfil en Google Drive:", err);
     }
   };
 
@@ -496,13 +867,18 @@ export default function SeedApp() {
       )}
 
       {/* Navegación Superior */}
-      <div className={`transition-all duration-500 ${(isQuestionMode || isSeed2Open) ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
-        <SeedTopNav theme={theme} toggleTheme={toggleTheme} />
+      <div className={`transition-all duration-500 ${(isQuestionMode || isSeed2Open || isOpenQR) ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
+        <SeedTopNav 
+          theme={theme} 
+          toggleTheme={toggleTheme} 
+          doctorProfile={doctorProfile}
+          onOpenProfileCredential={() => setIsProfileCredentialOpen(true)}
+        />
       </div>
       
 
-      {/* Contenido Principal sin Scroll */}
-      <div className="flex-1 overflow-hidden relative flex flex-col justify-center pb-48">
+      {/* Contenido Principal sin Scroll (Ajustado pb-72 para dar espacio a DEX abierta) */}
+      <div className="flex-1 overflow-hidden relative flex flex-col justify-center pb-72">
          
          {/* Brillo de fondo central superior */}
          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] seed-glow-orb-top blur-[120px] rounded-[100%] pointer-events-none z-0"></div>
@@ -516,8 +892,8 @@ export default function SeedApp() {
             style={{ backgroundColor: 'var(--seed-glow-orb-2)' }}
           ></div>
          
-         {/* Área Central (Carrusel / Directorio) */}
-          <div className={`flex items-center justify-center min-h-[320px] max-h-[380px] relative w-full px-16 transition-all duration-500 ${(isQuestionMode || isSeed2Open) ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
+         {/* Área Central (Carrusel / Directorio - Subido con -translate-y-10) */}
+          <div className={`flex items-center justify-center min-h-[320px] max-h-[380px] relative w-full px-16 -translate-y-10 transition-all duration-500 ${(isQuestionMode || isSeed2Open || isOpenQR) ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
             
             {/* Contenido Dinámico */}
             <SeedCarousel 
@@ -543,8 +919,12 @@ export default function SeedApp() {
               onConfirmQuestion={handleConfirmQuestion}
               theme={theme}
               onOpenQR={(code) => {
-                setActiveClinicQR(code);
-                setIsOpenQR(true);
+                if (code) {
+                  setActiveClinicQR(code);
+                  setIsOpenQR(true);
+                } else {
+                  setIsOpenQR(false);
+                }
               }}
               isOpenQR={isOpenQR}
             />
@@ -558,6 +938,7 @@ export default function SeedApp() {
       <SeedAddPatientModal 
         isOpen={isAddPatientOpen}
         onClose={() => setIsAddPatientOpen(false)}
+        patientsList={patientsList}
       />
 
       {/* Dashboard del Expediente (Metamorfosis) */}
@@ -593,113 +974,99 @@ export default function SeedApp() {
         )}
       </AnimatePresence>
 
-      {/* ── EXPANSIÓN CINEMÁTICA (Modal Flotante Centro de Pantalla, nivel superior) ── */}
-      {isOpenQR && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 outline-none">
-          
-          {/* Fondo desenfocado cinematográfico (Click para cerrar) */}
-          <div 
-            onClick={() => setIsOpenQR(false)}
-            className="absolute inset-0 bg-black/50 dark:bg-black/75 backdrop-blur-[16px] transition-all duration-500 animate-in fade-in outline-none"
-          />
+      {/* Modal interactivo de Credencial Profesional de Identidad */}
+      <AnimatePresence>
+        {isProfileCredentialOpen && doctorProfile && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/60 backdrop-blur-xl"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: "spring", damping: 26, stiffness: 220 }}
+              className="w-full max-w-lg bg-neutral-900/90 dark:bg-zinc-950/95 rounded-[32px] p-8 border border-white/10 shadow-[0_32px_64px_rgba(0,0,0,0.5)] flex flex-col relative"
+            >
+              {/* Botón de Cierre */}
+              <button 
+                onClick={() => setIsProfileCredentialOpen(false)}
+                className="absolute top-6 right-6 w-9 h-9 rounded-full bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center transition border border-white/5 cursor-pointer focus:outline-none"
+              >
+                <X size={16} />
+              </button>
 
-          {/* Contenedor Central Liquid Glass */}
-          <div className={`relative w-full max-w-sm rounded-[32px] p-6 shadow-2xl z-10 border transition-all duration-500 scale-in outline-none focus:outline-none ${
-            theme === 'dark' 
-              ? 'bg-zinc-950/80 border-white/20 text-white shadow-black/80 shadow-md' 
-              : 'bg-white/90 border-white/60 text-slate-800 shadow-slate-300 shadow-lg'
-          }`}
-          style={{
-            backdropFilter: 'blur(20px) saturate(180%)',
-            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)'
-          }}>
-            
-            {/* Brillo reflectivo interior (Toque Liquid Glass) */}
-            <div className="absolute inset-0 rounded-[32px] bg-gradient-to-b from-white/10 to-transparent pointer-events-none z-0 border border-t-white/30 border-x-white/20 border-b-transparent"></div>
-
-            {/* Barra Superior Liquid Glass */}
-            <div className="relative z-10 flex items-center justify-between mb-6 outline-none">
-              <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest">
-                QR Quirúrgico
-              </span>
-              
-              <div className="flex items-center gap-2">
-                {/* Botón Imprimir (Liquid Glass) */}
-                <button 
-                  onClick={handlePrint}
-                  className="w-8 h-8 rounded-full bg-gradient-to-b from-white/10 to-white/5 border border-white/25 flex items-center justify-center text-zinc-400 hover:text-white dark:hover:text-slate-800 shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)] hover:bg-white/20 transition-all cursor-pointer outline-none focus:outline-none"
-                  title="Imprimir cartel"
-                >
-                  <Printer size={13} />
-                </button>
-                
-                {/* Botón Descargar (Liquid Glass) */}
-                <button 
-                  onClick={handleDownload}
-                  className="w-8 h-8 rounded-full bg-gradient-to-b from-white/10 to-white/5 border border-white/25 flex items-center justify-center text-zinc-400 hover:text-white dark:hover:text-slate-800 shadow-[inset_0_1px_2px_rgba(255,255,255,0.3)] hover:bg-white/20 transition-all cursor-pointer outline-none focus:outline-none"
-                  title="Descargar cartel"
-                >
-                  <Download size={13} />
-                </button>
-
-                {/* Botón Cerrar */}
-                <button 
-                  onClick={() => setIsOpenQR(false)}
-                  className="w-8 h-8 rounded-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/25 flex items-center justify-center text-red-500 transition-all cursor-pointer ml-2 outline-none focus:outline-none"
-                >
-                  <X size={13} />
-                </button>
+              <div className="text-center mb-6">
+                <span className="text-[10px] uppercase tracking-[0.25em] text-purple-400 font-bold">Seguridad Médica Oficial</span>
+                <h3 className="text-lg font-black text-white mt-1" style={{ fontFamily: '"Bruno Ace SC", sans-serif' }}>Credencial COFILD</h3>
+                <p className="text-xs text-neutral-400 mt-1">Identidad profesional del odontólogo prescriptor</p>
               </div>
-            </div>
 
-            {/* QR Quirúrgico Monocromático */}
-            <div className="relative z-10 flex flex-col items-center gap-5 my-6 outline-none">
-              <div className="p-4 bg-white rounded-2xl shadow-xl flex items-center justify-center border border-slate-100 outline-none">
-                <QRCodeSVG
-                  value={lobbyUrl}
-                  size={200}
-                  level="H"
-                  bgColor="#ffffff"
-                  fgColor="#0c0b0e"
-                  className="outline-none"
+              {/* Contenedor Credencial */}
+              <div className="flex justify-center py-2">
+                <LivePrescriptionPreview
+                  doctorName={doctorProfile.doctorName}
+                  cedulaGeneral={doctorProfile.cedulaGeneral}
+                  institucion={doctorProfile.institucion}
+                  clinicName={doctorProfile.clinicName}
+                  calle={doctorProfile.calle}
+                  noExt={doctorProfile.noExt}
+                  noInt={doctorProfile.noInt}
+                  colonia={doctorProfile.colonia}
+                  cp={doctorProfile.cp}
+                  municipio={doctorProfile.municipio}
+                  estado={doctorProfile.estado}
+                  telefono={doctorProfile.telefono}
+                  doctorPhoto={doctorProfile.doctorPhoto}
+                  signature={doctorProfile.signature}
+                  rfc={doctorProfile.rfc}
+                  fechaNacimiento={doctorProfile.fechaNacimiento}
+                  vigencia={doctorProfile.vigencia}
                 />
               </div>
 
-              <div className="text-center outline-none">
-                <h4 className="text-md font-bold">{activeClinicQR}</h4>
-                <p className="text-[10px] text-zinc-500 mt-1 max-w-[220px]">
-                  Escanea para sincronizar y comenzar la historia clínica con Dex.
-                </p>
+              {/* Botones de acción */}
+              <div className="flex items-center gap-3 mt-8">
+                <button
+                  onClick={() => {
+                    setIsProfileCredentialOpen(false);
+                    setHasCompletedOnboarding(false);
+                  }}
+                  className="flex-1 h-12 rounded-2xl bg-white text-black font-bold text-xs hover:bg-neutral-100 transition shadow-[0_8px_16px_rgba(255,255,255,0.15)] flex items-center justify-center gap-2 cursor-pointer border-none"
+                >
+                  <span>Editar Identidad</span>
+                </button>
+                <button
+                  onClick={() => setIsProfileCredentialOpen(false)}
+                  className="flex-1 h-12 rounded-2xl bg-white/5 text-white/80 hover:text-white font-bold text-xs hover:bg-white/10 transition border border-white/10 flex items-center justify-center cursor-pointer"
+                >
+                  <span>Cerrar</span>
+                </button>
               </div>
-            </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {/* Base: URL Súper Corta */}
-            <div className="relative z-10 pt-4 border-t border-white/10 flex flex-col items-center outline-none">
-              <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest mb-1.5">
-                Acceso Alternativo
-              </span>
-              
-              <button 
-                onClick={handleCopyLink}
-                className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 max-w-full truncate hover:scale-[1.02] active:scale-98 transition outline-none focus:outline-none ${
-                  theme === 'dark' ? 'bg-white/5 border-white/5 hover:bg-white/10 text-white' : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700'
-                }`}
-              >
-                <Link2 size={11} className="text-zinc-500" />
-                <span className="text-[10.5px] font-mono tracking-wider truncate">
-                  {window.location.host}/x/{activeClinicQR}
-                </span>
-                {isCopied ? (
-                  <Check size={11} className="text-emerald-500 ml-1" />
-                ) : (
-                  <span className="text-[8px] font-bold text-zinc-500 bg-white/5 px-1.5 py-0.5 rounded border border-white/5 ml-1">Copiar</span>
-                )}
-              </button>
-            </div>
-
-          </div>
-
-        </div>
+      {/* Setup / Onboarding Inicial (si no ha sido completado) */}
+      {!hasCompletedOnboarding && (
+        <SeedOnboarding 
+          theme={theme} 
+          initialData={doctorProfile}
+          onComplete={async (doctorData) => {
+            // Guardar localmente
+            localStorage.setItem('dentaxy_doctor_profile', JSON.stringify(doctorData));
+            setDoctorProfile(doctorData);
+            
+            // Intentar guardar en Google Drive como archivo .html
+            await saveProfileToGoogleDrive(doctorData);
+            
+            setHasCompletedOnboarding(true);
+            toast.success("Credencial e Identidad del médico actualizadas en Google Drive.");
+          }} 
+        />
       )}
 
     </div>

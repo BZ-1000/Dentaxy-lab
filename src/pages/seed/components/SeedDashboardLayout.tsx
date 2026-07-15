@@ -41,8 +41,9 @@ export default function SeedDashboardLayout({
       <div 
         onMouseEnter={() => setHoverLeft(true)}
         onMouseLeave={() => setHoverLeft(false)}
-        className={`h-[340px] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isQuestionMode ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}
+        className={`transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isQuestionMode ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}
         style={{
+          height: isOpenQR ? '510px' : '340px',
           transform: (hoverLeft || isLobbyActive || isOpenQR) ? 'translateY(0)' : 'translateY(140px)'
         }}
       >
@@ -56,7 +57,7 @@ export default function SeedDashboardLayout({
       </div>
 
       {/* Columna Central: Consola de Chat Dentaxy IA */}
-      <div className="h-[340px] flex items-end relative w-full">
+      <div className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-end relative w-full ${isQuestionMode && questionType === 'NEW_PATIENT' ? 'h-[385px]' : 'h-[340px]'} ${isOpenQR ? 'blur-[3px] opacity-85 pointer-events-none' : ''}`}>
         <SeedChatConsole 
           activePatient={activePatient} 
           onHoverChange={onFolderHoverChange} 
@@ -72,7 +73,7 @@ export default function SeedDashboardLayout({
       <div 
         onMouseEnter={() => setHoverRight(true)}
         onMouseLeave={() => setHoverRight(false)}
-        className={`h-[340px] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${isQuestionMode ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}
+        className={`h-[340px] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${(isQuestionMode || isOpenQR) ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}
         style={{
           transform: hoverRight ? 'translateY(0)' : 'translateY(140px)'
         }}

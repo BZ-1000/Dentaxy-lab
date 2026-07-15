@@ -1,22 +1,35 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Search, Calendar, FileText, ArrowUpRight, Settings, Bell, Video, Sun, Moon, LogOut, HardDrive, ShieldCheck, Mail } from 'lucide-react';
+import { Search, Calendar, FileText, ArrowUpRight, Settings, Bell, Video, Sun, Moon, LogOut, HardDrive, ShieldCheck, Mail, Volume2, UserCheck } from 'lucide-react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useDexStore } from '@/stores/useDexStore';
 
 interface SeedTopNavProps {
   theme?: 'dark' | 'light';
   toggleTheme?: () => void;
+  onOpenProfileCredential?: () => void;
+  doctorProfile?: any;
 }
 
-export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavProps) {
+export default function SeedTopNav({ theme = 'dark', toggleTheme, onOpenProfileCredential, doctorProfile }: SeedTopNavProps) {
   const navigate = useNavigate();
   const doctor = useAuthStore(state => state.doctor);
   const logout = useAuthStore(state => state.logout);
   
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
+
+  // Zustand Store
+  const { dexVoice, setDexVoice } = useDexStore();
+
+  // Combinar store de login con el perfil guardado
+  const displayName = doctorProfile?.doctorName || doctor?.name || "Doctor Dentaxy";
+  const displayPicture = doctorProfile?.doctorPhoto || doctor?.picture || "";
+  const displayEmail = doctorProfile?.email || doctor?.email || "doctor@dentaxy.com";
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -33,11 +46,14 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
     return name.slice(0, 2).toUpperCase();
   }, []);
 
-  // Cerrar popover al hacer clic afuera
+  // Cerrar popovers al hacer clic afuera
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (popoverRef.current && !popoverRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
+      }
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setIsSettingsOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -176,8 +192,76 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
         >
           {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
         </button>
-        <div className="w-10 h-10 rounded-full seed-glass flex items-center justify-center text-[var(--seed-text-muted)] cursor-pointer hover:text-[var(--seed-text-main)] transition">
-          <Settings size={16} />
+        <div className="relative font-sans" ref={settingsRef}>
+          <button 
+            onClick={() => setIsSettingsOpen(prev => !prev)}
+            className="w-10 h-10 rounded-full seed-glass flex items-center justify-center text-[var(--seed-text-muted)] cursor-pointer hover:text-[var(--seed-text-main)] transition hover:bg-[var(--seed-row-hover)] border-none focus:outline-none"
+          >
+            <Settings size={16} />
+          </button>
+
+          {/* Menú de Ajustes Glassmorphic */}
+          <AnimatePresence>
+            {isSettingsOpen && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 12 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 12 }}
+                transition={{ type: "spring", stiffness: 350, damping: 26 }}
+                className="absolute right-0 top-12 w-80 p-5 bg-white/95 dark:bg-zinc-950/90 backdrop-blur-2xl rounded-3xl border border-neutral-250/50 dark:border-zinc-800/80 shadow-[0_24px_48px_-15px_rgba(0,0,0,0.3)] z-[100]"
+              >
+                <div className="pb-3 border-b border-neutral-200/50 dark:border-zinc-800/50 text-left">
+                  <span className="text-[10px] uppercase tracking-[0.25em] text-purple-600 dark:text-purple-450 font-black">Configuraciones</span>
+                  <h4 className="text-sm font-bold text-neutral-800 dark:text-zinc-150 mt-0.5">Asistente Virtual DEX</h4>
+                </div>
+
+                <div className="py-4 space-y-4 text-left">
+                  {/* Selector de Voz */}
+                  <div className="space-y-2">
+                    <span className="text-[11px] font-bold text-neutral-500 dark:text-zinc-400 flex items-center gap-1.5">
+                      <Volume2 size={13} className="text-purple-500" />
+                      Voz de DEX (Neuronal Edge)
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => setDexVoice('es-MX-JorgeNeural')}
+                        className={`h-11 rounded-xl font-bold text-[10.5px] border flex flex-col items-center justify-center transition-all ${
+                          dexVoice === 'es-MX-JorgeNeural'
+                            ? 'bg-neutral-900 text-white border-neutral-900 dark:bg-zinc-100 dark:text-black dark:border-zinc-100'
+                            : 'bg-transparent text-neutral-700 border-neutral-250 dark:text-zinc-300 dark:border-zinc-800 hover:bg-neutral-50 dark:hover:bg-zinc-900/40'
+                        }`}
+                      >
+                        <span>Dr. Jorge</span>
+                        <span className="text-[8px] opacity-70 mt-0.5 font-normal">Voz Masculina</span>
+                      </button>
+                      <button
+                        onClick={() => setDexVoice('es-MX-DaliaNeural')}
+                        className={`h-11 rounded-xl font-bold text-[10.5px] border flex flex-col items-center justify-center transition-all ${
+                          dexVoice === 'es-MX-DaliaNeural'
+                            ? 'bg-neutral-900 text-white border-neutral-900 dark:bg-zinc-100 dark:text-black dark:border-zinc-100'
+                            : 'bg-transparent text-neutral-700 border-neutral-250 dark:text-zinc-300 dark:border-zinc-800 hover:bg-neutral-50 dark:hover:bg-zinc-900/40'
+                        }`}
+                      >
+                        <span>Dra. Dalia</span>
+                        <span className="text-[8px] opacity-70 mt-0.5 font-normal">Voz Femenina</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Telemetría / Nota */}
+                  <div className="p-3.5 rounded-2xl bg-neutral-50 dark:bg-zinc-900/40 border border-neutral-200/40 dark:border-zinc-800/40">
+                    <div className="flex items-center gap-2 text-[10.5px] font-bold text-neutral-700 dark:text-zinc-350">
+                      <UserCheck size={13} className="text-emerald-500" />
+                      <span>Alfred Mode (Elegancia)</span>
+                    </div>
+                    <p className="text-[9.5px] text-neutral-500 dark:text-zinc-400 mt-1 leading-relaxed">
+                      DEX te responderá con suma educación y distinción. Actívalo diciendo <strong className="text-neutral-800 dark:text-zinc-200 font-black">"DEX"</strong> o <strong className="text-neutral-800 dark:text-zinc-200 font-black">"Hey DEX"</strong> en cualquier momento.
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         <div className="relative w-10 h-10 rounded-full seed-glass flex items-center justify-center text-[var(--seed-text-muted)] cursor-pointer hover:text-[var(--seed-text-main)] transition">
           <Bell size={16} />
@@ -192,16 +276,16 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
             onClick={() => setIsProfileOpen(prev => !prev)}
             className="w-10 h-10 rounded-full seed-glass flex items-center justify-center text-[var(--seed-text-main)] text-xs font-semibold cursor-pointer hover:bg-[var(--seed-row-hover)] transition overflow-hidden border border-neutral-200/20 dark:border-zinc-800 focus:outline-none"
           >
-            {doctor?.picture && !imgError ? (
+            {displayPicture && !imgError ? (
               <img 
-                src={doctor.picture} 
-                alt={doctor.name} 
+                src={displayPicture} 
+                alt={displayName} 
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
                 onError={() => setImgError(true)}
               />
             ) : (
-              getInitials(doctor?.name || "EV")
+              getInitials(displayName)
             )}
           </button>
 
@@ -218,25 +302,25 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
                 {/* Cabecera del Perfil */}
                 <div className="flex items-center gap-3.5 pb-4 border-b border-neutral-200/50 dark:border-zinc-800/50">
                   <div className="w-12 h-12 rounded-full bg-purple-600/10 dark:bg-purple-500/10 flex items-center justify-center text-purple-600 dark:text-purple-400 font-bold text-lg shrink-0 overflow-hidden border border-purple-200/40 dark:border-purple-800/30">
-                    {doctor?.picture && !imgError ? (
+                    {displayPicture && !imgError ? (
                       <img 
-                        src={doctor.picture} 
-                        alt={doctor.name} 
+                        src={displayPicture} 
+                        alt={displayName} 
                         className="w-full h-full object-cover"
                         referrerPolicy="no-referrer"
                         onError={() => setImgError(true)}
                       />
                     ) : (
-                      getInitials(doctor?.name || "EV")
+                      getInitials(displayName)
                     )}
                   </div>
                   <div className="min-w-0 flex-1 text-left">
                     <p className="text-sm font-bold text-neutral-800 dark:text-zinc-150 truncate">
-                      {doctor?.name || "Doctor Dentaxy"}
+                      {displayName}
                     </p>
                     <p className="text-xs text-neutral-500 dark:text-zinc-400 truncate flex items-center gap-1 mt-0.5">
                       <Mail size={11} className="shrink-0" />
-                      {doctor?.email || "doctor@dentaxy.com"}
+                      {displayEmail}
                     </p>
                   </div>
                 </div>
@@ -264,6 +348,17 @@ export default function SeedTopNav({ theme = 'dark', toggleTheme }: SeedTopNavPr
 
                 {/* Acciones del Menú */}
                 <div className="pt-2 space-y-1">
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
+                      onOpenProfileCredential?.();
+                    }}
+                    className="w-full h-11 px-3.5 rounded-xl text-neutral-700 dark:text-zinc-300 hover:bg-neutral-50 dark:hover:bg-zinc-900/60 font-medium text-xs flex items-center gap-2.5 transition-all duration-200 border border-transparent hover:border-neutral-200/50 dark:hover:border-zinc-800/40 text-left"
+                  >
+                    <ShieldCheck size={14} className="text-purple-500" />
+                    <span>Mi Credencial Profesional</span>
+                  </button>
+
                   <a 
                     href="https://drive.google.com/drive/my-drive"
                     target="_blank"
