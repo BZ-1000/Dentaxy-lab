@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { toast } from "sonner";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { chatWithAgent } from "@/services/gemini";
@@ -163,7 +164,7 @@ const playDeactivationSound = () => {
 };
 
 // ─── Utilidad: limpiar texto transcrito ──────────────────────────────────────
-const WAKE_PHRASES = [
+const WAKE_PHRASES_MALE = [
   'okey dex', 'ok dex', 'hey dex', 'oye dex', 'okay dex', 'escucha dex',
   'okey sex', 'ok sex', 'hey sex',
   'okey lex', 'ok lex', 'hey lex',
@@ -172,24 +173,37 @@ const WAKE_PHRASES = [
   'oki dex', 'dex',
 ];
 
+const WAKE_PHRASES_FEMALE = [
+  'okey dexy', 'ok dexy', 'hey dexy', 'oye dexy', 'okay dexy', 'escucha dexy',
+  'okey sexy', 'ok sexy', 'hey sexy',
+  'okey lexy', 'ok lexy', 'hey lexy',
+  'okey rexy', 'ok rexy', 'hey rexy',
+  'okey decky', 'ok decky', 'hey decky',
+  'oki dexy', 'dexy',
+];
+
 /** Retorna true si el texto contiene alguna frase de activación */
-function detectWake(text: string): boolean {
+function detectWake(text: string, gender: 'male' | 'female'): boolean {
   const t = text.toLowerCase().trim();
+  const phrases = gender === 'female' ? WAKE_PHRASES_FEMALE : WAKE_PHRASES_MALE;
   // Frases compuestas primero
-  if (WAKE_PHRASES.slice(0, -1).some(phrase => t.includes(phrase))) return true;
-  // "dex" como token independiente (evita falsos positivos en palabras como "index")
-  if (/(?:^|\s)dex(?:\s|$|,|\.|!|\?)/i.test(t)) return true;
+  if (phrases.slice(0, -1).some(phrase => t.includes(phrase))) return true;
+  // Nombre como token independiente (evita falsos positivos en palabras como "index")
+  const nameToken = gender === 'female' ? 'dexy' : 'dex';
+  if (new RegExp(`(?:^|\\s)${nameToken}(?:\\s|$|,|\\.|!|\\?)`, 'i').test(t)) return true;
   return false;
 }
 
 /** Extrae el comando después del wake word y limpia palabras de relleno */
-function extractCommand(text: string): string {
+function extractCommand(text: string, gender: 'male' | 'female'): string {
   let cmd = text.toLowerCase().trim();
-  for (const phrase of WAKE_PHRASES) {
+  const phrases = gender === 'female' ? WAKE_PHRASES_FEMALE : WAKE_PHRASES_MALE;
+  for (const phrase of phrases) {
     cmd = cmd.replace(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '');
   }
-  // eliminar "dex" suelto
-  cmd = cmd.replace(/(?:^|\s)dex(?:\s|$|,|\.|!|\?)/gi, ' ');
+  // eliminar nombre suelto
+  const nameToken = gender === 'female' ? 'dexy' : 'dex';
+  cmd = cmd.replace(new RegExp(`(?:^|\\s)${nameToken}(?:\\s|$|,|\\.|!|\\?)`, 'gi'), ' ');
   
   // Limpiar puntuación
   cmd = cmd.replace(/[.,/#!$%^&*;:{}=\-_`~()?¿¡]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -244,12 +258,62 @@ export function GlobalDexBubble() {
   const location = useLocation();
   const isMobile = useIsMobile();
 
+  // DEX solo debe funcionar en la app de Dentaxy como tal (/app, /seed/app, /seed/new)
+  const isAppRoute = 
+    location.pathname === "/app" || 
+    location.pathname.startsWith("/app/") ||
+    location.pathname === "/seed/app" ||
+    location.pathname.startsWith("/seed/app/") ||
+    location.pathname === "/seed/new" ||
+    location.pathname.startsWith("/seed/new/");
+  
+  const shouldHide = !isAppRoute;
+
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState("");
   const [responseMessage, setResponseMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
   const [voiceState, setVoiceState] = useState<VoiceState>('SLEEPING');
+
+  const [gender, setGender] = useState<'male' | 'female'>(() => {
+    return (localStorage.getItem('dex_gender') as 'male' | 'female') || 'male';
+  });
+  const genderRef = useRef<'male' | 'female'>(gender);
+  useEffect(() => {
+    genderRef.current = gender;
+  }, [gender]);
+
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female'>(gender);
+
+  const [showMicModal, setShowMicModal] = useState(false);
+  const [isMicReady, setIsMicReady] = useState(() => {
+    return localStorage.getItem('dex_mic_intro_shown') === 'true';
+  });
+
+  // LÍNEA TEMPORAL PARA PRUEBAS: Limpiar la marca para forzar que aparezca el modal al recargar
+  useEffect(() => {
+    localStorage.removeItem('dex_mic_intro_shown');
+  }, []);
+
+  const requestMicrophonePermission = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      stream.getTracks().forEach(track => track.stop());
+      return true;
+    } catch (error) {
+      console.error('[DEX] Error al solicitar permisos de micrófono:', error);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    if (shouldHide) return;
+    const hasShown = localStorage.getItem('dex_mic_intro_shown') === 'true';
+    if (!hasShown) {
+      setShowMicModal(true);
+    }
+  }, [shouldHide, location.pathname]);
 
   // ── Refs de estado (siempre frescos, sin closures obsoletos) ──────────────
   const voiceStateRef = useRef<VoiceState>('SLEEPING');
@@ -278,12 +342,6 @@ export function GlobalDexBubble() {
 
   // ── Zustand Store ─────────────────────────────────────────────────────────
   const { speakText, isSpeaking, setIsListening } = useDexStore();
-
-  // Rutas donde DEX no debe aparecer
-  const isLanding = location.pathname === "/";
-  const isAdmin   = location.pathname.startsWith("/admin");
-  const isPatient = location.pathname.startsWith("/paciente") || location.pathname.startsWith("/x");
-  const shouldHide = isLanding || isAdmin || isPatient;
 
   // ── Helpers de mic indicator ──────────────────────────────────────────────
   const micOn = useCallback(() => {
@@ -572,7 +630,7 @@ export function GlobalDexBubble() {
   // ── MOTOR DE VOZ DEX (arquitectura tipo Alexa) ────────────────────────
   // ────────────────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (shouldHide) return;
+    if (shouldHide || !isMicReady) return;
 
     const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SR) {
@@ -679,7 +737,7 @@ export function GlobalDexBubble() {
           // ─── SLEEPING: detectar wake word ──────────────────────────
           if (voiceStateRef.current === 'SLEEPING') {
             // Revisar todas las alternativas fonéticas
-            const wakeHit = transcripts.some(t => detectWake(t));
+            const wakeHit = transcripts.some(t => detectWake(t, genderRef.current));
             if (!wakeHit) continue;
 
             console.log('[DEX] ¡Wake word detectado! Activando...');
@@ -691,7 +749,7 @@ export function GlobalDexBubble() {
             setVoiceState('LISTENING_COMMAND');          // render de UI
 
             // Extraer comando inline (ej: "okey dex abre historial de García")
-            const cmd = extractCommand(primaryText);
+            const cmd = extractCommand(primaryText, genderRef.current);
             console.log('[DEX] Comando inline extraído:', `"${cmd}"`);
 
             if (cmd.length > 2) {
@@ -736,7 +794,7 @@ export function GlobalDexBubble() {
 
           // ─── LISTENING_COMMAND: capturar el comando ─────────────────
           if (voiceStateRef.current === 'LISTENING_COMMAND') {
-            const cmd = extractCommand(primaryText);
+            const cmd = extractCommand(primaryText, genderRef.current);
             
             if (cmd) {
               setResponseMessage(cmd);
@@ -844,11 +902,11 @@ export function GlobalDexBubble() {
 
       useDexStore.getState().setIsListening(false);
     };
-  }, [shouldHide, micOn, micOff, setVS, goSleep]);
+  }, [shouldHide, isMicReady, micOn, micOff, setVS, goSleep]);
 
   // ── Anti-eco: pausar mic mientras DEX habla ────────────────────────────
   useEffect(() => {
-    if (shouldHide) return;
+    if (shouldHide || !isMicReady) return;
 
     if (isSpeaking) {
       // DEX está hablando — silenciar reconocimiento para evitar eco
@@ -897,7 +955,7 @@ export function GlobalDexBubble() {
         }, 50);
       }
     }
-  }, [isSpeaking, shouldHide, setVS, goSleep]);
+  }, [isSpeaking, shouldHide, isMicReady, setVS, goSleep]);
 
   if (shouldHide) return null;
 
@@ -1067,6 +1125,173 @@ export function GlobalDexBubble() {
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* ── Modal Explicativo Neumórfico de Permisos de Micrófono ── */}
+      <AnimatePresence>
+        {showMicModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              transition={{ type: "spring", duration: 0.5 }}
+              className="bg-[#e0e4eb] w-full max-w-lg rounded-[32px] p-8 shadow-[20px_20px_60px_rgba(163,177,198,0.75),_-20px_-20px_60px_rgba(255,255,255,0.95)] border border-white/40 text-neutral-800 relative overflow-hidden"
+            >
+
+              {/* Título de Marca estilo Bloqueo (Metálico / Bruno Ace SC) */}
+              <div className="text-center mb-5 mt-0 select-none">
+                <h2
+                  className="text-4xl font-black tracking-tight text-neutral-700 mb-1 leading-none uppercase"
+                  style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
+                >
+                  ASISTENTE DE VOZ
+                </h2>
+              </div>
+
+              {/* Mensaje descriptivo */}
+              <div className="space-y-5 text-[16px] leading-relaxed text-neutral-650 font-medium mb-8">
+                <p>
+                  Para usar tu asistente clínico manos libres (estilo Alexa), el micrófono de tu navegador debe permanecer activo.
+                </p>
+
+                {/* Selector de Asistente Neumórfico */}
+                <div className="bg-white/15 p-5 rounded-3xl border border-white/20 shadow-[inset_1px_1px_3px_rgba(255,255,255,0.4)]">
+                  <div className="text-center text-[15px] font-black text-neutral-700 mb-4 select-none tracking-wider uppercase">
+                    Elige a tu asistente de voz:
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Opción Dex (Hombre) */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedGender('male');
+                        const store = useDexStore.getState();
+                        store.setDexVoice('es-MX-JorgeNeural');
+                        store.speakText("Hola Doctor, responderé cuando escuche: óquei decs, jéy decs, o simplemente decs.");
+                      }}
+                      className={`rounded-3xl p-5 transition-all duration-300 flex flex-col items-center gap-2.5 border select-none ${
+                        selectedGender === 'male'
+                          ? "bg-[#e0e4eb] text-neutral-950 shadow-[inset_4px_4px_8px_#beccd9,inset_-4px_-4px_8px_#ffffff] border-white/30"
+                          : "bg-[#e0e4eb] text-neutral-600 shadow-[6px_6px_12px_#beccd9,_-6px_-6px_12px_#ffffff] hover:shadow-[3px_3px_6px_#beccd9,_-3px_-3px_6px_#ffffff] border-white/10 active:shadow-[inset_4px_4px_8px_#beccd9,inset_-4px_-4px_8px_#ffffff]"
+                      }`}
+                    >
+                      <div className="w-12 h-12 rounded-full bg-[#e0e4eb] shadow-[2px_2px_5px_rgba(163,177,198,0.55),_-2px_-2px_5px_rgba(255,255,255,1)] flex items-center justify-center relative">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className={`w-6 h-6 ${selectedGender === 'male' ? "text-neutral-800" : "text-neutral-400"}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2.5}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <span className="font-extrabold text-[16px] tracking-wide text-neutral-850">Dex</span>
+                        <span className="text-[10px] text-neutral-500 uppercase tracking-widest mt-0.5 font-bold">Voz Masculina</span>
+                      </div>
+                    </button>
+
+                    {/* Opción Dexy (Mujer) */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedGender('female');
+                        const store = useDexStore.getState();
+                        store.setDexVoice('es-MX-DaliaNeural');
+                        store.speakText("Hola Doctor, responderé cuando escuche: óquei decsi, jéy decsi, o simplemente decsi.");
+                      }}
+                      className={`rounded-3xl p-5 transition-all duration-300 flex flex-col items-center gap-2.5 border select-none ${
+                        selectedGender === 'female'
+                          ? "bg-[#e0e4eb] text-neutral-950 shadow-[inset_4px_4px_8px_#beccd9,inset_-4px_-4px_8px_#ffffff] border-white/30"
+                          : "bg-[#e0e4eb] text-neutral-600 shadow-[6px_6px_12px_#beccd9,_-6px_-6px_12px_#ffffff] hover:shadow-[2px_2px_4px_#beccd9,_-2px_-2px_4px_#ffffff] border-white/10 active:shadow-[inset_4px_4px_8px_#beccd9,inset_-4px_-4px_8px_#ffffff]"
+                      }`}
+                    >
+                      <div className="w-12 h-12 rounded-full bg-[#e0e4eb] shadow-[2px_2px_5px_rgba(163,177,198,0.55),_-2px_-2px_5px_rgba(255,255,255,1)] flex items-center justify-center relative">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className={`w-6 h-6 ${selectedGender === 'female' ? "text-neutral-800" : "text-neutral-400"}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2.5}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <span className="font-extrabold text-[16px] tracking-wide text-neutral-850">Dexy</span>
+                        <span className="text-[10px] text-neutral-500 uppercase tracking-widest mt-0.5 font-bold">Voz Femenina</span>
+                      </div>
+                    </button>
+                  </div>
+
+                </div>
+
+                <p className="text-[14px] text-neutral-750 bg-white/45 p-4 rounded-2xl border border-white/45 shadow-[inset_1px_1px_3px_rgba(255,255,255,0.5)]">
+                  ⚠️ <strong>Importante:</strong> Al presionar el botón de abajo, tu navegador te solicitará acceso. Selecciona <strong>Permitir</strong> para habilitar la experiencia completa.
+                </p>
+              </div>
+
+              {/* Botón de acción neumórfico */}
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    // Configurar el asistente y guardar de forma robusta
+                    localStorage.setItem('dex_gender', selectedGender);
+                    if (selectedGender === 'male') {
+                      useDexStore.getState().setDexVoice('es-MX-JorgeNeural');
+                    } else {
+                      useDexStore.getState().setDexVoice('es-MX-DaliaNeural');
+                    }
+                    setGender(selectedGender);
+
+                    // Solicitar permiso nativo de micrófono
+                    const granted = await requestMicrophonePermission();
+                    if (granted) {
+                      localStorage.setItem('dex_mic_intro_shown', 'true');
+                      setIsMicReady(true);
+                      setShowMicModal(false);
+                    } else {
+                      // Registrar de todos modos para no molestar continuamente, 
+                      // pero avisar al usuario con un toast de que puede activarlo manualmente.
+                      localStorage.setItem('dex_mic_intro_shown', 'true');
+                      setIsMicReady(true);
+                      setShowMicModal(false);
+                      const activeName = selectedGender === 'female' ? 'Dexy' : 'Dex';
+                      toast.warning(`Acceso al micrófono denegado. Puedes activarlo en la barra de direcciones de tu navegador para usar a ${activeName} por voz.`, {
+                        duration: 6000,
+                      });
+                    }
+                  }}
+                  className="w-full bg-[#e0e4eb] text-neutral-800 rounded-2xl py-4 px-6 font-bold shadow-[6px_6px_12px_rgba(163,177,198,0.85),_-6px_-6px_12px_rgba(255,255,255,1)] hover:shadow-[3px_3px_6px_rgba(163,177,198,0.85),_-3px_-3px_6px_rgba(255,255,255,1)] active:shadow-[inset_4px_4px_8px_rgba(163,177,198,0.8),_inset_-4px_-4px_8px_rgba(255,255,255,1)] transition-all duration-300 flex items-center justify-center gap-2.5 text-base uppercase tracking-wider relative group"
+                >
+                  <span>Habilitar Micrófono</span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-4 h-4 transition-transform group-hover:translate-x-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={3}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                  {/* Línea LED neumórfica debajo en hover */}
+                  <div className="absolute bottom-[-1px] left-1/2 -translate-x-1/2 w-4/5 h-0.5 bg-[#00f5a0] blur-[1px] opacity-0 group-hover:opacity-80 transition-opacity duration-300 rounded-full" />
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

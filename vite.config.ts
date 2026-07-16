@@ -6,6 +6,43 @@ import { componentTagger } from "lovable-tagger";
 
 import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
+// Plugin para hacer proxy de Edge TTS y evadir las restricciones de CORS/Origin del navegador
+const edgeTtsPlugin = () => {
+  return {
+    name: 'edge-tts-proxy',
+    configureServer(server: any) {
+      server.middlewares.use('/api/tts', async (req: any, res: any, next: any) => {
+        if (req.method === 'POST') {
+          let body = '';
+          req.on('data', (chunk: any) => { body += chunk.toString(); });
+          req.on('end', async () => {
+            try {
+              const { text, voice } = JSON.parse(body);
+              if (!text || !voice) {
+                res.statusCode = 400;
+                res.end('Missing text or voice');
+                return;
+              }
+              const { EdgeTTS } = await import('edge-tts-universal');
+              const tts = new EdgeTTS(text, voice);
+              const result = await tts.synthesize();
+              const buffer = Buffer.from(await result.audio.arrayBuffer());
+              res.setHeader('Content-Type', 'audio/mpeg');
+              res.end(buffer);
+            } catch (e) {
+              console.error("[TTS Proxy Error]", e);
+              res.statusCode = 500;
+              res.end(String(e));
+            }
+          });
+        } else {
+          next();
+        }
+      });
+    }
+  };
+};
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
@@ -29,6 +66,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [
     react(),
+    edgeTtsPlugin(),
     mode === 'development' &&
     componentTagger(),
     ViteImageOptimizer({
