@@ -135,20 +135,19 @@ export default function DetroitPatientProfile({
       />
 
       {/* ────────────────────────────────────────────────────────────────────────
-          ENCABEZADO ESTILO DETROIT (PLATINO CLARO CON MENÚ ALINEADO)
+          ENCABEZADO ESTILO DETROIT (PLATINO CLARO CON MENÚ ALINEADO Y FUSIONADO)
           ──────────────────────────────────────────────────────────────────────── */}
-      <header className="w-full h-16 border-b border-slate-300/60 bg-white/40 backdrop-blur-md flex items-center justify-between z-10 shrink-0 select-none px-0">
+      <header className="w-full h-16 bg-white/40 backdrop-blur-md flex items-center justify-between z-10 shrink-0 select-none px-0">
         
-        {/* Título de Marca (Alineado al ancho del Sidebar de 320px) */}
-        <div className="w-[320px] shrink-0 h-full px-6 border-r border-slate-300/40 flex items-center justify-start gap-3">
-          <div className="w-2.5 h-2.5 bg-[#475569]/70 rotate-45" />
+        {/* Título de Marca (Alineado al ancho del Sidebar de 320px y con fondo unificado #759bb0) */}
+        <div className="w-[320px] shrink-0 h-full px-6 bg-[#759bb0] flex items-center justify-start gap-3 text-white">
+          <div className="w-2.5 h-2.5 bg-white rotate-45" />
           <span 
-            className="text-[13px] font-black tracking-[0.35em] text-[#334b57] uppercase"
+            className="text-[13px] font-black tracking-[0.35em] uppercase"
             style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
           >
             DENTAXY SYSTEM
           </span>
-          <span className="text-[9px] text-[#334b57]/40 font-bold uppercase tracking-[0.2em] ml-1">v1.5</span>
         </div>
 
         {/* TABS DE SECCIÓN FUTURISTAS (Alineados con el contenido central a partir de px-12) */}
@@ -191,13 +190,12 @@ export default function DetroitPatientProfile({
       <div className="flex-1 flex overflow-hidden z-10 relative">
 
         {/* ── COLUMNA 1: SIDEBAR IZQUIERDA (Gris-Azul Metálico #759bb0) ── */}
-        <aside className="w-[320px] bg-[#759bb0] border-r border-slate-300/40 flex flex-col shrink-0 overflow-hidden shadow-2xl relative">
+        <aside className="w-[320px] bg-[#759bb0] border-r border-slate-350/10 flex flex-col shrink-0 overflow-hidden shadow-2xl relative">
           
-          {/* Título de Lista */}
+          {/* Título de Lista (Simplificado en un solo párrafo) */}
           <div className="p-6 pb-3 border-b border-white/10 flex items-center justify-between shrink-0 text-white">
             <div>
-              <span className="text-[8px] font-bold text-white/60 tracking-[0.2em] uppercase">SYSTEM INTERFACE</span>
-              <h3 className="text-xs font-black tracking-[0.15em] uppercase mt-0.5">CHARACTER SELECTION</h3>
+              <h3 className="text-xs font-black tracking-[0.15em] uppercase">CHARACTER SELECTION</h3>
             </div>
             <div className="px-2 py-0.5 bg-white/10 border border-white/20 rounded text-[9px] font-mono text-white">
               N° {patientsList.length}
