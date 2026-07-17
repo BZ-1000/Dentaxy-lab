@@ -139,8 +139,8 @@ export default function DetroitPatientProfile({
           ──────────────────────────────────────────────────────────────────────── */}
       <header className="w-full h-16 bg-white/40 backdrop-blur-md flex items-center justify-between z-10 shrink-0 select-none px-0">
         
-        {/* Título de Marca (Alineado al ancho del Sidebar de 320px y con fondo unificado #759bb0) */}
-        <div className="w-[320px] shrink-0 h-full px-6 bg-[#759bb0] flex items-center justify-start gap-3 text-white">
+        {/* Título de Marca (Alineado al ancho del Sidebar de 320px, con fondo unificado #759bb0 y relieve neomórfico) */}
+        <div className="w-[320px] shrink-0 h-full px-6 bg-[#759bb0] border-r border-white/20 flex items-center justify-start gap-3 text-white shadow-[6px_0_24px_-8px_rgba(15,23,42,0.18)] z-20">
           <div className="w-2.5 h-2.5 bg-white rotate-45" />
           <span 
             className="text-[13px] font-black tracking-[0.35em] uppercase"
@@ -176,7 +176,7 @@ export default function DetroitPatientProfile({
         <div className="px-6 h-full flex items-center justify-end shrink-0">
           <button
             onClick={onClose}
-            className="px-5 h-9 bg-white/40 border border-slate-300 hover:bg-white/80 text-slate-700 hover:text-slate-900 text-[10px] font-black tracking-[0.2em] transition-all flex items-center gap-2 group cursor-pointer focus:outline-none rounded-md"
+            className="px-5 h-9 bg-white/40 border border-slate-350 hover:bg-white/80 text-slate-700 hover:text-slate-900 text-[10px] font-black tracking-[0.2em] transition-all flex items-center gap-2 group cursor-pointer focus:outline-none rounded-md"
           >
             <span>SALIR</span>
             <X size={12} className="group-hover:rotate-90 transition-transform duration-300" />
@@ -189,8 +189,8 @@ export default function DetroitPatientProfile({
           ──────────────────────────────────────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden z-10 relative">
 
-        {/* ── COLUMNA 1: SIDEBAR IZQUIERDA (Gris-Azul Metálico #759bb0) ── */}
-        <aside className="w-[320px] bg-[#759bb0] border-r border-slate-350/10 flex flex-col shrink-0 overflow-hidden shadow-2xl relative">
+        {/* ── COLUMNA 1: SIDEBAR IZQUIERDA (Gris-Azul Metálico #759bb0 con división neomórfica) ── */}
+        <aside className="w-[320px] bg-[#759bb0] border-r border-white/20 flex flex-col shrink-0 overflow-hidden shadow-[6px_0_24px_-8px_rgba(15,23,42,0.18)] relative z-20">
           
           {/* Título de Lista (Simplificado en un solo párrafo) */}
           <div className="p-6 pb-3 border-b border-white/10 flex items-center justify-between shrink-0 text-white">
@@ -551,7 +551,7 @@ export default function DetroitPatientProfile({
             </svg>
           </div>
 
-          {/* MENÚ DE MODOS LATERAL DERECHO (Pestañas verticales 01-04 con el bloque azul detrás del número activo) */}
+          {/* MENÚ DE MODOS LATERAL DERECHO (Pestañas verticales 01-04 con relieve neomórfico) */}
           <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-5 z-20">
             {(['BIOMETRIC', 'MESH', 'DIAGNOSIS', 'HISTORY'] as const).map((mode, index) => {
               const label = mode === 'BIOMETRIC' ? 'BIOMÉTRICO' : mode === 'MESH' ? 'MALLA 3D' : mode === 'DIAGNOSIS' ? 'DIAGNÓSTICO' : 'HISTORIAL';
@@ -569,11 +569,11 @@ export default function DetroitPatientProfile({
                     {label}
                   </span>
                   
-                  {/* Número con el bloque azul/celeste detrás en el activo */}
-                  <div className={`w-9 h-9 border rounded font-mono text-[11px] font-extrabold transition-all duration-300 flex items-center justify-center ${
+                  {/* Selector Numérico Neomórfico */}
+                  <div className={`w-9 h-9 rounded-xl font-mono text-[11px] font-extrabold transition-all duration-300 flex items-center justify-center ${
                     isModeActive 
-                      ? 'bg-sky-500 border-sky-650 text-white shadow-md' 
-                      : 'bg-white/40 border-slate-300/60 text-slate-500 hover:border-slate-400 hover:text-slate-700'
+                      ? 'bg-[#0ea5e9] text-white shadow-[inset_2px_2px_5px_rgba(0,0,0,0.25),inset_-2px_-2px_5px_rgba(255,255,255,0.35),0_0_12px_rgba(14,165,233,0.35)]' 
+                      : 'bg-[#e0e7ec] text-slate-500 shadow-[3px_3px_7px_rgba(165,180,190,0.7),-3px_-3px_7px_rgba(255,255,255,0.9)] hover:text-slate-800'
                   }`}>
                     0{index + 1}
                   </div>
