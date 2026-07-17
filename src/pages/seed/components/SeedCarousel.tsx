@@ -272,7 +272,7 @@ export default function SeedCarousel({
                     onOpenFolder(card, rect);
                   }
                 } else {
-                  setActiveIndex(index);
+                  setActiveIndex(logicalPosition);
                 }
               }}
               id={`folder-${card.id}`}

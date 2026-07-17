@@ -878,6 +878,7 @@ export default function SeedApp() {
       <AnimatePresence>
         {currentView !== 'DETROIT' && (
           <motion.div 
+            key="seed-topnav"
             initial={{ y: 0, opacity: 1 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -80, opacity: 0 }}
@@ -920,6 +921,7 @@ export default function SeedApp() {
          <AnimatePresence>
            {currentView !== 'DETROIT' && (
              <motion.div 
+               key="seed-carousel"
                initial={{ scale: 1, opacity: 1, y: -10 }}
                animate={{ scale: 1, opacity: 1, y: -10 }}
                exit={{ scale: 0.9, opacity: 0, y: 120 }}
@@ -941,6 +943,7 @@ export default function SeedApp() {
          <AnimatePresence>
            {currentView !== 'DETROIT' && (
              <motion.div 
+               key="seed-dashboard-layout"
                initial={{ y: 0, opacity: 1 }}
                animate={{ y: 0, opacity: 1 }}
                exit={{ y: 250, opacity: 0 }}
@@ -976,6 +979,7 @@ export default function SeedApp() {
          <AnimatePresence>
            {currentView === 'DETROIT' && (
              <motion.div
+               key="detroit-patient-profile"
                initial={{ opacity: 0, scale: 1.05 }}
                animate={{ opacity: 1, scale: 1 }}
                exit={{ opacity: 0, scale: 1.05 }}
