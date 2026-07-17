@@ -186,16 +186,45 @@ const playDeactivationSound = () => {
 // ─── Utilidad: limpiar texto transcrito ──────────────────────────────────────
 const MALE_TOKENS = [
   'okey dex', 'ok dex', 'hey dex', 'oye dex', 'okay dex', 'escucha dex',
-  'okey decs', 'hey decs', 'ok decs',
-  'dex', 'decs', 'tex', 'lex', 'rex', 'des', 'next', 'the ex', 'deck', 'deex', 'nex', 'bex', 'vex'
+  'okey decs', 'hey decs', 'ok decs', 'okey ex', 'ok ex', 'hey ex',
+  'dex', 'decs', 'tex', 'lex', 'rex', 'des', 'next', 'the ex', 'deck', 'deex', 'nex', 'bex', 'vex',
+  'okeydex', 'okdex', 'heydex', 'jackson', 'okey jackson', 'texto'
 ];
 
 const FEMALE_TOKENS = [
   'okey dexy', 'ok dexy', 'hey dexy', 'oye dexy', 'okay dexy', 'escucha dexy',
   'okey decsi', 'hey decsi', 'ok decsi',
   'dexy', 'dexi', 'decsi', 'texi', 'lexi', 'desi', 'sexy', 'pepsi', 'decky',
-  'deexi', 'deaxi', 'beatsy', 'vexi', 'betsy', 'dixi', 'nexy', 'mexi'
+  'deexi', 'deaxi', 'beatsy', 'vexi', 'betsy', 'dixi', 'nexy', 'mexi',
+  'okeyexi', 'okexi', 'okayexi', 'heyexi', 'okey jackson', 'jackson', 'jacksy', 'daisy',
+  'deisy', 'dacy', 'okey daisy', 'okey deisy', 'ok deisy', 'taxi', 'yexi', 'bexy', 'daxy',
+  'okey lexi', 'okey pepsi', 'escucha dexi'
 ];
+
+const PHONETIC_FIXES: Record<string, string> = {
+  "hondo grama": "odontograma",
+  "odonto grama": "odontograma",
+  "odontogramas": "odontograma",
+  "exo doncia": "exodoncia",
+  "extra doncia": "exodoncia",
+  "orto doncia": "ortodoncia",
+  "perio dontitis": "periodontitis",
+  "perio dontal": "periodontal",
+  "peri apical": "periapical",
+  "endo doncia": "endodoncia",
+  "pro filaxis": "profilaxis",
+  "implanto logía": "implantología",
+  "maxilo facial": "maxilofacial",
+  "dentaxi": "dentaxy"
+};
+
+function normalizeMedicalTerms(text: string): string {
+  let normalized = text;
+  for (const [wrong, correct] of Object.entries(PHONETIC_FIXES)) {
+    normalized = normalized.replace(new RegExp(`\\b${wrong}\\b`, 'gi'), correct);
+  }
+  return normalized;
+}
 
 /** Retorna true si el texto reciente contiene alguna frase de activación fonética */
 function detectWake(text: string, gender: 'male' | 'female'): boolean {
@@ -358,6 +387,7 @@ export function GlobalDexBubble() {
   const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const listenDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const watchdogRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastResultTimeRef = useRef<number>(Date.now());
 
   // ── Refs de reconocimiento ────────────────────────────────────────────────
   const recRef = useRef<any>(null);
@@ -745,7 +775,12 @@ export function GlobalDexBubble() {
         const lastResultIndex = event.results.length - 1;
         const result = event.results[lastResultIndex];
         const isFinal = result.isFinal;
-        const primaryText = result[0].transcript.toLowerCase().trim();
+        
+        // Normalizar errores fonéticos comunes de la API de reconocimiento
+        let rawText = result[0].transcript.toLowerCase().trim();
+        const primaryText = normalizeMedicalTerms(rawText);
+
+        lastResultTimeRef.current = Date.now();
 
         if (!primaryText) return;
 
@@ -760,8 +795,8 @@ export function GlobalDexBubble() {
         // Resetear flag de wake en cada utterance nuevo (solo cuando es final)
         if (isFinal) wakeDetectedInCurrentUtterance = false;
 
-        // ─── BARGE-IN ───────────────────────────────────────────
-        if (voiceStateRef.current === 'SPEAKING') {
+        // ─── BARGE-IN (Interrupción en cualquier momento crítico) ─────────────
+        if (voiceStateRef.current === 'SPEAKING' || voiceStateRef.current === 'PROCESSING') {
           if (detectWake(primaryText, genderRef.current)) {
             useDexStore.getState().stopSpeaking();
             window.speechSynthesis.cancel();
@@ -869,8 +904,15 @@ export function GlobalDexBubble() {
     watchdogRef.current = setInterval(() => {
       if (!aliveRef.current) return;
       if (voiceStateRef.current === 'SPEAKING') return;
-      if (!isListeningRef.current) {
-        console.warn('[DEX] Watchdog: mic inactivo detectado, reiniciando...');
+
+      const now = Date.now();
+      const timeSinceLastResult = now - lastResultTimeRef.current;
+      // Reinicio forzado si el motor se quedó 'sordo' por más de 18 segundos estando en SLEEPING
+      const isStuckAndDeaf = timeSinceLastResult > 18000 && voiceStateRef.current === 'SLEEPING';
+
+      if (!isListeningRef.current || isStuckAndDeaf) {
+        console.warn('[DEX] Watchdog: mic inactivo o sordo detectado, reiniciando...');
+        lastResultTimeRef.current = Date.now(); // resetear para evitar loop de reinicios continuos
         suppressToggleRef.current = false;
         launch();
       }
@@ -926,11 +968,7 @@ export function GlobalDexBubble() {
           }
         }, 8000); // ⏱️ Aumentado de 4s a 8s tras hablar anti-eco
       } else {
-        setTimeout(() => {
-          if (voiceStateRef.current === 'SLEEPING' || voiceStateRef.current === 'SPEAKING') {
-            setResponseMessage(null);
-          }
-        }, 1500);
+        setResponseMessage(null);
       }
       voiceStateRef.current = nextState;
       setVoiceState(nextState);

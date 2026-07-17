@@ -55,9 +55,21 @@ function speakWithNativeFallback(
         utterance.voice = found ?? esVoices[0];
         if (isFemale && !found) utterance.pitch = 1.8;
       }
-      utterance.onend = onEnded;
-      utterance.onerror = onEnded;
+      
+      let finished = false;
+      const safeEnd = () => {
+        if (finished) return;
+        finished = true;
+        clearTimeout(safety);
+        onEnded();
+      };
+      
+      utterance.onend = safeEnd;
+      utterance.onerror = safeEnd;
       window.speechSynthesis.speak(utterance);
+      
+      // Fallback estricto por si el navegador jamás dispara onend
+      const safety = setTimeout(safeEnd, Math.max(8000, text.length * 150));
     };
 
     if (window.speechSynthesis.getVoices().length === 0) {
@@ -179,13 +191,19 @@ export const useDexStore = create<DexState>((set, get) => {
         const audio = new Audio(url);
         set({ currentAudio: audio });
 
-        audio.onended = () => {
+        let finished = false;
+        const safeEnd = () => {
+          if (finished) return;
+          finished = true;
+          clearTimeout(safety);
           URL.revokeObjectURL(url);
           set({ isSpeaking: false, currentAudio: null });
         };
+        const safety = setTimeout(safeEnd, Math.max(10000, cleanText.length * 200));
+
+        audio.onended = safeEnd;
         audio.onerror = () => {
-          URL.revokeObjectURL(url);
-          set({ isSpeaking: false, currentAudio: null });
+          safeEnd();
           speakWithNativeFallback(cleanText, activeVoice, () => set({ isSpeaking: false }));
         };
 

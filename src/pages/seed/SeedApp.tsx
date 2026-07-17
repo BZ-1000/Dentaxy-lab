@@ -9,6 +9,7 @@ import SeedPatientsListView from './components/SeedPatientsListView';
 import SeedAddPatientModal from './components/SeedAddPatientModal';
 import SeedAddPatientView from './components/SeedAddPatientView';
 import SeedFolderDashboard from './components/SeedFolderDashboard';
+import DetroitPatientProfile from './components/DetroitPatientProfile';
 import SeedOnboardingDrive from './components/SeedOnboardingDrive';
 import SeedOnboarding from './components/onboarding/SeedOnboarding';
 import LivePrescriptionPreview from './components/onboarding/LivePrescriptionPreview';
@@ -30,7 +31,7 @@ export default function SeedApp() {
     : `${doctorName.split(' ').map(n => n[0]).join('')}-2026`.toUpperCase();
 
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
-  const [currentView, setCurrentView] = useState<'CAROUSEL' | 'PATIENTS_LIST'>('CAROUSEL');
+  const [currentView, setCurrentView] = useState<'CAROUSEL' | 'PATIENTS_LIST' | 'DETROIT'>('CAROUSEL');
   const [openedFolder, setOpenedFolder] = useState<{folder: any, rect?: DOMRect} | null>(null);
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
   const [activePatient, setActivePatient] = useState<any>(null);
@@ -753,7 +754,14 @@ export default function SeedApp() {
   }
 
   const handleOpenFolder = (folder: any) => {
-    // No hacer nada al presionar la carpeta
+    const idx = patientsList.findIndex(p => p.id === folder.id);
+    if (idx !== -1) {
+      setSelectedPatientIndex(idx);
+      setActivePatient(patientsList[idx]);
+    } else {
+      setActivePatient(folder);
+    }
+    setCurrentView('DETROIT');
   };
 
   const handleOpenAddPatient = () => {
@@ -867,71 +875,132 @@ export default function SeedApp() {
       )}
 
       {/* Navegación Superior */}
-      <div className={`transition-all duration-500 ${(isQuestionMode || isSeed2Open || isOpenQR) ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
-        <SeedTopNav 
-          theme={theme} 
-          toggleTheme={toggleTheme} 
-          doctorProfile={doctorProfile}
-          onOpenProfileCredential={() => setIsProfileCredentialOpen(true)}
-        />
-      </div>
+      <AnimatePresence>
+        {currentView !== 'DETROIT' && (
+          <motion.div 
+            initial={{ y: 0, opacity: 1 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: -80, opacity: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className={`transition-all duration-500 ${(isQuestionMode || isSeed2Open || isOpenQR) ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}
+          >
+            <SeedTopNav 
+              theme={theme} 
+              toggleTheme={toggleTheme} 
+              doctorProfile={doctorProfile}
+              onOpenProfileCredential={() => setIsProfileCredentialOpen(true)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
       
 
       {/* Contenido Principal sin Scroll (Ajustado pb-72 para dar espacio a DEX abierta) */}
       <div className="flex-1 overflow-hidden relative flex flex-col justify-center pb-72">
          
          {/* Brillo de fondo central superior */}
-         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] seed-glow-orb-top blur-[120px] rounded-[100%] pointer-events-none z-0"></div>
+         {currentView !== 'DETROIT' && (
+           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] seed-glow-orb-top blur-[120px] rounded-[100%] pointer-events-none z-0"></div>
+         )}
           {/* Orbes de luz ambientales en esquinas inferiores */}
-          <div 
-            className="absolute bottom-[-150px] left-[-150px] w-[500px] h-[500px] rounded-[100%] blur-[130px] pointer-events-none z-0 opacity-70 transition-all duration-500"
-            style={{ backgroundColor: 'var(--seed-glow-orb-1)' }}
-          ></div>
-          <div 
-            className="absolute bottom-[-150px] right-[-150px] w-[550px] h-[550px] rounded-[100%] blur-[140px] pointer-events-none z-0 opacity-70 transition-all duration-500"
-            style={{ backgroundColor: 'var(--seed-glow-orb-2)' }}
-          ></div>
+          {currentView !== 'DETROIT' && (
+            <>
+              <div 
+                className="absolute bottom-[-150px] left-[-150px] w-[500px] h-[500px] rounded-[100%] blur-[130px] pointer-events-none z-0 opacity-70 transition-all duration-500"
+                style={{ backgroundColor: 'var(--seed-glow-orb-1)' }}
+              ></div>
+              <div 
+                className="absolute bottom-[-150px] right-[-150px] w-[550px] h-[550px] rounded-[100%] blur-[140px] pointer-events-none z-0 opacity-70 transition-all duration-500"
+                style={{ backgroundColor: 'var(--seed-glow-orb-2)' }}
+              ></div>
+            </>
+          )}
          
          {/* Área Central (Carrusel / Directorio - Subido con -translate-y-10) */}
-          <div className={`flex items-center justify-center min-h-[320px] max-h-[380px] relative w-full px-16 -translate-y-10 transition-all duration-500 ${(isQuestionMode || isSeed2Open || isOpenQR) ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}>
-            
-            {/* Contenido Dinámico */}
-            <SeedCarousel 
-              onOpenFolder={(folder, rect) => handleOpenFolder(folder)} 
-              onOpenAddPatient={handleOpenAddPatient}
-              onActivePatientChange={setActivePatient}
-              onPatientsLoad={setPatientsList}
-            />
-
-         </div>
+         <AnimatePresence>
+           {currentView !== 'DETROIT' && (
+             <motion.div 
+               initial={{ scale: 1, opacity: 1, y: -10 }}
+               animate={{ scale: 1, opacity: 1, y: -10 }}
+               exit={{ scale: 0.9, opacity: 0, y: 120 }}
+               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+               className={`flex items-center justify-center min-h-[320px] max-h-[380px] relative w-full px-16 transition-all duration-500 ${(isQuestionMode || isSeed2Open || isOpenQR) ? 'blur-[3px] opacity-85 pointer-events-none' : isFolderHovered ? 'blur-[2px] opacity-60 pointer-events-none' : ''}`}
+             >
+               {/* Contenido Dinámico */}
+               <SeedCarousel 
+                 onOpenFolder={(folder, rect) => handleOpenFolder(folder)} 
+                 onOpenAddPatient={handleOpenAddPatient}
+                 onActivePatientChange={setActivePatient}
+                 onPatientsLoad={setPatientsList}
+               />
+             </motion.div>
+           )}
+         </AnimatePresence>
          
-          {/* Grid Inferior (Key Dates, Compliance, Event) */}
-          <div className="fixed bottom-0 left-0 right-0 z-50">
-            <SeedDashboardLayout 
-              activePatient={activePatient} 
-              isFolderHovered={false}
-              onFolderHoverChange={() => {}}
-              onOpenFolder={(folder, rect) => handleOpenFolder(folder)}
-              onOpenAddPatient={handleOpenAddPatient}
-              isQuestionMode={isQuestionMode || isSeed2Open}
-              setIsQuestionMode={setIsQuestionMode}
-              questionType={questionType}
-              onConfirmQuestion={handleConfirmQuestion}
-              theme={theme}
-              onOpenQR={(code) => {
-                if (code) {
-                  setActiveClinicQR(code);
-                  setIsOpenQR(true);
-                } else {
-                  setIsOpenQR(false);
-                }
-              }}
-              isOpenQR={isOpenQR}
-            />
-          </div>
+         {/* Grid Inferior (Key Dates, Compliance, Event) */}
+         <AnimatePresence>
+           {currentView !== 'DETROIT' && (
+             <motion.div 
+               initial={{ y: 0, opacity: 1 }}
+               animate={{ y: 0, opacity: 1 }}
+               exit={{ y: 250, opacity: 0 }}
+               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+               className="fixed bottom-0 left-0 right-0 z-50"
+             >
+               <SeedDashboardLayout 
+                 activePatient={activePatient} 
+                 isFolderHovered={false}
+                 onFolderHoverChange={() => {}}
+                 onOpenFolder={(folder, rect) => handleOpenFolder(folder)}
+                 onOpenAddPatient={handleOpenAddPatient}
+                 isQuestionMode={isQuestionMode || isSeed2Open}
+                 setIsQuestionMode={setIsQuestionMode}
+                 questionType={questionType}
+                 onConfirmQuestion={handleConfirmQuestion}
+                 theme={theme}
+                 onOpenQR={(code) => {
+                   if (code) {
+                     setActiveClinicQR(code);
+                     setIsOpenQR(true);
+                   } else {
+                     setIsOpenQR(false);
+                   }
+                 }}
+                 isOpenQR={isOpenQR}
+               />
+             </motion.div>
+           )}
+         </AnimatePresence>
+
+         {/* VISTA DETROIT BECOME HUMAN */}
+         <AnimatePresence>
+           {currentView === 'DETROIT' && (
+             <motion.div
+               initial={{ opacity: 0, scale: 1.05 }}
+               animate={{ opacity: 1, scale: 1 }}
+               exit={{ opacity: 0, scale: 1.05 }}
+               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+               className="absolute inset-0 z-50 bg-[#080b11]"
+             >
+               <DetroitPatientProfile 
+                 patientsList={patientsList}
+                 activeIndex={selectedPatientIndex}
+                 setActiveIndex={(idx) => {
+                   setSelectedPatientIndex(idx);
+                   setActivePatient(patientsList[idx]);
+                 }}
+                 onClose={() => setCurrentView('CAROUSEL')}
+                 onOpenExpediente={(patient) => {
+                   setSeed2PatientData(patient);
+                   setIsSeed2Open(true);
+                 }}
+                 theme={theme}
+               />
+             </motion.div>
+           )}
+         </AnimatePresence>
          
       </div>
-
 
 
       {/* Popup de Registro de Pacientes */}
