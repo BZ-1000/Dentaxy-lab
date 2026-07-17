@@ -139,20 +139,17 @@ export default function DetroitPatientProfile({
           ──────────────────────────────────────────────────────────────────────── */}
       <header className="w-full h-16 bg-white/40 backdrop-blur-md flex items-center justify-between z-10 shrink-0 select-none px-0">
         
-        {/* Título de Marca (DENTAXY en grande, technologies abajo) */}
-        <div className="w-[320px] shrink-0 h-full px-6 bg-[#759bb0] border-r border-white/20 flex items-center justify-start gap-4 text-white shadow-[6px_0_24px_-8px_rgba(15,23,42,0.18)] z-20">
-          <div className="w-2.5 h-2.5 bg-white rotate-45 shrink-0" />
-          <div className="flex flex-col leading-none">
-            <span 
-              className="text-lg font-black tracking-[0.12em] uppercase"
-              style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
-            >
-              DENTAXY
-            </span>
-            <span className="text-[7px] font-bold tracking-[0.35em] uppercase mt-0.5 opacity-70">
-              technologies
-            </span>
-          </div>
+        {/* Título de Marca (Centrado, sin diamante, DENTAXY más grande) */}
+        <div className="w-[320px] shrink-0 h-full px-4 bg-[#759bb0] border-r border-white/20 flex flex-col justify-center items-center text-white shadow-[6px_0_24px_-8px_rgba(15,23,42,0.18)] z-20">
+          <span 
+            className="text-[21px] font-black tracking-[0.15em] uppercase leading-none"
+            style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
+          >
+            DENTAXY
+          </span>
+          <span className="text-[7.5px] font-bold tracking-[0.38em] uppercase mt-1.5 opacity-75 leading-none mr-[-0.38em]">
+            technologies
+          </span>
         </div>
 
         {/* TABS DE SECCIÓN FUTURISTAS (Alineados con el contenido central a partir de px-12) */}
