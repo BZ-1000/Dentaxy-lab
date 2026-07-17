@@ -139,15 +139,15 @@ export default function DetroitPatientProfile({
           ──────────────────────────────────────────────────────────────────────── */}
       <header className="w-full h-16 bg-white/40 backdrop-blur-md flex items-center justify-between z-10 shrink-0 select-none px-0">
         
-        {/* Título de Marca (Centrado, sin diamante, DENTAXY más grande) */}
+        {/* Título de Marca (Centrado, sin diamante, DENTAXY aún más grande) */}
         <div className="w-[320px] shrink-0 h-full px-4 bg-[#759bb0] border-r border-white/20 flex flex-col justify-center items-center text-white shadow-[6px_0_24px_-8px_rgba(15,23,42,0.18)] z-20">
           <span 
-            className="text-[21px] font-black tracking-[0.15em] uppercase leading-none"
+            className="text-[28px] font-black tracking-[0.15em] uppercase leading-none"
             style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
           >
             DENTAXY
           </span>
-          <span className="text-[7.5px] font-bold tracking-[0.38em] uppercase mt-1.5 opacity-75 leading-none mr-[-0.38em]">
+          <span className="text-[8.5px] font-bold tracking-[0.42em] uppercase mt-2 opacity-75 leading-none mr-[-0.42em]">
             technologies
           </span>
         </div>
