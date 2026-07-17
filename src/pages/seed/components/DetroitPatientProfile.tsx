@@ -139,15 +139,20 @@ export default function DetroitPatientProfile({
           ──────────────────────────────────────────────────────────────────────── */}
       <header className="w-full h-16 bg-white/40 backdrop-blur-md flex items-center justify-between z-10 shrink-0 select-none px-0">
         
-        {/* Título de Marca (Alineado al ancho del Sidebar de 320px, con fondo unificado #759bb0 y relieve neomórfico) */}
-        <div className="w-[320px] shrink-0 h-full px-6 bg-[#759bb0] border-r border-white/20 flex items-center justify-start gap-3 text-white shadow-[6px_0_24px_-8px_rgba(15,23,42,0.18)] z-20">
-          <div className="w-2.5 h-2.5 bg-white rotate-45" />
-          <span 
-            className="text-[13px] font-black tracking-[0.35em] uppercase"
-            style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
-          >
-            DENTAXY SYSTEM
-          </span>
+        {/* Título de Marca (DENTAXY en grande, technologies abajo) */}
+        <div className="w-[320px] shrink-0 h-full px-6 bg-[#759bb0] border-r border-white/20 flex items-center justify-start gap-4 text-white shadow-[6px_0_24px_-8px_rgba(15,23,42,0.18)] z-20">
+          <div className="w-2.5 h-2.5 bg-white rotate-45 shrink-0" />
+          <div className="flex flex-col leading-none">
+            <span 
+              className="text-lg font-black tracking-[0.12em] uppercase"
+              style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
+            >
+              DENTAXY
+            </span>
+            <span className="text-[7px] font-bold tracking-[0.35em] uppercase mt-0.5 opacity-70">
+              technologies
+            </span>
+          </div>
         </div>
 
         {/* TABS DE SECCIÓN FUTURISTAS (Alineados con el contenido central a partir de px-12) */}
@@ -192,18 +197,8 @@ export default function DetroitPatientProfile({
         {/* ── COLUMNA 1: SIDEBAR IZQUIERDA (Gris-Azul Metálico #759bb0 con división neomórfica) ── */}
         <aside className="w-[320px] bg-[#759bb0] border-r border-white/20 flex flex-col shrink-0 overflow-hidden shadow-[6px_0_24px_-8px_rgba(15,23,42,0.18)] relative z-20">
           
-          {/* Título de Lista (Simplificado en un solo párrafo) */}
-          <div className="p-6 pb-3 border-b border-white/10 flex items-center justify-between shrink-0 text-white">
-            <div>
-              <h3 className="text-xs font-black tracking-[0.15em] uppercase">CHARACTER SELECTION</h3>
-            </div>
-            <div className="px-2 py-0.5 bg-white/10 border border-white/20 rounded text-[9px] font-mono text-white">
-              N° {patientsList.length}
-            </div>
-          </div>
-
-          {/* Lista Vertical de Pacientes (Cuadros más grandes estilo Detroit) */}
-          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-7 scrollbar-thin scrollbar-thumb-white/10">
+          {/* Lista Vertical de Pacientes (Sin textos de título, inicia directamente) */}
+          <div className="flex-1 overflow-y-auto px-5 py-6 space-y-7 scrollbar-thin scrollbar-thumb-white/10">
             {patientsList.map((p, idx) => {
               const isSelected = idx === activeIndex;
               const code = `PX-${String(idx + 1).padStart(3, '0')}`;
