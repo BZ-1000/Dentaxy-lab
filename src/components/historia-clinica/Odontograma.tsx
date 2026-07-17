@@ -531,7 +531,7 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
   const handleVoiceConfirm = (voiceURI: string) => {
     setShowVoiceModal(false);
     // Iniciar con TTS de saludo usando la voz seleccionada
-    const utter = new SpeechSynthesisUtterance('De acuerdo doctor, Dentaxi está listo. Puede comenzar a dictar el odontograma.');
+    const utter = new SpeechSynthesisUtterance('¡Dentaxi está listo! Comience a dictar el odontograma');
     utter.lang = 'es-MX';
     utter.rate = 1.0;
     utter.volume = 0.95;

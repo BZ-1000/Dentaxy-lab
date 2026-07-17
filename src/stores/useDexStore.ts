@@ -18,6 +18,8 @@ export type DexVoiceId =
 interface DexState {
   dexVoice: DexVoiceId;
   setDexVoice: (voice: DexVoiceId) => void;
+  gender: 'male' | 'female';
+  setGender: (g: 'male' | 'female') => void;
   isListening: boolean;
   setIsListening: (val: boolean) => void;
   isSpeaking: boolean;
@@ -105,12 +107,22 @@ export const useDexStore = create<DexState>((set, get) => {
   }
   localStorage.setItem('dentaxy_dex_voice', savedVoice);
 
+  // Leer género guardado (sincronizado con la voz)
+  const savedGender: 'male' | 'female' =
+    (localStorage.getItem('dex_gender') as 'male' | 'female') || 'male';
+
   return {
     dexVoice: savedVoice,
 
     setDexVoice: (voice) => {
       localStorage.setItem('dentaxy_dex_voice', voice);
       set({ dexVoice: voice });
+    },
+
+    gender: savedGender,
+    setGender: (g) => {
+      localStorage.setItem('dex_gender', g);
+      set({ gender: g });
     },
 
     isListening: false,
@@ -130,6 +142,17 @@ export const useDexStore = create<DexState>((set, get) => {
     },
 
     speakText: async (text, voiceOverride) => {
+      // Sanitizar texto para mejorar la fluidez de voz (quitar comas, puntos no numéricos y palabras de sumisión)
+      const cleanText = text
+        .replace(/,/g, '')
+        .replace(/[:;]/g, '')
+        .replace(/(?<!\d)\.|\.(?!\d)/g, '')
+        .replace(/\b(como ordene|a sus órdenes|a la orden|señor)\b/gi, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+
+      if (!cleanText) return;
+
       const state = get();
       state.stopSpeaking();
       set({ isSpeaking: true });
@@ -140,7 +163,7 @@ export const useDexStore = create<DexState>((set, get) => {
         const response = await fetch('/api/tts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, voice: activeVoice }),
+          body: JSON.stringify({ text: cleanText, voice: activeVoice }),
         });
         
         if (!response.ok) {
@@ -163,7 +186,7 @@ export const useDexStore = create<DexState>((set, get) => {
         audio.onerror = () => {
           URL.revokeObjectURL(url);
           set({ isSpeaking: false, currentAudio: null });
-          speakWithNativeFallback(text, activeVoice, () => set({ isSpeaking: false }));
+          speakWithNativeFallback(cleanText, activeVoice, () => set({ isSpeaking: false }));
         };
 
         await audio.play();

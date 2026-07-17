@@ -73,7 +73,7 @@ export const useVoiceSelector = () => {
     const voice = raw.find(v => v.voiceURI === voiceURI);
     if (!voice) return;
 
-    const utter = new SpeechSynthesisUtterance('Hola doctor, listo para dictar el odontograma.');
+    const utter = new SpeechSynthesisUtterance('¡Hola! Listo para dictar el odontograma');
     utter.voice = voice;
     utter.lang = voice.lang;
     utter.rate = 1.0;

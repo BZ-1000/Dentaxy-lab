@@ -31,64 +31,64 @@ const RESPUESTAS = {
 
   // ── Saludos ────────────────────────────────────────────────────────────────
   saludo: [
-    "A sus órdenes, Doctor. ¿En qué le puedo asistir?",
-    "Listo para trabajar, Doctor. ¿Qué necesita?",
-    "Buenas, Doctor. A su disposición.",
-    "A la orden, Doctor. ¿Cómo le puedo ayudar hoy?",
-    "Aquí listo, Doctor. Dígame.",
+    "¡Hola! ¿En qué le ayudo?",
+    "¡Listo! ¿Qué necesita?",
+    "¡Hola! A su disposición",
+    "¡Listo! ¿Cómo le ayudo hoy?",
+    "¡Aquí listo! Dígame",
   ],
 
   // ── Confirmación de apertura de directorio ─────────────────────────────────
   abreDirectorio: [
-    "Abriendo el directorio de pacientes, Doctor.",
-    "Accediendo al directorio de expedientes.",
-    "Aquí tiene el listado de pacientes, Doctor.",
-    "Mostrando el directorio clínico.",
+    "¡Abriendo el directorio de pacientes!",
+    "¡Accediendo al directorio de expedientes!",
+    "¡Aquí tiene el listado de pacientes!",
+    "¡Mostrando el directorio clínico!",
   ],
 
   // ── Confirmación de apertura de formulario ─────────────────────────────────
   abreFormulario: [
-    "Abriendo el formulario de registro, Doctor. ¿Cuál es el nombre del paciente?",
-    "Listo para registrar al nuevo paciente. ¿Me indica el nombre?",
-    "Formulario abierto. ¿Nombre completo del paciente?",
-    "Iniciando registro de nuevo paciente. ¿Cuál es el nombre?",
+    "¡Abriendo el formulario de registro! ¿Cuál es el nombre?",
+    "¡Listo para registrar al nuevo paciente! ¿Me indica el nombre?",
+    "¡Formulario abierto! ¿Nombre completo del paciente?",
+    "¡Iniciando registro de nuevo paciente! ¿Cuál es el nombre?",
   ],
 
   // ── Solicitar nombre del paciente a buscar ─────────────────────────────────
   pedirNombreBusqueda: [
-    "¿El nombre del paciente que desea buscar, Doctor?",
-    "¿A qué paciente busca, Doctor?",
-    "Dígame el nombre del paciente y lo localizo de inmediato.",
+    "¿Qué paciente desea buscar?",
+    "¿A qué paciente busca?",
+    "¡Dígame el nombre y lo localizo!",
     "¿Nombre del expediente a abrir?",
   ],
 
   // ── No entendió ────────────────────────────────────────────────────────────
   noEntendio: [
-    "No le escuché bien, Doctor. ¿Puede repetir el comando?",
-    "Disculpe, no capté la instrucción. ¿Me la repite?",
-    "¿Podría repetir eso, Doctor? No lo entendí con claridad.",
-    "No procesé bien el comando. ¿Me lo repite?",
+    "¡No le escuché bien! ¿Puede repetir?",
+    "¡Disculpe! No capté la instrucción ¿Me la repite?",
+    "¿Podría repetir eso? No le entendí con claridad",
+    "¡No procesé bien el comando! ¿Me lo repite?",
   ],
 
   // ── Ayuda / funciones ──────────────────────────────────────────────────────
   ayuda: [
-    "Puedo buscar pacientes, registrar nuevos expedientes, responder preguntas de odontología y navegar el sistema. ¿Qué necesita?",
-    "Le asisto con: registro de pacientes, búsquedas en el directorio, preguntas clínicas y control del sistema. ¿Por dónde empezamos?",
-    "Mis funciones: gestión de expedientes, búsqueda de pacientes, información clínica y navegación por voz. ¿Qué requiere, Doctor?",
+    "Puedo buscar pacientes registrar nuevos expedientes responder preguntas clínicas y navegar el sistema ¿Qué necesita?",
+    "Le asisto con registro de pacientes búsquedas en el directorio preguntas clínicas y control del sistema ¿Por dónde empezamos?",
+    "Mis funciones son gestión de expedientes búsqueda de pacientes información clínica y navegación por voz ¿Qué requiere?",
   ],
 
   // ── Cita / agenda ──────────────────────────────────────────────────────────
   cita: [
-    "La gestión de citas está disponible en el módulo de agenda. ¿Desea que lo abra, Doctor?",
-    "Para agendar una cita, indíqueme el nombre del paciente y la fecha.",
-    "¿Para qué paciente desea programar la cita y en qué fecha, Doctor?",
+    "La gestión de citas está disponible en el módulo de agenda ¿Desea que lo abra?",
+    "Para agendar una cita indíqueme el nombre del paciente y la fecha",
+    "¿Para qué paciente desea programar la cita y en qué fecha?",
   ],
 
   // ── Historia clínica ───────────────────────────────────────────────────────
   historiaClinica: [
-    "Puedo abrir la historia clínica del paciente activo. ¿Confirma?",
-    "¿Desea iniciar el expediente del paciente activo, Doctor?",
-    "Para abrir la historia clínica, dígame el nombre del paciente.",
+    "Puedo abrir la historia clínica del paciente activo ¿Confirma?",
+    "¿Desea iniciar el expediente del paciente activo?",
+    "Para abrir la historia clínica dígame el nombre del paciente",
   ],
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -300,10 +300,10 @@ function buildResponse(message: string): string {
     // Si es búsqueda de paciente, personalizar la respuesta
     if (intent.query) {
       const templates = [
-        `Enseguida, Doctor. He colocado el expediente de ${intent.query} frente a usted.`,
-        `Como ordene. El historial de ${intent.query} ya está centrado en pantalla, señor.`,
-        `A sus órdenes. He traído la información de ${intent.query} a primer plano.`,
-        `Listo, Doctor. El archivo de ${intent.query} se encuentra ahora en el centro de su visor.`,
+        `¡Enseguida! He colocado el expediente de ${intent.query} en pantalla`,
+        `¡Listo! El historial de ${intent.query} ya está centrado en pantalla`,
+        `¡Hecho! Traigo la información de ${intent.query} a primer plano`,
+        `¡Listo! El archivo de ${intent.query} se encuentra ahora al centro`,
       ];
       return pick(templates);
     }

@@ -14,10 +14,29 @@ import {
   NON_NAME_WORDS,
 } from "@/lib/dex/nombresMexicanos";
 
-// ─── Efectos de Sonido con Web Audio API ─────────────────────────────────────
+// ─── AudioContext Singleton — evita fuga de recursos (Bug #3) ────────────────
+let _sharedAudioCtx: AudioContext | null = null;
+
+function getAudioCtx(): AudioContext | null {
+  try {
+    if (!_sharedAudioCtx || _sharedAudioCtx.state === 'closed') {
+      _sharedAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    // Chrome suspende el contexto si no hubo interacción reciente → resumir
+    if (_sharedAudioCtx.state === 'suspended') {
+      _sharedAudioCtx.resume().catch(() => {});
+    }
+    return _sharedAudioCtx;
+  } catch {
+    return null;
+  }
+}
+
+// ─── Efectos de Sonido con Web Audio API (singleton AudioContext) ─────────────
 const playActivationSound = () => {
   try {
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioCtx = getAudioCtx();
+    if (!audioCtx) return;
     const now = audioCtx.currentTime;
 
     const masterFilter = audioCtx.createBiquadFilter();
@@ -86,7 +105,8 @@ const playActivationSound = () => {
 
 const playDeactivationSound = () => {
   try {
-    const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const audioCtx = getAudioCtx();
+    if (!audioCtx) return;
     const now = audioCtx.currentTime;
 
     const masterFilter = audioCtx.createBiquadFilter();
@@ -164,47 +184,57 @@ const playDeactivationSound = () => {
 };
 
 // ─── Utilidad: limpiar texto transcrito ──────────────────────────────────────
-const WAKE_PHRASES_MALE = [
+const MALE_TOKENS = [
   'okey dex', 'ok dex', 'hey dex', 'oye dex', 'okay dex', 'escucha dex',
-  'okey sex', 'ok sex', 'hey sex',
-  'okey lex', 'ok lex', 'hey lex',
-  'okey rex', 'ok rex', 'hey rex',
-  'okey deck', 'ok deck', 'hey deck',
-  'oki dex', 'dex',
+  'okey decs', 'hey decs', 'ok decs',
+  'dex', 'decs', 'tex', 'lex', 'rex', 'des', 'next', 'the ex', 'deck', 'deex', 'nex', 'bex', 'vex'
 ];
 
-const WAKE_PHRASES_FEMALE = [
+const FEMALE_TOKENS = [
   'okey dexy', 'ok dexy', 'hey dexy', 'oye dexy', 'okay dexy', 'escucha dexy',
-  'okey sexy', 'ok sexy', 'hey sexy',
-  'okey lexy', 'ok lexy', 'hey lexy',
-  'okey rexy', 'ok rexy', 'hey rexy',
-  'okey decky', 'ok decky', 'hey decky',
-  'oki dexy', 'dexy',
+  'okey decsi', 'hey decsi', 'ok decsi',
+  'dexy', 'dexi', 'decsi', 'texi', 'lexi', 'desi', 'sexy', 'pepsi', 'decky',
+  'deexi', 'deaxi', 'beatsy', 'vexi', 'betsy', 'dixi', 'nexy', 'mexi'
 ];
 
-/** Retorna true si el texto contiene alguna frase de activación */
+/** Retorna true si el texto reciente contiene alguna frase de activación fonética */
 function detectWake(text: string, gender: 'male' | 'female'): boolean {
   const t = text.toLowerCase().trim();
-  const phrases = gender === 'female' ? WAKE_PHRASES_FEMALE : WAKE_PHRASES_MALE;
-  // Frases compuestas primero
-  if (phrases.slice(0, -1).some(phrase => t.includes(phrase))) return true;
-  // Nombre como token independiente (evita falsos positivos en palabras como "index")
-  const nameToken = gender === 'female' ? 'dexy' : 'dex';
-  if (new RegExp(`(?:^|\\s)${nameToken}(?:\\s|$|,|\\.|!|\\?)`, 'i').test(t)) return true;
+  const tokens = t.split(/\s+/);
+  const recentText = tokens.slice(-8).join(' '); // Solo buscar en las últimas 8 palabras
+
+  const tokensToMatch = gender === 'female' ? FEMALE_TOKENS : MALE_TOKENS;
+
+  for (const token of tokensToMatch) {
+    if (new RegExp(`(?:^|\\s)${token}(?:\\s|$|,|\\.|!|\\?)`, 'i').test(recentText)) return true;
+  }
   return false;
 }
 
-/** Extrae el comando después del wake word y limpia palabras de relleno */
+/** Extrae el comando después del ÚLTIMO wake word fonético detectado */
 function extractCommand(text: string, gender: 'male' | 'female'): string {
-  let cmd = text.toLowerCase().trim();
-  const phrases = gender === 'female' ? WAKE_PHRASES_FEMALE : WAKE_PHRASES_MALE;
-  for (const phrase of phrases) {
-    cmd = cmd.replace(new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '');
-  }
-  // eliminar nombre suelto
-  const nameToken = gender === 'female' ? 'dexy' : 'dex';
-  cmd = cmd.replace(new RegExp(`(?:^|\\s)${nameToken}(?:\\s|$|,|\\.|!|\\?)`, 'gi'), ' ');
+  let t = text.toLowerCase().trim();
+  const tokensToMatch = gender === 'female' ? FEMALE_TOKENS : MALE_TOKENS;
   
+  let lastWakeIndex = -1;
+  let matchedWake = '';
+
+  for (const token of tokensToMatch) {
+    const regex = new RegExp(`(?:^|\\s)(${token})(?:\\s|$|,|\\.|!|\\?)`, 'gi');
+    let match;
+    while ((match = regex.exec(t)) !== null) {
+      if (match.index > lastWakeIndex) {
+        lastWakeIndex = match.index;
+        matchedWake = match[1];
+      }
+    }
+  }
+
+  let cmd = t;
+  if (lastWakeIndex !== -1) {
+    cmd = t.slice(lastWakeIndex + matchedWake.length);
+  }
+
   // Limpiar puntuación
   cmd = cmd.replace(/[.,/#!$%^&*;:{}=\-_`~()?¿¡]/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -258,14 +288,17 @@ export function GlobalDexBubble() {
   const location = useLocation();
   const isMobile = useIsMobile();
 
-  // DEX solo debe funcionar en la app de Dentaxy como tal (/app, /seed/app, /seed/new)
+  // DEX funciona en todas las rutas de la app y seed
   const isAppRoute = 
     location.pathname === "/app" || 
     location.pathname.startsWith("/app/") ||
     location.pathname === "/seed/app" ||
     location.pathname.startsWith("/seed/app/") ||
     location.pathname === "/seed/new" ||
-    location.pathname.startsWith("/seed/new/");
+    location.pathname.startsWith("/seed/new/") ||
+    location.pathname.startsWith("/academico") ||
+    location.pathname === "/core" ||
+    location.pathname.startsWith("/singularity");
   
   const shouldHide = !isAppRoute;
 
@@ -276,25 +309,23 @@ export function GlobalDexBubble() {
   const [isInteracting, setIsInteracting] = useState(false);
   const [voiceState, setVoiceState] = useState<VoiceState>('SLEEPING');
 
-  const [gender, setGender] = useState<'male' | 'female'>(() => {
-    return (localStorage.getItem('dex_gender') as 'male' | 'female') || 'male';
-  });
-  const genderRef = useRef<'male' | 'female'>(gender);
+  // Bug #5 corregido: gender viene del store (única fuente de verdad), no useState local
+  const storeGender = useDexStore(state => state.gender);
+  const genderRef = useRef<'male' | 'female'>(storeGender);
+  // Mantener ref siempre fresca cuando el store cambia
   useEffect(() => {
-    genderRef.current = gender;
-  }, [gender]);
+    genderRef.current = storeGender;
+  }, [storeGender]);
 
-  const [selectedGender, setSelectedGender] = useState<'male' | 'female'>(gender);
+  const [selectedGender, setSelectedGender] = useState<'male' | 'female'>(storeGender);
 
   const [showMicModal, setShowMicModal] = useState(false);
   const [isMicReady, setIsMicReady] = useState(() => {
     return localStorage.getItem('dex_mic_intro_shown') === 'true';
   });
 
-  // LÍNEA TEMPORAL PARA PRUEBAS: Limpiar la marca para forzar que aparezca el modal al recargar
-  useEffect(() => {
-    localStorage.removeItem('dex_mic_intro_shown');
-  }, []);
+  // Bug #1 corregido: eliminado el removeItem de debugging que causaba que el
+  // modal siempre apareciera y que el motor nunca arrancara en producción.
 
   const requestMicrophonePermission = async () => {
     try {
@@ -407,7 +438,7 @@ export function GlobalDexBubble() {
       speakText(response);
       resetInactivity();
     } catch {
-      const m = "No pude procesar ese comando, Doctor. ¿Puede repetirlo?";
+      const m = "No pude procesar ese comando! ¿Puede repetirlo?";
       convStateRef.current = 'IDLE';
       setResponseMessage(m);
       speakText(m);
@@ -424,9 +455,11 @@ export function GlobalDexBubble() {
       setResponseMessage(response);
       speakText(response);
     } catch {
-      setResponseMessage("No pude procesar esa pregunta, Doctor.");
+      setResponseMessage("No pude procesar esa pregunta!");
+      speakText("No pude procesar esa pregunta!");
     } finally {
       setIsLoading(false);
+      setChatInput("");
     }
   }, [chatInput, isLoading, speakText]);
 
@@ -444,7 +477,7 @@ export function GlobalDexBubble() {
         tempPatientRef.current.name = normalizedName;
         tempPatientRef.current.phone = match[1].trim();
         convStateRef.current = 'ADD_PATIENT_CONFIRM';
-        const msg = `Perfecto. Registrando a ${normalizedName} con teléfono ${match[1].trim()}. ¿Confirma el registro?`;
+        const msg = `¡Perfecto! Registrando a ${normalizedName} con teléfono ${match[1].trim()} ¿Confirma el registro?`;
         setResponseMessage(msg); speakText(msg);
       } else {
         const normalizedName = normalizePatientName(data);
@@ -452,12 +485,12 @@ export function GlobalDexBubble() {
         // Animar escritura del nombre en el formulario
         window.dispatchEvent(new CustomEvent('dex:fillForm', { detail: { nombre: normalizedName } }));
         convStateRef.current = 'ADD_PATIENT_PHONE';
-        const msg = `Nombre registrado: ${normalizedName}. ¿Cuál es su número de teléfono?`;
+        const msg = `Nombre registrado ${normalizedName} ¿Cuál es su teléfono?`;
         setResponseMessage(msg); speakText(msg);
       }
     } else {
       convStateRef.current = 'ADD_PATIENT_NAME';
-      const msg = "Claro Doctor, ¿Cuál es el nombre completo del paciente?";
+      const msg = "¿Cuál es el nombre completo del paciente?";
       setResponseMessage(msg); speakText(msg);
     }
   }, [speakText]);
@@ -521,14 +554,14 @@ export function GlobalDexBubble() {
         window.dispatchEvent(new CustomEvent('createNewPatientLocal', {
           detail: { name: nameSnap, nombre, apellidos, telefono: phoneSnap }
         }));
-        const doneMsg = "Paciente registrado exitosamente.";
+        const doneMsg = "¡Paciente registrado!";
         setResponseMessage(doneMsg); speakText(doneMsg);
         setTimeout(() => { setIsChatOpen(false); setResponseMessage(null); setIsInteracting(false); }, 4000);
       } catch {
         window.dispatchEvent(new CustomEvent('createNewPatientLocal', {
           detail: { name: nameSnap, telefono: phoneSnap }
         }));
-        const doneMsg = "Paciente registrado en sistema local.";
+        const doneMsg = "Paciente registrado localmente!";
         setResponseMessage(doneMsg); speakText(doneMsg);
         setTimeout(() => { setIsChatOpen(false); setResponseMessage(null); setIsInteracting(false); }, 4000);
       }
@@ -538,14 +571,10 @@ export function GlobalDexBubble() {
   const handleVoiceCommand = useCallback((cmd: string) => {
     if (!cmd) {
       const phrases = [
-        "A la orden, Doctor.",
-        "Dígame, Doctor, ¿en qué le asisto?",
-        "A sus completas órdenes, Doctor.",
-        "A su entera disposición, Doctor.",
-        "Le escucho atentamente, Doctor.",
-        "¿Qué se le ofrece, Doctor?",
-        "Siempre a su disposición, Doctor.",
-        "Listo para sus instrucciones, Doctor."
+        "¡Dígame!",
+        "¡Le escucho!",
+        "¡Dígame!",
+        "¡Aquí estoy!"
       ];
       const phrase = phrases[Math.floor(Math.random() * phrases.length)];
       setResponseMessage(phrase);
@@ -572,7 +601,7 @@ export function GlobalDexBubble() {
 
     // ── Cerrar / ocultar DEX ──────────────────────────────────────────────────
     if (cmd.includes("cerrar") || cmd.includes("quita") || cmd.includes("oculta")) {
-      const m = "Entendido, Doctor.";
+      const m = "¡Entendido!";
       setResponseMessage(m); speakText(m);
       convStateRef.current = 'IDLE';
       return;
@@ -593,7 +622,7 @@ export function GlobalDexBubble() {
     if (conv === 'ADD_PATIENT_NAME') {
       // Validar que parece ser un nombre antes de procesar
       if (!looksLikeName(cleaned)) {
-        const msg = "No escuché bien el nombre, Doctor. ¿Puede repetir el nombre completo del paciente?";
+        const msg = "¡No escuché bien el nombre! ¿Puede repetir el nombre completo?";
         setResponseMessage(msg); speakText(msg);
         return;
       }
@@ -603,7 +632,7 @@ export function GlobalDexBubble() {
       // Animar escritura del teléfono en el formulario
       window.dispatchEvent(new CustomEvent('dex:fillForm', { detail: { telefono: cleaned } }));
       convStateRef.current = 'ADD_PATIENT_CONFIRM';
-      const msg = `Perfecto. Registrando a ${tempPatientRef.current.name} con teléfono ${cleaned}. ¿Confirma el registro?`;
+      const msg = `¡Perfecto! Registrando a ${tempPatientRef.current.name} con teléfono ${cleaned} ¿Confirma el registro?`;
       setResponseMessage(msg); speakText(msg);
     } else if (conv === 'ADD_PATIENT_CONFIRM') {
       const toWords = (s: string) => s.split(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ0-9]+/).filter(Boolean);
@@ -613,7 +642,7 @@ export function GlobalDexBubble() {
       if (confirmList.some(w => words.includes(w))) {
         doCreatePatient();
       } else if (cancelList.some(w => words.includes(w))) {
-        const msg = "Registro cancelado, Doctor.";
+        const msg = "¡Registro cancelado!";
         setResponseMessage(msg); speakText(msg);
         convStateRef.current = 'IDLE';
         tempPatientRef.current = { name: '', phone: '' };
@@ -644,16 +673,13 @@ export function GlobalDexBubble() {
     // ── Función de lanzamiento del reconocimiento ──────────────────────
     const launch = () => {
       if (!aliveRef.current) return;
-      // Si DEX está hablando, no reiniciar (se retomará en el effect de isSpeaking)
-      if (voiceStateRef.current === 'SPEAKING') return;
 
-      // Limpiar instancia anterior sin efectos secundarios
       if (recRef.current) {
         recRef.current.onstart  = null;
         recRef.current.onresult = null;
         recRef.current.onerror  = null;
         recRef.current.onend    = null;
-        try { recRef.current.abort(); } catch (_) {}
+        try { recRef.current.stop(); } catch (_) {}
         recRef.current = null;
       }
 
@@ -662,20 +688,19 @@ export function GlobalDexBubble() {
       rec.continuous     = true;
       rec.interimResults = true;
       rec.lang           = 'es-MX';
-      rec.maxAlternatives = 3;
+      rec.maxAlternatives = 1;
 
       rec.onstart = () => {
         suppressToggleRef.current = false;
-        notAllowedCountRef.current = 0; // reset contador de errores al iniciar correctamente
+        notAllowedCountRef.current = 0;
         micOn();
-        console.log('[DEX] Mic encendido, estado:', voiceStateRef.current);
       };
 
       rec.onend = () => {
         micOff();
         if (!aliveRef.current) return;
-        if (voiceStateRef.current === 'SPEAKING') return;
-        // Chrome cierra sesiones ~60s. Reiniciamos silenciosamente.
+        
+        // Reinicio automático natural cuando Chrome corta la sesión (~60s) o tras stop()
         suppressToggleRef.current = true;
         if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
         restartTimerRef.current = setTimeout(() => {
@@ -685,177 +710,152 @@ export function GlobalDexBubble() {
       };
 
       rec.onerror = (e: any) => {
-        console.warn('[DEX] Error de reconocimiento:', e.error);
         if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
           notAllowedCountRef.current += 1;
-          // Solo matar DEX si se confirma 3 veces consecutivas
           if (notAllowedCountRef.current >= 3) {
-            console.warn('[DEX] Permiso de micrófono denegado 3 veces. DEX deshabilitado.');
+            console.warn('[DEX] Permiso denegado permanentemente.');
             aliveRef.current = false;
-            suppressToggleRef.current = false;
             micOff();
             return;
           }
-          // Intentar reiniciar (puede ser error transitorio de contexto de audio)
-          suppressToggleRef.current = true;
-          if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
-          restartTimerRef.current = setTimeout(() => {
-            suppressToggleRef.current = false;
-            if (aliveRef.current) launch();
-          }, 1000);
+        } else if (e.error === 'no-speech') {
+          // Normal, ignorar
           return;
+        } else if (e.error === 'aborted') {
+          return; // Ya lo manejamos
         }
-        // Para otros errores (aborted, network, etc.) reiniciar
+        
+        // Reinicio seguro ante errores de red u otros
         micOff();
         if (!aliveRef.current) return;
         suppressToggleRef.current = true;
         if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
         restartTimerRef.current = setTimeout(() => {
           suppressToggleRef.current = false;
-          if (aliveRef.current && voiceStateRef.current !== 'SPEAKING') launch();
-        }, 300);
+          if (aliveRef.current) launch();
+        }, 500);
       };
 
-      // ── Handler principal de resultados ─────────────────────────────
+      // Control de deduplicación — evita procesar el mismo comando dos veces
+      let lastProcessedCommand = "";
+      // Flag para no activar múltiples veces en el mismo utterance intermedio
+      let wakeDetectedInCurrentUtterance = false;
+
       rec.onresult = (event: any) => {
-        if (voiceStateRef.current === 'SPEAKING') return; // anti-eco
+        const lastResultIndex = event.results.length - 1;
+        const result = event.results[lastResultIndex];
+        const isFinal = result.isFinal;
+        const primaryText = result[0].transcript.toLowerCase().trim();
 
-        // Recolectar todos los resultados nuevos del evento
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const result = event.results[i];
-          const isFinal = result.isFinal;
+        if (!primaryText) return;
 
-          // Obtener todas las alternativas de transcripción
-          const transcripts: string[] = [];
-          for (let j = 0; j < result.length; j++) {
-            transcripts.push(result[j].transcript.toLowerCase().trim());
+        // ─── DEBUG DIRECTO EN DOM (Evitar render loop de React) ────────────
+        const stateTag = voiceStateRef.current;
+        const debugMsg = `[${stateTag}${isFinal ? ' FINAL' : ' interim'}] g=${genderRef.current}: "${primaryText}"`;
+        const debugEl = document.getElementById('dex-debug-overlay');
+        if (debugEl) {
+          debugEl.innerText = debugMsg;
+        }
+
+        // Resetear flag de wake en cada utterance nuevo (solo cuando es final)
+        if (isFinal) wakeDetectedInCurrentUtterance = false;
+
+        // ─── BARGE-IN ───────────────────────────────────────────
+        if (voiceStateRef.current === 'SPEAKING') {
+          if (detectWake(primaryText, genderRef.current)) {
+            useDexStore.getState().stopSpeaking();
+            window.speechSynthesis.cancel();
+            voiceStateRef.current = 'LISTENING_COMMAND';
+            playActivationSound();
+            setIsInteracting(true);
+            setVoiceState('LISTENING_COMMAND');
+            lastProcessedCommand = "";
+            wakeDetectedInCurrentUtterance = true;
           }
-          const primaryText = transcripts[0] || '';
+          return;
+        }
 
-          console.log(`[DEX] [${voiceStateRef.current}] "${primaryText}" (final: ${isFinal})`);
+        // ─── SLEEPING: detectar wake word en INTERMEDIOS y FINALES ────────
+        if (voiceStateRef.current === 'SLEEPING') {
+          const wakeDetected = detectWake(primaryText, genderRef.current);
+          if (!wakeDetected) return;
+          
+          if (wakeDetectedInCurrentUtterance) return;
+          wakeDetectedInCurrentUtterance = true;
 
-          // ─── SLEEPING: detectar wake word ──────────────────────────
-          if (voiceStateRef.current === 'SLEEPING') {
-            // Revisar todas las alternativas fonéticas
-            const wakeHit = transcripts.some(t => detectWake(t, genderRef.current));
-            if (!wakeHit) continue;
+          // LOG CRÍTICO para asegurar que sí detectó y va a activar
+          console.log('[DEX] ¡Wake word detectado! Pasando a LISTENING_COMMAND');
+          if (debugEl) debugEl.innerText = `[ACTIVANDO] ${primaryText}`;
 
-            console.log('[DEX] ¡Wake word detectado! Activando...');
-            
-            // ── Activar INMEDIATAMENTE (síncronamente en el ref, sin esperar render) ──
-            voiceStateRef.current = 'LISTENING_COMMAND'; // cambio inmediato en ref
-            playActivationSound();                       // sonido instantáneo
-            setIsInteracting(true);                      // React actualiza después
-            setVoiceState('LISTENING_COMMAND');          // render de UI
+          voiceStateRef.current = 'LISTENING_COMMAND';
+          playActivationSound();
+          setIsInteracting(true);
+          setVoiceState('LISTENING_COMMAND');
+          lastProcessedCommand = "";
 
-            // Extraer comando inline (ej: "okey dex abre historial de García")
-            const cmd = extractCommand(primaryText, genderRef.current);
-            console.log('[DEX] Comando inline extraído:', `"${cmd}"`);
-
-            if (cmd.length > 2) {
-              // Hay comando inmediato — verificar que no sea basura
-              if (!isMeaningfulCommand(cmd)) {
-                // Comando sin sentido (ej. ruido o muletilla) → ignorar y seguir escuchando
-                console.log('[DEX] Comando inline sin sentido, ignorando:', cmd);
-                setResponseMessage('Escuchando, Doctor...');
-                convStateRef.current = 'WAITING_COMMAND';
-                if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
-                commandTimeoutRef.current = setTimeout(() => {
-                  if (voiceStateRef.current === 'LISTENING_COMMAND' && aliveRef.current) {
-                    goSleep(true);
-                  }
-                }, 4000);
-                continue;
-              }
-
-              // Comando válido — procesar directamente
-              if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+          // Si el mismo utterance que contiene el wake word trae un comando → ejecutar
+          const cmd = extractCommand(primaryText, genderRef.current);
+          if (cmd.length > 2 && isMeaningfulCommand(cmd)) {
+            // Solo procesar comandos inmediatos si el resultado es final
+            // (evitar ejecutar un comando que el usuario todavía está dictando)
+            if (isFinal) {
               if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
               voiceStateRef.current = 'PROCESSING';
               setVoiceState('PROCESSING');
-              setTimeout(() => {
-                if (aliveRef.current) processVoiceRef.current(cmd);
-              }, 80); // mínimo delay para que el sonido de activación suene
+              lastProcessedCommand = cmd;
+              setTimeout(() => { if (aliveRef.current) processVoiceRef.current(cmd); }, 50);
             } else {
-              // Sin comando inline — iniciar timeout de silencio de 4 segundos
-              setResponseMessage('Escuchando, Doctor...');
-              convStateRef.current = 'WAITING_COMMAND';
-              
-              if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
-              commandTimeoutRef.current = setTimeout(() => {
-                if (voiceStateRef.current === 'LISTENING_COMMAND' && aliveRef.current) {
-                  console.log('[DEX] Timeout de silencio (4s). Volviendo a dormir.');
-                  goSleep(true);
-                }
-              }, 4000);
-            }
-            continue; // Ya manejamos este bloque
-          }
-
-          // ─── LISTENING_COMMAND: capturar el comando ─────────────────
-          if (voiceStateRef.current === 'LISTENING_COMMAND') {
-            const cmd = extractCommand(primaryText, genderRef.current);
-            
-            if (cmd) {
+              // Resultado intermedio con comando parcial — mostrar preview
               setResponseMessage(cmd);
             }
-
-            // Resetear el timeout de 4s mientras el usuario habla
+          } else {
+            setResponseMessage('Escuchando...');
+            convStateRef.current = 'WAITING_COMMAND';
             if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
             commandTimeoutRef.current = setTimeout(() => {
               if (voiceStateRef.current === 'LISTENING_COMMAND' && aliveRef.current) {
-                console.log('[DEX] Timeout de silencio tras captura. Volviendo a dormir.');
                 goSleep(true);
               }
-            }, 4000);
+            }, 8000); // ⏱️ Aumentado de 4s a 8s para dar más tiempo de pensar
+          }
+          return;
+        }
 
-            // Determinar si debemos procesar el comando basado en el contexto
-            const isMultiStep = ['ADD_PATIENT_NAME', 'ADD_PATIENT_PHONE', 'ADD_PATIENT_CONFIRM'].includes(convStateRef.current);
-            const shouldProcess = isMultiStep ? cmd.length > 0 : cmd.length > 2;
+        // ─── LISTENING_COMMAND ───────────────────────────────────────────
+        if (voiceStateRef.current === 'LISTENING_COMMAND') {
+          const cmd = extractCommand(primaryText, genderRef.current);
 
-            if (shouldProcess) {
-              if (isFinal) {
-                // Resultado definitivo: verificar significado antes de ejecutar
-                const isContext = ['ADD_PATIENT_NAME', 'ADD_PATIENT_PHONE', 'ADD_PATIENT_CONFIRM'].includes(convStateRef.current);
-                if (!isContext && !isMeaningfulCommand(cmd)) {
-                  // No tiene sentido → limpiar el texto y seguir esperando
-                  console.log('[DEX] Comando final sin sentido, ignorando:', cmd);
-                  setResponseMessage('Escuchando, Doctor...');
-                  continue;
-                }
-                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-                if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
-                voiceStateRef.current = 'PROCESSING';
-                setVoiceState('PROCESSING');
-                processVoiceRef.current(cmd);
-              } else {
-                // Resultado provisional: esperar pausa de 1.2s para ejecutar
-                if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
-                silenceTimerRef.current = setTimeout(() => {
-                  if (voiceStateRef.current === 'LISTENING_COMMAND' && aliveRef.current) {
-                    const isCtx = ['ADD_PATIENT_NAME', 'ADD_PATIENT_PHONE', 'ADD_PATIENT_CONFIRM'].includes(convStateRef.current);
-                    if (!isCtx && !isMeaningfulCommand(cmd)) {
-                      setResponseMessage('Escuchando, Doctor...');
-                      return;
-                    }
-                    if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
-                    voiceStateRef.current = 'PROCESSING';
-                    setVoiceState('PROCESSING');
-                    processVoiceRef.current(cmd);
-                  }
-                }, 1200);
+          if (cmd) {
+            setResponseMessage(cmd);
+            if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
+            commandTimeoutRef.current = setTimeout(() => {
+              if (voiceStateRef.current === 'LISTENING_COMMAND' && aliveRef.current) {
+                goSleep(true);
               }
+            }, 7000); // ⏱️ Aumentado de 4s a 7s mientras habla
+          }
+
+          const isMultiStep = ['ADD_PATIENT_NAME', 'ADD_PATIENT_PHONE', 'ADD_PATIENT_CONFIRM'].includes(convStateRef.current);
+          const shouldProcess = isMultiStep ? cmd.length > 0 : cmd.length > 2;
+
+          if (shouldProcess && isFinal && cmd !== lastProcessedCommand) {
+            const isCtx = ['ADD_PATIENT_NAME', 'ADD_PATIENT_PHONE', 'ADD_PATIENT_CONFIRM'].includes(convStateRef.current);
+            if (!isCtx && !isMeaningfulCommand(cmd)) {
+              setResponseMessage('Escuchando...');
+              return;
             }
-            continue;
+            if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
+            voiceStateRef.current = 'PROCESSING';
+            setVoiceState('PROCESSING');
+            lastProcessedCommand = cmd;
+            processVoiceRef.current(cmd);
           }
         }
       };
 
       try {
         rec.start();
-        console.log('[DEX] SpeechRecognition iniciado.');
       } catch (err) {
-        console.warn('[DEX] Error al iniciar SpeechRecognition, reintentando...', err);
         suppressToggleRef.current = false;
         if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
         restartTimerRef.current = setTimeout(launch, 500);
@@ -909,34 +909,23 @@ export function GlobalDexBubble() {
     if (shouldHide || !isMicReady) return;
 
     if (isSpeaking) {
-      // DEX está hablando — silenciar reconocimiento para evitar eco
       voiceStateRef.current = 'SPEAKING';
       setVoiceState('SPEAKING');
-      if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
-      if (recRef.current && isListeningRef.current) {
-        try { recRef.current.abort(); } catch (_) {}
-      }
     } else {
-      // DEX terminó de hablar
       if (voiceStateRef.current !== 'SPEAKING') return;
 
-      // CRÍTICO: siempre limpiar suppress antes de reiniciar
-      suppressToggleRef.current = false;
-
-      // Determinar a qué estado volver
       const nextState = convStateRef.current !== 'IDLE' ? 'LISTENING_COMMAND' : 'SLEEPING';
       if (nextState === 'LISTENING_COMMAND') {
         playActivationSound();
-        setResponseMessage('Escuchando, Doctor...');
-        // Reiniciar timeout de 4s
+        setResponseMessage('Escuchando...');
+        
         if (commandTimeoutRef.current) clearTimeout(commandTimeoutRef.current);
         commandTimeoutRef.current = setTimeout(() => {
           if (voiceStateRef.current === 'LISTENING_COMMAND' && aliveRef.current) {
             goSleep(true);
           }
-        }, 4000);
+        }, 8000); // ⏱️ Aumentado de 4s a 8s tras hablar anti-eco
       } else {
-        // nextState === 'SLEEPING'
         setTimeout(() => {
           if (voiceStateRef.current === 'SLEEPING' || voiceStateRef.current === 'SPEAKING') {
             setResponseMessage(null);
@@ -945,15 +934,6 @@ export function GlobalDexBubble() {
       }
       voiceStateRef.current = nextState;
       setVoiceState(nextState);
-      
-      // Como abortamos el reconocimiento durante SPEAKING, onend se saltó el reinicio.
-      // Debemos forzar el relanzamiento aquí explícitamente para que escuche de nuevo.
-      if (aliveRef.current && !isListeningRef.current && launchSRRef.current) {
-        // pequeño timeout para evitar colisión con el abort anterior en el API nativo
-        setTimeout(() => {
-          if (launchSRRef.current) launchSRRef.current();
-        }, 50);
-      }
     }
   }, [isSpeaking, shouldHide, isMicReady, setVS, goSleep]);
 
@@ -961,6 +941,15 @@ export function GlobalDexBubble() {
 
   return (
     <>
+      {/* ── DEBUG OVERLAY — Actualizado vía DOM para no congelar React ── */}
+      <div
+        id="dex-debug-overlay"
+        className="fixed z-[10001] left-2 bottom-2 max-w-[340px] text-[10px] font-mono bg-black/80 text-green-400 rounded-lg px-3 py-1.5 pointer-events-none select-none truncate"
+        style={{ maxWidth: '70vw', minHeight: '24px' }}
+      >
+        [DEX STARTING]
+      </div>
+
       {/* ── Globo de Diálogo de Respuesta de DEX ── */}
       <AnimatePresence>
         {responseMessage && (
@@ -1156,7 +1145,7 @@ export function GlobalDexBubble() {
               {/* Mensaje descriptivo */}
               <div className="space-y-5 text-[16px] leading-relaxed text-neutral-650 font-medium mb-8">
                 <p>
-                  Para usar tu asistente clínico manos libres (estilo Alexa), el micrófono de tu navegador debe permanecer activo.
+                  Para usar tu asistente clínico manos libres, el micrófono de tu navegador debe permanecer activo.
                 </p>
 
                 {/* Selector de Asistente Neumórfico */}
@@ -1171,8 +1160,12 @@ export function GlobalDexBubble() {
                       onClick={() => {
                         setSelectedGender('male');
                         const store = useDexStore.getState();
+                        store.setGender('male');
                         store.setDexVoice('es-MX-JorgeNeural');
-                        store.speakText("Hola Doctor, responderé cuando escuche: óquei decs, jéy decs, o simplemente decs.");
+                        // Despertar AudioContext dentro del user gesture
+                        const ctx = getAudioCtx();
+                        if (ctx && ctx.state === 'suspended') ctx.resume();
+                        store.speakText("¡Hola! Responderé cuando escuche óquei decs jéy decs o simplemente decs!");
                       }}
                       className={`rounded-3xl p-5 transition-all duration-300 flex flex-col items-center gap-2.5 border select-none ${
                         selectedGender === 'male'
@@ -1204,8 +1197,12 @@ export function GlobalDexBubble() {
                       onClick={() => {
                         setSelectedGender('female');
                         const store = useDexStore.getState();
+                        store.setGender('female');
                         store.setDexVoice('es-MX-DaliaNeural');
-                        store.speakText("Hola Doctor, responderé cuando escuche: óquei decsi, jéy decsi, o simplemente decsi.");
+                        // Despertar AudioContext dentro del user gesture
+                        const ctx = getAudioCtx();
+                        if (ctx && ctx.state === 'suspended') ctx.resume();
+                        store.speakText("¡Hola! Responderé cuando escuche óquei decsi jéy decsi o simplemente decsi!");
                       }}
                       className={`rounded-3xl p-5 transition-all duration-300 flex flex-col items-center gap-2.5 border select-none ${
                         selectedGender === 'female'
@@ -1244,27 +1241,35 @@ export function GlobalDexBubble() {
                 <button
                   type="button"
                   onClick={async () => {
-                    // Configurar el asistente y guardar de forma robusta
-                    localStorage.setItem('dex_gender', selectedGender);
+                    // Bug #2 + #5 corregido: configurar género en el store (fuente única)
+                    // y arrancar el motor DENTRO del user gesture para evitar bloqueo de Chrome
+                    const store = useDexStore.getState();
+                    store.setGender(selectedGender);
                     if (selectedGender === 'male') {
-                      useDexStore.getState().setDexVoice('es-MX-JorgeNeural');
+                      store.setDexVoice('es-MX-JorgeNeural');
                     } else {
-                      useDexStore.getState().setDexVoice('es-MX-DaliaNeural');
+                      store.setDexVoice('es-MX-DaliaNeural');
                     }
-                    setGender(selectedGender);
+
+                    // Despertar el AudioContext singleton DENTRO del user gesture
+                    // Esto es fundamental para que Chrome no bloquee el audio
+                    const ctx = getAudioCtx();
+                    if (ctx && ctx.state === 'suspended') ctx.resume();
 
                     // Solicitar permiso nativo de micrófono
                     const granted = await requestMicrophonePermission();
-                    if (granted) {
-                      localStorage.setItem('dex_mic_intro_shown', 'true');
-                      setIsMicReady(true);
-                      setShowMicModal(false);
-                    } else {
-                      // Registrar de todos modos para no molestar continuamente, 
-                      // pero avisar al usuario con un toast de que puede activarlo manualmente.
-                      localStorage.setItem('dex_mic_intro_shown', 'true');
-                      setIsMicReady(true);
-                      setShowMicModal(false);
+                    localStorage.setItem('dex_mic_intro_shown', 'true');
+                    setIsMicReady(true);
+                    setShowMicModal(false);
+
+                    // Arrancar el motor de reconocimiento DENTRO del user gesture (Bug #3)
+                    // El useEffect lo reiniciará si es necesario, pero este primer arranque
+                    // ocurre aquí para garantizar que Chrome no lo bloquee
+                    setTimeout(() => {
+                      if (launchSRRef.current) launchSRRef.current();
+                    }, 100);
+
+                    if (!granted) {
                       const activeName = selectedGender === 'female' ? 'Dexy' : 'Dex';
                       toast.warning(`Acceso al micrófono denegado. Puedes activarlo en la barra de direcciones de tu navegador para usar a ${activeName} por voz.`, {
                         duration: 6000,
