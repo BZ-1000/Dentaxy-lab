@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
-  X, ChevronLeft, ChevronRight, Activity, Calendar, 
+  X, ChevronLeft, ChevronRight, Calendar, 
   Phone, ShieldAlert, ArrowRight
 } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -88,7 +88,7 @@ export default function DetroitPatientProfile({
   // Determinar color de LED según el estatus del paciente
   const estatusColor = useMemo(() => {
     const est = (currentPatient.appProperties?.estatus || currentPatient.appProperties?.motivo || '').toLowerCase();
-    if (est.includes('urgencia')) return { name: 'CRÍTICO', hex: '#ef4444', text: 'text-red-550' };
+    if (est.includes('urgencia')) return { name: 'CRÍTICO', hex: '#ef4444', text: 'text-red-650' };
     if (est.includes('alta')) return { name: 'ESTABLE', hex: '#10b981', text: 'text-emerald-600' };
     if (est.includes('primera')) return { name: 'CALIBRANDO', hex: '#d97706', text: 'text-amber-700' };
     return { name: 'OPERATIVO', hex: '#0284c7', text: 'text-sky-600' };
@@ -116,7 +116,7 @@ export default function DetroitPatientProfile({
   }, [activeIndex, patientsList.length]);
 
   return (
-    <div className="w-full h-full bg-[#e6eff3] text-slate-800 flex flex-col font-sans select-none overflow-hidden relative">
+    <div className="w-full h-full bg-gradient-to-br from-[#f0f2f5] to-[#cbd1d9] text-slate-800 flex flex-col font-sans select-none overflow-hidden relative">
       
       {/* ── Brillos de fondo platino ciberóptico ── */}
       <div className="absolute top-[-10%] left-[20%] w-[60%] h-[60%] bg-white rounded-full blur-[120px] pointer-events-none z-0" />
@@ -135,24 +135,24 @@ export default function DetroitPatientProfile({
       />
 
       {/* ────────────────────────────────────────────────────────────────────────
-          ENCABEZADO ESTILO DETROIT (PLATINO CLARO)
+          ENCABEZADO ESTILO DETROIT (PLATINO CLARO CON MENÚ ALINEADO)
           ──────────────────────────────────────────────────────────────────────── */}
-      <header className="w-full h-16 border-b border-slate-300/60 bg-white/40 backdrop-blur-md flex items-center justify-between px-8 z-10 shrink-0 select-none">
+      <header className="w-full h-16 border-b border-slate-300/60 bg-white/40 backdrop-blur-md flex items-center justify-between z-10 shrink-0 select-none px-0">
         
-        {/* Título de Marca */}
-        <div className="flex items-center gap-3">
-          <div className="w-2.5 h-2.5 bg-sky-500 rotate-45 animate-pulse shadow-[0_0_8px_#0ea5e9]" />
+        {/* Título de Marca (Alineado al ancho del Sidebar de 320px) */}
+        <div className="w-[320px] shrink-0 h-full px-6 border-r border-slate-300/40 flex items-center justify-start gap-3">
+          <div className="w-2.5 h-2.5 bg-[#475569]/70 rotate-45" />
           <span 
             className="text-[13px] font-black tracking-[0.35em] text-[#334b57] uppercase"
             style={{ fontFamily: "'Bruno Ace SC', sans-serif" }}
           >
             DENTAXY SYSTEM
           </span>
-          <span className="text-[9px] text-[#334b57]/40 font-bold uppercase tracking-[0.2em] ml-2">v1.5</span>
+          <span className="text-[9px] text-[#334b57]/40 font-bold uppercase tracking-[0.2em] ml-1">v1.5</span>
         </div>
 
-        {/* TABS DE SECCIÓN FUTURISTAS (Negro/Gris) */}
-        <nav className="hidden md:flex items-center gap-10">
+        {/* TABS DE SECCIÓN FUTURISTAS (Alineados con el contenido central a partir de px-12) */}
+        <nav className="hidden md:flex flex-1 h-full items-center px-12 gap-10">
           {(['DETROIT', 'CHARACTER', 'WEAPON', 'STORY', 'CONCEPT'] as const).map((tab, idx) => {
             const isTabActive = idx === 1; // "CHARACTER" activo en la referencia
             return (
@@ -174,13 +174,15 @@ export default function DetroitPatientProfile({
         </nav>
 
         {/* Botón Salir */}
-        <button
-          onClick={onClose}
-          className="px-5 h-9 bg-white/40 border border-slate-300 hover:bg-white/80 text-slate-700 hover:text-slate-900 text-[10px] font-black tracking-[0.2em] transition-all flex items-center gap-2 group cursor-pointer focus:outline-none"
-        >
-          <span>SALIR</span>
-          <X size={12} className="group-hover:rotate-90 transition-transform duration-300" />
-        </button>
+        <div className="px-6 h-full flex items-center justify-end shrink-0">
+          <button
+            onClick={onClose}
+            className="px-5 h-9 bg-white/40 border border-slate-300 hover:bg-white/80 text-slate-700 hover:text-slate-900 text-[10px] font-black tracking-[0.2em] transition-all flex items-center gap-2 group cursor-pointer focus:outline-none rounded-md"
+          >
+            <span>SALIR</span>
+            <X size={12} className="group-hover:rotate-90 transition-transform duration-300" />
+          </button>
+        </div>
       </header>
 
       {/* ────────────────────────────────────────────────────────────────────────
@@ -188,7 +190,7 @@ export default function DetroitPatientProfile({
           ──────────────────────────────────────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden z-10 relative">
 
-        {/* ── COLUMNA 1: SIDEBAR IZQUIERDA (Gris-Azul Metálico #7ba4b5) ── */}
+        {/* ── COLUMNA 1: SIDEBAR IZQUIERDA (Gris-Azul Metálico #759bb0) ── */}
         <aside className="w-[320px] bg-[#759bb0] border-r border-slate-300/40 flex flex-col shrink-0 overflow-hidden shadow-2xl relative">
           
           {/* Título de Lista */}
@@ -255,12 +257,11 @@ export default function DetroitPatientProfile({
                       </>
                     )}
 
-                    {/* Pequeño LED */}
+                    {/* Pequeño LED (Estático, sin parpadeos) */}
                     <div 
                       className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full" 
                       style={{ 
-                        backgroundColor: ledHex, 
-                        boxShadow: `0 0 6px ${ledHex}` 
+                        backgroundColor: ledHex 
                       }} 
                     />
                   </div>
@@ -299,18 +300,14 @@ export default function DetroitPatientProfile({
           </div>
         </aside>
 
-        {/* ── COLUMNA 2: DETALLES CENTRALES DEL PACIENTE (Fondo Platino Claro) ── */}
+        {/* ── COLUMNA 2: DETALLES CENTRALES DEL PACIENTE (Fondo Platino Claro de Seed) ── */}
         <main className="flex-1 p-12 flex flex-col justify-between overflow-y-auto text-left relative z-10">
           
           {/* Bloque Superior del Nombre */}
           <div className="space-y-4">
             
-            {/* Tag Androide / Categoría */}
+            {/* Tag Androide / Categoría (Estático, sin parpadeos) */}
             <div className="flex items-center gap-3">
-              <div 
-                className="w-2 h-2 rounded-full animate-ping" 
-                style={{ backgroundColor: estatusColor.hex, boxShadow: `0 0 8px ${estatusColor.hex}` }} 
-              />
               <span className="text-[10px] font-mono tracking-[0.3em] text-[#334b57]/50 uppercase font-black">▲ {estatusColor.name}</span>
             </div>
 
@@ -468,11 +465,10 @@ export default function DetroitPatientProfile({
                 </g>
               )}
 
-              {/* MODO BIOMÉTRICO (Nodos en el rostro/cuerpo) */}
+              {/* MODO BIOMÉTRICO (Nodos estáticos, sin parpadeos) */}
               {viewMode === 'BIOMETRIC' && (
                 <g>
                   {/* Puntos de referencia facial */}
-                  <circle cx="150" cy="115" r="3" fill="#0284c7" className="animate-ping" style={{ transformOrigin: '150px 115px' }} />
                   <circle cx="150" cy="115" r="2.5" fill="#0284c7" />
                   
                   <circle cx="125" cy="100" r="1.5" fill="#0284c7" />
@@ -535,7 +531,7 @@ export default function DetroitPatientProfile({
                 </g>
               )}
 
-              {/* ANILLO LED ANDROIDE DETROIT EN LA SIEN DERECHA */}
+              {/* ANILLO LED ANDROIDE DETROIT EN LA SIEN DERECHA (Estático, sin parpadeos) */}
               <g>
                 <circle 
                   cx="194" 
@@ -551,8 +547,7 @@ export default function DetroitPatientProfile({
                   r="6" 
                   stroke={estatusColor.hex} 
                   strokeWidth="1.5" 
-                  className="animate-pulse" 
-                  style={{ transformOrigin: '194px 98px' }} 
+                  opacity="0.8"
                 />
               </g>
             </svg>
