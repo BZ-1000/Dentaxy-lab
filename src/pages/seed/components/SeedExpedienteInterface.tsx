@@ -1200,38 +1200,32 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
         extra += '<div style="margin-top:6px; padding:8px 12px; background:#F8FAFC; border-radius:8px; font-size:12px; color:#475569;"><strong>Observaciones:</strong> ' + info.observaciones + '</div>';
       }
 
-      const html = `
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
-          <div style="width:48px; height:48px; border-radius:50%; background:` + color + `; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; font-weight:900; box-shadow:0 4px 12px ` + color + `40;">
-            ` + id + `
-          </div>
-          <div>
-            <div style="font-size:18px; font-weight:900; color:#0F172A;">Diente Órgano OD ` + id + `</div>
-            <div style="font-size:13px; color:#64748B; margin-top:2px;">
-              Arcada ` + (Math.floor(id/10) <= 2 ? 'Superior (Maxilar)' : 'Inferior (Mandíbula)') + `
-            </div>
-          </div>
-        </div>
-        
-        ` + (isSano ? `
-          <div style="padding:16px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:12px; color:#15803D; font-weight:700; font-size:13px; text-align:center;">
-            ✅ Pieza dental sana — sin patologías ni tratamientos registrados.
-          </div>
-        ` : `
-          <div style="padding:12px 14px; background:` + color + `15; border-radius:12px; border-left:4px solid ` + color + `; font-size:14px; font-weight:800; color:` + color + `; margin-bottom:14px;">
-            Diagnóstico / Hallazgo: ` + (info.diagnostico || info.label) + `
-          </div>
-          
-          <div style="padding:14px; background:#FFFBEB; border:1px solid #FDE68A; border-radius:12px; font-size:13px; color:#92400E; line-height:1.5;">
-            <strong style="display:block; margin-bottom:4px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">🛠️ Tratamiento Requerido:</strong>
-            ` + defaultTratamiento + `
-          </div>
-          
-          ` + extra + `
-        `) + `
+      var html = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">'
+        + '<div style="width:48px;height:48px;border-radius:50%;background:' + color + ';display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:900;box-shadow:0 4px 12px ' + color + '40;">'
+        + id
+        + '</div>'
+        + '<div>'
+        + '<div style="font-size:18px;font-weight:900;color:#0F172A;">Diente Órgano OD ' + id + '</div>'
+        + '<div style="font-size:13px;color:#64748B;margin-top:2px;">'
+        + 'Arcada ' + (Math.floor(id/10) <= 2 ? 'Superior (Maxilar)' : 'Inferior (Mandíbula)')
+        + '</div></div></div>';
 
-        <button onclick="closeToothModal()" style="margin-top:18px; width:100%; padding:14px; background:#0F172A; color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer;">Cerrar Ventana</button>
-      `;
+      if (isSano) {
+        html += '<div style="padding:16px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;color:#15803D;font-weight:700;font-size:13px;text-align:center;">'
+          + '✅ Pieza dental sana — sin patologías ni tratamientos registrados.'
+          + '</div>';
+      } else {
+        html += '<div style="padding:12px 14px;background:' + color + '15;border-radius:12px;border-left:4px solid ' + color + ';font-size:14px;font-weight:800;color:' + color + ';margin-bottom:14px;">'
+          + 'Diagnóstico / Hallazgo: ' + (info.diagnostico || info.label)
+          + '</div>'
+          + '<div style="padding:14px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;font-size:13px;color:#92400E;line-height:1.5;">'
+          + '<strong style="display:block;margin-bottom:4px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">🛠️ Tratamiento Requerido:</strong>'
+          + defaultTratamiento
+          + '</div>'
+          + extra;
+      }
+
+      html += '<button onclick="closeToothModal()" style="margin-top:18px;width:100%;padding:14px;background:#0F172A;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">Cerrar Ventana</button>';
 
       document.getElementById('toothModalContent').innerHTML = html;
       document.getElementById('toothModal').style.display = 'flex';
