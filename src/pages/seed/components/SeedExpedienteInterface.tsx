@@ -918,30 +918,30 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
           <p class="sig-name">${folder.name}</p>
           <small class="sig-date">Fecha de Firma: ${fechaStr}</small>
         </div>` : `
-        <div class="signature-box unsigned interactive-signature" id="signatureContainer" style="page-break-inside: avoid; text-align: left;">
-          <div style="margin-bottom: 16px;">
-            <p style="color: #0F172A; font-size: 14px; font-weight: 800; margin: 0 0 4px 0;">Firma Digital del Paciente o Tutor</p>
-            <p style="color: #64748B; font-size: 11px; margin: 0;">Por favor, firme en el recuadro inferior para aceptar legalmente los tratamientos propuestos.</p>
+        <div class="signature-box unsigned interactive-signature" id="signatureContainer" style="page-break-inside: avoid; text-align: left; background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 24px;">
+          <div style="margin-bottom: 20px;">
+            <p style="color: #FFFFFF; font-size: 15px; font-weight: 800; margin: 0 0 6px 0; letter-spacing: -0.3px;">Firma Digital del Paciente o Tutor</p>
+            <p style="color: #94A3B8; font-size: 12px; margin: 0; line-height: 1.4;">Por favor, firme en el recuadro inferior para aceptar legalmente los tratamientos propuestos.</p>
           </div>
           
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px;">
             <div>
-              <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">Nombre Completo</label>
-              <input type="text" id="sigName" value="${folder.name}" style="width: 100%; padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 13px;" />
+              <label style="display: block; font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">Nombre Completo</label>
+              <input type="text" id="sigName" value="${folder.name}" style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 13px; color: #FFF; transition: all 0.2s;" onfocus="this.style.borderColor='#00D8F6';" onblur="this.style.borderColor='rgba(255,255,255,0.1)';" />
             </div>
             <div>
-              <label style="display: block; font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px;">ID Expediente / Identificación</label>
-              <input type="text" id="sigId" placeholder="Ej. DNI / CURP / Cédula" style="width: 100%; padding: 8px 12px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 13px;" />
+              <label style="display: block; font-size: 11px; font-weight: 700; color: #94A3B8; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;">ID Expediente / Identificación</label>
+              <input type="text" id="sigId" placeholder="Ej. DNI / CURP / Cédula" style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; font-size: 13px; color: #FFF; transition: all 0.2s;" onfocus="this.style.borderColor='#00D8F6';" onblur="this.style.borderColor='rgba(255,255,255,0.1)';" />
             </div>
           </div>
 
-          <div style="border: 2px dashed #CBD5E1; border-radius: 12px; background: #F8FAFC; position: relative; height: 180px; overflow: hidden; margin-bottom: 16px;">
+          <div style="border: 2px dashed rgba(255,255,255,0.15); border-radius: 16px; background: rgba(0, 0, 0, 0.2); position: relative; height: 180px; overflow: hidden; margin-bottom: 20px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.35);">
             <canvas id="sigCanvas" style="width: 100%; height: 100%; cursor: crosshair; touch-action: none;"></canvas>
           </div>
 
           <div style="display: flex; gap: 12px; justify-content: flex-end;">
-            <button onclick="clearCanvas()" style="padding: 8px 16px; border: 1px solid #CBD5E1; background: #FFF; border-radius: 8px; color: #475569; font-weight: 600; cursor: pointer; font-size: 12px;">Limpiar Lienzo</button>
-            <button onclick="saveSignature()" style="padding: 8px 16px; border: none; background: #10B981; border-radius: 8px; color: #FFF; font-weight: 600; cursor: pointer; font-size: 12px;">Guardar y Sellar Documento</button>
+            <button onclick="clearCanvas()" style="padding: 10px 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); border-radius: 12px; color: #E2E8F0; font-weight: 700; cursor: pointer; font-size: 12px; transition: all 0.2s;">Limpiar Lienzo</button>
+            <button onclick="saveSignature()" style="padding: 10px 20px; border: none; background: linear-gradient(135deg, #10B981 0%, #059669 100%); border-radius: 12px; color: #FFF; font-weight: 700; cursor: pointer; font-size: 12px; box-shadow: 0 4px 12px rgba(16,185,129,0.2); transition: all 0.2s;">Guardar y Sellar Documento</button>
           </div>
         </div>
 
@@ -1005,105 +1005,188 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #F1F5F9;
-      color: #0F172A;
+      background: radial-gradient(circle at 50% 0%, #0E1629 0%, #030712 100%);
+      color: #F8FAFC;
       min-height: 100vh;
-      padding: 24px 12px;
+      padding: 32px 16px;
+      line-height: 1.5;
     }
     .page-wrapper {
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
     }
     .doc-header {
-      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      background: linear-gradient(135deg, rgba(17, 24, 39, 0.8) 0%, rgba(31, 41, 55, 0.4) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-left: 5px solid #00D8F6;
       border-radius: 24px;
-      padding: 32px;
-      color: white;
+      padding: 36px;
+      color: #FFFFFF;
       margin-bottom: 24px;
       position: relative;
-      box-shadow: 0 10px 30px rgba(15,23,42,0.15);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 216, 246, 0.05);
     }
-    .doc-header h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 6px; }
-    .doc-header .subtitle { font-size: 11px; opacity: 0.7; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-    .doc-header .meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
-    .doc-header .meta span { background: rgba(255,255,255,0.12); padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .action-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+    .doc-header h1 { font-size: 30px; font-weight: 900; letter-spacing: -0.8px; margin-bottom: 8px; color: #FFFFFF; text-shadow: 0 2px 10px rgba(255,255,255,0.05); }
+    .doc-header .subtitle { font-size: 11px; opacity: 0.9; font-weight: 800; letter-spacing: 3px; text-transform: uppercase; color: #00D8F6; text-shadow: 0 0 8px rgba(0, 216, 246, 0.25); }
+    .doc-header .meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+    .doc-header .meta span { background: rgba(0, 216, 246, 0.08); border: 1px solid rgba(0, 216, 246, 0.15); color: #00D8F6; padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+    
+    .action-bar { display: flex; gap: 12px; margin-bottom: 24px; }
     .btn-action {
-      flex: 1; padding: 12px 16px; border-radius: 14px; border: none; font-size: 12px; font-weight: 700; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
+      flex: 1; padding: 14px 20px; border-radius: 16px; border: none; font-size: 13px; font-weight: 800; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.25s ease; text-transform: uppercase; letter-spacing: 0.5px;
     }
-    .btn-print { background: #0F172A; color: white; }
-    .btn-ws { background: #10B981; color: white; }
+    .btn-print { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #FFFFFF; }
+    .btn-print:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-1px); }
+    .btn-ws { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25); }
+    .btn-ws:hover { box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4); transform: translateY(-1px); }
+    
     .card {
-      background: #FFFFFF; border-radius: 20px; border: 1px solid #E2E8F0; padding: 24px; margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 6px 20px rgba(0,0,0,0.02);
+      background: rgba(17, 24, 39, 0.45);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      padding: 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     }
-    .card-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #64748B; margin-bottom: 18px; }
+    .card-label { font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #00D8F6; margin-bottom: 22px; text-shadow: 0 0 8px rgba(0, 216, 246, 0.2); display: flex; align-items: center; gap: 8px; }
+    
+    /* Ficha clínica e Info NOM */
+    .nom-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+    .nom-section { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); padding: 18px; border-radius: 16px; }
+    .nom-section h4 { font-size: 12px; font-weight: 800; color: #E2E8F0; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; letter-spacing: 0.5px; text-transform: uppercase; }
+    .nom-section p { font-size: 13px; color: #94A3B8; margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .nom-section p strong { color: #F1F5F9; }
+    .alert-box { background: rgba(244, 63, 94, 0.06); border: 1px solid rgba(244, 63, 94, 0.25) !important; color: #F43F5E; box-shadow: 0 0 15px rgba(244, 63, 94, 0.05); }
+    .alert-box h4 { color: #FDA4AF; border-bottom-color: rgba(244, 63, 94, 0.15); }
     
     /* Odontograma Anatómico Fiel */
     .arch-block { display: flex; justify-content: center; gap: 4px; overflow-x: auto; padding: 12px 0; }
-    .tooth-container { display: flex; flex-direction: column; align-items: center; width: 38px; cursor: pointer; }
-    .tooth-wrapper { width: 38px; height: 50px; }
-    .tooth-svg { width: 100%; height: 100%; }
-    .tooth-number { font-size: 10px; font-weight: 700; color: #64748B; margin-top: 4px; }
-    .arch-divider { height: 1px; background: #E2E8F0; margin: 16px 0; }
     .tooth-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 38px;
       cursor: pointer;
       transition: transform 0.15s ease, filter 0.15s ease;
     }
     .tooth-container:hover {
       transform: scale(1.1) !important;
-      filter: drop-shadow(0 0 6px rgba(26, 115, 232, 0.4));
+      filter: drop-shadow(0 0 8px rgba(0, 216, 246, 0.5));
     }
     .selected-tooth {
-      filter: drop-shadow(0 0 8px rgba(26, 115, 232, 0.7)) !important;
+      filter: drop-shadow(0 0 12px rgba(0, 216, 246, 0.8)) !important;
       transform: scale(1.15) !important;
     }
+    .tooth-wrapper { width: 38px; height: 50px; }
+    .tooth-svg { width: 100%; height: 100%; }
+    .tooth-number { font-size: 10px; font-weight: 800; color: #94A3B8; margin-top: 4px; }
+    .arch-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 20px 0; }
 
     /* Consentimientos Informados */
-    .consent-detail { border: 1px solid #E2E8F0; border-radius: 14px; margin-bottom: 10px; overflow: hidden; background: #FFF; }
-    .consent-detail summary { padding: 14px 16px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 700; color: #1E293B; background: #F8FAFC; }
-    .idx-badge { width: 22px; height: 22px; border-radius: 50%; background: #0F172A; color: #FFF; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .consent-detail summary small { display: block; font-size: 10px; color: #64748B; font-weight: 500; }
-    .consent-text { padding: 16px; font-size: 13px; line-height: 1.6; color: #475569; border-top: 1px solid #E2E8F0; background: #FFFFFF; }
+    .consentimiento-block {
+      border: 1px solid rgba(255, 255, 255, 0.05) !important;
+      background: rgba(30, 41, 59, 0.15) !important;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 16px;
+      page-break-inside: avoid;
+    }
+    .consentimiento-block h3 { color: #FFFFFF !important; font-size: 14px !important; font-weight: 800 !important; }
+    .idx-badge { width: 24px; height: 24px; border-radius: 50%; background: #00D8F6; color: #030712; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 0 10px rgba(0,216,246,0.3); }
 
     /* Radiografías Grid */
-    .rads-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-    .rad-item { border-radius: 12px; overflow: hidden; border: 1px solid #E2E8F0; background: #090D16; text-align: center; }
-    .rad-item img { width: 100%; height: 110px; object-fit: cover; cursor: pointer; transition: transform 0.2s; }
-    .rad-item img:hover { transform: scale(1.04); }
-    .rad-item span { display: block; padding: 6px; font-size: 10px; color: #94A3B8; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rads-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; }
+    .rad-item { border-radius: 16px; overflow: hidden; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.6); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+    .rad-item img { width: 100%; height: 110px; object-fit: cover; cursor: pointer; transition: transform 0.25s ease; }
+    .rad-item img:hover { transform: scale(1.05); }
+    .rad-item span { display: block; padding: 8px; font-size: 11px; color: #94A3B8; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Plan de tratamiento */
+    .treatment-plan { color: #E2E8F0; font-size: 13px; line-height: 1.6; }
+    .treatment-plan table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .treatment-plan th { background: rgba(255,255,255,0.03); color: #00D8F6; text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .treatment-plan td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.04); }
 
     /* Firma Box */
-    .signature-box { border-radius: 16px; padding: 20px; text-align: center; }
-    .signature-box.signed { background: #ECFDF5; border: 1.5px solid #10B981; }
-    .signature-box.unsigned { background: #FFFBEB; border: 1.5px border-dashed #F59E0B; }
-    .badge-valid { background: #10B981; color: white; font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 20px; letter-spacing: 1px; }
-    .sig-img { max-height: 80px; margin: 14px auto 6px; display: block; border-bottom: 1px stroke #000; }
-    .sig-name { font-size: 14px; font-weight: 800; color: #0F172A; }
-    .sig-date { font-size: 11px; color: #64748B; }
+    .signature-box { border-radius: 20px; padding: 24px; text-align: center; transition: all 0.3s; }
+    .signature-box.signed { background: rgba(16, 185, 129, 0.04); border: 1.5px solid rgba(16, 185, 129, 0.25); box-shadow: 0 0 20px rgba(16, 185, 129, 0.05); }
+    .signature-box.unsigned { background: rgba(245, 158, 11, 0.04); border: 2px dashed rgba(245, 158, 11, 0.25); }
+    .badge-valid { background: #10B981; color: #ffffff; font-size: 10px; font-weight: 800; padding: 5px 14px; border-radius: 20px; letter-spacing: 1px; box-shadow: 0 0 10px rgba(16,185,129,0.2); }
+    .sig-img { max-height: 90px; margin: 16px auto 8px; display: block; filter: invert(1) hue-rotate(180deg); }
+    .sig-name { font-size: 14px; font-weight: 800; color: #FFFFFF; }
+    .sig-date { font-size: 11px; color: #94A3B8; margin-top: 4px; }
 
     /* Visor Modal */
-    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; padding: 20px; }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(3, 7, 18, 0.9); z-index: 9999; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
     .modal.active { display: flex; }
-    .modal img { max-width: 90%; max-height: 85vh; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
+    .modal img { max-width: 90%; max-height: 85vh; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 216, 246, 0.1); border: 1px solid rgba(255,255,255,0.08); }
 
     @media print {
       .action-bar { display: none !important; }
-      body { background: white; padding: 0; }
-      .card { border: none; box-shadow: none; padding: 12px 0; }
+      body { background: #030712; padding: 0; color: #000; }
+      .card { border: none; box-shadow: none; padding: 12px 0; background: transparent; }
     }
   </style>
 </head>
 <body>
   <div class="page-wrapper">
+    <!-- Barra de acciones interactiva -->
+    <div class="action-bar no-print">
+      <button class="btn-action btn-print" onclick="window.print()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Imprimir / Guardar PDF
+      </button>
+      <button class="btn-action btn-ws" onclick="window.shareViaWhatsApp()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        Compartir por WhatsApp
+      </button>
+    </div>
+
+    <!-- Header del documento -->
     <div class="doc-header">
       <div class="subtitle">DENTAXY · EXPEDIENTE DENTAL E HISTORIA CLINICA</div>
       <h1>${folder.name}</h1>
       <div class="meta">
         <span>📅 Emisión: ${fechaStr}</span>
         <span>📋 NOM-004-SSA3-2012</span>
-        <span>🦷 Odontograma Anatómico Fiel</span>
+        <span>🦷 Odontograma FDI Anatómico</span>
+      </div>
+    </div>
+
+    <!-- I · Ficha de Identificación Clínica NOM-004 -->
+    <div class="card">
+      <div class="card-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        I · FICHA DE IDENTIFICACIÓN CLÍNICA Y ALERTAS
+      </div>
+      <div class="nom-grid">
+        <div class="nom-section">
+          <h4>Datos del Paciente</h4>
+          <p>Paciente: <strong>${folder.name}</strong></p>
+          <p>Edad: <strong>36 años</strong></p>
+          <p>Sexo: <strong>Masculino</strong></p>
+          <p>Contacto: <strong>${folder.appProperties?.telefono || 'No registrado'}</strong></p>
+          <p>Folio Exp: <strong>DX-${folder.id.substring(0, 8).toUpperCase()}</strong></p>
+        </div>
+        <div class="nom-section">
+          <h4>Profesional Tratante</h4>
+          <p>Médico: <strong>Dr. Alejandro Silva Juárez</strong></p>
+          <p>Especialidad: <strong>Cirugía Oral e Implantes</strong></p>
+          <p>Cédula DGP: <strong>Federal DGP 11093481</strong></p>
+          <p>Establecimiento: <strong>Dentaxy Technologies</strong></p>
+          <p>Domicilio: <strong>Col. Actipan, CDMX, CP 03230</strong></p>
+        </div>
+        <div class="nom-section alert-box">
+          <h4>⚠️ Alertas Médicas Prioritarias</h4>
+          <p>Alergias: <strong style="color: #FDA4AF;">${historyData.alergias}</strong></p>
+          <p>Sangre: <strong style="color: #FDA4AF;">O Positivo (NOM)</strong></p>
+          <p>Enf. Sistémicas: <strong style="color: #FDA4AF;">${historyData.sistemicas}</strong></p>
+        </div>
       </div>
     </div>
 
@@ -1148,10 +1231,10 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
     <img id="modalImg" src="" alt="Radiografía Ampliada" />
   </div>
 
-  <!-- Modal popup info de diente -->
-  <div id="toothModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:10000; justify-content:center; align-items:center; padding:16px; backdrop-filter:blur(4px);" onclick="if(event.target===this)closeToothModal()">
-    <div id="toothModalBox" style="background:#ffffff; border-radius:20px; padding:24px; max-width:420px; width:100%; box-shadow: 0 20px 60px rgba(15,23,42,0.35); position:relative; max-height:85vh; overflow-y:auto; font-family:'Inter', sans-serif;">
-      <button onclick="closeToothModal()" style="position:absolute; top:14px; right:14px; background:#F1F5F9; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:16px; color:#475569; display:flex; align-items:center; justify-content:center; line-height:1;">×</button>
+  <!-- Modal popup info de diente (Glassmorphism Oscuro) -->
+  <div id="toothModal" style="display:none; position:fixed; inset:0; background:rgba(3, 7, 18, 0.85); z-index:10000; justify-content:center; align-items:center; padding:16px; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);" onclick="if(event.target===this)closeToothModal()">
+    <div id="toothModalBox" style="background:rgba(17, 24, 39, 0.95); border:1px solid rgba(255,255,255,0.1); border-radius:24px; padding:28px; max-width:420px; width:100%; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5), 0 0 30px rgba(0,216,246,0.15); position:relative; max-height:85vh; overflow-y:auto; font-family:'Inter', sans-serif; color:#ffffff;">
+      <button onclick="closeToothModal()" style="position:absolute; top:16px; right:16px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:16px; color:#94A3B8; display:flex; align-items:center; justify-content:center; line-height:1; transition:all 0.2s;">×</button>
       <div id="toothModalContent"></div>
     </div>
   </div>
@@ -1201,38 +1284,38 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
 
       let extra = '';
       if (info.surfaces && info.surfaces !== 'Ninguna específica') {
-        extra += '<div style="margin-top:6px; padding:8px 12px; background:#F8FAFC; border-radius:8px; font-size:12px; color:#475569;"><strong>Caras / Superficies:</strong> ' + info.surfaces + '</div>';
+        extra += '<div style="margin-top:8px; padding:10px 14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:10px; font-size:12px; color:#94A3B8;"><strong>Caras / Superficies:</strong> ' + info.surfaces + '</div>';
       }
       if (info.observaciones) {
-        extra += '<div style="margin-top:6px; padding:8px 12px; background:#F8FAFC; border-radius:8px; font-size:12px; color:#475569;"><strong>Observaciones:</strong> ' + info.observaciones + '</div>';
+        extra += '<div style="margin-top:6px; padding:10px 14px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:10px; font-size:12px; color:#94A3B8;"><strong>Observaciones:</strong> ' + info.observaciones + '</div>';
       }
 
-      var html = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">'
-        + '<div style="width:48px;height:48px;border-radius:50%;background:' + color + ';display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:900;box-shadow:0 4px 12px ' + color + '40;">'
+      var html = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">'
+        + '<div style="width:48px;height:48px;border-radius:50%;background:' + color + ';display:flex;align-items:center;justify-content:center;color:#030712;font-size:18px;font-weight:900;box-shadow:0 0 15px ' + color + '50;">'
         + id
         + '</div>'
         + '<div>'
-        + '<div style="font-size:18px;font-weight:900;color:#0F172A;">Diente Órgano OD ' + id + '</div>'
-        + '<div style="font-size:13px;color:#64748B;margin-top:2px;">'
+        + '<div style="font-size:18px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;">Diente Órgano OD ' + id + '</div>'
+        + '<div style="font-size:12px;color:#94A3B8;margin-top:2px;">'
         + 'Arcada ' + (Math.floor(id/10) <= 2 ? 'Superior (Maxilar)' : 'Inferior (Mandíbula)')
         + '</div></div></div>';
 
       if (isSano) {
-        html += '<div style="padding:16px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;color:#15803D;font-weight:700;font-size:13px;text-align:center;">'
+        html += '<div style="padding:16px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:14px;color:#10B981;font-weight:700;font-size:13px;text-align:center;">'
           + '✅ Pieza dental sana — sin patologías ni tratamientos registrados.'
           + '</div>';
       } else {
-        html += '<div style="padding:12px 14px;background:' + color + '15;border-radius:12px;border-left:4px solid ' + color + ';font-size:14px;font-weight:800;color:' + color + ';margin-bottom:14px;">'
+        html += '<div style="padding:12px 14px;background:' + color + '15;border-radius:14px;border-left:4px solid ' + color + ';font-size:14px;font-weight:800;color:' + color + ';margin-bottom:14px;">'
           + 'Diagnóstico / Hallazgo: ' + (info.diagnostico || info.label)
           + '</div>'
-          + '<div style="padding:14px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;font-size:13px;color:#92400E;line-height:1.5;">'
-          + '<strong style="display:block;margin-bottom:4px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">🛠️ Tratamiento Requerido:</strong>'
+          + '<div style="padding:14px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15);border-radius:14px;font-size:13px;color:#F59E0B;line-height:1.5;">'
+          + '<strong style="display:block;margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#FDA4AF;">🛠️ Tratamiento Requerido:</strong>'
           + defaultTratamiento
           + '</div>'
           + extra;
       }
 
-      html += '<button onclick="closeToothModal()" style="margin-top:18px;width:100%;padding:14px;background:#0F172A;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">Cerrar Ventana</button>';
+      html += '<button onclick="closeToothModal()" style="margin-top:20px;width:100%;padding:14px;background:#00D8F6;color:#030712;border:none;border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;text-transform:uppercase;letter-spacing:0.5px;box-shadow:0 0 15px rgba(0,216,246,0.3);transition:all 0.2s;">Cerrar Ventana</button>';
 
       document.getElementById('toothModalContent').innerHTML = html;
       document.getElementById('toothModal').style.display = 'flex';
@@ -1276,7 +1359,7 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
         const rect = canvas.parentElement.getBoundingClientRect();
         canvas.width = rect.width;
         canvas.height = rect.height;
-        ctx.strokeStyle = '#0F172A';
+        ctx.strokeStyle = '#00D8F6';
         ctx.lineWidth = 2.5;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
