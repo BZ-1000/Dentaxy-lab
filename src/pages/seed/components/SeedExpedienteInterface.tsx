@@ -1151,7 +1151,7 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
 
   <script>
     // Base de Datos Clínica de los 32 Dientes
-    const TOOTH_INFO = \${toothInfoJSON};
+    const TOOTH_INFO = ${toothInfoJSON};
 
     const STATE_COLORS = {
       S: '#1D9E75', C: '#EA4335', O: '#1A73E8', EI: '#EA4335',
@@ -1259,7 +1259,7 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
       document.getElementById('imgModal').classList.add('active');
     }
 
-    // Lógica de Firma Canvas (PointerEvents modernizados)
+    // Lógica de Firma Canvas
     const canvas = document.getElementById('sigCanvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');
@@ -1279,20 +1279,13 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
 
       function getPos(e) {
         const rect = canvas.getBoundingClientRect();
-        let clientX = e.clientX;
-        let clientY = e.clientY;
-        if (e.touches && e.touches[0]) {
-          clientX = e.touches[0].clientX;
-          clientY = e.touches[0].clientY;
-        } else if (e.changedTouches && e.changedTouches[0]) {
-          clientX = e.changedTouches[0].clientX;
-          clientY = e.changedTouches[0].clientY;
-        }
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         return { x: clientX - rect.left, y: clientY - rect.top };
       }
 
       function startDraw(e) {
-        if (e.cancelable) e.preventDefault();
+        e.preventDefault();
         drawing = true;
         const pos = getPos(e);
         ctx.beginPath();
@@ -1300,31 +1293,24 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
       }
       function draw(e) {
         if (!drawing) return;
-        if (e.cancelable) e.preventDefault();
+        e.preventDefault();
         const pos = getPos(e);
         ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
       }
       function endDraw(e) {
         if (!drawing) return;
-        if (e.cancelable) e.preventDefault();
+        e.preventDefault();
         drawing = false;
         ctx.closePath();
       }
 
-      if (window.PointerEvent) {
-        canvas.addEventListener('pointerdown', startDraw, { passive: false });
-        canvas.addEventListener('pointermove', draw, { passive: false });
-        window.addEventListener('pointerup', endDraw, { passive: false });
-        window.addEventListener('pointercancel', endDraw, { passive: false });
-      } else {
-        canvas.addEventListener('mousedown', startDraw);
-        canvas.addEventListener('mousemove', draw);
-        window.addEventListener('mouseup', endDraw);
-        canvas.addEventListener('touchstart', startDraw, {passive: false});
-        canvas.addEventListener('touchmove', draw, {passive: false});
-        window.addEventListener('touchend', endDraw, {passive: false});
-      }
+      canvas.addEventListener('mousedown', startDraw);
+      canvas.addEventListener('mousemove', draw);
+      window.addEventListener('mouseup', endDraw);
+      canvas.addEventListener('touchstart', startDraw, {passive: false});
+      canvas.addEventListener('touchmove', draw, {passive: false});
+      window.addEventListener('touchend', endDraw, {passive: false});
     }
 
     function clearCanvas() {
