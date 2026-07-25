@@ -772,12 +772,18 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
       const upperAnatomicalHTML = upperRow.map(id => renderToothAnatomicalSVG(id, true)).join('');
       const lowerAnatomicalHTML = lowerRow.map(id => renderToothAnatomicalSVG(id, false)).join('');
 
-      // Consentimientos Requeridos (con textos idénticos a ConsentimientosModule)
+      // Consentimientos Requeridos (con detección inteligente de palabras clave en el plan escrito)
       const presentTeeth = !odontogramaState ? [] : Object.values(odontogramaState);
       const hasCaries = presentTeeth.some((t: any) => t.clinicalState === 'C' || t.clinicalState === 'O' || t.clinicalState === 'OF' || t.state === 'C' || t.state === 'O' || t.state === 'OF');
-      const hasEndo = presentTeeth.some((t: any) => t.clinicalState === 'E' || t.clinicalState === 'PC' || t.clinicalState === 'PP' || t.state === 'E' || t.state === 'PC' || t.state === 'PP');
-      const hasExo = presentTeeth.some((t: any) => t.clinicalState === 'EI' || t.clinicalState === 'RR' || (t.clinicalState === 'MOV' && t.mobility === 3) || t.state === 'EI' || t.state === 'RR');
-      const hasProtesis = presentTeeth.some((t: any) => t.clinicalState === 'CR' || t.clinicalState === 'PU' || t.clinicalState === 'IM' || t.state === 'CR' || t.state === 'PU' || t.state === 'IM');
+      
+      const cleanDocContent = (docContent || '').toLowerCase();
+      const hasEndoText = cleanDocContent.includes('endodoncia') || cleanDocContent.includes('conductos') || cleanDocContent.includes('pulpectomía') || cleanDocContent.includes('pulpotomía');
+      const hasProtesisText = cleanDocContent.includes('corona') || cleanDocContent.includes('poste') || cleanDocContent.includes('incrustación') || cleanDocContent.includes('puente') || cleanDocContent.includes('prótesis');
+      const hasExoText = cleanDocContent.includes('exodoncia') || cleanDocContent.includes('extracción') || cleanDocContent.includes('resto radicular');
+
+      const hasEndo = hasEndoText || presentTeeth.some((t: any) => t.clinicalState === 'E' || t.clinicalState === 'PC' || t.clinicalState === 'PP' || t.state === 'E' || t.state === 'PC' || t.state === 'PP');
+      const hasExo = hasExoText || presentTeeth.some((t: any) => t.clinicalState === 'EI' || t.clinicalState === 'RR' || (t.clinicalState === 'MOV' && t.mobility === 3) || t.state === 'EI' || t.state === 'RR');
+      const hasProtesis = hasProtesisText || presentTeeth.some((t: any) => t.clinicalState === 'CR' || t.clinicalState === 'PU' || t.clinicalState === 'IM' || t.state === 'CR' || t.state === 'PU' || t.state === 'IM');
       
       const consentsList: { title: string; category: string; text: string }[] = [
         {
@@ -820,14 +826,14 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
           title: 'Consentimiento Informado: Tratamiento de Conductos (Endodoncia)',
           category: 'Endodoncia',
           text: `
-            <p><strong>Descripción del Procedimiento:</strong> Procedimiento destinado a conservar la pieza dentaria mediante la eliminación del tejido pulpar inflamado o infectado, la conformación, desinfección y posterior sellado tridimensional de los conductos radiculares.</p>
+            <p><strong>Descripción del Procedimiento:</strong> Consiste en la eliminación biológica y mecánica del tejido pulpar (nervio y vasos sanguíneos) que se encuentra enfermo, inflamado o infectado dentro de los conductos del diente. Se realiza la desinfección interna de la raíz mediante irrigantes químicos y posterior sellado hermético tridimensional con materiales biocompatibles (gutapercha y cemento sellador) con el objetivo de preservar la pieza y evitar su extracción.</p>
             <h4 style="color:#0F172A; font-weight:700; margin-top:12px; margin-bottom:6px;">Riesgos y Complicaciones Posibles:</h4>
             <ul style="margin:0; padding-left:20px;">
-              <li><strong>Molestia o Inflamación Posoperatoria:</strong> Dolor moderado o inflamación en la zona tratada durante los días posteriores al tratamiento, manejable con analgésicos.</li>
-              <li><strong>Anatomía Radicular Compleja / Instrumentación:</strong> Riesgo de fractura de instrumentos endodónticos dentro del conducto debido a curvaturas severas o calcificaciones, o perforación del conducto radicular.</li>
-              <li><strong>Sobreobturación o Subobturación:</strong> Variación en el límite de sellado apical debida a variaciones anatómicas.</li>
-              <li><strong>Sobreinfección o Fracaso Endodóntico:</strong> Persistencia de bacterias que podría requerir retratamiento endodóntico, cirugía periapical o la extracción del diente.</li>
-              <li><strong>Fragilidad Estructural:</strong> Los dientes tratados endodónticamente pierden hidratación y estructura, volviéndose más frágiles y requiriendo obligatoriamente una restauración definitiva adecuada (poste/incrustación/corona) para evitar fracturas irreparables.</li>
+              <li><strong>Molestia Posoperatoria / Inflamación:</strong> Es normal experimentar sensibilidad o dolor moderado al morder durante los días posteriores, manejable con la medicación prescrita.</li>
+              <li><strong>Fractura de Instrumentos:</strong> Debido a la estrechez, calcificación o curvatura severa de los conductos, existe el riesgo de separación de limas milimétricas dentro del diente, lo que puede requerir derivación con especialista o cirugía.</li>
+              <li><strong>Perforación Radicular:</strong> Riesgo involuntario de crear una vía artificial en la raíz ante conductos extremadamente obstruidos o desviados.</li>
+              <li><strong>Fracaso del Tratamiento:</strong> Persistencia de bacterias microscópicas refractarias que obligue a un retratamiento, cirugía apical o exodoncia definitiva de la pieza.</li>
+              <li><strong>Fragilidad Dental Crítica:</strong> Al perder la pulpa, el diente pierde hidratación y nutrición, volviéndose altamente propenso a fracturas irreparables ante cargas de mordida si no se le coloca una reconstrucción y corona de protección a la brevedad.</li>
             </ul>
             <h4 style="color:#0F172A; font-weight:700; margin-top:12px; margin-bottom:6px;">Alternativas de Tratamiento:</h4>
             <p style="margin:0;">Extracción de la pieza dentaria y posterior rehabilitación mediante prótesis fija, removible o implante dental.</p>
@@ -856,15 +862,16 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
 
       if (hasProtesis) {
         consentsList.push({
-          title: 'Consentimiento Informado: Rehabilitación Protésica (Coronas / Puentes)',
+          title: 'Consentimiento Informado: Rehabilitación Protésica (Poste y Corona / Puentes)',
           category: 'Rehabilitación Oral',
           text: `
-            <p><strong>Descripción del Procedimiento:</strong> Preparación anatómica del diente remanente y confección de una estructura protésica fija (corona o incrustación) para restaurar la función masticatoria, estética y proteger al diente de posibles fracturas.</p>
+            <p><strong>Descripción del Procedimiento:</strong> Consiste en la colocación de un poste o perno intraradicular de refuerzo (fibra de vidrio o metal colado) dentro de la raíz previamente tratada con endodoncia, la reconstrucción del muñón y el tallado anatómico del remanente. Posteriormente, se cementa una corona o funda protésica de cobertura completa a la medida (de circonia, porcelana o metal-porcelana) para devolver la función masticatoria, la estética y blindar la pieza dental de fracturas.</p>
             <h4 style="color:#0F172A; font-weight:700; margin-top:12px; margin-bottom:6px;">Riesgos y Complicaciones Posibles:</h4>
             <ul style="margin:0; padding-left:20px;">
-              <li><strong>Sensibilidad:</strong> En dientes vitales, la preparación puede desencadenar sensibilidad térmica que, en algunos casos, derive en necesidad de tratamiento de conductos.</li>
-              <li><strong>Desprendimiento o Fractura:</strong> La restauración puede aflojarse o fracturarse debido a masticación de alimentos muy duros, traumatismos o bruxismo severo.</li>
-              <li><strong>Inflamación Gingival:</strong> Acumulación de placa si los márgenes protésicos dificultan la higiene, provocando inflamación o retracción de la encía a largo plazo.</li>
+              <li><strong>Sensibilidad o Dolor Gingival:</strong> Molestia temporal en la encía marginal debido a la toma de impresiones, colocación de hilos retractores o cementado definitivo.</li>
+              <li><strong>Desprendimiento o Descementado:</strong> Riesgo de que la corona se afloje ante fuerzas de masticación excesivas, alimentos pegajosos o hábitos como el bruxismo (apretamiento dental).</li>
+              <li><strong>Fractura de la Corona o Poste:</strong> Daño estructural en el material protésico o en la raíz del diente ante sobrecargas o traumatismos, pudiendo requerir recambio o, si la raíz se fractura verticalmente, la extracción inevitable del diente.</li>
+              <li><strong>Problemas de Ajuste y Oclusión:</strong> Necesidad de ajustes menores posteriores en la mordida para equilibrar la oclusión.</li>
             </ul>
             <h4 style="color:#0F172A; font-weight:700; margin-top:12px; margin-bottom:6px;">Alternativas de Tratamiento:</h4>
             <p style="margin:0;">Abstención (riesgo muy alto de fractura coronaria o radicular en dientes debilitados) o exodoncia de la pieza y colocación de implante.</p>
