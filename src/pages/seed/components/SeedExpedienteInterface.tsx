@@ -950,6 +950,41 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
         </div>
         `;
 
+      const toothInfoJSON = JSON.stringify(
+        allToothIds.reduce((acc, id) => {
+          const tooth = odontogramaState && odontogramaState[id];
+          if (tooth) {
+            const state = tooth.clinicalState || tooth.state || 'S';
+            const faces = [
+              tooth.top && tooth.top !== '#FFFFFF' ? 'Vestibular/Superior' : '',
+              tooth.bottom && tooth.bottom !== '#FFFFFF' ? 'Palatino/Lingual/Inferior' : '',
+              tooth.left && tooth.left !== '#FFFFFF' ? 'Mesial/Izquierda' : '',
+              tooth.right && tooth.right !== '#FFFFFF' ? 'Distal/Derecha' : '',
+              tooth.center && tooth.center !== '#FFFFFF' ? 'Oclusal/Centro' : ''
+            ].filter(Boolean).join(', ');
+
+            acc[id] = {
+              state: state,
+              label: STATE_LABELS[state] || 'Sano',
+              diagnostico: tooth.diagnostico || '',
+              tratamiento: tooth.tratamiento || '',
+              observaciones: tooth.observaciones || '',
+              surfaces: faces || 'Ninguna específica'
+            };
+          } else {
+            acc[id] = {
+              state: 'S',
+              label: 'Sano',
+              diagnostico: '',
+              tratamiento: '',
+              observaciones: '',
+              surfaces: 'Ninguna específica'
+            };
+          }
+          return acc;
+        }, {} as Record<number, any>)
+      );
+
       const htmlFile = `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1005,6 +1040,18 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
     .tooth-svg { width: 100%; height: 100%; }
     .tooth-number { font-size: 10px; font-weight: 700; color: #64748B; margin-top: 4px; }
     .arch-divider { height: 1px; background: #E2E8F0; margin: 16px 0; }
+    .tooth-container {
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .tooth-container:hover {
+      transform: scale(1.1) !important;
+      filter: drop-shadow(0 0 6px rgba(26, 115, 232, 0.4));
+    }
+    .selected-tooth {
+      filter: drop-shadow(0 0 8px rgba(26, 115, 232, 0.7)) !important;
+      transform: scale(1.15) !important;
+    }
 
     /* Consentimientos Informados */
     .consent-detail { border: 1px solid #E2E8F0; border-radius: 14px; margin-bottom: 10px; overflow: hidden; background: #FFF; }
@@ -1094,13 +1141,131 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
     <img id="modalImg" src="" alt="Radiografía Ampliada" />
   </div>
 
+  <!-- Modal popup info de diente -->
+  <div id="toothModal" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.6); z-index:10000; justify-content:center; align-items:center; padding:16px; backdrop-filter:blur(4px);" onclick="if(event.target===this)closeToothModal()">
+    <div id="toothModalBox" style="background:#ffffff; border-radius:20px; padding:24px; max-width:420px; width:100%; box-shadow: 0 20px 60px rgba(15,23,42,0.35); position:relative; max-height:85vh; overflow-y:auto; font-family:'Inter', sans-serif;">
+      <button onclick="closeToothModal()" style="position:absolute; top:14px; right:14px; background:#F1F5F9; border:none; border-radius:50%; width:28px; height:28px; cursor:pointer; font-size:16px; color:#475569; display:flex; align-items:center; justify-content:center; line-height:1;">×</button>
+      <div id="toothModalContent"></div>
+    </div>
+  </div>
+
   <script>
+    // Base de Datos Clínica de los 32 Dientes
+    const TOOTH_INFO = \${toothInfoJSON};
+
+    const STATE_COLORS = {
+      S: '#1D9E75', C: '#EA4335', O: '#1A73E8', EI: '#EA4335',
+      A: '#1A73E8', CR: '#1A73E8', PU: '#1A73E8', E: '#1A73E8',
+      IM: '#1A73E8', SE: '#1A73E8', F: '#EA4335', MOV: '#1A73E8',
+      RT: '#EA4335', OF: '#A52A2A', RR: '#EA4335', PC: '#1A73E8', PP: '#1A73E8',
+    };
+
+    window.showToothInfo = function(id) {
+      id = parseInt(id, 10);
+      if (isNaN(id)) return;
+      
+      // Resaltar visualmente el diente seleccionado
+      document.querySelectorAll('.tooth-container').forEach(function(el) {
+        el.classList.remove('selected-tooth');
+      });
+      const tEl = document.querySelector('.tooth-container[data-tooth="' + id + '"]');
+      if (tEl) tEl.classList.add('selected-tooth');
+
+      const info = TOOTH_INFO[id] || { state: 'S', label: 'Sano', surfaces: 'Ninguna específica' };
+      const color = STATE_COLORS[info.state] || '#1D9E75';
+      const isSano = info.state === 'S';
+      
+      // Proponer tratamiento por defecto si no hay uno específico registrado
+      let defaultTratamiento = info.tratamiento || '';
+      if (!defaultTratamiento && !isSano) {
+        const trats = {
+          'C': 'Remoción del tejido cariado secundario o primario y colocación de restauración con resina compuesta estética fotopolimerizable.',
+          'OF': 'Retiro de la resina filtrada previa, eliminación de caries recurrente y colocación de nueva restauración estética.',
+          'EI': 'Exodoncia (extracción) de la pieza dental indicada con anestesia local y sutura.',
+          'RR': 'Extirpación quirúrgica del resto radicular para prevenir infecciones y regularizar el reborde alveolar.',
+          'E': 'Tratamiento de conductos radiculares (endodoncia) y reconstrucción coronaria.',
+          'CR': 'Preparación de muñón y colocación de corona protésica de cobertura completa.',
+          'MOV': 'Fijación/férula o tratamiento periodontal de soporte.',
+          'RT': 'Colocación o recambio de cemento de restauración temporal.',
+          'A': 'Planificación para reposición de espacio mediante puente de porcelana o implante osteointegrado.'
+        };
+        defaultTratamiento = trats[info.state] || 'Seguimiento y control clínico en la próxima sesión.';
+      }
+
+      let extra = '';
+      if (info.surfaces && info.surfaces !== 'Ninguna específica') {
+        extra += '<div style="margin-top:6px; padding:8px 12px; background:#F8FAFC; border-radius:8px; font-size:12px; color:#475569;"><strong>Caras / Superficies:</strong> ' + info.surfaces + '</div>';
+      }
+      if (info.observaciones) {
+        extra += '<div style="margin-top:6px; padding:8px 12px; background:#F8FAFC; border-radius:8px; font-size:12px; color:#475569;"><strong>Observaciones:</strong> ' + info.observaciones + '</div>';
+      }
+
+      const html = `
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+          <div style="width:48px; height:48px; border-radius:50%; background:` + color + `; display:flex; align-items:center; justify-content:center; color:#fff; font-size:18px; font-weight:900; box-shadow:0 4px 12px ` + color + `40;">
+            ` + id + `
+          </div>
+          <div>
+            <div style="font-size:18px; font-weight:900; color:#0F172A;">Diente Órgano OD ` + id + `</div>
+            <div style="font-size:13px; color:#64748B; margin-top:2px;">
+              Arcada ` + (Math.floor(id/10) <= 2 ? 'Superior (Maxilar)' : 'Inferior (Mandíbula)') + `
+            </div>
+          </div>
+        </div>
+        
+        ` + (isSano ? `
+          <div style="padding:16px; background:#F0FDF4; border:1px solid #BBF7D0; border-radius:12px; color:#15803D; font-weight:700; font-size:13px; text-align:center;">
+            ✅ Pieza dental sana — sin patologías ni tratamientos registrados.
+          </div>
+        ` : `
+          <div style="padding:12px 14px; background:` + color + `15; border-radius:12px; border-left:4px solid ` + color + `; font-size:14px; font-weight:800; color:` + color + `; margin-bottom:14px;">
+            Diagnóstico / Hallazgo: ` + (info.diagnostico || info.label) + `
+          </div>
+          
+          <div style="padding:14px; background:#FFFBEB; border:1px solid #FDE68A; border-radius:12px; font-size:13px; color:#92400E; line-height:1.5;">
+            <strong style="display:block; margin-bottom:4px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">🛠️ Tratamiento Requerido:</strong>
+            ` + defaultTratamiento + `
+          </div>
+          
+          ` + extra + `
+        `) + `
+
+        <button onclick="closeToothModal()" style="margin-top:18px; width:100%; padding:14px; background:#0F172A; color:#fff; border:none; border-radius:12px; font-size:14px; font-weight:700; cursor:pointer;">Cerrar Ventana</button>
+      `;
+
+      document.getElementById('toothModalContent').innerHTML = html;
+      document.getElementById('toothModal').style.display = 'flex';
+    };
+
+    window.closeToothModal = function() {
+      document.getElementById('toothModal').style.display = 'none';
+    };
+
+    // Registrar clicks en dientes
+    document.addEventListener('click', function(e) {
+      const toothEl = e.target.closest('.tooth-container');
+      if (toothEl) {
+        const id = toothEl.getAttribute('data-tooth');
+        if (id) window.showToothInfo(id);
+      }
+    });
+
+    document.addEventListener('touchstart', function(e) {
+      const toothEl = e.target.closest('.tooth-container');
+      if (toothEl) {
+        const id = toothEl.getAttribute('data-tooth');
+        if (id) {
+          window.showToothInfo(id);
+        }
+      }
+    }, { passive: true });
+
     function openModal(src) {
       document.getElementById('modalImg').src = src;
       document.getElementById('imgModal').classList.add('active');
     }
 
-    // Lógica de Firma Canvas
+    // Lógica de Firma Canvas (PointerEvents modernizados)
     const canvas = document.getElementById('sigCanvas');
     if (canvas) {
       const ctx = canvas.getContext('2d');
@@ -1120,13 +1285,20 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
 
       function getPos(e) {
         const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        let clientX = e.clientX;
+        let clientY = e.clientY;
+        if (e.touches && e.touches[0]) {
+          clientX = e.touches[0].clientX;
+          clientY = e.touches[0].clientY;
+        } else if (e.changedTouches && e.changedTouches[0]) {
+          clientX = e.changedTouches[0].clientX;
+          clientY = e.changedTouches[0].clientY;
+        }
         return { x: clientX - rect.left, y: clientY - rect.top };
       }
 
       function startDraw(e) {
-        e.preventDefault();
+        if (e.cancelable) e.preventDefault();
         drawing = true;
         const pos = getPos(e);
         ctx.beginPath();
@@ -1134,24 +1306,31 @@ export default function SeedExpedienteInterface({ folder, onClose }: SeedExpedie
       }
       function draw(e) {
         if (!drawing) return;
-        e.preventDefault();
+        if (e.cancelable) e.preventDefault();
         const pos = getPos(e);
         ctx.lineTo(pos.x, pos.y);
         ctx.stroke();
       }
       function endDraw(e) {
         if (!drawing) return;
-        e.preventDefault();
+        if (e.cancelable) e.preventDefault();
         drawing = false;
         ctx.closePath();
       }
 
-      canvas.addEventListener('mousedown', startDraw);
-      canvas.addEventListener('mousemove', draw);
-      window.addEventListener('mouseup', endDraw);
-      canvas.addEventListener('touchstart', startDraw, {passive: false});
-      canvas.addEventListener('touchmove', draw, {passive: false});
-      window.addEventListener('touchend', endDraw, {passive: false});
+      if (window.PointerEvent) {
+        canvas.addEventListener('pointerdown', startDraw, { passive: false });
+        canvas.addEventListener('pointermove', draw, { passive: false });
+        window.addEventListener('pointerup', endDraw, { passive: false });
+        window.addEventListener('pointercancel', endDraw, { passive: false });
+      } else {
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        window.addEventListener('mouseup', endDraw);
+        canvas.addEventListener('touchstart', startDraw, {passive: false});
+        canvas.addEventListener('touchmove', draw, {passive: false});
+        window.addEventListener('touchend', endDraw, {passive: false});
+      }
     }
 
     function clearCanvas() {
