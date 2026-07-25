@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bruno+Ace&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bruno+Ace&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -51,6 +51,11 @@
     }
 }
 
+@keyframes laserScan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(220%); }
+}
+
 @layer base {
     * {
         @apply border-border;
@@ -58,12 +63,16 @@
 
     body {
         @apply bg-background text-foreground;
+        font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
     /* Google/Apple Style Inputs */
     input,
     textarea {
         @apply rounded-xl border-transparent bg-secondary/30 backdrop-blur-sm transition-all duration-300;
+        font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     }
 
     input:focus,
@@ -81,6 +90,59 @@
 @layer utilities {
     .glass {
         @apply bg-white/5 backdrop-blur-lg border border-white/10;
+    }
+
+    .glass-deep {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+    
+    .dark .glass-deep {
+        background: rgba(18, 17, 21, 0.75);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    .neumorph-light {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 8px 24px -4px rgba(0,0,0,0.06), 
+                    inset 0 1px 2px rgba(255,255,255,1), 
+                    0 2px 4px -2px rgba(0,0,0,0.04);
+    }
+    
+    .dark .neumorph-light {
+        background: rgba(18, 17, 21, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 10px 30px -5px rgba(0,0,0,0.5), 
+                    inset 0 1px 1px rgba(255,255,255,0.05);
+    }
+
+    .font-bruno {
+        font-family: 'Bruno Ace', sans-serif !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.18em !important;
+        -webkit-font-smoothing: antialiased;
+        font-weight: 500 !important;
+    }
+
+    .seed-blue-glow-bottom-left {
+        position: absolute;
+        bottom: -150px;
+        left: -150px;
+        width: 600px;
+        height: 600px;
+        border-radius: 100%;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.28) 0%, rgba(37, 99, 235, 0.08) 50%, transparent 70%);
+        filter: blur(100px);
+        pointer-events: none;
+        z-index: 0;
+        transition: all 0.5s ease;
     }
 
     .card-border {
@@ -317,4 +379,37 @@ html {
 
 .animate-light-glow {
   animation: light-glow 4s ease-in-out infinite;
+}
+
+/* ============================================================
+   ANIMACIONES DENTAXY: BURBUJA DE DEX FLOTACIÓN E ILUMINACIÓN PULSÁTIL
+   ============================================================ */
+@keyframes float-glow-purple {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 0 30px rgba(147, 51, 234, 0.45);
+  }
+  50% {
+    transform: translateY(-12px);
+    box-shadow: 0 0 65px rgba(147, 51, 234, 0.85), 0 0 20px rgba(147, 51, 234, 0.4);
+  }
+}
+
+.animate-float-glow-purple {
+  animation: float-glow-purple 6s ease-in-out infinite;
+}
+
+@keyframes float-glow-shadow {
+  0%, 100% {
+    transform: translateY(0);
+    box-shadow: 0 0 35px rgba(0, 0, 0, 0.55), 0 0 15px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    transform: translateY(-12px);
+    box-shadow: 0 0 65px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 0, 0, 0.45);
+  }
+}
+
+.animate-float-glow-shadow {
+  animation: float-glow-shadow 6s ease-in-out infinite;
 }

@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { chatWithAgent } from "@/services/gemini";
 import { X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useTheme } from "@/hooks/use-theme";
 import { useDexStore } from "@/stores/useDexStore";
+import { getOrCreateSubfolder, listFiles, fetchDriveFileBlobUrl } from "@/utils/driveHelper";
 import {
   normalizePatientName,
   splitNombreApellidos,
@@ -183,22 +185,27 @@ const playDeactivationSound = () => {
   }
 };
 
-// ─── Utilidad: limpiar texto transcrito ──────────────────────────────────────
+// ─── Wake words: variantes fonéticas completas ───────────────────────────────
 const MALE_TOKENS = [
-  'okey dex', 'ok dex', 'hey dex', 'oye dex', 'okay dex', 'escucha dex',
+  // Frases completas primero (mayor especificidad)
+  'okey dex', 'ok dex', 'hey dex', 'oye dex', 'okay dex', 'escucha dex', 'ey dex',
   'okey decs', 'hey decs', 'ok decs', 'okey ex', 'ok ex', 'hey ex',
+  // Tokens sueltos (Chrome confunde "dex" con estas palabras)
   'dex', 'decs', 'tex', 'lex', 'rex', 'des', 'next', 'the ex', 'deck', 'deex', 'nex', 'bex', 'vex',
-  'okeydex', 'okdex', 'heydex', 'jackson', 'okey jackson', 'texto'
+  'dek', 'deps', 'deep', 'debts', 'sex', 'nets',
+  'okeydex', 'okdex', 'heydex', 'jackson', 'okey jackson', 'texto', 'deksa', 'deksi'
 ];
 
 const FEMALE_TOKENS = [
-  'okey dexy', 'ok dexy', 'hey dexy', 'oye dexy', 'okay dexy', 'escucha dexy',
-  'okey decsi', 'hey decsi', 'ok decsi',
+  // Frases completas primero
+  'okey dexy', 'ok dexy', 'hey dexy', 'oye dexy', 'okay dexy', 'escucha dexy', 'ey dexy',
+  'okey decsi', 'hey decsi', 'ok decsi', 'okey dexi', 'hey dexi', 'ok dexi', 'escucha dexi',
+  // Tokens sueltos
   'dexy', 'dexi', 'decsi', 'texi', 'lexi', 'desi', 'sexy', 'pepsi', 'decky',
   'deexi', 'deaxi', 'beatsy', 'vexi', 'betsy', 'dixi', 'nexy', 'mexi',
   'okeyexi', 'okexi', 'okayexi', 'heyexi', 'okey jackson', 'jackson', 'jacksy', 'daisy',
   'deisy', 'dacy', 'okey daisy', 'okey deisy', 'ok deisy', 'taxi', 'yexi', 'bexy', 'daxy',
-  'okey lexi', 'okey pepsi', 'escucha dexi'
+  'okey lexi', 'okey pepsi', 'dexi', 'dexis', 'dexia', 'texis', 'nexis'
 ];
 
 const PHONETIC_FIXES: Record<string, string> = {
@@ -316,6 +323,7 @@ type ConvState = 'IDLE' | 'WAITING_COMMAND' | 'ADD_PATIENT_NAME' | 'ADD_PATIENT_
 export function GlobalDexBubble() {
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { theme } = useTheme();
 
   // DEX funciona en todas las rutas de la app y seed
   const isAppRoute = 
@@ -337,6 +345,10 @@ export function GlobalDexBubble() {
   const [isLoading, setIsLoading] = useState(false);
   const [isInteracting, setIsInteracting] = useState(false);
   const [voiceState, setVoiceState] = useState<VoiceState>('SLEEPING');
+
+  // Visor de pantalla completa (ilustraciones y radiografías)
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+  const [fullScreenTitle, setFullScreenTitle] = useState<string>('');
 
   // Bug #5 corregido: gender viene del store (única fuente de verdad), no useState local
   const storeGender = useDexStore(state => state.gender);
@@ -391,9 +403,12 @@ export function GlobalDexBubble() {
 
   // ── Refs de reconocimiento ────────────────────────────────────────────────
   const recRef = useRef<any>(null);
+  const secondaryRecRef = useRef<any>(null); // Motor secundario keepalive
+  const keepaliveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null); // Timer de lanzamiento del motor secundario
   const aliveRef = useRef(false);
   const suppressToggleRef = useRef(false);
   const isListeningRef = useRef(false);
+  const isDraggingBubble = useRef(false);
   // Contador de errores not-allowed para no matar DEX con un error transitorio
   const notAllowedCountRef = useRef(0);
   const launchSRRef = useRef<(() => void) | null>(null);
@@ -456,6 +471,28 @@ export function GlobalDexBubble() {
     }, dur);
   }, [clearInactivity, goSleep]);
 
+  // ── Cerrar el visor de pantalla completa con tecla Escape ─────────────────
+  useEffect(() => {
+    if (!fullScreenImage) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setFullScreenImage(null);
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [fullScreenImage]);
+
+  // ── Bridge: sincronizar el paciente activo al window para que DEX lo lea ──
+  // SeedExpedienteInterface y SeedLanding disparan este evento cuando cambia el paciente
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail?.folderId) (window as any).__dex_active_patient_folder_id__ = detail.folderId;
+      if (detail?.name)     (window as any).__dex_active_patient_name__ = detail.name;
+    };
+    window.addEventListener('dex:activePatient', handler);
+    return () => window.removeEventListener('dex:activePatient', handler);
+  }, []);
+
   // ────────────────────────────────────────────────────────────────────────
   // LÓGICA DE COMANDOS DE VOZ
   // ────────────────────────────────────────────────────────────────────────
@@ -463,17 +500,18 @@ export function GlobalDexBubble() {
     if (!text.trim()) return;
     try {
       const response = await chatWithAgent(text, {}, []);
+      if (response === "__NO_UNDERSTOOD__") {
+        goSleep(true);
+        return;
+      }
       convStateRef.current = 'IDLE';
       setResponseMessage(response);
       speakText(response);
       resetInactivity();
     } catch {
-      const m = "No pude procesar ese comando! ¿Puede repetirlo?";
-      convStateRef.current = 'IDLE';
-      setResponseMessage(m);
-      speakText(m);
+      goSleep(true);
     }
-  }, [speakText, resetInactivity]);
+  }, [speakText, resetInactivity, goSleep]);
 
   const handleSendMessage = useCallback(async () => {
     if (!chatInput.trim() || isLoading) return;
@@ -482,8 +520,13 @@ export function GlobalDexBubble() {
     setIsLoading(true);
     try {
       const response = await chatWithAgent(userQuery, {}, []);
-      setResponseMessage(response);
-      speakText(response);
+      if (response === "__NO_UNDERSTOOD__") {
+        setResponseMessage("No pude comprender esa instrucción.");
+        speakText("No pude comprender esa instrucción.");
+      } else {
+        setResponseMessage(response);
+        speakText(response);
+      }
     } catch {
       setResponseMessage("No pude procesar esa pregunta!");
       speakText("No pude procesar esa pregunta!");
@@ -507,7 +550,7 @@ export function GlobalDexBubble() {
         tempPatientRef.current.name = normalizedName;
         tempPatientRef.current.phone = match[1].trim();
         convStateRef.current = 'ADD_PATIENT_CONFIRM';
-        const msg = `¡Perfecto! Registrando a ${normalizedName} con teléfono ${match[1].trim()} ¿Confirma el registro?`;
+        const msg = `Registrando a ${normalizedName} con teléfono ${match[1].trim()} ¿Confirma el registro?`;
         setResponseMessage(msg); speakText(msg);
       } else {
         const normalizedName = normalizePatientName(data);
@@ -515,7 +558,7 @@ export function GlobalDexBubble() {
         // Animar escritura del nombre en el formulario
         window.dispatchEvent(new CustomEvent('dex:fillForm', { detail: { nombre: normalizedName } }));
         convStateRef.current = 'ADD_PATIENT_PHONE';
-        const msg = `Nombre registrado ${normalizedName} ¿Cuál es su teléfono?`;
+        const msg = `Registrando a ${normalizedName} ¿Cuál es su teléfono?`;
         setResponseMessage(msg); speakText(msg);
       }
     } else {
@@ -622,6 +665,159 @@ export function GlobalDexBubble() {
       return;
     }
 
+    // ── COMANDO VISUAL: Cerrar visor ──────────────────────────────────────────
+    if (fullScreenImage && (cmd.includes('cerrar') || cmd.includes('cierra') || cmd.includes('quita') || cmd.includes('cierra imagen'))) {
+      setFullScreenImage(null);
+      const m = "¡Imagen cerrada!";
+      setResponseMessage(m); speakText(m);
+      goSleep(false);
+      return;
+    }
+
+    // ── COMANDO VISUAL: Ilustraciones anatómicas locales ─────────────────────
+    // Partes del diente — todas las variantes posibles
+    const esDienteCmd =
+      cmd.includes('partes del diente') ||
+      cmd.includes('partes de un diente') ||
+      cmd.includes('anatomia del diente') ||
+      cmd.includes('anatomía del diente') ||
+      cmd.includes('anatomia dental') ||
+      cmd.includes('estructura del diente') ||
+      cmd.includes('morfologia del diente') ||
+      cmd.includes('capas del diente') ||
+      cmd.includes('imagen del diente') ||
+      cmd.includes('ilustración del diente') ||
+      cmd.includes('ilustracion del diente') ||
+      (cmd.includes('diente') && (cmd.includes('muestra') || cmd.includes('muestrame') || cmd.includes('muéstrame') || cmd.includes('ver') || cmd.includes('abre') || cmd.includes('enseña') || cmd.includes('ensena') || cmd.includes('imagen') || cmd.includes('ilustra'))) ||
+      (cmd.includes('dientes') && (cmd.includes('muestra') || cmd.includes('ver') || cmd.includes('abre') || cmd.includes('imagen')));
+
+    if (esDienteCmd) {
+      const m = "Aquí tienes la ilustración de las partes del diente.";
+      setResponseMessage(m);
+      speakText(m);
+      setFullScreenTitle('Partes del Diente');
+      setFullScreenImage('/Ilustraciones DEX/Partes del diente .png');
+      goSleep(false);
+      return;
+    }
+
+    // Fases de la caries — todas las variantes posibles
+    const esCariesCmd =
+      cmd.includes('fases de la caries') ||
+      cmd.includes('etapas de la caries') ||
+      cmd.includes('estadios de la caries') ||
+      cmd.includes('progresion de la caries') ||
+      cmd.includes('progresión de la caries') ||
+      cmd.includes('avance de la caries') ||
+      cmd.includes('caries dental') ||
+      cmd.includes('imagen de caries') ||
+      cmd.includes('ilustración de caries') ||
+      cmd.includes('ilustracion de caries') ||
+      (cmd.includes('caries') && (cmd.includes('muestra') || cmd.includes('muestrame') || cmd.includes('muéstrame') || cmd.includes('ver') || cmd.includes('abre') || cmd.includes('enseña') || cmd.includes('ensena') || cmd.includes('imagen') || cmd.includes('ilustra') || cmd.includes('fases') || cmd.includes('etapas')));
+
+    if (esCariesCmd) {
+      const m = "Aquí tienes la ilustración de las fases de la caries dental.";
+      setResponseMessage(m);
+      speakText(m);
+      setFullScreenTitle('Fases de la Caries Dental');
+      setFullScreenImage('/Ilustraciones DEX/Fases de la caries dental.png');
+      goSleep(false);
+      return;
+    }
+
+    // ── COMANDO VISUAL: Radiografías desde Google Drive ───────────────────────
+    // Detectar la INTENCIÓN de ver una radiografía (con o sin número)
+    const esIntentRadio =
+      cmd.includes('radiograf') ||
+      cmd.includes('radio') ||
+      cmd.includes('placa') ||
+      cmd.includes('rx ') ||
+      cmd.includes(' rx') ||
+      cmd.includes('rayos x') ||
+      cmd.includes('imagen de') ||
+      cmd.includes('foto del') ||
+      cmd.includes('foto de');
+
+    const esAccionVer =
+      cmd.includes('muestra') || cmd.includes('muestrame') ||
+      cmd.includes('muéstrame') || cmd.includes('ver') ||
+      cmd.includes('abre') || cmd.includes('enseña') ||
+      cmd.includes('ensena') || cmd.includes('trae') ||
+      cmd.includes('carga') || cmd.includes('mostrar') ||
+      cmd.includes('abrir') || cmd.includes('desplegar') ||
+      cmd.includes('quiero ver') || cmd.includes('pon') ||
+      cmd.includes('poner') || cmd.includes('pon la');
+
+    if (esIntentRadio && esAccionVer) {
+      // Extraer número si viene incluido; si no, usar 1 (primera radiografía)
+      const numMatch =
+        cmd.match(/(\d+)\s*(?:ra|da|era|ava|ta|tha)?\s*radiograf/) ||
+        cmd.match(/radiograf[ií]a[s]?\s+(?:n[uú]mero\s+)?(\d+)/) ||
+        cmd.match(/radio\s+(?:n[uú]mero\s+)?(\d+)/) ||
+        cmd.match(/placa\s+(?:n[uú]mero\s+)?(\d+)/) ||
+        cmd.match(/rx\s+(?:n[uú]mero\s+)?(\d+)/) ||
+        cmd.match(/rayos x\s+(\d+)/) ||
+        cmd.match(/imagen\s+(\d+)/);
+
+      const rawNum = numMatch ? (numMatch[1] || numMatch[2]) : '1';
+      const idx = Math.max(0, parseInt(rawNum, 10) - 1);
+
+      // Obtener paciente activo y token
+      const seedUserStr = sessionStorage.getItem('seed_user');
+      const seedUser = seedUserStr ? JSON.parse(seedUserStr) : null;
+      const token = seedUser?.googleAccessToken;
+      const activePatientId = (window as any).__dex_active_patient_folder_id__;
+      const activePatientName = (window as any).__dex_active_patient_name__ || 'el paciente';
+
+      if (!token) {
+        const m = "No hay sesión de Google activa. Inicia sesión primero.";
+        setResponseMessage(m); speakText(m); goSleep(false); return;
+      }
+      if (!activePatientId) {
+        const m = "No hay paciente seleccionado. Selecciona un paciente primero.";
+        setResponseMessage(m); speakText(m); goSleep(false); return;
+      }
+
+      const nLabel = idx + 1;
+      setResponseMessage(`Buscando radiografía ${nLabel} de ${activePatientName}...`);
+      speakText(`Buscando radiografía`);
+
+      (async () => {
+        try {
+          const gabineteId = await getOrCreateSubfolder(activePatientId, 'Gabinete', token);
+          const radioFolderId = await getOrCreateSubfolder(gabineteId, 'radiografias', token);
+          const files = await listFiles(radioFolderId, token);
+          const sorted = [...files].sort((a, b) =>
+            new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime()
+          );
+
+          if (sorted.length === 0) {
+            const m = `${activePatientName} no tiene radiografías en su expediente.`;
+            setResponseMessage(m); speakText(m); goSleep(false); return;
+          }
+          if (idx >= sorted.length) {
+            const m = `${activePatientName} solo tiene ${sorted.length} radiografía${sorted.length > 1 ? 's' : ''}.`;
+            setResponseMessage(m); speakText(m); goSleep(false); return;
+          }
+
+          const file = sorted[idx];
+          const blobUrl = await fetchDriveFileBlobUrl(file.id, token);
+          setFullScreenTitle(`Radiografía ${nLabel} — ${activePatientName}`);
+          setFullScreenImage(blobUrl);
+          const doneMsg = `Radiografía ${nLabel} de ${activePatientName} lista.`;
+          setResponseMessage(doneMsg);
+          speakText(doneMsg);
+          goSleep(false);
+        } catch (e: any) {
+          console.error('[DEX] Error cargando radiografía:', e);
+          const m = `No pude cargar la radiografía: ${e.message}`;
+          setResponseMessage(m); speakText(m); goSleep(false);
+        }
+      })();
+
+      return;
+    }
+
     // ── Flujo multi-paso de agregar paciente (requiere estado de conversación) ──
     if (isAddPatientIntent(cmd)) {
       const data = cmd.replace(/.*(?:agrega|agregar|nuevo|registra|registrar|añade|añadir)\s+paciente\s*/i, "").trim();
@@ -638,10 +834,8 @@ export function GlobalDexBubble() {
     }
 
     // ── TODO lo demás pasa por el motor local de gemini.ts ──────────────────
-    // (búsquedas, preguntas clínicas, navegación, etc.)
-    // chatWithAgent es 100% local: despacha eventos y retorna texto al instante
     handleSendMessageWithText(cmd);
-  }, [speakText, handleAddPatientIntent, handleSendMessageWithText]);
+  }, [speakText, handleAddPatientIntent, handleSendMessageWithText, fullScreenImage, goSleep]);
 
   const processVoiceInput = useCallback((text: string) => {
     const cleaned = text.trim();
@@ -662,7 +856,7 @@ export function GlobalDexBubble() {
       // Animar escritura del teléfono en el formulario
       window.dispatchEvent(new CustomEvent('dex:fillForm', { detail: { telefono: cleaned } }));
       convStateRef.current = 'ADD_PATIENT_CONFIRM';
-      const msg = `¡Perfecto! Registrando a ${tempPatientRef.current.name} con teléfono ${cleaned} ¿Confirma el registro?`;
+      const msg = `Registrando a ${tempPatientRef.current.name} con teléfono ${cleaned} ¿Confirma el registro?`;
       setResponseMessage(msg); speakText(msg);
     } else if (conv === 'ADD_PATIENT_CONFIRM') {
       const toWords = (s: string) => s.split(/[^a-zA-ZáéíóúüñÁÉÍÓÚÜÑ0-9]+/).filter(Boolean);
@@ -730,13 +924,13 @@ export function GlobalDexBubble() {
         micOff();
         if (!aliveRef.current) return;
         
-        // Reinicio automático natural cuando Chrome corta la sesión (~60s) o tras stop()
+        // Reinicio automático ultra-rápido (30ms) cuando Chrome corta la sesión (~60s)
         suppressToggleRef.current = true;
         if (restartTimerRef.current) clearTimeout(restartTimerRef.current);
         restartTimerRef.current = setTimeout(() => {
           suppressToggleRef.current = false;
           if (aliveRef.current) launch();
-        }, 100);
+        }, 30); // ⚡ Reducido de 100ms a 30ms
       };
 
       rec.onerror = (e: any) => {
@@ -851,7 +1045,7 @@ export function GlobalDexBubble() {
               if (voiceStateRef.current === 'LISTENING_COMMAND' && aliveRef.current) {
                 goSleep(true);
               }
-            }, 8000); // ⏱️ Aumentado de 4s a 8s para dar más tiempo de pensar
+            }, 5000); // ⚡ Reducido de 8s a 5s
           }
           return;
         }
@@ -867,7 +1061,7 @@ export function GlobalDexBubble() {
               if (voiceStateRef.current === 'LISTENING_COMMAND' && aliveRef.current) {
                 goSleep(true);
               }
-            }, 7000); // ⏱️ Aumentado de 4s a 7s mientras habla
+            }, 5000); // ⚡ Reducido de 7s a 5s
           }
 
           const isMultiStep = ['ADD_PATIENT_NAME', 'ADD_PATIENT_PHONE', 'ADD_PATIENT_CONFIRM'].includes(convStateRef.current);
@@ -899,24 +1093,94 @@ export function GlobalDexBubble() {
 
     launchSRRef.current = launch;
 
-    // ── Watchdog anti-deadlock ────────────────────────────────────────────
-    // Cada 8 segundos verifica que el motor esté activo; si no → lo resucita
+    // ── Motor secundario Keepalive (doble motor anti-gap) ─────────────────────
+    // Si el motor principal lleva > 5s sin recibir audio en SLEEPING,
+    // un motor secundario toma el relevo al instante cuando el principal muere.
+    const launchKeepalive = () => {
+      if (!aliveRef.current) return;
+      if (keepaliveTimerRef.current) clearTimeout(keepaliveTimerRef.current);
+      keepaliveTimerRef.current = setTimeout(() => {
+        if (!aliveRef.current) return;
+        if (voiceStateRef.current !== 'SLEEPING') {
+          // No necesitamos keepalive si está activo
+          launchKeepalive();
+          return;
+        }
+        const timeSinceResult = Date.now() - lastResultTimeRef.current;
+        if (timeSinceResult < 5000) {
+          // Motor principal está vivo, revisar en 3s
+          launchKeepalive();
+          return;
+        }
+        // Motor principal parece sordo → lanzar motor secundario silencioso
+        if (!secondaryRecRef.current) {
+          try {
+            const sec = new SR();
+            secondaryRecRef.current = sec;
+            sec.continuous = true;
+            sec.interimResults = true;
+            sec.lang = 'es-MX';
+            sec.maxAlternatives = 1;
+            sec.onresult = (event: any) => {
+              // Actualizar timestamp — el motor secundario está recibiendo audio
+              lastResultTimeRef.current = Date.now();
+              // Pasar al procesador principal si detecta wake word
+              const lastRes = event.results[event.results.length - 1];
+              const rawText = normalizeMedicalTerms(lastRes[0].transcript.toLowerCase().trim());
+              if (detectWake(rawText, genderRef.current) && voiceStateRef.current === 'SLEEPING') {
+                // El motor secundario detectó el wake → lanzar motor principal fresco
+                if (secondaryRecRef.current) {
+                  try { secondaryRecRef.current.stop(); } catch (_) {}
+                  secondaryRecRef.current = null;
+                }
+                launch(); // el motor principal se activará con el wake word ya capturado
+              }
+            };
+            sec.onerror = () => {
+              secondaryRecRef.current = null;
+              launchKeepalive(); // Reintenta en 5s
+            };
+            sec.onend = () => {
+              secondaryRecRef.current = null;
+              // No reiniciar si el motor principal ya volvió a escuchar
+              if (Date.now() - lastResultTimeRef.current > 3000) {
+                launchKeepalive();
+              }
+            };
+            sec.start();
+            console.log('[DEX Keepalive] Motor secundario activado — motor principal sordo');
+          } catch (_) {
+            secondaryRecRef.current = null;
+          }
+        }
+        launchKeepalive();
+      }, 5000);
+    };
+    launchKeepalive();
+
+    // ── Watchdog anti-deadlock (2x más rápido) ────────────────────────────────
+    // Cada 4 segundos verifica que el motor esté activo; si no → lo resucita
     watchdogRef.current = setInterval(() => {
       if (!aliveRef.current) return;
       if (voiceStateRef.current === 'SPEAKING') return;
 
       const now = Date.now();
       const timeSinceLastResult = now - lastResultTimeRef.current;
-      // Reinicio forzado si el motor se quedó 'sordo' por más de 18 segundos estando en SLEEPING
-      const isStuckAndDeaf = timeSinceLastResult > 18000 && voiceStateRef.current === 'SLEEPING';
+      // Reinicio forzado si el motor se quedó 'sordo' por más de 8 segundos estando en SLEEPING
+      const isStuckAndDeaf = timeSinceLastResult > 8000 && voiceStateRef.current === 'SLEEPING';
 
       if (!isListeningRef.current || isStuckAndDeaf) {
-        console.warn('[DEX] Watchdog: mic inactivo o sordo detectado, reiniciando...');
-        lastResultTimeRef.current = Date.now(); // resetear para evitar loop de reinicios continuos
+        console.warn('[DEX] Watchdog: mic inactivo o sordo, reiniciando...');
+        lastResultTimeRef.current = Date.now();
         suppressToggleRef.current = false;
+        // Limpiar motor secundario si existe
+        if (secondaryRecRef.current) {
+          try { secondaryRecRef.current.stop(); } catch (_) {}
+          secondaryRecRef.current = null;
+        }
         launch();
       }
-    }, 8000);
+    }, 4000); // ⚡ Reducido de 8s a 4s
 
     // Arrancar el motor
     launch();
@@ -931,8 +1195,10 @@ export function GlobalDexBubble() {
       if (restartTimerRef.current)    clearTimeout(restartTimerRef.current);
       if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
       if (listenDebounceRef.current)  clearTimeout(listenDebounceRef.current);
+      if (keepaliveTimerRef.current)  clearTimeout(keepaliveTimerRef.current); // ← limpieza del motor keepalive
       if (watchdogRef.current)        clearInterval(watchdogRef.current);
 
+      // Apagar motor principal
       if (recRef.current) {
         recRef.current.onstart  = null;
         recRef.current.onresult = null;
@@ -940,6 +1206,15 @@ export function GlobalDexBubble() {
         recRef.current.onend    = null;
         try { recRef.current.abort(); } catch (_) {}
         recRef.current = null;
+      }
+
+      // Apagar motor secundario keepalive
+      if (secondaryRecRef.current) {
+        secondaryRecRef.current.onresult = null;
+        secondaryRecRef.current.onerror  = null;
+        secondaryRecRef.current.onend    = null;
+        try { secondaryRecRef.current.abort(); } catch (_) {}
+        secondaryRecRef.current = null;
       }
 
       useDexStore.getState().setIsListening(false);
@@ -1034,6 +1309,23 @@ export function GlobalDexBubble() {
 
       {/* ── Burbuja / Barra de Chat Expandible ── */}
       <motion.div
+        drag={!isChatOpen}
+        dragMomentum={false}
+        dragElastic={0.1}
+        dragConstraints={{
+          left: -window.innerWidth + 120,
+          right: 20,
+          top: -window.innerHeight + 120,
+          bottom: 20
+        }}
+        onDragStart={() => {
+          isDraggingBubble.current = true;
+        }}
+        onDragEnd={() => {
+          setTimeout(() => {
+            isDraggingBubble.current = false;
+          }, 100);
+        }}
         initial={false}
         animate={isChatOpen ? {
           width:        isMobile ? "calc(100vw - 32px)" : 480,
@@ -1045,12 +1337,6 @@ export function GlobalDexBubble() {
           width: 102,
           height: 102,
           borderRadius: 51,
-          y: [0, -4, 0],
-          x: [0, 2, 0, -2, 0],
-          transition: {
-            y: { repeat: Infinity, duration: 3.5, ease: "easeInOut" },
-            x: { repeat: Infinity, duration: 4.5, ease: "easeInOut" }
-          }
         }}
         whileHover={!isChatOpen ? {
           scale: 1.04,
@@ -1060,97 +1346,113 @@ export function GlobalDexBubble() {
           ? { type: "spring", stiffness: 140, damping: 20 }
           : { type: "tween", ease: "linear", duration: 0.2 }
         }
-        className={`fixed z-[9999] flex items-center cursor-pointer ${
-          isChatOpen
-            ? "bg-white shadow-[0_12px_40px_rgba(0,0,0,0.12)] border border-slate-100 p-1 justify-start"
-            : "bg-transparent justify-center p-0"
-        }`}
+        className="fixed z-[9999] flex items-center cursor-pointer bg-transparent justify-center p-0"
         style={{
           right:  isMobile ? 16 : 48,
           bottom: isMobile ? 24 : 24,
           willChange: "transform, width, height",
-          // Shadow morado manejado por Framer solo cuando es orbe (no chat)
-          boxShadow: isChatOpen ? undefined : '0 0 35px rgba(147,51,234,0.35)',
         }}
-        onClick={() => { if (!isChatOpen) setIsChatOpen(true); }}
+        onClick={() => {
+          if (!isChatOpen && !isDraggingBubble.current) {
+            setIsChatOpen(true);
+          }
+        }}
       >
-        {/* Orbe de DEX */}
-        <motion.div
-          onClick={(e) => {
-            if (isChatOpen) {
-              e.stopPropagation();
-              setIsChatOpen(false);
-              setResponseMessage(null);
-            }
-          }}
-          className="rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-transparent border-none shadow-none transition-all duration-300"
+        {/* Contenedor interno: une flotación, brillo pulsátil y adaptabilidad de forma */}
+        <div
+          className={`w-full h-full flex items-center transition-all duration-300 ${
+            isChatOpen
+              ? "bg-white border border-slate-100 p-1 justify-start rounded-[32px]"
+              : `bg-transparent justify-center p-0 rounded-full ${
+                  theme === 'light' ? 'animate-float-glow-shadow' : 'animate-float-glow-purple'
+                }`
+          }`}
           style={{
-            width:  isChatOpen ? 56 : 102,
-            height: isChatOpen ? 56 : 102,
-            willChange: "width, height",
+            boxShadow: isChatOpen
+              ? theme === 'light'
+                ? '0 8px 32px rgba(0, 0, 0, 0.35), 0 0 15px rgba(0, 0, 0, 0.2)'
+                : '0 8px 32px rgba(147, 51, 234, 0.2), 0 0 15px rgba(147, 51, 234, 0.1)'
+              : undefined,
           }}
         >
-          <video
-            src="/logos/Dentaxy AI.mp4"
-            autoPlay
-            muted
-            playsInline
-            loop
-            className="w-full h-full object-cover select-none pointer-events-none mix-blend-multiply"
-            style={{
-              transform: "scale(1.25) translateZ(0)",
-              WebkitTransform: "scale(1.25) translateZ(0)"
+          {/* Orbe de DEX */}
+          <motion.div
+            onClick={(e) => {
+              if (isChatOpen) {
+                e.stopPropagation();
+                setIsChatOpen(false);
+                setResponseMessage(null);
+              }
             }}
-          />
-        </motion.div>
+            className="rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-transparent border-none shadow-none transition-all duration-300"
+            style={{
+              width:  isChatOpen ? 56 : 102,
+              height: isChatOpen ? 56 : 102,
+              willChange: "width, height",
+            }}
+          >
+            <video
+              src="/logos/Dentaxy AI.mp4"
+              autoPlay
+              muted
+              playsInline
+              loop
+              className="w-full h-full object-cover select-none pointer-events-none mix-blend-multiply"
+              style={{
+                transform: "scale(1.25) translateZ(0)",
+                WebkitTransform: "scale(1.25) translateZ(0)"
+              }}
+            />
+          </motion.div>
 
-        {/* Caja de entrada estilo ChatGPT */}
-        <AnimatePresence>
-          {isChatOpen && (
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ delay: 0.12 }}
-              className="flex-1 flex items-center ml-3 pr-2"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <input
-                type="text"
-                value={chatInput}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  setChatInput(val);
-                  // Disparar búsqueda en tiempo real para que el carrusel se filtre
-                  window.dispatchEvent(new CustomEvent('dex:typingSearch', { detail: { query: val } }));
-                }}
-                placeholder="Pregunta lo que quieras"
-                className="flex-1 bg-transparent border-none outline-none text-slate-800 text-sm font-semibold placeholder-slate-400 py-1"
-                onKeyDown={(e) => { if (e.key === "Enter") handleSendMessage(); }}
-                autoFocus
-              />
-              {/* Micrófono decorativo */}
-              <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                </svg>
-              </button>
-              {/* Botón enviar */}
-              <button
-                onClick={handleSendMessage}
-                disabled={!chatInput.trim() || isLoading}
-                className="w-10 h-10 bg-black hover:bg-neutral-800 rounded-full flex items-center justify-center text-white transition-colors shrink-0 disabled:opacity-40"
+          {/* Caja de entrada estilo ChatGPT */}
+          <AnimatePresence>
+            {isChatOpen && (
+              <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ delay: 0.12 }}
+                className="flex-1 flex items-center ml-3 pr-2"
+                onClick={(e) => e.stopPropagation()}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <rect x="5"  y="10" width="2" height="4" rx="1" />
-                  <rect x="9"  y="7"  width="2" height="10" rx="1" />
-                  <rect x="13" y="5"  width="2" height="14" rx="1" />
-                  <rect x="17" y="8"  width="2" height="8"  rx="1" />
-                </svg>
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <input
+                  type="text"
+                  value={chatInput}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setChatInput(val);
+                    // Disparar búsqueda en tiempo real para que el carrusel se filtre
+                    window.dispatchEvent(new CustomEvent('dex:typingSearch', { detail: { query: val } }));
+                  }}
+                  placeholder="Pregunta lo que quieras"
+                  className="flex-1 bg-transparent border-none outline-none text-slate-800 text-sm font-semibold placeholder-slate-400 py-1"
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSendMessage(); }}
+                  autoFocus
+                />
+                {/* Micrófono decorativo */}
+                <button className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                  </svg>
+                </button>
+                {/* Botón enviar */}
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!chatInput.trim() || isLoading}
+                  className="w-10 h-10 bg-black hover:bg-neutral-800 rounded-full flex items-center justify-center text-white transition-colors shrink-0 disabled:opacity-40"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <rect x="5"  y="10" width="2" height="4" rx="1" />
+                    <rect x="9"  y="7"  width="2" height="10" rx="1" />
+                    <rect x="13" y="5"  width="2" height="14" rx="1" />
+                    <rect x="17" y="8"  width="2" height="8"  rx="1" />
+                  </svg>
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </motion.div>
 
       {/* ── Modal Explicativo Neumórfico de Permisos de Micrófono ── */}
@@ -1335,6 +1637,64 @@ export function GlobalDexBubble() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* ─── FULL SCREEN VIEWER (Ilustraciones y Radiografías via DEX) ─── */}
+      <AnimatePresence>
+        {fullScreenImage && (
+          <motion.div
+            key="dex-fullscreen-viewer"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[99999] flex flex-col items-center justify-center"
+            style={{
+              background: 'rgba(0,0,0,0.82)',
+              backdropFilter: 'blur(24px) saturate(0.7)',
+              WebkitBackdropFilter: 'blur(24px) saturate(0.7)',
+            }}
+            onClick={() => setFullScreenImage(null)}
+          >
+            {/* Título */}
+            {fullScreenTitle && (
+              <motion.div
+                initial={{ y: -16, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.12 }}
+                className="absolute top-5 left-1/2 -translate-x-1/2 text-white/75 text-sm font-semibold tracking-widest uppercase"
+              >
+                {fullScreenTitle}
+              </motion.div>
+            )}
+
+            {/* Botón de cierre */}
+            <button
+              onClick={() => setFullScreenImage(null)}
+              className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 backdrop-blur-sm flex items-center justify-center text-white transition-all z-10 border border-white/20"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Instrucción de cierre */}
+            <div className="absolute bottom-5 left-1/2 -translate-x-1/2 text-white/30 text-xs font-medium tracking-wide">
+              Di "Dex, cerrar imagen" · Presiona Esc · Haz clic fuera
+            </div>
+
+            {/* Imagen */}
+            <motion.img
+              initial={{ scale: 0.88, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.88, opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              src={fullScreenImage}
+              alt={fullScreenTitle || 'Vista clínica Dex'}
+              className="max-w-[92vw] max-h-[86vh] object-contain rounded-2xl shadow-2xl select-none"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
+

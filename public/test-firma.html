@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>TEST — Firma Canvas Dentaxy</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #F1F5F9; padding: 20px; }
+    h2 { margin-bottom: 16px; color: #0F172A; }
+    #log { background: #0F172A; color: #38BDF8; font-size: 12px; font-family: monospace; padding: 12px; border-radius: 8px; margin-bottom: 16px; min-height: 80px; white-space: pre-wrap; }
+    #wrap { border: 2.5px dashed #94A3B8; border-radius: 14px; background: #fff; position: relative; overflow: hidden; margin-bottom: 14px; touch-action: none; }
+    canvas { display: block; cursor: crosshair; touch-action: none; background: transparent; }
+    button { padding: 12px 24px; border: none; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; margin-right: 10px; margin-top: 10px; }
+    #btnClear { background: #F1F5F9; border: 1.5px solid #CBD5E1; color: #475569; }
+    #btnSave { background: linear-gradient(135deg,#10B981,#059669); color:#fff; }
+    #result { margin-top: 16px; display: none; }
+    #result img { max-height: 120px; border: 1px solid #10B981; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h2>🧪 Prueba de Canvas de Firma — Dentaxy</h2>
+  <div id="log">Iniciando...</div>
+
+  <div id="wrap">
+    <div id="ph" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#94A3B8;font-size:13px;font-weight:700;pointer-events:none;">✏️ Firme aquí</div>
+    <canvas id="sigCanvas"></canvas>
+  </div>
+
+  <button id="btnClear">🧹 Limpiar</button>
+  <button id="btnSave">🔏 Guardar</button>
+
+  <div id="result">
+    <p style="color:#10B981;font-weight:700;margin-bottom:8px;">✅ Firma capturada:</p>
+    <img id="resultImg" src="" alt="firma" />
+  </div>
+
+  <script>
+    var log = document.getElementById('log');
+    function L(msg) { log.textContent += '\n' + msg; }
+
+    var canvas, ctx, wrap;
+    var isDrawing = false, hasDrawn = false;
+    var lastX = 0, lastY = 0;
+    var dpr = 1;
+
+    function setupCanvas() {
+      canvas = document.getElementById('sigCanvas');
+      wrap   = document.getElementById('wrap');
+      if (!canvas || !wrap) { L('❌ No se encontró canvas o wrap'); return; }
+
+      dpr = window.devicePixelRatio || 1;
+      var logW = wrap.clientWidth  || 300;
+      var logH = 200;
+
+      wrap.style.height = logH + 'px';
+      canvas.width  = Math.round(logW * dpr);
+      canvas.height = Math.round(logH * dpr);
+      canvas.style.width  = logW + 'px';
+      canvas.style.height = logH + 'px';
+
+      ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+      setCtxStyle();
+
+      L('✅ Canvas inicializado: ' + logW + 'x' + logH + ' (dpr=' + dpr + ')');
+      L('🖥️ PointerEvent soportado: ' + (window.PointerEvent ? 'SÍ' : 'NO'));
+
+      attachEvents();
+    }
+
+    function setCtxStyle() {
+      ctx.strokeStyle = '#0F172A';
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+    }
+
+    function getXY(e) {
+      var rect = canvas.getBoundingClientRect();
+      var x, y;
+      if (e.clientX !== undefined) {
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+      } else if (e.touches && e.touches.length > 0) {
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
+      } else { x = lastX; y = lastY; }
+      return { x: x, y: y };
+    }
+
+    function onStart(e) {
+      e.preventDefault();
+      isDrawing = true; hasDrawn = true;
+      document.getElementById('ph').style.opacity = '0';
+      if (e.pointerId !== undefined) {
+        try { canvas.setPointerCapture(e.pointerId); L('📌 Pointer capturado: ' + e.pointerId); } catch(err) { L('⚠️ setPointerCapture: ' + err); }
+      }
+      var p = getXY(e);
+      lastX = p.x; lastY = p.y;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      L('🖊️ Inicio trazo en (' + Math.round(lastX) + ',' + Math.round(lastY) + ') tipo=' + e.type);
+    }
+
+    function onMove(e) {
+      if (!isDrawing) return;
+      e.preventDefault();
+      var p = getXY(e);
+      var mx = (lastX + p.x) / 2;
+      var my = (lastY + p.y) / 2;
+      ctx.quadraticCurveTo(lastX, lastY, mx, my);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(mx, my);
+      lastX = p.x; lastY = p.y;
+    }
+
+    function onEnd(e) {
+      if (!isDrawing) return;
+      isDrawing = false;
+      ctx.closePath();
+      if (e && e.pointerId !== undefined) {
+        try { canvas.releasePointerCapture(e.pointerId); } catch(_) {}
+      }
+      L('✅ Trazo completado. hasDrawn=' + hasDrawn);
+    }
+
+    function attachEvents() {
+      var opts = { passive: false };
+      if (window.PointerEvent) {
+        canvas.addEventListener('pointerdown',   onStart, opts);
+        canvas.addEventListener('pointermove',   onMove,  opts);
+        canvas.addEventListener('pointerup',     onEnd,   opts);
+        canvas.addEventListener('pointercancel', onEnd,   opts);
+        L('📡 Eventos: PointerEvent (PC + Mobile)');
+      } else {
+        canvas.addEventListener('mousedown',  onStart, false);
+        canvas.addEventListener('mousemove',  onMove,  false);
+        window.addEventListener('mouseup',    onEnd,   false);
+        canvas.addEventListener('touchstart', onStart, opts);
+        canvas.addEventListener('touchmove',  onMove,  opts);
+        canvas.addEventListener('touchend',   onEnd,   opts);
+        canvas.addEventListener('touchcancel',onEnd,   opts);
+        L('📡 Eventos: Mouse + Touch fallback');
+      }
+    }
+
+    document.getElementById('btnClear').addEventListener('click', function() {
+      if (!canvas) return;
+      ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+      ctx.beginPath();
+      setCtxStyle();
+      hasDrawn = false;
+      document.getElementById('ph').style.opacity = '1';
+      L('🧹 Canvas limpiado');
+    });
+
+    document.getElementById('btnSave').addEventListener('click', function() {
+      if (!hasDrawn) { alert('Dibuje su firma primero'); return; }
+      var img = canvas.toDataURL('image/png');
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('resultImg').src = img;
+      L('💾 Firma guardada como PNG (' + img.length + ' bytes)');
+    });
+
+    // Ejecutar tras el primer paint
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        requestAnimationFrame(setupCanvas);
+      });
+    } else {
+      requestAnimationFrame(setupCanvas);
+    }
+  </script>
+</body>
+</html>

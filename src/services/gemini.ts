@@ -32,42 +32,41 @@ const RESPUESTAS = {
   // ── Saludos ────────────────────────────────────────────────────────────────
   saludo: [
     "¡Hola! ¿En qué le ayudo?",
-    "¡Listo! ¿Qué necesita?",
+    "¿Qué necesita?",
     "¡Hola! A su disposición",
-    "¡Listo! ¿Cómo le ayudo hoy?",
-    "¡Aquí listo! Dígame",
+    "¿Cómo le ayudo hoy?",
+    "Dígame, ¿cómo le puedo asistir?",
   ],
 
   // ── Confirmación de apertura de directorio ─────────────────────────────────
   abreDirectorio: [
-    "¡Abriendo el directorio de pacientes!",
-    "¡Accediendo al directorio de expedientes!",
-    "¡Aquí tiene el listado de pacientes!",
-    "¡Mostrando el directorio clínico!",
+    "Abriendo el directorio de pacientes.",
+    "Accediendo al directorio de expedientes.",
+    "Aquí tiene el listado de pacientes.",
+    "Mostrando el directorio clínico.",
   ],
 
   // ── Confirmación de apertura de formulario ─────────────────────────────────
   abreFormulario: [
-    "¡Abriendo el formulario de registro! ¿Cuál es el nombre?",
-    "¡Listo para registrar al nuevo paciente! ¿Me indica el nombre?",
-    "¡Formulario abierto! ¿Nombre completo del paciente?",
-    "¡Iniciando registro de nuevo paciente! ¿Cuál es el nombre?",
+    "Abriendo el formulario de registro. ¿Cuál es el nombre?",
+    "¿Me indica el nombre para registrar al nuevo paciente?",
+    "Formulario abierto. ¿Nombre completo del paciente?",
+    "Iniciando registro de nuevo paciente. ¿Cuál es el nombre?",
   ],
 
   // ── Solicitar nombre del paciente a buscar ─────────────────────────────────
   pedirNombreBusqueda: [
     "¿Qué paciente desea buscar?",
     "¿A qué paciente busca?",
-    "¡Dígame el nombre y lo localizo!",
+    "Dígame el nombre y lo localizo.",
     "¿Nombre del expediente a abrir?",
   ],
 
   // ── No entendió ────────────────────────────────────────────────────────────
   noEntendio: [
-    "¡No le escuché bien! ¿Puede repetir?",
-    "¡Disculpe! No capté la instrucción ¿Me la repite?",
-    "¿Podría repetir eso? No le entendí con claridad",
-    "¡No procesé bien el comando! ¿Me lo repite?",
+    "No le escuché bien. ¿Puede repetir?",
+    "No capté la instrucción. ¿Me la repite?",
+    "¿Podría repetir eso? No le entendí con claridad.",
   ],
 
   // ── Ayuda / funciones ──────────────────────────────────────────────────────
@@ -241,14 +240,118 @@ const INTENT_MAP: Array<{ keys: string[]; category: Categoria; action?: () => vo
   { keys: ["dentaxy", "plataforma", "sistema", "como funciona", "drive", "google drive", "expediente digital"], category: "dentaxySeed" },
 ];
 
+// ─── Algoritmo Levenshtein para coincidencia difusa ──────────────────────────
+function levenshteinDistance(a: string, b: string): number {
+  const tmp = [];
+  let i, j;
+  const alen = a.length;
+  const blen = b.length;
+  if (alen === 0) return blen;
+  if (blen === 0) return alen;
+  for (i = 0; i <= alen; i++) {
+    tmp[i] = [i];
+  }
+  for (j = 0; j <= blen; j++) {
+    tmp[0][j] = j;
+  }
+  for (i = 1; i <= alen; i++) {
+    for (j = 1; j <= blen; j++) {
+      tmp[i][j] = Math.min(
+        tmp[i - 1][j] + 1,
+        tmp[i][j - 1] + 1,
+        tmp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
+      );
+    }
+  }
+  return tmp[alen][blen];
+}
+
+// ─── Buscar el paciente real que mejor coincida con el nombre dictado ────────
+export function findBestMatchingPatient(query: string): string {
+  try {
+    const listStr = sessionStorage.getItem('dentaxy_patients_list');
+    if (!listStr) return query;
+    const patients = JSON.parse(listStr);
+    if (!Array.isArray(patients) || patients.length === 0) return query;
+
+    const normalize = (s: string) => s.toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // quitar acentos
+      .replace(/[¿?¡!.,;:]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    const normQuery = normalize(query);
+    const queryTokens = normQuery.split(/\s+/).filter(Boolean);
+    if (queryTokens.length === 0) return query;
+
+    let bestPatient = null;
+    let highestScore = -1;
+
+    for (const patient of patients) {
+      const pName = patient.name || patient.nombre;
+      if (!pName) continue;
+      const normName = normalize(pName);
+      
+      // 1. Coincidencia exacta
+      if (normName === normQuery) {
+        return pName;
+      }
+
+      // 2. Calcular puntuación basada en tokens
+      const nameTokens = normName.split(/[,\s]+/).filter(Boolean);
+      let matchScore = 0;
+
+      for (const qToken of queryTokens) {
+        let bestTokenScore = 0;
+        for (const nToken of nameTokens) {
+          if (qToken === nToken) {
+            bestTokenScore = Math.max(bestTokenScore, 10);
+          } else if (nToken.startsWith(qToken) || qToken.startsWith(nToken)) {
+            bestTokenScore = Math.max(bestTokenScore, 6);
+          } else {
+            const dist = levenshteinDistance(qToken, nToken);
+            const maxLen = Math.max(qToken.length, nToken.length);
+            const sim = 1 - dist / maxLen;
+            if (sim > 0.6) {
+              bestTokenScore = Math.max(bestTokenScore, sim * 8);
+            }
+          }
+        }
+        matchScore += bestTokenScore;
+      }
+
+      const globalDist = levenshteinDistance(normQuery, normName);
+      const globalMaxLen = Math.max(normQuery.length, normName.length);
+      const globalSim = 1 - globalDist / globalMaxLen;
+      
+      const totalScore = matchScore + (globalSim * 5);
+
+      if (totalScore > highestScore) {
+        highestScore = totalScore;
+        bestPatient = patient;
+      }
+    }
+
+    if (highestScore > 4 && bestPatient) {
+      const matchedName = bestPatient.name || bestPatient.nombre;
+      console.log(`[DEX FUZZY] Coincidencia encontrada: "${query}" -> "${matchedName}" (Score: ${highestScore.toFixed(2)})`);
+      return matchedName;
+    }
+  } catch (e) {
+    console.error('[DEX FUZZY] Error matching patients:', e);
+  }
+  return query;
+}
+
 // ─── Función de búsqueda de intención ─────────────────────────────────────────
 function detectIntent(message: string): { category: Categoria; action?: () => void; query?: string } | null {
   const m = norm(message);
 
-  // ── Buscar paciente por nombre (patrón especial) ──────────────────────────
+  // ── Buscar paciente por nombre (patrón especial con variantes extendidas) ────
   const searchPatterns = [
-    /(?:busca|buscar|encuentra|encontrar|localiza|localizar|abre|abrir|muestra|ver|mostrar)\s+(?:(?:al|a la|al paciente|a la paciente|el expediente de|el historial de)\s+)?(.{2,40})/i,
-    /(?:expediente|historial|historia|ficha)\s+(?:de|del|de la)\s+(.{2,40})/i,
+    /(?:busca|buscar|encuentra|encontrar|localiza|localizar|localizame|abre|abrir|muestra|ver|mostrar|muestrame|dame los datos de|dame la informacion de|consultame a|consulta|consultar|trae a|trae la informacion de|traeme a|donde esta|donde esta el expediente de)\s+(?:(?:al|a la|al paciente|a la paciente|el expediente de|el historial de|el archivo de|los datos de|el expediente de la paciente|el expediente del paciente)\s+)?(.{2,40})/i,
+    /(?:expediente|historial|historia|ficha|archivo)\s+(?:de|del|de la|del paciente|de la paciente)\s+(.{2,40})/i,
     /(?:como va|como esta|como sigue)\s+(.{2,40})/i,
   ];
 
@@ -262,13 +365,15 @@ function detectIntent(message: string): { category: Categoria; action?: () => vo
       // Verificar que no sea una palabra de navegación (falso positivo)
       const navWords = ["directorio", "lista", "formulario", "menu", "sistema", "modulo"];
       if (query.length > 1 && !navWords.some(w => query.includes(w))) {
+        // Encontrar coincidencia difusa con pacientes reales antes de proceder
+        const matchedName = findBestMatchingPatient(query);
         return {
           category: "abreDirectorio",
           action: () => {
             window.dispatchEvent(new CustomEvent("dex:openPatientsList"));
-            window.dispatchEvent(new CustomEvent("dex:searchPatient", { detail: { query } }));
+            window.dispatchEvent(new CustomEvent("dex:searchPatient", { detail: { query: matchedName } }));
           },
-          query,
+          query: matchedName,
         };
       }
     }
@@ -289,7 +394,7 @@ function buildResponse(message: string): string {
   const m = norm(message);
 
   // Verificar si el mensaje tiene contenido mínimo (anti-basura)
-  if (m.length < 2) return pick(RESPUESTAS.noEntendio);
+  if (m.length < 2) return "__NO_UNDERSTOOD__";
 
   const intent = detectIntent(message);
 
@@ -297,13 +402,13 @@ function buildResponse(message: string): string {
     // Ejecutar acción de navegación/sistema si existe
     if (intent.action) intent.action();
 
-    // Si es búsqueda de paciente, personalizar la respuesta
+    // Si es búsqueda de paciente, personalizar la respuesta sin frases de sumisión o Listo/Hecho
     if (intent.query) {
       const templates = [
-        `¡Enseguida! He colocado el expediente de ${intent.query} en pantalla`,
-        `¡Listo! El historial de ${intent.query} ya está centrado en pantalla`,
-        `¡Hecho! Traigo la información de ${intent.query} a primer plano`,
-        `¡Listo! El archivo de ${intent.query} se encuentra ahora al centro`,
+        `He colocado el expediente de ${intent.query} en pantalla`,
+        `El historial de ${intent.query} ya está centrado en pantalla`,
+        `Traigo la información de ${intent.query} a primer plano`,
+        `El archivo de ${intent.query} se encuentra ahora al centro`,
       ];
       return pick(templates);
     }
@@ -311,8 +416,8 @@ function buildResponse(message: string): string {
     return pick(RESPUESTAS[intent.category]);
   }
 
-  // ── Sin coincidencia clara: respuesta genérica útil ───────────────────────
-  return pick(RESPUESTAS.noEntendio);
+  // ── Sin coincidencia clara: retornar token especial para desactivación silenciosa ───
+  return "__NO_UNDERSTOOD__";
 }
 
 // ─── API pública (compatible con el contrato anterior) ───────────────────────

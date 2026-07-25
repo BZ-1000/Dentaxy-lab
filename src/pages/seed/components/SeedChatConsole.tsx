@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Plus, Mic, ChevronDown, Sparkles, Send, Check, X, ArrowUpRight, User, Phone, Scan, RefreshCw } from 'lucide-react';
 import { useCliStore } from '@/stores/useCliStore';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { generatePatientCode, code128ToSVG } from '@/utils/barcode128';
+import { getOrCreateSubfolder, listFiles, fetchDriveFileBlobUrl } from '@/utils/driveHelper';
 
 const COUNTRIES = [
   { code: 'MX', lada: '+52', flag: '🇲🇽', name: 'México' },
@@ -89,6 +90,10 @@ export default function SeedChatConsole({
   // Estados para el monitor de duplicados de pacientes
   const [duplicateStatus, setDuplicateStatus] = useState<'idle' | 'scanning' | 'clean' | 'conflict'>('idle');
   const [matchedNames, setMatchedNames] = useState<string[]>([]);
+
+  // Estados del Visor a Pantalla Completa (Full Screen Viewer)
+  const [fullScreenImage, setFullScreenImage] = useState<string | null>(null);
+  const [isLoadingImage, setIsLoadingImage] = useState<boolean>(false);
 
   useEffect(() => {
     if (!newPatientName.trim()) {
@@ -353,7 +358,7 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
     }
   }, [activePatient]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputText.trim()) return;
 
     if (isExpedienteMode && currentQuestion?.type === 'text') {
@@ -365,8 +370,105 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
     // Simular el inicio de análisis ("task running")
     setIsAnalyzing(true);
     const q = inputText.toLowerCase();
-    
-    // Determinar paso de análisis en base al input
+    const savedInput = inputText;
+    setInputText('');
+
+    // --- NUEVOS COMANDOS VISUALES (DEX) ---
+    // 1. Ilustraciones Anatómicas — Partes del Diente
+    const esDienteCmd =
+      q.includes('partes del diente') ||
+      q.includes('partes de un diente') ||
+      q.includes('anatomia dental') ||
+      q.includes('anatomía del diente') ||
+      q.includes('imagen del diente') ||
+      q.includes('estructura del diente') ||
+      (q.includes('diente') && (q.includes('muestra') || q.includes('ver') || q.includes('abre') || q.includes('ilustra')));
+
+    if (esDienteCmd) {
+      setAnalysisStep('Abriendo ilustración de anatomía dental...');
+      setTimeout(() => {
+        setIsAnalyzing(false);
+        setCurrentResponse('🦷 Aquí tienes la ilustración de las **Partes del Diente**. Puedes hacer zoom en pantalla completa.');
+        setFullScreenImage('/Ilustraciones DEX/Partes del diente .png');
+      }, 600);
+      return;
+    }
+
+    // 1b. Ilustraciones Anatómicas — Fases de la Caries
+    const esCariesCmd =
+      q.includes('fases de la caries') ||
+      q.includes('caries dental') ||
+      q.includes('estadios de la caries') ||
+      q.includes('etapas de la caries') ||
+      q.includes('ilustración de caries') ||
+      q.includes('imagen de caries') ||
+      (q.includes('caries') && (q.includes('muestra') || q.includes('ver') || q.includes('abre') || q.includes('ilustra')));
+
+    if (esCariesCmd) {
+      setAnalysisStep('Abriendo ilustración de fases de caries...');
+      setTimeout(() => {
+        setIsAnalyzing(false);
+        setCurrentResponse('🧫 Aquí tienes la ilustración de las **Fases de la Caries Dental**. Ideal para explicarle al paciente.');
+        setFullScreenImage('/Ilustraciones DEX/Fases de la caries dental.png');
+      }, 600);
+      return;
+    }
+
+    // 2. Extracción de Radiografías de Drive
+    const radioMatch = q.match(/radiograf[ií]a[s]?\s+(\d+)|radiograf[ií]a[s]?\s+n[uú]mero\s+(\d+)|(\d+)[°\.\-]?\s*radiograf[ií]a/);
+    const esRadioCmd = radioMatch && (q.includes('muestra') || q.includes('muestrame') || q.includes('abre') || q.includes('ver') || q.includes('desplegar'));
+    if (esRadioCmd) {
+      const idxStr = radioMatch[1] || radioMatch[2] || radioMatch[3];
+      const idx = parseInt(idxStr, 10) - 1; // Convertir a índice base 0
+      
+      if (isPatientEmpty) {
+        setIsAnalyzing(false);
+        setCurrentResponse('⚠️ *Dentaxy IA*: No hay ningún paciente seleccionado para buscar radiografías.');
+        return;
+      }
+      
+      setAnalysisStep(`Buscando radiografía ${idx + 1} en Google Drive...`);
+      
+      try {
+        const token = seedUser?.googleAccessToken;
+        if (!token) throw new Error('No hay sesión de Google activa');
+        
+        // Navegar arquitectura Zero-Storage
+        const gabineteId = await getOrCreateSubfolder(activePatient.id, 'Gabinete', token);
+        const radioFolderId = await getOrCreateSubfolder(gabineteId, 'radiografias', token);
+        const files = await listFiles(radioFolderId, token);
+        
+        // Ordenar del más antiguo al más nuevo
+        const sortedFiles = files.sort((a, b) => new Date(a.createdTime).getTime() - new Date(b.createdTime).getTime());
+        
+        if (sortedFiles.length === 0) {
+          setIsAnalyzing(false);
+          setCurrentResponse(`⚠️ *Dentaxy IA*: Este paciente no tiene ninguna radiografía guardada.`);
+          return;
+        }
+        
+        if (idx < 0 || idx >= sortedFiles.length) {
+          setIsAnalyzing(false);
+          setCurrentResponse(`⚠️ *Dentaxy IA*: Este paciente solo cuenta con ${sortedFiles.length} radiografía(s).`);
+          return;
+        }
+        
+        const fileToView = sortedFiles[idx];
+        setAnalysisStep('Descargando imagen segura desde Drive...');
+        const blobUrl = await fetchDriveFileBlobUrl(fileToView.id, token);
+        
+        setIsAnalyzing(false);
+        setCurrentResponse(`Mostrando la radiografía ${idx + 1} del paciente en pantalla completa.`);
+        setFullScreenImage(blobUrl);
+      } catch (e: any) {
+        console.error(e);
+        setIsAnalyzing(false);
+        setCurrentResponse(`❌ *Error*: No se pudo extraer la radiografía. ${e.message}`);
+      }
+      return;
+    }
+
+    // Determinar paso de análisis en base al input local original
     if (q.includes('receta') || q.includes('medicamento') || q.includes('prescribir') || q.includes('dolor')) {
       setAnalysisStep('Redactando receta y cruzando dosificación local...');
     } else if (q.includes('nota') || q.includes('evolucion') || q.includes('historia') || q.includes('expediente')) {
@@ -376,9 +478,6 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
     } else {
       setAnalysisStep('Procesando solicitud de redacción local...');
     }
-
-    const savedInput = inputText;
-    setInputText('');
 
     setTimeout(() => {
       setIsAnalyzing(false);
@@ -434,6 +533,18 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
       `• Consultar **alergias** o riesgos del paciente.`;
   };
 
+  // Cerrar visor a pantalla completa con tecla Escape
+  useEffect(() => {
+    if (!fullScreenImage) return;
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setFullScreenImage(null);
+      }
+    };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [fullScreenImage]);
+
   // La consola se expande si tiene hover o si el input tiene el foco o si está en modo pregunta
   const showExpanded = isConsoleHovered || isFocused || isQuestionMode;
 
@@ -483,7 +594,7 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
           {!showExpanded && (
             <div className="w-2 h-2 border border-slate-500/40 border-t-slate-500 rounded-full animate-spin"></div>
           )}
-          <span>Resumen de {name}</span>
+          <span>Resumen de <span className="font-bruno text-[10px] tracking-[0.1em] text-emerald-500">{name}</span></span>
         </div>
         <ChevronDown 
           size={13} 
@@ -1273,6 +1384,46 @@ ${barcodeSvg.replace('<svg ', `<svg xmlns="http://www.w3.org/2000/svg" data-pati
           </>
         )}
       </div>
+
+      {/* --- FULL SCREEN VIEWER (Ilustraciones y Radiografías) --- */}
+      <AnimatePresence>
+        {fullScreenImage && (
+          <motion.div
+            key="fullscreen-viewer"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 z-[9999] bg-black/90 flex items-center justify-center"
+            onClick={() => setFullScreenImage(null)}
+          >
+            {/* Botón de cierre */}
+            <button
+              onClick={() => setFullScreenImage(null)}
+              className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm flex items-center justify-center text-white transition-all z-10 border border-white/20"
+            >
+              <X size={20} />
+            </button>
+
+            {/* Etiqueta de instrucción */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/40 text-xs font-medium">
+              Presiona Esc o haz clic fuera para cerrar
+            </div>
+
+            {/* Imagen principal */}
+            <motion.img
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              src={fullScreenImage}
+              alt="Vista clínica"
+              className="max-w-[92vw] max-h-[90vh] object-contain rounded-2xl shadow-2xl select-none"
+              onClick={(e) => e.stopPropagation()} // Evitar cierre al hacer clic en la imagen
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

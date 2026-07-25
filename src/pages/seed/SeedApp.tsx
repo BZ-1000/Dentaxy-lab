@@ -9,8 +9,8 @@ import SeedPatientsListView from './components/SeedPatientsListView';
 import SeedAddPatientModal from './components/SeedAddPatientModal';
 import SeedAddPatientView from './components/SeedAddPatientView';
 import SeedFolderDashboard from './components/SeedFolderDashboard';
-import DetroitPatientProfile from './components/DetroitPatientProfile';
 import SeedOnboardingDrive from './components/SeedOnboardingDrive';
+import SeedExpedienteInterface from './components/SeedExpedienteInterface';
 import SeedOnboarding from './components/onboarding/SeedOnboarding';
 import LivePrescriptionPreview from './components/onboarding/LivePrescriptionPreview';
 import { ChevronLeft, ChevronRight, X, Bell, Printer, Download, Link2, Check } from 'lucide-react';
@@ -30,7 +30,7 @@ export default function SeedApp() {
     ? 'GZ-2026' 
     : `${doctorName.split(' ').map(n => n[0]).join('')}-2026`.toUpperCase();
 
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [currentView, setCurrentView] = useState<'CAROUSEL' | 'PATIENTS_LIST' | 'DETROIT'>('CAROUSEL');
   const [openedFolder, setOpenedFolder] = useState<{folder: any, rect?: DOMRect} | null>(null);
   const [isAddPatientOpen, setIsAddPatientOpen] = useState(false);
@@ -44,6 +44,10 @@ export default function SeedApp() {
   const [showQR, setShowQR] = useState(false);
   const [patientsList, setPatientsList] = useState<any[]>([]);
   const [selectedPatientIndex, setSelectedPatientIndex] = useState(0);
+
+  // Estados para la interfaz del expediente (glasmorfismo blanco opaco)
+  const [isExpedienteOpen, setIsExpedienteOpen] = useState(false);
+  const [selectedExpedienteFolder, setSelectedExpedienteFolder] = useState<any>(null);
   
   // Paciente en sala de espera pendiente
   const [pendingIntake, setPendingIntake] = useState<any>(null);
@@ -60,6 +64,17 @@ export default function SeedApp() {
       setActiveClinicQR(clinicId);
     }
   }, [clinicId]);
+
+  // ── Bridge DEX: sincronizar el paciente activo para comandos de voz ────────
+  useEffect(() => {
+    if (!activePatient) return;
+    window.dispatchEvent(new CustomEvent('dex:activePatient', {
+      detail: {
+        folderId: activePatient.id,
+        name: activePatient.name
+      }
+    }));
+  }, [activePatient]);
 
   // ── Escuchar eventos de DEX para abrir vistas ──────────────────────────
   useEffect(() => {
@@ -754,14 +769,8 @@ export default function SeedApp() {
   }
 
   const handleOpenFolder = (folder: any) => {
-    const idx = patientsList.findIndex(p => p.id === folder.id);
-    if (idx !== -1) {
-      setSelectedPatientIndex(idx);
-      setActivePatient(patientsList[idx]);
-    } else {
-      setActivePatient(folder);
-    }
-    setCurrentView('DETROIT');
+    setSelectedExpedienteFolder(folder);
+    setIsExpedienteOpen(true);
   };
 
   const handleOpenAddPatient = () => {
@@ -934,6 +943,7 @@ export default function SeedApp() {
                  onOpenAddPatient={handleOpenAddPatient}
                  onActivePatientChange={setActivePatient}
                  onPatientsLoad={setPatientsList}
+                 isExpedienteOpen={isExpedienteOpen}
                />
              </motion.div>
            )}
@@ -977,31 +987,7 @@ export default function SeedApp() {
 
          {/* VISTA DETROIT BECOME HUMAN */}
          <AnimatePresence>
-           {currentView === 'DETROIT' && (
-             <motion.div
-               key="detroit-patient-profile"
-               initial={{ opacity: 0, scale: 1.05 }}
-               animate={{ opacity: 1, scale: 1 }}
-               exit={{ opacity: 0, scale: 1.05 }}
-               transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-               className="absolute inset-0 z-50 bg-[#080b11]"
-             >
-               <DetroitPatientProfile 
-                 patientsList={patientsList}
-                 activeIndex={selectedPatientIndex}
-                 setActiveIndex={(idx) => {
-                   setSelectedPatientIndex(idx);
-                   setActivePatient(patientsList[idx]);
-                 }}
-                 onClose={() => setCurrentView('CAROUSEL')}
-                 onOpenExpediente={(patient) => {
-                   setSeed2PatientData(patient);
-                   setIsSeed2Open(true);
-                 }}
-                 theme={theme}
-               />
-             </motion.div>
-           )}
+           {/* VISTA DETROIT ELIMINADA POR COMPLETO */}
          </AnimatePresence>
          
       </div>
@@ -1120,6 +1106,16 @@ export default function SeedApp() {
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Interfaz de Expediente Superpuesta (Glasmorfismo Blanco Opaco) */}
+      <AnimatePresence>
+        {isExpedienteOpen && selectedExpedienteFolder && (
+          <SeedExpedienteInterface 
+            folder={selectedExpedienteFolder}
+            onClose={() => setIsExpedienteOpen(false)}
+          />
         )}
       </AnimatePresence>
 

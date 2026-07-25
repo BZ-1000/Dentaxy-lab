@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <title>Expediente Clínico y Odontograma — RODOLFO MONTES VANEGAS — Dentaxy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" async></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #F1F5F9;
+      color: #0F172A;
+      min-height: 100vh;
+      padding: 24px 12px;
+      touch-action: manipulation;
+    }
+    .page-wrapper {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+    .doc-header {
+      background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+      border-radius: 24px;
+      padding: 32px;
+      color: white;
+      margin-bottom: 24px;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(15,23,42,0.15);
+    }
+    .doc-header h1 { font-size: 26px; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .doc-header .subtitle { font-size: 11px; opacity: 0.85; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #38BDF8; }
+    .doc-header .meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+    .doc-header .meta span { background: rgba(255,255,255,0.12); padding: 4px 14px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .action-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .btn-action {
+      flex: 1; padding: 12px 16px; border-radius: 14px; border: none; font-size: 12px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;
+    }
+    .btn-share { background: #2563EB; color: white; box-shadow: 0 4px 14px rgba(37,99,235,0.3); }
+    .btn-share:hover { background: #1D4ED8; }
+    .btn-ws { background: #10B981; color: white; box-shadow: 0 4px 14px rgba(16,185,129,0.3); }
+    .btn-ws:hover { background: #059669; }
+    .btn-print { background: #0F172A; color: white; }
+    .btn-action:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+    .card {
+      background: #FFFFFF; border-radius: 20px; border: 1px solid #E2E8F0; padding: 24px; margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 6px 20px rgba(0,0,0,0.02);
+    }
+    .card-label { font-size: 10px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #64748B; margin-bottom: 18px; }
+    
+    /* Odontograma Anatómico Interactivo */
+    .arch-block { display: flex; justify-content: center; gap: 4px; overflow-x: auto; padding: 12px 0; -webkit-overflow-scrolling: touch; }
+    .tooth-container {
+      display: flex; flex-direction: column; align-items: center; width: 38px; cursor: pointer;
+      touch-action: manipulation; -webkit-tap-highlight-color: rgba(56, 189, 248, 0.4);
+      user-select: none; -webkit-user-select: none; position: relative; z-index: 10;
+      transition: transform 0.2s ease, filter 0.2s ease;
+      border-radius: 8px; padding: 2px;
+    }
+    .tooth-container:hover { transform: scale(1.08) translateY(-2px); z-index: 30; }
+    .tooth-container.selected-tooth {
+      outline: 2px solid #38BDF8;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.6);
+      border-radius: 10px;
+      background: rgba(56, 189, 248, 0.08);
+    }
+    .tooth-number { font-size: 11px; font-weight: 800; color: #475569; }
+    
+    /* Radiografías y Filtros */
+    .rad-filter-btn {
+      padding: 4px 10px; border-radius: 8px; border: 1px solid #CBD5E1; background: #F8FAFC; color: #475569;
+      font-size: 11px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    }
+    .rad-filter-btn.active, .rad-filter-btn:hover {
+      background: #0F172A; color: #FFFFFF; border-color: #0F172A;
+    }
+    .rads-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; margin-top: 12px; }
+    .rad-item { border: 1px solid #E2E8F0; border-radius: 14px; padding: 8px; background: #F8FAFC; text-align: center; cursor: pointer; transition: transform 0.2s; }
+    .rad-item:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+    .rad-item img { width: 100%; height: 110px; object-fit: cover; border-radius: 10px; display: block; }
+    .rad-item span { font-size: 11px; font-weight: 600; color: #334155; margin-top: 6px; display: block; }
+
+    /* Firma Digital Canvas */
+    .sig-canvas-container canvas {
+      touch-action: none !important;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .signature-box { border-radius: 16px; padding: 20px; }
+    .signature-box.signed { background: #ECFDF5; border: 1.5px solid #10B981; }
+    .signature-box.unsigned { background: #FFFBEB; border: 1.5px dashed #F59E0B; }
+    .sig-img { max-height: 120px; object-fit: contain; margin: 12px auto; display: block; }
+    .sig-name { font-size: 15px; font-weight: 900; color: #065F46; margin-top: 6px; }
+    .sig-date { font-size: 11px; color: #047857; font-weight: 600; }
+    .badge-valid { background: #10B981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.6; }
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .no-print { display: none !important; }
+      .card { border: none; box-shadow: none; padding: 12px 0; }
+      .page-wrapper { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    
+    <!-- Banner de Advertencia WhatsApp In-App Browser -->
+    <div id="whatsappWarningBanner" style="display:none; background:#FFFBEB; border:1.5px solid #F59E0B; border-radius:16px; padding:16px; margin-bottom:20px; font-size:12px; color:#92400E; position:relative;" class="no-print">
+      <div style="display:flex; gap:12px; align-items:center;">
+        <span style="font-size:24px;">⚠️</span>
+        <div>
+          <strong style="font-size:13px; color:#B45309; display:block; margin-bottom:2px;">Navegador restringido detectado (WhatsApp / Redes Sociales)</strong>
+          Para una mejor experiencia dibujando su firma y descargando el PDF, le recomendamos abrir este enlace en <strong>Chrome o Safari</strong>.
+        </div>
+      </div>
+    </div>
+
+    <!-- Encabezado del Expediente -->
+    <div class="doc-header">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <div class="subtitle">DENTAXY TECHNOLOGIES — PLATAFORMA CLÍNICA DE SALUD DIGITAL</div>
+          <h1>RODOLFO MONTES VANEGAS</h1>
+          <p style="font-size: 13px; opacity: 0.9; margin-top: 2px;">Expediente Odontológico Integral y Odontograma Clínico</p>
+        </div>
+        <div style="text-align: right; background: rgba(255,255,255,0.1); padding: 10px 16px; border-radius: 14px;">
+          <div style="font-size: 10px; opacity: 0.8; font-weight: 700; letter-spacing: 1px;">FECHA DE EMISIÓN</div>
+          <div style="font-size: 13px; font-weight: 800; color: #38BDF8;">25 de Julio de 2026</div>
+        </div>
+      </div>
+      <div class="meta">
+        <span>👤 Paciente: RODOLFO MONTES VANEGAS</span>
+        <span>📁 Folio: ${patientNameClean.toUpperCase()}</span>
+        <span>🛡️ Firma Digital Incorporada</span>
+      </div>
+    </div>
+
+    <!-- Los botones de acción solo aparecen en la sección de firma tras firmar -->
+
+    <!-- Odontograma Anatómico Interactivos -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px;">
+        <div class="card-label" style="margin-bottom: 0;">🦷 ODONTOGRAMA ANATÓMICO CLÍNICO (SISTEMA FDI)</div>
+        <div style="font-size: 11px; color: #64748B; font-weight: 700; background: #F1F5F9; padding: 4px 10px; border-radius: 8px;">
+          💡 Toca cualquier diente para ver diagnóstico, tratamientos y radiografías
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 8px; font-size: 11px; font-weight: 800; color: #64748B; letter-spacing: 1px;">ARCADIA SUPERIOR (MAXILAR)</div>
+      <div class="arch-block">
+        <div class="tooth-container" data-tooth="11" onclick="showToothInfo(11)">Diente 11</div>
+      </div>
+
+      <div style="height: 1px; background: #E2E8F0; margin: 16px 0;"></div>
+
+      <div style="text-align: center; margin-bottom: 8px; font-size: 11px; font-weight: 800; color: #64748B; letter-spacing: 1px;">ARCADIA INFERIOR (MANDÍBULA)</div>
+      <div class="arch-block">
+        <div class="tooth-container" data-tooth="31" onclick="showToothInfo(31)">Diente 31</div>
+      </div>
+    </div>
+
+    <!-- Radiografías Adjuntas (si existen) -->
+    
+
+    <!-- Consentimientos Informados y Declaración -->
+    <div class="card">
+      <div class="card-label">📜 CONSENTIMIENTOS INFORMADOS Y DECLARACIÓN LEGAL</div>
+      
+    </div>
+
+    <!-- Firma Autógrafa -->
+    <div class="card">
+      <div class="card-label">✍️ VALIDEZ LEGAL · FIRMA DIGITAL DEL PACIENTE</div>
+      <div class="signature-box unsigned interactive-signature" id="signatureContainer"><div id="sigCanvasWrap" style="border: 2.5px dashed #94A3B8; border-radius: 14px; background: #FFFFFF; position: relative; overflow: hidden; margin-bottom: 14px;"><div id="sigPlaceholder" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none;">✏️ Firme aquí</div><canvas id="sigCanvas"></canvas></div><input id="sigName" value="RODOLFO MONTES VANEGAS" /><input id="sigId" value="12345" /><button id="btnClear">Limpiar</button><button id="btnSave">Guardar</button></div><div id="lockedSignature" style="display:none;"><img id="lockedSigImg" /><p id="lockedSigName"></p><p id="lockedSigId"></p><p id="lockedSigDate"></p></div>
+    </div>
+  </div>
+
+  <!-- Modal de Zoom para Radiografías -->
+  <div id="imgModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.9);z-index:99999;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(6px);" onclick="closeImgModal()">
+    <div style="position:relative;max-width:92%;max-height:88vh;text-align:center;">
+      <button onclick="closeImgModal()" style="position:absolute;top:-18px;right:-18px;background:#FFF;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:20px;font-weight:bold;color:#0F172A;box-shadow:0 4px 14px rgba(0,0,0,0.4);z-index:10;">×</button>
+      <img id="modalImg" src="" alt="Radiografía Ampliada" style="max-width:100%;max-height:80vh;border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,0.6);display:block;margin:0 auto;" />
+      <div id="modalCaption" style="margin-top:12px;color:#FFF;font-size:13px;font-weight:700;background:rgba(255,255,255,0.15);padding:6px 14px;border-radius:20px;display:inline-block;"></div>
+    </div>
+  </div>
+
+  <!-- Modal de Información e Inspección de Diente + Radiografías -->
+  <div id="toothModal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.65);z-index:99998;justify-content:center;align-items:center;padding:16px;backdrop-filter:blur(4px);" onclick="if(event.target===this)closeToothModal()">
+    <div id="toothModalBox" style="background:#fff;border-radius:22px;padding:24px;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(15,23,42,0.4);position:relative;max-height:88vh;overflow-y:auto;font-family:'Inter',sans-serif;">
+      <button onclick="closeToothModal()" style="position:absolute;top:14px;right:14px;background:#F1F5F9;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:18px;color:#475569;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>
+      <div id="toothModalContent"></div>
+    </div>
+  </div>
+
+  <script>
+    /* ============================================================
+       DENTAXY TECHNOLOGIES — SCRIPT INTERACTIVO MULTI-DISPOSITIVO
+       ============================================================ */
+
+    var patientNameClean = "RODOLFO_MONTES_VANEGAS";
+    var folderNameStr    = "RODOLFO MONTES VANEGAS";
+
+    /* Base de Datos Clínica de los 32 Dientes */
+    var TOOTH_INFO = {"11":{"state":"S"}, "31":{"state":"S"}};
+
+    var STATE_COLORS = {
+      S:'#1D9E75', C:'#EA4335', O:'#1A73E8', EI:'#EA4335', A:'#1A73E8', CR:'#FF6D00',
+      PU:'#FF6D00', E:'#1A73E8', IM:'#607D8B', SE:'#F9AB00', F:'#EA4335', MOV:'#FF6D00',
+      AOF:'#1A73E8', AOR:'#1A73E8', DES:'#795548', DIA:'#1A73E8', DIS:'#9C27B0',
+      ECT:'#607D8B', CLV:'#607D8B', EXT:'#FF6D00', INT:'#FF6D00', GF:'#607D8B',
+      GV:'#607D8B', MIG:'#FF6D00', RR:'#EA4335', RT:'#EA4335', OF:'#A52A2A',
+      SI:'#F9AB00', SN:'#9C27B0', TR:'#607D8B', PC:'#1A73E8', PP:'#1A73E8'
+    };
+
+    var CARIES_LABELS   = { 1:'Grado I — Incipiente de esmalte', 2:'Grado II — Dentina superficial', 3:'Grado III — Dentina profunda', 4:'Grado IV — Compromiso pulpar' };
+    var MATERIAL_LABELS = { AM:'Amalgama', R:'Resina compuesta', IV:'Ionómero de vidrio', IM:'Incrustación metálica', IE:'Incrustación estética' };
+    var MOBILITY_LABELS = { 1:'Grado I (< 1 mm)', 2:'Grado II (1-2 mm)', 3:'Grado III (> 2 mm / eje vertical)' };
+
+    /* Detección de Visor In-App de WhatsApp */
+    (function detectApp() {
+      var ua = navigator.userAgent || '';
+      if (/WhatsApp|FBAN|FBAV|Instagram|Line/i.test(ua)) {
+        var b = document.getElementById('whatsappWarningBanner');
+        if (b) b.style.display = 'block';
+        if (/Android/i.test(ua) && window.location.protocol.indexOf('http') === 0) {
+          try {
+            var u = 'intent://' + window.location.href.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end;';
+            window.location.href = u;
+          } catch(e) {}
+        }
+      }
+    })();
+
+    /* ── 1. MODAL E INSPECTOR DE DIENTE Y RADIOGRAFÍAS ────────────────── */
+    window.showToothInfo = function(id) {
+      // Resaltar visualmente el diente seleccionado
+      document.querySelectorAll('.tooth-container').forEach(function(el) {
+        el.classList.remove('selected-tooth');
+      });
+      var tEl = document.querySelector('.tooth-container[data-tooth="' + id + '"]');
+      if (tEl) tEl.classList.add('selected-tooth');
+
+      var info = TOOTH_INFO[id];
+      if (!info) return;
+      var color = STATE_COLORS[info.state] || '#64748B';
+      var isSano = info.state === 'S';
+      var extra = '';
+
+      if (info.cariesGrade && CARIES_LABELS[info.cariesGrade]) {
+        extra += '<div style="margin-top:8px;padding:8px 12px;background:#FEF2F2;border-radius:8px;font-size:12px;color:#991B1B;"><strong>Grado de Caries:</strong> ' + CARIES_LABELS[info.cariesGrade] + '</div>';
+      }
+      if (info.materialType && MATERIAL_LABELS[info.materialType]) {
+        extra += '<div style="margin-top:6px;padding:8px 12px;background:#EFF6FF;border-radius:8px;font-size:12px;color:#1E40AF;"><strong>Material Restaurador:</strong> ' + MATERIAL_LABELS[info.materialType] + '</div>';
+      }
+      if (info.mobility && MOBILITY_LABELS[info.mobility]) {
+        extra += '<div style="margin-top:6px;padding:8px 12px;background:#FFF7ED;border-radius:8px;font-size:12px;color:#9A3412;"><strong>Movilidad Pieza:</strong> ' + MOBILITY_LABELS[info.mobility] + '</div>';
+      }
+      if (info.surfaces && info.surfaces !== 'Ninguna específica') {
+        extra += '<div style="margin-top:6px;padding:8px 12px;background:#F8FAFC;border-radius:8px;font-size:12px;color:#475569;"><strong>Caras / Superficies Afectadas:</strong> ' + info.surfaces + '</div>';
+      }
+
+      // Buscar radiografías asociadas a este diente (ej. OD 16 o por cuadrante)
+      var quadStr = 'Q' + Math.floor(id / 10);
+      var matchingRads = [];
+      document.querySelectorAll('#radsGrid .rad-item').forEach(function(radEl) {
+        var teethAttr = radEl.getAttribute('data-teeth') || '';
+        var quadsAttr = radEl.getAttribute('data-quads') || '';
+        var teethArr  = teethAttr.split(',').filter(Boolean);
+        var quadsArr  = quadsAttr.split(',').filter(Boolean);
+        var img       = radEl.querySelector('img');
+        var nameSpan  = radEl.querySelector('span:last-child');
+
+        if (teethArr.indexOf(String(id)) !== -1 || quadsArr.indexOf(quadStr) !== -1) {
+          if (img) matchingRads.push({ src: img.src, name: nameSpan ? nameSpan.innerText : ('Radiografía OD ' + id) });
+        }
+      });
+
+      var radsBlockHTML = '';
+      if (matchingRads.length > 0) {
+        radsBlockHTML = '<div style="margin-top:14px;padding:12px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:12px;">'
+          + '<div style="font-size:11px;font-weight:800;color:#0369A1;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">📁 Radiografía(s) Vinculada(s) (' + matchingRads.length + ')</div>'
+          + '<div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;">'
+          + matchingRads.map(function(r) {
+            return '<div onclick="openModal(\'' + r.src + '\', \'' + r.name.replace(/'/g, "\\'") + '\')" style="cursor:pointer;flex-shrink:0;text-align:center;">'
+              + '<img src="' + r.src + '" style="width:70px;height:55px;object-fit:cover;border-radius:8px;border:1.5px solid #0284C7;" />'
+              + '<div style="font-size:9px;color:#0369A1;font-weight:700;margin-top:2px;">Ver Zoom</div></div>';
+          }).join('')
+          + '</div></div>';
+      }
+
+      var html = '<div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">'
+        + '<div style="width:48px;height:48px;border-radius:50%;background:' + color + ';display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:900;flex-shrink:0;box-shadow:0 4px 12px ' + color + '40;">' + id + '</div>'
+        + '<div><div style="font-size:18px;font-weight:900;color:#0F172A;">Diente Órgano OD ' + id + '</div>'
+        + '<div style="font-size:13px;color:#64748B;margin-top:2px;">Arcada ' + (info.arcada || 'Dental') + ' — ' + (info.label || info.state) + '</div></div></div>'
+        + (isSano
+          ? '<div style="padding:16px;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;color:#15803D;font-weight:700;font-size:13px;text-align:center;">✅ Pieza dental sana — sin patologías ni tratamientos registrados.</div>'
+          : '<div style="padding:12px 14px;background:' + color + '15;border-radius:12px;border-left:4px solid ' + color + ';font-size:14px;font-weight:800;color:' + color + ';">Diagnóstico / Hallazgo: ' + (info.label || info.state) + '</div>'
+            + extra
+            + '<div style="margin-top:12px;padding:10px 14px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;font-size:11px;color:#92400E;">📋 Consulte los detalles del plan de tratamiento en la Sección VIII del Expediente.</div>')
+        + radsBlockHTML
+        + '<button onclick="closeToothModal()" style="margin-top:18px;width:100%;padding:14px;background:#0F172A;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">Cerrar Ventana</button>';
+
+      var contentEl = document.getElementById('toothModalContent');
+      var modalEl   = document.getElementById('toothModal');
+      if (contentEl) contentEl.innerHTML = html;
+      if (modalEl)   modalEl.style.display = 'flex';
+    };
+
+    window.closeToothModal = function() {
+      var modalEl = document.getElementById('toothModal');
+      if (modalEl) modalEl.style.display = 'none';
+    };
+
+    /* ── 2. FILTRADO DE RADIOGRAFÍAS POR CUADRANTE ───────────────────── */
+    window.filterRads = function(quad) {
+      document.querySelectorAll('.rad-filter-btn').forEach(function(btn) {
+        btn.classList.toggle('active', btn.getAttribute('data-filter') === quad);
+      });
+      document.querySelectorAll('#radsGrid .rad-item').forEach(function(item) {
+        if (quad === 'ALL') {
+          item.style.display = 'block';
+        } else {
+          var quadsAttr = item.getAttribute('data-quads') || '';
+          item.style.display = (quadsAttr.indexOf(quad) !== -1) ? 'block' : 'none';
+        }
+      });
+    };
+
+    /* ── 3. MODAL RADIOGRAFÍA COMPLEMENTARIA (ZOOM / LIGHTBOX) ────────── */
+    window.openModal = function(src, caption) {
+      var m = document.getElementById('imgModal');
+      var i = document.getElementById('modalImg');
+      var c = document.getElementById('modalCaption');
+      if (m && i) {
+        i.src = src;
+        if (c) c.innerText = caption || 'Estudio Radiográfico Adjunto';
+        m.style.display = 'flex';
+      }
+    };
+    window.closeImgModal = function() {
+      var m = document.getElementById('imgModal');
+      if (m) m.style.display = 'none';
+    };
+
+    /* ── 4. EXPORTAR PDF Y COMPARTIR ─────────────────────────────────── */
+    async function generatePDFBlob() {
+      var el = document.querySelector('.page-wrapper');
+      var hide = document.querySelectorAll('.no-print');
+      hide.forEach(function(n) { n.style.display = 'none'; });
+      var opt = {
+        margin: [8, 8, 8, 8],
+        filename: 'Expediente_Firmado_' + patientNameClean + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      var blob = null;
+      try {
+        if (typeof html2pdf !== 'undefined')
+          blob = await html2pdf().set(opt).from(el).output('blob');
+      } catch(e) { console.error(e); }
+      finally { hide.forEach(function(n) { n.style.display = ''; }); }
+      return blob;
+    }
+
+    window.shareOrDownloadPDF = async function() {
+      var btn = (event && event.currentTarget) ? event.currentTarget : null;
+      var orig = btn ? btn.innerHTML : '';
+      if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Generando PDF...'; }
+      try {
+        var blob = await generatePDFBlob();
+        if (!blob) { window.print(); return; }
+        var fname = 'Expediente_Firmado_' + patientNameClean + '.pdf';
+        var file  = new File([blob], fname, { type: 'application/pdf' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'Expediente Clínico — ' + folderNameStr });
+        } else {
+          var u = URL.createObjectURL(blob); var a = document.createElement('a');
+          a.href = u; a.download = fname; a.click();
+          setTimeout(function() { URL.revokeObjectURL(u); }, 2500);
+          alert('✅ PDF firmado generado correctamente. Puedes compartirlo desde tu carpeta de Descargas.');
+        }
+      } catch(e) { if (e && e.name !== 'AbortError') { console.error(e); window.print(); } }
+      finally { if (btn) { btn.disabled = false; btn.innerHTML = orig; } }
+    };
+
+    window.shareViaWhatsApp = async function() {
+      var blob = await generatePDFBlob();
+      if (blob) {
+        var u = URL.createObjectURL(blob); var a = document.createElement('a');
+        a.href = u; a.download = 'Expediente_Firmado_' + patientNameClean + '.pdf'; a.click();
+        setTimeout(function() { URL.revokeObjectURL(u); }, 2500);
+      }
+      window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('Hola, envío Expediente Clínico Firmado de ' + folderNameStr + ' (Plataforma Dentaxy).'), '_blank');
+    };
+
+    /* ── 5. FIRMA AUTÓGRAFA — Canvas Robusto (PC Mouse / Mobile Touch / Pen) ── */
+    (function() {
+      var canvas, ctx, wrap;
+      var isDrawing = false;
+      var hasDrawn  = false;
+      var eventsAttached = false;
+
+      function setupCanvas() {
+        canvas = document.getElementById('sigCanvas');
+        wrap   = document.getElementById('sigCanvasWrap');
+        if (!canvas || !wrap) return;
+
+        var dpr = window.devicePixelRatio || 1;
+        var rect = wrap.getBoundingClientRect();
+        var w = rect.width || 300;
+        var h = 200;
+
+        wrap.style.height = h + 'px';
+
+        canvas.width  = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        canvas.style.width  = '100%';
+        canvas.style.height = h + 'px';
+
+        ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        ctx.strokeStyle = '#0F172A';
+        ctx.lineWidth   = 3.5;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+
+        attachEvents();
+      }
+
+      function getXY(e) {
+        var rect = canvas.getBoundingClientRect();
+        var clientX = 0, clientY = 0;
+
+        if (e.touches && e.touches.length > 0) {
+          clientX = e.touches[0].clientX;
+          clientY = e.touches[0].clientY;
+        } else if (e.changedTouches && e.changedTouches.length > 0) {
+          clientX = e.changedTouches[0].clientX;
+          clientY = e.changedTouches[0].clientY;
+        } else if (e.clientX !== undefined) {
+          clientX = e.clientX;
+          clientY = e.clientY;
+        }
+
+        return {
+          x: clientX - rect.left,
+          y: clientY - rect.top
+        };
+      }
+
+      function onStart(e) {
+        if (!canvas || !ctx) return;
+        e.preventDefault();
+        isDrawing = true;
+        hasDrawn  = true;
+
+        var ph = document.getElementById('sigPlaceholder');
+        if (ph) ph.style.opacity = '0';
+
+        var p = getXY(e);
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+      }
+
+      function onMove(e) {
+        if (!isDrawing || !ctx) return;
+        e.preventDefault();
+
+        var p = getXY(e);
+        ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+      }
+
+      function onEnd(e) {
+        if (isDrawing && ctx) {
+          isDrawing = false;
+          ctx.closePath();
+        }
+      }
+
+      function attachEvents() {
+        if (!canvas || eventsAttached) return;
+        eventsAttached = true;
+
+        var opts = { passive: false };
+
+        if (window.PointerEvent) {
+          canvas.addEventListener('pointerdown', onStart, opts);
+          canvas.addEventListener('pointermove', onMove, opts);
+          window.addEventListener('pointerup', onEnd);
+          window.addEventListener('pointercancel', onEnd);
+        } else {
+          canvas.addEventListener('mousedown', onStart, opts);
+          canvas.addEventListener('mousemove', onMove, opts);
+          window.addEventListener('mouseup', onEnd);
+
+          canvas.addEventListener('touchstart', onStart, opts);
+          canvas.addEventListener('touchmove', onMove, opts);
+          window.addEventListener('touchend', onEnd);
+          window.addEventListener('touchcancel', onEnd);
+        }
+      }
+
+      // Listener para Limpiar firma
+      document.addEventListener('click', function(e) {
+        var btnClear = e.target && e.target.closest ? e.target.closest('#btnClear') : null;
+        if (btnClear) {
+          if (!canvas || !ctx || !wrap) return;
+          var rect = wrap.getBoundingClientRect();
+          var w = rect.width || 300;
+          var h = 200;
+          ctx.clearRect(0, 0, w, h);
+          hasDrawn = false;
+          ctx.beginPath();
+          ctx.strokeStyle = '#0F172A';
+          ctx.lineWidth   = 3.5;
+          ctx.lineCap     = 'round';
+          ctx.lineJoin    = 'round';
+          var ph = document.getElementById('sigPlaceholder');
+          if (ph) ph.style.opacity = '0.5';
+        }
+      });
+
+      // Listener para Guardar y Sellar firma
+      document.addEventListener('click', function(e) {
+        var btnSave = e.target && e.target.closest ? e.target.closest('#btnSave') : null;
+        if (btnSave) {
+          var nameEl = document.getElementById('sigName');
+          var idEl   = document.getElementById('sigId');
+          var name   = nameEl ? nameEl.value.trim() : '';
+          var idS    = idEl   ? idEl.value.trim()   : '';
+          if (!name)    { alert('Por favor, ingrese su nombre completo antes de sellar.'); return; }
+          if (!hasDrawn){ alert('Por favor, dibuje su firma en el recuadro antes de guardar.'); return; }
+
+          var sig = canvas.toDataURL('image/png');
+          var sc  = document.getElementById('signatureContainer');
+          if (sc) sc.style.display = 'none';
+
+          var li  = document.getElementById('lockedSigImg');  if (li)  li.src = sig;
+          var ln  = document.getElementById('lockedSigName'); if (ln)  ln.innerText = name;
+          var lid = document.getElementById('lockedSigId');   if (lid) lid.innerText = idS ? 'Identificación / DNI: ' + idS : '';
+          var ld  = document.getElementById('lockedSigDate'); if (ld)  ld.innerText = 'Fecha de Firma: ' + new Date().toLocaleString('es-MX');
+
+          var lb  = document.getElementById('lockedSignature');
+          if (lb) {
+            lb.style.display = 'block';
+            lb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+
+      setupCanvas();
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupCanvas);
+      }
+      setTimeout(setupCanvas, 100);
+      setTimeout(setupCanvas, 500);
+      window.addEventListener('resize', setupCanvas);
+    }());
+  </script>
+</body>
+</html>

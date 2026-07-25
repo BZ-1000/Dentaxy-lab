@@ -36,6 +36,7 @@ export type ToothState =
   | 'MIG'  // Migración
   | 'RR'   // Remanente Radicular
   | 'RT'   // Restauración Temporal
+  | 'OF'   // Obturación Filtrada (restauración con filtración marginal)
   | 'SI'   // Semi-impactación
   | 'SN'   // Supernumerario
   | 'TR'   // Transposición
@@ -155,6 +156,7 @@ export const TOOTH_COLORS: Record<ToothState, string> = {
   MIG: AZUL_NORMA,       // Migración — flecha horizontal AZUL (norma 1.22)
   RR:  ROJO_NORMA,       // Remanente radicular — 'RR' en ROJO (norma 1.27)
   RT:  ROJO_NORMA,       // Restauración temporal — contorno ROJO (norma 1.29)
+  OF:  '#A52A2A',        // Obturación filtrada — Café rojizo (más rojizo)
   SI:  AZUL_NORMA,       // Semi-impactación — 'SI' en AZUL (norma 1.30)
   SN:  AZUL_NORMA,       // Supernumerario — 'S' en círculo AZUL (norma 1.31)
   TR:  AZUL_NORMA,       // Transposición — flechas cruzadas AZULES (norma 1.32)
@@ -192,6 +194,7 @@ export const TOOTH_STATE_LABELS: Record<ToothState, string> = {
   MIG: 'Migración',
   RR:  'Remanente Radicular',
   RT:  'Rest. Temporal',
+  OF:  'Obturación Filtrada',
   SI:  'Semi-impactación',
   SN:  'Supernumerario',
   TR:  'Transposición',
@@ -208,7 +211,7 @@ export const TOOTH_STATE_SHORT: Record<ToothState, string> = {
   AOF: 'AOF', AOR: 'AOR', DES: 'DES', DIA: 'DIA', DIS: 'DIS',
   ECT: 'E', CLV: 'CLV', EXT: 'EXT', INT: 'INT', GF: 'GF',
   GV: 'GV', MIG: 'MIG', RR: 'RR', RT: 'RT', SI: 'SI',
-  SN: 'SN', TR: 'TR', PC: 'PC', PP: 'PP',
+  SN: 'SN', TR: 'TR', PC: 'PC', PP: 'PP', OF: 'OF',
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -234,7 +237,7 @@ export const isUpperArch = (id: number): boolean => {
 
 /** Estados que requieren selección de superficies */
 export const stateRequiresSurface = (state: ToothState): boolean =>
-  state === 'C' || state === 'O' || state === 'SE' || state === 'RT';
+  state === 'C' || state === 'O' || state === 'SE' || state === 'RT' || state === 'OF';
 
 /** Estados que aplican a todo el diente */
 export const stateIsWholeTooth = (state: ToothState): boolean =>
@@ -244,7 +247,7 @@ export const stateIsWholeTooth = (state: ToothState): boolean =>
 // Clasificación por categoría (para tabs del panel)
 // ─────────────────────────────────────────────────────────────────────────────
 export const STATE_GROUPS = {
-  basicos:      ['S', 'C', 'O', 'RT', 'A', 'EI', 'F', 'MOV'] as ToothState[],
+  basicos:      ['S', 'C', 'O', 'OF', 'RT', 'A', 'EI', 'F', 'MOV'] as ToothState[],
   tratamientos: ['E', 'PC', 'PP', 'CR', 'PU', 'IM', 'SE'] as ToothState[],
   ortodoncia:   ['AOF', 'AOR', 'DIA', 'GV', 'TR', 'GF', 'EXT', 'INT', 'MIG'] as ToothState[],
   anomalias:    ['DES', 'DIS', 'ECT', 'CLV', 'RR', 'SI', 'SN'] as ToothState[],

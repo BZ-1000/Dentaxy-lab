@@ -6,13 +6,15 @@ interface SeedCarouselProps {
   onOpenAddPatient?: () => void;
   onActivePatientChange?: (patient: any) => void;
   onPatientsLoad?: (patients: any[]) => void;
+  isExpedienteOpen?: boolean;
 }
 
 export default function SeedCarousel({ 
   onOpenFolder, 
   onOpenAddPatient, 
   onActivePatientChange,
-  onPatientsLoad 
+  onPatientsLoad,
+  isExpedienteOpen = false
 }: SeedCarouselProps) {
   const onPatientsLoadRef = useRef(onPatientsLoad);
   
@@ -35,6 +37,17 @@ export default function SeedCarousel({
   const patientsRef = useRef<any[]>([]);
   useEffect(() => {
     patientsRef.current = patients;
+  }, [patients]);
+
+  // Sincronizar pacientes con sessionStorage para Dex
+  useEffect(() => {
+    if (patients && patients.length > 0) {
+      const simplified = patients.map(p => ({
+        id: p.id,
+        name: p.name
+      }));
+      sessionStorage.setItem('dentaxy_patients_list', JSON.stringify(simplified));
+    }
   }, [patients]);
   
   const [isLoading, setIsLoading] = useState(true);
@@ -286,6 +299,8 @@ export default function SeedCarousel({
                 pointerEvents: Math.abs(currentDiff) > 4 ? 'none' : 'auto'
               }}
             >
+
+
               {/* Capa Trasera */}
               <div
                 className="absolute inset-0 seed-folder-back drop-shadow-md"

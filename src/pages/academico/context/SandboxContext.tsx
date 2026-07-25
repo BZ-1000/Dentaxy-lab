@@ -58,6 +58,17 @@ export const UaoSandboxProvider: React.FC<{ children: ReactNode }> = ({ children
   const [records, setRecords] = useState<SandboxRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Sincronizar pacientes con sessionStorage para Dex
+  useEffect(() => {
+    if (patients && patients.length > 0) {
+      const simplified = patients.map(p => ({
+        id: p.id,
+        name: p.nombre
+      }));
+      sessionStorage.setItem('dentaxy_patients_list', JSON.stringify(simplified));
+    }
+  }, [patients]);
+
   // Intentamos obtener el UUID real del demo_link si venía de un token (Supabase).
   // Sino, usamos 'demo_local' como fallback preventivo para no reventar.
   const sessionTokenString = sessionStorage.getItem('demo_token') || 'demo_local';

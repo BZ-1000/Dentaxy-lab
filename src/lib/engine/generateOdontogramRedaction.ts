@@ -53,6 +53,7 @@ const STATE_LABELS: Record<ToothState, string> = {
   MIG: 'Migración',
   RR:  'Remanente Radicular',
   RT:  'Rest. Temporal',
+  OF:  'Obturación Filtrada',
   SI:  'Semi-impactación',
   SN:  'Supernumerario',
   TR:  'Transposición',
@@ -88,6 +89,7 @@ const STATE_COLORS: Record<ToothState, string> = {
   MIG: '#FF6D00',
   RR:  '#EA4335',
   RT:  '#EA4335',
+  OF:  '#A52A2A',  // Café rojizo (más rojizo) — obturación filtrada
   SI:  '#F9AB00',
   SN:  '#9C27B0',
   TR:  '#607D8B',
@@ -135,7 +137,7 @@ export const generateOdontogramText = (teeth: ToothData[]): string => {
   const activeTeeth = teeth.filter(t => t.state !== 'S');
 
   if (activeTeeth.length === 0) {
-    return 'Dentición permanente completa sin hallazgos patológicos aparentes al examen visual.';
+    return '<p style="margin: 0 0 12px; font-size: 14px; line-height: 1.6; color: #374151;">Dentición permanente completa sin hallazgos patológicos aparentes al examen visual.</p>';
   }
 
   const caries      = filterByState(teeth, 'C');
@@ -169,11 +171,10 @@ export const generateOdontogramText = (teeth: ToothData[]): string => {
   const aor         = filterByState(teeth, 'AOR');
   const transpos    = filterByState(teeth, 'TR');
 
-  const parts: string[] = [];
+  const paragraphs: string[] = [];
 
   if (caries.length > 0) {
     const n = caries.length;
-    // Agrupar por grado para texto más preciso
     const byGrade: Record<number, ToothData[]> = {};
     caries.forEach(t => {
       const g = t.cariesGrade ?? 2;
@@ -188,12 +189,43 @@ export const generateOdontogramText = (teeth: ToothData[]): string => {
     const gradeTexts = Object.entries(byGrade).map(([g, ts]) =>
       `${formatTeethList(ts)} — ${gradeLabels[Number(g)]}`
     );
-    parts.push(`Se detectan lesiones cariosas en ${n} órgano${n > 1 ? 's' : ''} dental${n > 1 ? 'es' : ''}: ${gradeTexts.join('; ')}.`);
+    paragraphs.push(`Se detectan lesiones cariosas activas en ${n} órgano${n > 1 ? 's' : ''} dental${n > 1 ? 'es' : ''}: ${gradeTexts.join('; ')}.`);
   }
 
   if (obturados.length > 0) {
     const n = obturados.length;
-    parts.push(`Se observan ${n} restauración${n > 1 ? 'es' : ''} previa${n > 1 ? 's' : ''} en: ${formatTeethList(obturados)}.`);
+    const byMat: Record<string, ToothData[]> = {};
+    obturados.forEach(t => {
+      const mat = t.materialType ?? 'R';
+      byMat[mat] = [...(byMat[mat] ?? []), t];
+    });
+    const matLabels: Record<string, string> = {
+      AM: 'amalgama', R: 'resina compuesta', IV: 'ionómero de vidrio',
+      IM: 'incrustación metálica', IE: 'incrustación estética',
+    };
+    const matTexts = Object.entries(byMat).map(([mat, ts]) =>
+      `${formatTeethList(ts)} (${matLabels[mat] ?? mat})`
+    );
+    paragraphs.push(`Se observan ${n} restauración${n > 1 ? 'es' : ''} previa${n > 1 ? 's' : ''} aparentemente íntegra${n > 1 ? 's' : ''} en: ${matTexts.join('; ')}.`);
+  }
+
+  // Obturaciones filtradas
+  const filtradas = filterByState(teeth, 'OF');
+  if (filtradas.length > 0) {
+    const n = filtradas.length;
+    const byMat: Record<string, ToothData[]> = {};
+    filtradas.forEach(t => {
+      const mat = t.materialType ?? 'R';
+      byMat[mat] = [...(byMat[mat] ?? []), t];
+    });
+    const matLabels: Record<string, string> = {
+      AM: 'amalgama', R: 'resina compuesta', IV: 'ionómero de vidrio',
+      IM: 'incrustación metálica', IE: 'incrustación estética',
+    };
+    const matTexts = Object.entries(byMat).map(([mat, ts]) =>
+      `${formatTeethList(ts)} en ${matLabels[mat] ?? mat}`
+    );
+    paragraphs.push(`Se detectan ${n} restauración${n > 1 ? 'es' : ''} con filtración marginal activa en: ${matTexts.join('; ')}. Requiere${n > 1 ? 'n' : ''} recambio inmediato.`);
   }
 
   if (ausentes.length > 0) {
@@ -203,36 +235,36 @@ export const generateOdontogramText = (teeth: ToothData[]): string => {
     if (upper.length > 0 && lower.length > 0) ausStr += ' Se advierte edentulismo parcial superior e inferior.';
     else if (upper.length > 0) ausStr += ' Se advierte edentulismo parcial superior.';
     else if (lower.length > 0) ausStr += ' Se advierte edentulismo parcial inferior.';
-    parts.push(ausStr);
+    paragraphs.push(ausStr);
   }
 
   if (endodoncias.length > 0) {
     const n = endodoncias.length;
-    parts.push(`Órgano${n > 1 ? 's' : ''} dental${n > 1 ? 'es' : ''} ${formatTeethList(endodoncias)} con tratamiento de conductos previo.`);
+    paragraphs.push(`Órgano${n > 1 ? 's' : ''} dental${n > 1 ? 'es' : ''} ${formatTeethList(endodoncias)} con tratamiento de conductos previo.`);
   }
 
   if (coronas.length > 0) {
-    parts.push(`Se registra${coronas.length > 1 ? 'n' : ''} corona${coronas.length > 1 ? 's' : ''} protésica${coronas.length > 1 ? 's' : ''} en: ${formatTeethList(coronas)}.`);
+    paragraphs.push(`Se registra${coronas.length > 1 ? 'n' : ''} corona${coronas.length > 1 ? 's' : ''} protésica${coronas.length > 1 ? 's' : ''} en: ${formatTeethList(coronas)}.`);
   }
 
   if (puentes.length > 0) {
-    parts.push(`Se identifican elementos de puente fijo en: ${formatTeethList(puentes)}.`);
+    paragraphs.push(`Se identifican elementos de puente fijo en: ${formatTeethList(puentes)}.`);
   }
 
   if (implantes.length > 0) {
-    parts.push(`Implante${implantes.length > 1 ? 's' : ''} dental${implantes.length > 1 ? 'es' : ''} en: ${formatTeethList(implantes)}.`);
+    paragraphs.push(`Implante${implantes.length > 1 ? 's' : ''} dental${implantes.length > 1 ? 'es' : ''} en: ${formatTeethList(implantes)}.`);
   }
 
   if (selladores.length > 0) {
-    parts.push(`Selladores de fosetas y fisuras en: ${formatTeethList(selladores)}.`);
+    paragraphs.push(`Selladores de fosetas y fisuras en: ${formatTeethList(selladores)}.`);
   }
 
   if (fracturas.length > 0) {
-    parts.push(`Se observa${fracturas.length > 1 ? 'n' : ''} fractura${fracturas.length > 1 ? 's' : ''} coronaria${fracturas.length > 1 ? 's' : ''} en: ${formatTeethList(fracturas)}.`);
+    paragraphs.push(`Se observa${fracturas.length > 1 ? 'n' : ''} fractura${fracturas.length > 1 ? 's' : ''} coronaria${fracturas.length > 1 ? 's' : ''} en: ${formatTeethList(fracturas)}.`);
   }
 
   if (ei.length > 0) {
-    parts.push(`Se indica extracción de: ${formatTeethList(ei)}.`);
+    paragraphs.push(`Se indica extracción de: ${formatTeethList(ei)}.`);
   }
 
   if (movilidad.length > 0) {
@@ -240,71 +272,73 @@ export const generateOdontogramText = (teeth: ToothData[]): string => {
       const grad = t.mobility ? ['I', 'II', 'III'][t.mobility - 1] : 'I';
       return `OD ${t.id} (grado ${grad})`;
     }).join(', ');
-    parts.push(`Se registra movilidad dental en: ${movStr}.`);
+    paragraphs.push(`Se registra movilidad dental en: ${movStr}.`);
   }
 
   // ── Estados nuevos norma técnica ────────────────────────────────────────────
   if (pulpect.length > 0) {
-    parts.push(`Pulpectomía registrada en: ${formatTeethList(pulpect)}.`);
+    paragraphs.push(`Pulpectomía registrada en: ${formatTeethList(pulpect)}.`);
   }
   if (pulpot.length > 0) {
-    parts.push(`Pulpotomía registrada en: ${formatTeethList(pulpot)}.`);
+    paragraphs.push(`Pulpotomía registrada en: ${formatTeethList(pulpot)}.`);
   }
   if (temporales.length > 0) {
-    parts.push(`Restauración${temporales.length > 1 ? 'es' : ''} temporal${temporales.length > 1 ? 'es' : ''} en: ${formatTeethList(temporales)}. Requiere tratamiento definitivo.`);
+    paragraphs.push(`Restauración${temporales.length > 1 ? 'es' : ''} temporal${temporales.length > 1 ? 'es' : ''} en: ${formatTeethList(temporales)}. Requiere tratamiento definitivo.`);
   }
   if (remanentes.length > 0) {
-    parts.push(`Remanente${remanentes.length > 1 ? 's' : ''} radicular${remanentes.length > 1 ? 'es' : ''} en: ${formatTeethList(remanentes)}. Se indica exodoncia.`);
+    paragraphs.push(`Remanente${remanentes.length > 1 ? 's' : ''} radicular${remanentes.length > 1 ? 'es' : ''} en: ${formatTeethList(remanentes)}. Se indica exodoncia.`);
   }
   if (semiImp.length > 0) {
-    parts.push(`Semi-impactación en: ${formatTeethList(semiImp)}. Se requiere valoración quirúrgica.`);
+    paragraphs.push(`Semi-impactación en: ${formatTeethList(semiImp)}. Se requiere valoración quirúrgica.`);
   }
   if (supern.length > 0) {
-    parts.push(`Diente${supern.length > 1 ? 's' : ''} supernumerario${supern.length > 1 ? 's' : ''} en: ${formatTeethList(supern)}.`);
+    paragraphs.push(`Diente${supern.length > 1 ? 's' : ''} supernumerario${supern.length > 1 ? 's' : ''} en: ${formatTeethList(supern)}.`);
   }
   if (desgaste.length > 0) {
-    parts.push(`Desgaste oclusal/incisal por atrición o abrasión en: ${formatTeethList(desgaste)}.`);
+    paragraphs.push(`Desgaste oclusal/incisal por atrición o abrasión en: ${formatTeethList(desgaste)}.`);
   }
   if (diastema.length > 0) {
-    parts.push(`Se observa diastema en: ${formatTeethList(diastema)}.`);
+    paragraphs.push(`Se observa diastema en: ${formatTeethList(diastema)}.`);
   }
   if (discrm.length > 0) {
-    parts.push(`Discromía dental en: ${formatTeethList(discrm)}.`);
+    paragraphs.push(`Discromía dental en: ${formatTeethList(discrm)}.`);
   }
   if (ectopico.length > 0) {
-    parts.push(`Diente${ectopico.length > 1 ? 's' : ''} ectópico${ectopico.length > 1 ? 's' : ''}: ${formatTeethList(ectopico)}.`);
+    paragraphs.push(`Diente${ectopico.length > 1 ? 's' : ''} ectópico${ectopico.length > 1 ? 's' : ''}: ${formatTeethList(ectopico)}.`);
   }
   if (clavija.length > 0) {
-    parts.push(`Diente${clavija.length > 1 ? 's' : ''} conoide${clavija.length > 1 ? 's' : ''} (en clavija) en: ${formatTeethList(clavija)}.`);
+    paragraphs.push(`Diente${clavija.length > 1 ? 's' : ''} conoide${clavija.length > 1 ? 's' : ''} (en clavija) en: ${formatTeethList(clavija)}.`);
   }
   if (extrusion.length > 0) {
-    parts.push(`Extrusión dentaria en: ${formatTeethList(extrusion)}.`);
+    paragraphs.push(`Extrusión dentaria en: ${formatTeethList(extrusion)}.`);
   }
   if (intrusion.length > 0) {
-    parts.push(`Intrusión dentaria en: ${formatTeethList(intrusion)}.`);
+    paragraphs.push(`Intrusión dentaria en: ${formatTeethList(intrusion)}.`);
   }
   if (gemin.length > 0) {
-    parts.push(`Geminación o fusión dentaria en: ${formatTeethList(gemin)}.`);
+    paragraphs.push(`Geminación o fusión dentaria en: ${formatTeethList(gemin)}.`);
   }
   if (girov.length > 0) {
-    parts.push(`Giroversión en: ${formatTeethList(girov)}.`);
+    paragraphs.push(`Giroversión en: ${formatTeethList(girov)}.`);
   }
   if (migr.length > 0) {
-    parts.push(`Migración dentaria patológica en: ${formatTeethList(migr)}.`);
+    paragraphs.push(`Migración dentaria patológica en: ${formatTeethList(migr)}.`);
   }
   if (transpos.length > 0) {
-    parts.push(`Transposición dentaria en: ${formatTeethList(transpos)}.`);
+    paragraphs.push(`Transposición dentaria en: ${formatTeethList(transpos)}.`);
   }
   if (aof.length > 0) {
-    parts.push(`Aparatología ortodóntica fija registrada en: ${formatTeethList(aof)}.`);
+    paragraphs.push(`Aparatología ortodóntica fija registrada en: ${formatTeethList(aof)}.`);
   }
   if (aor.length > 0) {
-    parts.push(`Aparatología ortodóntica removible en: ${formatTeethList(aor)}.`);
+    paragraphs.push(`Aparatología ortodóntica removible en: ${formatTeethList(aor)}.`);
   }
 
-  parts.push('El resto de la dentición se observa clínicamente dentro de parámetros normales.');
+  paragraphs.push('El resto de la dentición se observa clínicamente dentro de parámetros normales.');
 
-  return parts.join(' ');
+  return paragraphs
+    .map(p => `<p style="margin: 0 0 12px; font-size: 14px; line-height: 1.65; color: #374151;">${p}</p>`)
+    .join('');
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -408,6 +442,15 @@ export const generateDiagnosis = (teeth: ToothData[]): DiagnosisItem[] => {
   if (has('RT')) {
     diagnoses.push({ code: 'Z98.8', description: 'Restauración temporal presente — requiere tratamiento definitivo' });
   }
+  if (has('OF')) {
+    const ofTeeth = teeth.filter(t => t.state === 'OF');
+    const matLabels: Record<string, string> = {
+      AM: 'amalgama', R: 'resina compuesta', IV: 'ionómero de vidrio',
+      IM: 'incrustación metálica', IE: 'incrustación estética',
+    };
+    const mats = [...new Set(ofTeeth.map(t => t.materialType ?? 'R'))].map(m => matLabels[m] ?? m);
+    diagnoses.push({ code: 'K02.9', description: `Caries secundaria / filtración marginal en restauración de ${mats.join(', ')} — recambio indicado` });
+  }
   if (diagnoses.length === 0) {
     diagnoses.push({ code: '—', description: 'Dentición sin diagnósticos patológicos activos al examen clínico' });
   }
@@ -492,6 +535,21 @@ export const generateTreatmentPlan = (teeth: ToothData[]): TreatmentItem[] => {
       case 'RT':
         plan.push({ tooth: tooth.id, procedure: 'Sustitución de restauración temporal por definitiva', priority: 'Media', phase: 1, estimatedTime: '45 min' });
         break;
+      case 'OF': {
+        const matLabels: Record<string, string> = {
+          AM: 'amalgama', R: 'resina compuesta', IV: 'ionómero de vidrio',
+          IM: 'incrustación metálica', IE: 'incrustación estética',
+        };
+        const mat = matLabels[tooth.materialType ?? 'R'] ?? tooth.materialType ?? 'resina';
+        plan.push({
+          tooth: tooth.id,
+          procedure: `Recambio de obturación filtrada de ${mat} — examen de caries secundaria, preparación y restauración definitiva`,
+          priority: 'Alta',
+          phase: 1,
+          estimatedTime: '45-60 min',
+        });
+        break;
+      }
       case 'RR':
         plan.push({ tooth: tooth.id, procedure: 'Exodoncia de remanente radicular', priority: 'Alta', phase: 1, estimatedTime: '30 min' });
         break;
@@ -564,13 +622,13 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
     }).join(', ');
     return `
       <tr>
-        <td style="padding:5px 8px 5px 0;white-space:nowrap">
-          <span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:${color}">
-            <span style="width:7px;height:7px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block"></span>
+        <td style="padding:7px 12px 7px 0;white-space:nowrap">
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:${color}">
+            <span style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;display:inline-block"></span>
             ${label}
           </span>
         </td>
-        <td style="padding:5px 0;font-size:12px;color:#374151">${teethStr}</td>
+        <td style="padding:7px 0;font-size:14px;color:#374151;line-height:1.5">${teethStr}</td>
       </tr>`;
   }).join('');
 
@@ -580,31 +638,31 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
   const phase3 = plan.filter(p => p.phase === 3);
 
   const phaseColors = {
-    1: { bg: '#FEF2F2', border: '#EA4335', label: 'FASE I — Urgencia', color: '#EA4335' },
-    2: { bg: '#EFF6FF', border: '#1A73E8', label: 'FASE II — Rehabilitadora', color: '#1A73E8' },
-    3: { bg: '#F0FDF4', border: '#1D9E75', label: 'FASE III — Mantenimiento', color: '#1D9E75' },
+    1: { bg: '#FEF2F2', border: '#EA4335', label: 'FASE I — Urgencia / Control de infección', color: '#EA4335' },
+    2: { bg: '#EFF6FF', border: '#1A73E8', label: 'FASE II — Rehabilitadora y estética', color: '#1A73E8' },
+    3: { bg: '#F0FDF4', border: '#1D9E75', label: 'FASE III — Mantenimiento y prevención', color: '#1D9E75' },
   };
 
   const renderPhase = (items: TreatmentItem[], phaseNum: 1 | 2 | 3): string => {
     if (items.length === 0) return '';
     const { bg, border, label, color } = phaseColors[phaseNum];
     const rows = items.map(i => `
-      <tr>
-        <td style="padding:4px 8px;font-size:11px;color:#374151;font-weight:600">OD ${i.tooth}</td>
-        <td style="padding:4px 8px;font-size:11px;color:#374151">${i.procedure}</td>
-        <td style="padding:4px 8px;font-size:10px;color:${i.priority === 'Alta' ? '#EA4335' : i.priority === 'Media' ? '#F9AB00' : '#1D9E75'};font-weight:700">${i.priority}</td>
-        <td style="padding:4px 8px;font-size:10px;color:#555">${i.estimatedTime}</td>
+      <tr style="border-bottom:1px solid rgba(0,0,0,0.04)">
+        <td style="padding:10px 12px;font-size:13px;color:#1F2937;font-weight:600;white-space:nowrap">OD ${i.tooth}</td>
+        <td style="padding:10px 12px;font-size:13px;color:#374151;line-height:1.5">${i.procedure}</td>
+        <td style="padding:10px 12px;font-size:12px;color:${i.priority === 'Alta' ? '#EA4335' : i.priority === 'Media' ? '#D97706' : '#1D9E75'};font-weight:700">${i.priority}</td>
+        <td style="padding:10px 12px;font-size:12px;color:#4B5563;white-space:nowrap">${i.estimatedTime}</td>
       </tr>`).join('');
     return `
-      <div style="margin-bottom:10px;border-radius:8px;overflow:hidden;border-left:3px solid ${border};background:${bg}">
-        <div style="padding:6px 10px;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:${color}">${label}</div>
+      <div style="margin-bottom:18px;border-radius:12px;overflow:hidden;border-left:4px solid ${border};background:${bg};box-shadow:0 1px 3px rgba(0,0,0,0.03)">
+        <div style="padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${color}">${label}</div>
         <table style="width:100%;border-collapse:collapse">
           <thead>
             <tr style="background:rgba(0,0,0,0.03)">
-              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#555;text-align:left;font-weight:600">OD</th>
-              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#555;text-align:left;font-weight:600">Procedimiento</th>
-              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#555;text-align:left;font-weight:600">Prioridad</th>
-              <th style="padding:4px 8px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#555;text-align:left;font-weight:600">Tiempo</th>
+              <th style="padding:8px 12px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#4B5563;text-align:left;font-weight:700">OD</th>
+              <th style="padding:8px 12px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#4B5563;text-align:left;font-weight:700">Procedimiento</th>
+              <th style="padding:8px 12px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#4B5563;text-align:left;font-weight:700">Prioridad</th>
+              <th style="padding:8px 12px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#4B5563;text-align:left;font-weight:700">Tiempo Est.</th>
             </tr>
           </thead>
           <tbody>${rows}</tbody>
@@ -614,33 +672,35 @@ export const generateOdontogramHTML = (teeth: ToothData[]): string => {
 
   // ── Diagnóstico ────────────────────────────────────────────────────────────
   const diagRows = diagnoses.map(d => `
-    <tr>
-      <td style="padding:4px 0;font-size:11px;font-weight:700;color:#7B4FA8;white-space:nowrap;padding-right:12px">${d.code}</td>
-      <td style="padding:4px 0;font-size:12px;color:#374151">${d.description}</td>
+    <tr style="border-bottom:1px solid #F3F4F6">
+      <td style="padding:8px 12px 8px 0;font-size:13px;font-weight:700;color:#7B4FA8;white-space:nowrap">${d.code}</td>
+      <td style="padding:8px 0;font-size:14px;color:#374151;line-height:1.5">${d.description}</td>
     </tr>`).join('');
 
   // ── HTML final ─────────────────────────────────────────────────────────────
-  return `<div style="font-family:inherit">
+  return `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1F2937">
 
-  <div style="margin-bottom:16px;padding:14px 16px;border-radius:10px;background:#ffffff;border:1px solid #e5e7eb">
-    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;margin:0 0 10px">VII · ODONTOGRAMA</p>
+  <div style="margin-bottom:20px;padding:18px 20px;border-radius:12px;background:#ffffff;border:1px solid #E5E7EB;box-shadow:0 1px 3px rgba(0,0,0,0.02)">
+    <p style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6B7280;margin:0 0 14px">VII · HALLAZGOS Y REDACCIÓN DEL ODONTOGRAMA</p>
     ${activeStates.length > 0 ? `
-    <table style="width:100%;border-collapse:collapse;margin-bottom:10px">
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px">
       <tbody>${hallazgosRows}</tbody>
     </table>` : ''}
-    <p style="font-size:12px;color:#374151;line-height:1.7;margin:0;border-top:${activeStates.length > 0 ? '1px solid #f3f4f6' : 'none'};padding-top:${activeStates.length > 0 ? '10px' : '0'}">${clinicalText}</p>
+    <div style="border-top:${activeStates.length > 0 ? '1px solid #F3F4F6' : 'none'};padding-top:${activeStates.length > 0 ? '14px' : '0'}">
+      ${clinicalText}
+    </div>
   </div>
 
-  <div style="margin-bottom:16px;padding:14px 16px;border-radius:10px;background:#ffffff;border:1px solid #e5e7eb">
-    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;margin:0 0 10px">VIII · DIAGNÓSTICO PRESUNTIVO</p>
+  <div style="margin-bottom:20px;padding:18px 20px;border-radius:12px;background:#ffffff;border:1px solid #E5E7EB;box-shadow:0 1px 3px rgba(0,0,0,0.02)">
+    <p style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6B7280;margin:0 0 14px">VIII · DIAGNÓSTICO PRESUNTIVO (CIE-10)</p>
     <table style="width:100%;border-collapse:collapse">
       <tbody>${diagRows}</tbody>
     </table>
   </div>
 
   ${plan.length > 0 ? `
-  <div style="margin-bottom:16px;padding:14px 16px;border-radius:10px;background:#ffffff;border:1px solid #e5e7eb">
-    <p style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#555;margin:0 0 10px">IX · PLAN DE TRATAMIENTO</p>
+  <div style="margin-bottom:20px;padding:18px 20px;border-radius:12px;background:#ffffff;border:1px solid #E5E7EB;box-shadow:0 1px 3px rgba(0,0,0,0.02)">
+    <p style="font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#6B7280;margin:0 0 16px">IX · PLAN DE TRATAMIENTO Y SECUENCIA CLÍNICA</p>
     ${renderPhase(phase1, 1)}
     ${renderPhase(phase2, 2)}
     ${renderPhase(phase3, 3)}

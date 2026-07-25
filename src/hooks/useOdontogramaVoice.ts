@@ -18,10 +18,17 @@ const STATE_KEYWORDS: Record<string, ToothState> = {
   // Caries
   'caries': 'C', 'cavitado': 'C', 'cavidad': 'C', 'picado': 'C',
   'picadura': 'C', 'lesion cariosa': 'C', 'lesión cariosa': 'C',
-  // Obturado
+  // Obturado (íntegro)
   'obturado': 'O', 'obturacion': 'O', 'obturación': 'O',
   'restaurado': 'O', 'restauracion': 'O', 'restauración': 'O',
   'composite': 'O',
+  // Obturación Filtrada
+  'filtrada': 'OF', 'filtrado': 'OF',
+  'obturacion filtrada': 'OF', 'obturación filtrada': 'OF',
+  'restauracion filtrada': 'OF', 'restauración filtrada': 'OF',
+  'filtracion marginal': 'OF', 'filtración marginal': 'OF',
+  'obturacion con filtracion': 'OF', 'obturación con filtración': 'OF',
+  'caries secundaria': 'OF', 'caries recurrente': 'OF',
   // Ausente
   'ausente': 'A', 'extraido': 'A', 'extraído': 'A',
   'faltante': 'A', 'no esta': 'A', 'perdido': 'A',

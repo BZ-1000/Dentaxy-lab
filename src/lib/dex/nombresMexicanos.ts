@@ -75,7 +75,6 @@ export const PHONETIC_MAP: Record<string, string> = {
   "daniela":       "Daniela",
   "david":         "David",
   "diana":         "Diana",
-  "diana":         "Diana",
   "diego":         "Diego",
   "dolores":       "Dolores",
   // E

@@ -99,7 +99,7 @@ export const ToothPanel: React.FC<ToothPanelProps> = ({ tooth, onApply, onClose 
       selectedSurfaces,
       selectedState === 'MOV' ? mobility : undefined,
       selectedState === 'C' ? cariesGrade : undefined,
-      (selectedState === 'O' || selectedState === 'RT') ? materialType : undefined,
+      (selectedState === 'O' || selectedState === 'RT' || selectedState === 'OF') ? materialType : undefined,
       selectedState === 'CR' ? crownType : undefined,
     );
     onClose();
@@ -216,10 +216,12 @@ export const ToothPanel: React.FC<ToothPanelProps> = ({ tooth, onApply, onClose 
           </div>
         )}
 
-        {/* Tipo de material — solo O y RT */}
-        {(selectedState === 'O' || selectedState === 'RT') && (
+        {/* Tipo de material — O, RT y OF (Obturación Filtrada) */}
+        {(selectedState === 'O' || selectedState === 'RT' || selectedState === 'OF') && (
           <div className="mb-3 border-t border-gray-100 pt-3">
-            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-2">Material restaurador</p>
+            <p className="text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-2">
+              {selectedState === 'OF' ? 'Material de la restauración filtrada' : 'Material restaurador'}
+            </p>
             <div className="grid grid-cols-5 gap-1">
               {MATERIAL_TYPES.map(({ key, label, desc }) => (
                 <button

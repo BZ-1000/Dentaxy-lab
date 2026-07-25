@@ -7,7 +7,7 @@
  * · Dictado por voz con 12 comandos + superficies
  * · Sin botón de redacción — se dispara automáticamente
  */
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { FormDataState } from '../../types/historiaClinica';
 import { ToothBox, ToothFace, ToothState as BoxState } from './odontograma/ToothBox';
 // isUpper se pasa al ToothBox para determinar si imagen va arriba (superior) o abajo (inferior)
@@ -20,16 +20,17 @@ import {
 } from '@/types/odontograma';
 import { useOdontogramaVoice, ParsedVoiceCommand } from '@/hooks/useOdontogramaVoice';
 import { generateOdontogramHTML } from '@/lib/engine/generateOdontogramRedaction';
-import { Mic, MicOff } from 'lucide-react';
+import { Mic, MicOff, RotateCcw } from 'lucide-react';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Props
 // ─────────────────────────────────────────────────────────────────────────────
 interface OdontogramaProps {
-  formData: FormDataState;
+  formData?: FormDataState;
   handleOdontogramaChange: (state: Record<number, ToothData>) => void;
   onRedaccionGenerada?: (text: string) => void;
   onToggleViewMode?: () => void;
+  initialTeethState?: Record<number, any>;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -60,7 +61,7 @@ const CARIES_GRADE_COLORS: Record<1|2|3|4, string> = {
 };
 
 // Estados que usan colores de superficie (caras pintadas)
-const SURFACE_STATES = new Set(['C', 'O', 'SE', 'S']);
+const SURFACE_STATES = new Set(['C', 'O', 'OF', 'SE', 'S']);
 const OUTLINE_STATES = new Set(['RT']); // Contorno rojo sin relleno
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -198,6 +199,7 @@ const LEGEND: { state: ToothState; label: string; color: string }[] = [
   { state: 'F',   label: 'Fractura',         color: ROJO_N },
   { state: 'MOV', label: 'Movilidad',        color: AZUL_N },
   { state: 'RR',  label: 'Rem. Radicular',   color: ROJO_N },
+  { state: 'OF',  label: 'Obtur. Filtrada',   color: '#A52A2A' },
 ];
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -206,14 +208,22 @@ const LEGEND: { state: ToothState; label: string; color: string }[] = [
 export const Odontograma: React.FC<OdontogramaProps> = ({
   handleOdontogramaChange,
   onRedaccionGenerada,
+  initialTeethState,
 }) => {
   const [dentition, setDentition]           = useState<DentitionMode>('permanent');
   const [teeth, setTeeth]                   = useState<Record<number, ExtState>>(
-    () => initTeeth([...PERMANENT_TEETH_IDS, ...DECIDUOUS_TEETH_IDS])
+    () => initialTeethState || initTeeth([...PERMANENT_TEETH_IDS, ...DECIDUOUS_TEETH_IDS])
   );
   const [selectedId, setSelectedId]         = useState<number | null>(null);
   const [pendingToothId, setPendingToothId] = useState<number | null>(null);
   const [odontogramView, setOdontogramView] = useState<'images' | 'boxes'>('images');
+
+  // Sincronizar el estado de los dientes con el componente padre
+  useEffect(() => {
+    if (handleOdontogramaChange) {
+      handleOdontogramaChange(teeth as any);
+    }
+  }, [teeth, handleOdontogramaChange]);
 
   // ── Aplicar estado desde panel ────────────────────────────────────────────
   const applyPanel = useCallback((
@@ -253,7 +263,7 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
       next.center = '#FFF3E0';
     } else if (state === 'EI') {
       next.center = color; 
-    } else if (['C', 'O', 'SE'].includes(state)) {
+    } else if (['C', 'O', 'OF', 'SE'].includes(state)) {
       const active = Object.keys(surfaces).filter(k => surfaces[k]);
       if (active.length === 0) {
         next.center = color;
@@ -310,7 +320,7 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
     else if (cmd.state === 'IM') { next.top='#ECEFF1';next.bottom='#ECEFF1';next.left='#ECEFF1';next.right='#ECEFF1';next.center='#607D8B'; }
     else if (cmd.state === 'MOV') { next.center='#FFF3E0'; }
     else if (cmd.state === 'EI') { next.center=color; }
-    else if (['C','O','SE'].includes(cmd.state)) {
+    else if (['C','O','OF','SE'].includes(cmd.state)) {
       if (cmd.surfaces.length === 0) { next.center=color; }
       else { cmd.surfaces.forEach(s => { const f: ToothFace=(s==='O'||s==='I')?'center':(faceMap[s as keyof FaceMap]??'center'); (next as any)[f]=color; }); }
     }
@@ -342,6 +352,17 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
     onPendingTooth: setPendingToothId,
     preferredVoiceURI: selectedVoiceURI || undefined,
   });
+
+  // ── Limpiar odontograma completo ────────────────────────────────────────
+  const clearOdontograma = useCallback(() => {
+    const allIds = [...PERMANENT_TEETH_IDS, ...DECIDUOUS_TEETH_IDS];
+    const cleared = initTeeth(allIds);
+    setTeeth(cleared);
+    // Limpiar el documento del lado derecho también
+    if (onRedaccionGenerada) onRedaccionGenerada('');
+    // Notificar al padre
+    handleOdontogramaChange(cleared as any);
+  }, [onRedaccionGenerada, handleOdontogramaChange]);
 
   // ── Render de UN diente ────────────────────────────────────────────────────
   const renderTooth = (id: number) => {
@@ -734,18 +755,29 @@ export const Odontograma: React.FC<OdontogramaProps> = ({
           </button>
         </div>
 
-        {/* Botón de voz */}
-        <button
-          type="button"
-          onClick={handleVoiceButtonClick}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all shadow-sm ${
-            isListening
-              ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-white border-transparent shadow-emerald-500/20'
-              : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-          }`}
-        >
-          {isListening ? <><MicOff size={11} className="animate-pulse" /> Detener Asistente</> : <><Mic size={11} className="text-emerald-500" /> DentaXy Voice</>}
-        </button>
+        {/* Acciones de voz y reset */}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={clearOdontograma}
+            title="Limpiar Odontograma"
+            className="p-1.5 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 border border-gray-200 bg-white transition-all shadow-sm"
+          >
+            <RotateCcw size={12} />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleVoiceButtonClick}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-semibold transition-all shadow-sm ${
+              isListening
+                ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-white border-transparent shadow-emerald-500/20'
+                : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            {isListening ? <><MicOff size={11} className="animate-pulse" /> Detener Asistente</> : <><Mic size={11} className="text-emerald-500" /> DentaXy Voice</>}
+          </button>
+        </div>
       </div>
 
       {showVoiceModal && (

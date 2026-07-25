@@ -191,83 +191,115 @@ export function AppleStyleDock({
 
   return (
     <>
-      {/* Dock adherido a la base de la card, mismo ancho máximo */}
+    <>
+      {/* Dock vertical flotante a la izquierda, solo iconos, más alto que ancho */}
       <div className={cn(
-        position === 'absolute' ? 'absolute' : 'fixed',
-        'bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 z-[100000]',
-        'w-full max-w-[min(600px,calc(100vw-32px))]',
-        'px-0'
+        'fixed left-4 top-1/2 -translate-y-1/2 z-[100000]',
+        'w-14 py-5 rounded-full flex flex-col items-center gap-4.5',
+        'glass-deep border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.3)] animate-in fade-in slide-in-from-left-8 duration-500'
       )}>
-        <div className="flex items-stretch bg-white/95 dark:bg-zinc-950/95 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.12)] rounded-2xl border border-zinc-200/70 dark:border-zinc-800/70 overflow-hidden">
+        
+        {/* Botón Inicio */}
+        <button
+          onClick={() => handleItemClick('Inicio')}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer active:scale-90"
+          title="Inicio"
+        >
+          <HomeIcon size={16} />
+        </button>
 
-          {/* Textarea libre estilo Dex — ocupa todo el espacio disponible */}
-          <div className="flex-1 flex items-center px-3.5 py-2.5">
-            <textarea
-              rows={1}
-              placeholder="Escribe una nota o instrucción para Dex..."
-              className="w-full resize-none bg-transparent border-none outline-none text-[12.5px] text-zinc-700 dark:text-zinc-200 placeholder-zinc-400 dark:placeholder-zinc-600 leading-snug overflow-hidden"
-              style={{ minHeight: '28px', maxHeight: '80px' }}
-              onInput={(e) => {
-                const el = e.currentTarget;
-                el.style.height = 'auto';
-                el.style.height = Math.min(el.scrollHeight, 80) + 'px';
-              }}
-            />
-          </div>
+        {/* Botón Limpiar Formulario */}
+        <button
+          onClick={() => handleItemClick('Limpiar Formulario')}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-all cursor-pointer active:scale-90"
+          title="Limpiar Formulario"
+        >
+          <Trash size={16} />
+        </button>
 
-          {/* Separador */}
-          <div className="w-px bg-zinc-200 dark:bg-zinc-800 my-2" />
+        {/* Separador */}
+        <div className="w-8 h-px bg-white/10 my-1" />
 
-          {/* Indicador de pasos — clickeable para ver lista */}
-          <div
-            onClick={() => setShowStepsDialog(true)}
-            className="flex flex-col justify-center items-center px-3 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
-          >
-            <span className="text-[9.5px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 whitespace-nowrap">
-              Paso {currentStep + 1} de {totalSteps}
-            </span>
-            <div className="w-14 h-1 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden mt-0.5">
-              <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                style={{ width: `${((currentStep + 1) / totalSteps) * 100}%` }}
-              />
-            </div>
-          </div>
-
-          {/* Botón Atrás */}
-          {onPrev && canGoPrev && (
-            <button
-              onClick={onPrev}
-              className="flex items-center justify-center w-10 h-full hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors border-l border-zinc-200 dark:border-zinc-800"
-            >
-              <ArrowLeft size={15} className="text-zinc-600 dark:text-zinc-300" />
-            </button>
+        {/* Botón Paso Anterior */}
+        <button
+          onClick={onPrev}
+          disabled={!canGoPrev}
+          className={cn(
+            "w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-90",
+            canGoPrev 
+              ? "text-zinc-300 hover:text-white hover:bg-white/10" 
+              : "text-zinc-600 opacity-40 cursor-not-allowed"
           )}
+          title="Paso Anterior"
+        >
+          <ArrowLeft size={16} />
+        </button>
 
-          {/* Botón Siguiente — verde esmeralda */}
-          {onNext && canGoNext && (
-            <button
-              onClick={() => {
-                if (onGenerate) onGenerate();
-                onNext();
-                if (!isMobile && onOpenFormularios) onOpenFormularios(true);
-                setRedaccionesState('loading');
-                setTimeout(() => {
-                  setRedaccionesState('success');
-                  setTimeout(() => setRedaccionesState('idle'), 2000);
-                }, 5000);
-              }}
-              className="flex items-center justify-center w-10 h-full rounded-r-2xl bg-[#0ecf8e] hover:bg-[#25dba0] transition-colors border-l border-[#0ecf8e]/20"
-            >
-              {isGenerating ? (
-                <Loader2 size={15} className="text-white animate-spin" />
-              ) : (
-                <ArrowRight size={15} className="text-white" />
-              )}
-            </button>
+        {/* Indicador de paso actual (Clicable para abrir diálogo) */}
+        <button
+          onClick={() => setShowStepsDialog(true)}
+          className="w-10 h-10 rounded-full flex flex-col items-center justify-center bg-white/5 border border-white/10 hover:bg-white/15 transition-all cursor-pointer text-white relative group"
+          title="Navegación Rápida"
+        >
+          <span className="text-[9px] font-bold tracking-tighter leading-none">{currentStep + 1}</span>
+          <span className="text-[7px] text-zinc-400 font-semibold leading-none scale-90 mt-0.5">/{totalSteps}</span>
+          
+          {/* Anillo de progreso alrededor */}
+          <div className="absolute inset-0 rounded-full border border-emerald-500/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+        </button>
+
+        {/* Botón Paso Siguiente */}
+        <button
+          onClick={() => {
+            if (onGenerate) onGenerate();
+            if (onNext) onNext();
+            if (!isMobile && onOpenFormularios) onOpenFormularios(true);
+            setRedaccionesState('loading');
+            setTimeout(() => {
+              setRedaccionesState('success');
+              setTimeout(() => setRedaccionesState('idle'), 2000);
+            }, 5000);
+          }}
+          disabled={!canGoNext}
+          className={cn(
+            "w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-90",
+            canGoNext 
+              ? "bg-emerald-500 hover:bg-emerald-450 text-white shadow-lg shadow-emerald-500/20" 
+              : "bg-zinc-800 text-zinc-600 opacity-40 cursor-not-allowed"
           )}
-        </div>
+          title="Siguiente Paso"
+        >
+          <ArrowRight size={16} />
+        </button>
+
+        {/* Separador */}
+        <div className="w-8 h-px bg-white/10 my-1" />
+
+        {/* Botón DentaxyGPT / Chat */}
+        <button
+          onClick={() => handleItemClick('DentaxyGPT')}
+          className="w-10 h-10 rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all cursor-pointer active:scale-90"
+          title="DentaxyGPT"
+        >
+          <Search size={16} />
+        </button>
+
+        {/* Botón Redacciones */}
+        <button
+          onClick={() => handleItemClick('Redacciones')}
+          className={cn(
+            "w-10 h-10 rounded-full flex items-center justify-center transition-all cursor-pointer active:scale-90",
+            redaccionesState === 'loading' ? 'animate-pulse' : ''
+          )}
+          title="Ver Redacciones"
+        >
+          <div className="w-4 h-4 flex items-center justify-center">
+            {getRedaccionesIcon()}
+          </div>
+        </button>
+
       </div>
+    </>
 
       <FloatingChatInput
         isOpen={showFloatingChat}

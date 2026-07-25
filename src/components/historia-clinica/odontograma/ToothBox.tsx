@@ -24,7 +24,7 @@ interface ToothBoxProps {
 }
 
 const IMAGE_SYMBOL_STATES = new Set(['A', 'X', 'CR', 'MC', 'P', 'I']);
-const SQUARE_STATES       = new Set(['C', 'O', 'SE', 'RT', 'S']);
+const SQUARE_STATES       = new Set(['C', 'O', 'SE', 'RT', 'OF', 'S']);
 
 const ROJO  = '#EF4444';
 const AZUL  = '#3B82F6';
@@ -66,7 +66,7 @@ interface FaceSquareProps {
 
 const FaceSquare: React.FC<FaceSquareProps> = ({ id, faceColors, clinicalState, onClickFace }) => {
   const [hover, setHover] = React.useState<ToothFace | null>(null);
-  const isOutline = clinicalState === 'RT';
+  const isOutline = clinicalState === 'RT' || clinicalState === 'OF';
 
   // Tono plateado-perla que coincide con el color natural de los dientes SVG
   const GLASS: Record<ToothFace, { base: string; lit: string }> = {
